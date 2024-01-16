@@ -1,6 +1,7 @@
 import {getANNFile, getIMGFile} from "./filesLoader";
 import {Engine} from "./engine";
 import * as PIXI from 'pixi.js';
+import {Scanner} from "./interpreter/parser";
 
 const main = async () => {
     const engine = new Engine();
@@ -36,7 +37,10 @@ const main = async () => {
         ufoSprite.x = ufo.annImages[0].positionX + eventFrame.positionX;
         ufoSprite.y = ufo.annImages[0].positionY + eventFrame.positionY;
         currentFrame = (currentFrame + 1) % ufo.events[0].frames.length;
-    })
+    });
+
+    const scanner = new Scanner('{THIS^PLAY("1");VARINTRO^SET(-1000);REKSIO^TEST_TH1S(TRUE);}');
+    console.log(scanner.scanTokens());
 }
 
 main();
