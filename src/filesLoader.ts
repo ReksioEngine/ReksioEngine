@@ -4,7 +4,6 @@ import {loadAnn} from "./fileFormats/ann";
 
 const ISOUrl = 'https://archive.org/download/reksio-i-ufo/2.%20Reksio%20i%20Ufo.iso/';
 
-const textDecoder = new TextDecoder("utf-8");
 let listing: Map<string, string> | null = null;
 
 // Windows case-insensitive filenames moment
@@ -47,8 +46,7 @@ export const getRawFile = async (filename: string) => {
 
 export const getCNVFile = async (filename: string)=> {
     const data = await getRawFile(filename);
-    const textEncrypted = textDecoder.decode(data);
-    const text = decryptCNV(textEncrypted);
+    const text = decryptCNV(data);
     return parseCNV(text);
 }
 

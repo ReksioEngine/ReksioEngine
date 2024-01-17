@@ -1,5 +1,8 @@
-const parseHeader = (content: string) => {
-    const match = /{<(?<direction>[cCdD]):(?<movement>\d+)>}\r\n/.exec(content);
+const textDecoder = new TextDecoder("utf-8");
+
+const parseHeader = (content: ArrayBuffer) => {
+    const contentText = textDecoder.decode(content);
+    const match = /{<(?<direction>[cCdD]):(?<movement>\d+)>}/.exec(contentText);
     if (match == null || match.groups === undefined) {
         throw new Error('Failed to parse encrypted file header');
     }
@@ -26,7 +29,7 @@ const calcShift = (step: number, movement: number) => {
     }
 }
 
-export const decryptCNV = (content: string): string => {
+export const decryptCNV = (content: ArrayBuffer): string => {
     const {
         length,
         direction,
@@ -34,22 +37,22 @@ export const decryptCNV = (content: string): string => {
     } = parseHeader(content);
 
     const directionMultiplier = (direction.toLowerCase() === 'd') ? -1 : 1;
-    const payload = content.substring(length);
+    const payload = new Uint8Array(content.slice(length));
 
     let output = '';
     let step = 0;
     let shift = 0;
 
-    for (let pos = 0; pos < payload.length; pos++) {
-        if (payload[pos] === '<' && payload[pos + 1] === 'E' && payload[pos + 2] === '>') {
+    for (let pos = 0; pos < payload.byteLength; pos++) {
+        if (payload[pos] === '<'.charCodeAt(0) && payload[pos + 1] === 'E'.charCodeAt(0) && payload[pos + 2] === '>'.charCodeAt(0)) {
             output += '\n';
             pos += 2;
-        } else if (payload[pos] !== '\r' && payload[pos] !== '\n') {
+        } else if (payload[pos] !== '\r'.charCodeAt(0) && payload[pos] !== '\n'.charCodeAt(0)) {
             const newShift = calcShift(step, movement);
             step = newShift.step;
             shift = newShift.shift;
 
-            output += String.fromCharCode(payload.charCodeAt(pos) + shift * directionMultiplier);
+            output += String.fromCharCode(payload[pos] + (shift * directionMultiplier) % 256);
         }
     }
 
