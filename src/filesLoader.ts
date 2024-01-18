@@ -47,6 +47,7 @@ export const getRawFile = async (filename: string) => {
 export const getCNVFile = async (filename: string)=> {
     const data = await getRawFile(filename);
     const text = decryptCNV(data);
+    console.log(text)
     return parseCNV(text);
 }
 

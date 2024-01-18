@@ -1,7 +1,7 @@
 import {getANNFile, getIMGFile} from "./filesLoader";
 import {Engine} from "./engine";
 import * as PIXI from 'pixi.js';
-import {Scanner} from "./interpreter/parser";
+import {runScript} from "./interpreter/evaluator";
 
 const main = async () => {
     const engine = new Engine();
@@ -39,8 +39,17 @@ const main = async () => {
         currentFrame = (currentFrame + 1) % ufo.events[0].frames.length;
     });
 
-    const scanner = new Scanner('THIS^PLAY("1");VARINTRO^SET(-1000);REKSIO^TEST_TH1S(TRUE);');
-    console.log(scanner.scanTokens());
+    const scope = {
+        'B': 10,
+        'C': 1,
+        'THIS': {
+            'PLAY': (arg1: any, arg2: string) => console.log(arg1, arg2)
+        },
+        'TEST': {
+            'DUPA': () => 1234
+        }
+    };
+    runScript(scope, 'THIS^PLAY([TEST^DUPA()+B+C],"test");');
 }
 
 main();
