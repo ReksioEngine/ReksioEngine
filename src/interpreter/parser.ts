@@ -1,6 +1,6 @@
 enum TokenType {
     // Single character
-    CARET, LEFT_PAREN, RIGHT_PAREN, SEMICOLON, LEFT_BRACE, RIGHT_BRACE, COMMA,
+    CARET, LEFT_PAREN, RIGHT_PAREN, SEMICOLON, COMMA,
 
     // Literals
     IDENTIFIER, STRING, NUMBER,
@@ -71,8 +71,6 @@ export class Scanner {
             case '(': this.addToken(TokenType.LEFT_PAREN); break;
             case ')': this.addToken(TokenType.RIGHT_PAREN); break;
             case ';': this.addToken(TokenType.SEMICOLON); break;
-            case '{': this.addToken(TokenType.LEFT_BRACE); break;
-            case '}': this.addToken(TokenType.RIGHT_BRACE); break;
             case ' ': break;
             case '"': this.scanString(); break;
             default:

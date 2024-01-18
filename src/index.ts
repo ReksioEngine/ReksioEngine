@@ -39,7 +39,7 @@ const main = async () => {
         currentFrame = (currentFrame + 1) % ufo.events[0].frames.length;
     });
 
-    const scanner = new Scanner('{THIS^PLAY("1");VARINTRO^SET(-1000);REKSIO^TEST_TH1S(TRUE);}');
+    const scanner = new Scanner('THIS^PLAY("1");VARINTRO^SET(-1000);REKSIO^TEST_TH1S(TRUE);');
     console.log(scanner.scanTokens());
 }
 
