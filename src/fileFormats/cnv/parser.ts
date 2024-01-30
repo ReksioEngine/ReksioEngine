@@ -26,12 +26,15 @@ export const parseCNV = (content: string) => {
         if (key === 'OBJECT') {
             objects[value] = {};
         } else {
-            const [objectName, variable] = splitOnce(key, ':');
+            let [objectName, variablePart] = splitOnce(key, ':');
+            objectName = objectName.replace('/\?/g', '_');
 
-            if ('TYPE' in objects[objectName] && objects[objectName]['TYPE'] in structureDefinitions && variable in structureDefinitions[objects[objectName]['TYPE']]) {
-                objects[objectName][variable] = structureDefinitions[objects[objectName]['TYPE']][variable](value);
+            const [variableName, param] = variablePart.split('^');
+
+            if ('TYPE' in objects[objectName] && objects[objectName]['TYPE'] in structureDefinitions && variableName in structureDefinitions[objects[objectName]['TYPE']]) {
+                structureDefinitions[objects[objectName]['TYPE']][variableName](objects[objectName], variableName, param, value);
             } else {
-                objects[objectName][variable] = value;
+                objects[objectName][variableName] = value;
             }
         }
     }
