@@ -4,32 +4,52 @@ grammar ReksioLang;
 TRUE : 'TRUE';
 FALSE: 'FALSE';
 
-expr : STRING | NUMBER | TRUE | FALSE | variable | methodCall | operationGrouping;
+expr :
+    STRING
+    | negativeNumber
+    | NUMBER
+    | TRUE | FALSE
+    | IDENTIFIER
+    | specialCall
+    | methodCall
+    | operationGrouping;
 
-statement: expr;
-statementList: (statement ';')* EOF;
+statement: | expr;
+statementList: (statement STATEMENT_END)* EOF;
 
-methodCall: variable '^' methodName '(' methodCallArguments? ')';
+methodCall: objectName METHOD_CALL_SYMBOL methodName '(' methodCallArguments? ')';
+objectName: IDENTIFIER;
 methodName: IDENTIFIER;
 methodCallArguments: expr (',' expr)*;
 
-operationGrouping: '[' operation ']';
+specialCall: '@' methodName '(' methodCallArguments? ')';
 
+operationGrouping: '[' operation ']';
 operation
-  : expr
-  | left=operation operator=PLUS right=operation
-  | left=operation operator=MINUS right=operation
+  : left=operation operator=ADD right=operation
+  | left=operation operator=SUB right=operation
+  | left=operation operator=MUL right=operation
+  | left=operation operator=MOD right=operation
+  | left=operation operator=DIV right=operation
+  | expr
   ;
 
-variable: IDENTIFIER | CALLER_ARGUMENT;
+// Separate from NUMBER because of a problem with detecting negative number vs subtraction
+negativeNumber: '-' NUMBER;
 
 // Literals
-IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
-NUMBER: '-'?[0-9]+;
-CALLER_ARGUMENT: '$' [0-9]+;
-STRING: '"' .*? '"';
+IDENTIFIER: [a-zA-Z0-9_$]*[a-zA-Z_?$]+[a-zA-Z0-9_$]*;
+NUMBER: [0-9]+ ('.' [0-9]+)? ;
+STRING: ('""' ~["]* '""' | '"' ~[",]* '"'?);
 
-PLUS: '+';
-MINUS: '-';
+ADD: '+';
+SUB: '-';
+MUL: '*';
+MOD: '%';
+DIV: '@';
+
+// Inconsistency
+METHOD_CALL_SYMBOL: [^>];
+STATEMENT_END: [;:];
 
 WHITESPACE: [ \t\u000C\r\n]+ -> skip;

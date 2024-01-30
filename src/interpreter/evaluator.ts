@@ -2,12 +2,13 @@ import ReksioLangVisitor from "./ReksioLangVisitor";
 import ReksioLangParser, {
     ExprContext,
     MethodCallArgumentsContext,
-    MethodCallContext, OperationContext, OperationGroupingContext,
+    MethodCallContext, ObjectNameContext, OperationContext, OperationGroupingContext, SpecialCallContext,
     StatementContext,
-    StatementListContext, VariableContext
+    StatementListContext
 } from "./ReksioLangParser";
 import ReksioLangLexer from "./ReksioLangLexer";
 import antlr4, {ParserRuleContext} from "antlr4";
+import {Type} from "../engine/types";
 
 class ExecutionError extends Error {
     constructor(ctx: ParserRuleContext, msg: string) {
@@ -17,10 +18,12 @@ class ExecutionError extends Error {
 
 export class ScriptEvaluator extends ReksioLangVisitor<any> {
     private readonly scope: Record<string, any>;
+    private readonly objectContext: Type | null;
 
-    constructor(scope: Record<string, any>) {
+    constructor(objectContext: Type | null, scope: Record<string, any>) {
         super();
         this.scope = scope;
+        this.objectContext = objectContext;
     }
 
     visitStatementList = (ctx: StatementListContext): any => {
@@ -39,33 +42,41 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         } else if (ctx.FALSE() != null) {
             return false;
         } else if (ctx.NUMBER() != null) {
-            return parseInt(ctx.NUMBER().getText());
+            return Number(ctx.NUMBER().getText());
+        } else if (ctx.negativeNumber() != null) {
+            return Number(ctx.negativeNumber().getText());
         } else if (ctx.STRING() != null) {
-            return ctx.STRING().getText().substring(1, ctx.STRING().getText().length - 1);
+            return ctx.STRING().getText().replace(/^"|"$/g, '');
         }
 
         return this.visitChildren(ctx)[0];
     }
 
     visitMethodCall = (ctx: MethodCallContext): any => {
-        const objectName = ctx.variable().getText();
-        const object = this.visitVariable(ctx.variable());
+        const object = this.visitObjectName(ctx.objectName());
 
         const methodName = ctx.methodName().getText();
         const method = object[methodName];
         if (method == undefined) {
-            throw new ExecutionError(ctx, `Unknown method '${objectName}^${methodName}'`);
+            throw new ExecutionError(ctx, `Unknown method ${ctx.getText()}`);
         }
 
         const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : [];
-        return method(...args);
+        return method.bind(object)(...args);
+    }
+
+    visitSpecialCall = (ctx: SpecialCallContext): any => {
+        const methodName = ctx.methodName().getText();
+        const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : [];
+
+        this.scope['_'][methodName].apply([this.objectContext, ...args]);
     }
 
     visitMethodCallArguments = (ctx: MethodCallArgumentsContext): any => {
         return ctx.expr_list().map(expr => this.visitExpr(expr));
     }
 
-    visitVariable = (ctx: VariableContext): any => {
+    visitObjectName = (ctx: ObjectNameContext): any => {
         if (!this.scope.hasOwnProperty(ctx.getText())) {
             throw new ExecutionError(ctx, `Unknown identifier '${ctx.getText()}'`);
         }
@@ -85,18 +96,24 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         const left = this.visitOperation(ctx._left);
         const right = this.visitOperation(ctx._right);
 
-        if (ctx._operator.type == ReksioLangParser.PLUS) {
+        if (ctx._operator.type == ReksioLangParser.ADD) {
             return left + right;
-        } else if (ctx._operator.type == ReksioLangParser.MINUS) {
+        } else if (ctx._operator.type == ReksioLangParser.SUB) {
             return left - right;
+        } else if (ctx._operator.type == ReksioLangParser.MUL) {
+            return left * right;
+        } else if (ctx._operator.type == ReksioLangParser.MOD) {
+            return left % right;
+        } else if (ctx._operator.type == ReksioLangParser.DIV) {
+            return left / right;
         }
     }
 }
 
-export const runScript = (scope: object, script: string) => {
+export const runScript = (objectContext: Type | null, scope: object, script: string) => {
     const lexer = new ReksioLangLexer(new antlr4.CharStream(script));
     const tokens = new antlr4.CommonTokenStream(lexer);
     const parser = new ReksioLangParser(tokens);
     const tree = parser.statementList();
-    tree.accept(new ScriptEvaluator(scope));
+    tree.accept(new ScriptEvaluator(objectContext, scope));
 }

@@ -7,11 +7,13 @@ import { ExprContext } from "./ReksioLangParser";
 import { StatementContext } from "./ReksioLangParser";
 import { StatementListContext } from "./ReksioLangParser";
 import { MethodCallContext } from "./ReksioLangParser";
+import { ObjectNameContext } from "./ReksioLangParser";
 import { MethodNameContext } from "./ReksioLangParser";
 import { MethodCallArgumentsContext } from "./ReksioLangParser";
+import { SpecialCallContext } from "./ReksioLangParser";
 import { OperationGroupingContext } from "./ReksioLangParser";
 import { OperationContext } from "./ReksioLangParser";
-import { VariableContext } from "./ReksioLangParser";
+import { NegativeNumberContext } from "./ReksioLangParser";
 
 
 /**
@@ -47,6 +49,12 @@ export default class ReksioLangVisitor<Result> extends ParseTreeVisitor<Result> 
 	 */
 	visitMethodCall?: (ctx: MethodCallContext) => Result;
 	/**
+	 * Visit a parse tree produced by `ReksioLangParser.objectName`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitObjectName?: (ctx: ObjectNameContext) => Result;
+	/**
 	 * Visit a parse tree produced by `ReksioLangParser.methodName`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -58,6 +66,12 @@ export default class ReksioLangVisitor<Result> extends ParseTreeVisitor<Result> 
 	 * @return the visitor result
 	 */
 	visitMethodCallArguments?: (ctx: MethodCallArgumentsContext) => Result;
+	/**
+	 * Visit a parse tree produced by `ReksioLangParser.specialCall`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSpecialCall?: (ctx: SpecialCallContext) => Result;
 	/**
 	 * Visit a parse tree produced by `ReksioLangParser.operationGrouping`.
 	 * @param ctx the parse tree
@@ -71,10 +85,10 @@ export default class ReksioLangVisitor<Result> extends ParseTreeVisitor<Result> 
 	 */
 	visitOperation?: (ctx: OperationContext) => Result;
 	/**
-	 * Visit a parse tree produced by `ReksioLangParser.variable`.
+	 * Visit a parse tree produced by `ReksioLangParser.negativeNumber`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitVariable?: (ctx: VariableContext) => Result;
+	visitNegativeNumber?: (ctx: NegativeNumberContext) => Result;
 }
 
