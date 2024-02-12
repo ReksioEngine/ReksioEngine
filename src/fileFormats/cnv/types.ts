@@ -1,10 +1,10 @@
-const string = (object: any, key: string, param: string, value: string) => object[key] = value;
-const number = (object: any, key: string, param: string, value: string) => object[key] = parseInt(value);
-const boolean = (object: any, key: string, param: string, value: string) => object[key] === 'TRUE';
-const stringArray = (object: any, key: string, param: string, value: string) => object[key] = value.split(',');
+const string = (object: any, key: string, param: string, value: string) => object[key] = value
+const number = (object: any, key: string, param: string, value: string) => object[key] = parseInt(value)
+const boolean = (object: any, key: string) => object[key] === 'TRUE'
+const stringArray = (object: any, key: string, param: string, value: string) => object[key] = value.split(',')
 const callback = (object: any, key: string, param: string, value: string) => {
-    if (!object.hasOwnProperty(key)) {
-        object[key] = {};
+    if (!Object.prototype.hasOwnProperty.call(object, key)) {
+        object[key] = {}
     }
 
     if (value.startsWith('{')) {

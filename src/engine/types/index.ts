@@ -1,9 +1,9 @@
-import {Engine} from "../index";
+import {Engine} from '../index'
 
 export class Type {
     protected engine: Engine
 
     constructor(engine: Engine) {
-        this.engine = engine;
+        this.engine = engine
     }
 }
