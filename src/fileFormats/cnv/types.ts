@@ -69,11 +69,15 @@ const SceneStructure = {
 }
 
 export type Integer = {
-    VALUE: number
+    VALUE: number,
+    TOINI: boolean,
+    ONCHANGED: Record<string, callback>
 }
 
 const IntegerStructure = {
-    VALUE: number
+    VALUE: number,
+    TOINI: boolean,
+    ONCHANGED: callback
 }
 
 export const structureDefinitions = {
