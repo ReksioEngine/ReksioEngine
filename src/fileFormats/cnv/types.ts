@@ -1,6 +1,27 @@
-const string = (value: string): string => value;
-const number = (value: string): number => parseInt(value);
-const stringArray = (value: string): Array<string> => value.split(',');
+const string = (object: any, key: string, param: string, value: string) => object[key] = value;
+const number = (object: any, key: string, param: string, value: string) => object[key] = parseInt(value);
+const boolean = (object: any, key: string, param: string, value: string) => object[key] === 'TRUE';
+const stringArray = (object: any, key: string, param: string, value: string) => object[key] = value.split(',');
+const callback = (object: any, key: string, param: string, value: string) => {
+    if (!object.hasOwnProperty(key)) {
+        object[key] = {};
+    }
+
+    if (value.startsWith('{')) {
+        object[key][param] = {
+            code: value.substring(1, value.length - 1)
+        }
+    } else {
+        object[key][param] = {
+            behaviourReference: value
+        }
+    }
+}
+
+export type callback = {
+    behaviourReference?: string
+    code?: string
+}
 
 export type Application = {
     DESCRIPTION: string
