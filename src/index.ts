@@ -37,10 +37,6 @@ const main = async () => {
         ufoSprite.y = ufo.annImages[0].positionY + eventFrame.positionY
         currentFrame = (currentFrame + 1) % ufo.events[0].frames.length
     })
-
-    engine.executeScript('TEST^INC();')
-
-
 }
 
 main()
