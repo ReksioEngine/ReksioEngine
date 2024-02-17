@@ -1,43 +1,30 @@
 import {getCNVFile} from '../filesLoader'
 import {getByType} from '../fileFormats/cnv'
-import {Application, callback, Episode, Scene} from '../fileFormats/cnv/types'
+import {ApplicationDefinition, callback, EpisodeDefinition, SceneDefinition} from '../fileFormats/cnv/types'
 import {CNV} from '../fileFormats/cnv/parser'
 import {pathJoin} from '../utils'
 import {runScript} from '../interpreter/evaluator'
-import {INTEGER} from './types/integer'
 import {Type} from './types'
+import {generateScope} from './sceneLoader'
 
 export class Engine {
-    private application: Application | undefined
+    private application: ApplicationDefinition | undefined
 
     private episodes = new Map<string, any>()
-    private currentEpisode: Episode | undefined
+    private currentEpisode: EpisodeDefinition | undefined
 
     private scenes = new Map<string, any>()
-    private currentScene: Scene | undefined
+    private currentScene: SceneDefinition | undefined
 
     private sceneDefinition: CNV | undefined
 
-    private scope: Record<string, any> = {
-        'X': {
-            PRINT: (arg: any) => console.log(arg)
-        },
-        'TEST': new INTEGER(this, {
-            VALUE: 1,
-            TOINI: false,
-            ONCHANGED: {
-                2: {
-                    code: 'X^PRINT("1234");'
-                }
-            }
-        })
-    }
+    private scope: Record<string, any> = {}
 
     async init() {
         const applicationDef = await getCNVFile('DANE/Application.def')
 
         // Load application definition
-        const applications = getByType<Application[]>(applicationDef, 'APPLICATION')
+        const applications = getByType<ApplicationDefinition[]>(applicationDef, 'APPLICATION')
         if (applications.length == 0) {
             throw new Error('Could not find application')
         }
@@ -67,21 +54,22 @@ export class Engine {
 
         // Load initial scene definition
         this.sceneDefinition = await getCNVFile(pathJoin('DANE', this.currentScene.PATH, this.currentEpisode.STARTWITH.toLowerCase() + '.cnv'))
+        this.scope = generateScope(this, this.sceneDefinition)
         console.log(this.sceneDefinition)
+        console.log(this.scope)
     }
 
     executeScript(code: string) {
         runScript(null, this.scope, code)
     }
 
-    executeCallback(caller: Type | null, callback: callback) {
+    executeCallback(caller: Type<any> | null, callback: callback) {
+        this.scope.THIS = caller
+
         if (callback.code) {
             runScript(caller, this.scope, callback.code)
         } else if (callback.behaviourReference) {
-            this.scope[callback.behaviourReference].eval({
-                ...this.scope,
-                THIS: caller
-            })
+            this.scope[callback.behaviourReference].eval(this.scope)
         }
     }
 }

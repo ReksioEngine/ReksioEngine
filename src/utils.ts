@@ -6,3 +6,5 @@ export const pathJoin = (...parts: Array<string>) => {
 export const stringUntilNull = (text: string) => {
     return text.substring(0, text.indexOf('\x00'))
 }
+
+export const NotImplementedError = new Error('Not implemented')

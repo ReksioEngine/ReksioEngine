@@ -1,6 +1,11 @@
 import {structureDefinitions} from './types'
 
-export type CNV = { [key: string]: any }
+export interface CNVObject {
+    TYPE: string
+    [key: string]: any
+}
+
+export type CNV = { [key: string]: CNVObject }
 
 const splitOnce = (text: string, separator: string) => {
     const index = text.indexOf(separator)
@@ -17,6 +22,7 @@ export const parseCNV = (content: string) => {
             continue
         }
 
+        // eslint-disable-next-line prefer-const
         let [key, value] = splitOnce(line, '=')
         // Check if value is empty
         if (value === '""') {
@@ -24,10 +30,13 @@ export const parseCNV = (content: string) => {
         }
 
         if (key === 'OBJECT') {
-            objects[value] = {}
+            objects[value] = {
+                TYPE: 'unknown'
+            }
         } else {
+            // eslint-disable-next-line prefer-const
             let [objectName, variablePart] = splitOnce(key, ':')
-            objectName = objectName.replace('/\?/g', '_')
+            objectName = objectName.replace('/?/g', '_')
 
             const [variableName, param] = variablePart.split('^')
 

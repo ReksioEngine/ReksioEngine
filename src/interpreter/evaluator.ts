@@ -18,9 +18,9 @@ class ExecutionError extends Error {
 
 export class ScriptEvaluator extends ReksioLangVisitor<any> {
     private readonly scope: Record<string, any>
-    private readonly objectContext: Type | null
+    private readonly objectContext: Type<any> | null
 
-    constructor(objectContext: Type | null, scope: Record<string, any>) {
+    constructor(objectContext: Type<any> | null, scope: Record<string, any>) {
         super()
         this.scope = scope
         this.objectContext = objectContext
@@ -77,7 +77,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 
     visitObjectName = (ctx: ObjectNameContext): any => {
-        if (!this.scope.hasOwnProperty(ctx.getText())) {
+        if (!Object.prototype.hasOwnProperty.call(this.scope, ctx.getText())) {
             throw new ExecutionError(ctx, `Unknown identifier '${ctx.getText()}'`)
         }
 
@@ -110,7 +110,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 }
 
-export const runScript = (objectContext: Type | null, scope: object, script: string) => {
+export const runScript = (objectContext: Type<any> | null, scope: object, script: string) => {
     const lexer = new ReksioLangLexer(new antlr4.CharStream(script))
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioLangParser(tokens)

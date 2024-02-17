@@ -1,16 +1,13 @@
 import {Type} from './index'
 import {Engine} from '../index'
-import {callback, Integer} from '../../fileFormats/cnv/types'
+import {callback, IntegerDefinition} from '../../fileFormats/cnv/types'
 
-export class INTEGER extends Type {
-    private definition: Integer
-
-    private value: number
+export class Integer extends Type<IntegerDefinition> {
+    value: number
     private readonly onChanged: Record<number, callback>
 
-    constructor(engine: Engine, definition: Integer) {
-        super(engine)
-        this.definition = definition
+    constructor(engine: Engine, definition: IntegerDefinition) {
+        super(engine, definition)
         this.value = this.definition.VALUE
         this.onChanged = this.definition.ONCHANGED
     }
@@ -61,7 +58,7 @@ export class INTEGER extends Type {
     }
 
     private ONCHANGED() {
-        if (this.onChanged.hasOwnProperty(this.value)) {
+        if (Object.prototype.hasOwnProperty.call(this.onChanged, this.value)) {
             this.engine.executeCallback(this, this.onChanged[this.value])
         }
 
