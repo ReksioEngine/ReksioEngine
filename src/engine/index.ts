@@ -6,8 +6,11 @@ import {pathJoin} from '../utils'
 import {runScript} from '../interpreter/evaluator'
 import {Type} from './types'
 import {generateScope} from './sceneLoader'
+import {Application} from 'pixi.js'
 
 export class Engine {
+    readonly app: Application
+
     private application: ApplicationDefinition | undefined
 
     private episodes = new Map<string, any>()
@@ -18,7 +21,11 @@ export class Engine {
 
     private sceneDefinition: CNV | undefined
 
-    private scope: Record<string, any> = {}
+    scope: Record<string, any> = {}
+
+    constructor(app: Application) {
+        this.app = app
+    }
 
     async init() {
         const applicationDef = await getCNVFile('DANE/Application.def')
@@ -69,7 +76,7 @@ export class Engine {
         if (callback.code) {
             runScript(caller, this.scope, callback.code)
         } else if (callback.behaviourReference) {
-            this.scope[callback.behaviourReference].eval(this.scope)
+            this.scope[callback.behaviourReference].RUN()
         }
     }
 }

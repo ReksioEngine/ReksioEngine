@@ -236,7 +236,7 @@ export const structureDefinitions = {
     TIMER: TimerStructure,
     BEHAVIOUR: BehaviourStructure,
     IMAGE: ImageStructure,
-    CALLBACK: MouseStructure,
+    MOUSE: MouseStructure,
     KEYBOARD: KeyboardStructure,
     CANVASOBSERVER: CanvasObserverStructure,
     CNVLOADER: CNVLoaderStructure,

@@ -9,6 +9,10 @@ const main = async () => {
     const app = new PIXI.Application()
     document.body.appendChild(app.view as unknown as Node)
     app.ticker.maxFPS = 16
+    app.stage.interactive = true
+
+    const engine = new Engine(app)
+    await engine.init()
 
     // Background
     const bgImage = await getIMGFile('DANE/ReksioUfo/PRZYGODA/s1_0_intro1/gwiazdy.img')
