@@ -11,11 +11,15 @@ import {Keyboard} from './types/keyboard'
 import {CNVLoader} from './types/cnvloader'
 import {CanvasObserver} from './types/canvasObserver'
 import {Condition} from './types/condition'
+import {Episode} from './types/episode'
+import {Application} from './types/application'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
     case 'ANIMO':
         return new Animo(engine, definition)
+    case 'APPLICATION':
+        return new Application(engine, definition)
     case 'BEHAVIOUR':
         return new Behaviour(engine, definition)
     case 'CANVAS_OBSERVER':
@@ -24,6 +28,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new CNVLoader(engine, definition)
     case 'CONDITION':
         return new Condition(engine, definition)
+    case 'EPISODE':
+        return new Episode(engine, definition)
     case 'IMAGE':
         return new Image(engine, definition)
     case 'INTEGER':

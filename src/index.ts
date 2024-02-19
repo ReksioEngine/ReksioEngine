@@ -3,9 +3,6 @@ import {Engine} from './engine'
 import * as PIXI from 'pixi.js'
 
 const main = async () => {
-    const engine = new Engine()
-    await engine.init()
-
     const app = new PIXI.Application()
     document.body.appendChild(app.view as unknown as Node)
     app.ticker.maxFPS = 16
