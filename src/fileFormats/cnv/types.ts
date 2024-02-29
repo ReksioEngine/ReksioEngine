@@ -11,11 +11,13 @@ const callback = (object: any, key: string, param: string, value: string) => {
     // Sometimes it doesn't end with }, but always start with
     if (value.startsWith('{')) {
         callbackInstance = {
-            code: value.substring(1, value.length - 1)
+            code: value.substring(1, value.length - 1),
+            isSingleStatement: false
         }
     } else {
         callbackInstance = {
-            behaviourReference: value
+            behaviourReference: value,
+            isSingleStatement: false
         }
     }
 
@@ -28,13 +30,15 @@ const callback = (object: any, key: string, param: string, value: string) => {
 
 const code = (object: any, key: string, param: string, value: string) => {
     object[key] = {
-        code: value
+        code: value,
+        isSingleStatement: true
     }
 }
 
 export type callback = {
     behaviourReference?: string
     code?: string
+    isSingleStatement: boolean
 }
 
 export type ApplicationDefinition = {

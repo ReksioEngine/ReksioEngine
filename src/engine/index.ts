@@ -74,9 +74,9 @@ export class Engine {
         this.scope.THIS = caller
 
         if (callback.code) {
-            runScript(caller, this.scope, callback.code)
+            return runScript(caller, this.scope, callback.code, callback.isSingleStatement)
         } else if (callback.behaviourReference) {
-            this.scope[callback.behaviourReference].RUN()
+            return this.scope[callback.behaviourReference].RUN()
         }
     }
 }

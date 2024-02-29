@@ -16,6 +16,8 @@ class ExecutionError extends Error {
     }
 }
 
+export class InterruptScriptExecution {}
+
 export class ScriptEvaluator extends ReksioLangVisitor<any> {
     private readonly scope: Record<string, any>
     private readonly objectContext: Type<any> | null
@@ -27,9 +29,11 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 
     visitStatementList = (ctx: StatementListContext): any => {
+        let result = null
         ctx.statement_list().forEach(statement => {
-            this.visitStatement(statement)
+            result = this.visitStatement(statement)
         })
+        return result
     }
 
     visitStatement = (ctx: StatementContext): any => {
@@ -110,10 +114,18 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 }
 
-export const runScript = (objectContext: Type<any> | null, scope: object, script: string) => {
+export const runScript = (objectContext: Type<any> | null, scope: object, script: string, singleStatement: boolean = false) => {
     const lexer = new ReksioLangLexer(new antlr4.CharStream(script))
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioLangParser(tokens)
-    const tree = parser.statementList()
-    tree.accept(new ScriptEvaluator(objectContext, scope))
+    const tree = singleStatement ? parser.statement() : parser.statementList()
+
+    try {
+        return tree.accept(new ScriptEvaluator(objectContext, scope))
+    } catch (err) {
+        if (err instanceof InterruptScriptExecution) {
+            return
+        }
+        throw err
+    }
 }

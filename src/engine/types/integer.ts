@@ -58,7 +58,7 @@ export class Integer extends Type<IntegerDefinition> {
     }
 
     private ONCHANGED() {
-        if (Object.prototype.hasOwnProperty.call(this.onChanged, this.value)) {
+        if (this.onChanged && Object.prototype.hasOwnProperty.call(this.onChanged, this.value)) {
             this.engine.executeCallback(this, this.onChanged[this.value])
         }
 

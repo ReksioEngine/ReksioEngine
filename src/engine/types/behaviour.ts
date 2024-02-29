@@ -9,7 +9,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     RUN(...args: any[]) {
-        this.engine.executeCallback(this, this.definition.CODE)
+        return this.engine.executeCallback(this, this.definition.CODE)
     }
 
     RUNC() {
