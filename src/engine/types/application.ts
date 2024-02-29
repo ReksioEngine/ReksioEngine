@@ -8,6 +8,11 @@ export class Application extends Type<ApplicationDefinition> {
         super(engine, definition)
     }
 
+    init() {
+        const currentEpisode = this.engine.getObject(this.definition.STARTWITH)
+        currentEpisode.start()
+    }
+
     SETLANGUAGE(langCode: string) {
         throw NotImplementedError
     }

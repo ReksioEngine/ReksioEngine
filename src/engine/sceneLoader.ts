@@ -13,6 +13,7 @@ import {CanvasObserver} from './types/canvasObserver'
 import {Condition} from './types/condition'
 import {Episode} from './types/episode'
 import {Application} from './types/application'
+import {Scene} from './types/scene'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -40,6 +41,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Mouse(engine, definition)
     case 'MUSIC':
         return new Music(engine, definition)
+    case 'SCENE':
+        return new Scene(engine, definition)
     case 'TIMER':
         return new Timer(engine, definition)
     default:
@@ -47,18 +50,15 @@ const createTypeInstance = (engine: Engine, definition: any) => {
     }
 }
 
-export const generateScope = (engine: Engine, sceneDefinition: CNV) => {
-    const scope: Record<string, any> = {}
+export const loadScene = (engine: Engine, sceneDefinition: CNV) => {
     const orderedScope = []
 
     for (const [key, value] of Object.entries(sceneDefinition)) {
-        scope[key] = createTypeInstance(engine, value)
-        orderedScope.push(scope[key])
+        engine.scope[key] = createTypeInstance(engine, value)
+        orderedScope.push(engine.scope[key])
     }
 
     for (const entry of orderedScope) {
         entry.init()
     }
-
-    return scope
 }
