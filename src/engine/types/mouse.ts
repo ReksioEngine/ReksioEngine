@@ -10,16 +10,27 @@ export class Mouse extends Type<MouseDefinition> {
     private readonly onClick: callback
     private mousePosition: Point = new Point(0, 0)
 
+    private mouseMoveListener: any
+    private mouseClickListener: any
+
     constructor(engine: Engine, definition: MouseDefinition) {
         super(engine, definition)
         this.onClick = definition.ONCLICK
     }
 
     init() {
-        this.engine.app.stage.addListener('mousemove', this.onMouseMove.bind(this))
+        this.mouseMoveListener = this.onMouseMove.bind(this)
+        this.mouseClickListener = this.onMouseClick.bind(this)
+
+        this.engine.app.stage.addListener('mousemove', this.mouseMoveListener)
         if (this.definition.ONCLICK) {
-            this.engine.app.stage.addListener('mousedown', this.onMouseClick.bind(this))
+            this.engine.app.stage.addListener('mousedown', this.mouseClickListener)
         }
+    }
+
+    destroy() {
+        this.engine.app.stage.removeListener('mousemove', this.mouseMoveListener)
+        this.engine.app.stage.removeListener('mousedown', this.mouseClickListener)
     }
 
     onMouseMove(event: FederatedPointerEvent) {
