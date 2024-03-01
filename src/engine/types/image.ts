@@ -2,12 +2,10 @@ import {Type} from './index'
 import {Engine} from '../index'
 import {ImageDefinition} from '../../fileFormats/cnv/types'
 import {NotImplementedError} from '../../utils'
-import {getIMGFile} from "../../filesLoader";
-import * as PIXI from "pixi.js";
 import {Sprite} from "pixi.js";
+import {loadSprite} from "../assetsLoader";
 
 export class Image extends Type<ImageDefinition> {
-    private visible: boolean
     private opacity: number = 1
     private priority: number
 
@@ -18,12 +16,11 @@ export class Image extends Type<ImageDefinition> {
 
     constructor(engine: Engine, definition: ImageDefinition) {
         super(engine, definition)
-        this.visible = definition.VISIBLE
         this.priority = definition.PRIORITY
     }
 
     async init() {
-        this.sprite = await this.Load()
+        this.sprite = await this.load()
     }
 
     destroy() {
@@ -31,44 +28,28 @@ export class Image extends Type<ImageDefinition> {
     }
 
     ready() {
-        if (this.sprite == null)
-            throw new Error(`Cannot load image '${this.definition.FILENAME}'`);
-
-        this.SETPOSITION(0, 0)
-        this.sprite.visible = this.definition.VISIBLE
-        this.sprite.visible = true
-        this.engine.app.stage.addChild(this.sprite)
-
-        console.debug(`File ${this.definition.FILENAME} loaded successfully!`)
-
-        //this.InitSprite();)
+        this.initSprite();
     }
 
-    private async Load() {
+    private async load() {
         console.debug(`Loading file: ${this.definition.FILENAME}`)
 
         //TODO: How to get total path to file? From scene structure?
         const temporary_path = `DANE/ReksioUfo/PRZYGODA/s1_0_intro1/${this.definition.FILENAME}`
 
-        const image = await getIMGFile(temporary_path)
-        const baseTexture = PIXI.BaseTexture.fromBuffer(
-            new Uint8Array(image.bytes),
-            image.header.width,
-            image.header.height
-        )
-
-        const texture = new PIXI.Texture(baseTexture)
-        return new PIXI.Sprite(texture)
+        return await loadSprite(temporary_path);
     }
 
-    private InitSprite() {
+    private initSprite() {
         if (this.sprite == null)
-            return;
+            throw new Error(`Cannot load image '${this.definition.FILENAME}'`);
 
         this.SETPOSITION(0, 0)
-        this.sprite.visible = this.definition.VISIBLE
+        this.SETPRIORITY(this.definition.PRIORITY)
+        this.sprite.visible = true //this.definition.VISIBLE returning false?
+        this.engine.app.stage.addChild(this.sprite)
 
-        this.engine.app.stage.addChild(this.sprite);
+        console.debug(`File ${this.definition.FILENAME} loaded successfully! ${this.definition.VISIBLE}`)
     }
 
     SETOPACITY(opacity: number) {
