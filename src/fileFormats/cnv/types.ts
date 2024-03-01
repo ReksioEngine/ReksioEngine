@@ -35,10 +35,20 @@ const code = (object: any, key: string, param: string, value: string) => {
     }
 }
 
+const reference = (object: any, key: string, param: string, value: string) => {
+    object[key] = {
+        objectName: value
+    }
+}
+
 export type callback = {
     behaviourReference?: string
     code?: string
     isSingleStatement: boolean
+}
+
+export type reference = {
+    objectName: string
 }
 
 export type ApplicationDefinition = {
@@ -268,9 +278,9 @@ export type ButtonDefinition = {
     VISIBLE: boolean
     ENABLE: boolean
     DRAGGABLE: boolean
-    GFXSTANDARD: string
-    GFXONCLICK: string
-    GFXONMOVE: string
+    GFXSTANDARD: reference
+    GFXONCLICK: reference
+    GFXONMOVE: reference
     ONRELEASED: callback
 }
 
@@ -278,9 +288,9 @@ const ButtonDefinitionStructure = {
     VISIBLE: boolean,
     ENABLE: boolean,
     DRAGGABLE: boolean,
-    GFXSTANDARD: string,
-    GFXONCLICK: string,
-    GFXONMOVE: string,
+    GFXSTANDARD: reference,
+    GFXONCLICK: reference,
+    GFXONMOVE: reference,
     ONRELEASED: callback
 }
 
