@@ -5,8 +5,6 @@ import {NotImplementedError} from '../../utils'
 import {getIMGFile} from "../../filesLoader";
 import * as PIXI from "pixi.js";
 import {Sprite} from "pixi.js";
-import {loadSound} from "../assetsLoader";
-import {RecognitionException} from "antlr4";
 
 export class Image extends Type<ImageDefinition> {
     private visible: boolean
@@ -26,8 +24,6 @@ export class Image extends Type<ImageDefinition> {
 
     async init() {
         this.sprite = await this.Load()
-
-        this.InitSprite();
     }
 
     destroy() {
@@ -38,14 +34,23 @@ export class Image extends Type<ImageDefinition> {
         if (this.sprite == null)
             throw new Error(`Cannot load image '${this.definition.FILENAME}'`);
 
-        const app = this.engine.app
-        app.stage.addChild(this.sprite);
+        this.SETPOSITION(0, 0)
+        this.sprite.visible = this.definition.VISIBLE
+        this.sprite.visible = true
+        this.engine.app.stage.addChild(this.sprite)
+
+        console.debug(`File ${this.definition.FILENAME} loaded successfully!`)
+
+        //this.InitSprite();)
     }
 
-    private async Load() { //'DANE/ReksioUfo/PRZYGODA/s1_0_intro1/gwiazdy.img'
-        console.log(`Loading file: ${this.definition.FILENAME}`)
+    private async Load() {
+        console.debug(`Loading file: ${this.definition.FILENAME}`)
 
-        const image = await getIMGFile(this.definition.FILENAME)
+        //TODO: How to get total path to file? From scene structure?
+        const temporary_path = `DANE/ReksioUfo/PRZYGODA/s1_0_intro1/${this.definition.FILENAME}`
+
+        const image = await getIMGFile(temporary_path)
         const baseTexture = PIXI.BaseTexture.fromBuffer(
             new Uint8Array(image.bytes),
             image.header.width,

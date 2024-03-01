@@ -11,16 +11,6 @@ const main = async () => {
     const engine = new Engine(app)
     await engine.init()
 
-    // Background
-    const bgImage = await getIMGFile('DANE/ReksioUfo/PRZYGODA/s1_0_intro1/gwiazdy.img')
-    const bgBaseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(bgImage.bytes), bgImage.header.width, bgImage.header.height)
-    const bgTexture = new PIXI.Texture(bgBaseTexture)
-
-    const bgSprite = new PIXI.Sprite(bgTexture)
-    bgSprite.x = 0
-    bgSprite.y = 0
-    app.stage.addChild(bgSprite)
-
     // Ufo
     const ufo = await getANNFile('DANE/ReksioUfo/PRZYGODA/s1_0_intro1/ufo.ann')
     const ufoBaseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(ufo.images[0]), ufo.annImages[0].width, ufo.annImages[0].height)
