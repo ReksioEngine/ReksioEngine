@@ -129,8 +129,10 @@ export const runScript = (objectContext: Type<any> | null, scope: object, script
         if (err instanceof InterruptScriptExecution) {
             return
         }
+
         console.error('Error occurred while executing following script:\n' + script)
-        console.error(scope)
+        console.error('Caller:', objectContext)
+        console.error('Scope:', scope)
         throw err
     }
 }
