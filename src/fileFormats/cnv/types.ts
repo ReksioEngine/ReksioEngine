@@ -1,6 +1,6 @@
 const string = (object: any, key: string, param: string, value: string) => object[key] = value
 const number = (object: any, key: string, param: string, value: string) => object[key] = parseInt(value)
-const boolean = (object: any, key: string) => object[key] === 'TRUE'
+const boolean = (object: any, key: string, param: string, value: string) => object[key] = value === 'TRUE'
 const stringArray = (object: any, key: string, param: string, value: string) => object[key] = value.split(',')
 const callback = (object: any, key: string, param: string, value: string) => {
     if (!Object.prototype.hasOwnProperty.call(object, key)) {
