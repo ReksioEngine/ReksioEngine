@@ -14,6 +14,10 @@ export class Sound extends Type<SoundDefinition> {
     async init() {
         // We don't respect 'PRELOAD' false on purpose, because network download might be slow
         this.sound = await loadSound(`Wavs/${this.definition.FILENAME}`)
+
+        if (this.definition.ONINIT) {
+            this.engine.executeCallback(this, this.definition.ONINIT)
+        }
     }
 
     // This argument is "PLAY" for kurator in intro for some reason

@@ -159,12 +159,14 @@ export type SoundDefinition = {
     FILENAME: string
     PRELOAD: boolean
     FLUSHAFTERPLAYED: boolean
+    ONINIT: callback
 }
 
 const SoundStructure = {
     FILENAME: string,
     PRELOAD: boolean,
-    FLUSHAFTERPLAYED: boolean
+    FLUSHAFTERPLAYED: boolean,
+    ONINIT: callback
 }
 
 export type TimerDefinition = {
