@@ -13,10 +13,10 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     RUNC() {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
 
     RUNLOOPED() {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
 }

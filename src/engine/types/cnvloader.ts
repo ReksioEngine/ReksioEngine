@@ -9,6 +9,6 @@ export class CNVLoader extends Type<CNVLoaderDefinition> {
     }
 
     LOAD(filename: string) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
 }

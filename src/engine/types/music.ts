@@ -15,6 +15,10 @@ export class Music extends Type<MusicDefinition> {
         this.sound = await loadSound(this.definition.FILENAME)
     }
 
+    destroy() {
+        this.sound?.stop()
+    }
+
     ready() {
         this.sound?.play()
     }

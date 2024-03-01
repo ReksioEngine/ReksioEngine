@@ -242,6 +242,26 @@ const ConditionDefinitionStructure = {
     OPERAND2: code
 }
 
+export type StringDefinition = {
+    TOINI: boolean
+}
+
+const StringDefinitionStructure = {
+    TOINI: boolean
+}
+
+export type BoolDefinition = {
+    VALUE: boolean
+}
+
+const BoolDefinitionStructure = {
+    VALUE: boolean
+}
+
+export type ArrayDefinition = NonNullable<unknown>
+
+const ArrayDefinitionStructure = {}
+
 export const structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -257,5 +277,8 @@ export const structureDefinitions = {
     CANVASOBSERVER: CanvasObserverStructure,
     CNVLOADER: CNVLoaderStructure,
     CONDITION: ConditionDefinitionStructure,
-    SOUND: SoundStructure
+    SOUND: SoundStructure,
+    STRING: StringDefinitionStructure,
+    BOOL: BoolDefinitionStructure,
+    ARRAY: ArrayDefinitionStructure
 } as any

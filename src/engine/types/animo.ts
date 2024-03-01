@@ -15,60 +15,60 @@ export class Animo extends Type<AnimoDefinition> {
 
     init() {
         if (this.definition.ONINIT) {
-            this.engine.executeCallback(this, this.definition.ONINIT)
+            // this.engine.executeCallback(this, this.definition.ONINIT)
         }
     }
 
     PLAY(name: string) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     SETFRAME(frame: number) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     SETFPS(fps: number) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     SETPOSITION(x: number, y: number) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     SETPRIORITY(priority: number) {
         this.priority = priority
     }
     SETASBUTTON(arg1: boolean, arg2: boolean) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     GETCENTERX(): number {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     GETCENTERY(): number {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     GETPOSITIONY(): number {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     GETPOSITIONX(): number {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     GETFRAMENAME(): string {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     GETMAXWIDTH(): number {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     GETNOFINEVENT(): string {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     GETEVENTNAME(): string {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     GETFRAME(): number {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     GETCURRFRAMEPOSX(): number {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     GETCURRFRAMEPOSY(): number {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     SHOW() {
         this.visible = true
@@ -77,24 +77,24 @@ export class Animo extends Type<AnimoDefinition> {
         this.visible = false
     }
     STOP(arg: boolean) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     PAUSE() {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     RESUME() {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     MOVE(offsetX: number, offsetY: number) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     CLONE(arg: number) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     ISPLAYING(animName: string) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
     ISNEAR(objectName: string, arg: number) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
 }

@@ -9,14 +9,14 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
     }
 
     SETBACKGROUND(filename: string) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
 
     REFRESH() {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
 
     GETGRAPHICSAT(x: number, y: number, someBool1: boolean, minZ: number, maxZ: number, includeAlpha: boolean) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
 }

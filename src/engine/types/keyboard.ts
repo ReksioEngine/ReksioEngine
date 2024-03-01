@@ -10,6 +10,6 @@ export class Keyboard extends Type<KeyboardDefinition> {
 
     // UP, DOWN, RIGHT, LEFT
     ISKEYDOWN(keyName: string) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
 }

@@ -20,12 +20,16 @@ export class Episode extends Type<EpisodeDefinition> {
             return
         }
 
+        for (const object of Object.values(this.engine.scope)) {
+            object.destroy()
+        }
+
         const scene: Scene = this.engine.getObject(sceneName)
         const sceneDefinition = await getCNVFile(pathJoin('DANE', scene.definition.PATH, sceneName + '.cnv'))
         loadScene(this.engine, sceneDefinition)
     }
 
     BACK() {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
 }

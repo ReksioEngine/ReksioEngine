@@ -13,6 +13,6 @@ export class Type<DefinitionType> {
 
     init() {}
     ready() {}
+    destroy() {}
     tick(delta: number) {}
 }
-

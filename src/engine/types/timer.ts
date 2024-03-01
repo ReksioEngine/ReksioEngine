@@ -33,7 +33,7 @@ export class Timer extends Type<TimerDefinition> {
     }
 
     RESET() {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
 
     DISABLE() {

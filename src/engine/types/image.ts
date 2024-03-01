@@ -36,7 +36,7 @@ export class Image extends Type<ImageDefinition> {
     }
 
     CLONE() {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
 
     SHOW() {
@@ -52,6 +52,6 @@ export class Image extends Type<ImageDefinition> {
     }
 
     GETALPHA(x: number, y: number) {
-        throw NotImplementedError
+        throw new NotImplementedError()
     }
 }
