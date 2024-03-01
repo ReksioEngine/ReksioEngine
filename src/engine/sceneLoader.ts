@@ -18,6 +18,7 @@ import {Sound} from './types/sound'
 import {String as StringType} from './types/string'
 import {Bool} from './types/bool'
 import {Array as ArrayType} from './types/array'
+import {Button} from './types/button'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -31,6 +32,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Behaviour(engine, definition)
     case 'BOOL':
         return new Bool(engine, definition)
+    case 'BUTTON':
+        return new Button(engine, definition)
     case 'CANVAS_OBSERVER':
         return new CanvasObserver(engine, definition)
     case 'CNVLOADER':

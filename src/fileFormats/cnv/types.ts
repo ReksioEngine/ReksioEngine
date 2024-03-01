@@ -264,6 +264,26 @@ export type ArrayDefinition = NonNullable<unknown>
 
 const ArrayDefinitionStructure = {}
 
+export type ButtonDefinition = {
+    VISIBLE: boolean
+    ENABLE: boolean
+    DRAGGABLE: boolean
+    GFXSTANDARD: string
+    GFXONCLICK: string
+    GFXONMOVE: string
+    ONRELEASED: callback
+}
+
+const ButtonDefinitionStructure = {
+    VISIBLE: boolean,
+    ENABLE: boolean,
+    DRAGGABLE: boolean,
+    GFXSTANDARD: string,
+    GFXONCLICK: string,
+    GFXONMOVE: string,
+    ONRELEASED: callback
+}
+
 export const structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -282,5 +302,6 @@ export const structureDefinitions = {
     SOUND: SoundStructure,
     STRING: StringDefinitionStructure,
     BOOL: BoolDefinitionStructure,
-    ARRAY: ArrayDefinitionStructure
+    ARRAY: ArrayDefinitionStructure,
+    BUTTON: ButtonDefinitionStructure
 } as any
