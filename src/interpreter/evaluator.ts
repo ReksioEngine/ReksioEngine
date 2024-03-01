@@ -54,6 +54,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             return Number(ctx.negativeNumber().getText())
         } else if (ctx.STRING() != null) {
             return ctx.STRING().getText().replace(/^"|"$/g, '')
+        } else if (ctx.IDENTIFIER() != null) {
+            return this.scope[ctx.IDENTIFIER().getText()].value
         }
 
         return this.visitChildren(ctx)[0]
