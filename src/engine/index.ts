@@ -16,6 +16,9 @@ export class Engine {
     async init() {
         const applicationDef = await getCNVFile('DANE/Application.def')
         loadScene(this, applicationDef)
+
+        // @ts-ignore
+        globalThis.engine = this
     }
 
     executeCallback(caller: Type<any> | null, callback: callback) {
