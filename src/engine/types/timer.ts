@@ -14,7 +14,7 @@ export class Timer extends Type<TimerDefinition> {
     constructor(engine: Engine, definition: TimerDefinition) {
         super(engine, definition)
         this.elapse = definition.ELAPSE
-        this.enabled = definition.ENABLED
+        this.enabled = definition.ENABLED // if this is set to false then even ONINIT doesn't start
         this.onTick = definition.ONTICK
     }
 

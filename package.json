@@ -8,6 +8,7 @@
   },
   "private": true,
   "dependencies": {
+    "@pixi/sound": "^5.2.3",
     "antlr4": "^4.13.1-patch-1",
     "pixi.js": "^7.3.3"
   },

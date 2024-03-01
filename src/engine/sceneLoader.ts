@@ -14,6 +14,7 @@ import {Condition} from './types/condition'
 import {Episode} from './types/episode'
 import {Application} from './types/application'
 import {Scene} from './types/scene'
+import {Sound} from './types/sound'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -43,22 +44,30 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Music(engine, definition)
     case 'SCENE':
         return new Scene(engine, definition)
+    case 'SOUND':
+        return new Sound(engine, definition)
     case 'TIMER':
         return new Timer(engine, definition)
     default:
+        console.error(definition)
         throw new Error(`Unknown object type '${definition.TYPE}'`)
     }
 }
 
-export const loadScene = (engine: Engine, sceneDefinition: CNV) => {
+export const loadScene = async (engine: Engine, sceneDefinition: CNV) => {
     const orderedScope = []
 
     for (const [key, value] of Object.entries(sceneDefinition)) {
-        engine.scope[key] = createTypeInstance(engine, value)
-        orderedScope.push(engine.scope[key])
+        const instance = createTypeInstance(engine, value)
+        engine.scope[key] = instance
+        orderedScope.push(instance)
     }
 
-    for (const entry of orderedScope) {
-        entry.init()
-    }
+    await Promise.all(orderedScope.map(entry => entry.init()))
+    orderedScope.forEach(entry => {
+        entry.isReady = true
+        entry.ready()
+    })
+
+    console.debug('Scene loaded')
 }

@@ -37,6 +37,9 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 
     visitStatement = (ctx: StatementContext): any => {
+        if (ctx.expr() == null) {
+            return
+        }
         return this.visit(ctx.expr())
     }
 
@@ -126,6 +129,8 @@ export const runScript = (objectContext: Type<any> | null, scope: object, script
         if (err instanceof InterruptScriptExecution) {
             return
         }
+        console.error('Error occurred while executing following script:\n' + script)
+        console.error(scope)
         throw err
     }
 }

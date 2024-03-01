@@ -155,6 +155,18 @@ const MusicStructure = {
     FILENAME: string
 }
 
+export type SoundDefinition = {
+    FILENAME: string
+    PRELOAD: boolean
+    FLUSHAFTERPLAYED: boolean
+}
+
+const SoundStructure = {
+    FILENAME: string,
+    PRELOAD: boolean,
+    FLUSHAFTERPLAYED: boolean
+}
+
 export type TimerDefinition = {
     ENABLED: boolean
     ELAPSE: number
@@ -244,5 +256,6 @@ export const structureDefinitions = {
     KEYBOARD: KeyboardStructure,
     CANVASOBSERVER: CanvasObserverStructure,
     CNVLOADER: CNVLoaderStructure,
-    CONDITION: ConditionDefinitionStructure
+    CONDITION: ConditionDefinitionStructure,
+    SOUND: SoundStructure
 } as any
