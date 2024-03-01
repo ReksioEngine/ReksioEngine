@@ -5,13 +5,15 @@ import {NotImplementedError} from '../../utils'
 import {getIMGFile} from "../../filesLoader";
 import * as PIXI from "pixi.js";
 import {Sprite} from "pixi.js";
+import {loadSound} from "../assetsLoader";
+import {RecognitionException} from "antlr4";
 
 export class Image extends Type<ImageDefinition> {
     private visible: boolean
     private opacity: number = 1
     private priority: number
 
-    private sprite: Sprite
+    private sprite: Sprite | null = null
 
     private x: number = 0
     private y: number = 0
@@ -20,8 +22,48 @@ export class Image extends Type<ImageDefinition> {
         super(engine, definition)
         this.visible = definition.VISIBLE
         this.priority = definition.PRIORITY
+    }
 
-        this.Load()
+    async init() {
+        this.sprite = await this.Load()
+
+        this.InitSprite();
+    }
+
+    destroy() {
+        this.sprite?.destroy()
+    }
+
+    ready() {
+        if (this.sprite == null)
+            throw new Error(`Cannot load image '${this.definition.FILENAME}'`);
+
+        const app = this.engine.app
+        app.stage.addChild(this.sprite);
+    }
+
+    private async Load() { //'DANE/ReksioUfo/PRZYGODA/s1_0_intro1/gwiazdy.img'
+        console.log(`Loading file: ${this.definition.FILENAME}`)
+
+        const image = await getIMGFile(this.definition.FILENAME)
+        const baseTexture = PIXI.BaseTexture.fromBuffer(
+            new Uint8Array(image.bytes),
+            image.header.width,
+            image.header.height
+        )
+
+        const texture = new PIXI.Texture(baseTexture)
+        return new PIXI.Sprite(texture)
+    }
+
+    private InitSprite() {
+        if (this.sprite == null)
+            return;
+
+        this.SETPOSITION(0, 0)
+        this.sprite.visible = this.definition.VISIBLE
+
+        this.engine.app.stage.addChild(this.sprite);
     }
 
     SETOPACITY(opacity: number) {
@@ -31,25 +73,6 @@ export class Image extends Type<ImageDefinition> {
     MOVE(xOffset: number, yOffset: number) {
         this.x += xOffset
         this.y += yOffset
-    }
-
-    private Load() { //'DANE/ReksioUfo/PRZYGODA/s1_0_intro1/gwiazdy.img'
-        console.log(`Loading file: ${this.definition.FILENAME}`)
-        
-        getIMGFile(this.definition.FILENAME).then((image) => {
-            const baseTexture = PIXI.BaseTexture.fromBuffer(
-                new Uint8Array(image.bytes),
-                image.header.width,
-                image.header.height
-            )
-
-            const texture = new PIXI.Texture(baseTexture)
-            this.sprite = new PIXI.Sprite(texture)
-
-            this.SETPOSITION(0, 0)
-            this.sprite.visible = this.definition.VISIBLE
-            this.engine.app.stage.addChild(this.sprite);
-        });
     }
 
     SETPOSITION(x: number, y: number) {
@@ -66,10 +89,16 @@ export class Image extends Type<ImageDefinition> {
     }
 
     SHOW() {
+        if (this.sprite == null)
+            return;
+
         this.sprite.visible = true
     }
 
     HIDE() {
+        if (this.sprite == null)
+            return;
+
         this.sprite.visible = false
     }
 
