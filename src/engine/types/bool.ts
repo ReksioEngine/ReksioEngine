@@ -10,10 +10,9 @@ export class Bool extends Type<BoolDefinition> {
         this.value = definition.VALUE
     }
 
-    SWITCH(from: boolean, to:  boolean) {
-        if (this.value === from) {
-            this.value = to
-        }
+    // The arguments don't seem to matter
+    SWITCH(arg1: boolean, arg2:  boolean) {
+        this.value = !this.value
     }
 
     SET(newValue: boolean) {
