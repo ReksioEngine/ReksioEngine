@@ -250,12 +250,16 @@ export type ConditionDefinition = {
     OPERAND1: callback
     OPERATOR: 'EQUAL' | 'NOTEQUAL' | 'LESS' | 'GREATER' | 'LESSEQUAL' | 'GREATEREQUAL'
     OPERAND2: callback
+    ONRUNTIMESUCCESS: callback
+    ONRUNTIMEFAILED: callback
 }
 
 const ConditionDefinitionStructure = {
     OPERAND1: code,
     OPERATOR: string,
-    OPERAND2: code
+    OPERAND2: code,
+    ONRUNTIMESUCCESS: callback,
+    ONRUNTIMEFAILED: callback
 }
 
 export type StringDefinition = {

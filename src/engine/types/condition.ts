@@ -26,19 +26,34 @@ export class Condition extends Type<ConditionDefinition> {
         const operand1 = this.engine.executeCallback(this, this.definition.OPERAND1)
         const operand2 = this.engine.executeCallback(this, this.definition.OPERAND2)
 
+        let result
         switch (this.definition.OPERATOR) {
         case 'EQUAL':
-            return operand1 == operand2
+            result = operand1 == operand2
+            break
         case 'NOTEQUAL':
-            return operand1 != operand2
+            result = operand1 != operand2
+            break
         case 'LESS':
-            return operand1 < operand2
+            result = operand1 < operand2
+            break
         case 'GREATER':
-            return operand1 > operand2
+            result = operand1 > operand2
+            break
         case 'LESSEQUAL':
-            return operand1 <= operand2
+            result = operand1 <= operand2
+            break
         case 'GREATEREQUAL':
-            return operand1 >= operand2
+            result = operand1 >= operand2
+            break
         }
+
+        if (this.definition.ONRUNTIMESUCCESS && result) {
+            this.engine.executeCallback(this, this.definition.ONRUNTIMESUCCESS)
+        } else if (this.definition.ONRUNTIMEFAILED && !result) {
+            this.engine.executeCallback(this, this.definition.ONRUNTIMEFAILED)
+        }
+
+        return result
     }
 }
