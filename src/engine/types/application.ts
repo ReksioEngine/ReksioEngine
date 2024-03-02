@@ -27,8 +27,8 @@ export class Application extends Type<ApplicationDefinition> {
         throw new NotImplementedError()
     }
 
-    RUN() {
-        throw new NotImplementedError()
+    RUN(objectName: string, methodName: string, ...args: any[]) {
+        return this.engine.getObject(objectName)[methodName](...args)
     }
 
     EXIT() {
