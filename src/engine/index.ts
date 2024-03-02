@@ -31,7 +31,9 @@ export class Engine {
     }
 
     executeCallback(caller: Type<any> | null, callback: callback) {
-        this.scope.THIS = caller
+        if (caller !== null) {
+            this.scope.THIS = caller
+        }
 
         if (callback.code) {
             return runScript(caller, this.scope, callback.code, callback.isSingleStatement)
