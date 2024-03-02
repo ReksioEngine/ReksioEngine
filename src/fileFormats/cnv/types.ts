@@ -310,6 +310,9 @@ const SequenceDefinitionStructure = {
     ONINIT: callback
 }
 
+export type GroupDefinition = NonNullable<unknown>
+const GroupDefinitionStructure = {}
+
 export const structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -330,5 +333,6 @@ export const structureDefinitions = {
     BOOL: BoolDefinitionStructure,
     ARRAY: ArrayDefinitionStructure,
     BUTTON: ButtonDefinitionStructure,
-    SEQUENCE: SequenceDefinitionStructure
+    SEQUENCE: SequenceDefinitionStructure,
+    GROUP: GroupDefinitionStructure
 } as any

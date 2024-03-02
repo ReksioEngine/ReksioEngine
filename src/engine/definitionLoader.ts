@@ -21,6 +21,7 @@ import {Array as ArrayType} from './types/array'
 import {Button} from './types/button'
 import {getCNVFile} from '../filesLoader'
 import {Sequence} from './types/sequence'
+import {Group} from './types/group'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -44,6 +45,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Condition(engine, definition)
     case 'EPISODE':
         return new Episode(engine, definition)
+    case 'GROUP':
+        return new Group(engine, definition)
     case 'IMAGE':
         return new Image(engine, definition)
     case 'INTEGER':

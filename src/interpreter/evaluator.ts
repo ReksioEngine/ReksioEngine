@@ -67,11 +67,11 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 
         const methodName = ctx.methodName().getText()
         const method = object[methodName]
-        if (method == undefined) {
-            throw new ExecutionError(ctx, `Unknown method ${ctx.getText()}`)
-        }
-
         const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : []
+
+        if (method == undefined) {
+            return object.__unknown_method(methodName, args)
+        }
 
         try {
             return method.bind(object)(...args)
