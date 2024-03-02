@@ -19,6 +19,7 @@ import {String as StringType} from './types/string'
 import {Bool} from './types/bool'
 import {Array as ArrayType} from './types/array'
 import {Button} from './types/button'
+import {getCNVFile} from '../filesLoader'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -66,10 +67,10 @@ const createTypeInstance = (engine: Engine, definition: any) => {
     }
 }
 
-export const loadScene = async (engine: Engine, sceneDefinition: CNV) => {
+export const loadDefinition = async (engine: Engine, definition: CNV) => {
     const orderedScope = []
 
-    for (const [key, value] of Object.entries(sceneDefinition)) {
+    for (const [key, value] of Object.entries(definition)) {
         const instance = createTypeInstance(engine, value)
         engine.scope[key] = instance
         orderedScope.push(instance)
@@ -80,6 +81,16 @@ export const loadScene = async (engine: Engine, sceneDefinition: CNV) => {
         entry.isReady = true
         entry.ready()
     })
+}
 
-    console.debug('Scene loaded')
+export const changeScene = async (engine: Engine, sceneName: string) => {
+    for (const object of Object.values(engine.scope)) {
+        object.destroy()
+    }
+
+    const scene: Scene = engine.getObject(sceneName)
+    engine.currentScene = scene
+
+    const sceneDefinition = await getCNVFile(scene.getRelativePath(`${sceneName}.cnv`))
+    await loadDefinition(engine, sceneDefinition)
 }
