@@ -9,6 +9,7 @@ import ReksioLangParser, {
 import ReksioLangLexer from './ReksioLangLexer'
 import antlr4, {ParserRuleContext} from 'antlr4'
 import {Type} from '../engine/types'
+import {NotImplementedError} from '../utils'
 
 class ExecutionError extends Error {
     constructor(ctx: ParserRuleContext, msg: string) {
@@ -71,7 +72,16 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         }
 
         const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : []
-        return method.bind(object)(...args)
+
+        try {
+            return method.bind(object)(...args)
+        } catch (err) {
+            if (err instanceof NotImplementedError) {
+                console.error(err)
+                return null
+            }
+            throw err
+        }
     }
 
     visitSpecialCall = (ctx: SpecialCallContext): any => {
