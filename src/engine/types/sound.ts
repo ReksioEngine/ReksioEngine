@@ -3,6 +3,7 @@ import {Engine} from '../index'
 import {loadSound} from '../assetsLoader'
 import {SoundDefinition} from '../../fileFormats/cnv/types'
 import {Sound as PIXISound} from '@pixi/sound'
+import {FileNotFoundError} from '../../filesLoader'
 
 export class Sound extends Type<SoundDefinition> {
     private sound: PIXISound | null = null
@@ -13,7 +14,18 @@ export class Sound extends Type<SoundDefinition> {
 
     async init() {
         // We don't respect 'PRELOAD' false on purpose, because network download might be slow
-        this.sound = await loadSound(`Wavs/${this.definition.FILENAME}`)
+        try {
+            this.sound = await loadSound(`Wavs/${this.definition.FILENAME}`)
+        } catch (err) {
+            if (err instanceof FileNotFoundError) {
+                // Ignore sound loading errors
+                // because there are some sounds for other language versions
+                // that it tries to load, but they are not there
+                console.warn(err)
+            } else {
+                throw err
+            }
+        }
 
         if (this.definition.ONINIT) {
             this.engine.executeCallback(this, this.definition.ONINIT)
@@ -21,27 +33,31 @@ export class Sound extends Type<SoundDefinition> {
     }
 
     destroy() {
-        this.sound?.stop()
-        this.sound?.destroy()
+        if (this.sound === null) return
+        this.sound.stop()
     }
 
     // This argument is "PLAY" for kurator in intro for some reason
     async PLAY(arg: any) {
+        if (this.sound === null) return
         console.debug(`Playing sound '${this.definition.FILENAME}'`)
-        const instance = await this.sound!.play()
+        const instance = await this.sound.play()
         instance.on('end', this.onComplete.bind(this))
     }
 
     STOP(arg: boolean) {
-        this.sound?.stop()
+        if (this.sound === null) return
+        this.sound.stop()
     }
 
     RESUME() {
-        this.sound?.resume()
+        if (this.sound === null) return
+        this.sound.resume()
     }
 
     PAUSE() {
-        this.sound?.pause()
+        if (this.sound === null) return
+        this.sound.pause()
     }
 
     async LOAD(filename: string) {
