@@ -298,6 +298,18 @@ const ButtonDefinitionStructure = {
     ONRELEASED: callback
 }
 
+export type SequenceDefinition = {
+    FILENAME: string
+    ONFINISHED: callback
+    ONINIT: callback
+}
+
+const SequenceDefinitionStructure = {
+    FILENAME: string,
+    ONFINISHED: callback,
+    ONINIT: callback
+}
+
 export const structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -317,5 +329,6 @@ export const structureDefinitions = {
     STRING: StringDefinitionStructure,
     BOOL: BoolDefinitionStructure,
     ARRAY: ArrayDefinitionStructure,
-    BUTTON: ButtonDefinitionStructure
+    BUTTON: ButtonDefinitionStructure,
+    SEQUENCE: SequenceDefinitionStructure
 } as any

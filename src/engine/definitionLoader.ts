@@ -20,6 +20,7 @@ import {Bool} from './types/bool'
 import {Array as ArrayType} from './types/array'
 import {Button} from './types/button'
 import {getCNVFile} from '../filesLoader'
+import {Sequence} from './types/sequence'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -55,6 +56,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Music(engine, definition)
     case 'SCENE':
         return new Scene(engine, definition)
+    case 'SEQUENCE':
+        return new Sequence(engine, definition)
     case 'SOUND':
         return new Sound(engine, definition)
     case 'STRING':
