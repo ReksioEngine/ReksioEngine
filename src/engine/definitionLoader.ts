@@ -68,6 +68,7 @@ const createTypeInstance = (engine: Engine, definition: any) => {
 }
 
 export const loadDefinition = async (engine: Engine, definition: CNV) => {
+    engine.app.ticker.stop()
     const orderedScope = []
 
     for (const [key, value] of Object.entries(definition)) {
@@ -81,9 +82,13 @@ export const loadDefinition = async (engine: Engine, definition: CNV) => {
         entry.isReady = true
         entry.ready()
     })
+
+    engine.app.ticker.start()
 }
 
 export const changeScene = async (engine: Engine, sceneName: string) => {
+    engine.app.ticker.stop()
+
     for (const object of Object.values(engine.scope)) {
         object.destroy()
     }
@@ -93,4 +98,6 @@ export const changeScene = async (engine: Engine, sceneName: string) => {
 
     const sceneDefinition = await getCNVFile(scene.getRelativePath(`${sceneName}.cnv`))
     await loadDefinition(engine, sceneDefinition)
+
+    engine.app.ticker.start()
 }
