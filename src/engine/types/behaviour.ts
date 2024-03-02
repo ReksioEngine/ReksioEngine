@@ -14,10 +14,13 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     RUNC(...args: any[]) {
-        const condition: Condition = this.engine.getObject(this.definition.CONDITION.objectName)
-        if (condition.CHECK(true)) {
-            this.RUN(...args)
+        if (this.definition.CONDITION) {
+            const condition: Condition = this.engine.getObject(this.definition.CONDITION.objectName)
+            if (!condition.CHECK(true)) {
+                return
+            }
         }
+        return this.RUN(...args)
     }
 
     RUNLOOPED(init: number, len: number, step: number, ...args: any[]) {
