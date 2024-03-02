@@ -29,6 +29,10 @@ export class Timer extends Type<TimerDefinition> {
         this.RESET()
     }
 
+    destroy() {
+        this.DISABLE()
+    }
+
     tick(delta: number) {
         if (!this.enabled) {
             return
