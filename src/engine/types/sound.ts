@@ -14,18 +14,7 @@ export class Sound extends Type<SoundDefinition> {
 
     async init() {
         // We don't respect 'PRELOAD' false on purpose, because network download might be slow
-        try {
-            this.sound = await loadSound(`Wavs/${this.definition.FILENAME}`)
-        } catch (err) {
-            if (err instanceof FileNotFoundError) {
-                // Ignore sound loading errors
-                // because there are some sounds for other language versions
-                // that it tries to load, but they are not there
-                console.warn(err)
-            } else {
-                throw err
-            }
-        }
+        await this.loadSound(`Wavs/${this.definition.FILENAME}`)
 
         if (this.definition.ONINIT) {
             this.engine.executeCallback(this, this.definition.ONINIT)
@@ -61,7 +50,22 @@ export class Sound extends Type<SoundDefinition> {
     }
 
     async LOAD(filename: string) {
-        this.sound = await loadSound(filename.substring(1))
+        await this.loadSound(filename.substring(1))
+    }
+
+    async loadSound(path: string) {
+        try {
+            this.sound = await loadSound(path)
+        } catch (err) {
+            if (err instanceof FileNotFoundError) {
+                // Ignore sound loading errors
+                // because there are some sounds for other language versions
+                // that it tries to load, but they are not there
+                console.warn(err)
+            } else {
+                throw err
+            }
+        }
     }
 
     onComplete() {
