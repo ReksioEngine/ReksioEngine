@@ -1,18 +1,20 @@
 import {Type} from './index'
 import {Engine} from '../index'
 import {StringDefinition} from '../../fileFormats/cnv/types'
-import {NotImplementedError} from '../../utils'
 
 export class String extends Type<StringDefinition> {
+    private value: string
+
     constructor(engine: Engine, definition: StringDefinition) {
         super(engine, definition)
+        this.value = definition.VALUE || ''
     }
 
-    ADD() {
-        throw new NotImplementedError()
+    ADD(text: string) {
+        this.value += text
     }
 
-    SET() {
-        throw new NotImplementedError()
+    SET(text: string) {
+        this.value = text
     }
 }
