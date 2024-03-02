@@ -34,9 +34,7 @@ export class Timer extends Type<TimerDefinition> {
             return
         }
 
-        const timeNow = Date.now()
-        const expectedTick = Math.floor((timeNow - this.startTime) / this.elapse)
-
+        const expectedTick = Math.floor((Date.now() - this.startTime) / this.elapse)
         while (this.currentTick < expectedTick) {
             this.currentTick++
             this.ONTICK()
