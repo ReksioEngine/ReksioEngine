@@ -5,7 +5,7 @@ import {Integer} from './integer'
 
 export class Timer extends Type<TimerDefinition> {
     private currentTick: number = 0
-    private timeCounter: number = 0
+    private startTime: number = 0
 
     private elapse: number
     private enabled: boolean
@@ -25,16 +25,19 @@ export class Timer extends Type<TimerDefinition> {
         }
     }
 
+    ready() {
+        this.RESET()
+    }
+
     tick(delta: number) {
         if (!this.enabled) {
             return
         }
 
-        this.timeCounter += delta
-        const missedTicks = Math.floor(this.timeCounter) % this.elapse
-        this.timeCounter -= this.elapse * missedTicks
+        const timeNow = Date.now()
+        const expectedTick = Math.floor((timeNow - this.startTime) / this.elapse)
 
-        for (let tick = 0; tick < missedTicks; tick++) {
+        while (this.currentTick < expectedTick) {
             this.currentTick++
             this.ONTICK()
         }
@@ -49,7 +52,7 @@ export class Timer extends Type<TimerDefinition> {
     }
 
     RESET() {
-        this.timeCounter = 0
+        this.startTime = Date.now()
         this.currentTick = 0
     }
 
