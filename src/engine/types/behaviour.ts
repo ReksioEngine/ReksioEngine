@@ -2,6 +2,7 @@ import {Type} from './index'
 import {Engine} from '../index'
 import {BehaviourDefinition} from '../../fileFormats/cnv/types'
 import {NotImplementedError} from '../../utils'
+import {Condition} from './condition'
 
 export class Behaviour extends Type<BehaviourDefinition> {
     constructor(engine: Engine, definition: BehaviourDefinition) {
@@ -12,11 +13,16 @@ export class Behaviour extends Type<BehaviourDefinition> {
         return this.engine.executeCallback(null, this.definition.CODE)
     }
 
-    RUNC() {
-        throw new NotImplementedError()
+    RUNC(...args: any[]) {
+        const condition: Condition = this.engine.getObject(this.definition.CONDITION.objectName)
+        if (condition.CHECK(true)) {
+            this.RUN(...args)
+        }
     }
 
-    RUNLOOPED() {
-        throw new NotImplementedError()
+    RUNLOOPED(init: number, len: number, step: number, ...args: any[]) {
+        for (let i = init; i < len; i += step) {
+            this.RUNC(...args)
+        }
     }
 }

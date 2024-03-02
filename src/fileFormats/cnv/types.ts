@@ -199,10 +199,12 @@ const TimerStructure = {
 
 export type BehaviourDefinition = {
     CODE: callback
+    CONDITION: reference
 }
 
 const BehaviourStructure = {
-    CODE: callback
+    CODE: callback,
+    CONDITION: reference
 }
 
 export type ImageDefinition = {
