@@ -24,6 +24,12 @@ export class Engine {
         globalThis.engine = this
     }
 
+    tick(delta: number) {
+        for (const object of Object.values(this.scope)) {
+            object.tick(delta)
+        }
+    }
+
     executeCallback(caller: Type<any> | null, callback: callback) {
         this.scope.THIS = caller
 
