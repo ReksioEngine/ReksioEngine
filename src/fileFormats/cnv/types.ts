@@ -170,13 +170,15 @@ export type SoundDefinition = {
     PRELOAD: boolean
     FLUSHAFTERPLAYED: boolean
     ONINIT: callback
+    ONFINISHED: callback
 }
 
 const SoundStructure = {
     FILENAME: string,
     PRELOAD: boolean,
     FLUSHAFTERPLAYED: boolean,
-    ONINIT: callback
+    ONINIT: callback,
+    ONFINISHED: callback
 }
 
 export type TimerDefinition = {

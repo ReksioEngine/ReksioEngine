@@ -20,9 +20,16 @@ export class Sound extends Type<SoundDefinition> {
         }
     }
 
+    destroy() {
+        this.sound?.stop()
+        this.sound?.destroy()
+    }
+
     // This argument is "PLAY" for kurator in intro for some reason
-    PLAY(arg: any) {
-        this.sound?.play()
+    async PLAY(arg: any) {
+        console.debug(`Playing sound '${this.definition.FILENAME}'`)
+        const instance = await this.sound!.play()
+        instance.on('end', this.onComplete.bind(this))
     }
 
     STOP(arg: boolean) {
@@ -39,5 +46,12 @@ export class Sound extends Type<SoundDefinition> {
 
     async LOAD(filename: string) {
         this.sound = await loadSound(filename.substring(1))
+    }
+
+    onComplete() {
+        console.debug(`Finished playing sound '${this.definition.FILENAME}'`)
+        if (this.definition.ONFINISHED) {
+            this.engine.executeCallback(this, this.definition.ONFINISHED)
+        }
     }
 }
