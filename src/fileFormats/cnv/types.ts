@@ -256,10 +256,12 @@ const ConditionDefinitionStructure = {
 
 export type StringDefinition = {
     TOINI: boolean
+    VALUE: string
 }
 
 const StringDefinitionStructure = {
-    TOINI: boolean
+    TOINI: boolean,
+    VALUE: string
 }
 
 export type BoolDefinition = {
