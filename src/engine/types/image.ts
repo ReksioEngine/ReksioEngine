@@ -26,7 +26,8 @@ export class Image extends Type<ImageDefinition> {
     }
 
     destroy() {
-        this.sprite?.destroy()
+        if (this.sprite != null)
+            this.sprite.destroy()
     }
 
     ready() {
@@ -47,7 +48,6 @@ export class Image extends Type<ImageDefinition> {
         this.SETPRIORITY(this.definition.PRIORITY)
         this.sprite.visible = this.definition.VISIBLE
         this.engine.addToStage(this.sprite)
-        this.SETPOSITION(0, 0)
 
         console.debug(`File ${this.definition.FILENAME} loaded successfully!`)
     }

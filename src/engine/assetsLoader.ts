@@ -19,5 +19,10 @@ export const loadSprite = async (filename: string) => {
     )
 
     const texture = new PIXI.Texture(baseTexture)
-    return new PIXI.Sprite(texture)
+    const sprite = new PIXI.Sprite(texture)
+
+    sprite.x = image.header.positionX
+    sprite.y = image.header.positionY
+
+    return sprite
 }
