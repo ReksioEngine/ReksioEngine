@@ -11,12 +11,14 @@ export class Timer extends Type<TimerDefinition> {
     private enabled: boolean
 
     private readonly onTick: Record<number, callback>
+    private readonly onTickEveryFrame: callback
 
     constructor(engine: Engine, definition: TimerDefinition) {
         super(engine, definition)
         this.elapse = definition.ELAPSE
         this.enabled = definition.ENABLED
         this.onTick = definition.ONTICK
+        this.onTickEveryFrame = definition.ONTICK
     }
 
     init() {
@@ -67,6 +69,10 @@ export class Timer extends Type<TimerDefinition> {
     }
 
     ONTICK() {
+        if (this.onTickEveryFrame != null) {
+            this.engine.executeCallback(this, this.onTickEveryFrame)
+        }
+
         if (Object.prototype.hasOwnProperty.call(this.onTick, this.currentTick)) {
             this.engine.executeCallback(this, this.onTick[this.currentTick])
         }
