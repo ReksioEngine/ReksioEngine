@@ -6,6 +6,12 @@ const ISOUrl = 'https://archive.org/download/reksio-i-ufo/2.%20Reksio%20i%20Ufo.
 
 let listing: Map<string, string> | null = null
 
+export class FileNotFoundError extends Error {
+    constructor(filename: string) {
+        super(`File '${filename}' not found in files listing`)
+    }
+}
+
 // Windows case-insensitive filenames moment
 const getFilesListing = async () => {
     const response = await fetch(ISOUrl)
@@ -37,7 +43,7 @@ export const getRawFile = async (filename: string) => {
     console.debug(`Fetching '${filename}'...`)
     const fileUrl = listing.get(filename.toLowerCase())
     if (fileUrl == null) {
-        throw new Error(`File '${filename}' not found in files listing`)
+        throw new FileNotFoundError(filename)
     }
 
     const response = await fetch(fileUrl)

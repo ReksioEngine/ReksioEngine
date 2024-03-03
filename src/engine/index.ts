@@ -2,12 +2,15 @@ import {getCNVFile} from '../filesLoader'
 import {callback} from '../fileFormats/cnv/types'
 import {runScript} from '../interpreter/evaluator'
 import {Type} from './types'
-import {loadScene} from './sceneLoader'
+import {loadDefinition} from './definitionLoader'
 import {Application} from 'pixi.js'
+import {Scene} from './types/scene'
 
 export class Engine {
     readonly app: Application
+
     public scope: Record<string, any> = {}
+    public currentScene: Scene | null = null
 
     constructor(app: Application) {
         this.app = app
@@ -15,14 +18,22 @@ export class Engine {
 
     async init() {
         const applicationDef = await getCNVFile('DANE/Application.def')
-        loadScene(this, applicationDef)
+        await loadDefinition(this, applicationDef)
 
         // @ts-ignore
         globalThis.engine = this
     }
 
+    tick(delta: number) {
+        for (const object of Object.values(this.scope)) {
+            object.tick(delta)
+        }
+    }
+
     executeCallback(caller: Type<any> | null, callback: callback) {
-        this.scope.THIS = caller
+        if (caller !== null) {
+            this.scope.THIS = caller
+        }
 
         if (callback.code) {
             return runScript(caller, this.scope, callback.code, callback.isSingleStatement)

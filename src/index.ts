@@ -23,6 +23,8 @@ const main = async () => {
 
     let currentFrame = 0
     app.ticker.add(delta => {
+        engine.tick(delta)
+
         const eventFrame = ufo.events[0].frames[currentFrame]
         ufoSprite.x = ufo.annImages[0].positionX + eventFrame.positionX
         ufoSprite.y = ufo.annImages[0].positionY + eventFrame.positionY

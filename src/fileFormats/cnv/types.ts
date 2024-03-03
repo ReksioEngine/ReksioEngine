@@ -170,13 +170,15 @@ export type SoundDefinition = {
     PRELOAD: boolean
     FLUSHAFTERPLAYED: boolean
     ONINIT: callback
+    ONFINISHED: callback
 }
 
 const SoundStructure = {
     FILENAME: string,
     PRELOAD: boolean,
     FLUSHAFTERPLAYED: boolean,
-    ONINIT: callback
+    ONINIT: callback,
+    ONFINISHED: callback
 }
 
 export type TimerDefinition = {
@@ -197,10 +199,12 @@ const TimerStructure = {
 
 export type BehaviourDefinition = {
     CODE: callback
+    CONDITION: reference
 }
 
 const BehaviourStructure = {
-    CODE: callback
+    CODE: callback,
+    CONDITION: reference
 }
 
 export type ImageDefinition = {
@@ -246,20 +250,26 @@ export type ConditionDefinition = {
     OPERAND1: callback
     OPERATOR: 'EQUAL' | 'NOTEQUAL' | 'LESS' | 'GREATER' | 'LESSEQUAL' | 'GREATEREQUAL'
     OPERAND2: callback
+    ONRUNTIMESUCCESS: callback
+    ONRUNTIMEFAILED: callback
 }
 
 const ConditionDefinitionStructure = {
     OPERAND1: code,
     OPERATOR: string,
-    OPERAND2: code
+    OPERAND2: code,
+    ONRUNTIMESUCCESS: callback,
+    ONRUNTIMEFAILED: callback
 }
 
 export type StringDefinition = {
     TOINI: boolean
+    VALUE: string
 }
 
 const StringDefinitionStructure = {
-    TOINI: boolean
+    TOINI: boolean,
+    VALUE: string
 }
 
 export type BoolDefinition = {
@@ -294,6 +304,21 @@ const ButtonDefinitionStructure = {
     ONRELEASED: callback
 }
 
+export type SequenceDefinition = {
+    FILENAME: string
+    ONFINISHED: callback
+    ONINIT: callback
+}
+
+const SequenceDefinitionStructure = {
+    FILENAME: string,
+    ONFINISHED: callback,
+    ONINIT: callback
+}
+
+export type GroupDefinition = NonNullable<unknown>
+const GroupDefinitionStructure = {}
+
 export const structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -313,5 +338,7 @@ export const structureDefinitions = {
     STRING: StringDefinitionStructure,
     BOOL: BoolDefinitionStructure,
     ARRAY: ArrayDefinitionStructure,
-    BUTTON: ButtonDefinitionStructure
+    BUTTON: ButtonDefinitionStructure,
+    SEQUENCE: SequenceDefinitionStructure,
+    GROUP: GroupDefinitionStructure
 } as any

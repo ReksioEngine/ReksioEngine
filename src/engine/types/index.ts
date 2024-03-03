@@ -15,4 +15,9 @@ export class Type<DefinitionType> {
     ready() {}
     destroy() {}
     tick(delta: number) {}
+
+    // Called when trying to call a method that is not existing for a type
+    __unknown_method(methodName: string, args: any[]) {
+        throw new Error(`Method '${methodName}' does not exist`)
+    }
 }

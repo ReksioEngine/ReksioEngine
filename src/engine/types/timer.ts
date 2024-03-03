@@ -2,10 +2,11 @@ import {Type} from './index'
 import {callback, TimerDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {Integer} from './integer'
-import {NotImplementedError} from '../../utils'
 
 export class Timer extends Type<TimerDefinition> {
     private currentTick: number = 0
+    private startTime: number = 0
+
     private elapse: number
     private enabled: boolean
 
@@ -14,13 +15,33 @@ export class Timer extends Type<TimerDefinition> {
     constructor(engine: Engine, definition: TimerDefinition) {
         super(engine, definition)
         this.elapse = definition.ELAPSE
-        this.enabled = definition.ENABLED // if this is set to false then even ONINIT doesn't start
+        this.enabled = definition.ENABLED
         this.onTick = definition.ONTICK
     }
 
     init() {
-        if (this.definition.ONINIT) {
+        if (this.definition.ONINIT && this.enabled) {
             this.engine.executeCallback(this, this.definition.ONINIT)
+        }
+    }
+
+    ready() {
+        this.RESET()
+    }
+
+    destroy() {
+        this.DISABLE()
+    }
+
+    tick(delta: number) {
+        if (!this.enabled) {
+            return
+        }
+
+        const expectedTick = Math.floor((Date.now() - this.startTime) / this.elapse)
+        while (this.currentTick < expectedTick) {
+            this.currentTick++
+            this.ONTICK()
         }
     }
 
@@ -33,7 +54,8 @@ export class Timer extends Type<TimerDefinition> {
     }
 
     RESET() {
-        throw new NotImplementedError()
+        this.startTime = Date.now()
+        this.currentTick = 0
     }
 
     DISABLE() {

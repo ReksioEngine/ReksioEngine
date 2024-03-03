@@ -19,6 +19,9 @@ import {String as StringType} from './types/string'
 import {Bool} from './types/bool'
 import {Array as ArrayType} from './types/array'
 import {Button} from './types/button'
+import {getCNVFile} from '../filesLoader'
+import {Sequence} from './types/sequence'
+import {Group} from './types/group'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -42,6 +45,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Condition(engine, definition)
     case 'EPISODE':
         return new Episode(engine, definition)
+    case 'GROUP':
+        return new Group(engine, definition)
     case 'IMAGE':
         return new Image(engine, definition)
     case 'INTEGER':
@@ -54,6 +59,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Music(engine, definition)
     case 'SCENE':
         return new Scene(engine, definition)
+    case 'SEQUENCE':
+        return new Sequence(engine, definition)
     case 'SOUND':
         return new Sound(engine, definition)
     case 'STRING':
@@ -66,10 +73,11 @@ const createTypeInstance = (engine: Engine, definition: any) => {
     }
 }
 
-export const loadScene = async (engine: Engine, sceneDefinition: CNV) => {
+export const loadDefinition = async (engine: Engine, definition: CNV) => {
+    engine.app.ticker.stop()
     const orderedScope = []
 
-    for (const [key, value] of Object.entries(sceneDefinition)) {
+    for (const [key, value] of Object.entries(definition)) {
         const instance = createTypeInstance(engine, value)
         engine.scope[key] = instance
         orderedScope.push(instance)
@@ -81,5 +89,21 @@ export const loadScene = async (engine: Engine, sceneDefinition: CNV) => {
         entry.ready()
     })
 
-    console.debug('Scene loaded')
+    engine.app.ticker.start()
+}
+
+export const changeScene = async (engine: Engine, sceneName: string) => {
+    engine.app.ticker.stop()
+
+    for (const object of Object.values(engine.scope)) {
+        object.destroy()
+    }
+
+    const scene: Scene = engine.getObject(sceneName)
+    engine.currentScene = scene
+
+    const sceneDefinition = await getCNVFile(scene.getRelativePath(`${sceneName}.cnv`))
+    await loadDefinition(engine, sceneDefinition)
+
+    engine.app.ticker.start()
 }

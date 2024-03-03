@@ -15,7 +15,7 @@ export class Animo extends Type<AnimoDefinition> {
 
     init() {
         if (this.definition.ONINIT) {
-            // this.engine.executeCallback(this, this.definition.ONINIT)
+            this.engine.executeCallback(this, this.definition.ONINIT)
         }
     }
 
