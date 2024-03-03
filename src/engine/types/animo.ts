@@ -1,5 +1,5 @@
 import {Type} from './index'
-import {AnimoDefinition} from '../../fileFormats/cnv/types'
+import {AnimoDefinition, callback} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError} from '../../utils'
 import {AnimatedSprite, Sprite} from "pixi.js";
@@ -13,10 +13,14 @@ export class Animo extends Type<AnimoDefinition> {
 
     private animatedSprite: AnimatedSprite | null = null
 
+    private readonly onFinished: Record<number, callback>
+
     constructor(engine: Engine, definition: AnimoDefinition) {
         super(engine, definition)
         this.priority = this.definition.PRIORITY
         this.visible = this.definition.VISIBLE
+
+        this.onFinished = definition.ONFINISHED
     }
 
     async init() {
@@ -37,6 +41,14 @@ export class Animo extends Type<AnimoDefinition> {
     ready() {
     }
 
+    tick(delta: number) {
+        if (!this.visible) {
+            return
+        }
+
+        this.ONTICK()
+    }
+
     private async loadAnimation() {
         const relativePath = this.engine.currentScene?.getRelativePath(this.definition.FILENAME);
         if (relativePath == undefined)
@@ -55,96 +67,90 @@ export class Animo extends Type<AnimoDefinition> {
         console.debug(`File ${this.definition.FILENAME} loaded successfully!`)
     }
 
+    ONTICK() {
+        const index = Math.floor(Math.random() * 5);
+
+        if (Object.prototype.hasOwnProperty.call(this.onFinished, index)) {
+            this.engine.executeCallback(this, this.onFinished[index])
+        }
+    }
+
     PLAY(name: string) {
-        //throw new NotImplementedError()
+        throw new NotImplementedError()
     }
     SETFRAME(frame: number) {
-        //throw new NotImplementedError()
+        throw new NotImplementedError()
     }
     SETFPS(fps: number) {
-        //throw new NotImplementedError()
+        throw new NotImplementedError()
     }
     SETPOSITION(x: number, y: number) {
-        //throw new NotImplementedError()
+        throw new NotImplementedError()
     }
     SETPRIORITY(priority: number) {
         this.priority = priority
     }
     SETASBUTTON(arg1: boolean, arg2: boolean) {
-        //throw new NotImplementedError()
+        throw new NotImplementedError()
     }
     GETCENTERX(): number {
-        //throw new NotImplementedError()
-        return 0
+        throw new NotImplementedError()
     }
     GETCENTERY(): number {
-        //throw new NotImplementedError()
-        return 0
+        throw new NotImplementedError()
     }
     GETPOSITIONY(): number {
-        //throw new NotImplementedError()
-        return 0
+        throw new NotImplementedError()
     }
     GETPOSITIONX(): number {
-        //throw new NotImplementedError()
-        return 0
+        throw new NotImplementedError()
     }
     GETFRAMENAME(): string {
-        //throw new NotImplementedError()
-        return ""
+        throw new NotImplementedError()
     }
     GETMAXWIDTH(): number {
-        //throw new NotImplementedError()
-        return 0
+        throw new NotImplementedError()
     }
     GETNOFINEVENT(): string {
-        //throw new NotImplementedError()
-        return ""
+        throw new NotImplementedError()
     }
     GETEVENTNAME(): string {
-        //throw new NotImplementedError()
-
-        return ""
+        throw new NotImplementedError()
     }
     GETFRAME(): number {
-        //throw new NotImplementedError()
-        return 0
+        throw new NotImplementedError()
     }
     GETCURRFRAMEPOSX(): number {
-        //throw new NotImplementedError()
-
-        return 0
+        throw new NotImplementedError()
     }
     GETCURRFRAMEPOSY(): number {
-        //throw new NotImplementedError()
-
-        return 0
+        throw new NotImplementedError()
     }
     SHOW() {
-        //this.visible = true
+        this.visible = true
     }
     HIDE() {
-        //this.visible = false
+        this.visible = false
     }
     STOP(arg: boolean) {
-        //throw new NotImplementedError()
+        throw new NotImplementedError()
     }
     PAUSE() {
-        //throw new NotImplementedError()
+        throw new NotImplementedError()
     }
     RESUME() {
-        //throw new NotImplementedError()
+        throw new NotImplementedError()
     }
     MOVE(offsetX: number, offsetY: number) {
-        //throw new NotImplementedError()
+        throw new NotImplementedError()
     }
     CLONE(arg: number) {
-        //throw new NotImplementedError()
+        throw new NotImplementedError()
     }
     ISPLAYING(animName: string) {
-        //throw new NotImplementedError()
+        throw new NotImplementedError()
     }
     ISNEAR(objectName: string, arg: number) {
-        //throw new NotImplementedError()
+        throw new NotImplementedError()
     }
 }
