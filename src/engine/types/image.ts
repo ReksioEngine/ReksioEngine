@@ -4,6 +4,7 @@ import {ImageDefinition} from '../../fileFormats/cnv/types'
 import {NotImplementedError} from '../../utils'
 import {Sprite} from "pixi.js";
 import {loadSprite} from "../assetsLoader";
+import {FileNotFoundError} from "../../filesLoader";
 
 export class Image extends Type<ImageDefinition> {
     private opacity: number = 1
@@ -21,6 +22,8 @@ export class Image extends Type<ImageDefinition> {
 
     async init() {
         this.sprite = await this.load()
+
+        //invoke ONINIT
     }
 
     destroy() {
@@ -32,12 +35,11 @@ export class Image extends Type<ImageDefinition> {
     }
 
     private async load() {
-        console.debug(`Loading file: ${this.definition.FILENAME}`)
+        const relativePath = this.engine.currentScene?.getRelativePath(this.definition.FILENAME);
+        if (relativePath == undefined)
+            throw new FileNotFoundError("Current scene is undefined!")
 
-        //TODO: How to get total path to file? From scene structure?
-        const temporary_path = `DANE/ReksioUfo/PRZYGODA/s1_0_intro1/${this.definition.FILENAME}`
-
-        return await loadSprite(temporary_path);
+        return await loadSprite(relativePath);
     }
 
     private initSprite() {
@@ -46,7 +48,7 @@ export class Image extends Type<ImageDefinition> {
 
         this.SETPOSITION(0, 0)
         this.SETPRIORITY(this.definition.PRIORITY)
-        this.sprite.visible = true //this.definition.VISIBLE returning false?
+        this.sprite.visible = this.definition.VISIBLE
         this.engine.app.stage.addChild(this.sprite)
 
         console.debug(`File ${this.definition.FILENAME} loaded successfully! ${this.definition.VISIBLE}`)
