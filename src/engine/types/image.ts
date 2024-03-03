@@ -8,22 +8,21 @@ import {FileNotFoundError} from "../../filesLoader";
 
 export class Image extends Type<ImageDefinition> {
     private opacity: number = 1
-    private priority: number
 
     private sprite: Sprite | null = null
 
-    private x: number = 0
-    private y: number = 0
-
     constructor(engine: Engine, definition: ImageDefinition) {
         super(engine, definition)
-        this.priority = definition.PRIORITY
     }
 
     async init() {
         this.sprite = await this.load()
 
-        //invoke ONINIT
+        this.initSprite();
+
+        if (this.definition.ONINIT) {
+            this.engine.executeCallback(this, this.definition.ONINIT)
+        }
     }
 
     destroy() {
@@ -31,7 +30,6 @@ export class Image extends Type<ImageDefinition> {
     }
 
     ready() {
-        this.initSprite();
     }
 
     private async load() {
@@ -46,12 +44,12 @@ export class Image extends Type<ImageDefinition> {
         if (this.sprite == null)
             throw new Error(`Cannot load image '${this.definition.FILENAME}'`);
 
-        this.SETPOSITION(0, 0)
         this.SETPRIORITY(this.definition.PRIORITY)
         this.sprite.visible = this.definition.VISIBLE
-        this.engine.app.stage.addChild(this.sprite)
+        this.engine.addToStage(this.sprite)
+        this.SETPOSITION(0, 0)
 
-        console.debug(`File ${this.definition.FILENAME} loaded successfully! ${this.definition.VISIBLE}`)
+        console.debug(`File ${this.definition.FILENAME} loaded successfully!`)
     }
 
     SETOPACITY(opacity: number) {
@@ -59,17 +57,27 @@ export class Image extends Type<ImageDefinition> {
     }
 
     MOVE(xOffset: number, yOffset: number) {
-        this.x += xOffset
-        this.y += yOffset
+        if (this.sprite == null)
+            return;
+
+        this.sprite.x += xOffset
+        this.sprite.y += yOffset
     }
 
     SETPOSITION(x: number, y: number) {
-        this.x = x
-        this.y = y
+        if (this.sprite == null)
+            return;
+
+        this.sprite.x = x
+        this.sprite.y = y
     }
 
     SETPRIORITY(priority: number) {
-        this.priority = priority
+        if (this.sprite == null)
+            return;
+
+        this.sprite.zIndex = -priority;
+        this.sprite.sortChildren();
     }
 
     CLONE() {
@@ -91,7 +99,7 @@ export class Image extends Type<ImageDefinition> {
     }
 
     GETPOSITIONY() {
-        return this.y
+        return this.sprite != null ? this.sprite.y : 0
     }
 
     GETALPHA(x: number, y: number) {

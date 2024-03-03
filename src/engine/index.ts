@@ -3,7 +3,7 @@ import {callback} from '../fileFormats/cnv/types'
 import {runScript} from '../interpreter/evaluator'
 import {Type} from './types'
 import {loadDefinition} from './definitionLoader'
-import {Application} from 'pixi.js'
+import {Application, Sprite} from 'pixi.js'
 import {Scene} from './types/scene'
 
 export class Engine {
@@ -19,6 +19,8 @@ export class Engine {
     async init() {
         const applicationDef = await getCNVFile('DANE/Application.def')
         await loadDefinition(this, applicationDef)
+
+        this.app.stage.sortableChildren = true;
 
         // @ts-ignore
         globalThis.engine = this
@@ -40,6 +42,12 @@ export class Engine {
         } else if (callback.behaviourReference) {
             return this.scope[callback.behaviourReference].RUN()
         }
+    }
+
+    addToStage(sprite: Sprite) {
+        sprite.sortableChildren = true;
+
+        this.app.stage.addChild(sprite)
     }
 
     getObject(name: string) {
