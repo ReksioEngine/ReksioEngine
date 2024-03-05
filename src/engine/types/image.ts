@@ -38,7 +38,7 @@ export class Image extends Type<ImageDefinition> {
         if (relativePath == undefined)
             throw new FileNotFoundError("Current scene is undefined!")
 
-        return await loadSprite(relativePath);
+        return await loadSprite(this.engine.fileLoader, relativePath);
     }
 
     private initSprite() {

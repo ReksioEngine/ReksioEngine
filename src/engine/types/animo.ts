@@ -3,9 +3,7 @@ import {AnimoDefinition, callback} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError} from '../../utils'
 import {AnimatedSprite, Sprite} from "pixi.js";
-import {FileNotFoundError, getANNFile} from "../../filesLoader";
-import {loadSprite} from "../assetsLoader";
-import {loadAnn} from "../../fileFormats/ann";
+import {FileNotFoundError} from "../../filesLoader";
 
 export class Animo extends Type<AnimoDefinition> {
     private priority: number
@@ -54,7 +52,7 @@ export class Animo extends Type<AnimoDefinition> {
         if (relativePath == undefined)
             throw new FileNotFoundError("Current scene is undefined!")
 
-        return await getANNFile(relativePath)
+        return await this.engine.fileLoader.getANNFile(relativePath)
     }
 
     private initAnimatedSprite() {

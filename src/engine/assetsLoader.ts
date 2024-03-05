@@ -10,8 +10,8 @@ export const loadSound = async (fileLoader: FileLoader, filename: string, option
     })
 }
 
-export const loadSprite = async (filename: string) => {
-    const image = await getIMGFile(filename)
+export const loadSprite = async (fileLoader: FileLoader, filename: string) => {
+    const image = await fileLoader.getIMGFile(filename)
     const baseTexture = PIXI.BaseTexture.fromBuffer(
         new Uint8Array(image.bytes),
         image.header.width,
