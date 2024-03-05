@@ -50,6 +50,13 @@ interface AnnImage {
     name: string
 }
 
+export interface ANN {
+    header: AnnHeader
+    events: Event[]
+    images: Uint8Array[]
+    annImages: AnnImage[]
+}
+
 const parseHeader = (view: BinaryBuffer) => {
     const magic = view.getUint32()
     if (magic != 0x50564e) {
@@ -157,5 +164,5 @@ export const loadAnn = (data: ArrayBuffer) => {
         events,
         images,
         annImages
-    }
+    } as ANN
 }

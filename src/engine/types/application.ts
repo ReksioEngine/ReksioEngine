@@ -2,7 +2,6 @@ import {Type} from './index'
 import {ApplicationDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError, pathJoin} from '../../utils'
-import {getCNVFile} from '../../filesLoader'
 import {loadDefinition} from '../definitionLoader'
 
 export class Application extends Type<ApplicationDefinition> {
@@ -13,7 +12,7 @@ export class Application extends Type<ApplicationDefinition> {
     async init() {
         const currentEpisode = this.engine.getObject(this.definition.STARTWITH)
 
-        const episodeDefinition = await getCNVFile(pathJoin('DANE', currentEpisode.definition.PATH, this.definition.STARTWITH + '.cnv'))
+        const episodeDefinition = await this.engine.fileLoader.getCNVFile(pathJoin('DANE', currentEpisode.definition.PATH, this.definition.STARTWITH + '.cnv'))
         await loadDefinition(this.engine, episodeDefinition)
 
         currentEpisode.start()

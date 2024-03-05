@@ -12,7 +12,7 @@ export class Music extends Type<MusicDefinition> {
     }
 
     async init() {
-        this.sound = await loadSound(this.definition.FILENAME, {
+        this.sound = await loadSound(this.engine.fileLoader, this.definition.FILENAME, {
             loop: true
         })
     }

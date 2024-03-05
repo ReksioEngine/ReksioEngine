@@ -1,4 +1,3 @@
-import {getANNFile, getIMGFile} from './filesLoader'
 import {Engine} from './engine'
 import * as PIXI from 'pixi.js'
 
@@ -12,7 +11,7 @@ const main = async () => {
     await engine.init()
 
     // Background
-    const bgImage = await getIMGFile('DANE/ReksioUfo/PRZYGODA/s1_0_intro1/gwiazdy.img')
+    const bgImage = await engine.fileLoader.getIMGFile('DANE/ReksioUfo/PRZYGODA/s1_0_intro1/gwiazdy.img')
     const bgBaseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(bgImage.bytes), bgImage.header.width, bgImage.header.height)
     const bgTexture = new PIXI.Texture(bgBaseTexture)
 
@@ -22,7 +21,7 @@ const main = async () => {
     app.stage.addChild(bgSprite)
 
     // Ufo
-    const ufo = await getANNFile('DANE/ReksioUfo/PRZYGODA/s1_0_intro1/ufo.ann')
+    const ufo = await engine.fileLoader.getANNFile('DANE/ReksioUfo/PRZYGODA/s1_0_intro1/ufo.ann')
     const ufoBaseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(ufo.images[0]), ufo.annImages[0].width, ufo.annImages[0].height)
     const ufoTexture = new PIXI.Texture(ufoBaseTexture)
 

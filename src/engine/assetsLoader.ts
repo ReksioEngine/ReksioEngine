@@ -1,9 +1,9 @@
 import {Options, Sound} from '@pixi/sound'
-import {getRawFile} from '../filesLoader'
+import {FileLoader} from '../filesLoader'
 
-export const loadSound = async (filename: string, options?: Options) => {
+export const loadSound = async (fileLoader: FileLoader, filename: string, options?: Options) => {
     return Sound.from({
-        source: await getRawFile(filename),
+        source: await fileLoader.getRawFile(filename),
         ...options
     })
 }

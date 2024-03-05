@@ -13,7 +13,7 @@ interface ImageHeader {
     positionY: number
 }
 
-interface Image {
+export interface Image {
     header: ImageHeader
     bytes: ArrayBuffer
 }

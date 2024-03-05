@@ -1,10 +1,10 @@
-import {getCNVFile} from '../filesLoader'
 import {callback} from '../fileFormats/cnv/types'
 import {runScript} from '../interpreter/evaluator'
 import {Type} from './types'
 import {loadDefinition} from './definitionLoader'
 import {Application} from 'pixi.js'
 import {Scene} from './types/scene'
+import {FileLoader, GithubFileLoader} from '../filesLoader'
 
 export class Engine {
     readonly app: Application
@@ -12,12 +12,14 @@ export class Engine {
     public scope: Record<string, any> = {}
     public currentScene: Scene | null = null
 
+    public fileLoader: FileLoader = new GithubFileLoader('reksioiufo')
+
     constructor(app: Application) {
         this.app = app
     }
 
     async init() {
-        const applicationDef = await getCNVFile('DANE/Application.def')
+        const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
         await loadDefinition(this, applicationDef)
 
         // @ts-ignore
