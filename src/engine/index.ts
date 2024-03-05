@@ -80,7 +80,11 @@ export class Engine {
         this.app.ticker.start()
     }
 
-    getObject(name: string) {
-        return this.scope[name] ?? this.globalScope[name]
+    getObject(name: string | reference): any {
+        if (typeof name == 'string') {
+            return this.scope[name] ?? this.globalScope[name]
+        } else {
+            return this.getObject(name.objectName)
+        }
     }
 }

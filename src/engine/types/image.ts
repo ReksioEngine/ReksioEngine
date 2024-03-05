@@ -9,7 +9,7 @@ import {FileNotFoundError} from '../../filesLoader'
 export class Image extends Type<ImageDefinition> {
     private opacity: number = 1
 
-    private sprite: Sprite | null = null
+    public sprite: Sprite | null = null
 
     constructor(engine: Engine, definition: ImageDefinition) {
         super(engine, definition)
