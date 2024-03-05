@@ -32,11 +32,9 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     destroy() {
-        if (this.animatedSprite != null)
+        if (this.animatedSprite != null) {
             this.animatedSprite.destroy()
-    }
-
-    ready() {
+        }
     }
 
     tick(delta: number) {
@@ -56,8 +54,6 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     private initAnimatedSprite() {
-
-
         this.SETPRIORITY(this.definition.PRIORITY)
         //this.animatedSprite.visible = this.definition.VISIBLE
         //this.engine.addToStage(this.animatedSprite)

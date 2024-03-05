@@ -17,40 +17,36 @@ export class Image extends Type<ImageDefinition> {
 
     async init() {
         this.sprite = await this.load()
-
-        this.initSprite()
+        this.sprite.visible = this.definition.VISIBLE
+        this.SETPRIORITY(this.definition.PRIORITY)
 
         if (this.definition.ONINIT) {
             this.engine.executeCallback(this, this.definition.ONINIT)
         }
     }
 
-    destroy() {
+    ready() {
         if (this.sprite === null) return
-
-        this.sprite.destroy()
+        this.engine.addToStage(this.sprite)
     }
 
-    ready() {
+    destroy() {
+        if (this.sprite === null) return
+        this.sprite.destroy()
     }
 
     private async load() {
         const relativePath = this.engine.currentScene?.getRelativePath(this.definition.FILENAME)
-        if (relativePath == undefined)
+        if (relativePath == undefined) {
             throw new FileNotFoundError('Current scene is undefined!')
+        }
 
-        return await loadSprite(this.engine.fileLoader, relativePath)
-    }
-
-    private initSprite() {
-        if (this.sprite == null)
+        const sprite = await loadSprite(this.engine.fileLoader, relativePath)
+        if (this.sprite == null) {
             throw new Error(`Cannot load image '${this.definition.FILENAME}'`)
+        }
 
-        this.SETPRIORITY(this.definition.PRIORITY)
-        this.sprite.visible = this.definition.VISIBLE
-        this.engine.addToStage(this.sprite)
-
-        console.debug(`File ${this.definition.FILENAME} loaded successfully!`)
+        return sprite
     }
 
     SETOPACITY(opacity: number) {
@@ -59,14 +55,12 @@ export class Image extends Type<ImageDefinition> {
 
     MOVE(xOffset: number, yOffset: number) {
         if (this.sprite === null) return
-
         this.sprite.x += xOffset
         this.sprite.y += yOffset
     }
 
     SETPOSITION(x: number, y: number) {
         if (this.sprite === null) return
-
         this.sprite.x = x
         this.sprite.y = y
     }
@@ -84,13 +78,11 @@ export class Image extends Type<ImageDefinition> {
 
     SHOW() {
         if (this.sprite === null) return
-
         this.sprite.visible = true
     }
 
     HIDE() {
         if (this.sprite === null) return
-
         this.sprite.visible = false
     }
 
