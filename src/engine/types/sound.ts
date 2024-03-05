@@ -55,7 +55,7 @@ export class Sound extends Type<SoundDefinition> {
 
     async loadSound(path: string) {
         try {
-            this.sound = await loadSound(path)
+            this.sound = await loadSound(this.engine.fileLoader, path)
         } catch (err) {
             if (err instanceof FileNotFoundError) {
                 // Ignore sound loading errors

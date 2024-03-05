@@ -19,7 +19,6 @@ import {String as StringType} from './types/string'
 import {Bool} from './types/bool'
 import {Array as ArrayType} from './types/array'
 import {Button} from './types/button'
-import {getCNVFile} from '../filesLoader'
 import {Sequence} from './types/sequence'
 import {Group} from './types/group'
 
@@ -102,7 +101,7 @@ export const changeScene = async (engine: Engine, sceneName: string) => {
     const scene: Scene = engine.getObject(sceneName)
     engine.currentScene = scene
 
-    const sceneDefinition = await getCNVFile(scene.getRelativePath(`${sceneName}.cnv`))
+    const sceneDefinition = await engine.fileLoader.getCNVFile(scene.getRelativePath(`${sceneName}.cnv`))
     await loadDefinition(engine, sceneDefinition)
 
     engine.app.ticker.start()
