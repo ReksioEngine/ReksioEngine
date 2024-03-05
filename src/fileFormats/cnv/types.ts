@@ -29,7 +29,7 @@ const convertParam = (func: FieldTypeParser, modifier: (value: string) => any) =
 }
 
 const numberParam = (func: FieldTypeParser) => {
-    return convertParam(func, (value => +value))
+    return convertParam(func, (value => value !== undefined ? +value : value))
 }
 
 const createCallback = (value: string) => {
