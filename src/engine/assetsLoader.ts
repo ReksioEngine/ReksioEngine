@@ -1,7 +1,6 @@
 import {Options, Sound} from '@pixi/sound'
 import {FileLoader} from '../filesLoader'
-import {Sprite} from "pixi.js";
-import * as PIXI from "pixi.js";
+import * as PIXI from 'pixi.js'
 
 export const loadSound = async (fileLoader: FileLoader, filename: string, options?: Options) => {
     return Sound.from({
