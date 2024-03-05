@@ -42,7 +42,7 @@ export class Image extends Type<ImageDefinition> {
         }
 
         const sprite = await loadSprite(this.engine.fileLoader, relativePath)
-        if (this.sprite == null) {
+        if (sprite == null) {
             throw new Error(`Cannot load image '${this.definition.FILENAME}'`)
         }
 
