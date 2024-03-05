@@ -2,7 +2,6 @@ import {Type} from './index'
 import {EpisodeDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError} from '../../utils'
-import {changeScene} from '../definitionLoader'
 
 export class Episode extends Type<EpisodeDefinition> {
     constructor(engine: Engine, definition: EpisodeDefinition) {
@@ -15,7 +14,7 @@ export class Episode extends Type<EpisodeDefinition> {
 
     async GOTO(sceneName: string) {
         if (this.definition.SCENES.includes(sceneName)) {
-            await changeScene(this.engine, sceneName)
+            await this.engine.changeScene(sceneName)
         }
     }
 

@@ -90,19 +90,3 @@ export const loadDefinition = async (engine: Engine, definition: CNV) => {
 
     engine.app.ticker.start()
 }
-
-export const changeScene = async (engine: Engine, sceneName: string) => {
-    engine.app.ticker.stop()
-
-    for (const object of Object.values(engine.scope)) {
-        object.destroy()
-    }
-
-    const scene: Scene = engine.getObject(sceneName)
-    engine.currentScene = scene
-
-    const sceneDefinition = await engine.fileLoader.getCNVFile(scene.getRelativePath(`${sceneName}.cnv`))
-    await loadDefinition(engine, sceneDefinition)
-
-    engine.app.ticker.start()
-}

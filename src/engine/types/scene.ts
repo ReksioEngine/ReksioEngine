@@ -1,7 +1,7 @@
 import {Type} from './index'
 import {SceneDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
-import {NotImplementedError, pathJoin} from '../../utils'
+import {pathJoin} from '../../utils'
 
 export class Scene extends Type<SceneDefinition> {
     constructor(engine: Engine, definition: SceneDefinition) {
@@ -13,6 +13,6 @@ export class Scene extends Type<SceneDefinition> {
     }
 
     SETMUSICVOLUME(volume: number) {
-        throw new NotImplementedError()
+        // I don't think that it does anything
     }
 }
