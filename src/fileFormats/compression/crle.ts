@@ -1,39 +1,27 @@
 import {BinaryBuffer} from '../utils'
 
-const resizeArray = (array: Uint8Array, size: number) => {
-    const newBuffer = new Uint8Array(size)
-    newBuffer.set(array)
-    return newBuffer
-}
+export const decompress = (input: BinaryBuffer, decompressedSize: number, bulk: number = 1): Uint8Array => {
+    const output = new Uint8Array(decompressedSize)
+    let outputPosition = 0
 
-// Based on https://github.com/mysliwy112/AM-transcoder/blob/master/include/CRLE.h
-export const decompress = (src: BinaryBuffer, bulk: number = 1) => {
-    const data = new Uint8Array(src.buffer())
-
-    let n = new Uint8Array()
-    let i = 0
-    while (i < data.length) {
-        if (data[i] < 128) {
-            const subArray = data.slice(i + 1, i + data[i] * bulk + 1)
-            const endOfN = n.length
-            n = resizeArray(n, n.length + subArray.length)
-            n.set(subArray, endOfN)
-            i += data[i] * bulk + 1
+    while (outputPosition < decompressedSize) {
+        const count = input.getUint8()
+        if (count < 128) {
+            for (let i = 0; i < count * bulk; i++) {
+                output[outputPosition++] = input.getUint8()
+            }
         } else {
-            data[i] -= 128
-            const varLength = n.length
-            const newSize = varLength + data[i] * bulk
-            n = resizeArray(n, newSize)
-
-            for (let k = 0; k < data[i]; k++) {
-                for (let l = 0; l < bulk; l++) {
-                    n[varLength + k * bulk + l] = data[i + l + 1]
+            const repeated = new Array(bulk)
+            for (let i = 0; i < bulk; i++) {
+                repeated[i] = input.getUint8()
+            }
+            for (let i = 0; i < (count & 0x7f); i++) {
+                for (let j = 0; j < bulk; j++) {
+                    output[outputPosition++] = repeated[j]
                 }
             }
-
-            i += 1 + bulk
         }
     }
 
-    return n
+    return output
 }

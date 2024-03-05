@@ -61,38 +61,49 @@ const convertToRgba32 = (bytes: Uint8Array) => {
 
 // Based on https://github.com/mysliwy112/AM-transcoder/blob/master/src/image.cpp
 const addAlpha = (imgBytes: Uint8Array, alphaBytes: Uint8Array) => {
-    const rgba = new Uint8Array(imgBytes.byteLength + imgBytes.byteLength / 3)
-    let al = 0
-    let da = 0
+    const output = new Uint8Array(imgBytes.byteLength + imgBytes.byteLength / 3)
+    let alphaPosition = 0
+    let colorPosition = 0
 
-    for (let i = 0; i < rgba.byteLength; i += 4) {
-        rgba[i] = imgBytes[da]
-        rgba[i+1] = imgBytes[da+1]
-        rgba[i+2] = imgBytes[da+2]
+    for (let i = 0; i < output.byteLength; i += 4) {
+        output[i] = imgBytes[colorPosition]
+        output[i+1] = imgBytes[colorPosition+1]
+        output[i+2] = imgBytes[colorPosition+2]
         if (alphaBytes.byteLength == 0) {
-            rgba[i+3] = 255
+            output[i+3] = 255
         } else {
-            rgba[i+3] = alphaBytes[al]
+            output[i+3] = alphaBytes[alphaPosition]
         }
-        da += 3
-        al++
+        colorPosition += 3
+        alphaPosition++
     }
 
-    return rgba
+    return output
 }
 
 export const loadImage = (data: ArrayBuffer): Image => {
     const buffer = new BinaryBuffer(new DataView(data))
     const header = parseHeader(buffer)
 
-    const imgBytes = loadImageWithoutHeader(buffer, header.compressionType, header.imageLen, header.alphaLen)
+    const decompressedImageLen = header.width * header.height * 2
+    const decompressedAlphaLen = header.width * header.height
+    const imgBytes = loadImageWithoutHeader(buffer, header.compressionType, header.imageLen, decompressedImageLen, header.alphaLen, decompressedAlphaLen)
     return {
         header,
         bytes: imgBytes
     }
 }
 
-export const loadImageWithoutHeader = (buffer: BinaryBuffer, compressionType: number, imageLen: number, alphaLen: number) => {
+const isEqual = (a: Uint8Array, b: Uint8Array) => {
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] != b[i]) {
+            return false
+        }
+    }
+    return true
+}
+
+export const loadImageWithoutHeader = (buffer: BinaryBuffer, compressionType: number, imageLen: number, decompressedImageLen: number, alphaLen: number, decompressedAlphaLen: number) => {
     let imgBytes
     let alphaBytes
     if (compressionType == 2) {
@@ -102,8 +113,8 @@ export const loadImageWithoutHeader = (buffer: BinaryBuffer, compressionType: nu
         const imgBuffer = new BinaryBuffer(new DataView(buffer.read(imageLen)))
         const alphaBuffer = new BinaryBuffer(new DataView(buffer.read(alphaLen)))
 
-        imgBytes = new Uint8Array(CRLEDecompress(imgBuffer, 2))
-        alphaBytes = new Uint8Array(CRLEDecompress(alphaBuffer, 1))
+        imgBytes = new Uint8Array(CRLEDecompress(imgBuffer, decompressedImageLen, 2))
+        alphaBytes = new Uint8Array(CRLEDecompress(alphaBuffer, decompressedAlphaLen, 1))
     } else {
         imgBytes = new Uint8Array(buffer.read(imageLen))
         alphaBytes = new Uint8Array(buffer.read(alphaLen))
