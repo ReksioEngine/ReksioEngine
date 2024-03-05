@@ -2,7 +2,7 @@ import {callback} from '../fileFormats/cnv/types'
 import {runScript} from '../interpreter/evaluator'
 import {Type} from './types'
 import {loadDefinition} from './definitionLoader'
-import {Application} from 'pixi.js'
+import {Application, Sprite} from 'pixi.js'
 import {Scene} from './types/scene'
 import {FileLoader, GithubFileLoader} from '../filesLoader'
 import {Sound} from '@pixi/sound'
@@ -11,6 +11,7 @@ import {loadSound} from './assetsLoader'
 export class Engine {
     readonly app: Application
 
+    public globalScope: Record<string, any> = {}
     public scope: Record<string, any> = {}
     public currentScene: Scene | null = null
 
@@ -23,7 +24,9 @@ export class Engine {
 
     async init() {
         const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
-        await loadDefinition(this, applicationDef)
+        await loadDefinition(this, this.globalScope, applicationDef)
+
+        this.app.stage.sortableChildren = true
 
         // @ts-ignore
         globalThis.engine = this
@@ -41,10 +44,16 @@ export class Engine {
         }
 
         if (callback.code) {
-            return runScript(caller, this.scope, callback.code, callback.isSingleStatement)
+            return runScript(this, callback.code, callback.isSingleStatement)
         } else if (callback.behaviourReference) {
             return this.scope[callback.behaviourReference].RUN()
         }
+    }
+
+    addToStage(sprite: Sprite) {
+        sprite.sortableChildren = true
+
+        this.app.stage.addChild(sprite)
     }
 
     async changeScene(sceneName: string) {
@@ -53,13 +62,15 @@ export class Engine {
             this.music.stop()
         }
 
-        for (const object of Object.values(this.scope)) {
+        // Remove non-global scope objects
+        for (const [key, object] of Object.entries(this.scope)) {
             object.destroy()
+            delete this.scope[key]
         }
 
         this.currentScene = this.getObject(sceneName) as Scene
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(`${sceneName}.cnv`))
-        await loadDefinition(this, sceneDefinition)
+        await loadDefinition(this, this.scope, sceneDefinition)
 
         this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
             loop: true
@@ -70,6 +81,6 @@ export class Engine {
     }
 
     getObject(name: string) {
-        return this.scope[name]
+        return this.scope[name] ?? this.globalScope[name]
     }
 }

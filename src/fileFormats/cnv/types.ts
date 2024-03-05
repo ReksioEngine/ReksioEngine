@@ -234,7 +234,8 @@ export type ImageDefinition = {
     PRELOAD: boolean
     RELEASE: boolean
     MONITORCOLLISION: boolean
-    MONITORCOLLISIONALPHA: boolean
+    MONITORCOLLISIONALPHA: boolean,
+    ONINIT: callback
 }
 
 const ImageStructure = {
@@ -245,7 +246,8 @@ const ImageStructure = {
     PRELOAD: boolean,
     RELEASE: boolean,
     MONITORCOLLISION: boolean,
-    MONITORCOLLISIONALPHA: boolean
+    MONITORCOLLISIONALPHA: boolean,
+    ONINIT: callback
 }
 
 export type MouseDefinition = {
