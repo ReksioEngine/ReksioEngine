@@ -72,13 +72,13 @@ const createTypeInstance = (engine: Engine, definition: any) => {
     }
 }
 
-export const loadDefinition = async (engine: Engine, definition: CNV) => {
+export const loadDefinition = async (engine: Engine, scope: Record<string, any>, definition: CNV) => {
     engine.app.ticker.stop()
     const orderedScope = []
 
     for (const [key, value] of Object.entries(definition)) {
         const instance = createTypeInstance(engine, value)
-        engine.scope[key] = instance
+        scope[key] = instance
         orderedScope.push(instance)
     }
 
