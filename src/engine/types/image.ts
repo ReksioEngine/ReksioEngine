@@ -8,7 +8,6 @@ import {FileNotFoundError} from '../../filesLoader'
 
 export class Image extends Type<ImageDefinition> {
     private opacity: number = 1
-    private isInit: boolean = false
 
     private sprite: Sprite | null = null
 
@@ -27,7 +26,7 @@ export class Image extends Type<ImageDefinition> {
     }
 
     destroy() {
-        if (!this.isInit || this.sprite === null) return
+        if (this.sprite === null) return
 
         this.sprite.destroy()
     }
@@ -52,8 +51,6 @@ export class Image extends Type<ImageDefinition> {
         this.engine.addToStage(this.sprite)
 
         console.debug(`File ${this.definition.FILENAME} loaded successfully!`)
-
-        this.isInit = true
     }
 
     SETOPACITY(opacity: number) {
