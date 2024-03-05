@@ -94,15 +94,6 @@ export const loadImage = (data: ArrayBuffer): Image => {
     }
 }
 
-const isEqual = (a: Uint8Array, b: Uint8Array) => {
-    for (let i = 0; i < a.length; i++) {
-        if (a[i] != b[i]) {
-            return false
-        }
-    }
-    return true
-}
-
 export const loadImageWithoutHeader = (buffer: BinaryBuffer, compressionType: number, imageLen: number, decompressedImageLen: number, alphaLen: number, decompressedAlphaLen: number) => {
     let imgBytes
     let alphaBytes
