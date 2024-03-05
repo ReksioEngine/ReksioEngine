@@ -8,6 +8,7 @@ import {FileNotFoundError} from '../../filesLoader'
 
 export class Image extends Type<ImageDefinition> {
     private opacity: number = 1
+    private isInit: boolean = false;
 
     private sprite: Sprite | null = null
 
@@ -26,8 +27,9 @@ export class Image extends Type<ImageDefinition> {
     }
 
     destroy() {
-        if (this.sprite != null)
-            this.sprite.destroy()
+        if (!this.isInit || this.sprite === null) return;
+
+        this.sprite.destroy()
     }
 
     ready() {
@@ -50,6 +52,8 @@ export class Image extends Type<ImageDefinition> {
         this.engine.addToStage(this.sprite)
 
         console.debug(`File ${this.definition.FILENAME} loaded successfully!`)
+
+        this.isInit = true;
     }
 
     SETOPACITY(opacity: number) {
@@ -57,24 +61,21 @@ export class Image extends Type<ImageDefinition> {
     }
 
     MOVE(xOffset: number, yOffset: number) {
-        if (this.sprite == null)
-            return
+        if (this.sprite === null) return
 
         this.sprite.x += xOffset
         this.sprite.y += yOffset
     }
 
     SETPOSITION(x: number, y: number) {
-        if (this.sprite == null)
-            return
+        if (this.sprite === null) return
 
         this.sprite.x = x
         this.sprite.y = y
     }
 
     SETPRIORITY(priority: number) {
-        if (this.sprite == null)
-            return
+        if (this.sprite === null) return
 
         this.sprite.zIndex = -priority
         this.sprite.sortChildren()
@@ -85,21 +86,19 @@ export class Image extends Type<ImageDefinition> {
     }
 
     SHOW() {
-        if (this.sprite == null)
-            return
+        if (this.sprite === null) return
 
         this.sprite.visible = true
     }
 
     HIDE() {
-        if (this.sprite == null)
-            return
+        if (this.sprite === null) return
 
         this.sprite.visible = false
     }
 
     GETPOSITIONY() {
-        return this.sprite != null ? this.sprite.y : 0
+        return this.sprite !== null ? this.sprite.y : 0
     }
 
     GETALPHA(x: number, y: number) {
