@@ -1,30 +1,44 @@
+type FieldTypeParser = (object: any, key: string, param: string, value: string) => void
+
 const string = (object: any, key: string, param: string, value: string) => object[key] = value
 const number = (object: any, key: string, param: string, value: string) => object[key] = parseInt(value)
 const boolean = (object: any, key: string, param: string, value: string) => object[key] = value === 'TRUE'
 const stringArray = (object: any, key: string, param: string, value: string) => object[key] = value.split(',')
-const callback = (object: any, key: string, param: string, value: string) => {
+const callback = (object: any, key: string, param: string, value: string) => object[key] = createCallback(value)
+
+const callbacks = <K>(object: any, key: string, param: string, value: string) => {
     if (!Object.prototype.hasOwnProperty.call(object, key)) {
-        object[key] = {}
+        object[key] = {
+            nonParametrized: null,
+            parametrized: new Map<K, callback>()
+        } as callbacks<K>
     }
 
-    let callbackInstance
-    // Sometimes it doesn't end with }, but always start with
-    if (value.startsWith('{')) {
-        callbackInstance = {
-            code: value.substring(1, value.length - 1),
-            isSingleStatement: false
-        }
-    } else {
-        callbackInstance = {
-            behaviourReference: value,
-            isSingleStatement: false
-        }
-    }
-
+    const callbackInstance = createCallback(value)
     if (param == undefined) {
-        object[key] = callbackInstance
+        object[key].nonParametrized = callbackInstance
     } else {
-        object[key][param] = callbackInstance
+        object[key].parametrized.set(param, callbackInstance)
+    }
+}
+
+const convertParam = (func: FieldTypeParser, modifier: (value: string) => any) => {
+    return <K>(object: any, key: string, param: string, value: string) => {
+        func(object, key, modifier(param), value)
+    }
+}
+
+const numberParam = (func: FieldTypeParser) => {
+    return convertParam(func, (value => +value))
+}
+
+const createCallback = (value: string) => {
+    return value.startsWith('{') ? {
+        code: value.substring(1, value.length - 1),
+        isSingleStatement: false
+    } : {
+        behaviourReference: value,
+        isSingleStatement: false
     }
 }
 
@@ -45,6 +59,11 @@ export type callback = {
     behaviourReference?: string
     code?: string
     isSingleStatement: boolean
+}
+
+export type callbacks<K> = {
+    nonParametrized: callback | null
+    parametrized: Map<K, callback>
 }
 
 export type reference = {
@@ -120,13 +139,13 @@ const SceneStructure = {
 export type IntegerDefinition = {
     VALUE: number
     TOINI: boolean
-    ONCHANGED: Record<number, callback>
+    ONCHANGED: callbacks<number>
 }
 
 const IntegerStructure = {
     VALUE: number,
     TOINI: boolean,
-    ONCHANGED: callback
+    ONCHANGED: numberParam(callbacks)
 }
 
 export type AnimoDefinition = {
@@ -140,7 +159,7 @@ export type AnimoDefinition = {
     MONITORCOLLISION: boolean
     MONITORCOLLISIONALPHA: boolean
     ONINIT: callback
-    ONFINISHED: Record<string, callback>
+    ONFINISHED: callbacks<string>
 }
 
 const AnimoStructure = {
@@ -154,7 +173,7 @@ const AnimoStructure = {
     MONITORCOLLISION: boolean,
     MONITORCOLLISIONALPHA: boolean,
     ONINIT: callback,
-    ONFINISHED: callback
+    ONFINISHED: callbacks
 }
 
 export type MusicDefinition = {
@@ -186,7 +205,7 @@ export type TimerDefinition = {
     ELAPSE: number
     TICKS: number
     ONINIT: callback
-    ONTICK: callback
+    ONTICK: callbacks<number>
 }
 
 const TimerStructure = {
@@ -194,7 +213,7 @@ const TimerStructure = {
     ELAPSE: number,
     TICKS: number,
     ONINIT: callback,
-    ONTICK: callback
+    ONTICK: numberParam(callbacks)
 }
 
 export type BehaviourDefinition = {

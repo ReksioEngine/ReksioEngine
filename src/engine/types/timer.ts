@@ -1,5 +1,5 @@
 import {Type} from './index'
-import {callback, TimerDefinition} from '../../fileFormats/cnv/types'
+import {callbacks, TimerDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {Integer} from './integer'
 
@@ -10,8 +10,7 @@ export class Timer extends Type<TimerDefinition> {
     private elapse: number
     private enabled: boolean
 
-    private readonly onTick: Record<number, callback>
-    private readonly onTickEveryFrame: callback
+    private readonly onTick: callbacks<number>
 
     constructor(engine: Engine, definition: TimerDefinition) {
         super(engine, definition)
@@ -69,12 +68,13 @@ export class Timer extends Type<TimerDefinition> {
     }
 
     ONTICK() {
-        if (this.onTickEveryFrame != null) {
-            this.engine.executeCallback(this, this.onTickEveryFrame)
-        }
-
-        if (Object.prototype.hasOwnProperty.call(this.onTick, this.currentTick)) {
-            this.engine.executeCallback(this, this.onTick[this.currentTick])
+        if (this.onTick) {
+            if (this.onTick.nonParametrized) {
+                this.engine.executeCallback(this, this.onTick.nonParametrized)
+            }
+            if (this.onTick.parametrized && this.onTick.parametrized.has(this.currentTick)) {
+                this.engine.executeCallback(this, this.onTick.parametrized.get(this.currentTick)!)
+            }
         }
     }
 }
