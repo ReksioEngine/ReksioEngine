@@ -12,8 +12,10 @@ export class Application extends Type<ApplicationDefinition> {
     async init() {
         const currentEpisode = this.engine.getObject(this.definition.STARTWITH)
 
-        const episodeDefinition = await this.engine.fileLoader.getCNVFile(pathJoin('DANE', currentEpisode.definition.PATH, this.definition.STARTWITH + '.cnv'))
-        await loadDefinition(this.engine, episodeDefinition)
+        if (currentEpisode.definition.PATH) {
+            const episodeDefinition = await this.engine.fileLoader.getCNVFile(pathJoin('DANE', currentEpisode.definition.PATH, this.definition.STARTWITH + '.cnv'))
+            await loadDefinition(this.engine, episodeDefinition)
+        }
 
         currentEpisode.start()
     }
