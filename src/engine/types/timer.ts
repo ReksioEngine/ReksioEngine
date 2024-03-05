@@ -17,7 +17,6 @@ export class Timer extends Type<TimerDefinition> {
         this.elapse = definition.ELAPSE
         this.enabled = definition.ENABLED
         this.onTick = definition.ONTICK
-        this.onTickEveryFrame = definition.ONTICK
     }
 
     init() {
