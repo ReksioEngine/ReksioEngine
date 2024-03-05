@@ -1,9 +1,9 @@
 import {Type} from './index'
-import {AnimoDefinition, callback} from '../../fileFormats/cnv/types'
+import {AnimoDefinition, callbacks} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError} from '../../utils'
-import {AnimatedSprite, Sprite} from "pixi.js";
-import {FileNotFoundError} from "../../filesLoader";
+import {AnimatedSprite} from 'pixi.js'
+import {FileNotFoundError} from '../../filesLoader'
 
 export class Animo extends Type<AnimoDefinition> {
     private priority: number
@@ -11,7 +11,7 @@ export class Animo extends Type<AnimoDefinition> {
 
     private animatedSprite: AnimatedSprite | null = null
 
-    private readonly onFinished: Record<number, callback>
+    private readonly onFinished: callbacks<string>
 
     constructor(engine: Engine, definition: AnimoDefinition) {
         super(engine, definition)
@@ -48,9 +48,9 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     private async loadAnimation() {
-        const relativePath = this.engine.currentScene?.getRelativePath(this.definition.FILENAME);
+        const relativePath = this.engine.currentScene?.getRelativePath(this.definition.FILENAME)
         if (relativePath == undefined)
-            throw new FileNotFoundError("Current scene is undefined!")
+            throw new FileNotFoundError('Current scene is undefined!')
 
         return await this.engine.fileLoader.getANNFile(relativePath)
     }
@@ -66,10 +66,10 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     ONTICK() {
-        const index = Math.floor(Math.random() * 5);
+        const index = Math.floor(Math.random() * 5)
 
-        if (Object.prototype.hasOwnProperty.call(this.onFinished, index)) {
-            this.engine.executeCallback(this, this.onFinished[index])
+        if (this.onFinished && this.onFinished.parametrized.has(index.toString())){
+            this.engine.executeCallback(this, this.onFinished.parametrized.get(index.toString())!)
         }
     }
 
