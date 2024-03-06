@@ -5,7 +5,7 @@ import {loadDefinition} from './definitionLoader'
 import {Application, Sprite} from 'pixi.js'
 import {Scene} from './types/scene'
 import {FileLoader, GithubFileLoader} from '../filesLoader'
-import {Sound} from '@pixi/sound'
+import {sound, Sound} from '@pixi/sound'
 import {loadSound} from './assetsLoader'
 import {SaveFile} from './saveFile'
 import {createColorSprite} from '../utils'
@@ -33,8 +33,15 @@ export class Engine {
         const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
         await loadDefinition(this, this.globalScope, applicationDef)
 
+        this.app.ticker.maxFPS = 16
+        this.app.stage.interactive = true
         this.app.stage.sortableChildren = true
+        sound.disableAutoPause = true
+
         this.app.stage.addChild(this.canvasBackground)
+        this.app.ticker.add(delta => {
+            this.tick(delta)
+        })
 
         // @ts-ignore
         globalThis.engine = this
