@@ -14,7 +14,7 @@ export class Application extends Type<ApplicationDefinition> {
 
         if (currentEpisode.definition.PATH) {
             const episodeDefinition = await this.engine.fileLoader.getCNVFile(pathJoin('DANE', currentEpisode.definition.PATH, this.definition.STARTWITH + '.cnv'))
-            await loadDefinition(this.engine, this.engine.globalScope, episodeDefinition)
+            await loadDefinition(this.engine, this.engine.globalScope, episodeDefinition, currentEpisode)
         }
 
         currentEpisode.start()

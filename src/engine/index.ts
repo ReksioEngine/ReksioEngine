@@ -7,13 +7,15 @@ import {Scene} from './types/scene'
 import {FileLoader, GithubFileLoader} from '../filesLoader'
 import {Sound} from '@pixi/sound'
 import {loadSound} from './assetsLoader'
+import {SaveFile} from './saveFile'
 
 export class Engine {
     readonly app: Application
 
     public globalScope: Record<string, any> = {}
     public scope: Record<string, any> = {}
-    public currentScene: Scene | null = null
+    public currentScene?: Scene
+    public saveFile: SaveFile = new SaveFile()
 
     public fileLoader: FileLoader = new GithubFileLoader('reksioiufo')
     public music: Sound | null = null
@@ -70,7 +72,7 @@ export class Engine {
 
         this.currentScene = this.getObject(sceneName) as Scene
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(`${sceneName}.cnv`))
-        await loadDefinition(this, this.scope, sceneDefinition)
+        await loadDefinition(this, this.scope, sceneDefinition, this.currentScene)
 
         this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
             loop: true

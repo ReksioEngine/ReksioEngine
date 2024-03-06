@@ -3,10 +3,9 @@ import {Engine} from '../index'
 import {GroupDefinition} from '../../fileFormats/cnv/types'
 
 export class Group extends Type<GroupDefinition> {
-    private value: string[] = []
-
     constructor(engine: Engine, definition: GroupDefinition) {
         super(engine, definition)
+        this.value = []
     }
 
     ADD(...objects: string[]) {

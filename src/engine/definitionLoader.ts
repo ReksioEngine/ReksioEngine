@@ -21,6 +21,7 @@ import {Array as ArrayType} from './types/array'
 import {Button} from './types/button'
 import {Sequence} from './types/sequence'
 import {Group} from './types/group'
+import {Type} from './types'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -72,12 +73,13 @@ const createTypeInstance = (engine: Engine, definition: any) => {
     }
 }
 
-export const loadDefinition = async (engine: Engine, scope: Record<string, any>, definition: CNV) => {
+export const loadDefinition = async (engine: Engine, scope: Record<string, any>, definition: CNV, parent?: Type<any>) => {
     engine.app.ticker.stop()
     const orderedScope = []
 
     for (const [key, value] of Object.entries(definition)) {
         const instance = createTypeInstance(engine, value)
+        instance.parent = parent
         scope[key] = instance
         orderedScope.push(instance)
     }

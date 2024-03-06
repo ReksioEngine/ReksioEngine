@@ -3,14 +3,17 @@ import {Engine} from '../index'
 import {callbacks, IntegerDefinition} from '../../fileFormats/cnv/types'
 
 export class Integer extends Type<IntegerDefinition> {
-    public value: number
-
     private readonly onChanged: callbacks<number>
 
     constructor(engine: Engine, definition: IntegerDefinition) {
         super(engine, definition)
-        this.value = this.definition.VALUE
+        this.value = this.definition.VALUE ?? 0
         this.onChanged = this.definition.ONCHANGED
+    }
+
+    init() {
+        this.loadFromINI()
+        this.saveToINI()
     }
 
     INC() {
@@ -67,9 +70,6 @@ export class Integer extends Type<IntegerDefinition> {
                 this.engine.executeCallback(this, this.onChanged.parametrized.get(this.value)!)
             }
         }
-
-        if (this.definition.TOINI) {
-            // Update in the save file
-        }
+        this.saveToINI()
     }
 }

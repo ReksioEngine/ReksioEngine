@@ -31,7 +31,8 @@ export const parseCNV = (content: string) => {
 
         if (key === 'OBJECT') {
             objects[value] = {
-                TYPE: 'unknown'
+                TYPE: 'unknown',
+                _NAME: value
             }
         } else {
             // eslint-disable-next-line prefer-const
