@@ -86,15 +86,17 @@ export class Button extends Type<ButtonDefinition> {
     }
 
     onMouseDown() {
-        this.gfxStandard?.HIDE()
-        this.gfxOnMove?.HIDE()
-        this.gfxOnClick?.SHOW()
+        if (this.gfxOnClick) {
+            this.gfxStandard?.HIDE()
+            this.gfxOnMove?.HIDE()
+            this.gfxOnClick?.SHOW()
 
-        if (this.gfxStandard?.sprite) {
-            this.gfxStandard.sprite.interactive = false
-        }
-        if (this.gfxOnMove?.sprite) {
-            this.gfxOnMove.sprite.interactive = false
+            if (this.gfxStandard?.sprite) {
+                this.gfxStandard.sprite.interactive = false
+            }
+            if (this.gfxOnMove?.sprite) {
+                this.gfxOnMove.sprite.interactive = false
+            }
         }
     }
 
