@@ -87,10 +87,12 @@ export class Engine {
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(`${sceneName}.cnv`))
         await loadDefinition(this, this.scope, sceneDefinition, this.currentScene)
 
-        this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
-            loop: true
-        })
-        this.music.play()
+        if (this.currentScene.definition.MUSIC) {
+            this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
+                loop: true
+            })
+            this.music.play()
+        }
 
         this.app.ticker.start()
     }
