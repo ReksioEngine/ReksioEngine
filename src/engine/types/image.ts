@@ -55,12 +55,14 @@ export class Image extends Type<ImageDefinition> {
 
     MOVE(xOffset: number, yOffset: number) {
         if (this.sprite === null) return
+
         this.sprite.x += xOffset
         this.sprite.y += yOffset
     }
 
     SETPOSITION(x: number, y: number) {
         if (this.sprite === null) return
+
         this.sprite.x = x
         this.sprite.y = y
     }

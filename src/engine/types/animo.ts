@@ -12,6 +12,7 @@ export class Animo extends Type<AnimoDefinition> {
     private visible: boolean
     private isPlay: boolean = false
     private currentFrame: number = 0
+    private currentAnimation: number = 1
 
     //private animatedSprite: AnimatedSprite | null = null
     private rawAnn: ANN | null = null
@@ -81,21 +82,26 @@ export class Animo extends Type<AnimoDefinition> {
     ONTICK() {
         if (this.rawAnn === null || this.sprite === null) return
 
-        const eventFrame = this.rawAnn.events[0].frames[this.currentFrame]
-        this.sprite.x = this.rawAnn.annImages[0].positionX + eventFrame.positionX
-        this.sprite.y = this.rawAnn.annImages[0].positionY + eventFrame.positionY
-        this.currentFrame = (this.currentFrame + 1) % this.rawAnn.events[0].frames.length
+        const index = this.currentAnimation - 1
 
-        const index = Math.floor(Math.random() * 5)
+        const eventFrame = this.rawAnn.events[index].frames[this.currentFrame]
+        this.sprite.x = this.rawAnn.annImages[index].positionX + eventFrame.positionX
+        this.sprite.y = this.rawAnn.annImages[index].positionY + eventFrame.positionY
+        this.currentFrame = (this.currentFrame + 1) % this.rawAnn.events[index].frames.length
 
-        if (this.onFinished && this.onFinished.parametrized.has(index.toString())){
+        if (this.currentFrame == 0)
+            this.InvokeOnFinish(this.currentAnimation.toString())
+    }
+
+    private InvokeOnFinish(index: string) {
+        if (this.onFinished && this.onFinished.parametrized.has(index.toString()))
             this.engine.executeCallback(this, this.onFinished.parametrized.get(index.toString())!)
-        }
     }
 
     PLAY(name: string) {
         this.isPlay = true
         this.currentFrame = 0
+        this.currentAnimation = parseInt(name)
     }
 
     STOP(arg: boolean) {
@@ -112,7 +118,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     SETFRAME(frame: number) {
-        throw new NotImplementedError()
+        this.currentFrame = frame
     }
 
     SETFPS(fps: number) {
@@ -126,8 +132,18 @@ export class Animo extends Type<AnimoDefinition> {
         this.visible = false
     }
 
+    MOVE(xOffset: number, yOffset: number) {
+        if (this.sprite === null) return
+
+        this.sprite.x += xOffset
+        this.sprite.y += yOffset
+    }
+
     SETPOSITION(x: number, y: number) {
-        throw new NotImplementedError()
+        if (this.sprite === null) return
+
+        this.sprite.x = x
+        this.sprite.y = y
     }
 
     SETPRIORITY(priority: number) {
@@ -179,10 +195,6 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     GETCURRFRAMEPOSY(): number {
-        throw new NotImplementedError()
-    }
-
-    MOVE(offsetX: number, offsetY: number) {
         throw new NotImplementedError()
     }
 
