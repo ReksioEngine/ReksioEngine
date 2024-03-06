@@ -1,4 +1,4 @@
-import {callback} from '../fileFormats/cnv/types'
+import {callback, reference} from '../fileFormats/cnv/types'
 import {runScript} from '../interpreter/evaluator'
 import {Type} from './types'
 import {loadDefinition} from './definitionLoader'
