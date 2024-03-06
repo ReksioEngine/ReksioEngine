@@ -56,6 +56,7 @@ export class Button extends Type<ButtonDefinition> {
         this.gfxStandard?.HIDE()
         this.gfxOnMove?.SHOW()
         this.gfxOnClick?.HIDE()
+        this.ONFOCUSON()
     }
 
     onMouseUp() {
@@ -125,6 +126,12 @@ export class Button extends Type<ButtonDefinition> {
     ONRELEASED() {
         if (this.definition.ONRELEASED) {
             this.engine.executeCallback(this, this.definition.ONRELEASED)
+        }
+    }
+
+    ONFOCUSON() {
+        if (this.definition.ONFOCUSON) {
+            this.engine.executeCallback(this, this.definition.ONFOCUSON)
         }
     }
 }
