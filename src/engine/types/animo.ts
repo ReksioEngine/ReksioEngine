@@ -2,10 +2,10 @@ import {Type} from './index'
 import {AnimoDefinition, callbacks} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError} from '../../utils'
-import {AnimatedSprite, Sprite} from 'pixi.js'
+import * as PIXI from 'pixi.js'
+import {Sprite, Texture} from 'pixi.js'
 import {FileNotFoundError} from '../../filesLoader'
 import {ANN} from '../../fileFormats/ann'
-import * as PIXI from 'pixi.js'
 
 export class Animo extends Type<AnimoDefinition> {
     private priority: number
@@ -14,6 +14,7 @@ export class Animo extends Type<AnimoDefinition> {
     private currentFrame: number = 0
     private currentAnimation: string = '1'
     private currentLoop: number = 0
+    private usingImageIndex = 0
 
     //private animatedSprite: AnimatedSprite | null = null
     private rawAnn: ANN | null = null
@@ -64,26 +65,26 @@ export class Animo extends Type<AnimoDefinition> {
     private initAnimatedSprite() {
         if (this.rawAnn === null) return
 
+        this.sprite = new PIXI.Sprite(this.getTextureFrom(0))
+        this.sprite.visible = this.definition.VISIBLE
         this.SETPRIORITY(this.definition.PRIORITY)
-        //this.animatedSprite.visible = this.definition.VISIBLE
 
-        this.sprite = new PIXI.Sprite(this.GetTextureFrom(0))
         this.engine.addToStage(this.sprite)
 
         console.debug(`File ${this.definition.FILENAME} loaded successfully!`)
     }
 
-    GetTextureFrom(imageIndex: number) {
-        if (this.rawAnn == null) return
+    getTextureFrom(imageIndex: number): Texture {
+        if (this.rawAnn == null)
+            throw new Error('RawAnn is null')
 
-        const ufoBaseTexture = PIXI.BaseTexture.fromBuffer(
+        const baseTexture = PIXI.BaseTexture.fromBuffer(
             new Uint8Array(this.rawAnn.images[imageIndex]),
             this.rawAnn.annImages[imageIndex].width,
             this.rawAnn.annImages[imageIndex].height
         )
 
-        const ufoTexture = new PIXI.Texture(ufoBaseTexture)
-        return ufoTexture
+        return new PIXI.Texture(baseTexture)
     }
 
     ONTICK() {
@@ -95,7 +96,11 @@ export class Animo extends Type<AnimoDefinition> {
         const eventFrame = event.frames[this.currentFrame]
         const imageIndex= event.framesImageMapping[this.currentFrame]
 
-        //this.sprite = new PIXI.Sprite(this.GetTextureFrom(imageIndex))
+        if (imageIndex != this.usingImageIndex) {
+            this.usingImageIndex = imageIndex
+            this.sprite.texture = this.getTextureFrom(imageIndex)
+        }
+
         this.sprite.x = this.rawAnn.annImages[imageIndex].positionX + eventFrame.positionX
         this.sprite.y = this.rawAnn.annImages[imageIndex].positionY + eventFrame.positionY
 
@@ -103,9 +108,9 @@ export class Animo extends Type<AnimoDefinition> {
 
         if (this.currentFrame == 0) {
             if (this.currentLoop >= event.loopNumber) {
-                this.InvokeOnFinish(this.currentAnimation.toString())
-
                 this.STOP(false)
+
+                this.InvokeOnFinish(this.currentAnimation.toString())
             }
 
             this.currentLoop += 1

@@ -24,7 +24,7 @@ abstract class UrlFileLoader extends FileLoader {
 
     async getANNFile(filename: string): Promise<ANN> {
         const data = await this.getRawFile(filename)
-        return loadAnn(data, filename)
+        return loadAnn(data)
     }
 
     async getCNVFile(filename: string): Promise<CNV> {

@@ -142,11 +142,9 @@ const parseAnnImage = (view: BinaryBuffer) => {
     return img
 }
 
-export const loadAnn = (data: ArrayBuffer, filename: string) => {
+export const loadAnn = (data: ArrayBuffer) => {
     const buffer = new BinaryBuffer(new DataView(data))
     const header = parseHeader(buffer)
-
-    console.log(`------- [${filename}] -----`)
 
     const keys = []
     const events: { [key: string]: Event } = {}
@@ -155,11 +153,7 @@ export const loadAnn = (data: ArrayBuffer, filename: string) => {
 
         keys.push(name)
         events[name] = event
-
-        console.log(`${i}) Event[${name}].frames=${event.framesCount} | framesImageMapping=${event.framesImageMapping.toString()}`)
     }
-
-    console.log(`Events=${header.eventsCount} | Images=${header.framesCount}`)
 
     const annImages = []
     for (let i = 0; i < header.framesCount; i++) {
