@@ -192,23 +192,31 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     GETCENTERX(): number {
-        throw new NotImplementedError()
+        if (this.sprite == null) return 0
+
+        return this.sprite.x + (this.sprite.width / 2)
     }
 
     GETCENTERY(): number {
-        throw new NotImplementedError()
-    }
+        if (this.sprite == null) return 0
 
-    GETPOSITIONY(): number {
-        throw new NotImplementedError()
+        return this.sprite.y + (this.sprite.height / 2)
     }
 
     GETPOSITIONX(): number {
-        throw new NotImplementedError()
+        if (this.sprite == null) return 0
+
+        return this.sprite.x
+    }
+
+    GETPOSITIONY(): number {
+        if (this.sprite == null) return 0
+
+        return this.sprite.y
     }
 
     GETFRAMENAME(): string {
-        throw new NotImplementedError()
+        return this.currentAnimation
     }
 
     GETMAXWIDTH(): number {
@@ -224,7 +232,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     GETFRAME(): number {
-        throw new NotImplementedError()
+        return this.currentFrame
     }
 
     GETCURRFRAMEPOSX(): number {
@@ -240,7 +248,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     ISPLAYING(animName: string) {
-        throw new NotImplementedError()
+        return this.isPlay && this.currentAnimation == animName
     }
 
     ISNEAR(objectName: string, arg: number) {
