@@ -8,6 +8,7 @@ import {FileLoader, GithubFileLoader} from '../filesLoader'
 import {Sound} from '@pixi/sound'
 import {loadSound} from './assetsLoader'
 import {SaveFile} from './saveFile'
+import {createColorSprite} from '../utils'
 
 export class Engine {
     readonly app: Application
@@ -19,9 +20,13 @@ export class Engine {
 
     public fileLoader: FileLoader = new GithubFileLoader('reksioiufo')
     public music: Sound | null = null
+    public canvasBackground: Sprite
 
     constructor(app: Application) {
         this.app = app
+
+        this.canvasBackground = createColorSprite(this.app, 0x000000)
+        this.canvasBackground.zIndex = -99999
     }
 
     async init() {
@@ -29,6 +34,7 @@ export class Engine {
         await loadDefinition(this, this.globalScope, applicationDef)
 
         this.app.stage.sortableChildren = true
+        this.app.stage.addChild(this.canvasBackground)
 
         // @ts-ignore
         globalThis.engine = this

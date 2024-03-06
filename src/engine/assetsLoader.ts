@@ -25,3 +25,14 @@ export const loadSprite = async (fileLoader: FileLoader, filename: string) => {
 
     return sprite
 }
+
+export const loadTexture = async (fileLoader: FileLoader, filename: string) => {
+    const image = await fileLoader.getIMGFile(filename)
+    const baseTexture = PIXI.BaseTexture.fromBuffer(
+        new Uint8Array(image.bytes),
+        image.header.width,
+        image.header.height
+    )
+
+    return new PIXI.Texture(baseTexture)
+}
