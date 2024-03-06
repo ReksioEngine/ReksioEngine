@@ -29,7 +29,12 @@ export class Application extends Type<ApplicationDefinition> {
     }
 
     RUN(objectName: string, methodName: string, ...args: any[]) {
-        return this.engine.getObject(objectName)[methodName](...args)
+        const object = this.engine.getObject(objectName)
+        if (object[methodName]) {
+            return object[methodName](...args)
+        } else {
+            return object.__unknown_method(methodName, ...args)
+        }
     }
 
     EXIT() {

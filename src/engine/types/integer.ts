@@ -61,6 +61,10 @@ export class Integer extends Type<IntegerDefinition> {
         this.ONCHANGED()
     }
 
+    GET() {
+        return this.value
+    }
+
     private ONCHANGED() {
         if (this.onChanged) {
             if (this.onChanged.nonParametrized) {
