@@ -318,6 +318,7 @@ export type ButtonDefinition = TypeDefinition & {
     GFXONCLICK: reference
     GFXONMOVE: reference
     ONRELEASED: callback
+    ONFOCUSON: callback
 }
 
 const ButtonDefinitionStructure = {
@@ -327,7 +328,8 @@ const ButtonDefinitionStructure = {
     GFXSTANDARD: reference,
     GFXONCLICK: reference,
     GFXONMOVE: reference,
-    ONRELEASED: callback
+    ONRELEASED: callback,
+    ONFOCUSON: callback
 }
 
 export type SequenceDefinition = TypeDefinition & {

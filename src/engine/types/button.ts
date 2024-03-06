@@ -43,6 +43,7 @@ export class Button extends Type<ButtonDefinition> {
             this.gfxOnMove.sprite.interactive = true
             this.gfxOnMove.sprite.addListener('mouseout', this.onMouseOut.bind(this))
             this.gfxOnMove.sprite.addListener('mousedown', this.onMouseDown.bind(this))
+            this.gfxOnMove.sprite.addListener('mouseup', this.onMouseUp.bind(this))
         }
         if (this.gfxOnClick?.sprite) {
             this.gfxOnClick.sprite.interactive = true
@@ -55,6 +56,7 @@ export class Button extends Type<ButtonDefinition> {
         this.gfxStandard?.HIDE()
         this.gfxOnMove?.SHOW()
         this.gfxOnClick?.HIDE()
+        this.ONFOCUSON()
     }
 
     onMouseUp() {
@@ -86,15 +88,20 @@ export class Button extends Type<ButtonDefinition> {
     }
 
     onMouseDown() {
-        this.gfxStandard?.HIDE()
-        this.gfxOnMove?.HIDE()
-        this.gfxOnClick?.SHOW()
+        if (this.gfxOnClick) {
+            this.gfxStandard?.HIDE()
+            this.gfxOnMove?.HIDE()
+            this.gfxOnClick?.SHOW()
 
-        if (this.gfxStandard?.sprite) {
-            this.gfxStandard.sprite.interactive = false
-        }
-        if (this.gfxOnMove?.sprite) {
-            this.gfxOnMove.sprite.interactive = false
+            if (this.gfxStandard?.sprite) {
+                this.gfxStandard.sprite.interactive = false
+            }
+            if (this.gfxOnMove?.sprite) {
+                this.gfxOnMove.sprite.interactive = false
+            }
+        } else {
+            this.gfxStandard?.HIDE()
+            this.gfxOnMove?.SHOW()
         }
     }
 
@@ -119,6 +126,12 @@ export class Button extends Type<ButtonDefinition> {
     ONRELEASED() {
         if (this.definition.ONRELEASED) {
             this.engine.executeCallback(this, this.definition.ONRELEASED)
+        }
+    }
+
+    ONFOCUSON() {
+        if (this.definition.ONFOCUSON) {
+            this.engine.executeCallback(this, this.definition.ONFOCUSON)
         }
     }
 }

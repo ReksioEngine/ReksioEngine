@@ -54,7 +54,11 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         } else if (ctx.STRING() != null) {
             return ctx.STRING().getText().replace(/^"|"$/g, '')
         } else if (ctx.IDENTIFIER() != null) {
-            return this.engine.getObject(ctx.IDENTIFIER().getText()).value
+            const object = this.engine.getObject(ctx.IDENTIFIER().getText())
+            if (object === undefined) {
+                throw new ExecutionError(ctx, `Unknown identifier '${ctx.getText()}'`)
+            }
+            return object.value
         }
 
         return this.visitChildren(ctx)[0]

@@ -1,7 +1,11 @@
 import {BinaryBuffer} from '../utils'
 
-export const decompress = (src: BinaryBuffer) => {
-    const uncompressedSize = src.getUint32()
+export const decompress = (buffer: BinaryBuffer) => {
+    const uncompressedSize = buffer.getUint32()
+    const compressedSize = buffer.getUint32()
+
+    const srcBuffer = buffer.read(compressedSize)
+    const src = new BinaryBuffer(new DataView(srcBuffer))
 
     const dstRaw = new ArrayBuffer(uncompressedSize)
     const dst = new BinaryBuffer(new DataView(dstRaw))
