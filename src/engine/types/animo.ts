@@ -120,7 +120,12 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     private InvokeOnFinish(index: string) {
-        if (this.onFinished && this.onFinished.parametrized.has(index.toString()))
+        if (this.onFinished == null) return
+
+        if (this.onFinished.nonParametrized)
+            this.engine.executeCallback(this, this.onFinished.nonParametrized)
+
+        if (this.onFinished.parametrized && this.onFinished.parametrized.has(index.toString()))
             this.engine.executeCallback(this, this.onFinished.parametrized.get(index.toString())!)
     }
 
