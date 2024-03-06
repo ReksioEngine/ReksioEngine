@@ -8,7 +8,6 @@ import {FileNotFoundError} from '../../filesLoader'
 import {ANN} from '../../fileFormats/ann'
 
 export class Animo extends Type<AnimoDefinition> {
-    private priority: number
     private visible: boolean
     private isPlay: boolean = false
     private currentFrame: number = 0
@@ -24,9 +23,8 @@ export class Animo extends Type<AnimoDefinition> {
 
     constructor(engine: Engine, definition: AnimoDefinition) {
         super(engine, definition)
-        this.priority = this.definition.PRIORITY
-        this.visible = this.definition.VISIBLE
 
+        this.visible = this.definition.VISIBLE
         this.onFinished = definition.ONFINISHED
     }
 
@@ -95,14 +93,18 @@ export class Animo extends Type<AnimoDefinition> {
         const event = this.rawAnn.events[key]
         const eventFrame = event.frames[this.currentFrame]
         const imageIndex= event.framesImageMapping[this.currentFrame]
+        const annImage = this.rawAnn.annImages[imageIndex]
 
         if (imageIndex != this.usingImageIndex) {
             this.usingImageIndex = imageIndex
             this.sprite.texture = this.getTextureFrom(imageIndex)
         }
 
-        this.sprite.x = this.rawAnn.annImages[imageIndex].positionX + eventFrame.positionX
-        this.sprite.y = this.rawAnn.annImages[imageIndex].positionY + eventFrame.positionY
+        this.sprite.x = annImage.positionX + eventFrame.positionX
+        this.sprite.y = annImage.positionY + eventFrame.positionY
+
+        this.sprite.width = annImage.width
+        this.sprite.height = annImage.height
 
         this.currentFrame = (this.currentFrame + 1) % event.framesCount
 
@@ -150,10 +152,13 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     SHOW() {
-        this.visible = true
+        if (this.sprite === null) return
+        this.sprite.visible = true
     }
+
     HIDE() {
-        this.visible = false
+        if (this.sprite === null) return
+        this.sprite.visible = false
     }
 
     MOVE(xOffset: number, yOffset: number) {
@@ -171,7 +176,10 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     SETPRIORITY(priority: number) {
-        this.priority = priority
+        if (this.sprite === null) return
+
+        this.sprite.zIndex = 1000 + -priority
+        this.sprite.sortChildren()
     }
 
     SETASBUTTON(arg1: boolean, arg2: boolean) {
