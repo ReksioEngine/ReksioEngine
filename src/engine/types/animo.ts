@@ -13,6 +13,7 @@ export class Animo extends Type<AnimoDefinition> {
     private isPlay: boolean = false
     private currentFrame: number = 0
     private currentAnimation: string = '1'
+    private currentLoop: number = 0
 
     //private animatedSprite: AnimatedSprite | null = null
     private rawAnn: ANN | null = null
@@ -66,17 +67,23 @@ export class Animo extends Type<AnimoDefinition> {
         this.SETPRIORITY(this.definition.PRIORITY)
         //this.animatedSprite.visible = this.definition.VISIBLE
 
-        const ufoBaseTexture = PIXI.BaseTexture.fromBuffer(
-            new Uint8Array(this.rawAnn.images[0]),
-            this.rawAnn.annImages[0].width,
-            this.rawAnn.annImages[0].height
-        )
-
-        const ufoTexture = new PIXI.Texture(ufoBaseTexture)
-        this.sprite = new PIXI.Sprite(ufoTexture)
+        this.sprite = new PIXI.Sprite(this.GetTextureFrom(0))
         this.engine.addToStage(this.sprite)
 
         console.debug(`File ${this.definition.FILENAME} loaded successfully!`)
+    }
+
+    GetTextureFrom(imageIndex: number) {
+        if (this.rawAnn == null) return
+
+        const ufoBaseTexture = PIXI.BaseTexture.fromBuffer(
+            new Uint8Array(this.rawAnn.images[imageIndex]),
+            this.rawAnn.annImages[imageIndex].width,
+            this.rawAnn.annImages[imageIndex].height
+        )
+
+        const ufoTexture = new PIXI.Texture(ufoBaseTexture)
+        return ufoTexture
     }
 
     ONTICK() {
@@ -84,13 +91,25 @@ export class Animo extends Type<AnimoDefinition> {
 
         const key = this.currentAnimation
 
-        const eventFrame = this.rawAnn.events[key].frames[this.currentFrame]
-        this.sprite.x = this.rawAnn.annImages[key].positionX + eventFrame.positionX
-        this.sprite.y = this.rawAnn.annImages[key].positionY + eventFrame.positionY
-        this.currentFrame = (this.currentFrame + 1) % this.rawAnn.events[key].frames.length
+        const event = this.rawAnn.events[key]
+        const eventFrame = event.frames[this.currentFrame]
+        const imageIndex= event.framesImageMapping[this.currentFrame]
 
-        if (this.currentFrame == 0)
-            this.InvokeOnFinish(this.currentAnimation.toString())
+        //this.sprite = new PIXI.Sprite(this.GetTextureFrom(imageIndex))
+        this.sprite.x = this.rawAnn.annImages[imageIndex].positionX + eventFrame.positionX
+        this.sprite.y = this.rawAnn.annImages[imageIndex].positionY + eventFrame.positionY
+
+        this.currentFrame = (this.currentFrame + 1) % event.framesCount
+
+        if (this.currentFrame == 0) {
+            if (this.currentLoop >= event.loopNumber) {
+                this.InvokeOnFinish(this.currentAnimation.toString())
+
+                this.STOP(false)
+            }
+
+            this.currentLoop += 1
+        }
     }
 
     private InvokeOnFinish(index: string) {

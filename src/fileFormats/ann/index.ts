@@ -53,8 +53,8 @@ interface AnnImage {
 export interface ANN {
     header: AnnHeader
     events: { [key: string]: Event }
-    images: { [key: string]: Uint8Array }
-    annImages: { [key: string]: AnnImage }
+    images: Uint8Array[]
+    annImages: AnnImage[]
 }
 
 const parseHeader = (view: BinaryBuffer) => {
@@ -142,9 +142,11 @@ const parseAnnImage = (view: BinaryBuffer) => {
     return img
 }
 
-export const loadAnn = (data: ArrayBuffer) => {
+export const loadAnn = (data: ArrayBuffer, filename: string) => {
     const buffer = new BinaryBuffer(new DataView(data))
     const header = parseHeader(buffer)
+
+    console.log(`------- [${filename}] -----`)
 
     const keys = []
     const events: { [key: string]: Event } = {}
@@ -153,19 +155,24 @@ export const loadAnn = (data: ArrayBuffer) => {
 
         keys.push(name)
         events[name] = event
+
+        console.log(`${i}) Event[${name}].frames=${event.framesCount} | framesImageMapping=${event.framesImageMapping.toString()}`)
     }
 
-    const annImages: { [key: string]: AnnImage } = {}
+    console.log(`Events=${header.eventsCount} | Images=${header.framesCount}`)
+
+    const annImages = []
     for (let i = 0; i < header.framesCount; i++) {
-        annImages[keys[i]] = parseAnnImage(buffer)
+        annImages.push(parseAnnImage(buffer))
     }
 
-    const images: { [key: string]: Uint8Array } = {}
+    const images = []
     for (let i = 0; i < header.framesCount; i++) {
         const img = annImages[i]
         const decompressedImageLen = img.width * img.height * 2
         const decompressedAlphaLen = img.width * img.height
-        images[keys[i]] = loadImageWithoutHeader(buffer, img.compression, img.imageLen, decompressedImageLen, img.alphaLen, decompressedAlphaLen)
+
+        images.push(loadImageWithoutHeader(buffer, img.compression, img.imageLen, decompressedImageLen, img.alphaLen, decompressedAlphaLen))
     }
 
     return {
