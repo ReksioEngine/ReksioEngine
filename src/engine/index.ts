@@ -5,28 +5,43 @@ import {loadDefinition} from './definitionLoader'
 import {Application, Sprite} from 'pixi.js'
 import {Scene} from './types/scene'
 import {FileLoader, GithubFileLoader} from '../filesLoader'
-import {Sound} from '@pixi/sound'
+import {sound, Sound} from '@pixi/sound'
 import {loadSound} from './assetsLoader'
+import {SaveFile} from './saveFile'
+import {createColorSprite} from '../utils'
 
 export class Engine {
     readonly app: Application
 
     public globalScope: Record<string, any> = {}
     public scope: Record<string, any> = {}
-    public currentScene: Scene | null = null
+    public currentScene?: Scene
+    public saveFile: SaveFile = new SaveFile()
 
     public fileLoader: FileLoader = new GithubFileLoader('reksioiufo')
     public music: Sound | null = null
+    public canvasBackground: Sprite
 
     constructor(app: Application) {
         this.app = app
+
+        this.canvasBackground = createColorSprite(this.app, 0x000000)
+        this.canvasBackground.zIndex = -99999
     }
 
     async init() {
         const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
         await loadDefinition(this, this.globalScope, applicationDef)
 
+        this.app.ticker.maxFPS = 16
+        this.app.stage.interactive = true
         this.app.stage.sortableChildren = true
+        sound.disableAutoPause = true
+
+        this.app.stage.addChild(this.canvasBackground)
+        this.app.ticker.add(delta => {
+            this.tick(delta)
+        })
 
         // @ts-ignore
         globalThis.engine = this
@@ -70,7 +85,7 @@ export class Engine {
 
         this.currentScene = this.getObject(sceneName) as Scene
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(`${sceneName}.cnv`))
-        await loadDefinition(this, this.scope, sceneDefinition)
+        await loadDefinition(this, this.scope, sceneDefinition, this.currentScene)
 
         this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
             loop: true

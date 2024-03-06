@@ -70,7 +70,12 @@ export type reference = {
     objectName: string
 }
 
-export type ApplicationDefinition = {
+export type TypeDefinition = {
+    _NAME: string
+    TOINI: boolean
+}
+
+export type ApplicationDefinition = TypeDefinition & {
     DESCRIPTION: string
     CREATIONTIME: string
     LASTMODIFYTIME: string
@@ -92,7 +97,7 @@ const ApplicationStructure = {
     STARTWITH: string
 }
 
-export type EpisodeDefinition = {
+export type EpisodeDefinition = TypeDefinition & {
     DESCRIPTION: string
     CREATIONTIME: string
     LASTMODIFYTIME: string
@@ -114,7 +119,7 @@ const EpisodeStructure = {
     STARTWITH: string
 }
 
-export type SceneDefinition = {
+export type SceneDefinition = TypeDefinition & {
     DESCRIPTION: string
     CREATIONTIME: string
     LASTMODIFYTIME: string
@@ -136,7 +141,7 @@ const SceneStructure = {
     DLLS: stringArray
 }
 
-export type IntegerDefinition = {
+export type IntegerDefinition = TypeDefinition & {
     VALUE: number
     TOINI: boolean
     ONCHANGED: callbacks<number>
@@ -148,7 +153,7 @@ const IntegerStructure = {
     ONCHANGED: numberParam(callbacks)
 }
 
-export type AnimoDefinition = {
+export type AnimoDefinition = TypeDefinition & {
     VISIBLE: boolean
     FILENAME: string
     TOCANVAS: boolean
@@ -176,7 +181,7 @@ const AnimoStructure = {
     ONFINISHED: callbacks
 }
 
-export type MusicDefinition = {
+export type MusicDefinition = TypeDefinition & {
     FILENAME: string
 }
 
@@ -184,7 +189,7 @@ const MusicStructure = {
     FILENAME: string
 }
 
-export type SoundDefinition = {
+export type SoundDefinition = TypeDefinition & {
     FILENAME: string
     PRELOAD: boolean
     FLUSHAFTERPLAYED: boolean
@@ -200,7 +205,7 @@ const SoundStructure = {
     ONFINISHED: callback
 }
 
-export type TimerDefinition = {
+export type TimerDefinition = TypeDefinition & {
     ENABLED: boolean
     ELAPSE: number
     TICKS: number
@@ -216,7 +221,7 @@ const TimerStructure = {
     ONTICK: numberParam(callbacks)
 }
 
-export type BehaviourDefinition = {
+export type BehaviourDefinition = TypeDefinition & {
     CODE: callback
     CONDITION: reference
 }
@@ -226,7 +231,7 @@ const BehaviourStructure = {
     CONDITION: reference
 }
 
-export type ImageDefinition = {
+export type ImageDefinition = TypeDefinition & {
     VISIBLE: boolean
     FILENAME: string
     TOCANVAS: boolean
@@ -250,7 +255,7 @@ const ImageStructure = {
     ONINIT: callback
 }
 
-export type MouseDefinition = {
+export type MouseDefinition = TypeDefinition & {
     ONCLICK: callback
 }
 
@@ -258,16 +263,16 @@ const MouseStructure = {
     ONCLICK: callback
 }
 
-export type KeyboardDefinition = NonNullable<unknown>
+export type KeyboardDefinition = TypeDefinition & NonNullable<unknown>
 const KeyboardStructure = {}
 
-export type CanvasObserverDefinition = NonNullable<unknown>
+export type CanvasObserverDefinition = TypeDefinition & NonNullable<unknown>
 const CanvasObserverStructure = {}
 
-export type CNVLoaderDefinition = NonNullable<unknown>
+export type CNVLoaderDefinition = TypeDefinition & NonNullable<unknown>
 const CNVLoaderStructure = {}
 
-export type ConditionDefinition = {
+export type ConditionDefinition = TypeDefinition & {
     OPERAND1: callback
     OPERATOR: 'EQUAL' | 'NOTEQUAL' | 'LESS' | 'GREATER' | 'LESSEQUAL' | 'GREATEREQUAL'
     OPERAND2: callback
@@ -283,7 +288,7 @@ const ConditionDefinitionStructure = {
     ONRUNTIMEFAILED: callback
 }
 
-export type StringDefinition = {
+export type StringDefinition = TypeDefinition & {
     TOINI: boolean
     VALUE: string
 }
@@ -293,7 +298,7 @@ const StringDefinitionStructure = {
     VALUE: string
 }
 
-export type BoolDefinition = {
+export type BoolDefinition = TypeDefinition & {
     VALUE: boolean
 }
 
@@ -301,11 +306,11 @@ const BoolDefinitionStructure = {
     VALUE: boolean
 }
 
-export type ArrayDefinition = NonNullable<unknown>
+export type ArrayDefinition = TypeDefinition & NonNullable<unknown>
 
 const ArrayDefinitionStructure = {}
 
-export type ButtonDefinition = {
+export type ButtonDefinition = TypeDefinition & {
     VISIBLE: boolean
     ENABLE: boolean
     DRAGGABLE: boolean
@@ -325,7 +330,7 @@ const ButtonDefinitionStructure = {
     ONRELEASED: callback
 }
 
-export type SequenceDefinition = {
+export type SequenceDefinition = TypeDefinition & {
     FILENAME: string
     ONFINISHED: callback
     ONINIT: callback
@@ -337,7 +342,7 @@ const SequenceDefinitionStructure = {
     ONINIT: callback
 }
 
-export type GroupDefinition = NonNullable<unknown>
+export type GroupDefinition = TypeDefinition & NonNullable<unknown>
 const GroupDefinitionStructure = {}
 
 export const structureDefinitions = {
