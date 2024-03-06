@@ -43,6 +43,7 @@ export class Button extends Type<ButtonDefinition> {
             this.gfxOnMove.sprite.interactive = true
             this.gfxOnMove.sprite.addListener('mouseout', this.onMouseOut.bind(this))
             this.gfxOnMove.sprite.addListener('mousedown', this.onMouseDown.bind(this))
+            this.gfxOnMove.sprite.addListener('mouseup', this.onMouseUp.bind(this))
         }
         if (this.gfxOnClick?.sprite) {
             this.gfxOnClick.sprite.interactive = true
@@ -97,6 +98,9 @@ export class Button extends Type<ButtonDefinition> {
             if (this.gfxOnMove?.sprite) {
                 this.gfxOnMove.sprite.interactive = false
             }
+        } else {
+            this.gfxStandard?.HIDE()
+            this.gfxOnMove?.SHOW()
         }
     }
 
