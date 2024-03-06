@@ -52,9 +52,9 @@ interface AnnImage {
 
 export interface ANN {
     header: AnnHeader
-    events: Event[]
-    images: Uint8Array[]
-    annImages: AnnImage[]
+    events: { [key: string]: Event }
+    images: { [key: string]: Uint8Array }
+    annImages: { [key: string]: AnnImage }
 }
 
 const parseHeader = (view: BinaryBuffer) => {
@@ -104,7 +104,9 @@ const parseFrame = (view: BinaryBuffer) => {
 
 const parseEvent = (view: BinaryBuffer) => {
     const event = {} as Event
-    event.name = stringUntilNull(decoder.decode(view.read(0x20)))
+    const name = stringUntilNull(decoder.decode(view.read(0x20)))
+
+    event.name = name
     event.framesCount = view.getUint16()
     view.skip(0x6)
     event.loopNumber = view.getUint32()
@@ -122,7 +124,7 @@ const parseEvent = (view: BinaryBuffer) => {
         event.frames.push(parseFrame(view))
     }
 
-    return event
+    return {name, event}
 }
 
 const parseAnnImage = (view: BinaryBuffer) => {
@@ -144,22 +146,26 @@ export const loadAnn = (data: ArrayBuffer) => {
     const buffer = new BinaryBuffer(new DataView(data))
     const header = parseHeader(buffer)
 
-    const events = []
+    const keys = []
+    const events: { [key: string]: Event } = {}
     for (let i = 0; i < header.eventsCount; i++) {
-        events.push(parseEvent(buffer))
+        const {name, event} = parseEvent(buffer)
+
+        keys.push(name)
+        events[name] = event
     }
 
-    const annImages = []
+    const annImages: { [key: string]: AnnImage } = {}
     for (let i = 0; i < header.framesCount; i++) {
-        annImages.push(parseAnnImage(buffer))
+        annImages[keys[i]] = parseAnnImage(buffer)
     }
 
-    const images = []
+    const images: { [key: string]: Uint8Array } = {}
     for (let i = 0; i < header.framesCount; i++) {
         const img = annImages[i]
         const decompressedImageLen = img.width * img.height * 2
         const decompressedAlphaLen = img.width * img.height
-        images.push(loadImageWithoutHeader(buffer, img.compression, img.imageLen, decompressedImageLen, img.alphaLen, decompressedAlphaLen))
+        images[keys[i]] = loadImageWithoutHeader(buffer, img.compression, img.imageLen, decompressedImageLen, img.alphaLen, decompressedAlphaLen)
     }
 
     return {

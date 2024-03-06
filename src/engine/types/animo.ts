@@ -12,7 +12,7 @@ export class Animo extends Type<AnimoDefinition> {
     private visible: boolean
     private isPlay: boolean = false
     private currentFrame: number = 0
-    private currentAnimation: number = 1
+    private currentAnimation: string = '1'
 
     //private animatedSprite: AnimatedSprite | null = null
     private rawAnn: ANN | null = null
@@ -82,12 +82,12 @@ export class Animo extends Type<AnimoDefinition> {
     ONTICK() {
         if (this.rawAnn === null || this.sprite === null) return
 
-        const index = this.currentAnimation - 1
+        const key = this.currentAnimation
 
-        const eventFrame = this.rawAnn.events[index].frames[this.currentFrame]
-        this.sprite.x = this.rawAnn.annImages[index].positionX + eventFrame.positionX
-        this.sprite.y = this.rawAnn.annImages[index].positionY + eventFrame.positionY
-        this.currentFrame = (this.currentFrame + 1) % this.rawAnn.events[index].frames.length
+        const eventFrame = this.rawAnn.events[key].frames[this.currentFrame]
+        this.sprite.x = this.rawAnn.annImages[key].positionX + eventFrame.positionX
+        this.sprite.y = this.rawAnn.annImages[key].positionY + eventFrame.positionY
+        this.currentFrame = (this.currentFrame + 1) % this.rawAnn.events[key].frames.length
 
         if (this.currentFrame == 0)
             this.InvokeOnFinish(this.currentAnimation.toString())
@@ -101,7 +101,7 @@ export class Animo extends Type<AnimoDefinition> {
     PLAY(name: string) {
         this.isPlay = true
         this.currentFrame = 0
-        this.currentAnimation = parseInt(name)
+        this.currentAnimation = name
     }
 
     STOP(arg: boolean) {
