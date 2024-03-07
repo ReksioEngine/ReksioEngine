@@ -64,6 +64,7 @@ export class Timer extends Type<TimerDefinition> {
 
     ENABLE() {
         this.enabled = true
+        this.startTime = Date.now()
     }
 
     ONTICK() {
