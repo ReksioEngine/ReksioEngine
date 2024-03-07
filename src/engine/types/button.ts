@@ -31,7 +31,7 @@ export class Button extends Type<ButtonDefinition> {
     }
 
     ready() {
-        this.setVisibility(this.visible)
+        this.setSpritesVisibility(this.visible && this.enabled)
 
         if (this.gfxStandard?.sprite) {
             this.gfxStandard.sprite.interactive = true
@@ -105,25 +105,26 @@ export class Button extends Type<ButtonDefinition> {
 
     ENABLE() {
         this.enabled = true
+        this.setSpritesVisibility(true)
     }
 
     DISABLE() {
         this.enabled = false
-        this.setVisibility(false)
+        this.visible = false
+        this.setSpritesVisibility(false)
     }
 
     DISABLEBUTVISIBLE() {
         this.enabled = false
-        this.setVisibility(true)
+        this.visible = true
+        this.setSpritesVisibility(true)
     }
 
     SETPRIORITY() {
         throw new NotImplementedError()
     }
 
-    private setVisibility(state: boolean) {
-        this.visible = state
-
+    private setSpritesVisibility(state: boolean) {
         if (state) {
             this.gfxStandard?.SHOW()
         } else {

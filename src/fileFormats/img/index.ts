@@ -1,6 +1,7 @@
 import {BinaryBuffer} from '../utils'
 import {decompress as CLZWDecompress} from '../compression/clzw'
 import {decompress as CRLEDecompress} from '../compression/crle'
+import {CompressionType} from '../compression'
 
 interface ImageHeader {
     width: number
@@ -97,18 +98,29 @@ export const loadImage = (data: ArrayBuffer): Image => {
 export const loadImageWithoutHeader = (buffer: BinaryBuffer, compressionType: number, imageLen: number, decompressedImageLen: number, alphaLen: number, decompressedAlphaLen: number) => {
     let imgBytes
     let alphaBytes
-    if (compressionType == 2) {
+    if (compressionType == CompressionType.CLZW) {
         imgBytes = new Uint8Array(CLZWDecompress(buffer))
         alphaBytes = new Uint8Array(CLZWDecompress(buffer))
-    } else if (compressionType == 4) {
+    } else if (compressionType == CompressionType.CRLE) {
         const imgBuffer = new BinaryBuffer(new DataView(buffer.read(imageLen)))
         const alphaBuffer = new BinaryBuffer(new DataView(buffer.read(alphaLen)))
 
         imgBytes = new Uint8Array(CRLEDecompress(imgBuffer, decompressedImageLen, 2))
         alphaBytes = new Uint8Array(CRLEDecompress(alphaBuffer, decompressedAlphaLen, 1))
-    } else {
+    } else if (compressionType == CompressionType.CLZW_CRLE) {
+        imgBytes = CLZWDecompress(buffer)
+        alphaBytes = CLZWDecompress(buffer)
+
+        const imgBuffer = new BinaryBuffer(new DataView(imgBytes))
+        const alphaBuffer = new BinaryBuffer(new DataView(alphaBytes))
+
+        imgBytes = new Uint8Array(CRLEDecompress(imgBuffer, decompressedImageLen, 2))
+        alphaBytes = new Uint8Array(CRLEDecompress(alphaBuffer, decompressedAlphaLen, 1))
+    } else if (compressionType == CompressionType.NONE) {
         imgBytes = new Uint8Array(buffer.read(imageLen))
         alphaBytes = new Uint8Array(buffer.read(alphaLen))
+    } else {
+        throw new Error(`Unknown compression type ${compressionType}`)
     }
 
     imgBytes = convertToRgba32(imgBytes)
