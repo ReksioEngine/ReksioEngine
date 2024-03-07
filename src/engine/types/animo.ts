@@ -133,6 +133,8 @@ export class Animo extends Type<AnimoDefinition> {
         this.isPlay = true
         this.currentFrame = 0
         this.currentAnimation = name
+
+        this.SHOW() //I noticed that play method should call show method
     }
 
     STOP(arg: boolean) {
