@@ -31,9 +31,7 @@ export class Button extends Type<ButtonDefinition> {
     }
 
     ready() {
-        this.gfxStandard?.SHOW()
-        this.gfxOnClick?.HIDE()
-        this.gfxOnMove?.HIDE()
+        this.setVisibility(this.visible)
 
         if (this.gfxStandard?.sprite) {
             this.gfxStandard.sprite.interactive = true
@@ -111,16 +109,28 @@ export class Button extends Type<ButtonDefinition> {
 
     DISABLE() {
         this.enabled = false
-        this.visible = false
+        this.setVisibility(false)
     }
 
     DISABLEBUTVISIBLE() {
         this.enabled = false
-        this.visible = true
+        this.setVisibility(true)
     }
 
     SETPRIORITY() {
         throw new NotImplementedError()
+    }
+
+    private setVisibility(state: boolean) {
+        this.visible = state
+
+        if (state) {
+            this.gfxStandard?.SHOW()
+        } else {
+            this.gfxStandard?.HIDE()
+        }
+        this.gfxOnClick?.HIDE()
+        this.gfxOnMove?.HIDE()
     }
 
     ONRELEASED() {

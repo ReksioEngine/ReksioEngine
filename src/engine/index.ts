@@ -6,7 +6,7 @@ import {Application, Sprite} from 'pixi.js'
 import {Scene} from './types/scene'
 import {FileLoader, GithubFileLoader} from '../filesLoader'
 import {sound, Sound} from '@pixi/sound'
-import {loadSound} from './assetsLoader'
+import {loadSound, loadSprite, loadTexture} from './assetsLoader'
 import {SaveFile} from './saveFile'
 import {createColorSprite} from '../utils'
 
@@ -87,10 +87,18 @@ export class Engine {
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(`${sceneName}.cnv`))
         await loadDefinition(this, this.scope, sceneDefinition, this.currentScene)
 
-        this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
-            loop: true
-        })
-        this.music.play()
+        if (this.currentScene.definition.MUSIC) {
+            this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
+                loop: true
+            })
+            this.music.play()
+        }
+        if (this.currentScene.definition.BACKGROUND) {
+            this.canvasBackground.texture = await loadTexture(
+                this.fileLoader,
+                this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)
+            )
+        }
 
         this.app.ticker.start()
     }
