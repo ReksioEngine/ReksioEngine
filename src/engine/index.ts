@@ -4,11 +4,12 @@ import {Type} from './types'
 import {loadDefinition} from './definitionLoader'
 import {Application, Sprite} from 'pixi.js'
 import {Scene} from './types/scene'
-import {FileLoader, GithubFileLoader} from '../filesLoader'
+import {FileLoader, GithubFileLoader, UrlFileLoader} from '../filesLoader'
 import {sound, Sound} from '@pixi/sound'
-import {loadSound, loadSprite, loadTexture} from './assetsLoader'
+import {loadSound, loadTexture} from './assetsLoader'
 import {SaveFile} from './saveFile'
 import {createColorSprite} from '../utils'
+import {preloadAssets} from './optimizations'
 
 export class Engine {
     readonly app: Application
@@ -98,6 +99,10 @@ export class Engine {
                 this.fileLoader,
                 this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)
             )
+        }
+
+        if (this.fileLoader instanceof UrlFileLoader) {
+            await preloadAssets(this.fileLoader, this.currentScene)
         }
 
         this.app.ticker.start()

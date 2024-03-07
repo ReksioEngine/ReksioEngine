@@ -15,12 +15,23 @@ export abstract class FileLoader {
     abstract getCNVFile(filename: string): Promise<CNV>
     abstract getIMGFile(filename: string): Promise<Image>
     abstract getANNFile(filename: string): Promise<ANN>
+    abstract getFilesListing(): string[]
+    abstract getCache(): Map<string, any>
 }
 
-abstract class UrlFileLoader extends FileLoader {
+export abstract class UrlFileLoader extends FileLoader {
     private listing: Map<string, string> | null = null
+    private cache: Map<string, any> = new Map<string, any>()
 
-    protected abstract getFilesListing(): Promise<Map<string, string>>
+    protected abstract fetchFilesListing(): Promise<Map<string, string>>
+
+    getFilesListing(): string[] {
+        return [...this.listing!.keys()]
+    }
+
+    getCache(): Map<string, any> {
+        return this.cache
+    }
 
     async getANNFile(filename: string): Promise<ANN> {
         const data = await this.getRawFile(filename)
@@ -42,17 +53,24 @@ abstract class UrlFileLoader extends FileLoader {
     async getRawFile(filename: string): Promise<ArrayBuffer> {
         if (this.listing == null) {
             console.debug('Fetching files listing...')
-            this.listing = await this.getFilesListing()
+            this.listing = await this.fetchFilesListing()
         }
 
-        console.debug(`Fetching '${filename}'...`)
-        const fileUrl = this.listing.get(filename.toLowerCase())
+        const normalizedFilename = filename.toLowerCase()
+        console.debug(`Fetching '${normalizedFilename}'...`)
+        const fileUrl = this.listing.get(normalizedFilename)
         if (fileUrl == null) {
-            throw new FileNotFoundError(filename)
+            throw new FileNotFoundError(normalizedFilename)
+        }
+
+        if (this.cache.has(normalizedFilename)) {
+            return this.cache.get(normalizedFilename)
         }
 
         const response = await fetch(fileUrl)
-        return response.arrayBuffer()
+        const data = await response.arrayBuffer()
+        this.cache.set(normalizedFilename, data)
+        return data
     }
 }
 
@@ -67,7 +85,7 @@ export class GithubFileLoader extends UrlFileLoader {
     }
 
     // Windows case-insensitive filenames moment
-    protected async getFilesListing() {
+    protected async fetchFilesListing() {
         const response = await fetch(this.filesListUrl)
         const data = await response.json()
         return new Map<string, string>(data.tree.map((entry: any) => [
@@ -81,7 +99,7 @@ export class ArchiveOrgFileLoader extends UrlFileLoader {
     private baseUrl: string = 'https://archive.org/download/reksio-i-ufo/2.%20Reksio%20i%20Ufo.iso/'
 
     // Windows case-insensitive filenames moment
-    protected async getFilesListing() {
+    protected async fetchFilesListing() {
         const response = await fetch(this.baseUrl)
         const html = await response.text()
 
