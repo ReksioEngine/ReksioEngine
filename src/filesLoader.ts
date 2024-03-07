@@ -16,12 +16,12 @@ export abstract class FileLoader {
     abstract getIMGFile(filename: string): Promise<Image>
     abstract getANNFile(filename: string): Promise<ANN>
     abstract getFilesListing(): string[]
-    abstract getCache(): Map<string, any>
+    abstract getHistory(): Set<string>
 }
 
 export abstract class UrlFileLoader extends FileLoader {
     private listing: Map<string, string> | null = null
-    private cache: Map<string, any> = new Map<string, any>()
+    private history: Set<string> = new Set<string>()
 
     protected abstract fetchFilesListing(): Promise<Map<string, string>>
 
@@ -29,8 +29,8 @@ export abstract class UrlFileLoader extends FileLoader {
         return [...this.listing!.keys()]
     }
 
-    getCache(): Map<string, any> {
-        return this.cache
+    getHistory(): Set<string> {
+        return this.history
     }
 
     async getANNFile(filename: string): Promise<ANN> {
@@ -63,14 +63,9 @@ export abstract class UrlFileLoader extends FileLoader {
             throw new FileNotFoundError(normalizedFilename)
         }
 
-        if (this.cache.has(normalizedFilename)) {
-            return this.cache.get(normalizedFilename)
-        }
-
         const response = await fetch(fileUrl)
-        const data = await response.arrayBuffer()
-        this.cache.set(normalizedFilename, data)
-        return data
+        this.history.add(normalizedFilename)
+        return await response.arrayBuffer()
     }
 }
 

@@ -10,7 +10,7 @@ export const preloadAssets = async (fileLoader: UrlFileLoader, scene: Scene) => 
     }
 
     await Promise.all(listing.map(filename => {
-        if (!filename.startsWith(scenePath) || fileLoader.getCache().has(filename)) {
+        if (!filename.startsWith(scenePath) || fileLoader.getHistory().has(filename)) {
             return
         }
 
