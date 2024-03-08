@@ -93,7 +93,7 @@ export class Animo extends Type<AnimoDefinition> {
         if (this.annFile === null || this.sprite === null) return
 
         const key = this.currentAnimation
-        const event = this.annFile.events.find(event => event.name === key)
+        const event = this.annFile.events.find(event => event.name.toUpperCase() === key)
         if (event) {
             this.tickAnimation(event)
         }
