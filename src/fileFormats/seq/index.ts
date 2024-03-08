@@ -20,10 +20,12 @@ export const parseSequence = (content: string) => {
         } else {
             const [objectName, variableName, subKey] = key.split(':')
             const object = objects[objectName]
-            if ('TYPE' in object && object['TYPE'] in structureDefinitions && variableName in structureDefinitions[object['TYPE']]) {
-                structureDefinitions[objects[objectName]['TYPE']][variableName](objects[objectName], variableName, subKey, value)
+            const definition = structureDefinitions[object.TYPE]
+
+            if (definition && variableName in definition) {
+                definition[variableName](object, variableName, subKey, value)
             } else {
-                objects[objectName][variableName] = value
+                object[variableName] = value
             }
         }
     }
