@@ -107,6 +107,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     private updateSprite(eventFrame: Frame, imageIndex: number, annImage: AnnImage) {
+        //TODO: Sometimes this.sprite.transform === null
         if (this.sprite === null) return
 
         if (imageIndex != this.usingImageIndex) {
