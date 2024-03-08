@@ -1,7 +1,11 @@
 import {boolean, map, number, string, TypeDefinition} from '../common'
-import {CNVObject} from '../cnv/parser'
 
-type SequenceFile = { [key: string]: CNVObject }
+export interface SequenceFileEntry {
+    TYPE: string
+    [key: string]: any
+}
+
+type SequenceFile = { [key: string]: SequenceFileEntry }
 
 export const parseSequence = (content: string) => {
     const lines = content.split('\n')
