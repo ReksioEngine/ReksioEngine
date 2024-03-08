@@ -79,8 +79,6 @@ export class Animo extends Type<AnimoDefinition> {
         if (this.rawAnn == null)
             throw new Error('RawAnn is null')
 
-        console.log(imageIndex)
-
         const baseTexture = PIXI.BaseTexture.fromBuffer(
             new Uint8Array(this.rawAnn.images[imageIndex]),
             this.rawAnn.annImages[imageIndex].width,
@@ -95,8 +93,6 @@ export class Animo extends Type<AnimoDefinition> {
 
         const key = this.currentAnimation
         const event = this.rawAnn.events[key]
-        if (event == null)
-            console.log(`${key} -> ${this.rawAnn.header.eventsCount}`)
 
         this.tickAnimation(event)
     }
@@ -155,7 +151,7 @@ export class Animo extends Type<AnimoDefinition> {
     PLAY(name: string) {
         this.isPlay = true
         this.currentFrame = 0
-        this.currentAnimation = name
+        this.currentAnimation = name.toUpperCase()
 
         this.SHOW() //I noticed that play method should call show method
     }

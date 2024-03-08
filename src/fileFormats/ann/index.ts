@@ -104,7 +104,7 @@ const parseFrame = (view: BinaryBuffer) => {
 
 const parseEvent = (view: BinaryBuffer) => {
     const event = {} as Event
-    const name = stringUntilNull(decoder.decode(view.read(0x20)))
+    const name = stringUntilNull(decoder.decode(view.read(0x20))).toUpperCase()
 
     event.name = name
     event.framesCount = view.getUint16()
@@ -146,12 +146,10 @@ export const loadAnn = (data: ArrayBuffer) => {
     const buffer = new BinaryBuffer(new DataView(data))
     const header = parseHeader(buffer)
 
-    const keys = []
     const events: { [key: string]: Event } = {}
     for (let i = 0; i < header.eventsCount; i++) {
         const {name, event} = parseEvent(buffer)
 
-        keys.push(name)
         events[name] = event
     }
 
