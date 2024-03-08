@@ -99,8 +99,8 @@ export type AnimoDefinition = TypeDefinition & {
     RELEASE: boolean
     MONITORCOLLISION: boolean
     MONITORCOLLISIONALPHA: boolean
-    ONINIT: callback
-    ONFINISHED: callbacks<string>
+    ONINIT?: callback
+    ONFINISHED?: callbacks<string>
 }
 
 const AnimoStructure = {

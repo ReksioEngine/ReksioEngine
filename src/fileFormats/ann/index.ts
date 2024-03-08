@@ -104,7 +104,7 @@ const parseFrame = (view: BinaryBuffer) => {
 
 const parseEvent = (view: BinaryBuffer) => {
     const event = {} as Event
-    event.name = stringUntilNull(decoder.decode(view.read(0x20))).toUpperCase()
+    event.name = stringUntilNull(decoder.decode(view.read(0x20)))
     event.framesCount = view.getUint16()
     view.skip(0x6)
     event.loopNumber = view.getUint32()

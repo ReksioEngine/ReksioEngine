@@ -68,8 +68,11 @@ export class Engine {
 
     addToStage(sprite: Sprite) {
         sprite.sortableChildren = true
-
         this.app.stage.addChild(sprite)
+    }
+
+    removeFromStage(sprite: Sprite) {
+        this.app.stage.removeChild(sprite)
     }
 
     async changeScene(sceneName: string) {

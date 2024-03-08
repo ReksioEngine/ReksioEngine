@@ -32,7 +32,7 @@ export class Image extends Type<ImageDefinition> {
 
     destroy() {
         if (this.sprite === null) return
-        this.sprite.destroy()
+        this.engine.removeFromStage(this.sprite)
     }
 
     private async load() {
@@ -55,12 +55,14 @@ export class Image extends Type<ImageDefinition> {
 
     MOVE(xOffset: number, yOffset: number) {
         if (this.sprite === null) return
+
         this.sprite.x += xOffset
         this.sprite.y += yOffset
     }
 
     SETPOSITION(x: number, y: number) {
         if (this.sprite === null) return
+
         this.sprite.x = x
         this.sprite.y = y
     }
@@ -68,7 +70,7 @@ export class Image extends Type<ImageDefinition> {
     SETPRIORITY(priority: number) {
         if (this.sprite === null) return
 
-        this.sprite.zIndex = -priority
+        this.sprite.zIndex = priority
         this.sprite.sortChildren()
     }
 
