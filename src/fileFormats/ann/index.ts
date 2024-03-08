@@ -17,7 +17,7 @@ interface AnnHeader {
     description: string
 }
 
-interface Event {
+export interface Event {
     name: string
     framesCount: number
     loopNumber: number
@@ -27,7 +27,7 @@ interface Event {
     frames: Array<Frame>
 }
 
-interface Frame {
+export interface Frame {
     check: string
     positionX: number
     positionY: number
@@ -39,7 +39,7 @@ interface Frame {
     sounds: string
 }
 
-interface AnnImage {
+export interface AnnImage {
     width: number
     height: number
     positionX: number
