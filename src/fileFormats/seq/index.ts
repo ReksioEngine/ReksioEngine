@@ -5,7 +5,7 @@ export interface SequenceFileEntry {
     [key: string]: any
 }
 
-type SequenceFile = { [key: string]: SequenceFileEntry }
+export type SequenceFile = { [key: string]: SequenceFileEntry }
 
 export const parseSequence = (content: string) => {
     const lines = content.split('\n')
