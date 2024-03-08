@@ -17,7 +17,7 @@ interface AnnHeader {
     description: string
 }
 
-interface Event {
+export interface Event {
     name: string
     framesCount: number
     loopNumber: number
@@ -27,7 +27,7 @@ interface Event {
     frames: Array<Frame>
 }
 
-interface Frame {
+export interface Frame {
     check: string
     positionX: number
     positionY: number
@@ -39,7 +39,7 @@ interface Frame {
     sounds: string
 }
 
-interface AnnImage {
+export interface AnnImage {
     width: number
     height: number
     positionX: number
@@ -104,7 +104,7 @@ const parseFrame = (view: BinaryBuffer) => {
 
 const parseEvent = (view: BinaryBuffer) => {
     const event = {} as Event
-    event.name = stringUntilNull(decoder.decode(view.read(0x20)))
+    event.name = stringUntilNull(decoder.decode(view.read(0x20))).toUpperCase()
     event.framesCount = view.getUint16()
     view.skip(0x6)
     event.loopNumber = view.getUint32()
@@ -144,7 +144,7 @@ export const loadAnn = (data: ArrayBuffer) => {
     const buffer = new BinaryBuffer(new DataView(data))
     const header = parseHeader(buffer)
 
-    const events = []
+    const events: Event[] = []
     for (let i = 0; i < header.eventsCount; i++) {
         events.push(parseEvent(buffer))
     }
@@ -158,7 +158,8 @@ export const loadAnn = (data: ArrayBuffer) => {
     for (let i = 0; i < header.framesCount; i++) {
         const img = annImages[i]
         const decompressedImageLen = img.width * img.height * 2
-        const decompressedAlphaLen = img.width * img.height
+        const decompressedAlphaLen = img.alphaLen ? img.width * img.height : 0
+
         images.push(loadImageWithoutHeader(buffer, img.compression, img.imageLen, decompressedImageLen, img.alphaLen, decompressedAlphaLen))
     }
 

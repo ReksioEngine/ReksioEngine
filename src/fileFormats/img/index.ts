@@ -61,7 +61,7 @@ const convertToRgba32 = (bytes: Uint8Array) => {
 }
 
 // Based on https://github.com/mysliwy112/AM-transcoder/blob/master/src/image.cpp
-const addAlpha = (imgBytes: Uint8Array, alphaBytes: Uint8Array) => {
+const addAlpha = (imgBytes: Uint8Array, alphaBytes: Uint8Array | undefined) => {
     const output = new Uint8Array(imgBytes.byteLength + imgBytes.byteLength / 3)
     let alphaPosition = 0
     let colorPosition = 0
@@ -70,7 +70,7 @@ const addAlpha = (imgBytes: Uint8Array, alphaBytes: Uint8Array) => {
         output[i] = imgBytes[colorPosition]
         output[i+1] = imgBytes[colorPosition+1]
         output[i+2] = imgBytes[colorPosition+2]
-        if (alphaBytes.byteLength == 0) {
+        if (alphaBytes == undefined || alphaBytes.byteLength == 0) {
             output[i+3] = 255
         } else {
             output[i+3] = alphaBytes[alphaPosition]
@@ -87,7 +87,7 @@ export const loadImage = (data: ArrayBuffer): Image => {
     const header = parseHeader(buffer)
 
     const decompressedImageLen = header.width * header.height * 2
-    const decompressedAlphaLen = header.width * header.height
+    const decompressedAlphaLen = header.alphaLen ? header.width * header.height : 0
     const imgBytes = loadImageWithoutHeader(buffer, header.compressionType, header.imageLen, decompressedImageLen, header.alphaLen, decompressedAlphaLen)
     return {
         header,
@@ -100,29 +100,37 @@ export const loadImageWithoutHeader = (buffer: BinaryBuffer, compressionType: nu
     let alphaBytes
     if (compressionType == CompressionType.CLZW) {
         imgBytes = new Uint8Array(CLZWDecompress(buffer))
-        alphaBytes = new Uint8Array(CLZWDecompress(buffer))
+        if (alphaLen !== 0) {
+            alphaBytes = new Uint8Array(CLZWDecompress(buffer))
+        }
     } else if (compressionType == CompressionType.CRLE) {
         const imgBuffer = new BinaryBuffer(new DataView(buffer.read(imageLen)))
-        const alphaBuffer = new BinaryBuffer(new DataView(buffer.read(alphaLen)))
-
         imgBytes = new Uint8Array(CRLEDecompress(imgBuffer, decompressedImageLen, 2))
-        alphaBytes = new Uint8Array(CRLEDecompress(alphaBuffer, decompressedAlphaLen, 1))
+
+        if (alphaLen !== 0) {
+            const alphaBuffer = new BinaryBuffer(new DataView(buffer.read(alphaLen)))
+            alphaBytes = new Uint8Array(CRLEDecompress(alphaBuffer, decompressedAlphaLen, 1))
+        }
     } else if (compressionType == CompressionType.CLZW_CRLE) {
         imgBytes = CLZWDecompress(buffer)
-        alphaBytes = CLZWDecompress(buffer)
-
         const imgBuffer = new BinaryBuffer(new DataView(imgBytes))
-        const alphaBuffer = new BinaryBuffer(new DataView(alphaBytes))
-
         imgBytes = new Uint8Array(CRLEDecompress(imgBuffer, decompressedImageLen, 2))
-        alphaBytes = new Uint8Array(CRLEDecompress(alphaBuffer, decompressedAlphaLen, 1))
+
+        if (alphaLen !== 0) {
+            alphaBytes = CLZWDecompress(buffer)
+            const alphaBuffer = new BinaryBuffer(new DataView(alphaBytes))
+            alphaBytes = new Uint8Array(CRLEDecompress(alphaBuffer, decompressedAlphaLen, 1))
+        }
     } else if (compressionType == CompressionType.NONE) {
         imgBytes = new Uint8Array(buffer.read(imageLen))
-        alphaBytes = new Uint8Array(buffer.read(alphaLen))
+        if (alphaLen !== 0) {
+            alphaBytes = new Uint8Array(buffer.read(alphaLen))
+        }
     } else {
         throw new Error(`Unknown compression type ${compressionType}`)
     }
 
     imgBytes = convertToRgba32(imgBytes)
-    return addAlpha(imgBytes, alphaBytes)
+    imgBytes = addAlpha(imgBytes, alphaBytes)
+    return imgBytes
 }
