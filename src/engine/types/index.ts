@@ -1,5 +1,5 @@
 import {Engine} from '../index'
-import {TypeDefinition} from '../../fileFormats/cnv/types'
+import {TypeDefinition} from '../../fileFormats/common'
 
 export class Type<DefinitionType extends TypeDefinition> {
     protected engine: Engine

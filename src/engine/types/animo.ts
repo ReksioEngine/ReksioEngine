@@ -1,9 +1,10 @@
 import {Type} from './index'
-import {AnimoDefinition, callbacks} from '../../fileFormats/cnv/types'
+import {AnimoDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError} from '../../utils'
 import {AnimatedSprite} from 'pixi.js'
 import {FileNotFoundError} from '../../filesLoader'
+import {callbacks} from '../../fileFormats/common'
 
 export class Animo extends Type<AnimoDefinition> {
     private priority: number

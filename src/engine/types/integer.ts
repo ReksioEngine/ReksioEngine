@@ -1,6 +1,7 @@
 import {Type} from './index'
 import {Engine} from '../index'
-import {callbacks, IntegerDefinition} from '../../fileFormats/cnv/types'
+import {IntegerDefinition} from '../../fileFormats/cnv/types'
+import {callbacks} from '../../fileFormats/common'
 
 export class Integer extends Type<IntegerDefinition> {
     private readonly onChanged: callbacks<number>
