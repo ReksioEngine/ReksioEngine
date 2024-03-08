@@ -6,6 +6,20 @@ export const boolean = (object: any, key: string, param: string, value: string) 
 export const stringArray = (object: any, key: string, param: string, value: string) => object[key] = value.split(',')
 export const callback = (object: any, key: string, param: string, value: string) => object[key] = createCallback(value)
 
+export const array = (valueParser: FieldTypeParser) => {
+    return (object: any, key: string, param: string, value: string) => {
+        const parts = value.split(',')
+
+        if (!object[key]) {
+            object[key] = new Array(parts.length)
+        }
+
+        for (const i in parts) {
+            valueParser(object[key], i, '', parts[i])
+        }
+    }
+}
+
 export const map = (valueParser: FieldTypeParser) => {
     return (object: any, key: string, param: string, value: string) => {
         if (!object[key]) {

@@ -9,15 +9,20 @@ export const stringUntilNull = (text: string) => {
     return text.substring(0, text.indexOf('\x00'))
 }
 
-export const createColorTexture = (app: Application, dimensions: Rectangle, color: number) => {
+export const createColorGraphics = (dimensions: Rectangle, color: number, alpha?: number) => {
     const graphics = new Graphics()
-    graphics.beginFill(color)
+    graphics.beginFill(color, alpha)
     graphics.drawRect(dimensions.x, dimensions.y, dimensions.width, dimensions.height)
+    return graphics
+}
+
+export const createColorTexture = (app: Application, dimensions: Rectangle, color: number, alpha?: number) => {
+    const graphics = createColorGraphics(dimensions, color, alpha)
     return app.renderer.generateTexture(graphics)
 }
 
-export const createColorSprite = (app: Application, dimensions: Rectangle, color: number) => {
-    const background = new Sprite(createColorTexture(app, dimensions, color))
+export const createColorSprite = (app: Application, dimensions: Rectangle, color: number, alpha?: number) => {
+    const background = new Sprite(createColorTexture(app, dimensions, color, alpha))
     background.zIndex = -99999
     return background
 }

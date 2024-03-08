@@ -1,4 +1,5 @@
 import {
+    array,
     boolean,
     callback,
     callbacks, code,
@@ -250,11 +251,14 @@ export type ButtonDefinition = TypeDefinition & {
     VISIBLE: boolean
     ENABLE: boolean
     DRAGGABLE: boolean
-    GFXSTANDARD: reference
-    GFXONCLICK: reference
-    GFXONMOVE: reference
-    ONRELEASED: callback
-    ONFOCUSON: callback
+    GFXSTANDARD?: reference
+    GFXONCLICK?: reference
+    GFXONMOVE?: reference
+    ONRELEASED?: callback
+    ONFOCUSON?: callback
+    ONFOCUSOFF?: callback
+    ONINIT?: callback
+    RECT?: Array<number>
 }
 
 const ButtonDefinitionStructure = {
@@ -265,7 +269,10 @@ const ButtonDefinitionStructure = {
     GFXONCLICK: reference,
     GFXONMOVE: reference,
     ONRELEASED: callback,
-    ONFOCUSON: callback
+    ONFOCUSON: callback,
+    ONFOCUSOFF: callback,
+    ONINIT: callback,
+    RECT: array(number)
 }
 
 export type SequenceDefinition = TypeDefinition & {
