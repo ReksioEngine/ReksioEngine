@@ -12,10 +12,20 @@ export class Button extends Type<ButtonDefinition> {
     private gfxOnClick?: Image
     private gfxOnMove?: Image
 
+    private readonly onMouseOverCallback
+    private readonly onMouseOutCallback
+    private readonly onMouseDownCallback
+    private readonly onMouseUpCallback
+
     constructor(engine: Engine, definition: ButtonDefinition) {
         super(engine, definition)
         this.enabled = definition.ENABLE
         this.visible = definition.VISIBLE
+
+        this.onMouseOverCallback = this.onMouseOver.bind(this)
+        this.onMouseOutCallback = this.onMouseOut.bind(this)
+        this.onMouseDownCallback = this.onMouseDown.bind(this)
+        this.onMouseUpCallback = this.onMouseUp.bind(this)
     }
 
     init() {
@@ -35,18 +45,33 @@ export class Button extends Type<ButtonDefinition> {
 
         if (this.gfxStandard?.sprite) {
             this.gfxStandard.sprite.interactive = true
-            this.gfxStandard.sprite.addListener('mouseover', this.onMouseOver.bind(this))
+            this.gfxStandard.sprite.addListener('mouseover', this.onMouseOverCallback)
         }
         if (this.gfxOnMove?.sprite) {
             this.gfxOnMove.sprite.interactive = true
-            this.gfxOnMove.sprite.addListener('mouseout', this.onMouseOut.bind(this))
-            this.gfxOnMove.sprite.addListener('mousedown', this.onMouseDown.bind(this))
-            this.gfxOnMove.sprite.addListener('mouseup', this.onMouseUp.bind(this))
+            this.gfxOnMove.sprite.addListener('mouseout', this.onMouseOutCallback)
+            this.gfxOnMove.sprite.addListener('mousedown', this.onMouseDownCallback)
+            this.gfxOnMove.sprite.addListener('mouseup', this.onMouseUpCallback)
         }
         if (this.gfxOnClick?.sprite) {
             this.gfxOnClick.sprite.interactive = true
-            this.gfxOnClick.sprite.addListener('mouseout', this.onMouseOut.bind(this))
-            this.gfxOnClick.sprite.addListener('mouseup', this.onMouseUp.bind(this))
+            this.gfxOnClick.sprite.addListener('mouseout', this.onMouseOutCallback)
+            this.gfxOnClick.sprite.addListener('mouseup', this.onMouseUpCallback)
+        }
+    }
+
+    destroy() {
+        if (this.gfxStandard?.sprite) {
+            this.gfxStandard.sprite.removeListener('mouseover', this.onMouseOverCallback)
+        }
+        if (this.gfxOnMove?.sprite) {
+            this.gfxOnMove.sprite.removeListener('mouseout', this.onMouseOutCallback)
+            this.gfxOnMove.sprite.removeListener('mousedown', this.onMouseDownCallback)
+            this.gfxOnMove.sprite.removeListener('mouseup', this.onMouseUpCallback)
+        }
+        if (this.gfxOnClick?.sprite) {
+            this.gfxOnClick.sprite.removeListener('mouseout', this.onMouseOutCallback)
+            this.gfxOnClick.sprite.removeListener('mouseup', this.onMouseUpCallback)
         }
     }
 
