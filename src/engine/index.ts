@@ -2,13 +2,13 @@ import {callback, reference} from '../fileFormats/common'
 import {runScript} from '../interpreter/evaluator'
 import {Type} from './types'
 import {loadDefinition} from './definitionLoader'
-import {Application, Sprite} from 'pixi.js'
+import {Application, Rectangle, Sprite} from 'pixi.js'
 import {Scene} from './types/scene'
 import {FileLoader, GithubFileLoader, UrlFileLoader} from '../filesLoader'
 import {sound, Sound} from '@pixi/sound'
 import {loadSound, loadTexture} from './assetsLoader'
 import {SaveFile} from './saveFile'
-import {createColorSprite} from '../utils'
+import {createColorSprite, createColorTexture} from '../utils'
 import {preloadAssets} from './optimizations'
 
 export class Engine {
@@ -23,10 +23,13 @@ export class Engine {
     public music: Sound | null = null
     public canvasBackground: Sprite
 
+    private readonly blackTexture
+
     constructor(app: Application) {
         this.app = app
 
-        this.canvasBackground = createColorSprite(this.app, 0x000000)
+        this.blackTexture = createColorTexture(this.app, new Rectangle(0, 0, this.app.view.width, this.app.view.height), 0)
+        this.canvasBackground = new Sprite(this.blackTexture)
         this.canvasBackground.zIndex = -99999
     }
 
@@ -68,6 +71,7 @@ export class Engine {
 
     addToStage(sprite: Sprite) {
         sprite.sortableChildren = true
+
         this.app.stage.addChild(sprite)
     }
 
@@ -81,15 +85,22 @@ export class Engine {
             this.music.stop()
         }
 
-        // Remove non-global scope objects
+        // Remove non-global objects from scope
+        // but keep for later destroying
+        // to prevent screen flickering
+        const objectsToRemove = []
         for (const [key, object] of Object.entries(this.scope)) {
-            object.destroy()
+            objectsToRemove.push(object)
             delete this.scope[key]
         }
 
         this.currentScene = this.getObject(sceneName) as Scene
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(`${sceneName}.cnv`))
         await loadDefinition(this, this.scope, sceneDefinition, this.currentScene)
+
+        for (const object of objectsToRemove) {
+            object.destroy()
+        }
 
         if (this.currentScene.definition.MUSIC) {
             this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
