@@ -32,7 +32,7 @@ export class Image extends Type<ImageDefinition> {
 
     destroy() {
         if (this.sprite === null) return
-        this.sprite.destroy()
+        this.engine.removeFromStage(this.sprite)
     }
 
     private async load() {
@@ -70,7 +70,7 @@ export class Image extends Type<ImageDefinition> {
     SETPRIORITY(priority: number) {
         if (this.sprite === null) return
 
-        this.sprite.zIndex = -priority
+        this.sprite.zIndex = priority
         this.sprite.sortChildren()
     }
 

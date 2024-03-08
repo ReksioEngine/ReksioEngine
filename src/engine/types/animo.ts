@@ -6,31 +6,30 @@ import * as PIXI from 'pixi.js'
 import {Sprite, Texture} from 'pixi.js'
 import {FileNotFoundError} from '../../filesLoader'
 import {ANN, AnnImage, Frame} from '../../fileFormats/ann'
-import { Event as Event } from '../../fileFormats/ann/index'
+import {Event as Event} from '../../fileFormats/ann/index'
 import {callbacks} from '../../fileFormats/common'
 
 //TODO: Try to use Image class here
 export class Animo extends Type<AnimoDefinition> {
-    private isPlay: boolean = false
+    private isPlaying: boolean = false
     private currentFrame: number = 0
     private currentAnimation: string = '1'
     private currentLoop: number = 0
     private usingImageIndex = -1
 
-    private rawAnn: ANN | null = null
+    private annFile: ANN | null = null
     private sprite: Sprite | null = null
+    private textures = new Map<number, PIXI.Texture>()
 
-    private readonly onFinished: callbacks<string>
+    private readonly onFinished?: callbacks<string>
 
     constructor(engine: Engine, definition: AnimoDefinition) {
         super(engine, definition)
-
         this.onFinished = definition.ONFINISHED
     }
 
     async init() {
-        this.rawAnn = await this.loadAnimation()
-
+        this.annFile = await this.loadAnimation()
         this.initAnimatedSprite()
 
         if (this.definition.ONINIT) {
@@ -40,12 +39,11 @@ export class Animo extends Type<AnimoDefinition> {
 
     destroy() {
         if (this.sprite === null) return
-
-        this.sprite.destroy()
+        this.engine.removeFromStage(this.sprite)
     }
 
     tick(delta: number) {
-        if (this.sprite == null || !this.sprite.visible || !this.isPlay) return
+        if (this.sprite == null || !this.sprite.visible || !this.isPlaying) return
 
         this.ONTICK()
     }
@@ -55,50 +53,58 @@ export class Animo extends Type<AnimoDefinition> {
         if (relativePath == undefined)
             throw new FileNotFoundError('Current scene is undefined!')
 
-        return await this.engine.fileLoader.getANNFile(relativePath)
+        const annFile = await this.engine.fileLoader.getANNFile(relativePath)
+        console.debug(`File '${this.definition.FILENAME}' loaded successfully!`)
+        return annFile
     }
 
     private initAnimatedSprite() {
-        if (this.rawAnn === null) return
+        if (this.annFile === null) return
 
         this.sprite = new PIXI.Sprite()
-
         this.sprite.visible = this.definition.VISIBLE
         this.SETPRIORITY(this.definition.PRIORITY)
 
         this.engine.addToStage(this.sprite)
-
-        console.debug(`File ${this.definition.FILENAME} loaded successfully!`)
     }
 
     getTextureFrom(imageIndex: number): Texture {
-        if (this.rawAnn == null)
-            throw new Error('RawAnn is null')
+        if (this.textures.has(imageIndex)) {
+            return this.textures.get(imageIndex)!
+        }
+
+        if (this.annFile == null) {
+            throw new Error('Animation is not loaded yet!')
+        }
 
         const baseTexture = PIXI.BaseTexture.fromBuffer(
-            new Uint8Array(this.rawAnn.images[imageIndex]),
-            this.rawAnn.annImages[imageIndex].width,
-            this.rawAnn.annImages[imageIndex].height
+            new Uint8Array(this.annFile.images[imageIndex]),
+            this.annFile.annImages[imageIndex].width,
+            this.annFile.annImages[imageIndex].height
         )
 
-        return new PIXI.Texture(baseTexture)
+        const texture = new PIXI.Texture(baseTexture)
+        this.textures.set(imageIndex, texture)
+
+        return texture
     }
 
     ONTICK() {
-        if (this.rawAnn === null || this.sprite === null) return
+        if (this.annFile === null || this.sprite === null) return
 
         const key = this.currentAnimation
-        const event = this.rawAnn.events[key]
-
-        this.tickAnimation(event)
+        const event = this.annFile.events.find(event => event.name === key)
+        if (event) {
+            this.tickAnimation(event)
+        }
     }
 
     private tickAnimation(event: Event) {
-        if (this.rawAnn === null || this.sprite === null) return
+        if (this.annFile === null || this.sprite === null) return
 
         const eventFrame = event.frames[this.currentFrame]
-        const imageIndex= event.framesImageMapping[this.currentFrame]
-        const annImage = this.rawAnn.annImages[imageIndex]
+        const imageIndex = event.framesImageMapping[this.currentFrame]
+        const annImage = this.annFile.annImages[imageIndex]
 
         this.currentFrame += 1
 
@@ -123,30 +129,32 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     private invokeIfAnimationCompleted(event: Event) {
-        if (this.currentFrame < event.framesCount) return null
+        if (this.currentFrame < event.framesCount) return
 
         if (this.currentLoop >= event.loopNumber) {
             this.STOP(false)
-
-            this.InvokeOnFinish(this.currentAnimation.toString())
+            this.ONFINISH()
         }
 
         this.currentLoop += 1
         this.currentFrame = 0
     }
 
-    private InvokeOnFinish(index: string) {
-        if (this.onFinished == null) return
+    private ONFINISH() {
+        const index = this.currentAnimation.toString()
 
-        if (this.onFinished.nonParametrized)
+        if (this.onFinished?.nonParametrized) {
             this.engine.executeCallback(this, this.onFinished.nonParametrized)
+        }
 
-        if (this.onFinished.parametrized && this.onFinished.parametrized.has(index.toString()))
-            this.engine.executeCallback(this, this.onFinished.parametrized.get(index.toString())!)
+        const paramCallback = this.onFinished?.parametrized.get(index.toString())
+        if (paramCallback) {
+            this.engine.executeCallback(this, paramCallback)
+        }
     }
 
     PLAY(name: string) {
-        this.isPlay = true
+        this.isPlaying = true
         this.currentFrame = 0
         this.currentAnimation = name.toUpperCase()
 
@@ -154,16 +162,16 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     STOP(arg: boolean) {
-        this.isPlay = false
+        this.isPlaying = false
         this.currentFrame = 0
     }
 
     PAUSE() {
-        this.isPlay = false
+        this.isPlaying = false
     }
 
     RESUME() {
-        this.isPlay = true
+        this.isPlaying = true
     }
 
     SETFRAME(frame: number) {
@@ -267,7 +275,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     ISPLAYING(animName: string) {
-        return this.isPlay && this.currentAnimation == animName
+        return this.isPlaying && this.currentAnimation == animName
     }
 
     ISNEAR(objectName: string, arg: number) {

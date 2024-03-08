@@ -52,7 +52,7 @@ export interface AnnImage {
 
 export interface ANN {
     header: AnnHeader
-    events: { [key: string]: Event }
+    events: Event[]
     images: Uint8Array[]
     annImages: AnnImage[]
 }
@@ -104,9 +104,7 @@ const parseFrame = (view: BinaryBuffer) => {
 
 const parseEvent = (view: BinaryBuffer) => {
     const event = {} as Event
-    const name = stringUntilNull(decoder.decode(view.read(0x20))).toUpperCase()
-
-    event.name = name
+    event.name = stringUntilNull(decoder.decode(view.read(0x20))).toUpperCase()
     event.framesCount = view.getUint16()
     view.skip(0x6)
     event.loopNumber = view.getUint32()
@@ -124,7 +122,7 @@ const parseEvent = (view: BinaryBuffer) => {
         event.frames.push(parseFrame(view))
     }
 
-    return {name, event}
+    return event
 }
 
 const parseAnnImage = (view: BinaryBuffer) => {
@@ -146,11 +144,9 @@ export const loadAnn = (data: ArrayBuffer) => {
     const buffer = new BinaryBuffer(new DataView(data))
     const header = parseHeader(buffer)
 
-    const events: { [key: string]: Event } = {}
+    const events: Event[] = []
     for (let i = 0; i < header.eventsCount; i++) {
-        const {name, event} = parseEvent(buffer)
-
-        events[name] = event
+        events.push(parseEvent(buffer))
     }
 
     const annImages = []
