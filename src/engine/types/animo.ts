@@ -157,10 +157,10 @@ export class Animo extends Type<AnimoDefinition> {
         }
     }
 
-    PLAY(name: string) {
+    PLAY(name: string | number) {
         this.isPlaying = true
         this.currentFrame = 0
-        this.currentAnimation = name.toUpperCase()
+        this.currentAnimation = name.toString().toUpperCase()
 
         this.SHOW() //I noticed that play method should call show method
     }
