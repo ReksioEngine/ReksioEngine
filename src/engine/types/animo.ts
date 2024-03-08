@@ -9,15 +9,14 @@ import {ANN, AnnImage, Frame} from '../../fileFormats/ann'
 import { Event as Event } from '../../fileFormats/ann/index'
 import {callbacks} from '../../fileFormats/common'
 
+//TODO: Try to use Image class here
 export class Animo extends Type<AnimoDefinition> {
-    private visible: boolean
     private isPlay: boolean = false
     private currentFrame: number = 0
     private currentAnimation: string = '1'
     private currentLoop: number = 0
     private usingImageIndex = -1
 
-    //private animatedSprite: AnimatedSprite | null = null
     private rawAnn: ANN | null = null
     private sprite: Sprite | null = null
 
@@ -26,14 +25,11 @@ export class Animo extends Type<AnimoDefinition> {
     constructor(engine: Engine, definition: AnimoDefinition) {
         super(engine, definition)
 
-        this.visible = this.definition.VISIBLE
         this.onFinished = definition.ONFINISHED
     }
 
     async init() {
         this.rawAnn = await this.loadAnimation()
-
-        //TODO: Use Image class maybe (to check)
 
         this.initAnimatedSprite()
 
@@ -49,7 +45,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     tick(delta: number) {
-        if (!this.visible || !this.isPlay) return
+        if (this.sprite == null || !this.sprite.visible || !this.isPlay) return
 
         this.ONTICK()
     }
