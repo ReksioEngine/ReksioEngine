@@ -1,11 +1,11 @@
 import {boolean, map, number, string, TypeDefinition} from '../common'
 import {CNVObject} from '../cnv/parser'
 
-type Entry = { [key: string]: CNVObject }
+type SequenceFile = { [key: string]: CNVObject }
 
 export const parseSequence = (content: string) => {
     const lines = content.split('\n')
-    const objects: Entry = {}
+    const objects: SequenceFile = {}
 
     for (const line of lines) {
         if (line.startsWith('#') || line.trim() === '') {
