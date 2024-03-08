@@ -8,7 +8,7 @@ import {FileLoader, GithubFileLoader, UrlFileLoader} from '../filesLoader'
 import {sound, Sound} from '@pixi/sound'
 import {loadSound, loadTexture} from './assetsLoader'
 import {SaveFile} from './saveFile'
-import {createColorSprite, createColorTexture} from '../utils'
+import {createColorTexture} from '../utils'
 import {preloadAssets} from './optimizations'
 
 export class Engine {

@@ -10,6 +10,7 @@ import ReksioLangLexer from './ReksioLangLexer'
 import antlr4, {ParserRuleContext} from 'antlr4'
 import {NotImplementedError} from '../utils'
 import {Engine} from '../engine'
+import {libraries} from './stdlib'
 
 class ExecutionError extends Error {
     constructor(ctx: ParserRuleContext, msg: string) {
@@ -103,10 +104,15 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 
     visitObjectName = (ctx: ObjectNameContext): any => {
-        const object = this.engine.getObject(ctx.getText())
+        const objectName = ctx.getText()
+        const object = this.engine.getObject(objectName)
         if (object === undefined) {
+            if (libraries[objectName]) {
+                return libraries[objectName]
+            }
+
             // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
-            console.error(`Unknown identifier '${ctx.getText()}'`)
+            console.error(`Unknown identifier '${objectName}'`)
             return null
         }
 
