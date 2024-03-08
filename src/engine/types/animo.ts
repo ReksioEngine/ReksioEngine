@@ -37,6 +37,10 @@ export class Animo extends Type<AnimoDefinition> {
         }
     }
 
+    ready() {
+        this.tick(0)
+    }
+
     destroy() {
         if (this.sprite === null) return
         this.engine.removeFromStage(this.sprite)
