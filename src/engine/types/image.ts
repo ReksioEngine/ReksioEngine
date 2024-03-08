@@ -81,11 +81,13 @@ export class Image extends Type<ImageDefinition> {
     SHOW() {
         if (this.sprite === null) return
         this.sprite.visible = true
+        this.sprite.interactive = true
     }
 
     HIDE() {
         if (this.sprite === null) return
         this.sprite.visible = false
+        this.sprite.interactive = false
     }
 
     GETPOSITIONY() {

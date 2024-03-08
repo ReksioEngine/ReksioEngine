@@ -255,6 +255,7 @@ export type ButtonDefinition = TypeDefinition & {
     GFXONCLICK?: reference
     GFXONMOVE?: reference
     ONRELEASED?: callback
+    ONCLICKED?: callback
     ONFOCUSON?: callback
     ONFOCUSOFF?: callback
     ONINIT?: callback
@@ -269,6 +270,7 @@ const ButtonDefinitionStructure = {
     GFXONCLICK: reference,
     GFXONMOVE: reference,
     ONRELEASED: callback,
+    ONCLICKED: callback,
     ONFOCUSON: callback,
     ONFOCUSOFF: callback,
     ONINIT: callback,
