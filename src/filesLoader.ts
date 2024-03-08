@@ -3,6 +3,7 @@ import {loadImage} from './fileFormats/img'
 import {ANN, loadAnn} from './fileFormats/ann'
 import {CNV} from './fileFormats/cnv/parser'
 import {Image} from './fileFormats/img'
+import {parseSequence, SequenceFile} from './fileFormats/seq'
 
 export class FileNotFoundError extends Error {
     constructor(filename: string) {
@@ -13,6 +14,7 @@ export class FileNotFoundError extends Error {
 export abstract class FileLoader {
     abstract getRawFile(filename: string): Promise<ArrayBuffer>
     abstract getCNVFile(filename: string): Promise<CNV>
+    abstract getSequenceFile(filename: string): Promise<SequenceFile>
     abstract getIMGFile(filename: string): Promise<Image>
     abstract getANNFile(filename: string): Promise<ANN>
     abstract getFilesListing(): string[]
@@ -43,6 +45,14 @@ export abstract class UrlFileLoader extends FileLoader {
         const text = decryptCNV(data)
         console.log(text)
         return parseCNV(text)
+    }
+
+    async getSequenceFile(filename: string): Promise<CNV> {
+        const data = await this.getRawFile(filename)
+        const decoder = new TextDecoder()
+        const text = decoder.decode(data)
+        console.log(text)
+        return parseSequence(text)
     }
 
     async getIMGFile(filename: string): Promise<Image> {

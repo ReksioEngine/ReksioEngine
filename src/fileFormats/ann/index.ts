@@ -158,7 +158,7 @@ export const loadAnn = (data: ArrayBuffer) => {
     for (let i = 0; i < header.framesCount; i++) {
         const img = annImages[i]
         const decompressedImageLen = img.width * img.height * 2
-        const decompressedAlphaLen = img.width * img.height
+        const decompressedAlphaLen = img.alphaLen ? img.width * img.height : 0
 
         images.push(loadImageWithoutHeader(buffer, img.compression, img.imageLen, decompressedImageLen, img.alphaLen, decompressedAlphaLen))
     }
