@@ -5,7 +5,8 @@ import {NotImplementedError} from '../../utils'
 import * as PIXI from 'pixi.js'
 import {Sprite, Texture} from 'pixi.js'
 import {FileNotFoundError} from '../../filesLoader'
-import {ANN} from '../../fileFormats/ann'
+import {ANN, AnnImage, Frame} from '../../fileFormats/ann'
+import { Event as Event } from '../../fileFormats/ann/index'
 
 export class Animo extends Type<AnimoDefinition> {
     private visible: boolean
@@ -13,7 +14,7 @@ export class Animo extends Type<AnimoDefinition> {
     private currentFrame: number = 0
     private currentAnimation: string = '1'
     private currentLoop: number = 0
-    private usingImageIndex = 0
+    private usingImageIndex = -1
 
     //private animatedSprite: AnimatedSprite | null = null
     private rawAnn: ANN | null = null
@@ -63,7 +64,8 @@ export class Animo extends Type<AnimoDefinition> {
     private initAnimatedSprite() {
         if (this.rawAnn === null) return
 
-        this.sprite = new PIXI.Sprite(this.getTextureFrom(0))
+        this.sprite = new PIXI.Sprite()
+
         this.sprite.visible = this.definition.VISIBLE
         this.SETPRIORITY(this.definition.PRIORITY)
 
@@ -75,6 +77,8 @@ export class Animo extends Type<AnimoDefinition> {
     getTextureFrom(imageIndex: number): Texture {
         if (this.rawAnn == null)
             throw new Error('RawAnn is null')
+
+        console.log(imageIndex)
 
         const baseTexture = PIXI.BaseTexture.fromBuffer(
             new Uint8Array(this.rawAnn.images[imageIndex]),
@@ -89,11 +93,28 @@ export class Animo extends Type<AnimoDefinition> {
         if (this.rawAnn === null || this.sprite === null) return
 
         const key = this.currentAnimation
-
         const event = this.rawAnn.events[key]
+        if (event == null)
+            console.log(`${key} -> ${this.rawAnn.header.eventsCount}`)
+
+        this.tickAnimation(event)
+    }
+
+    private tickAnimation(event: Event) {
+        if (this.rawAnn === null || this.sprite === null) return
+
         const eventFrame = event.frames[this.currentFrame]
         const imageIndex= event.framesImageMapping[this.currentFrame]
         const annImage = this.rawAnn.annImages[imageIndex]
+
+        this.currentFrame += 1
+
+        this.updateSprite(eventFrame, imageIndex, annImage)
+        this.invokeIfAnimationCompleted(event)
+    }
+
+    private updateSprite(eventFrame: Frame, imageIndex: number, annImage: AnnImage) {
+        if (this.sprite === null) return
 
         if (imageIndex != this.usingImageIndex) {
             this.usingImageIndex = imageIndex
@@ -105,18 +126,19 @@ export class Animo extends Type<AnimoDefinition> {
 
         this.sprite.width = annImage.width
         this.sprite.height = annImage.height
+    }
 
-        this.currentFrame = (this.currentFrame + 1) % event.framesCount
+    private invokeIfAnimationCompleted(event: Event) {
+        if (this.currentFrame < event.framesCount) return null
 
-        if (this.currentFrame == 0) {
-            if (this.currentLoop >= event.loopNumber) {
-                this.STOP(false)
+        if (this.currentLoop >= event.loopNumber) {
+            this.STOP(false)
 
-                this.InvokeOnFinish(this.currentAnimation.toString())
-            }
-
-            this.currentLoop += 1
+            this.InvokeOnFinish(this.currentAnimation.toString())
         }
+
+        this.currentLoop += 1
+        this.currentFrame = 0
     }
 
     private InvokeOnFinish(index: string) {
@@ -160,6 +182,7 @@ export class Animo extends Type<AnimoDefinition> {
 
     SHOW() {
         if (this.sprite === null) return
+
         this.sprite.visible = true
     }
 
@@ -185,7 +208,7 @@ export class Animo extends Type<AnimoDefinition> {
     SETPRIORITY(priority: number) {
         if (this.sprite === null) return
 
-        this.sprite.zIndex = 1000 + -priority
+        this.sprite.zIndex = priority
         this.sprite.sortChildren()
     }
 
