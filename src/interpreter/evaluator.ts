@@ -56,7 +56,9 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         } else if (ctx.IDENTIFIER() != null) {
             const object = this.engine.getObject(ctx.IDENTIFIER().getText())
             if (object === undefined) {
-                throw new ExecutionError(ctx, `Unknown identifier '${ctx.getText()}'`)
+                // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
+                console.error(`Unknown identifier '${ctx.getText()}'`)
+                return null
             }
             return object.value
         }
@@ -66,6 +68,9 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 
     visitMethodCall = (ctx: MethodCallContext): any => {
         const object = this.visitObjectName(ctx.objectName())
+        if (object == undefined) {
+            return
+        }
 
         const methodName = ctx.methodName().getText()
         const method = object[methodName]
@@ -100,7 +105,9 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     visitObjectName = (ctx: ObjectNameContext): any => {
         const object = this.engine.getObject(ctx.getText())
         if (object === undefined) {
-            throw new ExecutionError(ctx, `Unknown identifier '${ctx.getText()}'`)
+            // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
+            console.error(`Unknown identifier '${ctx.getText()}'`)
+            return null
         }
 
         return object

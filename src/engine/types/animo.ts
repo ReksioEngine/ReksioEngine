@@ -1,5 +1,5 @@
 import {Type} from './index'
-import {AnimoDefinition, callbacks} from '../../fileFormats/cnv/types'
+import {AnimoDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError} from '../../utils'
 import * as PIXI from 'pixi.js'
@@ -7,6 +7,7 @@ import {Sprite, Texture} from 'pixi.js'
 import {FileNotFoundError} from '../../filesLoader'
 import {ANN, AnnImage, Frame} from '../../fileFormats/ann'
 import { Event as Event } from '../../fileFormats/ann/index'
+import {callbacks} from '../../fileFormats/common'
 
 export class Animo extends Type<AnimoDefinition> {
     private visible: boolean

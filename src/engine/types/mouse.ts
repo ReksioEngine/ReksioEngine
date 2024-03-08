@@ -1,7 +1,8 @@
 import {Type} from './index'
 import {Engine} from '../index'
-import {callback, MouseDefinition} from '../../fileFormats/cnv/types'
+import {MouseDefinition} from '../../fileFormats/cnv/types'
 import {FederatedPointerEvent, Point} from 'pixi.js'
+import {callback} from '../../fileFormats/common'
 
 export class Mouse extends Type<MouseDefinition> {
     private enabled: boolean = true
