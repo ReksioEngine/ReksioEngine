@@ -37,6 +37,7 @@ export class Engine {
     async init() {
         const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
         await loadDefinition(this, this.globalScope, applicationDef)
+        setupDebugScene(this)
 
         this.app.ticker.maxFPS = 16
         this.app.stage.interactive = true
@@ -50,6 +51,8 @@ export class Engine {
 
         // @ts-ignore
         globalThis.engine = this
+        // @ts-ignore
+        globalThis.__PIXI_APP__ = this.app
     }
 
     tick(delta: number) {
@@ -123,6 +126,7 @@ export class Engine {
         }
 
         this.app.ticker.start()
+        updateCurrentScene(this)
     }
 
     getObject(name: string | reference): any {
