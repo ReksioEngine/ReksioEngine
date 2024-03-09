@@ -129,8 +129,8 @@ const parseAnnImage = (view: BinaryBuffer) => {
     const img = {} as AnnImage
     img.width = view.getUint16()
     img.height = view.getUint16()
-    img.positionX = view.getUint16()
-    img.positionY = view.getUint16()
+    img.positionX = view.getInt16()
+    img.positionY = view.getInt16()
     img.compression = view.getUint16()
     img.imageLen = view.getUint32()
     view.skip(4 + 0xA)
