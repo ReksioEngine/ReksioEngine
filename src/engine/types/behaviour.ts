@@ -9,6 +9,12 @@ export class Behaviour extends Type<BehaviourDefinition> {
         super(engine, definition)
     }
 
+    ready() {
+        if (this.definition.NAME === '__INIT__') {
+            this.RUN()
+        }
+    }
+
     RUN(...args: any[]) {
         return this.engine.executeCallback(null, this.definition.CODE)
     }

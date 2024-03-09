@@ -28,7 +28,7 @@ export class Episode extends Type<EpisodeDefinition> {
 
     async BACK() {
         if (this.previousScene) {
-            await this.GOTO(this.previousScene.definition._NAME)
+            await this.GOTO(this.previousScene.definition.NAME)
         }
     }
 }
