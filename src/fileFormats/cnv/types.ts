@@ -292,6 +292,36 @@ const SequenceDefinitionStructure = {
 export type GroupDefinition = TypeDefinition & NonNullable<unknown>
 const GroupDefinitionStructure = {}
 
+export type TextDefinition = TypeDefinition & {
+    VISIBLE: boolean
+    VJUSTIFY: boolean
+    TOCANVAS: boolean
+    RECT: Array<number>
+    PRIORITY: number
+    MONITORCOLLISIONALPHA: boolean
+    MONITORCOLLISION: boolean
+    FONT: string
+}
+
+const TextDefinitionStructure = {
+    VISIBLE: boolean,
+    VJUSTIFY: boolean,
+    TOCANVAS: boolean,
+    RECT: array(number),
+    PRIORITY: number,
+    MONITORCOLLISIONALPHA: boolean,
+    MONITORCOLLISION: boolean,
+    FONT: string
+}
+
+export type FontDefinition = TypeDefinition & {
+    DEF_ARIAL_STANDARD_14: string // wtf
+}
+
+const FontDefinitionStructure = {
+    DEF_ARIAL_STANDARD_14: string // wtf
+}
+
 export const structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -313,5 +343,7 @@ export const structureDefinitions = {
     ARRAY: ArrayDefinitionStructure,
     BUTTON: ButtonDefinitionStructure,
     SEQUENCE: SequenceDefinitionStructure,
-    GROUP: GroupDefinitionStructure
+    GROUP: GroupDefinitionStructure,
+    TEXT: TextDefinitionStructure,
+    FONT: FontDefinitionStructure
 } as any

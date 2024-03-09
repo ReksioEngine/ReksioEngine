@@ -21,7 +21,9 @@ import {Array as ArrayType} from './types/array'
 import {Button} from './types/button'
 import {Sequence} from './types/sequence'
 import {Group} from './types/group'
+import {Text} from './types/text'
 import {Type} from './types'
+import {Font} from './types/font'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -45,6 +47,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Condition(engine, definition)
     case 'EPISODE':
         return new Episode(engine, definition)
+    case 'FONT':
+        return new Font(engine, definition)
     case 'GROUP':
         return new Group(engine, definition)
     case 'IMAGE':
@@ -65,6 +69,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Sound(engine, definition)
     case 'STRING':
         return new StringType(engine, definition)
+    case 'TEXT':
+        return new Text(engine, definition)
     case 'TIMER':
         return new Timer(engine, definition)
     default:
