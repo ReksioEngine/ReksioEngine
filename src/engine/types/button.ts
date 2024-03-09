@@ -59,7 +59,10 @@ export class Button extends Type<ButtonDefinition> {
 
             t(States.STANDARD, Events.DISABLE, States.DISABLED, stateCallback),
             t(States.HOVERED, Events.DISABLE, States.DISABLED, stateCallback),
-            t(States.PRESSED, Events.DISABLE, States.DISABLED, stateCallback)
+            t(States.PRESSED, Events.DISABLE, States.DISABLED, stateCallback),
+
+            t(States.STANDARD, Events.ENABLE, States.STANDARD, stateCallback),
+            t(States.DISABLED, Events.DISABLE, States.DISABLED, stateCallback),
         ]
         this.stateMachine = new StateMachine<States, Events>(
             States.INIT,
