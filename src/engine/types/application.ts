@@ -6,6 +6,8 @@ import {loadDefinition} from '../definitionLoader'
 import {Episode} from './episode'
 
 export class Application extends Type<ApplicationDefinition> {
+    private language: string = '0415'
+
     constructor(engine: Engine, definition: ApplicationDefinition) {
         super(engine, definition)
     }
@@ -22,11 +24,11 @@ export class Application extends Type<ApplicationDefinition> {
     }
 
     SETLANGUAGE(langCode: string) {
-        throw new NotImplementedError()
+        this.language = langCode
     }
 
     GETLANGUAGE() {
-        throw new NotImplementedError()
+        return this.language
     }
 
     RUN(objectName: string, methodName: string, ...args: any[]) {
