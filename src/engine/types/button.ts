@@ -97,8 +97,8 @@ export class Button extends Type<ButtonDefinition> {
 
     init() {
         if (this.definition.RECT) {
-            const [x, y, width, height] = this.definition.RECT
-            const rect = new Rectangle(x, y, x + width, y + height)
+            const [x1, y1, x2, y2] = this.definition.RECT
+            const rect = new Rectangle(x1, y1, x2-x1, y2-y1)
             this.interactArea = createColorGraphics(rect, 0, 0)
             this.interactArea.interactive = true
             this.interactArea.hitArea = rect
