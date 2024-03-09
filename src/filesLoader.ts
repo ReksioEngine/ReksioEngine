@@ -56,6 +56,10 @@ export abstract class UrlFileLoader extends FileLoader {
     }
 
     async getIMGFile(filename: string): Promise<Image> {
+        if (!filename.toLowerCase().endsWith('.img')) {
+            filename = filename + '.img'
+        }
+
         const data = await this.getRawFile(filename)
         return loadImage(data)
     }
