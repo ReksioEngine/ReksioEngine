@@ -9,9 +9,12 @@ export const stringUntilNull = (text: string) => {
     return text.substring(0, text.indexOf('\x00'))
 }
 
-export const createColorGraphics = (dimensions: Rectangle, color: number, alpha?: number) => {
+export const createColorGraphics = (dimensions: Rectangle, color: number, alpha?: number, borderWidth?: number, borderColor?: number) => {
     const graphics = new Graphics()
     graphics.beginFill(color, alpha)
+    if (borderWidth !== undefined && borderWidth > 0) {
+        graphics.lineStyle(borderWidth, borderColor ?? 0xffa500)
+    }
     graphics.drawRect(dimensions.x, dimensions.y, dimensions.width, dimensions.height)
     return graphics
 }

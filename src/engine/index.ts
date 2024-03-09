@@ -13,6 +13,7 @@ import {preloadAssets} from './optimizations'
 
 export class Engine {
     readonly app: Application
+    public debug: boolean = false
 
     public globalScope: Record<string, any> = {}
     public scope: Record<string, any> = {}

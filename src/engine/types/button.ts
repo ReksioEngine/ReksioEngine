@@ -31,6 +31,7 @@ export class Button extends Type<ButtonDefinition> {
     private gfxOnMove?: Image
 
     private interactArea?: Graphics
+    private interactAreaDebug?: Graphics
     private stateMachine: StateMachine<States, Events>
 
     private readonly onMouseOverCallback
@@ -105,8 +106,14 @@ export class Button extends Type<ButtonDefinition> {
             this.interactArea = createColorGraphics(rect, 0, 0)
             this.interactArea.interactive = true
             this.interactArea.hitArea = rect
+            this.interactArea.zIndex = 9999999 - y1
             this.interactArea.cursor = 'pointer'
             this.interactArea.visible = this.definition.ENABLE
+
+            if (this.engine.debug) {
+                this.interactAreaDebug = createColorGraphics(rect, 0, 0, 3)
+                this.interactAreaDebug.zIndex = 99999999
+            }
         }
     }
 
@@ -117,6 +124,9 @@ export class Button extends Type<ButtonDefinition> {
             this.interactArea.addListener('mousedown', this.onMouseDownCallback)
             this.interactArea.addListener('mouseup', this.onMouseUpCallback)
             this.engine.app.stage.addChild(this.interactArea)
+        }
+        if (this.interactAreaDebug) {
+            this.engine.app.stage.addChild(this.interactAreaDebug)
         }
 
         // This has to be in ready() because it references other objects assigned in init()...
@@ -159,6 +169,9 @@ export class Button extends Type<ButtonDefinition> {
             this.interactArea.removeListener('mousedown', this.onMouseDownCallback)
             this.interactArea.removeListener('mouseup', this.onMouseUpCallback)
             this.engine.app.stage.removeChild(this.interactArea)
+        }
+        if (this.interactAreaDebug) {
+            this.engine.app.stage.removeChild(this.interactAreaDebug)
         }
 
         if (this.gfxStandard?.sprite) {
