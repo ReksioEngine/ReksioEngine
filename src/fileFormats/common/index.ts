@@ -1,3 +1,5 @@
+import {parseArgs} from '../../interpreter/evaluator'
+
 export type FieldTypeParser = (object: any, key: string, param: string, value: string) => void
 
 export const string = (object: any, key: string, param: string, value: string) => object[key] = value
@@ -56,12 +58,25 @@ export const numberParam = (func: FieldTypeParser) => {
 }
 
 const createCallback = (value: string) => {
-    return value.startsWith('{') ? {
-        code: value.substring(1, value.length - 1),
-        isSingleStatement: false
-    } : {
-        behaviourReference: value,
-        isSingleStatement: false
+    if (value.startsWith('{')) {
+        return {
+            code: value.substring(1, value.length - 1),
+            isSingleStatement: false
+        }
+    } else {
+        const pattern = /(?<name>[a-zA-Z0-9]+)(?:\((?<args>.*)\))?/g
+        const argParsed = pattern.exec(value)
+
+        const groups = argParsed?.groups
+        if (groups) {
+            const name = groups['name']
+            const args = groups['args'] ? parseArgs(groups['args']) : []
+            return {
+                behaviourReference: name,
+                constantArguments: args,
+                isSingleStatement: false
+            }
+        }
     }
 }
 
@@ -80,6 +95,7 @@ export const reference = (object: any, key: string, param: string, value: string
 
 export type callback = {
     behaviourReference?: string
+    constantArguments: Array<any>
     code?: string
     isSingleStatement: boolean
 }
@@ -94,6 +110,6 @@ export type reference = {
 }
 
 export type TypeDefinition = {
-    _NAME: string
+    NAME: string
     TOINI: boolean
 }

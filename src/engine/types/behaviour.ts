@@ -1,7 +1,6 @@
 import {Type} from './index'
 import {Engine} from '../index'
 import {BehaviourDefinition} from '../../fileFormats/cnv/types'
-import {NotImplementedError} from '../../utils'
 import {Condition} from './condition'
 
 export class Behaviour extends Type<BehaviourDefinition> {
@@ -16,7 +15,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     RUN(...args: any[]) {
-        return this.engine.executeCallback(null, this.definition.CODE)
+        return this.engine.executeCallback(null, this.definition.CODE, args)
     }
 
     RUNC(...args: any[]) {

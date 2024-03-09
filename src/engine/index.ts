@@ -58,15 +58,15 @@ export class Engine {
         }
     }
 
-    executeCallback(caller: Type<any> | null, callback: callback) {
+    executeCallback(caller: Type<any> | null, callback: callback, args?: any[]) {
         if (caller !== null) {
             this.scope.THIS = caller
         }
 
         if (callback.code) {
-            return runScript(this, callback.code, callback.isSingleStatement)
+            return runScript(this, callback.code, args, callback.isSingleStatement)
         } else if (callback.behaviourReference) {
-            return this.scope[callback.behaviourReference].RUN()
+            return this.scope[callback.behaviourReference].RUN(...callback.constantArguments)
         }
     }
 

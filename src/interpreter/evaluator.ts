@@ -21,11 +21,13 @@ class ExecutionError extends Error {
 export class InterruptScriptExecution {}
 
 export class ScriptEvaluator extends ReksioLangVisitor<any> {
-    private readonly engine: Engine
+    private readonly engine?: Engine
+    private readonly args?: any[]
 
-    constructor(engine: Engine) {
+    constructor(engine?: Engine, args?: any[]) {
         super()
         this.engine = engine
+        this.args = args
     }
 
     visitStatementList = (ctx: StatementListContext): any => {
@@ -55,7 +57,13 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         } else if (ctx.STRING() != null) {
             return ctx.STRING().getText().replace(/^"|"$/g, '')
         } else if (ctx.IDENTIFIER() != null) {
-            const object = this.engine.getObject(ctx.IDENTIFIER().getText())
+            const identifier = ctx.IDENTIFIER().getText()
+            if (identifier.startsWith('$') && this.args) {
+                const argIdx = parseInt(identifier.substring(1)) - 1
+                return this.args[argIdx]
+            }
+
+            const object = this.engine?.getObject(ctx.IDENTIFIER().getText())
             if (object === undefined) {
                 // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
                 console.error(`Unknown identifier '${ctx.getText()}'`)
@@ -105,7 +113,12 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 
     visitObjectName = (ctx: ObjectNameContext): any => {
         const objectName = ctx.getText()
-        const object = this.engine.getObject(objectName)
+        if (objectName.startsWith('$') && this.args) {
+            const argIdx = parseInt(objectName.substring(1)) - 1
+            return this.args[argIdx]
+        }
+
+        const object = this.engine?.getObject(objectName)
         if (object === undefined) {
             if (libraries[objectName]) {
                 return libraries[objectName]
@@ -145,14 +158,14 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 }
 
-export const runScript = (engine: Engine, script: string, singleStatement: boolean = false) => {
+export const runScript = (engine: Engine, script: string, args?: any[], singleStatement: boolean = false) => {
     const lexer = new ReksioLangLexer(new antlr4.CharStream(script))
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioLangParser(tokens)
     const tree = singleStatement ? parser.statement() : parser.statementList()
 
     try {
-        return tree.accept(new ScriptEvaluator(engine))
+        return tree.accept(new ScriptEvaluator(engine, args))
     } catch (err) {
         if (err instanceof InterruptScriptExecution) {
             return
@@ -162,4 +175,12 @@ export const runScript = (engine: Engine, script: string, singleStatement: boole
         console.error('Scope:', engine.scope)
         throw err
     }
+}
+
+export const parseArgs = (script: string) => {
+    const lexer = new ReksioLangLexer(new antlr4.CharStream(script))
+    const tokens = new antlr4.CommonTokenStream(lexer)
+    const parser = new ReksioLangParser(tokens)
+    const tree = parser.methodCallArguments()
+    return tree.accept(new ScriptEvaluator(undefined))
 }
