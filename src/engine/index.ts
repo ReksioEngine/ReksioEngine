@@ -113,6 +113,8 @@ export class Engine {
                 this.fileLoader,
                 this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)
             )
+        } else {
+            this.canvasBackground.texture = this.blackTexture
         }
 
         if (this.fileLoader instanceof UrlFileLoader) {
