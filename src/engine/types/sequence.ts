@@ -3,6 +3,7 @@ import {Engine} from '../index'
 import {SequenceDefinition} from '../../fileFormats/cnv/types'
 import {FileNotFoundError} from '../../filesLoader'
 import {SequenceFile} from '../../fileFormats/seq'
+import {NotImplementedError} from '../../utils'
 
 export class Sequence extends Type<SequenceDefinition> {
     private sequenceFile?: SequenceFile
@@ -18,5 +19,17 @@ export class Sequence extends Type<SequenceDefinition> {
         }
 
         this.sequenceFile = await this.engine.fileLoader.getSequenceFile(relativePath)
+    }
+
+    PLAY() {
+        throw new NotImplementedError()
+    }
+
+    HIDE() {
+        throw new NotImplementedError()
+    }
+
+    STOP() {
+        throw new NotImplementedError()
     }
 }
