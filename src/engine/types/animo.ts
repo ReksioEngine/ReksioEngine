@@ -33,10 +33,6 @@ export class Animo extends Type<AnimoDefinition> {
     async init() {
         this.annFile = await this.loadAnimation()
         this.initAnimatedSprite()
-
-        if (this.definition.ONINIT) {
-            this.engine.executeCallback(this, this.definition.ONINIT)
-        }
     }
 
     ready() {
@@ -72,6 +68,10 @@ export class Animo extends Type<AnimoDefinition> {
         this.SETPRIORITY(this.definition.PRIORITY)
 
         this.engine.addToStage(this.sprite)
+
+        if (this.definition.ONINIT) {
+            this.engine.executeCallback(this, this.definition.ONINIT)
+        }
     }
 
     getTextureFrom(imageIndex: number): Texture {
