@@ -32,6 +32,9 @@ export class Button extends Type<ButtonDefinition> {
 
     private interactArea?: Graphics
     private interactAreaDebug?: Graphics
+    private interactAreaDebugEnabled?: Graphics
+    private interactAreaDebugDisabled?: Graphics
+
     private stateMachine: StateMachine<States, Events>
 
     private readonly onMouseOverCallback
@@ -77,25 +80,36 @@ export class Button extends Type<ButtonDefinition> {
             // For area button
             this.interactArea.visible = state != States.DISABLED
             this.interactArea.interactive = state != States.DISABLED
-        } else {
-            // For GFX button
-            if (state == States.DISABLED) {
-                this.gfxStandard?.HIDE()
-                this.gfxOnMove?.HIDE()
-                this.gfxOnClick?.HIDE()
-            } else if (state == States.HOVERED && this.gfxOnMove) {
-                this.gfxStandard?.HIDE()
-                this.gfxOnMove?.SHOW()
-                this.gfxOnClick?.HIDE()
-            } else if (state == States.PRESSED && this.gfxOnClick) {
-                this.gfxStandard?.HIDE()
-                this.gfxOnMove?.HIDE()
-                this.gfxOnClick?.SHOW()
-            } else {
-                this.gfxStandard?.SHOW()
-                this.gfxOnMove?.HIDE()
-                this.gfxOnClick?.HIDE()
+
+            if (this.engine.debug) {
+                if (state == States.DISABLED) {
+                    this.engine.app.stage.removeChild(this.interactAreaDebug!)
+                    this.interactAreaDebug = this.interactAreaDebugDisabled
+                    this.engine.app.stage.addChild(this.interactAreaDebug!)
+                } else {
+                    this.engine.app.stage.removeChild(this.interactAreaDebug!)
+                    this.interactAreaDebug = this.interactAreaDebugEnabled
+                    this.engine.app.stage.addChild(this.interactAreaDebug!)
+                }
             }
+        }
+
+        if (state == States.DISABLED) {
+            this.gfxStandard?.HIDE()
+            this.gfxOnMove?.HIDE()
+            this.gfxOnClick?.HIDE()
+        } else if (state == States.HOVERED && this.gfxOnMove) {
+            this.gfxStandard?.HIDE()
+            this.gfxOnMove?.SHOW()
+            this.gfxOnClick?.HIDE()
+        } else if (state == States.PRESSED && this.gfxOnClick) {
+            this.gfxStandard?.HIDE()
+            this.gfxOnMove?.HIDE()
+            this.gfxOnClick?.SHOW()
+        } else {
+            this.gfxStandard?.SHOW()
+            this.gfxOnMove?.HIDE()
+            this.gfxOnClick?.HIDE()
         }
     }
 
@@ -111,8 +125,12 @@ export class Button extends Type<ButtonDefinition> {
             this.interactArea.visible = this.definition.ENABLE
 
             if (this.engine.debug) {
-                this.interactAreaDebug = createColorGraphics(rect, 0, 0, 3)
-                this.interactAreaDebug.zIndex = 99999999
+                this.interactAreaDebugEnabled = createColorGraphics(rect, 0, 0, 3, 0x00ff00)
+                this.interactAreaDebugEnabled.zIndex = 99999999
+                this.interactAreaDebug = this.stateMachine.getState() != States.DISABLED ? this.interactAreaDebugEnabled : this.interactAreaDebugDisabled
+
+                this.interactAreaDebugDisabled = createColorGraphics(rect, 0, 0, 3, 0xff0000)
+                this.interactAreaDebugDisabled.zIndex = 99999999
             }
         }
     }
@@ -155,10 +173,12 @@ export class Button extends Type<ButtonDefinition> {
             if (!sprite) continue
             sprite.interactive = true
             sprite.cursor = 'pointer'
-            sprite.addListener('mouseover', this.onMouseOverCallback)
-            sprite.addListener('mouseout', this.onMouseOutCallback)
-            sprite.addListener('mousedown', this.onMouseDownCallback)
-            sprite.addListener('mouseup', this.onMouseUpCallback)
+            if (!this.interactArea) {
+                sprite.addListener('mouseover', this.onMouseOverCallback)
+                sprite.addListener('mouseout', this.onMouseOutCallback)
+                sprite.addListener('mousedown', this.onMouseDownCallback)
+                sprite.addListener('mouseup', this.onMouseUpCallback)
+            }
         }
     }
 
@@ -174,17 +194,19 @@ export class Button extends Type<ButtonDefinition> {
             this.engine.app.stage.removeChild(this.interactAreaDebug)
         }
 
-        if (this.gfxStandard?.sprite) {
-            this.gfxStandard.sprite.removeListener('mouseover', this.onMouseOverCallback)
-        }
-        if (this.gfxOnMove?.sprite) {
-            this.gfxOnMove.sprite.removeListener('mouseout', this.onMouseOutCallback)
-            this.gfxOnMove.sprite.removeListener('mousedown', this.onMouseDownCallback)
-            this.gfxOnMove.sprite.removeListener('mouseup', this.onMouseUpCallback)
-        }
-        if (this.gfxOnClick?.sprite) {
-            this.gfxOnClick.sprite.removeListener('mouseout', this.onMouseOutCallback)
-            this.gfxOnClick.sprite.removeListener('mouseup', this.onMouseUpCallback)
+        if (!this.interactArea) {
+            if (this.gfxStandard?.sprite) {
+                this.gfxStandard.sprite.removeListener('mouseover', this.onMouseOverCallback)
+            }
+            if (this.gfxOnMove?.sprite) {
+                this.gfxOnMove.sprite.removeListener('mouseout', this.onMouseOutCallback)
+                this.gfxOnMove.sprite.removeListener('mousedown', this.onMouseDownCallback)
+                this.gfxOnMove.sprite.removeListener('mouseup', this.onMouseUpCallback)
+            }
+            if (this.gfxOnClick?.sprite) {
+                this.gfxOnClick.sprite.removeListener('mouseout', this.onMouseOutCallback)
+                this.gfxOnClick.sprite.removeListener('mouseup', this.onMouseUpCallback)
+            }
         }
     }
 
