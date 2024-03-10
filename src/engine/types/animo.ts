@@ -16,6 +16,9 @@ export class Animo extends Type<AnimoDefinition> {
     private currentLoop: number = 0
     private usingImageIndex = -1
 
+    private positionX: number = 0
+    private positionY: number = 0
+
     private annFile: ANN | null = null
     private sprite: Sprite | null = null
     private textures = new Map<number, PIXI.Texture>()
@@ -123,8 +126,8 @@ export class Animo extends Type<AnimoDefinition> {
             this.sprite.texture = this.getTextureFrom(imageIndex)
         }
 
-        this.sprite.x = annImage.positionX + eventFrame.positionX
-        this.sprite.y = annImage.positionY + eventFrame.positionY
+        this.sprite.x = this.positionX + annImage.positionX + eventFrame.positionX
+        this.sprite.y = this.positionY + annImage.positionY + eventFrame.positionY
 
         this.sprite.width = annImage.width
         this.sprite.height = annImage.height
@@ -194,6 +197,8 @@ export class Animo extends Type<AnimoDefinition> {
     MOVE(xOffset: number, yOffset: number) {
         if (this.sprite === null) return
 
+        this.positionX += xOffset
+        this.positionY += yOffset
         this.sprite.x += xOffset
         this.sprite.y += yOffset
     }
@@ -201,6 +206,8 @@ export class Animo extends Type<AnimoDefinition> {
     SETPOSITION(x: number, y: number) {
         if (this.sprite === null) return
 
+        this.positionX = x
+        this.positionY = y
         this.sprite.x = x
         this.sprite.y = y
     }
