@@ -22,10 +22,12 @@ export class Animo extends Type<AnimoDefinition> {
     private textures = new Map<number, PIXI.Texture>()
 
     private readonly onFinished?: callbacks<string>
+    private readonly onFrameChanged?: callbacks<string>
 
     constructor(engine: Engine, definition: AnimoDefinition) {
         super(engine, definition)
         this.onFinished = definition.ONFINISHED
+        this.onFrameChanged = definition.ONFRAMECHANGED
     }
 
     async init() {
@@ -96,8 +98,9 @@ export class Animo extends Type<AnimoDefinition> {
     ONTICK() {
         if (this.annFile === null || this.sprite === null) return
 
-        const key = this.currentAnimation
-        const event = this.annFile.events.find(event => event.name.toUpperCase() === key)
+        const event = this.annFile.events.find(
+            event => event.name.toUpperCase() === this.currentAnimation
+        )
         if (event) {
             this.tickAnimation(event)
         }
@@ -114,6 +117,7 @@ export class Animo extends Type<AnimoDefinition> {
 
         this.updateSprite(eventFrame, imageIndex, annImage)
         this.invokeIfAnimationCompleted(event)
+        this.ONFRAMECHANGED()
     }
 
     private updateSprite(eventFrame: Frame, imageIndex: number, annImage: AnnImage) {
@@ -152,6 +156,17 @@ export class Animo extends Type<AnimoDefinition> {
         }
 
         const paramCallback = this.onFinished?.parametrized.get(index.toString())
+        if (paramCallback) {
+            this.engine.executeCallback(this, paramCallback)
+        }
+    }
+
+    private ONFRAMECHANGED() {
+        if (this.onFrameChanged?.nonParametrized) {
+            this.engine.executeCallback(this, this.onFrameChanged.nonParametrized)
+        }
+
+        const paramCallback = this.onFrameChanged?.parametrized.get(this.currentAnimation)
         if (paramCallback) {
             this.engine.executeCallback(this, paramCallback)
         }

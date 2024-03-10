@@ -102,6 +102,7 @@ export type AnimoDefinition = TypeDefinition & {
     MONITORCOLLISIONALPHA: boolean
     ONINIT?: callback
     ONFINISHED?: callbacks<string>
+    ONFRAMECHANGED?: callbacks<string>
 }
 
 const AnimoStructure = {
@@ -115,7 +116,8 @@ const AnimoStructure = {
     MONITORCOLLISION: boolean,
     MONITORCOLLISIONALPHA: boolean,
     ONINIT: callback,
-    ONFINISHED: callbacks
+    ONFINISHED: callbacks,
+    ONFRAMECHANGED: callbacks
 }
 
 export type MusicDefinition = TypeDefinition & {
