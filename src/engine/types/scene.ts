@@ -19,4 +19,12 @@ export class Scene extends Type<SceneDefinition> {
     SETMINHSPRIORITY(arg: number) {
         throw new NotImplementedError()
     }
+
+    RUNCLONES(baseObjectName: string, arg1: any, arg2: any, behaviourName: string) {
+        throw new NotImplementedError()
+    }
+
+    RUN(objectName: string, methodName: string) {
+        throw new NotImplementedError()
+    }
 }
