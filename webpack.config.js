@@ -1,7 +1,8 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HTMLWebpackPlugin = require('html-webpack-plugin')
+const webpack = require('webpack')
 
-module.exports = {
+module.exports = (env) => ({
     entry: './src/index.ts',
     mode: 'development',
     devServer: {
@@ -19,6 +20,9 @@ module.exports = {
         new HTMLWebpackPlugin({
             template: 'static/index.html',
             filename: 'index.html'
+        }),
+        new webpack.DefinePlugin({
+            'process.env.debug': env.debug === true,
         })
     ],
     module: {
@@ -41,4 +45,4 @@ module.exports = {
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
     },
-}
+})

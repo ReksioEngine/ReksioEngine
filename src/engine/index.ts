@@ -29,6 +29,7 @@ export class Engine {
 
     constructor(app: Application) {
         this.app = app
+        this.debug = process.env.debug as unknown as boolean
 
         this.blackTexture = createColorTexture(this.app, new Rectangle(0, 0, this.app.view.width, this.app.view.height), 0)
         this.canvasBackground = new Sprite(this.blackTexture)
