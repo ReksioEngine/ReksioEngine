@@ -10,6 +10,7 @@ import {loadSound, loadTexture} from './assetsLoader'
 import {SaveFile} from './saveFile'
 import {createColorTexture} from '../utils'
 import {preloadAssets} from './optimizations'
+import {setupDebugScene, updateCurrentScene} from './debugging'
 
 export class Engine {
     readonly app: Application
