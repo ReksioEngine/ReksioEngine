@@ -58,7 +58,7 @@ export class Type<DefinitionType extends TypeDefinition> {
     loadFromINI() {
         if (this.definition.TOINI) {
             const loadedValue = this.engine.saveFile.load(this)
-            if (loadedValue !== undefined) {
+            if (loadedValue !== null) {
                 this.value = loadedValue
             }
         }

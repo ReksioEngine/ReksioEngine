@@ -18,10 +18,18 @@ export class SaveFile {
     }
 
     load(object: Type<any>) {
-        return this.get(object.parent?.definition._NAME, object.definition._NAME)
+        if (!object.parent) {
+            return null
+        }
+
+        return this.get(object.parent.name, object.name)
     }
 
     save(object: Type<any>, value: any) {
-        this.set(object.parent?.definition._NAME, object.definition._NAME, value)
+        if (!object.parent) {
+            return
+        }
+
+        this.set(object.parent.name, object.name, value)
     }
 }
