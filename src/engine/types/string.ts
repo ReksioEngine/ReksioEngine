@@ -6,6 +6,7 @@ export class String extends Type<StringDefinition> {
     constructor(engine: Engine, definition: StringDefinition) {
         super(engine, definition)
         this._value = definition.VALUE ?? ''
+        this.callbacks.registerGroup('ONCHANGED', definition.ONCHANGED)
     }
 
     init() {
@@ -25,5 +26,6 @@ export class String extends Type<StringDefinition> {
 
     private ONCHANGED() {
         this.saveToINI()
+        this.callbacks.run('ONCHANGED', this._value)
     }
 }

@@ -285,10 +285,6 @@ export class Animo extends Type<AnimoDefinition> {
         throw new NotImplementedError()
     }
 
-    CLONE(arg: number) {
-        throw new NotImplementedError()
-    }
-
     ISPLAYING(animName: string) {
         return this.isPlaying && this.currentEvent == animName
     }
@@ -300,5 +296,17 @@ export class Animo extends Type<AnimoDefinition> {
     private get globalPosition() {
         if (this.sprite === null) return new Point()
         return this.sprite.toGlobal(new Point(0, 0), undefined, true)
+    }
+
+    clone() {
+        const clone = new Animo(this.engine, this.definition)
+        clone.isPlaying = this.isPlaying
+        clone.currentFrameIdx = this.currentFrameIdx
+        clone.currentEvent = this.currentEvent
+        clone.currentLoop = this.currentLoop
+        clone.usingImageIndex = this.usingImageIndex
+        clone.annFile = this.annFile
+        clone.initAnimatedSprite()
+        return clone
     }
 }

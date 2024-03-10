@@ -2,6 +2,7 @@ import {Type} from './index'
 import {SceneDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError, pathJoin} from '../../utils'
+import {Behaviour} from './behaviour'
 
 export class Scene extends Type<SceneDefinition> {
     constructor(engine: Engine, definition: SceneDefinition) {
@@ -21,7 +22,11 @@ export class Scene extends Type<SceneDefinition> {
     }
 
     RUNCLONES(baseObjectName: string, arg1: any, arg2: any, behaviourName: string) {
-        throw new NotImplementedError()
+        const baseObject: Type<any> = this.engine.getObject(baseObjectName)
+        const behaviour: Behaviour = this.engine.getObject(behaviourName)
+        for (const clone of baseObject.clones) {
+            behaviour.RUN(clone)
+        }
     }
 
     RUN(objectName: string, methodName: string) {

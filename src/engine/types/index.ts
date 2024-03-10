@@ -8,10 +8,14 @@ export class Type<DefinitionType extends TypeDefinition> {
     public isReady: boolean = false
     public parent?: Type<any>
     protected _value: any = undefined
+    public name: string = ''
+
+    public clones: Array<Type<DefinitionType>> = []
 
     constructor(engine: Engine, definition: DefinitionType) {
         this.engine = engine
         this.definition = definition
+        this.name = definition.NAME
     }
 
     get value() {
@@ -20,6 +24,20 @@ export class Type<DefinitionType extends TypeDefinition> {
 
     set value(newValue: any) {
         this._value = newValue
+    }
+
+    GETNAME() {
+        return this.name
+    }
+
+    async CLONE(count: number) {
+        for (let i = 0; i < count; i++) {
+            this.engine.cloneObject(this)
+        }
+    }
+
+    GETCLONEINDEX() {
+        return this.engine.getObject(this.definition.NAME).clones.indexOf(this) + 1
     }
 
     init() {}
@@ -45,5 +63,9 @@ export class Type<DefinitionType extends TypeDefinition> {
         if (this.definition.TOINI) {
             this.engine.saveFile.save(this, this.value)
         }
+    }
+
+    clone(): Type<DefinitionType> {
+        throw new NotImplementedError()
     }
 }

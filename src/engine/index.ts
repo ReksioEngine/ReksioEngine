@@ -138,4 +138,13 @@ export class Engine {
             return this.getObject(name.objectName)
         }
     }
+
+    cloneObject(object: Type<any>) {
+        const clone = object.clone()
+        object.clones.push(clone)
+
+        clone.name = `${object.definition.NAME}_${object.clones.length}`
+        this.scope[clone.name] = clone
+        return clone
+    }
 }

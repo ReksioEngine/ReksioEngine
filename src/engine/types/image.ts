@@ -74,10 +74,6 @@ export class Image extends Type<ImageDefinition> {
         this.sprite.sortChildren()
     }
 
-    CLONE() {
-        throw new NotImplementedError()
-    }
-
     SHOW() {
         if (this.sprite === null) return
         this.sprite.visible = true
