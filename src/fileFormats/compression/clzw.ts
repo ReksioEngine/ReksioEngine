@@ -11,7 +11,8 @@ export const decompress = (buffer: BinaryBuffer) => {
     const dst = new BinaryBuffer(new DataView(dstRaw))
 
     if (src.getUint8(false) > 0x11) {
-        for (let i = 0; i < src.getUint8() - 0x11; i++) {
+        const count = src.getUint8() - 0x11
+        for (let i = 0; i < count; i++) {
             dst.setUint8(src.getUint8())
         }
     }
