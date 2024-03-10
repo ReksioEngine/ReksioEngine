@@ -29,7 +29,7 @@ export class Scene extends Type<SceneDefinition> {
         }
     }
 
-    RUN(objectName: string, methodName: string) {
-        throw new NotImplementedError()
+    RUN(objectName: string, methodName: string, ...args: any[]) {
+        return this.engine.getObject(objectName)[methodName](...args)
     }
 }
