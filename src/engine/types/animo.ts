@@ -94,9 +94,7 @@ export class Animo extends Type<AnimoDefinition> {
     ONTICK() {
         if (this.annFile === null || this.sprite === null) return
 
-        const event = this.annFile.events.find(
-            event => event.name.toUpperCase() === this.currentEvent
-        )
+        const event = this.getEventByName(this.currentEvent)
         if (event) {
             this.tickAnimation(event)
         }
@@ -239,7 +237,11 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     GETFRAMENAME(): string {
-        throw new NotImplementedError()
+        const event = this.getEventByName(this.currentEvent)
+        if (!event) {
+            return ''
+        }
+        return event.frames[this.currentFrameIdx].name
     }
 
     GETMAXWIDTH(): number {
@@ -251,7 +253,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     GETEVENTNAME(): string {
-        throw new NotImplementedError()
+        return this.currentEvent
     }
 
     GETFRAME(): string {
@@ -281,6 +283,12 @@ export class Animo extends Type<AnimoDefinition> {
     get globalPosition() {
         if (this.sprite === null) return new Point()
         return this.sprite.toGlobal(new Point(0, 0), undefined, true)
+    }
+
+    getEventByName(name: string): Event | undefined {
+        return this.annFile?.events.find(
+            event => event.name.toUpperCase() === name
+        )
     }
 
     clone() {
