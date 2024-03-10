@@ -3,7 +3,7 @@ import {AnimoDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError} from '../../utils'
 import * as PIXI from 'pixi.js'
-import {Sprite, Texture} from 'pixi.js'
+import {Point, Sprite, Texture} from 'pixi.js'
 import {FileNotFoundError} from '../../filesLoader'
 import {ANN, AnnImage, Frame} from '../../fileFormats/ann'
 import {Event as Event} from '../../fileFormats/ann/index'
@@ -224,26 +224,22 @@ export class Animo extends Type<AnimoDefinition> {
 
     GETCENTERX(): number {
         if (this.sprite == null) return 0
-
-        return this.sprite.x + (this.sprite.width / 2)
+        return this.globalPosition.x + (this.sprite.width / 2)
     }
 
     GETCENTERY(): number {
         if (this.sprite == null) return 0
-
-        return this.sprite.y + (this.sprite.height / 2)
+        return this.globalPosition.y + (this.sprite.height / 2)
     }
 
     GETPOSITIONX(): number {
         if (this.sprite == null) return 0
-
-        return this.sprite.x
+        return this.globalPosition.x
     }
 
     GETPOSITIONY(): number {
         if (this.sprite == null) return 0
-
-        return this.sprite.y
+        return this.globalPosition.y
     }
 
     GETFRAMENAME(): string {
@@ -284,5 +280,10 @@ export class Animo extends Type<AnimoDefinition> {
 
     ISNEAR(objectName: string, arg: number) {
         throw new NotImplementedError()
+    }
+
+    private get globalPosition() {
+        if (this.sprite === null) return new Point()
+        return this.sprite.toGlobal(new Point(0, 0), undefined, true)
     }
 }
