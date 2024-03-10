@@ -230,11 +230,13 @@ const ConditionDefinitionStructure = {
 export type StringDefinition = TypeDefinition & {
     TOINI: boolean
     VALUE: string
+    ONCHANGED: callbacks<string>
 }
 
 const StringDefinitionStructure = {
     TOINI: boolean,
-    VALUE: string
+    VALUE: string,
+    ONCHANGED: callbacks
 }
 
 export type BoolDefinition = TypeDefinition & {

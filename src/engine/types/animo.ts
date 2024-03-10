@@ -7,7 +7,6 @@ import {Point, Sprite, Texture} from 'pixi.js'
 import {FileNotFoundError} from '../../filesLoader'
 import {ANN, AnnImage, Frame} from '../../fileFormats/ann'
 import {Event as Event} from '../../fileFormats/ann/index'
-import {callbacks} from '../../fileFormats/common'
 
 //TODO: Try to use Image class here
 export class Animo extends Type<AnimoDefinition> {
@@ -21,13 +20,10 @@ export class Animo extends Type<AnimoDefinition> {
     private sprite: Sprite | null = null
     private textures = new Map<number, PIXI.Texture>()
 
-    protected readonly onFinished?: callbacks<string>
-    protected readonly onFrameChanged?: callbacks<string>
-
     constructor(engine: Engine, definition: AnimoDefinition) {
         super(engine, definition)
-        this.onFinished = definition.ONFINISHED
-        this.onFrameChanged = definition.ONFRAMECHANGED
+        this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED)
+        this.callbacks.registerGroup('ONFRAMECHANGED', definition.ONFRAMECHANGED)
     }
 
     async init() {
@@ -141,35 +137,20 @@ export class Animo extends Type<AnimoDefinition> {
 
         if (this.currentLoop >= event.loopNumber) {
             this.STOP(false)
-            this.ONFINISH()
+            this.ONFINISHED()
         }
 
         this.currentLoop += 1
         this.currentFrameIdx = 0
     }
 
-    private ONFINISH() {
+    private ONFINISHED() {
         const index = this.currentEvent.toString()
-
-        if (this.onFinished?.nonParametrized) {
-            this.engine.executeCallback(this, this.onFinished.nonParametrized)
-        }
-
-        const paramCallback = this.onFinished?.parametrized.get(index.toString())
-        if (paramCallback) {
-            this.engine.executeCallback(this, paramCallback)
-        }
+        this.callbacks.run('ONFINISHED', index.toString())
     }
 
     private ONFRAMECHANGED() {
-        if (this.onFrameChanged?.nonParametrized) {
-            this.engine.executeCallback(this, this.onFrameChanged.nonParametrized)
-        }
-
-        const paramCallback = this.onFrameChanged?.parametrized.get(this.currentEvent)
-        if (paramCallback) {
-            this.engine.executeCallback(this, paramCallback)
-        }
+        this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
     }
 
     PLAY(name: string | number) {
@@ -293,7 +274,11 @@ export class Animo extends Type<AnimoDefinition> {
         throw new NotImplementedError()
     }
 
-    private get globalPosition() {
+    ADDBEHAVIOUR(callbackString: string, behaviourName: string) {
+        this.callbacks.addBehaviour(callbackString, behaviourName)
+    }
+
+    get globalPosition() {
         if (this.sprite === null) return new Point()
         return this.sprite.toGlobal(new Point(0, 0), undefined, true)
     }

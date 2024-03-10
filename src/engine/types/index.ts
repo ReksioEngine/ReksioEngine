@@ -1,7 +1,11 @@
 import {Engine} from '../index'
 import {TypeDefinition} from '../../fileFormats/common'
+import {NotImplementedError} from '../../utils'
+import {CallbacksComponent} from '../components/callbacks'
 
 export class Type<DefinitionType extends TypeDefinition> {
+    protected callbacks: CallbacksComponent
+
     protected engine: Engine
     public readonly definition: DefinitionType
 
@@ -16,6 +20,7 @@ export class Type<DefinitionType extends TypeDefinition> {
         this.engine = engine
         this.definition = definition
         this.name = definition.NAME
+        this.callbacks = new CallbacksComponent(engine, this)
     }
 
     get value() {
