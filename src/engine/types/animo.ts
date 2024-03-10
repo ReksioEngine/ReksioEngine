@@ -12,8 +12,8 @@ import {callbacks} from '../../fileFormats/common'
 //TODO: Try to use Image class here
 export class Animo extends Type<AnimoDefinition> {
     private isPlaying: boolean = false
-    private currentFrame: number = 0
-    private currentAnimation: string = '1'
+    private currentFrameIdx: number = 0
+    private currentEvent: string = '1'
     private currentLoop: number = 0
     private usingImageIndex = -1
 
@@ -21,8 +21,8 @@ export class Animo extends Type<AnimoDefinition> {
     private sprite: Sprite | null = null
     private textures = new Map<number, PIXI.Texture>()
 
-    private readonly onFinished?: callbacks<string>
-    private readonly onFrameChanged?: callbacks<string>
+    protected readonly onFinished?: callbacks<string>
+    protected readonly onFrameChanged?: callbacks<string>
 
     constructor(engine: Engine, definition: AnimoDefinition) {
         super(engine, definition)
@@ -99,7 +99,7 @@ export class Animo extends Type<AnimoDefinition> {
         if (this.annFile === null || this.sprite === null) return
 
         const event = this.annFile.events.find(
-            event => event.name.toUpperCase() === this.currentAnimation
+            event => event.name.toUpperCase() === this.currentEvent
         )
         if (event) {
             this.tickAnimation(event)
@@ -109,11 +109,11 @@ export class Animo extends Type<AnimoDefinition> {
     private tickAnimation(event: Event) {
         if (this.annFile === null || this.sprite === null) return
 
-        const eventFrame = event.frames[this.currentFrame]
-        const imageIndex = event.framesImageMapping[this.currentFrame]
+        const eventFrame = event.frames[this.currentFrameIdx]
+        const imageIndex = event.framesImageMapping[this.currentFrameIdx]
         const annImage = this.annFile.annImages[imageIndex]
 
-        this.currentFrame += 1
+        this.currentFrameIdx += 1
 
         this.updateSprite(eventFrame, imageIndex, annImage)
         this.invokeIfAnimationCompleted(event)
@@ -137,7 +137,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     private invokeIfAnimationCompleted(event: Event) {
-        if (this.currentFrame < event.framesCount) return
+        if (this.currentFrameIdx < event.framesCount) return
 
         if (this.currentLoop >= event.loopNumber) {
             this.STOP(false)
@@ -145,11 +145,11 @@ export class Animo extends Type<AnimoDefinition> {
         }
 
         this.currentLoop += 1
-        this.currentFrame = 0
+        this.currentFrameIdx = 0
     }
 
     private ONFINISH() {
-        const index = this.currentAnimation.toString()
+        const index = this.currentEvent.toString()
 
         if (this.onFinished?.nonParametrized) {
             this.engine.executeCallback(this, this.onFinished.nonParametrized)
@@ -166,7 +166,7 @@ export class Animo extends Type<AnimoDefinition> {
             this.engine.executeCallback(this, this.onFrameChanged.nonParametrized)
         }
 
-        const paramCallback = this.onFrameChanged?.parametrized.get(this.currentAnimation)
+        const paramCallback = this.onFrameChanged?.parametrized.get(this.currentEvent)
         if (paramCallback) {
             this.engine.executeCallback(this, paramCallback)
         }
@@ -174,15 +174,15 @@ export class Animo extends Type<AnimoDefinition> {
 
     PLAY(name: string | number) {
         this.isPlaying = true
-        this.currentFrame = 0
-        this.currentAnimation = name.toString().toUpperCase()
+        this.currentFrameIdx = 0
+        this.currentEvent = name.toString().toUpperCase()
 
         this.SHOW() //I noticed that play method should call show method
     }
 
     STOP(arg: boolean) {
         this.isPlaying = false
-        this.currentFrame = 0
+        this.currentFrameIdx = 0
     }
 
     PAUSE() {
@@ -193,8 +193,8 @@ export class Animo extends Type<AnimoDefinition> {
         this.isPlaying = true
     }
 
-    SETFRAME(frame: number) {
-        this.currentFrame = frame
+    SETFRAME(frame: string) {
+        this.currentEvent = frame
     }
 
     SETFPS(fps: number) {
@@ -258,7 +258,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     GETFRAMENAME(): string {
-        return this.currentAnimation
+        throw new NotImplementedError()
     }
 
     GETMAXWIDTH(): number {
@@ -273,8 +273,8 @@ export class Animo extends Type<AnimoDefinition> {
         throw new NotImplementedError()
     }
 
-    GETFRAME(): number {
-        return this.currentFrame
+    GETFRAME(): string {
+        throw new NotImplementedError()
     }
 
     GETCURRFRAMEPOSX(): number {
@@ -290,7 +290,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     ISPLAYING(animName: string) {
-        return this.isPlaying && this.currentAnimation == animName
+        return this.isPlaying && this.currentEvent == animName
     }
 
     ISNEAR(objectName: string, arg: number) {
