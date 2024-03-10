@@ -28,9 +28,9 @@ export class Behaviour extends Type<BehaviourDefinition> {
         return this.RUN(...args)
     }
 
-    RUNLOOPED(init: number, len: number, step: number, ...args: any[]) {
+    RUNLOOPED(init: number, len: number, step: number = 1, ...args: any[]) {
         for (let i = init; i < len; i += step) {
-            this.RUNC(...args)
+            this.RUNC(i + 1, ...args)
         }
     }
 }

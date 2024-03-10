@@ -91,10 +91,6 @@ export class Array extends Type<ArrayDefinition> {
         throw new NotImplementedError()
     }
 
-    CLONE() {
-        throw new NotImplementedError()
-    }
-
     MSGBOX() {
         throw new NotImplementedError()
     }
