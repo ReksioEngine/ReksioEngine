@@ -92,7 +92,7 @@ const parseFrame = (view: BinaryBuffer) => {
     frame.transparency = view.getUint8()
     view.skip(5)
     frame.nameSize = view.getUint32()
-    frame.name = decoder.decode(view.read(frame.nameSize))
+    frame.name = stringUntilNull(decoder.decode(view.read(frame.nameSize)))
 
     if (frame.sfxSwitch != 0) {
         frame.sfxSize = view.getUint32()
