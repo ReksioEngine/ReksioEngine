@@ -23,10 +23,12 @@ export class InterruptScriptExecution {}
 export class ScriptEvaluator extends ReksioLangVisitor<any> {
     private readonly engine?: Engine
     private readonly args?: any[]
+    private readonly script?: string
 
-    constructor(engine?: Engine, args?: any[]) {
+    constructor(engine?: Engine, script?: string, args?: any[]) {
         super()
         this.engine = engine
+        this.script = script
         this.args = args
     }
 
@@ -94,6 +96,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         } catch (err) {
             if (err instanceof NotImplementedError) {
                 console.error(err)
+                console.error(this.script)
                 return null
             }
             throw err
@@ -165,7 +168,7 @@ export const runScript = (engine: Engine, script: string, args?: any[], singleSt
     const tree = singleStatement ? parser.statement() : parser.statementList()
 
     try {
-        return tree.accept(new ScriptEvaluator(engine, args))
+        return tree.accept(new ScriptEvaluator(engine, script, args))
     } catch (err) {
         if (err instanceof InterruptScriptExecution) {
             return
@@ -182,5 +185,5 @@ export const parseArgs = (script: string) => {
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioLangParser(tokens)
     const tree = parser.methodCallArguments()
-    return tree.accept(new ScriptEvaluator(undefined))
+    return tree.accept(new ScriptEvaluator(undefined, script))
 }
