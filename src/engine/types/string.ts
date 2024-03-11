@@ -24,6 +24,10 @@ export class String extends Type<StringDefinition> {
         this.ONCHANGED()
     }
 
+    GET() {
+        return this.value
+    }
+
     private ONCHANGED() {
         this.saveToINI()
         this.callbacks.run('ONCHANGED', this._value)
