@@ -3,7 +3,7 @@ import {Engine} from '../index'
 import {ArrayDefinition} from '../../fileFormats/cnv/types'
 import {NotImplementedError} from '../../utils'
 
-export class Array extends Type<ArrayDefinition> {
+export class ArrayObject extends Type<ArrayDefinition> {
     constructor(engine: Engine, definition: ArrayDefinition) {
         super(engine, definition)
         this.value = []
@@ -97,5 +97,11 @@ export class Array extends Type<ArrayDefinition> {
 
     private ONCHANGED() {
         this.saveToINI()
+    }
+
+    clone() {
+        const cloned = new ArrayObject(this.engine, this.definition)
+        cloned.value = [...this.value]
+        return cloned
     }
 }

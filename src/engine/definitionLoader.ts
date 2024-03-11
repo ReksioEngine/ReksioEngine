@@ -17,7 +17,7 @@ import {Scene} from './types/scene'
 import {Sound} from './types/sound'
 import {String as StringType} from './types/string'
 import {Bool} from './types/bool'
-import {Array as ArrayType} from './types/array'
+import {ArrayObject} from './types/array'
 import {Button} from './types/button'
 import {Sequence} from './types/sequence'
 import {Group} from './types/group'
@@ -33,7 +33,7 @@ const createTypeInstance = (engine: Engine, definition: any) => {
     case 'APPLICATION':
         return new Application(engine, definition)
     case 'ARRAY':
-        return new ArrayType(engine, definition)
+        return new ArrayObject(engine, definition)
     case 'BEHAVIOUR':
         return new Behaviour(engine, definition)
     case 'BOOL':
