@@ -2,6 +2,7 @@ import {Engine} from '../index'
 import {TypeDefinition} from '../../fileFormats/common'
 import {NotImplementedError} from '../../utils'
 import {CallbacksComponent} from '../components/callbacks'
+import {Point, Sprite} from 'pixi.js'
 
 export class Type<DefinitionType extends TypeDefinition> {
     protected callbacks: CallbacksComponent
@@ -68,6 +69,18 @@ export class Type<DefinitionType extends TypeDefinition> {
         if (this.definition.TOINI) {
             this.engine.saveFile.save(this, this.value)
         }
+    }
+
+    getRenderObject(): Sprite | null {
+        return null
+    }
+
+    getGlobalPosition(): Point | null {
+        const renderObject = this.getRenderObject()
+        if (renderObject === null) {
+            return null
+        }
+        return renderObject.toGlobal(new Point(0, 0), undefined, true) as Point ?? null
     }
 
     clone(): Type<DefinitionType> {

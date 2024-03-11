@@ -3,7 +3,7 @@ import {AnimoDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError} from '../../utils'
 import * as PIXI from 'pixi.js'
-import {Point, Sprite, Texture} from 'pixi.js'
+import {Sprite, Texture} from 'pixi.js'
 import {FileNotFoundError} from '../../filesLoader'
 import {ANN, AnnImage, Frame} from '../../fileFormats/ann'
 import {Event as Event} from '../../fileFormats/ann/index'
@@ -224,31 +224,36 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     GETCENTERX(): number {
-        if (this.sprite == null) return 0
-        return this.globalPosition.x + (this.sprite.width / 2)
+        if (this.sprite == null || this.getGlobalPosition() === null) {
+            return 0
+        }
+        return this.getGlobalPosition()!.x + (this.sprite.width / 2)
     }
 
     GETCENTERY(): number {
-        if (this.sprite == null) return 0
-        return this.globalPosition.y + (this.sprite.height / 2)
+        if (this.sprite == null || this.getGlobalPosition() === null) {
+            return 0
+        }
+        return this.getGlobalPosition()!.y + (this.sprite.height / 2)
     }
 
     GETPOSITIONX(): number {
-        if (this.sprite == null) return 0
-        return this.globalPosition.x
+        if (this.sprite == null || this.getGlobalPosition() === null) {
+            return 0
+        }
+        return this.getGlobalPosition()!.x
     }
 
     GETPOSITIONY(): number {
-        if (this.sprite == null) return 0
-        return this.globalPosition.y
+        if (this.sprite == null || this.getGlobalPosition() === null) {
+            return 0
+        }
+        return this.getGlobalPosition()!.y
     }
 
     GETFRAMENAME(): string {
         const event = this.getEventByName(this.currentEvent)
-        if (!event) {
-            return ''
-        }
-        return event.frames[this.currentFrameIdx].name
+        return event ? event.frames[this.currentFrameIdx].name : ''
     }
 
     GETMAXWIDTH(): number {
@@ -287,15 +292,14 @@ export class Animo extends Type<AnimoDefinition> {
         this.callbacks.addBehaviour(callbackString, behaviourName)
     }
 
-    get globalPosition() {
-        if (this.sprite === null) return new Point()
-        return this.sprite.toGlobal(new Point(0, 0), undefined, true)
-    }
-
     getEventByName(name: string): Event | undefined {
         return this.annFile?.events.find(
-            event => event.name.toUpperCase() === name
+            event => event.name.toUpperCase() === name.toUpperCase()
         )
+    }
+
+    getRenderObject() {
+        return this.sprite
     }
 
     clone() {
