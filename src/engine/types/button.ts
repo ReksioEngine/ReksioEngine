@@ -4,28 +4,11 @@ import {ButtonDefinition} from '../../fileFormats/cnv/types'
 import {createColorGraphics, NotImplementedError} from '../../utils'
 import {Image} from './image'
 import {Graphics, Rectangle} from 'pixi.js'
-import { t, StateMachine } from 'typescript-fsm'
-
-enum States {
-    INIT,
-    DISABLED,
-    DISABLED_BUT_VISIBLE,
-    STANDARD,
-    HOVERED,
-    PRESSED
-}
-
-enum Events {
-    OVER,
-    DOWN,
-    UP,
-    OUT,
-    ENABLE,
-    DISABLE,
-    DISABLE_BUT_VISIBLE
-}
+import {ButtonLogicComponent, State} from '../components/button'
 
 export class Button extends Type<ButtonDefinition> {
+    private logic: ButtonLogicComponent
+
     private gfxStandard?: Image
     private gfxOnClick?: Image
     private gfxOnMove?: Image
@@ -35,82 +18,22 @@ export class Button extends Type<ButtonDefinition> {
     private interactAreaDebugEnabled?: Graphics
     private interactAreaDebugDisabled?: Graphics
 
-    private stateMachine: StateMachine<States, Events>
-
-    private readonly onMouseOverCallback
-    private readonly onMouseOutCallback
-    private readonly onMouseDownCallback
-    private readonly onMouseUpCallback
-
     constructor(engine: Engine, definition: ButtonDefinition) {
         super(engine, definition)
-        this.onMouseOverCallback = this.onMouseOver.bind(this)
-        this.onMouseOutCallback = this.onMouseOut.bind(this)
-        this.onMouseDownCallback = this.onMouseDown.bind(this)
-        this.onMouseUpCallback = this.onMouseUp.bind(this)
 
-        const stateCallback = this.onStateChange.bind(this)
-        const transitions = [
-            t(States.INIT, Events.ENABLE, States.STANDARD, stateCallback),
-            t(States.INIT, Events.DISABLE, States.DISABLED, stateCallback),
+        this.callbacks.register('ONFOCUSON', definition.ONFOCUSON)
+        this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF)
+        this.callbacks.register('ONCLICKED', definition.ONCLICKED)
+        this.callbacks.register('ONRELEASED', definition.ONRELEASED)
+        this.callbacks.register('ONINIT', definition.ONINIT)
 
-            t(States.STANDARD, Events.OVER, States.HOVERED, stateCallback),
-            t(States.HOVERED, Events.OUT, States.STANDARD, stateCallback),
-            t(States.HOVERED, Events.DOWN, States.PRESSED, stateCallback),
-            t(States.PRESSED, Events.UP, States.HOVERED, stateCallback),
-            t(States.PRESSED, Events.OUT, States.STANDARD, stateCallback),
-            t(States.DISABLED, Events.ENABLE, States.STANDARD, stateCallback),
-
-            t(States.STANDARD, Events.DISABLE, States.DISABLED, stateCallback),
-            t(States.HOVERED, Events.DISABLE, States.DISABLED, stateCallback),
-            t(States.PRESSED, Events.DISABLE, States.DISABLED, stateCallback),
-
-            t(States.STANDARD, Events.ENABLE, States.STANDARD, stateCallback),
-            t(States.DISABLED, Events.DISABLE, States.DISABLED, stateCallback),
-        ]
-        this.stateMachine = new StateMachine<States, Events>(
-            States.INIT,
-            transitions
+        this.logic = new ButtonLogicComponent(
+            this.onStateChange.bind(this),
+            () => this.callbacks.run('ONFOCUSON'),
+            () => this.callbacks.run('ONFOCUSOFF'),
+            () => this.callbacks.run('ONRELEASED'),
+            () => this.callbacks.run('ONCLICKED')
         )
-    }
-
-    onStateChange() {
-        const state = this.stateMachine.getState()
-        if (this.interactArea) {
-            // For area button
-            this.interactArea.visible = state != States.DISABLED
-            this.interactArea.interactive = state != States.DISABLED
-
-            if (this.engine.debug) {
-                if (state == States.DISABLED) {
-                    this.engine.app.stage.removeChild(this.interactAreaDebug!)
-                    this.interactAreaDebug = this.interactAreaDebugDisabled
-                    this.engine.app.stage.addChild(this.interactAreaDebug!)
-                } else {
-                    this.engine.app.stage.removeChild(this.interactAreaDebug!)
-                    this.interactAreaDebug = this.interactAreaDebugEnabled
-                    this.engine.app.stage.addChild(this.interactAreaDebug!)
-                }
-            }
-        }
-
-        if (state == States.DISABLED) {
-            this.gfxStandard?.HIDE()
-            this.gfxOnMove?.HIDE()
-            this.gfxOnClick?.HIDE()
-        } else if (state == States.HOVERED && this.gfxOnMove) {
-            this.gfxStandard?.HIDE()
-            this.gfxOnMove?.SHOW()
-            this.gfxOnClick?.HIDE()
-        } else if (state == States.PRESSED && this.gfxOnClick) {
-            this.gfxStandard?.HIDE()
-            this.gfxOnMove?.HIDE()
-            this.gfxOnClick?.SHOW()
-        } else {
-            this.gfxStandard?.SHOW()
-            this.gfxOnMove?.HIDE()
-            this.gfxOnClick?.HIDE()
-        }
     }
 
     init() {
@@ -118,16 +41,14 @@ export class Button extends Type<ButtonDefinition> {
             const [x1, y1, x2, y2] = this.definition.RECT
             const rect = new Rectangle(x1, y1, x2-x1, y2-y1)
             this.interactArea = createColorGraphics(rect, 0, 0)
-            this.interactArea.interactive = true
             this.interactArea.hitArea = rect
             this.interactArea.zIndex = 9999999 - y1
-            this.interactArea.cursor = 'pointer'
             this.interactArea.visible = this.definition.ENABLE
 
             if (this.engine.debug) {
                 this.interactAreaDebugEnabled = createColorGraphics(rect, 0, 0, 3, 0x00ff00)
                 this.interactAreaDebugEnabled.zIndex = 99999999
-                this.interactAreaDebug = this.stateMachine.getState() != States.DISABLED ? this.interactAreaDebugEnabled : this.interactAreaDebugDisabled
+                this.interactAreaDebug = this.logic.getState() != State.DISABLED ? this.interactAreaDebugEnabled : this.interactAreaDebugDisabled
 
                 this.interactAreaDebugDisabled = createColorGraphics(rect, 0, 0, 3, 0xff0000)
                 this.interactAreaDebugDisabled.zIndex = 99999999
@@ -137,10 +58,7 @@ export class Button extends Type<ButtonDefinition> {
 
     ready() {
         if (this.interactArea) {
-            this.interactArea.addListener('mouseover', this.onMouseOverCallback)
-            this.interactArea.addListener('mouseout', this.onMouseOutCallback)
-            this.interactArea.addListener('mousedown', this.onMouseDownCallback)
-            this.interactArea.addListener('mouseup', this.onMouseUpCallback)
+            this.logic.registerInteractive(this.interactArea)
             this.engine.app.stage.addChild(this.interactArea)
         }
         if (this.interactAreaDebug) {
@@ -157,37 +75,34 @@ export class Button extends Type<ButtonDefinition> {
         if (this.definition.GFXONMOVE) {
             this.gfxOnMove = this.engine.getObject(this.definition.GFXONMOVE)
         }
-        this.stateMachine.dispatch(this.definition.ENABLE ? Events.ENABLE : Events.DISABLE)
+
+        if (this.definition.ENABLE) {
+            this.logic.enable()
+        } else {
+            this.logic.disable()
+        }
+
         // ...including ONINIT
         if (this.definition.ONINIT) {
             this.engine.executeCallback(this, this.definition.ONINIT)
         }
 
-        const sprites = [
-            this.gfxStandard?.sprite,
-            this.gfxOnMove?.sprite,
-            this.gfxOnClick?.sprite
-        ]
-
-        for (const sprite of sprites) {
-            if (!sprite) continue
-            sprite.interactive = true
-            sprite.cursor = 'pointer'
-            if (!this.interactArea) {
-                sprite.addListener('mouseover', this.onMouseOverCallback)
-                sprite.addListener('mouseout', this.onMouseOutCallback)
-                sprite.addListener('mousedown', this.onMouseDownCallback)
-                sprite.addListener('mouseup', this.onMouseUpCallback)
+        if (!this.interactArea) {
+            if (this.gfxStandard?.sprite) {
+                this.logic.registerInteractive(this.gfxStandard.sprite)
+            }
+            if (this.gfxOnMove?.sprite) {
+                this.logic.registerInteractive(this.gfxOnMove.sprite)
+            }
+            if (this.gfxOnClick?.sprite) {
+                this.logic.registerInteractive(this.gfxOnClick.sprite)
             }
         }
     }
 
     destroy() {
         if (this.interactArea) {
-            this.interactArea.removeListener('mouseover', this.onMouseOverCallback)
-            this.interactArea.removeListener('mouseout', this.onMouseOutCallback)
-            this.interactArea.removeListener('mousedown', this.onMouseDownCallback)
-            this.interactArea.removeListener('mouseup', this.onMouseUpCallback)
+            this.logic.unregisterInteractive(this.interactArea)
             this.engine.app.stage.removeChild(this.interactArea)
         }
         if (this.interactAreaDebug) {
@@ -196,107 +111,68 @@ export class Button extends Type<ButtonDefinition> {
 
         if (!this.interactArea) {
             if (this.gfxStandard?.sprite) {
-                this.gfxStandard.sprite.removeListener('mouseover', this.onMouseOverCallback)
+                this.logic.unregisterInteractive(this.gfxStandard.sprite)
             }
             if (this.gfxOnMove?.sprite) {
-                this.gfxOnMove.sprite.removeListener('mouseout', this.onMouseOutCallback)
-                this.gfxOnMove.sprite.removeListener('mousedown', this.onMouseDownCallback)
-                this.gfxOnMove.sprite.removeListener('mouseup', this.onMouseUpCallback)
+                this.logic.unregisterInteractive(this.gfxOnMove.sprite)
             }
             if (this.gfxOnClick?.sprite) {
-                this.gfxOnClick.sprite.removeListener('mouseout', this.onMouseOutCallback)
-                this.gfxOnClick.sprite.removeListener('mouseup', this.onMouseUpCallback)
+                this.logic.unregisterInteractive(this.gfxOnClick.sprite)
             }
         }
     }
 
-    onMouseOver() {
-        if (this.stateMachine.getState() == States.DISABLED) {
-            return
+    onStateChange(state: State) {
+        if (this.interactArea) {
+            // For area button
+            this.interactArea.visible = state != State.DISABLED
+            this.interactArea.interactive = state != State.DISABLED
+
+            if (this.engine.debug) {
+                if (state == State.DISABLED) {
+                    this.engine.app.stage.removeChild(this.interactAreaDebug!)
+                    this.interactAreaDebug = this.interactAreaDebugDisabled
+                    this.engine.app.stage.addChild(this.interactAreaDebug!)
+                } else {
+                    this.engine.app.stage.removeChild(this.interactAreaDebug!)
+                    this.interactAreaDebug = this.interactAreaDebugEnabled
+                    this.engine.app.stage.addChild(this.interactAreaDebug!)
+                }
+            }
         }
 
-        if (this.stateMachine.can(Events.OVER)) {
-            this.stateMachine.dispatch(Events.OVER)
+        if (state == State.DISABLED) {
+            this.gfxStandard?.HIDE()
+            this.gfxOnMove?.HIDE()
+            this.gfxOnClick?.HIDE()
+        } else if (state == State.HOVERED && this.gfxOnMove) {
+            this.gfxStandard?.HIDE()
+            this.gfxOnMove?.SHOW()
+            this.gfxOnClick?.HIDE()
+        } else if (state == State.PRESSED && this.gfxOnClick) {
+            this.gfxStandard?.HIDE()
+            this.gfxOnMove?.HIDE()
+            this.gfxOnClick?.SHOW()
+        } else {
+            this.gfxStandard?.SHOW()
+            this.gfxOnMove?.HIDE()
+            this.gfxOnClick?.HIDE()
         }
-        this.ONFOCUSON()
-    }
-
-    onMouseUp() {
-        if (this.stateMachine.getState() == States.DISABLED) {
-            return
-        }
-
-        if (this.stateMachine.can(Events.UP)) {
-            this.stateMachine.dispatch(Events.UP)
-        }
-        this.ONRELEASED()
-    }
-
-    onMouseOut() {
-        if (this.stateMachine.getState() == States.DISABLED) {
-            return
-        }
-
-        if (this.stateMachine.can(Events.OUT)) {
-            this.stateMachine.dispatch(Events.OUT)
-        }
-        this.ONFOCUSOFF()
-    }
-
-    onMouseDown() {
-        if (this.stateMachine.getState() == States.DISABLED) {
-            return
-        }
-
-        if (this.stateMachine.can(Events.DOWN)) {
-            this.stateMachine.dispatch(Events.DOWN)
-        }
-        this.ONCLICKED()
     }
 
     ENABLE() {
-        if (this.stateMachine.can(Events.ENABLE)) {
-            this.stateMachine.dispatch(Events.ENABLE)
-        }
+        this.logic.enable()
     }
 
     DISABLE() {
-        if (this.stateMachine.can(Events.DISABLE)) {
-            this.stateMachine.dispatch(Events.DISABLE)
-        }
+        this.logic.disable()
     }
 
     DISABLEBUTVISIBLE() {
-        if (this.stateMachine.can(Events.DISABLE_BUT_VISIBLE)) {
-            this.stateMachine.dispatch(Events.DISABLE_BUT_VISIBLE)
-        }
+        this.logic.disableButVisible()
     }
 
     SETPRIORITY() {
         throw new NotImplementedError()
-    }
-
-    ONRELEASED() {
-        if (this.definition.ONRELEASED) {
-            this.engine.executeCallback(this, this.definition.ONRELEASED)
-        }
-    }
-
-    ONCLICKED() {
-        if (this.definition.ONCLICKED) {
-            this.engine.executeCallback(this, this.definition.ONCLICKED)
-        }
-    }
-
-    ONFOCUSON() {
-        if (this.definition.ONFOCUSON) {
-            this.engine.executeCallback(this, this.definition.ONFOCUSON)
-        }
-    }
-
-    ONFOCUSOFF() {
-        if (this.definition.ONFOCUSOFF) {
-            this.engine.executeCallback(this, this.definition.ONFOCUSOFF)
-        }
     }
 }

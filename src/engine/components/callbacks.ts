@@ -13,7 +13,7 @@ export class CallbacksComponent {
         this.object = object
     }
 
-    registerGroup(type: string, callbacks: callbacks<any> | undefined) {
+    registerGroup(type: string, callbacks?: callbacks<any>) {
         if (callbacks) {
             this.callbacks.set(type, {
                 nonParametrized: callbacks.nonParametrized,
@@ -27,9 +27,9 @@ export class CallbacksComponent {
         }
     }
 
-    register(type: string, callback: callback) {
+    register(type: string, callback?: callback) {
         this.callbacks.set(type, {
-            nonParametrized: callback || null,
+            nonParametrized: callback ?? null,
             parametrized: new Map<any, callback>()
         })
     }
