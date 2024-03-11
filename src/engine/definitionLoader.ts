@@ -24,6 +24,7 @@ import {Group} from './types/group'
 import {Text} from './types/text'
 import {Type} from './types'
 import {Font} from './types/font'
+import {ComplexCondition} from './types/complexCondition'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -45,6 +46,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new CNVLoader(engine, definition)
     case 'CONDITION':
         return new Condition(engine, definition)
+    case 'COMPLEXCONDITION':
+        return new ComplexCondition(engine, definition)
     case 'EPISODE':
         return new Episode(engine, definition)
     case 'FONT':

@@ -337,6 +337,22 @@ const FontDefinitionStructure = {
     DEF_ARIAL_STANDARD_14: string // wtf
 }
 
+export type ComplexConditionDefinition = TypeDefinition & {
+    CONDITION1: reference,
+    CONDITION2: reference,
+    ONRUNTIMEFAILED: callback,
+    ONRUNTIMESUCCESS: callback,
+    OPERATOR: 'AND' | 'OR',
+}
+
+const ComplexConditionDefinitionStructure = {
+    CONDITION1: reference,
+    CONDITION2: reference,
+    ONRUNTIMEFAILED: callback,
+    ONRUNTIMESUCCESS: callback,
+    OPERATOR: string
+}
+
 export const structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -360,5 +376,6 @@ export const structureDefinitions = {
     SEQUENCE: SequenceDefinitionStructure,
     GROUP: GroupDefinitionStructure,
     TEXT: TextDefinitionStructure,
-    FONT: FontDefinitionStructure
+    FONT: FontDefinitionStructure,
+    COMPLEXCONDITION: ComplexConditionDefinitionStructure
 } as any
