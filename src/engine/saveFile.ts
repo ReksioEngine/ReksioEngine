@@ -22,7 +22,7 @@ export class SaveFile {
             return null
         }
 
-        return this.get(object.parent.name, object.name)
+        return this.get(object.parent.name, object.name) ?? null
     }
 
     save(object: Type<any>, value: any) {
