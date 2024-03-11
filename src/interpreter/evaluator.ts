@@ -133,14 +133,14 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 `%cCode:%c\n${code}` +
                 '\n' +
                 '%cObject:%c %O\n' +
-                '%cArguments:%c %O\n' +
-                '%cUsed variables:%c %O\n' +
+                (args.length > 0 ? '%cArguments:%c %O\n' : '') +
+                (Object.keys(argsVariables).length > 0 ? '%cUsed variables:%c %O\n' : '') +
                 '%cScope:%c %O\n',
                 'font-weight: bold', 'font-weight: inherit',
                 'color: red', 'color: inherit',
                 'font-weight: bold', 'font-weight: inherit', object,
-                'font-weight: bold', 'font-weight: inherit', args,
-                'font-weight: bold', 'font-weight: inherit', argsVariables,
+                ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []),
+                ...(Object.keys(argsVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', argsVariables] : []),
                 'font-weight: bold', 'font-weight: inherit', this.engine?.scope,
             )
             console.error(err)
