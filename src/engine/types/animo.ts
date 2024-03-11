@@ -5,9 +5,8 @@ import {NotImplementedError} from '../../utils'
 import * as PIXI from 'pixi.js'
 import {Sprite, Texture} from 'pixi.js'
 import {FileNotFoundError} from '../../filesLoader'
-import {ANN, AnnImage, Frame} from '../../fileFormats/ann'
-import {Event as Event} from '../../fileFormats/ann/index'
-import {ButtonLogicComponent, State} from '../components/button'
+import {ANN, AnnImage, Event, Frame} from '../../fileFormats/ann'
+import {ButtonLogicComponent, Event as FSMEvent, State} from '../components/button'
 
 //TODO: Try to use Image class here
 export class Animo extends Type<AnimoDefinition> {
@@ -235,20 +234,29 @@ export class Animo extends Type<AnimoDefinition> {
     SETASBUTTON(arg1: boolean, arg2: boolean) {
         if (this.sprite === null) return
 
-        this.buttonLogic = new ButtonLogicComponent(this.onButtonStateChange.bind(this))
-        this.buttonLogic.registerInteractive(this.sprite)
-        this.buttonLogic.enable()
-        this.PLAY('ONNOEVENT')
+        if (arg1 && arg2) {
+            this.buttonLogic = new ButtonLogicComponent(this.onButtonStateChange.bind(this))
+            this.buttonLogic.registerInteractive(this.sprite)
+            this.buttonLogic.enable()
+            this.PLAY('ONNOEVENT')
+        } else {
+            this.buttonLogic?.unregisterInteractive(this.sprite)
+            this.buttonLogic?.disable()
+        }
     }
 
-    onButtonStateChange(prevState: State, state: State) {
-        switch (state) {
+    onButtonStateChange(prevState: State, event: FSMEvent, newState: State) {
+        switch (newState) {
         case State.HOVERED:
             this.PLAY('ONFOCUSON') || this.PLAY('PLAY')
-            this.callbacks.run('ONFOCUSON')
+            if (event === FSMEvent.UP) {
+                this.callbacks.run('ONRELEASE')
+            } else {
+                this.callbacks.run('ONFOCUSON')
+            }
             break
         case State.STANDARD:
-            if (prevState === State.DISABLED) {
+            if (event === FSMEvent.ENABLE) {
                 this.PLAY('ONNOEVENT') || this.PLAY('PLAY')
             } else {
                 this.PLAY('ONFOCUSOFF') || this.PLAY('PLAY')

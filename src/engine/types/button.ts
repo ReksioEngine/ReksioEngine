@@ -5,6 +5,7 @@ import {createColorGraphics, NotImplementedError} from '../../utils'
 import {Image} from './image'
 import {Graphics, Rectangle} from 'pixi.js'
 import {ButtonLogicComponent, State} from '../components/button'
+import {Event} from '../components/button'
 
 export class Button extends Type<ButtonDefinition> {
     private logic: ButtonLogicComponent
@@ -122,7 +123,7 @@ export class Button extends Type<ButtonDefinition> {
         }
     }
 
-    onStateChange(prevState: State, state: State) {
+    onStateChange(prevState: State, event: Event, state: State) {
         if (this.interactArea) {
             // For area button
             this.interactArea.visible = state != State.DISABLED

@@ -10,7 +10,7 @@ export enum State {
     PRESSED
 }
 
-enum Event {
+export enum Event {
     OVER,
     DOWN,
     UP,
@@ -20,7 +20,7 @@ enum Event {
     DISABLE_BUT_VISIBLE
 }
 
-type stateChangeCallback = (prevState: State, state: State) => void
+type stateChangeCallback = (prevState: State, event: Event, newState: State) => void
 
 export class ButtonLogicComponent {
     private stateMachine: StateMachine<State, Event>
@@ -57,22 +57,22 @@ export class ButtonLogicComponent {
 
         const stateCallback = this.onStateChange.bind(this)
         const transitions = [
-            t(State.INIT, Event.ENABLE, State.STANDARD, stateCallback),
-            t(State.INIT, Event.DISABLE, State.DISABLED, stateCallback),
+            t(State.INIT, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
+            t(State.INIT, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
 
-            t(State.STANDARD, Event.OVER, State.HOVERED, stateCallback),
-            t(State.HOVERED, Event.OUT, State.STANDARD, stateCallback),
-            t(State.HOVERED, Event.DOWN, State.PRESSED, stateCallback),
-            t(State.PRESSED, Event.UP, State.HOVERED, stateCallback),
-            t(State.PRESSED, Event.OUT, State.STANDARD, stateCallback),
-            t(State.DISABLED, Event.ENABLE, State.STANDARD, stateCallback),
+            t(State.STANDARD, Event.OVER, State.HOVERED, () => stateCallback(Event.OVER)),
+            t(State.HOVERED, Event.OUT, State.STANDARD, () => stateCallback(Event.OUT)),
+            t(State.HOVERED, Event.DOWN, State.PRESSED, () => stateCallback(Event.DOWN)),
+            t(State.PRESSED, Event.UP, State.HOVERED, () => stateCallback(Event.UP)),
+            t(State.PRESSED, Event.OUT, State.STANDARD, () => stateCallback(Event.OUT)),
+            t(State.DISABLED, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
 
-            t(State.STANDARD, Event.DISABLE, State.DISABLED, stateCallback),
-            t(State.HOVERED, Event.DISABLE, State.DISABLED, stateCallback),
-            t(State.PRESSED, Event.DISABLE, State.DISABLED, stateCallback),
+            t(State.STANDARD, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
+            t(State.HOVERED, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
+            t(State.PRESSED, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
 
-            t(State.STANDARD, Event.ENABLE, State.STANDARD, stateCallback),
-            t(State.DISABLED, Event.DISABLE, State.DISABLED, stateCallback),
+            t(State.STANDARD, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
+            t(State.DISABLED, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
         ]
         this.stateMachine = new StateMachine<State, Event>(
             State.INIT,
@@ -170,9 +170,9 @@ export class ButtonLogicComponent {
         this.onMouseDownCustomCallback && this.onMouseDownCustomCallback()
     }
 
-    onStateChange() {
+    onStateChange(event: Event) {
         const state = this.stateMachine.getState()
-        this.onStateChangeCallback(this.prevState, state)
+        this.onStateChangeCallback(this.prevState, event, state)
         this.prevState = state
     }
 }

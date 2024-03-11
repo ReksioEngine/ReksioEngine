@@ -127,8 +127,8 @@ const AnimoStructure = {
 
     ONFOCUSON: callback,
     ONFOCUSOFF: callback,
-    ONCLICKED: callback,
-    ONRELEASED: callback
+    ONCLICKE: callback,
+    ONRELEASE: callback
 }
 
 export type MusicDefinition = TypeDefinition & {
