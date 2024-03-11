@@ -36,3 +36,4 @@ export class NotImplementedError extends Error {
     }
 }
 
+export class IrrecoverableError extends Error {}

@@ -6,11 +6,13 @@ import {Application, Rectangle, Sprite} from 'pixi.js'
 import {Scene} from './types/scene'
 import {FileLoader, GithubFileLoader, UrlFileLoader} from '../filesLoader'
 import {sound, Sound} from '@pixi/sound'
+import {Sound as SoundObject} from './types/sound'
 import {loadSound, loadTexture} from './assetsLoader'
 import {SaveFile} from './saveFile'
-import {createColorTexture} from '../utils'
+import {createColorTexture, IrrecoverableError} from '../utils'
 import {preloadAssets} from './optimizations'
 import {setupDebugScene, updateCurrentScene} from './debugging'
+import {Timer} from './types/timer'
 
 export class Engine {
     readonly app: Application
@@ -37,24 +39,49 @@ export class Engine {
     }
 
     async init() {
-        const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
-        await loadDefinition(this, this.globalScope, applicationDef)
-        setupDebugScene(this)
+        try {
+            const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
+            await loadDefinition(this, this.globalScope, applicationDef)
+            setupDebugScene(this)
 
-        this.app.ticker.maxFPS = 16
-        this.app.stage.interactive = true
-        this.app.stage.sortableChildren = true
-        sound.disableAutoPause = true
+            this.app.ticker.maxFPS = 16
+            this.app.stage.interactive = true
+            this.app.stage.sortableChildren = true
+            sound.disableAutoPause = true
 
-        this.app.stage.addChild(this.canvasBackground)
-        this.app.ticker.add(delta => {
-            this.tick(delta)
-        })
+            this.app.stage.addChild(this.canvasBackground)
+            this.app.ticker.add(delta => {
+                try {
+                    this.tick(delta)
+                } catch (err) {
+                    if (err instanceof IrrecoverableError) {
+                        console.error(
+                            'Irrecoverable error occurred. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O',
+                            'font-weight: bold', 'font-weight: inherit', this.scope
+                        )
+                        this.pause()
+                    } else {
+                        console.error(
+                            'Unhandled error occurred during tick. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O',
+                            'font-weight: bold', 'font-weight: inherit', this.scope
+                        )
+                        console.error(err)
+                        this.pause()
+                    }
+                }
+            })
 
-        // @ts-ignore
-        globalThis.engine = this
-        // @ts-ignore
-        globalThis.__PIXI_APP__ = this.app
+            // @ts-ignore
+            globalThis.engine = this
+            // @ts-ignore
+            globalThis.__PIXI_APP__ = this.app
+        } catch (err) {
+            console.error(
+                'Unhandled error occurred during initialization\n%cScope:%c%O',
+                'font-weight: bold', 'font-weight: inherit', this.scope
+            )
+            console.error(err)
+        }
     }
 
     tick(delta: number) {
@@ -71,6 +98,14 @@ export class Engine {
         if (callback.code) {
             return runScript(this, callback.code, args, callback.isSingleStatement)
         } else if (callback.behaviourReference) {
+            if (!this.scope[callback.behaviourReference]) {
+                console.error(
+                    `Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`,
+                    'font-weight: bold', 'font-weight: inherit', callback,
+                    'font-weight: bold', 'font-weight: inherit', caller
+                )
+                throw new IrrecoverableError()
+            }
             return this.scope[callback.behaviourReference].RUN(...callback.constantArguments)
         }
     }
@@ -146,5 +181,33 @@ export class Engine {
         clone.name = `${object.definition.NAME}_${object.clones.length}`
         this.scope[clone.name] = clone
         return clone
+    }
+
+    resume() {
+        if (this.music !== null) {
+            this.music.resume()
+        }
+        for (const object of Object.values(this.scope)) {
+            if (object instanceof SoundObject) {
+                object.RESUME()
+            } else if (object instanceof Timer) {
+                object.ENABLE()
+            }
+        }
+        this.app.ticker.start()
+    }
+
+    pause() {
+        this.app.ticker.stop()
+        if (this.music !== null) {
+            this.music.pause()
+        }
+        for (const object of Object.values(this.scope)) {
+            if (object instanceof SoundObject) {
+                object.PAUSE()
+            } else if (object instanceof Timer) {
+                object.DISABLE()
+            }
+        }
     }
 }
