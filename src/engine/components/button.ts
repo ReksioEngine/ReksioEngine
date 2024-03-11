@@ -1,5 +1,5 @@
 import {StateMachine, t} from 'typescript-fsm'
-import {Container} from '@pixi/display'
+import {DisplayObject} from 'pixi.js'
 
 export enum State {
     INIT,
@@ -20,11 +20,12 @@ enum Event {
     DISABLE_BUT_VISIBLE
 }
 
-type stateChangeCallback = (state: State) => void
+type stateChangeCallback = (prevState: State, state: State) => void
 
 export class ButtonLogicComponent {
     private stateMachine: StateMachine<State, Event>
     private onStateChangeCallback: stateChangeCallback
+    private prevState: State = State.DISABLED
 
     private readonly onMouseOverCallback
     private readonly onMouseOutCallback
@@ -79,7 +80,7 @@ export class ButtonLogicComponent {
         )
     }
 
-    registerInteractive(sprite: Container) {
+    registerInteractive(sprite: DisplayObject) {
         sprite.interactive = true
         sprite.cursor = 'pointer'
 
@@ -89,7 +90,7 @@ export class ButtonLogicComponent {
         sprite.addListener('mouseup', this.onMouseUpCallback)
     }
 
-    unregisterInteractive(sprite: Container) {
+    unregisterInteractive(sprite: DisplayObject) {
         sprite.interactive = false
         sprite.cursor = 'default'
 
@@ -171,6 +172,7 @@ export class ButtonLogicComponent {
 
     onStateChange() {
         const state = this.stateMachine.getState()
-        this.onStateChangeCallback(state)
+        this.onStateChangeCallback(this.prevState, state)
+        this.prevState = state
     }
 }

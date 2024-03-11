@@ -122,7 +122,7 @@ export class Button extends Type<ButtonDefinition> {
         }
     }
 
-    onStateChange(state: State) {
+    onStateChange(prevState: State, state: State) {
         if (this.interactArea) {
             // For area button
             this.interactArea.visible = state != State.DISABLED

@@ -7,9 +7,12 @@ import {Sprite, Texture} from 'pixi.js'
 import {FileNotFoundError} from '../../filesLoader'
 import {ANN, AnnImage, Frame} from '../../fileFormats/ann'
 import {Event as Event} from '../../fileFormats/ann/index'
+import {ButtonLogicComponent, State} from '../components/button'
 
 //TODO: Try to use Image class here
 export class Animo extends Type<AnimoDefinition> {
+    private buttonLogic: ButtonLogicComponent | null = null
+
     private isPlaying: boolean = false
     private currentFrameIdx: number = 0
     private currentEvent: string = '1'
@@ -27,6 +30,11 @@ export class Animo extends Type<AnimoDefinition> {
         super(engine, definition)
         this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED)
         this.callbacks.registerGroup('ONFRAMECHANGED', definition.ONFRAMECHANGED)
+
+        this.callbacks.register('ONFOCUSON', definition.ONFOCUSON)
+        this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF)
+        this.callbacks.register('ONCLICK', definition.ONCLICK)
+        this.callbacks.register('ONRELEASE', definition.ONRELEASE)
     }
 
     async init() {
@@ -155,11 +163,16 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     PLAY(name: string | number) {
+        if (!this.getEventByName(name.toString())) {
+            return false
+        }
+
         this.isPlaying = true
         this.currentFrameIdx = 0
         this.currentEvent = name.toString().toUpperCase()
 
         this.SHOW() //I noticed that play method should call show method
+        return true
     }
 
     STOP(arg: boolean) {
@@ -220,7 +233,33 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     SETASBUTTON(arg1: boolean, arg2: boolean) {
-        throw new NotImplementedError()
+        if (this.sprite === null) return
+
+        this.buttonLogic = new ButtonLogicComponent(this.onButtonStateChange.bind(this))
+        this.buttonLogic.registerInteractive(this.sprite)
+        this.buttonLogic.enable()
+        this.PLAY('ONNOEVENT')
+    }
+
+    onButtonStateChange(prevState: State, state: State) {
+        switch (state) {
+        case State.HOVERED:
+            this.PLAY('ONFOCUSON') || this.PLAY('PLAY')
+            this.callbacks.run('ONFOCUSON')
+            break
+        case State.STANDARD:
+            if (prevState === State.DISABLED) {
+                this.PLAY('ONNOEVENT') || this.PLAY('PLAY')
+            } else {
+                this.PLAY('ONFOCUSOFF') || this.PLAY('PLAY')
+                this.callbacks.run('ONFOCUSOFF')
+            }
+            break
+        case State.PRESSED:
+            this.PLAY('ONCLICK') || this.PLAY('PLAY')
+            this.callbacks.run('ONCLICKED')
+            break
+        }
     }
 
     GETCENTERX(): number {

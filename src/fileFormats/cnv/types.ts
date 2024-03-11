@@ -103,6 +103,12 @@ export type AnimoDefinition = TypeDefinition & {
     ONINIT?: callback
     ONFINISHED?: callbacks<string>
     ONFRAMECHANGED?: callbacks<string>
+
+    // When in button mode
+    ONFOCUSON?: callback
+    ONFOCUSOFF?: callback
+    ONCLICK?: callback
+    ONRELEASE?: callback
 }
 
 const AnimoStructure = {
@@ -117,7 +123,12 @@ const AnimoStructure = {
     MONITORCOLLISIONALPHA: boolean,
     ONINIT: callback,
     ONFINISHED: callbacks,
-    ONFRAMECHANGED: callbacks
+    ONFRAMECHANGED: callbacks,
+
+    ONFOCUSON: callback,
+    ONFOCUSOFF: callback,
+    ONCLICKED: callback,
+    ONRELEASED: callback
 }
 
 export type MusicDefinition = TypeDefinition & {
