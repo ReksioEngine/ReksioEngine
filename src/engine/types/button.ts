@@ -173,7 +173,9 @@ export class Button extends Type<ButtonDefinition> {
         this.logic.disableButVisible()
     }
 
-    SETPRIORITY() {
-        throw new NotImplementedError()
+    SETPRIORITY(priority: number) {
+        this.gfxStandard?.SETPRIORITY(priority)
+        this.gfxOnMove?.SETPRIORITY(priority)
+        this.gfxOnClick?.SETPRIORITY(priority)
     }
 }
