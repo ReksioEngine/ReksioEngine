@@ -25,8 +25,10 @@ export class Sound extends Type<SoundDefinition> {
     }
 
     destroy() {
-        assert(this.sound !== null)
-        this.sound.stop()
+        // assert(this.sound !== null) // Why does it even happen?
+        if (this.sound !== null) {
+            this.sound.stop()
+        }
     }
 
     // This argument is "PLAY" for kurator in intro for some reason
