@@ -197,8 +197,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 'Unknown identifier\n' +
                 '\n' +
                 `%cCode:%c\n${code}\n\n` +
-                '%cCode source:%c %O\n',
-                '%cUsed variables:%c %O\n',
+                '%cCode source:%c %O\n' +
+                '%cUsed variables:%c %O\n' +
                 '%cScope:%c %O\n',
                 'font-weight: bold', 'font-weight: inherit',
                 'color: red', 'color: inherit',
