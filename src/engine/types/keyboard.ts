@@ -50,7 +50,9 @@ export class Keyboard extends Type<KeyboardDefinition> {
     }
 
     ISKEYDOWN(keyName: string) {
-        assert(this.keysState.has(keyName))
-        return this.keysState.get(keyName)!
+        if (this.keysState.has(keyName)) {
+            return this.keysState.get(keyName)!
+        }
+        return false
     }
 }
