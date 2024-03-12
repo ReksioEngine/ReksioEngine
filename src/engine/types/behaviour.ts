@@ -15,7 +15,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     RUN(...args: any[]) {
-        return this.engine.executeCallback(null, this.definition.CODE, args)
+        return this.engine.executeCallback(null, this, this.definition.CODE, args)
     }
 
     RUNC(...args: any[]) {

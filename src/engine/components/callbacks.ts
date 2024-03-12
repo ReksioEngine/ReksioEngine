@@ -48,11 +48,11 @@ export class CallbacksComponent {
     run(type: string, param?: any) {
         const callbackGroup = this.callbacks.get(type)
         if (callbackGroup?.nonParametrized) {
-            this.engine.executeCallback(this.object, callbackGroup.nonParametrized)
+            this.engine.executeCallback(this.object, this.object, callbackGroup.nonParametrized)
         }
 
         if (param !== undefined && callbackGroup?.parametrized.has(param)) {
-            this.engine.executeCallback(this.object, callbackGroup.parametrized.get(param)!)
+            this.engine.executeCallback(this.object, this.object, callbackGroup.parametrized.get(param)!)
         }
     }
 

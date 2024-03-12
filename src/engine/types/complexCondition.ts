@@ -22,9 +22,9 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
         }
 
         if (this.definition.ONRUNTIMESUCCESS && result) {
-            this.engine.executeCallback(this, this.definition.ONRUNTIMESUCCESS)
+            this.engine.executeCallback(this, this, this.definition.ONRUNTIMESUCCESS)
         } else if (this.definition.ONRUNTIMEFAILED && !result) {
-            this.engine.executeCallback(this, this.definition.ONRUNTIMEFAILED)
+            this.engine.executeCallback(this, this, this.definition.ONRUNTIMEFAILED)
         }
 
         return result

@@ -91,13 +91,13 @@ export class Engine {
         }
     }
 
-    executeCallback(caller: Type<any> | null, callback: callback, args?: any[]) {
+    executeCallback(caller: Type<any> | null, codeSource: Type<any>, callback: callback, args?: any[]) {
         if (caller !== null) {
             this.scope.THIS = caller
         }
 
         if (callback.code) {
-            return runScript(this, callback.code, args, callback.isSingleStatement)
+            return runScript(this, codeSource, callback.code, args, callback.isSingleStatement)
         } else if (callback.behaviourReference) {
             if (!this.scope[callback.behaviourReference]) {
                 console.error(

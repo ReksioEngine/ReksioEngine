@@ -22,15 +22,17 @@ class AlreadyDisplayedError {
 
 export class ScriptEvaluator extends ReksioLangVisitor<any> {
     private readonly engine?: Engine
+    private readonly codeSource?: any
     private readonly args?: any[]
     private readonly script?: string
 
     public lastContext: ParserRuleContext | null = null
     public usedVariables: any = {}
 
-    constructor(engine?: Engine, script?: string, args?: any[]) {
+    constructor(engine?: Engine, codeSource?: any, script?: string, args?: any[]) {
         super()
         this.engine = engine
+        this.codeSource = codeSource
         this.script = script
         this.args = args
     }
@@ -79,9 +81,11 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 console.error(
                     'Unknown identifier\n' +
                     '\n' +
-                    `%cCode:%c\n${code}`,
+                    `%cCode:%c\n${code}` +
+                    '%cCode source:%c%O',
                     'font-weight: bold', 'font-weight: inherit',
                     'color: red', 'color: inherit',
+                    'font-weight: bold', 'font-weight: inherit', this.codeSource
                 )
 
                 // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
@@ -125,6 +129,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 '\n' +
                 `%cCode:%c\n${code}` +
                 '\n' +
+                '%cCode source:%c %O\n' +
                 '%cObject:%c %O\n' +
                 (args.length > 0 ? '%cArguments:%c %O\n' : '') +
                 (this.args?.length ? '%cBehaviour Arguments:%c %O\n' : '') +
@@ -132,6 +137,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 '%cScope:%c %O\n',
                 'font-weight: bold', 'font-weight: inherit',
                 'color: red', 'color: inherit',
+                'font-weight: bold', 'font-weight: inherit', this.codeSource,
                 'font-weight: bold', 'font-weight: inherit', object,
                 ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []),
                 ...(this.args?.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []),
@@ -183,9 +189,11 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 'Unknown identifier\n' +
                 '\n' +
                 `%cCode:%c\n${code}\n\n` +
+                '%cCode source:%c %O\n',
                 '%cScope:%c %O\n',
                 'font-weight: bold', 'font-weight: inherit',
                 'color: red', 'color: inherit',
+                'font-weight: bold', 'font-weight: inherit', this.codeSource,
                 'font-weight: bold', 'font-weight: inherit', this.engine?.scope,
             )
 
@@ -235,13 +243,13 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 }
 
-export const runScript = (engine: Engine, script: string, args?: any[], singleStatement: boolean = false) => {
+export const runScript = (engine: Engine, codeSource: any, script: string, args?: any[], singleStatement: boolean = false) => {
     const lexer = new ReksioLangLexer(new antlr4.CharStream(script))
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioLangParser(tokens)
     const tree = singleStatement ? parser.statement() : parser.statementList()
 
-    const evaluator = new ScriptEvaluator(engine, script, args)
+    const evaluator = new ScriptEvaluator(engine, codeSource, script, args)
     try {
         return tree.accept(evaluator)
     } catch (err) {
@@ -252,9 +260,11 @@ export const runScript = (engine: Engine, script: string, args?: any[], singleSt
                 const code = evaluator.markInCode(evaluator.lastContext)
                 console.error(
                     'Execution stopped due to irrecoverable error\n\n' +
-                    `%cCode:%c\n${code}`,
+                    `%cCode:%c\n${code}` +
+                    '%cCode source:%c %O',
                     'font-weight: bold', 'font-weight: inherit',
-                    'color: red', 'color: inherit'
+                    'color: red', 'color: inherit',
+                    'font-weight: bold', 'font-weight: inherit', codeSource
                 )
             }
             console.error(err)

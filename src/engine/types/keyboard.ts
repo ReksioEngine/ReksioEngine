@@ -44,7 +44,7 @@ export class Keyboard extends Type<KeyboardDefinition> {
     setKeyState(keyCode: string, value: boolean) {
         const mapped = keysMapping[keyCode]
         if (!mapped) {
-            throw new Error(`Unsupported keyboard key code ${keyCode}`)
+            console.warn(`Unsupported keyboard key code ${keyCode}`)
         }
         this.keysState.set(mapped, value)
     }
