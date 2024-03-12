@@ -84,15 +84,15 @@ export class ArrayObject extends Type<ArrayDefinition> {
     }
 
     SAVEINI() {
-        throw new NotImplementedError()
+        this.saveToINI()
     }
 
     LOADINI() {
-        throw new NotImplementedError()
+        this.loadFromINI()
     }
 
     MSGBOX() {
-        throw new NotImplementedError()
+        alert(this.value)
     }
 
     private ONCHANGED() {
@@ -103,5 +103,13 @@ export class ArrayObject extends Type<ArrayDefinition> {
         const cloned = new ArrayObject(this.engine, this.definition)
         cloned.value = [...this.value]
         return cloned
+    }
+
+    serialize(): string {
+        return this.value.join(',')
+    }
+
+    deserialize(value: string) {
+        return value.split(',')
     }
 }

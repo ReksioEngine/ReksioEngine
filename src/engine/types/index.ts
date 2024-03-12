@@ -60,14 +60,14 @@ export class Type<DefinitionType extends TypeDefinition> {
         if (this.definition.TOINI) {
             const loadedValue = this.engine.saveFile.load(this)
             if (loadedValue !== null) {
-                this.value = loadedValue
+                this.value = this.deserialize(loadedValue)
             }
         }
     }
 
     saveToINI() {
         if (this.definition.TOINI) {
-            this.engine.saveFile.save(this, this.value)
+            this.engine.saveFile.save(this, this.serialize())
         }
     }
 
@@ -85,5 +85,13 @@ export class Type<DefinitionType extends TypeDefinition> {
 
     clone(): Type<DefinitionType> {
         throw new NotImplementedError()
+    }
+
+    serialize(): string {
+        return this.value.toString()
+    }
+
+    deserialize(value: string) {
+        this.value = value
     }
 }
