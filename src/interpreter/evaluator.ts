@@ -27,7 +27,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     private readonly script?: string
 
     public lastContext: ParserRuleContext | null = null
-    public usedVariables: any = {}
+    public methodCallUsedVariables: any = {}
+    public scriptUsedVariables: any = {}
 
     constructor(engine?: Engine, codeSource?: any, script?: string, args?: any[]) {
         super()
@@ -70,12 +71,14 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             const identifier = ctx.IDENTIFIER().getText()
             if (identifier.startsWith('$') && this.args) {
                 const argIdx = parseInt(identifier.substring(1)) - 1
-                this.usedVariables[identifier] = this.args[argIdx]
+                this.methodCallUsedVariables[identifier] = this.args[argIdx]
+                this.scriptUsedVariables[identifier] = this.args[argIdx]
                 return this.args[argIdx]
             }
 
             const object = this.engine?.getObject(ctx.IDENTIFIER().getText())
-            this.usedVariables[identifier] = object
+            this.methodCallUsedVariables[identifier] = object
+            this.scriptUsedVariables[identifier] = object
             if (object === undefined) {
                 const code = this.markInCode(ctx)
                 console.error(
@@ -83,9 +86,11 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                     '\n' +
                     `%cCode:%c\n${code}` +
                     '%cCode source:%c%O',
+                    '%cUsed variables:%c%O',
                     'font-weight: bold', 'font-weight: inherit',
                     'color: red', 'color: inherit',
-                    'font-weight: bold', 'font-weight: inherit', this.codeSource
+                    'font-weight: bold', 'font-weight: inherit', this.codeSource,
+                    'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables
                 )
 
                 // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
@@ -107,10 +112,10 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         const methodName = ctx.methodName().getText()
         const method = object[methodName]
 
-        this.usedVariables = {}
+        this.methodCallUsedVariables = {}
         const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : []
-        const argsVariables = this.usedVariables
-        this.usedVariables = {}
+        const argsVariables = this.methodCallUsedVariables
+        this.methodCallUsedVariables = {}
 
         if (method == undefined) {
             return object.__call(methodName, args)
@@ -133,7 +138,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 '%cObject:%c %O\n' +
                 (args.length > 0 ? '%cArguments:%c %O\n' : '') +
                 (this.args?.length ? '%cBehaviour Arguments:%c %O\n' : '') +
-                (Object.keys(argsVariables).length > 0 ? '%cUsed variables:%c %O\n' : '') +
+                (Object.keys(argsVariables).length > 0 ? '%cVariables used in call:%c %O\n' : '') +
+                (Object.keys(this.scriptUsedVariables).length > 0 ? '%cVariables used in script:%c %O\n' : '') +
                 '%cScope:%c %O\n',
                 'font-weight: bold', 'font-weight: inherit',
                 'color: red', 'color: inherit',
@@ -142,6 +148,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []),
                 ...(this.args?.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []),
                 ...(Object.keys(argsVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', argsVariables] : []),
+                ...(Object.keys(this.scriptUsedVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables] : []),
                 'font-weight: bold', 'font-weight: inherit', this.engine?.scope,
             )
             console.error(err)
@@ -177,7 +184,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         }
 
         const object = this.engine?.getObject(objectName)
-        this.usedVariables[objectName] = object
+        this.methodCallUsedVariables[objectName] = object
+        this.scriptUsedVariables[objectName] = object
 
         if (object === undefined) {
             if (libraries[objectName]) {
@@ -190,10 +198,12 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 '\n' +
                 `%cCode:%c\n${code}\n\n` +
                 '%cCode source:%c %O\n',
+                '%cUsed variables:%c %O\n',
                 '%cScope:%c %O\n',
                 'font-weight: bold', 'font-weight: inherit',
                 'color: red', 'color: inherit',
                 'font-weight: bold', 'font-weight: inherit', this.codeSource,
+                'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables,
                 'font-weight: bold', 'font-weight: inherit', this.engine?.scope,
             )
 
