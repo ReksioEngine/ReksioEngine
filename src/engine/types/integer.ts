@@ -1,15 +1,12 @@
 import {Type} from './index'
 import {Engine} from '../index'
 import {IntegerDefinition} from '../../fileFormats/cnv/types'
-import {callbacks} from '../../fileFormats/common'
 
 export class Integer extends Type<IntegerDefinition> {
-    private readonly onChanged: callbacks<number>
-
     constructor(engine: Engine, definition: IntegerDefinition) {
         super(engine, definition)
         this.value = this.definition.VALUE ?? 0
-        this.onChanged = this.definition.ONCHANGED
+        this.callbacks.registerGroup('ONCHANGED', this.definition.ONCHANGED)
     }
 
     init() {
@@ -72,14 +69,7 @@ export class Integer extends Type<IntegerDefinition> {
     }
 
     private ONCHANGED() {
-        if (this.onChanged) {
-            if (this.onChanged.nonParametrized) {
-                this.engine.executeCallback(this, this.onChanged.nonParametrized)
-            }
-            if (this.onChanged.parametrized.has(this.value)) {
-                this.engine.executeCallback(this, this.onChanged.parametrized.get(this.value)!)
-            }
-        }
+        this.callbacks.run('ONCHANGED', this.value)
         this.saveToINI()
     }
 }

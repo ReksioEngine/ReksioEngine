@@ -2,9 +2,9 @@ import {Type} from './index'
 import {AnimoDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError} from '../../utils'
+import {assert} from '../../errors'
 import * as PIXI from 'pixi.js'
 import {Sprite, Texture} from 'pixi.js'
-import {FileNotFoundError} from '../../filesLoader'
 import {ANN, AnnImage, Event, Frame} from '../../fileFormats/ann'
 import {ButtonLogicComponent, Event as FSMEvent, State} from '../components/button'
 
@@ -29,6 +29,7 @@ export class Animo extends Type<AnimoDefinition> {
         super(engine, definition)
         this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED)
         this.callbacks.registerGroup('ONFRAMECHANGED', definition.ONFRAMECHANGED)
+        this.callbacks.register('ONINIT', definition.ONINIT)
 
         this.callbacks.register('ONFOCUSON', definition.ONFOCUSON)
         this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF)
@@ -42,42 +43,40 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     ready() {
+        this.callbacks.run('ONINIT')
         this.tick(0)
     }
 
     destroy() {
-        if (this.sprite === null) return
+        assert(this.sprite !== null)
         this.engine.removeFromStage(this.sprite)
     }
 
     tick(delta: number) {
-        if (this.sprite == null || !this.sprite.visible || !this.isPlaying) return
-
+        assert(this.sprite !== null)
+        if (!this.sprite.visible || !this.isPlaying) {
+            return
+        }
         this.ONTICK()
     }
 
     private async loadAnimation() {
-        const relativePath = this.engine.currentScene?.getRelativePath(this.definition.FILENAME)
-        if (relativePath == undefined)
-            throw new FileNotFoundError('Current scene is undefined!')
+        assert(this.engine.currentScene !== undefined)
 
+        const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME)
         const annFile = await this.engine.fileLoader.getANNFile(relativePath)
         console.debug(`File '${this.definition.FILENAME}' loaded successfully!`)
         return annFile
     }
 
     private initAnimatedSprite() {
-        if (this.annFile === null) return
+        assert(this.annFile !== null)
 
         this.sprite = new PIXI.Sprite()
         this.sprite.visible = this.definition.VISIBLE
         this.SETPRIORITY(this.definition.PRIORITY)
 
         this.engine.addToStage(this.sprite)
-
-        if (this.definition.ONINIT) {
-            this.engine.executeCallback(this, this.definition.ONINIT)
-        }
     }
 
     getTextureFrom(imageIndex: number): Texture {
@@ -102,8 +101,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     ONTICK() {
-        if (this.annFile === null || this.sprite === null) return
-
+        assert(this.annFile !== null && this.sprite !== null)
         const event = this.getEventByName(this.currentEvent)
         if (event) {
             this.tickAnimation(event)
@@ -111,7 +109,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     private tickAnimation(event: Event) {
-        if (this.annFile === null || this.sprite === null) return
+        assert(this.annFile !== null && this.sprite !== null)
 
         const eventFrame = event.frames[this.currentFrameIdx]
         const imageIndex = event.framesImageMapping[this.currentFrameIdx]
@@ -196,18 +194,17 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     SHOW() {
-        if (this.sprite === null) return
-
+        assert(this.sprite !== null)
         this.sprite.visible = true
     }
 
     HIDE() {
-        if (this.sprite === null) return
+        assert(this.sprite !== null)
         this.sprite.visible = false
     }
 
     MOVE(xOffset: number, yOffset: number) {
-        if (this.sprite === null) return
+        assert(this.sprite !== null)
 
         this.positionX += xOffset
         this.positionY += yOffset
@@ -216,7 +213,7 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     SETPOSITION(x: number, y: number) {
-        if (this.sprite === null) return
+        assert(this.sprite !== null)
 
         this.positionX = x
         this.positionY = y
@@ -225,14 +222,14 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     SETPRIORITY(priority: number) {
-        if (this.sprite === null) return
+        assert(this.sprite !== null)
 
         this.sprite.zIndex = priority
         this.sprite.sortChildren()
     }
 
     SETASBUTTON(arg1: boolean, arg2: boolean) {
-        if (this.sprite === null) return
+        assert(this.sprite !== null)
 
         if (arg1 && arg2) {
             this.buttonLogic = new ButtonLogicComponent(this.onButtonStateChange.bind(this))
@@ -271,36 +268,30 @@ export class Animo extends Type<AnimoDefinition> {
     }
 
     GETCENTERX(): number {
-        if (this.sprite == null || this.getGlobalPosition() === null) {
-            return 0
-        }
+        assert(this.sprite !== null && this.getGlobalPosition() !== null)
         return this.getGlobalPosition()!.x + (this.sprite.width / 2)
     }
 
     GETCENTERY(): number {
-        if (this.sprite == null || this.getGlobalPosition() === null) {
-            return 0
-        }
+        assert(this.sprite !== null && this.getGlobalPosition() !== null)
         return this.getGlobalPosition()!.y + (this.sprite.height / 2)
     }
 
     GETPOSITIONX(): number {
-        if (this.sprite == null || this.getGlobalPosition() === null) {
-            return 0
-        }
+        assert(this.sprite !== null && this.getGlobalPosition() !== null)
         return this.getGlobalPosition()!.x
     }
 
     GETPOSITIONY(): number {
-        if (this.sprite == null || this.getGlobalPosition() === null) {
-            return 0
-        }
+        assert(this.sprite !== null && this.getGlobalPosition() !== null)
         return this.getGlobalPosition()!.y
     }
 
     GETFRAMENAME(): string {
         const event = this.getEventByName(this.currentEvent)
-        return event ? event.frames[this.currentFrameIdx].name : ''
+        assert(event !== null)
+
+        return event.frames[this.currentFrameIdx].name
     }
 
     GETMAXWIDTH(): number {
@@ -339,10 +330,11 @@ export class Animo extends Type<AnimoDefinition> {
         this.callbacks.addBehaviour(callbackString, behaviourName)
     }
 
-    getEventByName(name: string): Event | undefined {
-        return this.annFile?.events.find(
+    getEventByName(name: string): Event | null {
+        assert(this.annFile !== undefined)
+        return this.annFile!.events.find(
             event => event.name.toUpperCase() === name.toUpperCase()
-        )
+        ) ?? null
     }
 
     getRenderObject() {

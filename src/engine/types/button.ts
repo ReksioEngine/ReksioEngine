@@ -84,9 +84,7 @@ export class Button extends Type<ButtonDefinition> {
         }
 
         // ...including ONINIT
-        if (this.definition.ONINIT) {
-            this.engine.executeCallback(this, this.definition.ONINIT)
-        }
+        this.callbacks.run('ONINIT')
 
         if (!this.interactArea) {
             if (this.gfxStandard?.sprite) {

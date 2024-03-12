@@ -2,6 +2,7 @@ import {Type} from './index'
 import {EpisodeDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {Scene} from './scene'
+import {assert} from '../../errors'
 
 export class Episode extends Type<EpisodeDefinition> {
     private previousScene?: Scene
@@ -15,10 +16,10 @@ export class Episode extends Type<EpisodeDefinition> {
     }
 
     async GOTO(sceneName: string) {
-        if (this.definition.SCENES.includes(sceneName)) {
-            this.previousScene = this.engine.currentScene
-            await this.engine.changeScene(sceneName)
-        }
+        assert(this.definition.SCENES.includes(sceneName))
+
+        this.previousScene = this.engine.currentScene
+        await this.engine.changeScene(sceneName)
     }
 
     GETLATESTSCENE() {

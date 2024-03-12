@@ -2,7 +2,6 @@ import {Type} from './index'
 import {TimerDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {Integer} from './integer'
-import {callbacks} from '../../fileFormats/common'
 
 export class Timer extends Type<TimerDefinition> {
     private currentTick: number = 0
@@ -11,22 +10,21 @@ export class Timer extends Type<TimerDefinition> {
     private elapse: number
     private enabled: boolean
 
-    private readonly onTick: callbacks<number>
-
     constructor(engine: Engine, definition: TimerDefinition) {
         super(engine, definition)
         this.elapse = definition.ELAPSE
         this.enabled = definition.ENABLED
-        this.onTick = definition.ONTICK
+
+        this.callbacks.registerGroup('ONTICK', definition.ONTICK)
+        this.callbacks.register('ONINIT', definition.ONINIT)
     }
 
-    init() {
-        if (this.definition.ONINIT && this.enabled) {
-            this.engine.executeCallback(this, this.definition.ONINIT)
-        }
-    }
+    init() {}
 
     ready() {
+        if (this.enabled) {
+            this.callbacks.run('ONINIT')
+        }
         this.RESET()
     }
 
@@ -69,13 +67,6 @@ export class Timer extends Type<TimerDefinition> {
     }
 
     ONTICK() {
-        if (this.onTick) {
-            if (this.onTick.nonParametrized) {
-                this.engine.executeCallback(this, this.onTick.nonParametrized)
-            }
-            if (this.onTick.parametrized && this.onTick.parametrized.has(this.currentTick)) {
-                this.engine.executeCallback(this, this.onTick.parametrized.get(this.currentTick)!)
-            }
-        }
+        this.callbacks.run('ONTICK', this.currentTick)
     }
 }

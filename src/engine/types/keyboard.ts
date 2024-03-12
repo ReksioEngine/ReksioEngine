@@ -1,6 +1,7 @@
 import {Type} from './index'
 import {KeyboardDefinition, MusicDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
+import {assert} from '../../errors'
 
 const keysMapping = {
     ArrowLeft: 'LEFT',
@@ -49,6 +50,7 @@ export class Keyboard extends Type<KeyboardDefinition> {
     }
 
     ISKEYDOWN(keyName: string) {
-        return this.keysState.get(keyName) ?? false
+        assert(this.keysState.has(keyName))
+        return this.keysState.get(keyName)!
     }
 }

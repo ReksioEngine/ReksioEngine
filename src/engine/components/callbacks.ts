@@ -1,6 +1,7 @@
 import {callback, callbacks} from '../../fileFormats/common'
 import {Engine} from '../index'
 import {Type} from '../types'
+import {assert} from '../../errors'
 
 export class CallbacksComponent {
     private readonly engine: Engine
@@ -32,6 +33,16 @@ export class CallbacksComponent {
             nonParametrized: callback ?? null,
             parametrized: new Map<any, callback>()
         })
+    }
+
+    has(type: string): boolean {
+        if (!this.callbacks.has(type)) {
+            return false
+        }
+        const callbacks = this.callbacks.get(type)
+        assert(callbacks !== undefined)
+
+        return callbacks.nonParametrized !== null || callbacks.parametrized.size > 0
     }
 
     run(type: string, param?: any) {

@@ -11,13 +11,6 @@ import antlr4, {ParserRuleContext} from 'antlr4'
 import {NotImplementedError} from '../utils'
 import {Engine} from '../engine'
 import {libraries} from './stdlib'
-import {Type} from '../engine/types'
-
-class ExecutionError extends Error {
-    constructor(ctx: ParserRuleContext, msg: string) {
-        super(msg)
-    }
-}
 
 export class InterruptScriptExecution {}
 class AlreadyDisplayedError {
@@ -116,7 +109,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         this.usedVariables = {}
 
         if (method == undefined) {
-            return object.__unknown_method(methodName, args)
+            return object.__call(methodName, args)
         }
 
         try {

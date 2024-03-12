@@ -35,5 +35,3 @@ export class NotImplementedError extends Error {
         super('Not implemented')
     }
 }
-
-export class IrrecoverableError extends Error {}

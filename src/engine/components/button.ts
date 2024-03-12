@@ -24,7 +24,7 @@ type stateChangeCallback = (prevState: State, event: Event, newState: State) => 
 
 export class ButtonLogicComponent {
     private stateMachine: StateMachine<State, Event>
-    private onStateChangeCallback: stateChangeCallback
+    private readonly onStateChangeCallback: stateChangeCallback
     private prevState: State = State.DISABLED
 
     private readonly onMouseOverCallback

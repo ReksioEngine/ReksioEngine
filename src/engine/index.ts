@@ -9,10 +9,11 @@ import {sound, Sound} from '@pixi/sound'
 import {Sound as SoundObject} from './types/sound'
 import {loadSound, loadTexture} from './assetsLoader'
 import {SaveFile} from './saveFile'
-import {createColorTexture, IrrecoverableError} from '../utils'
+import {createColorTexture} from '../utils'
 import {preloadAssets} from './optimizations'
 import {setupDebugScene, updateCurrentScene} from './debugging'
 import {Timer} from './types/timer'
+import {IrrecoverableError} from '../errors'
 
 export class Engine {
     readonly app: Application

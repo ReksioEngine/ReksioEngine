@@ -2,13 +2,9 @@ import {Type} from './index'
 import {Engine} from '../index'
 import {MouseDefinition} from '../../fileFormats/cnv/types'
 import {FederatedPointerEvent, Point} from 'pixi.js'
-import {callback} from '../../fileFormats/common'
+import {NotImplementedError} from '../../utils'
 
 export class Mouse extends Type<MouseDefinition> {
-    private enabled: boolean = true
-    private cursorType: string = 'ARROW'
-
-    private readonly onClick: callback
     private mousePosition: Point = new Point(0, 0)
 
     private mouseMoveListener: any
@@ -16,7 +12,7 @@ export class Mouse extends Type<MouseDefinition> {
 
     constructor(engine: Engine, definition: MouseDefinition) {
         super(engine, definition)
-        this.onClick = definition.ONCLICK
+        this.callbacks.registerGroup('ONCLICK', definition.ONCLICK)
     }
 
     init() {
@@ -24,7 +20,7 @@ export class Mouse extends Type<MouseDefinition> {
         this.mouseClickListener = this.onMouseClick.bind(this)
 
         this.engine.app.stage.addListener('mousemove', this.mouseMoveListener)
-        if (this.definition.ONCLICK) {
+        if (this.callbacks.has('ONCLICK')) {
             this.engine.app.stage.addListener('mousedown', this.mouseClickListener)
         }
     }
@@ -43,17 +39,16 @@ export class Mouse extends Type<MouseDefinition> {
         this.ONCLICK()
     }
 
-    // ACTIVE, ARROW
-    SET(cursorType: string) {
-        this.cursorType = cursorType
+    SET(cursorType: 'ACTIVE' | 'ARROW') {
+        throw new NotImplementedError()
     }
 
     ENABLE() {
-        this.enabled = true
+        throw new NotImplementedError()
     }
 
     DISABLE() {
-        this.enabled = false
+        throw new NotImplementedError()
     }
 
     GETPOSX() {
@@ -65,8 +60,6 @@ export class Mouse extends Type<MouseDefinition> {
     }
 
     ONCLICK() {
-        if (this.onClick) {
-            this.engine.executeCallback(this, this.onClick)
-        }
+        this.callbacks.run('ONCLICK')
     }
 }

@@ -2,45 +2,38 @@ import {Type} from './index'
 import {Engine} from '../index'
 import {ImageDefinition} from '../../fileFormats/cnv/types'
 import {NotImplementedError} from '../../utils'
+import {assert} from '../../errors'
 import {Sprite} from 'pixi.js'
 import {loadSprite} from '../assetsLoader'
-import {FileNotFoundError} from '../../filesLoader'
 
 export class Image extends Type<ImageDefinition> {
-    private opacity: number = 1
-
     public sprite: Sprite | null = null
 
     constructor(engine: Engine, definition: ImageDefinition) {
         super(engine, definition)
+        this.callbacks.register('ONINIT', this.definition.ONINIT)
     }
 
     async init() {
         this.sprite = await this.load()
         this.sprite.visible = this.definition.VISIBLE
         this.SETPRIORITY(this.definition.PRIORITY)
-
-        if (this.definition.ONINIT) {
-            this.engine.executeCallback(this, this.definition.ONINIT)
-        }
     }
 
     ready() {
-        if (this.sprite === null) return
+        assert(this.sprite !== null)
         this.engine.addToStage(this.sprite)
+        this.callbacks.run('ONINIT')
     }
 
     destroy() {
-        if (this.sprite === null) return
+        assert(this.sprite !== null)
         this.engine.removeFromStage(this.sprite)
     }
 
     private async load() {
-        const relativePath = this.engine.currentScene?.getRelativePath(this.definition.FILENAME)
-        if (relativePath == undefined) {
-            throw new FileNotFoundError('Current scene is undefined!')
-        }
-
+        assert(this.engine.currentScene !== undefined)
+        const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME)
         const sprite = await loadSprite(this.engine.fileLoader, relativePath)
         if (sprite == null) {
             throw new Error(`Cannot load image '${this.definition.FILENAME}'`)
@@ -50,44 +43,42 @@ export class Image extends Type<ImageDefinition> {
     }
 
     SETOPACITY(opacity: number) {
-        this.opacity = opacity
+        throw new NotImplementedError()
     }
 
     MOVE(xOffset: number, yOffset: number) {
-        if (this.sprite === null) return
-
+        assert(this.sprite !== null)
         this.sprite.x += xOffset
         this.sprite.y += yOffset
     }
 
     SETPOSITION(x: number, y: number) {
-        if (this.sprite === null) return
-
+        assert(this.sprite !== null)
         this.sprite.x = x
         this.sprite.y = y
     }
 
     SETPRIORITY(priority: number) {
-        if (this.sprite === null) return
-
+        assert(this.sprite !== null)
         this.sprite.zIndex = priority
         this.sprite.sortChildren()
     }
 
     SHOW() {
-        if (this.sprite === null) return
+        assert(this.sprite !== null)
         this.sprite.visible = true
         this.sprite.interactive = true
     }
 
     HIDE() {
-        if (this.sprite === null) return
+        assert(this.sprite !== null)
         this.sprite.visible = false
         this.sprite.interactive = false
     }
 
     GETPOSITIONY() {
-        return this.sprite !== null ? this.sprite.y : 0
+        assert(this.sprite !== null)
+        return this.sprite.y
     }
 
     GETALPHA(x: number, y: number) {

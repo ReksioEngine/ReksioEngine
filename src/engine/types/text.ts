@@ -4,7 +4,7 @@ import {Engine} from '../index'
 import * as PIXI from 'pixi.js'
 
 export class Text extends Type<TextDefinition> {
-    private text: PIXI.Text
+    private readonly text: PIXI.Text
 
     constructor(engine: Engine, definition: TextDefinition) {
         super(engine, definition)

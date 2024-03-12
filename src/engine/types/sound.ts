@@ -4,48 +4,52 @@ import {loadSound} from '../assetsLoader'
 import {SoundDefinition} from '../../fileFormats/cnv/types'
 import {Sound as PIXISound} from '@pixi/sound'
 import {FileNotFoundError} from '../../filesLoader'
+import {assert} from '../../errors'
 
 export class Sound extends Type<SoundDefinition> {
     private sound: PIXISound | null = null
 
     constructor(engine: Engine, definition: SoundDefinition) {
         super(engine, definition)
+        this.callbacks.register('ONINIT', definition.ONINIT)
+        this.callbacks.register('ONFINISHED', definition.ONFINISHED)
     }
 
     async init() {
         // We don't respect 'PRELOAD' false on purpose, because network download might be slow
         await this.loadSound(`Wavs/${this.definition.FILENAME}`)
+    }
 
-        if (this.definition.ONINIT) {
-            this.engine.executeCallback(this, this.definition.ONINIT)
-        }
+    ready() {
+        this.callbacks.run('ONINIT')
     }
 
     destroy() {
-        if (this.sound === null) return
+        assert(this.sound !== null)
         this.sound.stop()
     }
 
     // This argument is "PLAY" for kurator in intro for some reason
     async PLAY(arg: any) {
-        if (this.sound === null) return
+        assert(this.sound !== null)
+
         console.debug(`Playing sound '${this.definition.FILENAME}'`)
         const instance = await this.sound.play()
         instance.on('end', this.onComplete.bind(this))
     }
 
     STOP(arg: boolean) {
-        if (this.sound === null) return
+        assert(this.sound !== null)
         this.sound.stop()
     }
 
     RESUME() {
-        if (this.sound === null) return
+        assert(this.sound !== null)
         this.sound.resume()
     }
 
     PAUSE() {
-        if (this.sound === null) return
+        assert(this.sound !== null)
         this.sound.pause()
     }
 
@@ -53,7 +57,7 @@ export class Sound extends Type<SoundDefinition> {
         await this.loadSound(filename.substring(1))
     }
 
-    async loadSound(path: string) {
+    private async loadSound(path: string) {
         try {
             this.sound = await loadSound(this.engine.fileLoader, path)
         } catch (err) {
@@ -70,8 +74,6 @@ export class Sound extends Type<SoundDefinition> {
 
     onComplete() {
         console.debug(`Finished playing sound '${this.definition.FILENAME}'`)
-        if (this.definition.ONFINISHED) {
-            this.engine.executeCallback(this, this.definition.ONFINISHED)
-        }
+        this.callbacks.run('ONFINISHED')
     }
 }

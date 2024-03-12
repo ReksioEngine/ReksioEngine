@@ -13,8 +13,9 @@ export class Scene extends Type<SceneDefinition> {
         return pathJoin('DANE', this.definition.PATH, filename)
     }
 
+    // I don't think that it does anything
     SETMUSICVOLUME(volume: number) {
-        // I don't think that it does anything
+        throw new NotImplementedError()
     }
 
     SETMINHSPRIORITY(arg: number) {
