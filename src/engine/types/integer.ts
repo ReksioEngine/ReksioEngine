@@ -57,6 +57,11 @@ export class Integer extends Type<IntegerDefinition> {
         this.ONCHANGED()
     }
 
+    AND(value: number) {
+        this.value &= value
+        this.ONCHANGED()
+    }
+
     SET(newValue: number) {
         this.value = newValue
         this.ONCHANGED()
