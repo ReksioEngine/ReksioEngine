@@ -20,22 +20,22 @@ export class ArrayObject extends Type<ArrayDefinition> {
     }
 
     ADDAT(position: number, value: number) {
-        this.value.splice(position, 0, value)
+        this.value.splice(position-1, 0, value)
         this.ONCHANGED()
     }
 
     MODAT(position: number, value: number) {
-        this.value[position] %= value
+        this.value[position-1] %= value
         this.ONCHANGED()
     }
 
     CLAMPAT(position: number, min: number, max: number) {
-        this.value[position] = Math.min(Math.max(this.value[position], min), max)
+        this.value[position-1] = Math.min(Math.max(this.value[position-1], min), max)
         this.ONCHANGED()
     }
 
     MULAT(position: number, value: number) {
-        this.value[position] *= value
+        this.value[position-1] *= value
         this.ONCHANGED()
     }
 
@@ -48,12 +48,12 @@ export class ArrayObject extends Type<ArrayDefinition> {
     }
 
     SUBAT(position: number, value: number) {
-        this.value[position] -= value
+        this.value[position-1] -= value
         this.ONCHANGED()
     }
 
     GET(position: number) {
-        return this.value[position]
+        return this.value[position-1]
     }
 
     GETSIZE() {
@@ -61,12 +61,12 @@ export class ArrayObject extends Type<ArrayDefinition> {
     }
 
     CHANGEAT(position: number, value: any) {
-        this.value[position] = value
+        this.value[position-1] = value
         this.ONCHANGED()
     }
 
     REMOVEAT(position: number) {
-        this.value.splice(position, 1)
+        this.value.splice(position-1, 1)
         this.ONCHANGED()
     }
 
@@ -76,11 +76,11 @@ export class ArrayObject extends Type<ArrayDefinition> {
     }
 
     FIND(value: any) {
-        return this.value.indexOf(value)
+        return this.value.indexOf(value) + 1
     }
 
     REVERSEFIND(value: any) {
-        return this.value.lastIndexOf(value)
+        return this.value.lastIndexOf(value) + 1
     }
 
     SAVEINI() {
