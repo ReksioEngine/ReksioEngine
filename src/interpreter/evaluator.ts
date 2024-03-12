@@ -134,12 +134,14 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 '\n' +
                 '%cObject:%c %O\n' +
                 (args.length > 0 ? '%cArguments:%c %O\n' : '') +
+                (this.args?.length ? '%cBehaviour Arguments:%c %O\n' : '') +
                 (Object.keys(argsVariables).length > 0 ? '%cUsed variables:%c %O\n' : '') +
                 '%cScope:%c %O\n',
                 'font-weight: bold', 'font-weight: inherit',
                 'color: red', 'color: inherit',
                 'font-weight: bold', 'font-weight: inherit', object,
                 ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []),
+                ...(this.args?.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []),
                 ...(Object.keys(argsVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', argsVariables] : []),
                 'font-weight: bold', 'font-weight: inherit', this.engine?.scope,
             )
@@ -187,9 +189,11 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             console.error(
                 'Unknown identifier\n' +
                 '\n' +
-                `%cCode:%c\n${code}`,
+                `%cCode:%c\n${code}\n\n` +
+                '%cScope:%c %O\n',
                 'font-weight: bold', 'font-weight: inherit',
-                'color: red', 'color: inherit'
+                'color: red', 'color: inherit',
+                'font-weight: bold', 'font-weight: inherit', this.engine?.scope,
             )
 
             // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
