@@ -94,10 +94,7 @@ export const loadDefinition = async (engine: Engine, scope: Record<string, any>,
     }
 
     await Promise.all(orderedScope.map(entry => entry.init()))
-    orderedScope.forEach(entry => {
-        entry.isReady = true
-        entry.ready()
-    })
+    orderedScope.forEach(entry => entry.ready())
 
     engine.app.ticker.start()
 }
