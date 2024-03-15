@@ -70,10 +70,16 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     FIND(value: any) {
+        if (this.value.indexOf(value) === -1) {
+            return -1
+        }
         return this.value.indexOf(value) + 1
     }
 
     REVERSEFIND(value: any) {
+        if (this.value.lastIndexOf(value) === -1) {
+            return -1
+        }
         return this.value.lastIndexOf(value) + 1
     }
 
