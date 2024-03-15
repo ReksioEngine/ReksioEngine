@@ -64,7 +64,7 @@ const createCallback = (value: string) => {
             isSingleStatement: false
         }
     } else {
-        const pattern = /(?<name>[a-zA-Z0-9]+)(?:\((?<args>.*)\))?/g
+        const pattern = /(?<name>[a-zA-Z0-9_]+)(?:\((?<args>.*)\))?/g
         const argParsed = pattern.exec(value)
 
         const groups = argParsed?.groups
@@ -112,6 +112,10 @@ export type reference = {
 export type TypeDefinition = {
     NAME: string
     TOINI: boolean
+}
+
+export type ValueTypeDefinition = TypeDefinition & {
+    VALUE?: any
 }
 
 export type DisplayTypeDefinition = TypeDefinition & {
