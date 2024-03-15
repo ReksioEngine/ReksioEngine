@@ -16,18 +16,11 @@ export class Mouse extends Type<MouseDefinition> {
     }
 
     init() {
-        this.mouseMoveListener = this.onMouseMove.bind(this)
-        this.mouseClickListener = this.onMouseClick.bind(this)
-
-        this.engine.app.stage.addListener('mousemove', this.mouseMoveListener)
-        if (this.callbacks.has('ONCLICK')) {
-            this.engine.app.stage.addListener('mousedown', this.mouseClickListener)
-        }
+        this.ENABLE()
     }
 
     destroy() {
-        this.engine.app.stage.removeListener('mousemove', this.mouseMoveListener)
-        this.engine.app.stage.removeListener('mousedown', this.mouseClickListener)
+        this.DISABLE()
     }
 
     onMouseMove(event: FederatedPointerEvent) {
@@ -44,11 +37,18 @@ export class Mouse extends Type<MouseDefinition> {
     }
 
     ENABLE() {
-        throw new NotImplementedError()
+        this.mouseMoveListener = this.onMouseMove.bind(this)
+        this.mouseClickListener = this.onMouseClick.bind(this)
+
+        this.engine.app.stage.addListener('mousemove', this.mouseMoveListener)
+        if (this.callbacks.has('ONCLICK')) {
+            this.engine.app.stage.addListener('mousedown', this.mouseClickListener)
+        }
     }
 
     DISABLE() {
-        throw new NotImplementedError()
+        this.engine.app.stage.removeListener('mousemove', this.mouseMoveListener)
+        this.engine.app.stage.removeListener('mousedown', this.mouseClickListener)
     }
 
     GETPOSX() {
