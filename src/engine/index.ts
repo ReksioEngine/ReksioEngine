@@ -47,7 +47,7 @@ export class Engine {
             await loadDefinition(this, this.globalScope, applicationDef)
             setupDebugScene(this)
 
-            this.app.ticker.maxFPS = 16
+            this.app.ticker.maxFPS = 60
             this.app.stage.interactive = true
             sound.disableAutoPause = true
 

@@ -18,6 +18,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private currentLoop: number = 0
     private usingImageIndex = -1
 
+    private fps: number = 16
+    private lastFrameTime: number = 0
+
     private positionX: number = 0
     private positionY: number = 0
 
@@ -27,6 +30,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     constructor(engine: Engine, definition: AnimoDefinition) {
         super(engine, definition)
+        this.fps = definition.FPS ?? 16
+
         this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED)
         this.callbacks.registerGroup('ONFRAMECHANGED', definition.ONFRAMECHANGED)
         this.callbacks.register('ONINIT', definition.ONINIT)
@@ -57,7 +62,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
         if (!this.sprite.visible || !this.isPlaying) {
             return
         }
-        this.ONTICK()
+
+        const currentTime = Date.now()
+        if (currentTime - this.lastFrameTime > 1 / this.fps * 1000) {
+            this.ONTICK()
+            this.lastFrameTime = currentTime
+        }
     }
 
     private async loadAnimation() {
@@ -190,7 +200,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     SETFPS(fps: number) {
-        throw new NotImplementedError()
+        this.fps = fps
     }
 
     SHOW() {
