@@ -22,7 +22,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private lastFrameTime: number = 0
 
     private positionX: number = 0
+    private positionOffsetX: number = 0
     private positionY: number = 0
+    private positionOffsetY: number = 0
 
     private annFile: ANN | null = null
     private sprite: Sprite | null = null
@@ -141,8 +143,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.sprite.texture = this.getTextureFrom(imageIndex)
         }
 
-        this.sprite.x = this.positionX + annImage.positionX + eventFrame.positionX
-        this.sprite.y = this.positionY + annImage.positionY + eventFrame.positionY
+        this.positionOffsetX = annImage.positionX + eventFrame.positionX
+        this.sprite.x = this.positionX + this.positionOffsetX
+
+        this.positionOffsetY = annImage.positionY + eventFrame.positionY
+        this.sprite.y = this.positionY + this.positionOffsetY
 
         this.sprite.width = annImage.width
         this.sprite.height = annImage.height
@@ -195,7 +200,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.isPlaying = true
     }
 
-    SETFRAME(frame: string) {
+    SETFRAME(frame: string, arg2: number) {
         this.currentEvent = frame
     }
 
@@ -227,8 +232,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         this.positionX = x
         this.positionY = y
-        this.sprite.x = x
-        this.sprite.y = y
+        this.sprite.x = x + this.positionOffsetX
+        this.sprite.y = y + this.positionOffsetY
     }
 
     SETASBUTTON(arg1: boolean, arg2: boolean) {
