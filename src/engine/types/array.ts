@@ -79,7 +79,7 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     LOADINI() {
-        this.value = this.getFromINI()
+        this.value = this.getFromINI() ?? []
     }
 
     MSGBOX() {
