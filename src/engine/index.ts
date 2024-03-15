@@ -1,6 +1,6 @@
 import {callback, reference} from '../fileFormats/common'
 import {runScript} from '../interpreter/evaluator'
-import {Type} from './types'
+import {DisplayType, Type} from './types'
 import {loadDefinition} from './definitionLoader'
 import {Application, Rectangle, Sprite} from 'pixi.js'
 import {Scene} from './types/scene'
@@ -21,6 +21,8 @@ export class Engine {
 
     public globalScope: Record<string, any> = {}
     public scope: Record<string, any> = {}
+    public renderingOrder: DisplayType<any>[] = []
+
     public currentScene?: Scene
     public saveFile: SaveFile = new SaveFile()
 
@@ -47,7 +49,6 @@ export class Engine {
 
             this.app.ticker.maxFPS = 16
             this.app.stage.interactive = true
-            this.app.stage.sortableChildren = true
             sound.disableAutoPause = true
 
             this.app.stage.addChild(this.canvasBackground)
@@ -112,13 +113,42 @@ export class Engine {
     }
 
     addToStage(sprite: Sprite) {
-        sprite.sortableChildren = true
-
         this.app.stage.addChild(sprite)
+        this.sortObjects()
     }
 
     removeFromStage(sprite: Sprite) {
         this.app.stage.removeChild(sprite)
+        this.sortObjects()
+    }
+
+    sortObjects() {
+        // Sort by zIndex + the order of creation if zIndex is the same.
+        // Default PIXI.js sorting have problem with equal zIndex case.
+        this.app.stage.children.sort((a, b) => {
+            if (a.zIndex !== b.zIndex) {
+                return a.zIndex - b.zIndex
+            }
+
+            const objectA = this.renderingOrder.find(e => e.getRenderObject() === a)
+            const objectB = this.renderingOrder.find(e => e.getRenderObject() === b)
+
+            if (objectA === undefined && objectB === undefined) {
+                return 0
+            } else if (objectB === undefined) {
+                return 1
+            } else if (objectA === undefined) {
+                return -1
+            }
+
+            const renderingOrderA = this.renderingOrder.indexOf(objectA)
+            const renderingOrderB = this.renderingOrder.indexOf(objectB)
+
+            const orderA = a.zIndex + renderingOrderA
+            const orderB = b.zIndex + renderingOrderB
+
+            return orderA - orderB
+        })
     }
 
     async changeScene(sceneName: string) {
@@ -135,6 +165,7 @@ export class Engine {
             objectsToRemove.push(object)
             delete this.scope[key]
         }
+        this.renderingOrder = []
 
         this.currentScene = this.getObject(sceneName) as Scene
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(`${sceneName}.cnv`))

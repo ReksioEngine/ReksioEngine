@@ -58,12 +58,6 @@ export class Image extends DisplayType<ImageDefinition> {
         this.sprite.y = y
     }
 
-    SETPRIORITY(priority: number) {
-        assert(this.sprite !== null)
-        this.sprite.zIndex = priority
-        this.sprite.sortChildren()
-    }
-
     SHOW() {
         assert(this.sprite !== null)
         this.sprite.visible = true

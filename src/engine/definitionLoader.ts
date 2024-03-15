@@ -22,7 +22,7 @@ import {Button} from './types/button'
 import {Sequence} from './types/sequence'
 import {Group} from './types/group'
 import {Text} from './types/text'
-import {Type} from './types'
+import {DisplayType, Type} from './types'
 import {Font} from './types/font'
 import {ComplexCondition} from './types/complexCondition'
 
@@ -91,6 +91,10 @@ export const loadDefinition = async (engine: Engine, scope: Record<string, any>,
         instance.parent = parent
         scope[key] = instance
         orderedScope.push(instance)
+
+        if (instance instanceof DisplayType) {
+            engine.renderingOrder.push(instance)
+        }
     }
 
     await Promise.all(orderedScope.map(entry => entry.init()))

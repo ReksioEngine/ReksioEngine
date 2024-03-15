@@ -1,8 +1,9 @@
 import {Engine} from '../index'
-import {TypeDefinition} from '../../fileFormats/common'
+import {DisplayTypeDefinition, TypeDefinition} from '../../fileFormats/common'
 import {NotImplementedError} from '../../utils'
 import {CallbacksComponent} from '../components/callbacks'
 import {Point, Sprite} from 'pixi.js'
+import {assert} from '../../errors'
 
 export class Type<DefinitionType extends TypeDefinition> {
     protected callbacks: CallbacksComponent
@@ -50,7 +51,26 @@ export class Type<DefinitionType extends TypeDefinition> {
     }
 }
 
-export class DisplayType<DefinitionType extends TypeDefinition> extends Type<DefinitionType> {
+export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends Type<DefinitionType> {
+    private priority: number = 0
+
+    constructor(engine: Engine, definition: DefinitionType) {
+        super(engine, definition)
+        this.priority = definition.PRIORITY ?? 0
+    }
+
+    GETPRIORITY() {
+        return this.priority
+    }
+
+    SETPRIORITY(priority: number) {
+        assert(this.getRenderObject() !== null)
+        this.priority = priority
+
+        this.getRenderObject()!.zIndex = priority
+        this.engine.sortObjects()
+    }
+
     getRenderObject(): Sprite | null {
         throw new NotImplementedError()
     }

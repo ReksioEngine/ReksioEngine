@@ -1,7 +1,7 @@
 import {Type} from './index'
 import {Engine} from '../index'
 import {ButtonDefinition} from '../../fileFormats/cnv/types'
-import {createColorGraphics, NotImplementedError} from '../../utils'
+import {createColorGraphics} from '../../utils'
 import {Image} from './image'
 import {Graphics, Rectangle} from 'pixi.js'
 import {ButtonLogicComponent, State} from '../components/button'

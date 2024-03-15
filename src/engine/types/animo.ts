@@ -221,13 +221,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.y = y
     }
 
-    SETPRIORITY(priority: number) {
-        assert(this.sprite !== null)
-
-        this.sprite.zIndex = priority
-        this.sprite.sortChildren()
-    }
-
     SETASBUTTON(arg1: boolean, arg2: boolean) {
         assert(this.sprite !== null)
 

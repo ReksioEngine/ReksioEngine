@@ -113,3 +113,7 @@ export type TypeDefinition = {
     NAME: string
     TOINI: boolean
 }
+
+export type DisplayTypeDefinition = TypeDefinition & {
+    PRIORITY?: number
+}
