@@ -10,6 +10,8 @@ export class Mouse extends Type<MouseDefinition> {
     private mouseMoveListener: any
     private mouseClickListener: any
 
+    private clicked = false
+
     constructor(engine: Engine, definition: MouseDefinition) {
         super(engine, definition)
         this.callbacks.registerGroup('ONCLICK', definition.ONCLICK)
@@ -23,13 +25,20 @@ export class Mouse extends Type<MouseDefinition> {
         this.DISABLE()
     }
 
+    tick(delta: number) {
+        if (this.clicked) {
+            this.ONCLICK()
+            this.clicked = false
+        }
+    }
+
     onMouseMove(event: FederatedPointerEvent) {
         this.mousePosition = new Point(Math.floor(event.screen.x), Math.floor(event.screen.y))
     }
 
     onMouseClick(event: FederatedPointerEvent) {
         this.onMouseMove(event)
-        this.ONCLICK()
+        this.clicked = true
     }
 
     SET(cursorType: 'ACTIVE' | 'ARROW') {
