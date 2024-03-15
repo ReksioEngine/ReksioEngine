@@ -25,6 +25,10 @@ export class Sequence extends Type<SequenceDefinition> {
         throw new NotImplementedError()
     }
 
+    ISPLAYING() {
+        throw new NotImplementedError()
+    }
+
     HIDE() {
         throw new NotImplementedError()
     }
