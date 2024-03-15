@@ -36,7 +36,9 @@ export class Sound extends Type<SoundDefinition> {
         assert(this.sound !== null)
 
         console.debug(`Playing sound '${this.definition.FILENAME}'`)
-        const instance = await this.sound.play()
+        const instance = await this.sound.play({
+            speed: this.engine.speed
+        })
         instance.on('end', this.onComplete.bind(this))
     }
 

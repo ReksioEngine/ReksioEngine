@@ -64,7 +64,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
 
         const currentTime = Date.now()
-        if (currentTime - this.lastFrameTime > 1 / this.fps * 1000) {
+        if (currentTime - this.lastFrameTime > 1 / this.fps * 1000 * (1 / this.engine.speed)) {
             this.ONTICK()
             this.lastFrameTime = currentTime
         }

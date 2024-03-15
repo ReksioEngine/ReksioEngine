@@ -18,6 +18,7 @@ import {IrrecoverableError} from '../errors'
 export class Engine {
     readonly app: Application
     public debug: boolean = false
+    public speed: number = 1
     public debugger?: DebuggerSession
 
     public globalScope: Record<string, any> = {}
@@ -189,7 +190,9 @@ export class Engine {
             this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
                 loop: true
             })
-            this.music.play()
+            this.music.play({
+                speed: this.speed
+            })
         }
         if (this.currentScene.definition.BACKGROUND) {
             this.canvasBackground.texture = await loadTexture(
