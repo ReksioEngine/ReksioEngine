@@ -1,4 +1,4 @@
-import {Type} from './index'
+import {DisplayType} from './index'
 import {AnimoDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError} from '../../utils'
@@ -9,7 +9,7 @@ import {ANN, AnnImage, Event, Frame} from '../../fileFormats/ann'
 import {ButtonLogicComponent, Event as FSMEvent, State} from '../components/button'
 
 //TODO: Try to use Image class here
-export class Animo extends Type<AnimoDefinition> {
+export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent | null = null
 
     private isPlaying: boolean = false

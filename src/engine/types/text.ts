@@ -1,9 +1,9 @@
-import {Type} from './index'
+import {DisplayType} from './index'
 import {TextDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import * as PIXI from 'pixi.js'
 
-export class Text extends Type<TextDefinition> {
+export class Text extends DisplayType<TextDefinition> {
     private readonly text: PIXI.Text
 
     constructor(engine: Engine, definition: TextDefinition) {
@@ -23,5 +23,9 @@ export class Text extends Type<TextDefinition> {
 
     destroy() {
         this.engine.removeFromStage(this.text)
+    }
+
+    getRenderObject() {
+        return this.text
     }
 }

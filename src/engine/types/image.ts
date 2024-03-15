@@ -1,12 +1,12 @@
-import {Type} from './index'
+import {DisplayType} from './index'
 import {Engine} from '../index'
 import {ImageDefinition} from '../../fileFormats/cnv/types'
 import {NotImplementedError} from '../../utils'
 import {assert} from '../../errors'
-import {Sprite} from 'pixi.js'
+import {DisplayObject, Sprite} from 'pixi.js'
 import {loadSprite} from '../assetsLoader'
 
-export class Image extends Type<ImageDefinition> {
+export class Image extends DisplayType<ImageDefinition> {
     public sprite: Sprite | null = null
 
     constructor(engine: Engine, definition: ImageDefinition) {
@@ -83,5 +83,9 @@ export class Image extends Type<ImageDefinition> {
 
     GETALPHA(x: number, y: number) {
         throw new NotImplementedError()
+    }
+
+    getRenderObject() {
+        return this.sprite
     }
 }

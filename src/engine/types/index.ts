@@ -45,8 +45,14 @@ export class Type<DefinitionType extends TypeDefinition> {
         throw new Error(`Method '${methodName}' does not exist`)
     }
 
+    clone(): Type<DefinitionType> {
+        throw new NotImplementedError()
+    }
+}
+
+export class DisplayType<DefinitionType extends TypeDefinition> extends Type<DefinitionType> {
     getRenderObject(): Sprite | null {
-        return null
+        throw new NotImplementedError()
     }
 
     getGlobalPosition(): Point | null {
@@ -55,10 +61,6 @@ export class Type<DefinitionType extends TypeDefinition> {
             return null
         }
         return renderObject.toGlobal(new Point(0, 0), undefined, true) as Point ?? null
-    }
-
-    clone(): Type<DefinitionType> {
-        throw new NotImplementedError()
     }
 }
 

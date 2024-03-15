@@ -1,7 +1,6 @@
 import {Type} from './index'
 import {KeyboardDefinition, MusicDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
-import {assert} from '../../errors'
 
 const keysMapping = {
     ArrowLeft: 'LEFT',

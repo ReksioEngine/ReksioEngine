@@ -1,4 +1,4 @@
-import {Type} from './index'
+import {DisplayType, Type} from './index'
 import {CanvasObserverDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {loadTexture} from '../assetsLoader'
@@ -26,11 +26,11 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
         const point = new Point(x, y)
 
         for (const object of Object.values(this.engine.scope)) {
-            const renderObject = object.getRenderObject()
-            if (renderObject === null) {
+            if (!(object instanceof DisplayType) || object.getRenderObject() === null) {
                 continue
             }
 
+            const renderObject = object.getRenderObject()!
             const position = renderObject.getGlobalPosition()
             if (position === null) {
                 continue
