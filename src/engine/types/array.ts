@@ -10,27 +10,22 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
 
     ADD(...args: any[]) {
         this.value.push(...args)
-        this.ONCHANGED()
     }
 
     ADDAT(position: number, value: number) {
         this.value.splice(position-1, 0, value)
-        this.ONCHANGED()
     }
 
     MODAT(position: number, value: number) {
         this.value[position-1] %= value
-        this.ONCHANGED()
     }
 
     CLAMPAT(position: number, min: number, max: number) {
         this.value[position-1] = Math.min(Math.max(this.value[position-1], min), max)
-        this.ONCHANGED()
     }
 
     MULAT(position: number, value: number) {
         this.value[position-1] *= value
-        this.ONCHANGED()
     }
 
     CONTAINS(value: any) {
@@ -43,7 +38,6 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
 
     SUBAT(position: number, value: number) {
         this.value[position-1] -= value
-        this.ONCHANGED()
     }
 
     GET(position: number) {
@@ -56,17 +50,14 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
 
     CHANGEAT(position: number, value: any) {
         this.value[position-1] = value
-        this.ONCHANGED()
     }
 
     REMOVEAT(position: number) {
         this.value.splice(position-1, 1)
-        this.ONCHANGED()
     }
 
     REMOVEALL() {
         this.value = []
-        this.ONCHANGED()
     }
 
     FIND(value: any) {
@@ -88,14 +79,14 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     LOADINI() {
-        this.loadFromINI()
+        this.value = this.getFromINI()
     }
 
     MSGBOX() {
         alert(this.value)
     }
 
-    private ONCHANGED() {
+    valueChanged(oldValue: any, newValue: any) {
         this.saveToINI()
     }
 

@@ -1,5 +1,5 @@
 import {Engine} from '../index'
-import {DisplayTypeDefinition, TypeDefinition} from '../../fileFormats/common'
+import {DisplayTypeDefinition, TypeDefinition, ValueTypeDefinition} from '../../fileFormats/common'
 import {NotImplementedError} from '../../utils'
 import {CallbacksComponent} from '../components/callbacks'
 import {Point, Sprite} from 'pixi.js'
@@ -84,13 +84,12 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
     }
 }
 
-export class ValueType<DefinitionType extends TypeDefinition> extends Type<DefinitionType> {
+export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<DefinitionType> {
     protected _value?: any
 
     constructor(engine: Engine, definition: DefinitionType, defaultValue: number | string | boolean | any[]) {
         super(engine, definition)
-        this._value = defaultValue
-        this.loadFromINI()
+        this.value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue
     }
 
     get value() {
@@ -98,17 +97,21 @@ export class ValueType<DefinitionType extends TypeDefinition> extends Type<Defin
     }
 
     set value(newValue: any) {
+        this.valueChanged(this._value, newValue)
         this._value = newValue
         this.saveToINI()
     }
 
-    protected loadFromINI() {
+    valueChanged(oldValue: any, newValue: any) {}
+
+    protected getFromINI() {
         if (this.definition.TOINI) {
             const loadedValue = this.engine.saveFile.load(this)
             if (loadedValue !== null) {
-                this._value = this.deserialize(loadedValue)
+                return this.deserialize(loadedValue)
             }
         }
+        return null
     }
 
     protected saveToINI() {

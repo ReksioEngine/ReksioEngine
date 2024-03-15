@@ -6,29 +6,25 @@ export class String extends ValueType<StringDefinition> {
     constructor(engine: Engine, definition: StringDefinition) {
         super(engine, definition, '')
         this.callbacks.registerGroup('ONCHANGED', definition.ONCHANGED)
-    }
-
-    init() {
-        this.loadFromINI()
-        this.saveToINI()
+        this.callbacks.registerGroup('ONBRUTALCHANGED', definition.ONBRUTALCHANGED)
     }
 
     ADD(text: string) {
         this.value += text
-        this.ONCHANGED()
     }
 
     SET(text: string) {
         this.value = text
-        this.ONCHANGED()
     }
 
     GET() {
         return this.value
     }
 
-    private ONCHANGED() {
-        this.saveToINI()
-        this.callbacks.run('ONCHANGED', this._value)
+    valueChanged(oldValue: any, newValue: any) {
+        if (oldValue !== newValue) {
+            this.callbacks.run('ONCHANGED', newValue)
+        }
+        this.callbacks.run('ONBRUTALCHANGED', newValue)
     }
 }

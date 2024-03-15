@@ -82,12 +82,14 @@ export type IntegerDefinition = TypeDefinition & {
     VALUE: number
     TOINI: boolean
     ONCHANGED: callbacks<number>
+    ONBRUTALCHANGED: callbacks<number>
 }
 
 const IntegerStructure = {
     VALUE: number,
     TOINI: boolean,
-    ONCHANGED: numberParam(callbacks)
+    ONCHANGED: numberParam(callbacks),
+    ONBRUTALCHANGED: numberParam(callbacks)
 }
 
 export type AnimoDefinition = TypeDefinition & {
@@ -242,12 +244,14 @@ export type StringDefinition = TypeDefinition & {
     TOINI: boolean
     VALUE: string
     ONCHANGED: callbacks<string>
+    ONBRUTALCHANGED: callbacks<string>
 }
 
 const StringDefinitionStructure = {
     TOINI: boolean,
     VALUE: string,
-    ONCHANGED: callbacks
+    ONCHANGED: callbacks,
+    ONBRUTALCHANGED: callbacks
 }
 
 export type BoolDefinition = TypeDefinition & {
