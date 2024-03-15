@@ -1,11 +1,10 @@
-import {Type} from './index'
+import {ValueType} from './index'
 import {Engine} from '../index'
 import {StringDefinition} from '../../fileFormats/cnv/types'
 
-export class String extends Type<StringDefinition> {
+export class String extends ValueType<StringDefinition> {
     constructor(engine: Engine, definition: StringDefinition) {
-        super(engine, definition)
-        this._value = definition.VALUE ?? ''
+        super(engine, definition, '')
         this.callbacks.registerGroup('ONCHANGED', definition.ONCHANGED)
     }
 

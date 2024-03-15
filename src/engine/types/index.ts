@@ -10,11 +10,8 @@ export class Type<DefinitionType extends TypeDefinition> {
     protected engine: Engine
     public readonly definition: DefinitionType
 
-    public isReady: boolean = false
-    public parent?: Type<any>
-    protected _value: any = undefined
     public name: string = ''
-
+    public parent?: Type<any>
     public clones: Array<Type<DefinitionType>> = []
 
     constructor(engine: Engine, definition: DefinitionType) {
@@ -22,14 +19,6 @@ export class Type<DefinitionType extends TypeDefinition> {
         this.definition = definition
         this.name = definition.NAME
         this.callbacks = new CallbacksComponent(engine, this)
-    }
-
-    get value() {
-        return this._value
-    }
-
-    set value(newValue: any) {
-        this._value = newValue
     }
 
     GETNAME() {
@@ -56,21 +45,6 @@ export class Type<DefinitionType extends TypeDefinition> {
         throw new Error(`Method '${methodName}' does not exist`)
     }
 
-    loadFromINI() {
-        if (this.definition.TOINI) {
-            const loadedValue = this.engine.saveFile.load(this)
-            if (loadedValue !== null) {
-                this.value = this.deserialize(loadedValue)
-            }
-        }
-    }
-
-    saveToINI() {
-        if (this.definition.TOINI) {
-            this.engine.saveFile.save(this, this.serialize())
-        }
-    }
-
     getRenderObject(): Sprite | null {
         return null
     }
@@ -86,12 +60,46 @@ export class Type<DefinitionType extends TypeDefinition> {
     clone(): Type<DefinitionType> {
         throw new NotImplementedError()
     }
+}
+
+export class ValueType<DefinitionType extends TypeDefinition> extends Type<DefinitionType> {
+    protected _value?: any
+
+    constructor(engine: Engine, definition: DefinitionType, defaultValue: number | string | boolean | any[]) {
+        super(engine, definition)
+        this._value = defaultValue
+        this.loadFromINI()
+    }
+
+    get value() {
+        return this._value
+    }
+
+    set value(newValue: any) {
+        this._value = newValue
+        this.saveToINI()
+    }
+
+    protected loadFromINI() {
+        if (this.definition.TOINI) {
+            const loadedValue = this.engine.saveFile.load(this)
+            if (loadedValue !== null) {
+                this._value = this.deserialize(loadedValue)
+            }
+        }
+    }
+
+    protected saveToINI() {
+        if (this.definition.TOINI) {
+            this.engine.saveFile.save(this, this.serialize())
+        }
+    }
 
     serialize(): string {
         return this.value.toString()
     }
 
-    deserialize(value: string) {
-        this.value = value
+    deserialize(value: string): any {
+        return value
     }
 }

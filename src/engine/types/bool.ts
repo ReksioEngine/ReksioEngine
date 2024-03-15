@@ -1,16 +1,10 @@
-import {Type} from './index'
+import {ValueType} from './index'
 import {Engine} from '../index'
 import {BoolDefinition} from '../../fileFormats/cnv/types'
 
-export class Bool extends Type<BoolDefinition> {
+export class Bool extends ValueType<BoolDefinition> {
     constructor(engine: Engine, definition: BoolDefinition) {
-        super(engine, definition)
-        this.value = definition.VALUE ?? false
-    }
-
-    init() {
-        this.loadFromINI()
-        this.saveToINI()
+        super(engine, definition, false)
     }
 
     // The arguments don't seem to matter
@@ -24,7 +18,5 @@ export class Bool extends Type<BoolDefinition> {
         this.ONCHANGED()
     }
 
-    private ONCHANGED() {
-        this.saveToINI()
-    }
+    private ONCHANGED() {}
 }

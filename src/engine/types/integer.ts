@@ -1,17 +1,11 @@
-import {Type} from './index'
+import {ValueType} from './index'
 import {Engine} from '../index'
 import {IntegerDefinition} from '../../fileFormats/cnv/types'
 
-export class Integer extends Type<IntegerDefinition> {
+export class Integer extends ValueType<IntegerDefinition> {
     constructor(engine: Engine, definition: IntegerDefinition) {
-        super(engine, definition)
-        this.value = this.definition.VALUE ?? 0
+        super(engine, definition, 0)
         this.callbacks.registerGroup('ONCHANGED', this.definition.ONCHANGED)
-    }
-
-    init() {
-        this.loadFromINI()
-        this.saveToINI()
     }
 
     INC() {
@@ -70,6 +64,5 @@ export class Integer extends Type<IntegerDefinition> {
 
     private ONCHANGED() {
         this.callbacks.run('ONCHANGED', this.value)
-        this.saveToINI()
     }
 }

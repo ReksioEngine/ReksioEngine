@@ -1,17 +1,11 @@
-import {Type} from './index'
+import {ValueType} from './index'
 import {Engine} from '../index'
 import {ArrayDefinition} from '../../fileFormats/cnv/types'
 import {NotImplementedError} from '../../utils'
 
-export class ArrayObject extends Type<ArrayDefinition> {
+export class ArrayObject extends ValueType<ArrayDefinition> {
     constructor(engine: Engine, definition: ArrayDefinition) {
-        super(engine, definition)
-        this.value = []
-    }
-
-    init() {
-        this.loadFromINI()
-        this.saveToINI()
+        super(engine, definition, [])
     }
 
     ADD(...args: any[]) {

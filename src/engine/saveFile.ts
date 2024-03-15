@@ -1,4 +1,4 @@
-import {Type} from './types'
+import {ValueType} from './types'
 
 export class SaveFile {
     private content: Map<string, Map<string, any>> = new Map()
@@ -17,7 +17,7 @@ export class SaveFile {
         this.content.get(group)!.set(key, value)
     }
 
-    load(object: Type<any>) {
+    load(object: ValueType<any>) {
         if (!object.parent) {
             return null
         }
@@ -25,7 +25,7 @@ export class SaveFile {
         return this.get(object.parent.name, object.name) ?? null
     }
 
-    save(object: Type<any>, value: any) {
+    save(object: ValueType<any>, value: any) {
         if (!object.parent) {
             return
         }
