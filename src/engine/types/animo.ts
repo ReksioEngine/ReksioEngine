@@ -326,7 +326,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
         throw new NotImplementedError()
     }
 
-    ISPLAYING(animName: string) {
+    ISPLAYING(animName?: string) {
+        if (animName === undefined) {
+            return this.isPlaying
+        }
+
         return this.isPlaying && this.currentEvent == animName
     }
 
