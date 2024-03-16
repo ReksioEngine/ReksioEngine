@@ -7,7 +7,9 @@ const keysMapping = {
     ArrowRight: 'RIGHT',
     ArrowUp: 'UP',
     ArrowDown: 'DOWN',
-    Space: 'SPACE'
+    Space: 'SPACE',
+    Digit1: '1',
+    Digit2: '2'
 } as any
 
 export class Keyboard extends Type<KeyboardDefinition> {
