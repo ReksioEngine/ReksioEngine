@@ -262,9 +262,13 @@ const BoolDefinitionStructure = {
     VALUE: boolean
 }
 
-export type ArrayDefinition = TypeDefinition & NonNullable<unknown>
+export type ArrayDefinition = TypeDefinition & {
+    ONINIT: callback
+}
 
-const ArrayDefinitionStructure = {}
+const ArrayDefinitionStructure = {
+    ONINIT: callback
+}
 
 export type ButtonDefinition = TypeDefinition & {
     VISIBLE: boolean

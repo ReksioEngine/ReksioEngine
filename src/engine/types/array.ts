@@ -6,6 +6,11 @@ import {NotImplementedError} from '../../utils'
 export class ArrayObject extends ValueType<ArrayDefinition> {
     constructor(engine: Engine, definition: ArrayDefinition) {
         super(engine, definition, [])
+        this.callbacks.register('ONINIT', this.definition.ONINIT)
+    }
+
+    ready() {
+        this.callbacks.run('ONINIT')
     }
 
     ADD(...args: any[]) {
@@ -13,19 +18,19 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     ADDAT(position: number, value: number) {
-        this.value.splice(position-1, 0, value)
+        this.value.splice(position, 0, value)
     }
 
     MODAT(position: number, value: number) {
-        this.value[position-1] %= value
+        this.value[position] %= value
     }
 
     CLAMPAT(position: number, min: number, max: number) {
-        this.value[position-1] = Math.min(Math.max(this.value[position-1], min), max)
+        this.value[position] = Math.min(Math.max(this.value[position], min), max)
     }
 
     MULAT(position: number, value: number) {
-        this.value[position-1] *= value
+        this.value[position] *= value
     }
 
     CONTAINS(value: any) {
@@ -37,11 +42,11 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     SUBAT(position: number, value: number) {
-        this.value[position-1] -= value
+        this.value[position] -= value
     }
 
     GET(position: number) {
-        return this.value[position-1]
+        return this.value[position]
     }
 
     GETSIZE() {
@@ -49,11 +54,11 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     CHANGEAT(position: number, value: any) {
-        this.value[position-1] = value
+        this.value[position] = value
     }
 
     REMOVEAT(position: number) {
-        this.value.splice(position-1, 1)
+        this.value.splice(position, 1)
     }
 
     REMOVEALL() {
@@ -64,14 +69,14 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
         if (this.value.indexOf(value) === -1) {
             return -1
         }
-        return this.value.indexOf(value) + 1
+        return this.value.indexOf(value)
     }
 
     REVERSEFIND(value: any) {
         if (this.value.lastIndexOf(value) === -1) {
             return -1
         }
-        return this.value.lastIndexOf(value) + 1
+        return this.value.lastIndexOf(value)
     }
 
     SAVEINI() {
