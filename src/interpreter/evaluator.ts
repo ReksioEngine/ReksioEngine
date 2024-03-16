@@ -150,7 +150,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 return object.__call(methodName, args)
             }
 
-            return method.bind(object)(...args)
+            const result = method.bind(object)(...args)
+            return result === null ? 'NULL' : result
         } catch (err) {
             if (err instanceof InterruptScriptExecution) {
                 throw new AlreadyDisplayedError(err)
@@ -191,7 +192,6 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 this.engine.debugger.breakOnAny = true
             }
         }
-
     }
 
     visitSpecialCall = (ctx: SpecialCallContext): any => {
