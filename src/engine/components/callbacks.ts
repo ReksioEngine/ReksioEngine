@@ -7,7 +7,7 @@ export class CallbacksComponent {
     private readonly engine: Engine
     private readonly object: Type<any>
 
-    private callbacks: Map<string, callbacks<any>> = new Map<string, callbacks<any>>()
+    public registry: Map<string, callbacks<any>> = new Map<string, callbacks<any>>()
 
     constructor(engine: Engine, object: Type<any>) {
         this.engine = engine
@@ -16,12 +16,12 @@ export class CallbacksComponent {
 
     registerGroup(type: string, callbacks?: callbacks<any>) {
         if (callbacks) {
-            this.callbacks.set(type, {
+            this.registry.set(type, {
                 nonParametrized: callbacks.nonParametrized,
                 parametrized: callbacks.parametrized && new Map(callbacks.parametrized)
             })
         } else {
-            this.callbacks.set(type, {
+            this.registry.set(type, {
                 nonParametrized: null,
                 parametrized: new Map()
             })
@@ -29,24 +29,24 @@ export class CallbacksComponent {
     }
 
     register(type: string, callback?: callback) {
-        this.callbacks.set(type, {
+        this.registry.set(type, {
             nonParametrized: callback ?? null,
             parametrized: new Map<any, callback>()
         })
     }
 
     has(type: string): boolean {
-        if (!this.callbacks.has(type)) {
+        if (!this.registry.has(type)) {
             return false
         }
-        const callbacks = this.callbacks.get(type)
+        const callbacks = this.registry.get(type)
         assert(callbacks !== undefined)
 
         return callbacks.nonParametrized !== null || callbacks.parametrized.size > 0
     }
 
     run(type: string, param?: any) {
-        const callbackGroup = this.callbacks.get(type)
+        const callbackGroup = this.registry.get(type)
         if (callbackGroup?.nonParametrized) {
             this.engine.executeCallback(this.object, this.object, callbackGroup.nonParametrized)
         }
@@ -58,7 +58,7 @@ export class CallbacksComponent {
 
     addBehaviour(callbackString: string, behaviourName: string) {
         const [callbackName, callbackParam] = callbackString.split('$')
-        const callbackGroup = this.callbacks.get(callbackName)!
+        const callbackGroup = this.registry.get(callbackName)!
 
         const newCallback = {
             isSingleStatement: false,
