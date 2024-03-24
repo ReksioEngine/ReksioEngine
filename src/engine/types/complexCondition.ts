@@ -5,6 +5,8 @@ import {Engine} from '../index'
 export class ComplexCondition extends Type<ComplexConditionDefinition> {
     constructor(engine: Engine, definition: ComplexConditionDefinition) {
         super(engine, definition)
+        this.callbacks.register('ONRUNTIMESUCCESS', this.definition.ONRUNTIMESUCCESS)
+        this.callbacks.register('ONRUNTIMEFAILED', this.definition.ONRUNTIMEFAILED)
     }
 
     CHECK(arg: boolean): boolean {
@@ -21,10 +23,10 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
             break
         }
 
-        if (this.definition.ONRUNTIMESUCCESS && result) {
-            this.engine.executeCallback(this, this, this.definition.ONRUNTIMESUCCESS)
-        } else if (this.definition.ONRUNTIMEFAILED && !result) {
-            this.engine.executeCallback(this, this, this.definition.ONRUNTIMEFAILED)
+        if (result) {
+            this.callbacks.run('ONRUNTIMESUCCESS')
+        } else {
+            this.callbacks.run('ONRUNTIMEFAILED')
         }
 
         return result

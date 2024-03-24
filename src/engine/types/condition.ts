@@ -7,6 +7,8 @@ import {CodeSource} from '../debugging'
 export class Condition extends Type<ConditionDefinition> {
     constructor(engine: Engine, definition: ConditionDefinition) {
         super(engine, definition)
+        this.callbacks.register('ONRUNTIMESUCCESS', this.definition.ONRUNTIMESUCCESS)
+        this.callbacks.register('ONRUNTIMEFAILED', this.definition.ONRUNTIMEFAILED)
     }
 
     // arg is always true in ReksioIUfo
@@ -49,10 +51,10 @@ export class Condition extends Type<ConditionDefinition> {
             break
         }
 
-        if (this.definition.ONRUNTIMESUCCESS && result) {
-            this.engine.executeCallback(this, this, this.definition.ONRUNTIMESUCCESS)
-        } else if (this.definition.ONRUNTIMEFAILED && !result) {
-            this.engine.executeCallback(this, this, this.definition.ONRUNTIMEFAILED)
+        if (result) {
+            this.callbacks.run('ONRUNTIMESUCCESS')
+        } else {
+            this.callbacks.run('ONRUNTIMEFAILED')
         }
 
         return result
