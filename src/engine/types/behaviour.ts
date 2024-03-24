@@ -2,6 +2,7 @@ import {Type} from './index'
 import {Engine} from '../index'
 import {BehaviourDefinition} from '../../fileFormats/cnv/types'
 import {Condition} from './condition'
+import {CodeSource} from '../debugging'
 
 export class Behaviour extends Type<BehaviourDefinition> {
     constructor(engine: Engine, definition: BehaviourDefinition) {
@@ -15,7 +16,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     RUN(...args: any[]) {
-        return this.engine.executeCallback(null, this, this.definition.CODE, args)
+        return this.engine.executeCallback(null, new CodeSource(this, 'CODE'), this.definition.CODE, args)
     }
 
     RUNC(...args: any[]) {

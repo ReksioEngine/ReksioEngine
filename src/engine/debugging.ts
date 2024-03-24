@@ -2,6 +2,43 @@ import {Episode} from './types/episode'
 import {Type} from './types'
 import {Engine} from './index'
 
+export class CodeSource {
+    public object: Type<any>
+    public callback: string
+
+    constructor(object: Type<any>, callback: string) {
+        this.object = object
+        this.callback = callback
+    }
+}
+
+export class DebuggerSession {
+    public breakOnAny = false
+
+    public init() {
+        window.addEventListener('message', (event) => {
+            if (event.source !== window || event.data.source === 'engine') {
+                return
+            }
+            this.handleMessage(event.data.type, event.data.data)
+        })
+    }
+
+    public sendMessage(type: string, data?: any) {
+        window.postMessage({type, data, source: 'engine'}, '*')
+    }
+
+    private handleMessage(type: string, data: any) {
+        switch (type) {
+        case 'debuggerConnect':
+            this.sendMessage('connected')
+            break
+        case 'breakOnAny':
+            this.breakOnAny = data.value
+        }
+    }
+}
+
 export const setupDebugScene = (engine: Engine) => {
     if (engine.debug) {
         const debug: any = document.querySelector('#debug')!

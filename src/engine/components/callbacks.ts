@@ -2,6 +2,7 @@ import {callback, callbacks} from '../../fileFormats/common'
 import {Engine} from '../index'
 import {Type} from '../types'
 import {assert} from '../../errors'
+import {CodeSource} from '../debugging'
 
 export class CallbacksComponent {
     private readonly engine: Engine
@@ -48,11 +49,11 @@ export class CallbacksComponent {
     run(type: string, param?: any) {
         const callbackGroup = this.registry.get(type)
         if (callbackGroup?.nonParametrized) {
-            this.engine.executeCallback(this.object, this.object, callbackGroup.nonParametrized)
+            this.engine.executeCallback(this.object, new CodeSource(this.object, type), callbackGroup.nonParametrized)
         }
 
         if (param !== undefined && callbackGroup?.parametrized.has(param)) {
-            this.engine.executeCallback(this.object, this.object, callbackGroup.parametrized.get(param)!)
+            this.engine.executeCallback(this.object, new CodeSource(this.object, type), callbackGroup.parametrized.get(param)!)
         }
     }
 

@@ -71,4 +71,11 @@ export class Mouse extends Type<MouseDefinition> {
     ONCLICK() {
         this.callbacks.run('ONCLICK')
     }
+
+    debuggerValues() {
+        return {
+            ...super.debuggerValues(),
+            position: this.mousePosition
+        }
+    }
 }

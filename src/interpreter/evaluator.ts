@@ -11,6 +11,7 @@ import antlr4, {ParserRuleContext} from 'antlr4'
 import {NotImplementedError} from '../utils'
 import {Engine} from '../engine'
 import {libraries} from './stdlib'
+import {CodeSource} from '../engine/debugging'
 
 export class InterruptScriptExecution {}
 class AlreadyDisplayedError {
@@ -30,7 +31,9 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     public methodCallUsedVariables: any = {}
     public scriptUsedVariables: any = {}
 
-    constructor(engine?: Engine, codeSource?: any, script?: string, args?: any[]) {
+    private debuggerStepOut = false
+
+    constructor(engine?: Engine, codeSource?: CodeSource, script?: string, args?: any[]) {
         super()
         this.engine = engine
         this.codeSource = codeSource
@@ -104,6 +107,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 
     visitMethodCall = (ctx: MethodCallContext): any => {
         this.lastContext = ctx
+        const objectName = ctx.objectName().getText()
         const object = this.visitObjectName(ctx.objectName())
         if (object == undefined) {
             return
@@ -117,11 +121,35 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         const argsVariables = this.methodCallUsedVariables
         this.methodCallUsedVariables = {}
 
-        if (method == undefined) {
-            return object.__call(methodName, args)
+        // eslint-disable-next-line prefer-const
+        let stepOver = false
+        if (this.engine?.debugger?.breakOnAny && !this.debuggerStepOut) {
+            const debugInfo = {
+                objectName,
+                methodName,
+                args,
+                argsVariables,
+                script: this.script,
+                columnStart: ctx.start.start,
+                columnEnd: ctx.stop!.start + 1,
+                codeSource: `${this.codeSource.object.parent.name}:${this.codeSource.object.name}:${this.codeSource.callback}`
+            }
+
+            // eslint-disable-next-line no-debugger
+            debugger
+
+            if (stepOver) {
+                this.engine.debugger.breakOnAny = false
+            }
+
+            this.engine.app.renderer.render(this.engine.app.stage)
         }
 
         try {
+            if (method == undefined) {
+                return object.__call(methodName, args)
+            }
+
             return method.bind(object)(...args)
         } catch (err) {
             if (err instanceof InterruptScriptExecution) {
@@ -158,7 +186,12 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             }
 
             throw new AlreadyDisplayedError(err)
+        } finally {
+            if (this.engine?.debugger?.breakOnAny !== undefined && stepOver) {
+                this.engine.debugger.breakOnAny = true
+            }
         }
+
     }
 
     visitSpecialCall = (ctx: SpecialCallContext): any => {
@@ -253,7 +286,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 }
 
-export const runScript = (engine: Engine, codeSource: any, script: string, args?: any[], singleStatement: boolean = false) => {
+export const runScript = (engine: Engine, codeSource: CodeSource, script: string, args?: any[], singleStatement: boolean = false) => {
     const lexer = new ReksioLangLexer(new antlr4.CharStream(script))
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioLangParser(tokens)
@@ -288,5 +321,5 @@ export const parseArgs = (script: string) => {
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioLangParser(tokens)
     const tree = parser.methodCallArguments()
-    return tree.accept(new ScriptEvaluator(undefined, script))
+    return tree.accept(new ScriptEvaluator(undefined, undefined, script))
 }

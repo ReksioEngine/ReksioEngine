@@ -49,6 +49,23 @@ export class Type<DefinitionType extends TypeDefinition> {
     clone(): Type<DefinitionType> {
         throw new NotImplementedError()
     }
+
+    debuggerValues(): object {
+        const callbacksMap = Object.entries(Object.fromEntries(this.callbacks.registry.entries()))
+
+        return {
+            name: this.name,
+            type: this.constructor.name,
+            definition: this.definition,
+            clones: this.clones.map(clone => clone.debuggerValues()),
+            callbacks: Object.fromEntries(callbacksMap.map(([key, value]) => {
+                return [key, {
+                    nonParametrized: value.nonParametrized,
+                    parametrized: Object.fromEntries(value.parametrized.entries())
+                }]
+            }))
+        }
+    }
 }
 
 export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends Type<DefinitionType> {
@@ -126,5 +143,12 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
 
     deserialize(value: string): any {
         return value
+    }
+
+    debuggerValues() {
+        return {
+            ...super.debuggerValues(),
+            value: this.value,
+        }
     }
 }

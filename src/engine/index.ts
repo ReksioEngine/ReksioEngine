@@ -11,13 +11,14 @@ import {loadSound, loadTexture} from './assetsLoader'
 import {SaveFile} from './saveFile'
 import {createColorTexture} from '../utils'
 import {preloadAssets} from './optimizations'
-import {setupDebugScene, updateCurrentScene} from './debugging'
+import {CodeSource, DebuggerSession, setupDebugScene, updateCurrentScene} from './debugging'
 import {Timer} from './types/timer'
 import {IrrecoverableError} from '../errors'
 
 export class Engine {
     readonly app: Application
     public debug: boolean = false
+    public debugger?: DebuggerSession
 
     public globalScope: Record<string, any> = {}
     public scope: Record<string, any> = {}
@@ -45,7 +46,12 @@ export class Engine {
         try {
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
             await loadDefinition(this, this.globalScope, applicationDef)
+
             setupDebugScene(this)
+            if (this.debug) {
+                this.debugger = new DebuggerSession()
+                this.debugger.init()
+            }
 
             this.app.ticker.maxFPS = 60
             this.app.stage.interactive = true
@@ -92,7 +98,7 @@ export class Engine {
         }
     }
 
-    executeCallback(caller: Type<any> | null, codeSource: Type<any>, callback: callback, args?: any[]) {
+    executeCallback(caller: Type<any> | null, codeSource: CodeSource, callback: callback, args?: any[]) {
         if (caller !== null) {
             this.scope.THIS = caller
         }
@@ -110,6 +116,10 @@ export class Engine {
             }
             return this.scope[callback.behaviourReference].RUN(...callback.constantArguments)
         }
+    }
+
+    executeScript(code: string) {
+        return runScript(this, new CodeSource(this.getObject('THIS'), '<eval>'), code, [], false)
     }
 
     addToStage(sprite: Sprite) {

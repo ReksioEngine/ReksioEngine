@@ -69,4 +69,14 @@ export class Timer extends Type<TimerDefinition> {
     ONTICK() {
         this.callbacks.run('ONTICK', this.currentTick)
     }
+
+    debuggerValues() {
+        return {
+            ...super.debuggerValues(),
+            currentTick: this.currentTick,
+            startTime: this.startTime,
+            elapse: this.elapse,
+            enabled: this.enabled
+        }
+    }
 }

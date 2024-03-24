@@ -355,4 +355,19 @@ export class Animo extends DisplayType<AnimoDefinition> {
         clone.initAnimatedSprite()
         return clone
     }
+
+    debuggerValues() {
+        return {
+            ...super.debuggerValues(),
+            isPlaying: this.isPlaying,
+            currentFrameIdx: this.currentFrameIdx,
+            currentEvent: this.currentEvent,
+            currentLoop: this.currentLoop,
+            usingImageIndex: this.usingImageIndex,
+            fps: this.fps,
+            lastFrameTime: this.lastFrameTime,
+            positionX: this.positionX,
+            positionY: this.positionY
+        }
+    }
 }
