@@ -45,14 +45,15 @@ export class Engine {
 
     async init() {
         try {
-            const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
-            await loadDefinition(this, this.globalScope, applicationDef)
-
-            setupDebugScene(this)
             if (this.debug) {
                 this.debugger = new DebuggerSession()
                 this.debugger.init()
             }
+
+            const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
+            await loadDefinition(this, this.globalScope, applicationDef)
+
+            setupDebugScene(this)
 
             this.app.ticker.maxFPS = 60
             this.app.stage.interactive = true
@@ -167,6 +168,8 @@ export class Engine {
         if (this.music != null) {
             this.music.stop()
         }
+
+        this.debugger!.breakOnAny = true
 
         // Remove non-global objects from scope
         // but keep for later destroying

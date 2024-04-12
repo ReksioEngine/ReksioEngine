@@ -11,7 +11,7 @@ import antlr4, {ParserRuleContext} from 'antlr4'
 import {NotImplementedError} from '../utils'
 import {Engine} from '../engine'
 import {libraries} from './stdlib'
-import {CodeSource} from '../engine/debugging'
+import {CodeSource, DebuggerReport} from '../engine/debugging'
 
 export class InterruptScriptExecution {}
 class AlreadyDisplayedError {
@@ -121,20 +121,20 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         const argsVariables = this.methodCallUsedVariables
         this.methodCallUsedVariables = {}
 
+        const debugInfo = {
+            objectName,
+            methodName,
+            args,
+            argsVariables,
+            script: this.script,
+            columnStart: ctx.start.start,
+            columnEnd: ctx.stop!.start + 1,
+            codeSource: `${this.codeSource.object.parent.name}:${this.codeSource.object.name}:${this.codeSource.callback}`
+        } as DebuggerReport
+
         // eslint-disable-next-line prefer-const
         let stepOver = false
-        if (this.engine?.debugger?.breakOnAny && !this.debuggerStepOut) {
-            const debugInfo = {
-                objectName,
-                methodName,
-                args,
-                argsVariables,
-                script: this.script,
-                columnStart: ctx.start.start,
-                columnEnd: ctx.stop!.start + 1,
-                codeSource: `${this.codeSource.object.parent.name}:${this.codeSource.object.name}:${this.codeSource.callback}`
-            }
-
+        if ((this.engine?.debugger?.breakOnAny || this.engine?.debugger?.hasBreakpoint(debugInfo)) && !this.debuggerStepOut) {
             // eslint-disable-next-line no-debugger
             debugger
 

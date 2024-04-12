@@ -12,8 +12,26 @@ export class CodeSource {
     }
 }
 
+export type DebuggerReport = {
+    objectName: string
+    methodName: string
+    args: any[]
+    argsVariables: object
+    script: string
+    columnStart: number
+    columnEnd: number
+    codeSource: string
+}
+
+type Breakpoint = {
+    codeSource: string
+    columnStart: number
+    columnEnd: number
+}
+
 export class DebuggerSession {
     public breakOnAny = false
+    private breakpoints: Breakpoint[] = []
 
     public init() {
         window.addEventListener('message', (event) => {
@@ -36,6 +54,18 @@ export class DebuggerSession {
         case 'breakOnAny':
             this.breakOnAny = data.value
         }
+    }
+
+    public addBreakpoint(breakpoint: Breakpoint) {
+        this.breakpoints.push(breakpoint)
+    }
+
+    public hasBreakpoint(debugInfo: DebuggerReport) {
+        return this.breakpoints.find(breakpoint => {
+            return breakpoint.codeSource === debugInfo.codeSource
+                && debugInfo.columnStart > breakpoint.columnStart
+                && debugInfo.columnStart < breakpoint.columnEnd
+        }) !== undefined
     }
 }
 
