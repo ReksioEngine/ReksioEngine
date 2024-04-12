@@ -354,7 +354,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     clone() {
-        const clone = new Animo(this.engine, this.definition)
+        const clone = super.clone() as Animo
         clone.isPlaying = this.isPlaying
         clone.currentFrameIdx = this.currentFrameIdx
         clone.currentEvent = this.currentEvent

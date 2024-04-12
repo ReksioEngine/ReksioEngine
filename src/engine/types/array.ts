@@ -96,7 +96,7 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     clone() {
-        const cloned = new ArrayObject(this.engine, this.definition)
+        const cloned = super.clone() as ArrayObject
         cloned.value = [...this.value]
         return cloned
     }

@@ -47,7 +47,10 @@ export class Type<DefinitionType extends TypeDefinition> {
     }
 
     clone(): Type<DefinitionType> {
-        throw new NotImplementedError()
+        // @ts-ignore
+        const instance = new this.constructor(this.engine, this.definition)
+        instance.parent = this.parent
+        return instance
     }
 
     debuggerValues(): object {
