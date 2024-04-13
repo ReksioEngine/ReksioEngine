@@ -116,7 +116,7 @@ export class Engine {
                 )
                 throw new IrrecoverableError()
             }
-            return this.scope[callback.behaviourReference].RUN(...callback.constantArguments)
+            return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments)
         }
     }
 
