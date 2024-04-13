@@ -117,8 +117,9 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
     }
 
     set value(newValue: any) {
-        this.valueChanged(this._value, newValue)
+        const oldValue = this._value
         this._value = newValue
+        this.valueChanged(oldValue, newValue)
         this.saveToINI()
     }
 
