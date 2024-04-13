@@ -35,6 +35,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.fps = definition.FPS ?? 16
 
         this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED)
+        this.callbacks.registerGroup('ONSTARTED', definition.ONSTARTED)
         this.callbacks.registerGroup('ONFRAMECHANGED', definition.ONFRAMECHANGED)
         this.callbacks.register('ONINIT', definition.ONINIT)
 
@@ -127,6 +128,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const imageIndex = event.framesImageMapping[this.currentFrameIdx]
         const annImage = this.annFile.annImages[imageIndex]
 
+        if (this.currentFrameIdx === 0) {
+            this.ONSTARTED()
+        }
         this.currentFrameIdx += 1
 
         this.updateSprite(eventFrame, imageIndex, annImage)
@@ -168,6 +172,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private ONFINISHED() {
         const index = this.currentEvent.toString()
         this.callbacks.run('ONFINISHED', index.toString())
+    }
+
+    private ONSTARTED() {
+        const index = this.currentEvent.toString()
+        this.callbacks.run('ONSTARTED', index.toString())
     }
 
     private ONFRAMECHANGED() {

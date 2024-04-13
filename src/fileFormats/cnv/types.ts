@@ -104,6 +104,7 @@ export type AnimoDefinition = TypeDefinition & {
     MONITORCOLLISIONALPHA: boolean
     ONINIT?: callback
     ONFINISHED?: callbacks<string>
+    ONSTARTED?: callbacks<string>
     ONFRAMECHANGED?: callbacks<string>
 
     // When in button mode
@@ -125,6 +126,7 @@ const AnimoStructure = {
     MONITORCOLLISIONALPHA: boolean,
     ONINIT: callback,
     ONFINISHED: callbacks,
+    ONSTARTED: callbacks,
     ONFRAMECHANGED: callbacks,
 
     ONFOCUSON: callback,
