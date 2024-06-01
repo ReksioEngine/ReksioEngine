@@ -51,6 +51,9 @@ export const parseCNV = (content: string) => {
             if (definition && variableName in definition) {
                 definition[variableName](object, variableName, param, value)
             } else {
+                if (variableName.startsWith('ON')) {
+                    console.warn(`Unsupported event callback "${variableName}" in type ${object.TYPE}`)
+                }
                 object[variableName] = value
             }
         }
