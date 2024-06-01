@@ -209,8 +209,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.isPlaying = true
     }
 
-    SETFRAME(frame: string, arg2: number) {
-        this.currentEvent = frame
+    SETFRAME(eventName: string, frameIdx: number) {
+        this.currentEvent = eventName
+        this.currentFrameIdx = frameIdx
     }
 
     SETFPS(fps: number) {
