@@ -35,13 +35,13 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     RUNLOOPED(init: number, len: number, step: number = 1, ...args: any[]) {
-        for (let i = init; i < len; i += step) {
+        for (let i = init; i <= len; i += step) {
             try {
                 if (!this.shouldRun()) {
                     continue
                 }
 
-                this.engine.executeCallback(null, new CodeSource(this, 'CODE'), this.definition.CODE, [i + 1, ...args])
+                this.engine.executeCallback(null, new CodeSource(this, 'CODE'), this.definition.CODE, [i, ...args])
             } catch (err) {
                 if (err instanceof InterruptScriptExecution) {
                     if (err.one) {
