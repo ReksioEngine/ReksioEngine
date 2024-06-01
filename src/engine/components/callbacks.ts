@@ -3,6 +3,7 @@ import {Engine} from '../index'
 import {Type} from '../types'
 import {assert} from '../../errors'
 import {CodeSource} from '../debugging'
+import {InterruptScriptExecution} from '../../interpreter/evaluator'
 
 export class CallbacksComponent {
     private readonly engine: Engine
@@ -47,13 +48,19 @@ export class CallbacksComponent {
     }
 
     run(type: string, param?: any) {
-        const callbackGroup = this.registry.get(type)
-        if (callbackGroup?.nonParametrized) {
-            this.engine.executeCallback(this.object, new CodeSource(this.object, type), callbackGroup.nonParametrized)
-        }
+        try {
+            const callbackGroup = this.registry.get(type)
+            if (callbackGroup?.nonParametrized) {
+                this.engine.executeCallback(this.object, new CodeSource(this.object, type), callbackGroup.nonParametrized)
+            }
 
-        if (param !== undefined && callbackGroup?.parametrized.has(param)) {
-            this.engine.executeCallback(this.object, new CodeSource(this.object, type), callbackGroup.parametrized.get(param)!)
+            if (param !== undefined && callbackGroup?.parametrized.has(param)) {
+                this.engine.executeCallback(this.object, new CodeSource(this.object, type), callbackGroup.parametrized.get(param)!)
+            }
+        } catch (err) {
+            if (!(err instanceof InterruptScriptExecution)) {
+                throw err
+            }
         }
     }
 

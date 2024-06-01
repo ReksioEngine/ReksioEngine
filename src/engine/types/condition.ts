@@ -12,16 +12,18 @@ export class Condition extends Type<ConditionDefinition> {
     }
 
     // arg is always true in ReksioIUfo
+    // In loops its like 'break'
     BREAK(arg: boolean) {
         if (this.CHECK(arg)) {
-            throw new InterruptScriptExecution()
+            throw new InterruptScriptExecution(false)
         }
     }
 
     // arg is always true in ReksioIUfo
+    // In loops its like 'continue'
     ONE_BREAK(arg: boolean) {
         if (this.CHECK(arg)) {
-            throw new InterruptScriptExecution()
+            throw new InterruptScriptExecution(true)
         }
     }
 

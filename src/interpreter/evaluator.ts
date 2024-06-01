@@ -13,7 +13,13 @@ import {Engine} from '../engine'
 import {libraries} from './stdlib'
 import {CodeSource, DebuggerReport} from '../engine/debugging'
 
-export class InterruptScriptExecution {}
+export class InterruptScriptExecution {
+    public one: boolean
+    constructor(one: boolean = false) {
+        this.one = one
+    }
+}
+
 class AlreadyDisplayedError {
     public cause: any
     constructor(cause: any) {
@@ -154,7 +160,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             return result === null ? 'NULL' : result
         } catch (err) {
             if (err instanceof InterruptScriptExecution) {
-                throw new AlreadyDisplayedError(err)
+                throw err
             }
 
             const code = this.markInCode(ctx)
@@ -297,7 +303,7 @@ export const runScript = (engine: Engine, codeSource: CodeSource, script: string
         return tree.accept(evaluator)
     } catch (err) {
         if (err instanceof InterruptScriptExecution) {
-            return
+            throw err
         } else if (!(err instanceof AlreadyDisplayedError)) {
             if (evaluator.lastContext) {
                 const code = evaluator.markInCode(evaluator.lastContext)

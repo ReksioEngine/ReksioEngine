@@ -10,15 +10,17 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
         this.callbacks.register('ONRUNTIMEFAILED', this.definition.ONRUNTIMEFAILED)
     }
 
+    // In loops its like 'break'
     BREAK(arg: boolean) {
         if (this.CHECK(arg)) {
-            throw new InterruptScriptExecution()
+            throw new InterruptScriptExecution(false)
         }
     }
 
+    // In loops its like 'continue'
     ONE_BREAK(arg: boolean) {
         if (this.CHECK(arg)) {
-            throw new InterruptScriptExecution()
+            throw new InterruptScriptExecution(true)
         }
     }
 
