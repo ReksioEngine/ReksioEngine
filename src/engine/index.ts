@@ -116,7 +116,7 @@ export class Engine {
                 )
                 throw new IrrecoverableError()
             }
-            return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments)
+            return this.scope[callback.behaviourReference].RUNC(caller, ...callback.constantArguments)
         }
     }
 
@@ -169,7 +169,7 @@ export class Engine {
             this.music.stop()
         }
 
-        this.debugger!.breakOnAny = true
+        this.debugger!.breakOnAny = false
 
         // Remove non-global objects from scope
         // but keep for later destroying
