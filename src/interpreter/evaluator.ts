@@ -79,7 +79,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         } else if (ctx.IDENTIFIER() != null) {
             const identifier = ctx.IDENTIFIER().getText()
             if (identifier.startsWith('$') && this.args) {
-                const argIdx = parseInt(identifier.substring(1)) - 1
+                const argIdx = parseInt(identifier.substring(1))
                 this.methodCallUsedVariables[identifier] = this.args[argIdx]
                 this.scriptUsedVariables[identifier] = this.args[argIdx]
                 return this.args[argIdx]
