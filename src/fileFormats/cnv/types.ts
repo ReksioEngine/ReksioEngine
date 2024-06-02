@@ -131,7 +131,7 @@ const AnimoStructure = {
 
     ONFOCUSON: callback,
     ONFOCUSOFF: callback,
-    ONCLICKE: callback,
+    ONCLICK: callback,
     ONRELEASE: callback
 }
 
