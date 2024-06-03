@@ -284,7 +284,7 @@ export type ButtonDefinition = TypeDefinition & {
     ONFOCUSON?: callback
     ONFOCUSOFF?: callback
     ONINIT?: callback
-    RECT?: Array<number>
+    RECT?: Array<number> | reference
 }
 
 const ButtonDefinitionStructure = {
@@ -299,7 +299,14 @@ const ButtonDefinitionStructure = {
     ONFOCUSON: callback,
     ONFOCUSOFF: callback,
     ONINIT: callback,
-    RECT: array(number)
+    RECT: (object: any, key: string, param: string, value: string) => {
+        const parts = value.split(',')
+        if (parts.length == 4) {
+            return array(number)(object, key, param, value)
+        } else {
+            return reference(object, key, param, value)
+        }
+    }
 }
 
 export type SequenceDefinition = TypeDefinition & {

@@ -37,9 +37,20 @@ export class Button extends Type<ButtonDefinition> {
         )
     }
 
-    init() {
+    init() {}
+
+    ready() {
         if (this.definition.RECT) {
-            const [x1, y1, x2, y2] = this.definition.RECT
+            let shape
+            if (Array.isArray(this.definition.RECT)) {
+                shape = this.definition.RECT
+            } else {
+                const object = this.engine.getObject(this.definition.RECT)
+                const sprite = object.getRenderObject()
+                shape = [sprite.x, sprite.y, sprite.x + sprite.width, sprite.y + sprite.height]
+            }
+
+            const [x1, y1, x2, y2] = shape
             const rect = new Rectangle(x1, y1, x2-x1, y2-y1)
             this.interactArea = createColorGraphics(rect, 0, 0)
             this.interactArea.hitArea = rect
@@ -55,9 +66,7 @@ export class Button extends Type<ButtonDefinition> {
                 this.interactAreaDebugDisabled.zIndex = 99999999
             }
         }
-    }
 
-    ready() {
         if (this.interactArea) {
             this.logic.registerInteractive(this.interactArea)
             this.engine.app.stage.addChild(this.interactArea)
