@@ -281,6 +281,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         case State.PRESSED:
             this.PLAY('ONCLICK') || this.PLAY('PLAY')
             this.callbacks.run('ONCLICKED')
+            this.callbacks.run('ONCLICK') // Used in S73_0_KOD in Ufo
             break
         }
     }
