@@ -324,8 +324,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return this.currentEvent
     }
 
-    GETFRAME(): string {
-        throw new NotImplementedError()
+    GETFRAME(): number {
+        return this.currentFrameIdx
     }
 
     GETCURRFRAMEPOSX(): number {
