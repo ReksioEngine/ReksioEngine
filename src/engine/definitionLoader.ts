@@ -25,6 +25,7 @@ import {Text} from './types/text'
 import {DisplayType, Type} from './types'
 import {Font} from './types/font'
 import {ComplexCondition} from './types/complexCondition'
+import {Rand} from './types/rand'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -64,6 +65,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Mouse(engine, definition)
     case 'MUSIC':
         return new Music(engine, definition)
+    case 'RAND':
+        return new Rand(engine, definition)
     case 'SCENE':
         return new Scene(engine, definition)
     case 'SEQUENCE':

@@ -370,6 +370,10 @@ const ComplexConditionDefinitionStructure = {
     OPERATOR: string
 }
 
+export type RandDefinition = TypeDefinition
+
+const RandDefinitionStructure = {}
+
 export const structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -394,5 +398,6 @@ export const structureDefinitions = {
     GROUP: GroupDefinitionStructure,
     TEXT: TextDefinitionStructure,
     FONT: FontDefinitionStructure,
-    COMPLEXCONDITION: ComplexConditionDefinitionStructure
+    COMPLEXCONDITION: ComplexConditionDefinitionStructure,
+    RAND: RandDefinitionStructure
 } as any
