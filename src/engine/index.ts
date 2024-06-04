@@ -169,7 +169,9 @@ export class Engine {
             this.music.stop()
         }
 
-        this.debugger!.breakOnAny = false
+        if (this.debugger) {
+            this.debugger.breakOnAny = false
+        }
 
         // Remove non-global objects from scope
         // but keep for later destroying
