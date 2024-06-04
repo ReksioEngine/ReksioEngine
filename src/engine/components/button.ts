@@ -84,20 +84,20 @@ export class ButtonLogicComponent {
         sprite.interactive = true
         sprite.cursor = 'pointer'
 
-        sprite.addListener('mouseover', this.onMouseOverCallback)
-        sprite.addListener('mouseout', this.onMouseOutCallback)
-        sprite.addListener('mousedown', this.onMouseDownCallback)
-        sprite.addListener('mouseup', this.onMouseUpCallback)
+        sprite.addListener('pointerover', this.onMouseOverCallback)
+        sprite.addListener('pointerout', this.onMouseOutCallback)
+        sprite.addListener('pointerdown', this.onMouseDownCallback)
+        sprite.addListener('pointerup', this.onMouseUpCallback)
     }
 
     unregisterInteractive(sprite: DisplayObject) {
         sprite.interactive = false
         sprite.cursor = 'default'
 
-        sprite.removeListener('mouseover', this.onMouseOverCallback)
-        sprite.removeListener('mouseout', this.onMouseOutCallback)
-        sprite.removeListener('mousedown', this.onMouseDownCallback)
-        sprite.removeListener('mouseup', this.onMouseUpCallback)
+        sprite.removeListener('pointerover', this.onMouseOverCallback)
+        sprite.removeListener('pointerout', this.onMouseOutCallback)
+        sprite.removeListener('pointerdown', this.onMouseDownCallback)
+        sprite.removeListener('pointerup', this.onMouseUpCallback)
     }
 
     getState() {

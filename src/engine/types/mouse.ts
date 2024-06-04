@@ -49,15 +49,15 @@ export class Mouse extends Type<MouseDefinition> {
         this.mouseMoveListener = this.onMouseMove.bind(this)
         this.mouseClickListener = this.onMouseClick.bind(this)
 
-        this.engine.app.stage.addListener('mousemove', this.mouseMoveListener)
+        this.engine.app.stage.addListener('pointermove', this.mouseMoveListener)
         if (this.callbacks.has('ONCLICK')) {
-            this.engine.app.stage.addListener('mousedown', this.mouseClickListener)
+            this.engine.app.stage.addListener('pointerdown', this.mouseClickListener)
         }
     }
 
     DISABLE() {
-        this.engine.app.stage.removeListener('mousemove', this.mouseMoveListener)
-        this.engine.app.stage.removeListener('mousedown', this.mouseClickListener)
+        this.engine.app.stage.removeListener('pointermove', this.mouseMoveListener)
+        this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener)
     }
 
     GETPOSX() {
