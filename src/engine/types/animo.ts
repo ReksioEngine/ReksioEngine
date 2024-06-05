@@ -7,6 +7,8 @@ import * as PIXI from 'pixi.js'
 import {Sprite, Texture} from 'pixi.js'
 import {ANN, AnnImage, Event, Frame} from '../../fileFormats/ann'
 import {ButtonLogicComponent, Event as FSMEvent, State} from '../components/button'
+import {loadSound} from '../assetsLoader'
+import {Sound as PIXISound} from '@pixi/sound'
 
 //TODO: Try to use Image class here
 export class Animo extends DisplayType<AnimoDefinition> {
@@ -28,7 +30,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     private annFile: ANN | null = null
     private sprite: Sprite | null = null
+
     private textures = new Map<number, PIXI.Texture>()
+    private sounds = new Map<string, PIXISound>()
 
     constructor(engine: Engine, definition: AnimoDefinition) {
         super(engine, definition)
@@ -78,8 +82,28 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME)
         const annFile = await this.engine.fileLoader.getANNFile(relativePath)
+        await this.loadSfx(annFile)
+
         console.debug(`File '${this.definition.FILENAME}' loaded successfully!`)
         return annFile
+    }
+
+    private async loadSfx(annFile: ANN) {
+        for (const event of annFile.events) {
+            for (const frame of event.frames) {
+                if (!frame.sounds) {
+                    continue
+                }
+
+                const filenames = frame.sounds.split(';')
+                for (const filename of filenames) {
+                    if (!this.sounds.has(filename)) {
+                        const sound = await loadSound(this.engine.fileLoader, `Wavs/${filename}`)
+                        this.sounds.set(filename, sound)
+                    }
+                }
+            }
+        }
     }
 
     private initAnimatedSprite() {
@@ -131,9 +155,21 @@ export class Animo extends DisplayType<AnimoDefinition> {
         if (this.currentFrameIdx === 0) {
             this.ONSTARTED()
         }
-        this.currentFrameIdx += 1
 
         this.updateSprite(eventFrame, imageIndex, annImage)
+
+        // Random sound out of them?
+        if (eventFrame.sounds) {
+            const filenames = eventFrame.sounds.split(';')
+            const randomFilename = filenames[Math.floor((Math.random()*filenames.length))]
+            const sound = this.sounds.get(randomFilename)
+            if (sound !== undefined) {
+                console.debug(`Playing sound '${randomFilename}'`)
+                sound.play()
+            }
+        }
+
+        this.currentFrameIdx += 1
         this.invokeIfAnimationCompleted(event)
         this.ONFRAMECHANGED()
     }
@@ -372,6 +408,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         clone.currentLoop = this.currentLoop
         clone.usingImageIndex = this.usingImageIndex
         clone.annFile = this.annFile
+        clone.textures = this.textures
+        clone.sounds = this.sounds
         clone.initAnimatedSprite()
         return clone
     }

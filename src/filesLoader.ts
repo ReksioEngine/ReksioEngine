@@ -70,7 +70,7 @@ export abstract class UrlFileLoader extends FileLoader {
             this.listing = await this.fetchFilesListing()
         }
 
-        const normalizedFilename = filename.toLowerCase()
+        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/')
         console.debug(`Fetching '${normalizedFilename}'...`)
         const fileUrl = this.listing.get(normalizedFilename)
         if (fileUrl == null) {
