@@ -249,6 +249,17 @@ export class Animo extends DisplayType<AnimoDefinition> {
     SETFRAME(eventName: string, frameIdx: number) {
         this.currentEvent = eventName
         this.currentFrameIdx = frameIdx
+
+        // Don't wait for a tick because some animations might not be playing,
+        // but they display something (like a keypad screen in S73_0_KOD in UFO)
+        const event = this.getEventByName(eventName)
+        assert(this.annFile !== null)
+        assert(event !== null)
+
+        const eventFrame = event.frames[frameIdx]
+        const imageIndex = event.framesImageMapping[frameIdx]
+        const annImage = this.annFile.annImages[imageIndex]
+        this.updateSprite(eventFrame, imageIndex, annImage)
     }
 
     SETFPS(fps: number) {
@@ -383,7 +394,17 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     ISNEAR(objectName: string, arg: number) {
-        throw new NotImplementedError()
+        const otherObject = this.engine.getObject(objectName)
+        const thisObject = this.getRenderObject()!
+
+        const thisX = thisObject.x + thisObject.width/2
+        const thisY = thisObject.y + thisObject.height/2
+
+        const otherX = otherObject.x + otherObject.width/2
+        const otherY = otherObject.y + otherObject.height/2
+
+        // TODO, I don't think that its like in the game
+        return Math.hypot(otherX-thisX, otherY-thisY) < arg
     }
 
     ADDBEHAVIOUR(callbackString: string, behaviourName: string) {
