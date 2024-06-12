@@ -88,7 +88,6 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     MSGBOX() {
-        this.engine.debugger?.sendMessage('msgbox', this.value)
     }
 
     valueChanged(oldValue: any, newValue: any) {

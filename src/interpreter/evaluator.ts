@@ -11,7 +11,6 @@ import antlr4, {ParserRuleContext} from 'antlr4'
 import {NotImplementedError} from '../utils'
 import {Engine} from '../engine'
 import {libraries} from './stdlib'
-import {CodeSource, DebuggerReport} from '../engine/debugging'
 import {Behaviour} from '../engine/types/behaviour'
 
 export class InterruptScriptExecution {
@@ -38,12 +37,9 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     public methodCallUsedVariables: any = {}
     public scriptUsedVariables: any = {}
 
-    private debuggerStepOut = false
-
-    constructor(engine?: Engine, codeSource?: CodeSource, script?: string, args?: any[]) {
+    constructor(engine?: Engine, script?: string, args?: any[]) {
         super()
         this.engine = engine
-        this.codeSource = codeSource
         this.script = script
         this.args = args
     }
@@ -114,7 +110,6 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 
     visitMethodCall = (ctx: MethodCallContext): any => {
         this.lastContext = ctx
-        const objectName = ctx.objectName().getText()
         const object = this.visitObjectName(ctx.objectName())
         if (object == undefined) {
             return
@@ -127,30 +122,6 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : []
         const argsVariables = this.methodCallUsedVariables
         this.methodCallUsedVariables = {}
-
-        const debugInfo = {
-            objectName,
-            methodName,
-            args,
-            argsVariables,
-            script: this.script,
-            columnStart: ctx.start.start,
-            columnEnd: ctx.stop!.start + 1,
-            codeSource: `${this.codeSource.object.parent.name}:${this.codeSource.object.name}:${this.codeSource.callback}`
-        } as DebuggerReport
-
-        // eslint-disable-next-line prefer-const
-        let stepOver = false
-        if ((this.engine?.debugger?.breakOnAny || this.engine?.debugger?.hasBreakpoint(debugInfo)) && !this.debuggerStepOut) {
-            // eslint-disable-next-line no-debugger
-            debugger
-
-            if (stepOver) {
-                this.engine.debugger.breakOnAny = false
-            }
-
-            this.engine.app.renderer.render(this.engine.app.stage)
-        }
 
         try {
             if (method == undefined) {
@@ -194,10 +165,6 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             }
 
             throw new AlreadyDisplayedError(err)
-        } finally {
-            if (this.engine?.debugger?.breakOnAny !== undefined && stepOver) {
-                this.engine.debugger.breakOnAny = true
-            }
         }
     }
 
@@ -327,13 +294,13 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 }
 
-export const runScript = (engine: Engine, codeSource: CodeSource, script: string, args?: any[], singleStatement: boolean = false) => {
+export const runScript = (engine: Engine, script: string, args?: any[], singleStatement: boolean = false) => {
     const lexer = new ReksioLangLexer(new antlr4.CharStream(script))
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioLangParser(tokens)
     const tree = singleStatement ? parser.statement() : parser.statementList()
 
-    const evaluator = new ScriptEvaluator(engine, codeSource, script, args)
+    const evaluator = new ScriptEvaluator(engine, script, args)
     try {
         return tree.accept(evaluator)
     } catch (err) {
@@ -348,7 +315,6 @@ export const runScript = (engine: Engine, codeSource: CodeSource, script: string
                     '%cCode source:%c %O',
                     'font-weight: bold', 'font-weight: inherit',
                     'color: red', 'color: inherit',
-                    'font-weight: bold', 'font-weight: inherit', codeSource
                 )
             }
             console.error(err)
@@ -362,5 +328,5 @@ export const parseArgs = (script: string) => {
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioLangParser(tokens)
     const tree = parser.methodCallArguments()
-    return tree.accept(new ScriptEvaluator(undefined, undefined, script))
+    return tree.accept(new ScriptEvaluator(undefined, script))
 }

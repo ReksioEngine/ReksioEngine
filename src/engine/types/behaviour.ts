@@ -2,7 +2,6 @@ import {Type} from './index'
 import {Engine} from '../index'
 import {BehaviourDefinition} from '../../fileFormats/cnv/types'
 import {Condition} from './condition'
-import {CodeSource} from '../debugging'
 import {InterruptScriptExecution} from '../../interpreter/evaluator'
 
 export class Behaviour extends Type<BehaviourDefinition> {
@@ -18,7 +17,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
 
     RUN(...args: any[]) {
         try {
-            return this.engine.executeCallback(null, new CodeSource(this, 'CODE'), this.definition.CODE, args)
+            return this.engine.executeCallback(null, this.definition.CODE, args)
         } catch (err) {
             if (!(err instanceof InterruptScriptExecution)) {
                 throw err
@@ -41,7 +40,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
                     continue
                 }
 
-                this.engine.executeCallback(null, new CodeSource(this, 'CODE'), this.definition.CODE, [i, ...args])
+                this.engine.executeCallback(null, this.definition.CODE, [i, ...args])
             } catch (err) {
                 if (err instanceof InterruptScriptExecution) {
                     if (err.one) {

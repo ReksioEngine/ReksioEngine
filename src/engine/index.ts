@@ -11,7 +11,7 @@ import {loadSound, loadTexture} from './assetsLoader'
 import {SaveFile} from './saveFile'
 import {createColorTexture} from '../utils'
 import {preloadAssets} from './optimizations'
-import {CodeSource, DebuggerSession, setupDebugScene, updateCurrentScene} from './debugging'
+import {setupDebugScene, updateCurrentScene} from './debugging'
 import {Timer} from './types/timer'
 import {IrrecoverableError} from '../errors'
 
@@ -19,7 +19,6 @@ export class Engine {
     readonly app: Application
     public debug: boolean = false
     public speed: number = 1
-    public debugger?: DebuggerSession
 
     public globalScope: Record<string, any> = {}
     public scope: Record<string, any> = {}
@@ -45,11 +44,6 @@ export class Engine {
 
     async init() {
         try {
-            if (this.debug) {
-                this.debugger = new DebuggerSession()
-                this.debugger.init()
-            }
-
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
             await loadDefinition(this, this.globalScope, applicationDef)
 
@@ -100,13 +94,13 @@ export class Engine {
         }
     }
 
-    executeCallback(caller: Type<any> | null, codeSource: CodeSource, callback: callback, args?: any[]) {
+    executeCallback(caller: Type<any> | null, callback: callback, args?: any[]) {
         if (caller !== null) {
             this.scope.THIS = caller
         }
 
         if (callback.code) {
-            return runScript(this, codeSource, callback.code, args, callback.isSingleStatement)
+            return runScript(this, callback.code, args, callback.isSingleStatement)
         } else if (callback.behaviourReference) {
             if (!this.scope[callback.behaviourReference]) {
                 console.error(
@@ -121,7 +115,7 @@ export class Engine {
     }
 
     executeScript(code: string) {
-        return runScript(this, new CodeSource(this.getObject('THIS'), '<eval>'), code, [], false)
+        return runScript(this, code, [], false)
     }
 
     addToStage(sprite: Sprite) {
@@ -167,10 +161,6 @@ export class Engine {
         this.app.ticker.stop()
         if (this.music != null) {
             this.music.stop()
-        }
-
-        if (this.debugger) {
-            this.debugger.breakOnAny = false
         }
 
         // Remove non-global objects from scope

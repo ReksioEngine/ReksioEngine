@@ -2,7 +2,6 @@ import {callback, callbacks} from '../../fileFormats/common'
 import {Engine} from '../index'
 import {Type} from '../types'
 import {assert} from '../../errors'
-import {CodeSource} from '../debugging'
 import {InterruptScriptExecution} from '../../interpreter/evaluator'
 
 export class CallbacksComponent {
@@ -51,11 +50,11 @@ export class CallbacksComponent {
         try {
             const callbackGroup = this.registry.get(type)
             if (callbackGroup?.nonParametrized) {
-                this.engine.executeCallback(this.object, new CodeSource(this.object, type), callbackGroup.nonParametrized)
+                this.engine.executeCallback(this.object, callbackGroup.nonParametrized)
             }
 
             if (param !== undefined && callbackGroup?.parametrized.has(param)) {
-                this.engine.executeCallback(this.object, new CodeSource(this.object, type), callbackGroup.parametrized.get(param)!)
+                this.engine.executeCallback(this.object, callbackGroup.parametrized.get(param)!)
             }
         } catch (err) {
             if (!(err instanceof InterruptScriptExecution)) {
