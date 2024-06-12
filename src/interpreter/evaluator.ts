@@ -12,6 +12,7 @@ import {NotImplementedError} from '../utils'
 import {Engine} from '../engine'
 import {libraries} from './stdlib'
 import {CodeSource, DebuggerReport} from '../engine/debugging'
+import {Behaviour} from '../engine/types/behaviour'
 
 export class InterruptScriptExecution {
     public one: boolean
@@ -200,12 +201,46 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         }
     }
 
-    visitSpecialCall = (ctx: SpecialCallContext): any => {
+    visitSpecialCall = (ctx: SpecialCallContext) => {
         this.lastContext = ctx
         const methodName = ctx.methodName().getText()
         const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : []
 
-        // this.scope['_'][methodName].apply([this.objectContext, ...args])
+        if (methodName === 'IF') {
+            const operator = args[1]
+            const left = this.engine?.getObject(args[0])?.value ?? args[0]
+            const right = this.engine?.getObject(args[2])?.value ?? args[2]
+
+            let result = false
+            if (operator == '_') {
+                result = left === right
+            } else if (operator == '!_') {
+                result = left !== right
+            }
+
+            const onTrue: Behaviour | undefined = this.engine?.getObject(args[3])
+            const onFalse: Behaviour | undefined = this.engine?.getObject(args[4])
+
+            if (result && onTrue !== undefined) {
+                onTrue.RUNC()
+            } else if (!result && onFalse !== undefined) {
+                onFalse.RUNC()
+            }
+        } else {
+            const code = this.markInCode(ctx)
+            console.error(
+                `Unknown special call ${methodName}` +
+                '\n' +
+                `%cCode:%c\n${code}` +
+                '%cCode source:%c%O',
+                '%cUsed variables:%c%O',
+                'font-weight: bold', 'font-weight: inherit',
+                'color: red', 'color: inherit',
+                'font-weight: bold', 'font-weight: inherit', this.codeSource,
+                'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables
+            )
+            // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
+        }
     }
 
     visitMethodCallArguments = (ctx: MethodCallArgumentsContext): any => {
