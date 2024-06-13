@@ -4,6 +4,7 @@ import {Engine} from '../index'
 import {NotImplementedError, pathJoin} from '../../utils'
 import {loadDefinition} from '../definitionLoader'
 import {Episode} from './episode'
+import {String} from './string'
 
 export class Application extends Type<ApplicationDefinition> {
     private language: string = '0415'
@@ -32,7 +33,11 @@ export class Application extends Type<ApplicationDefinition> {
     }
 
     RUN(objectName: string, methodName: string, ...args: any[]) {
-        const object = this.engine.getObject(objectName)
+        let object = this.engine.getObject(objectName)
+        if (object instanceof String) {
+            object = this.engine.getObject(object.value)
+        }
+
         if (object[methodName]) {
             return object[methodName](...args)
         } else {
