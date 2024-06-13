@@ -17,36 +17,36 @@ export class Integer extends ValueType<IntegerDefinition> {
         this.value--
     }
 
-    ADD(value: number) {
-        this.value += value
+    ADD(value: number | string) {
+        this.value += Number(value)
     }
 
-    SUB(value: number) {
-        this.value -= value
+    SUB(value: number | string) {
+        this.value -= Number(value)
     }
 
-    MUL(value: number) {
-        this.value *= value
+    MUL(value: number | string) {
+        this.value *= Number(value)
     }
 
-    DIV(value: number) {
-        this.value /= value
+    DIV(value: number | string) {
+        this.value /= Number(value)
     }
 
     MOD(value: number) {
-        this.value %= value
+        this.value %= Number(value)
     }
 
-    CLAMP(min: number, max: number) {
-        this.value = Math.min(max, Math.max(this.value, min))
+    CLAMP(min: number | string, max: number | string) {
+        this.value = Math.min(Number(max), Math.max(this.value, Number(min)))
     }
 
-    AND(value: number) {
-        this.value &= value
+    AND(value: number | string) {
+        this.value &= Number(value)
     }
 
-    SET(newValue: number) {
-        this.value = newValue
+    SET(newValue: number | string) {
+        this.value = Number(newValue)
     }
 
     GET() {
