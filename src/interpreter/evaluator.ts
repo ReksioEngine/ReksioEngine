@@ -29,7 +29,6 @@ class AlreadyDisplayedError {
 
 export class ScriptEvaluator extends ReksioLangVisitor<any> {
     private readonly engine?: Engine
-    private readonly codeSource?: any
     private readonly args?: any[]
     private readonly script?: string
 
@@ -90,12 +89,10 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 console.error(
                     'Unknown identifier\n' +
                     '\n' +
-                    `%cCode:%c\n${code}` +
-                    '%cCode source:%c%O',
+                    `%cCode:%c\n${code}`,
                     '%cUsed variables:%c%O',
                     'font-weight: bold', 'font-weight: inherit',
                     'color: red', 'color: inherit',
-                    'font-weight: bold', 'font-weight: inherit', this.codeSource,
                     'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables
                 )
 
@@ -141,7 +138,6 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 '\n' +
                 `%cCode:%c\n${code}` +
                 '\n' +
-                '%cCode source:%c %O\n' +
                 '%cObject:%c %O\n' +
                 (args.length > 0 ? '%cArguments:%c %O\n' : '') +
                 (this.args?.length ? '%cBehaviour Arguments:%c %O\n' : '') +
@@ -150,7 +146,6 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 '%cScope:%c %O\n',
                 'font-weight: bold', 'font-weight: inherit',
                 'color: red', 'color: inherit',
-                'font-weight: bold', 'font-weight: inherit', this.codeSource,
                 'font-weight: bold', 'font-weight: inherit', object,
                 ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []),
                 ...(this.args?.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []),
@@ -198,12 +193,10 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             console.error(
                 `Unknown special call ${methodName}` +
                 '\n' +
-                `%cCode:%c\n${code}` +
-                '%cCode source:%c%O',
+                `%cCode:%c\n${code}`,
                 '%cUsed variables:%c%O',
                 'font-weight: bold', 'font-weight: inherit',
                 'color: red', 'color: inherit',
-                'font-weight: bold', 'font-weight: inherit', this.codeSource,
                 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables
             )
             // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
@@ -238,12 +231,10 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 'Unknown identifier\n' +
                 '\n' +
                 `%cCode:%c\n${code}\n\n` +
-                '%cCode source:%c %O\n' +
                 '%cUsed variables:%c %O\n' +
                 '%cScope:%c %O\n',
                 'font-weight: bold', 'font-weight: inherit',
                 'color: red', 'color: inherit',
-                'font-weight: bold', 'font-weight: inherit', this.codeSource,
                 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables,
                 'font-weight: bold', 'font-weight: inherit', this.engine?.scope,
             )
