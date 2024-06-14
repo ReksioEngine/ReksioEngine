@@ -29,3 +29,10 @@ export const createColorSprite = (app: Application, dimensions: Rectangle, color
     background.zIndex = -99999
     return background
 }
+
+export const valueAsString = (value: any) => {
+    if (typeof value === 'boolean') {
+        return value ? 'TRUE' : 'FALSE'
+    }
+    return value.toString()
+}
