@@ -12,6 +12,7 @@ export class Sound extends Type<SoundDefinition> {
     constructor(engine: Engine, definition: SoundDefinition) {
         super(engine, definition)
         this.callbacks.register('ONINIT', definition.ONINIT)
+        this.callbacks.register('ONSTARTED', definition.ONSTARTED)
         this.callbacks.register('ONFINISHED', definition.ONFINISHED)
     }
 
@@ -35,11 +36,11 @@ export class Sound extends Type<SoundDefinition> {
     async PLAY(arg: any) {
         assert(this.sound !== null)
 
-        console.debug(`Playing sound '${this.definition.FILENAME}'`)
         const instance = await this.sound.play({
             speed: this.engine.speed
         })
-        instance.on('end', this.onComplete.bind(this))
+        instance.on('start', this.onStart.bind(this))
+        instance.on('end', this.onEnd.bind(this))
     }
 
     STOP(arg: boolean) {
@@ -76,7 +77,12 @@ export class Sound extends Type<SoundDefinition> {
         }
     }
 
-    onComplete() {
+    onStart() {
+        console.debug(`Playing sound '${this.definition.FILENAME}'`)
+        this.callbacks.run('ONSTARTED')
+    }
+
+    onEnd() {
         console.debug(`Finished playing sound '${this.definition.FILENAME}'`)
         this.callbacks.run('ONFINISHED')
     }

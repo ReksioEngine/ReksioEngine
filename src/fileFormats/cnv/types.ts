@@ -149,6 +149,7 @@ export type SoundDefinition = TypeDefinition & {
     FLUSHAFTERPLAYED: boolean
     ONINIT: callback
     ONFINISHED: callback
+    ONSTARTED: callback
 }
 
 const SoundStructure = {
@@ -156,7 +157,8 @@ const SoundStructure = {
     PRELOAD: boolean,
     FLUSHAFTERPLAYED: boolean,
     ONINIT: callback,
-    ONFINISHED: callback
+    ONFINISHED: callback,
+    ONSTARTED: callback
 }
 
 export type TimerDefinition = TypeDefinition & {
