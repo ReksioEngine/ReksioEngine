@@ -3,7 +3,13 @@ import {parseArgs} from '../../interpreter/evaluator'
 export type FieldTypeParser = (object: any, key: string, param: string, value: string) => void
 
 export const string = (object: any, key: string, param: string, value: string) => object[key] = value
-export const number = (object: any, key: string, param: string, value: string) => object[key] = parseInt(value)
+export const number = (object: any, key: string, param: string, value: string) => {
+    if (value.startsWith('"')) {
+        object[key] = Number(value.slice(1,-1))
+    } else {
+        object[key] = Number(value)
+    }
+}
 export const boolean = (object: any, key: string, param: string, value: string) => object[key] = value === 'TRUE'
 export const stringArray = (object: any, key: string, param: string, value: string) => object[key] = value.split(',')
 export const callback = (object: any, key: string, param: string, value: string) => object[key] = createCallback(value)
