@@ -1,6 +1,7 @@
 import {ValueType} from './index'
 import {ExpressionDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
+import {NotImplementedError} from '../../utils'
 
 export class Expression extends ValueType<ExpressionDefinition> {
     constructor(engine: Engine, definition: ExpressionDefinition) {
@@ -16,6 +17,8 @@ export class Expression extends ValueType<ExpressionDefinition> {
         case 'ADD':
             result = operand1 + operand2
             break
+        default:
+            throw new NotImplementedError()
         }
 
         return result
