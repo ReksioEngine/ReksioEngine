@@ -3,6 +3,7 @@ import {SceneDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {NotImplementedError, pathJoin} from '../../utils'
 import {Behaviour} from './behaviour'
+import {assert} from '../../errors'
 
 export class Scene extends Type<SceneDefinition> {
     constructor(engine: Engine, definition: SceneDefinition) {
@@ -13,9 +14,9 @@ export class Scene extends Type<SceneDefinition> {
         return pathJoin('DANE', this.definition.PATH, filename)
     }
 
-    // I don't think that it does anything
     SETMUSICVOLUME(volume: number) {
-        throw new NotImplementedError()
+        assert(this.engine.music !== null)
+        this.engine.music.volume = volume / 100
     }
 
     SETMINHSPRIORITY(arg: number) {
