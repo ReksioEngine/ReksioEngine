@@ -55,8 +55,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     ready() {
-        this.callbacks.run('ONINIT')
-
         assert(this.annFile !== null)
 
         const defaultEvent = this.annFile.events.find(event => event.framesCount > 0)
@@ -65,6 +63,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.currentEvent = defaultEvent.name
         }
 
+        this.callbacks.run('ONINIT')
         this.tick(0)
     }
 
