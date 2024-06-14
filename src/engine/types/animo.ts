@@ -96,11 +96,16 @@ export class Animo extends DisplayType<AnimoDefinition> {
                 }
 
                 const filenames = frame.sounds.split(';').filter(x => x.trim() !== '')
+                console.debug(frame.sounds)
                 for (const filename of filenames) {
                     if (!this.sounds.has(filename)) {
                         const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '')
-                        const sound = await loadSound(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`)
-                        this.sounds.set(filename, sound)
+                        try {
+                            const sound = await loadSound(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`)
+                            this.sounds.set(filename, sound)
+                        } catch (err) {
+                            console.warn(err)
+                        }
                     }
                 }
             }
