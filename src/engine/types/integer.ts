@@ -46,6 +46,14 @@ export class Integer extends ValueType<IntegerDefinition> {
     }
 
     SET(newValue: number | string) {
+        if (typeof newValue == 'string') {
+            const possibleInteger = this.engine.getObject(newValue)
+            if (possibleInteger instanceof Integer) {
+                this.value = possibleInteger.value
+                return
+            }
+        }
+
         this.value = Number(newValue)
     }
 
