@@ -56,6 +56,15 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     ready() {
         this.callbacks.run('ONINIT')
+
+        assert(this.annFile !== null)
+
+        const defaultEvent = this.annFile.events.find(event => event.framesCount > 0)
+        if (defaultEvent !== undefined) {
+            this.renderFrame(defaultEvent, 0)
+            this.currentEvent = defaultEvent.name
+        }
+
         this.tick(0)
     }
 
@@ -153,18 +162,14 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     private tickAnimation(event: Event) {
         assert(this.annFile !== null && this.sprite !== null)
-
-        const eventFrame = event.frames[this.currentFrameIdx]
-        const imageIndex = event.framesImageMapping[this.currentFrameIdx]
-        const annImage = this.annFile.annImages[imageIndex]
+        this.renderFrame(event, this.currentFrameIdx)
 
         if (this.currentFrameIdx === 0) {
             this.ONSTARTED()
         }
 
-        this.updateSprite(eventFrame, imageIndex, annImage)
-
         // Random sound out of them?
+        const eventFrame = event.frames[this.currentFrameIdx]
         if (eventFrame.sounds) {
             const filenames = eventFrame.sounds.split(';')
             const randomFilename = filenames[Math.floor((Math.random()*filenames.length))]
@@ -261,10 +266,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         assert(this.annFile !== null)
         assert(event !== null)
 
-        const eventFrame = event.frames[frameIdx]
-        const imageIndex = event.framesImageMapping[frameIdx]
-        const annImage = this.annFile.annImages[imageIndex]
-        this.updateSprite(eventFrame, imageIndex, annImage)
+        this.renderFrame(event, frameIdx)
     }
 
     SETFPS(fps: number) {
@@ -421,6 +423,16 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return this.annFile!.events.find(
             event => event.name.toUpperCase() === name.toUpperCase()
         ) ?? null
+    }
+
+    renderFrame(event: Event, frameIdx: number) {
+        assert(this.annFile !== null)
+        assert(event !== null)
+
+        const eventFrame = event.frames[frameIdx]
+        const imageIndex = event.framesImageMapping[frameIdx]
+        const annImage = this.annFile.annImages[imageIndex]
+        this.updateSprite(eventFrame, imageIndex, annImage)
     }
 
     getRenderObject() {
