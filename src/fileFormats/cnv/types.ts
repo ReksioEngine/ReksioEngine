@@ -213,10 +213,12 @@ const ImageStructure = {
 
 export type MouseDefinition = TypeDefinition & {
     ONCLICK: callbacks<string>
+    ONRELEASE: callbacks<string>
 }
 
 const MouseStructure = {
-    ONCLICK: callbacks
+    ONCLICK: callbacks,
+    ONRELEASE: callbacks
 }
 
 export type KeyboardDefinition = TypeDefinition & NonNullable<unknown>

@@ -9,12 +9,15 @@ export class Mouse extends Type<MouseDefinition> {
 
     private mouseMoveListener: any
     private mouseClickListener: any
+    private mouseReleaseListener: any
 
     private clicked = false
+    private released = false
 
     constructor(engine: Engine, definition: MouseDefinition) {
         super(engine, definition)
         this.callbacks.registerGroup('ONCLICK', definition.ONCLICK)
+        this.callbacks.registerGroup('ONRELEASE', definition.ONRELEASE)
     }
 
     init() {
@@ -27,8 +30,12 @@ export class Mouse extends Type<MouseDefinition> {
 
     tick(delta: number) {
         if (this.clicked) {
-            this.ONCLICK()
+            this.callbacks.run('ONCLICK')
             this.clicked = false
+        }
+        if (this.released) {
+            this.callbacks.run('ONRELEASE')
+            this.released = false
         }
     }
 
@@ -41,6 +48,11 @@ export class Mouse extends Type<MouseDefinition> {
         this.clicked = true
     }
 
+    onMouseRelease(event: FederatedPointerEvent) {
+        this.onMouseMove(event)
+        this.released = true
+    }
+
     SET(cursorType: 'ACTIVE' | 'ARROW') {
         throw new NotImplementedError()
     }
@@ -48,10 +60,14 @@ export class Mouse extends Type<MouseDefinition> {
     ENABLE() {
         this.mouseMoveListener = this.onMouseMove.bind(this)
         this.mouseClickListener = this.onMouseClick.bind(this)
+        this.mouseReleaseListener = this.onMouseRelease.bind(this)
 
         this.engine.app.stage.addListener('pointermove', this.mouseMoveListener)
         if (this.callbacks.has('ONCLICK')) {
             this.engine.app.stage.addListener('pointerdown', this.mouseClickListener)
+        }
+        if (this.callbacks.has('ONRELEASE')) {
+            this.engine.app.stage.addListener('pointerup', this.mouseReleaseListener)
         }
     }
 
@@ -66,10 +82,6 @@ export class Mouse extends Type<MouseDefinition> {
 
     GETPOSY() {
         return this.mousePosition.y
-    }
-
-    ONCLICK() {
-        this.callbacks.run('ONCLICK')
     }
 
     debuggerValues() {
