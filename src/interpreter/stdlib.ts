@@ -28,6 +28,11 @@ export class RandomLibrary extends Library{
         max = Number(max)
 
         const object = this.engine?.getObject(objectTarget) as ArrayObject
-        object.ADD([...Array(count)].map(_ => this.GET(min, max)))
+
+        const values = []
+        for (let i = 0; i < count; i++) {
+            values.push(this.GET(min, max))
+        }
+        object.ADD(...values)
     }
 }
