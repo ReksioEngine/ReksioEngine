@@ -107,9 +107,11 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
 export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<DefinitionType> {
     protected _value?: any
 
-    constructor(engine: Engine, definition: DefinitionType, defaultValue: number | string | boolean | any[]) {
+    constructor(engine: Engine, definition: DefinitionType, defaultValue?: number | string | boolean | any[]) {
         super(engine, definition)
-        this.value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue
+        if (defaultValue !== undefined) {
+            this.value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue
+        }
     }
 
     get value() {

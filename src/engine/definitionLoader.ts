@@ -27,6 +27,7 @@ import {Font} from './types/font'
 import {ComplexCondition} from './types/complexCondition'
 import {Rand} from './types/rand'
 import {Double} from './types/double'
+import {Expression} from './types/expression'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -54,6 +55,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Double(engine, definition)
     case 'EPISODE':
         return new Episode(engine, definition)
+    case 'EXPRESSION':
+        return new Expression(engine, definition)
     case 'FONT':
         return new Font(engine, definition)
     case 'GROUP':

@@ -384,6 +384,18 @@ const DoubleStructure = {
     VALUE: number,
 }
 
+export type ExpressionDefinition = TypeDefinition & {
+    OPERAND1: callback
+    OPERATOR: 'ADD'
+    OPERAND2: callback
+}
+
+const ExpressionDefinitionStructure = {
+    OPERAND1: code,
+    OPERATOR: string,
+    OPERAND2: code
+}
+
 export const structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -410,5 +422,6 @@ export const structureDefinitions = {
     FONT: FontDefinitionStructure,
     COMPLEXCONDITION: ComplexConditionDefinitionStructure,
     RAND: RandDefinitionStructure,
-    DOUBLE: DoubleStructure
+    DOUBLE: DoubleStructure,
+    EXPRESSION: ExpressionDefinitionStructure,
 } as any
