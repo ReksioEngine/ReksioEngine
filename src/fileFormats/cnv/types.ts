@@ -374,6 +374,14 @@ export type RandDefinition = TypeDefinition
 
 const RandDefinitionStructure = {}
 
+export type DoubleDefinition = TypeDefinition & {
+    VALUE: string
+}
+
+const DoubleStructure = {
+    VALUE: number,
+}
+
 export const structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -399,5 +407,6 @@ export const structureDefinitions = {
     TEXT: TextDefinitionStructure,
     FONT: FontDefinitionStructure,
     COMPLEXCONDITION: ComplexConditionDefinitionStructure,
-    RAND: RandDefinitionStructure
+    RAND: RandDefinitionStructure,
+    DOUBLE: DoubleStructure
 } as any

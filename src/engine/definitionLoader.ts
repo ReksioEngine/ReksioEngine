@@ -26,6 +26,7 @@ import {DisplayType, Type} from './types'
 import {Font} from './types/font'
 import {ComplexCondition} from './types/complexCondition'
 import {Rand} from './types/rand'
+import {Double} from './types/double'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -49,6 +50,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Condition(engine, definition)
     case 'COMPLEXCONDITION':
         return new ComplexCondition(engine, definition)
+    case 'DOUBLE':
+        return new Double(engine, definition)
     case 'EPISODE':
         return new Episode(engine, definition)
     case 'FONT':
