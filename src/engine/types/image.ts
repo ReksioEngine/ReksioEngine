@@ -1,9 +1,8 @@
 import {DisplayType} from './index'
 import {Engine} from '../index'
 import {ImageDefinition} from '../../fileFormats/cnv/types'
-import {NotImplementedError} from '../../utils'
-import {assert} from '../../errors'
-import {DisplayObject, Sprite} from 'pixi.js'
+import {assert, NotImplementedError} from '../../errors'
+import {Sprite} from 'pixi.js'
 import {loadSprite} from '../assetsLoader'
 
 export class Image extends DisplayType<ImageDefinition> {

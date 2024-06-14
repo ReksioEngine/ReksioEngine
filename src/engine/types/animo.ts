@@ -1,14 +1,15 @@
 import {DisplayType} from './index'
 import {AnimoDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
-import {NotImplementedError} from '../../utils'
-import {assert} from '../../errors'
+import {NotImplementedError} from '../../errors'
+import {assert, InvalidObjectError} from '../../errors'
 import * as PIXI from 'pixi.js'
 import {Sprite, Texture} from 'pixi.js'
 import {ANN, AnnImage, Event, Frame} from '../../fileFormats/ann'
 import {ButtonLogicComponent, Event as FSMEvent, State} from '../components/button'
 import {loadSound} from '../assetsLoader'
 import {Sound as PIXISound} from '@pixi/sound'
+import {FileNotFoundError} from '../../filesLoader'
 
 //TODO: Try to use Image class here
 export class Animo extends DisplayType<AnimoDefinition> {
@@ -89,11 +90,19 @@ export class Animo extends DisplayType<AnimoDefinition> {
         assert(this.engine.currentScene !== undefined)
 
         const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME)
-        const annFile = await this.engine.fileLoader.getANNFile(relativePath)
-        await this.loadSfx(annFile)
 
-        console.debug(`File '${this.definition.FILENAME}' loaded successfully!`)
-        return annFile
+        try {
+            const annFile = await this.engine.fileLoader.getANNFile(relativePath)
+            await this.loadSfx(annFile)
+
+            console.debug(`File '${this.definition.FILENAME}' loaded successfully!`)
+            return annFile
+        } catch (err) {
+            if (err instanceof FileNotFoundError) {
+                throw new InvalidObjectError('ANN file not found')
+            }
+            throw err
+        }
     }
 
     private async loadSfx(annFile: ANN) {
@@ -104,7 +113,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
                 }
 
                 const filenames = frame.sounds.split(';').filter(x => x.trim() !== '')
-                console.debug(frame.sounds)
                 for (const filename of filenames) {
                     if (!this.sounds.has(filename)) {
                         const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '')

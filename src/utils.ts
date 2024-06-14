@@ -29,9 +29,3 @@ export const createColorSprite = (app: Application, dimensions: Rectangle, color
     background.zIndex = -99999
     return background
 }
-
-export class NotImplementedError extends Error {
-    constructor() {
-        super('Not implemented')
-    }
-}

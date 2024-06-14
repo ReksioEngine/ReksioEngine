@@ -1,7 +1,7 @@
 import {ValueType} from './index'
 import {ExpressionDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
-import {NotImplementedError} from '../../utils'
+import {NotImplementedError} from '../../errors'
 
 export class Expression extends ValueType<ExpressionDefinition> {
     constructor(engine: Engine, definition: ExpressionDefinition) {

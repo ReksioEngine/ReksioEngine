@@ -1,9 +1,8 @@
 import {Engine} from '../index'
 import {DisplayTypeDefinition, TypeDefinition, ValueTypeDefinition} from '../../fileFormats/common'
-import {NotImplementedError} from '../../utils'
 import {CallbacksComponent} from '../components/callbacks'
 import {Point, Sprite} from 'pixi.js'
-import {assert} from '../../errors'
+import {assert, NotImplementedError} from '../../errors'
 
 export class Type<DefinitionType extends TypeDefinition> {
     protected callbacks: CallbacksComponent

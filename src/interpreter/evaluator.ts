@@ -8,10 +8,10 @@ import ReksioLangParser, {
 } from './ReksioLangParser'
 import ReksioLangLexer from './ReksioLangLexer'
 import antlr4, {ParserRuleContext} from 'antlr4'
-import {NotImplementedError} from '../utils'
 import {Engine} from '../engine'
 import {RandomLibrary} from './stdlib'
 import {Behaviour} from '../engine/types/behaviour'
+import {NotImplementedError} from '../errors'
 
 export class InterruptScriptExecution {
     public one: boolean

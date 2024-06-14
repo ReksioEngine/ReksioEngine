@@ -1,9 +1,9 @@
 import {Type} from './index'
 import {SceneDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
-import {NotImplementedError, pathJoin} from '../../utils'
+import {pathJoin} from '../../utils'
 import {Behaviour} from './behaviour'
-import {assert} from '../../errors'
+import {assert, NotImplementedError} from '../../errors'
 
 export class Scene extends Type<SceneDefinition> {
     constructor(engine: Engine, definition: SceneDefinition) {

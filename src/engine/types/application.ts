@@ -1,10 +1,11 @@
 import {Type} from './index'
 import {ApplicationDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
-import {NotImplementedError, pathJoin} from '../../utils'
+import {pathJoin} from '../../utils'
 import {loadDefinition} from '../definitionLoader'
 import {Episode} from './episode'
 import {String} from './string'
+import {NotImplementedError} from '../../errors'
 
 export class Application extends Type<ApplicationDefinition> {
     private language: string = '0415'

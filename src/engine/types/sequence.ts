@@ -3,7 +3,7 @@ import {Engine} from '../index'
 import {SequenceDefinition} from '../../fileFormats/cnv/types'
 import {FileNotFoundError} from '../../filesLoader'
 import {SequenceFile} from '../../fileFormats/seq'
-import {NotImplementedError} from '../../utils'
+import {NotImplementedError} from '../../errors'
 
 export class Sequence extends Type<SequenceDefinition> {
     private sequenceFile?: SequenceFile
