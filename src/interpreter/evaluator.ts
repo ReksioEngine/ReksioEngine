@@ -172,6 +172,9 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 return null
             }
 
+            // eslint-disable-next-line no-debugger
+            debugger
+
             throw new AlreadyDisplayedError(err)
         }
     }

@@ -118,6 +118,8 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
     }
 
     set value(newValue: any) {
+        assert(typeof newValue != 'number' || !isNaN(newValue))
+
         const oldValue = this._value
         this._value = newValue
         this.valueChanged(oldValue, newValue)
