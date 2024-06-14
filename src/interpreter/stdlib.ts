@@ -1,21 +1,33 @@
-export const libraries = {
-    RANDOM: {
-        // min - included, max - excluded
-        GET: (min: number | string, max?: number | string) => {
-            // Min and Max can be a string containing a number.
-            // Probably behaviour's constant arguments can only be a string
-            if (typeof min === 'string') {
-                min = parseInt(min)
-            }
-            if (typeof max === 'string') {
-                max = parseInt(max)
-            }
+import {Engine} from '../engine'
+import {ArrayObject} from '../engine/types/array'
 
-            if (max === undefined) {
-                return libraries.RANDOM.GET(0, min)
-            }
-
-            return Math.floor(Math.random() * (max - min)) + min
-        }
+class Library {
+    protected readonly engine?: Engine
+    constructor(engine?: Engine) {
+        this.engine = engine
     }
-} as any
+}
+
+export class RandomLibrary extends Library{
+    GET(min: number | string, max?: number | string): number {
+        // Min and Max can be a string containing a number.
+        // Probably behaviour's constant arguments can only be a string
+        min = Number(min)
+        max = Number(max)
+
+        if (max === undefined) {
+            return this.GET(0, min)
+        }
+
+        return Math.floor(Math.random() * (max - min)) + min
+    }
+
+    GETPLENTY(objectTarget: string, count: number | string, min: number | string, max: number | string, arg5: boolean) {
+        count = Number(count)
+        min = Number(min)
+        max = Number(max)
+
+        const object = this.engine?.getObject(objectTarget) as ArrayObject
+        object.ADD([...Array(count)].map(_ => this.GET(min, max)))
+    }
+}

@@ -10,7 +10,7 @@ import ReksioLangLexer from './ReksioLangLexer'
 import antlr4, {ParserRuleContext} from 'antlr4'
 import {NotImplementedError} from '../utils'
 import {Engine} from '../engine'
-import {libraries} from './stdlib'
+import {RandomLibrary} from './stdlib'
 import {Behaviour} from '../engine/types/behaviour'
 
 export class InterruptScriptExecution {
@@ -36,11 +36,18 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     public methodCallUsedVariables: any = {}
     public scriptUsedVariables: any = {}
 
+    private libraries = new Map<string, any>()
+
     constructor(engine?: Engine, script?: string, args?: any[]) {
         super()
         this.engine = engine
         this.script = script
         this.args = args
+        this.loadLibraries()
+    }
+
+    private loadLibraries() {
+        this.libraries.set('RANDOM', new RandomLibrary(this.engine))
     }
 
     visitStatementList = (ctx: StatementListContext): any => {
@@ -222,8 +229,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         this.scriptUsedVariables[objectName] = object
 
         if (object === undefined) {
-            if (libraries[objectName]) {
-                return libraries[objectName]
+            if (this.libraries.has(objectName)) {
+                return this.libraries.get(objectName)
             }
 
             const code = this.markInCode(ctx)
