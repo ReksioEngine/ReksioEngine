@@ -1,4 +1,5 @@
 import {Application, Graphics, Sprite, Rectangle} from 'pixi.js'
+import {assert} from './errors'
 
 export const pathJoin = (...parts: Array<string>) => {
     const fixedParts = parts.map(part => part.replace(/\\/g, '/'))
@@ -28,11 +29,4 @@ export const createColorSprite = (app: Application, dimensions: Rectangle, color
     const background = new Sprite(createColorTexture(app, dimensions, color, alpha))
     background.zIndex = -99999
     return background
-}
-
-export const valueAsString = (value: any) => {
-    if (typeof value === 'boolean') {
-        return value ? 'TRUE' : 'FALSE'
-    }
-    return value.toString()
 }

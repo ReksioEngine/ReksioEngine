@@ -1,6 +1,7 @@
 import {ValueType} from './index'
 import {Engine} from '../index'
 import {IntegerDefinition} from '../../fileFormats/cnv/types'
+import {ForceNumber} from '../../types'
 
 export class Integer extends ValueType<IntegerDefinition> {
     constructor(engine: Engine, definition: IntegerDefinition) {
@@ -18,31 +19,31 @@ export class Integer extends ValueType<IntegerDefinition> {
     }
 
     ADD(value: number | string) {
-        this.value += Number(value)
+        this.value += ForceNumber(value)
     }
 
     SUB(value: number | string) {
-        this.value -= Number(value)
+        this.value -= ForceNumber(value)
     }
 
     MUL(value: number | string) {
-        this.value *= Number(value)
+        this.value *= ForceNumber(value)
     }
 
     DIV(value: number | string) {
-        this.value /= Number(value)
+        this.value /= ForceNumber(value)
     }
 
     MOD(value: number) {
-        this.value %= Number(value)
+        this.value %= ForceNumber(value)
     }
 
     CLAMP(min: number | string, max: number | string) {
-        this.value = Math.min(Number(max), Math.max(this.value, Number(min)))
+        this.value = Math.min(ForceNumber(max), Math.max(this.value, ForceNumber(min)))
     }
 
     AND(value: number | string) {
-        this.value &= Number(value)
+        this.value &= ForceNumber(value)
     }
 
     SET(newValue: number | string) {
@@ -54,7 +55,7 @@ export class Integer extends ValueType<IntegerDefinition> {
             }
         }
 
-        this.value = Number(newValue)
+        this.value = ForceNumber(newValue)
     }
 
     GET() {

@@ -12,7 +12,7 @@ import {Engine} from '../engine'
 import {RandomLibrary} from './stdlib'
 import {Behaviour} from '../engine/types/behaviour'
 import {NotImplementedError} from '../errors'
-import {valueAsString} from '../utils'
+import {Compare} from '../types'
 
 export class InterruptScriptExecution {
     public one: boolean
@@ -189,14 +189,22 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             const operator = args[1]
 
             // valueAsString() in order to achieve loose equality
-            const left = valueAsString(this.engine?.getObject(args[0])?.value ?? args[0])
-            const right = valueAsString(this.engine?.getObject(args[2])?.value ?? args[2])
+            const left = this.engine?.getObject(args[0])?.value ?? args[0]
+            const right = this.engine?.getObject(args[2])?.value ?? args[2]
 
             let result = false
             if (operator == '_') {
-                result = left === right
+                result = Compare.Equal(left, right)
             } else if (operator == '!_') {
-                result = left !== right
+                result = Compare.NotEqual(left, right)
+            } else if (operator == '>') {
+                result = Compare.Greater(left, right)
+            } else if (operator == '<') {
+                result = Compare.Less(left, right)
+            } else if (operator == '>_') {
+                result = Compare.GreaterOrEqual(left, right)
+            } else if (operator == '<_') {
+                result = Compare.LessOrEqual(left, right)
             }
 
             const onTrue: Behaviour | undefined = this.engine?.getObject(args[3])

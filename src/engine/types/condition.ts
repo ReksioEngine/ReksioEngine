@@ -2,7 +2,7 @@ import {Type} from './index'
 import {ConditionDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {InterruptScriptExecution} from '../../interpreter/evaluator'
-import {valueAsString} from '../../utils'
+import {Compare} from '../../types'
 
 export class Condition extends Type<ConditionDefinition> {
     constructor(engine: Engine, definition: ConditionDefinition) {
@@ -29,28 +29,28 @@ export class Condition extends Type<ConditionDefinition> {
 
     CHECK(arg: boolean): boolean {
         // valueAsString() in order to achieve loose equality
-        const operand1 = valueAsString(this.engine.executeCallback(this, this.definition.OPERAND1))
-        const operand2 = valueAsString(this.engine.executeCallback(this, this.definition.OPERAND2))
+        const operand1 = this.engine.executeCallback(this, this.definition.OPERAND1)
+        const operand2 = this.engine.executeCallback(this, this.definition.OPERAND2)
 
         let result
         switch (this.definition.OPERATOR) {
         case 'EQUAL':
-            result = operand1 == operand2
+            result = Compare.Equal(operand1, operand2)
             break
         case 'NOTEQUAL':
-            result = operand1 != operand2
+            result = Compare.NotEqual(operand1, operand2)
             break
         case 'LESS':
-            result = operand1 < operand2
+            result = Compare.Less(operand1, operand2)
             break
         case 'GREATER':
-            result = operand1 > operand2
+            result = Compare.Greater(operand1, operand2)
             break
         case 'LESSEQUAL':
-            result = operand1 <= operand2
+            result = Compare.LessOrEqual(operand1, operand2)
             break
         case 'GREATEREQUAL':
-            result = operand1 >= operand2
+            result = Compare.GreaterOrEqual(operand1, operand2)
             break
         }
 
