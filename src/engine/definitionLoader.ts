@@ -45,6 +45,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Button(engine, definition)
     case 'CANVAS_OBSERVER':
         return new CanvasObserver(engine, definition)
+    case 'CANVASOBSERVER':
+        return new CanvasObserver(engine, definition)
     case 'CNVLOADER':
         return new CNVLoader(engine, definition)
     case 'CONDITION':
