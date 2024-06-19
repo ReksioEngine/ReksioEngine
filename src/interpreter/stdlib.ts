@@ -19,7 +19,7 @@ export class RandomLibrary extends Library{
             return this.GET(0, min)
         }
 
-        max = ForceNumber(max)
+        max = min + ForceNumber(max)
         return Math.floor(Math.random() * (max - min)) + min
     }
 
