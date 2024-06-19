@@ -11,8 +11,8 @@ import antlr4, {ParserRuleContext} from 'antlr4'
 import {Engine} from '../engine'
 import {RandomLibrary} from './stdlib'
 import {Behaviour} from '../engine/types/behaviour'
-import {NotImplementedError} from '../errors'
-import {Compare} from '../types'
+import {assert, NotImplementedError} from '../errors'
+import {Compare, ForceNumber} from '../types'
 
 export class InterruptScriptExecution {
     public one: boolean
@@ -75,9 +75,9 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         } else if (ctx.FALSE() != null) {
             return false
         } else if (ctx.NUMBER() != null) {
-            return Number(ctx.NUMBER().getText())
+            return ForceNumber(ctx.NUMBER().getText())
         } else if (ctx.negativeNumber() != null) {
-            return Number(ctx.negativeNumber().getText())
+            return ForceNumber(ctx.negativeNumber().getText())
         } else if (ctx.STRING() != null) {
             return ctx.STRING().getText().replace(/^"|"$/g, '')
         } else if (ctx.IDENTIFIER() != null) {
@@ -86,6 +86,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 const argIdx = parseInt(identifier.substring(1)) - 1
                 this.methodCallUsedVariables[identifier] = this.args[argIdx]
                 this.scriptUsedVariables[identifier] = this.args[argIdx]
+
+                assert(this.args.length >= argIdx + 1)
                 return this.args[argIdx]
             }
 
@@ -287,17 +289,23 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         const left = this.visitOperation(ctx._left)
         const right = this.visitOperation(ctx._right)
 
+        assert(!(typeof left == 'number' && typeof right != 'number'))
+
+        let result = undefined
         if (ctx._operator.type == ReksioLangParser.ADD) {
-            return left + right
+            result = left + right
         } else if (ctx._operator.type == ReksioLangParser.SUB) {
-            return left - right
+            result = left - right
         } else if (ctx._operator.type == ReksioLangParser.MUL) {
-            return left * right
+            result = left * right
         } else if (ctx._operator.type == ReksioLangParser.MOD) {
-            return left % right
+            result = left % right
         } else if (ctx._operator.type == ReksioLangParser.DIV) {
-            return left / right
+            result = left / right
         }
+
+        assert(!(typeof result == 'number' && isNaN(result)))
+        return result
     }
 
     markInCode(ctx: ParserRuleContext) {
