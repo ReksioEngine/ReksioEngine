@@ -97,7 +97,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 console.error(
                     'Unknown identifier\n' +
                     '\n' +
-                    `%cCode:%c\n${code}`,
+                    `%cCode:%c\n${code}\n\n` +
                     '%cUsed variables:%c%O',
                     'font-weight: bold', 'font-weight: inherit',
                     'color: red', 'color: inherit',
@@ -220,7 +220,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             console.error(
                 `Unknown special call ${methodName}` +
                 '\n' +
-                `%cCode:%c\n${code}`,
+                `%cCode:%c\n${code}\n\n` +
                 '%cUsed variables:%c%O',
                 'font-weight: bold', 'font-weight: inherit',
                 'color: red', 'color: inherit',
@@ -329,8 +329,7 @@ export const runScript = (engine: Engine, script: string, args?: any[], singleSt
                 const code = evaluator.markInCode(evaluator.lastContext)
                 console.error(
                     'Execution stopped due to irrecoverable error\n\n' +
-                    `%cCode:%c\n${code}` +
-                    '%cCode source:%c %O',
+                    `%cCode:%c\n${code}`,
                     'font-weight: bold', 'font-weight: inherit',
                     'color: red', 'color: inherit',
                 )
