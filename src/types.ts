@@ -4,6 +4,9 @@ export const valueAsString = (value: any) => {
     if (typeof value === 'boolean') {
         return value ? 'TRUE' : 'FALSE'
     }
+    if (value === null) {
+        return 'NULL'
+    }
     return value.toString()
 }
 
