@@ -6,8 +6,13 @@ import {ForceNumber} from '../../types'
 export class Integer extends ValueType<IntegerDefinition> {
     constructor(engine: Engine, definition: IntegerDefinition) {
         super(engine, definition, 0)
+        this.callbacks.register('ONINIT', this.definition.ONINIT)
         this.callbacks.registerGroup('ONCHANGED', this.definition.ONCHANGED)
         this.callbacks.registerGroup('ONBRUTALCHANGED', this.definition.ONBRUTALCHANGED)
+    }
+
+    ready() {
+        this.callbacks.run('ONINIT')
     }
 
     INC() {

@@ -81,6 +81,7 @@ const SceneStructure = {
 export type IntegerDefinition = TypeDefinition & {
     VALUE: number
     TOINI: boolean
+    ONINIT: callback,
     ONCHANGED: callbacks<number>
     ONBRUTALCHANGED: callbacks<number>
 }
@@ -88,6 +89,7 @@ export type IntegerDefinition = TypeDefinition & {
 const IntegerStructure = {
     VALUE: number,
     TOINI: boolean,
+    ONINIT: callback,
     ONCHANGED: numberParam(callbacks),
     ONBRUTALCHANGED: numberParam(callbacks)
 }
