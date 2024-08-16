@@ -46,13 +46,19 @@ export class Integer extends ValueType<IntegerDefinition> {
         this.value &= ForceNumber(value)
     }
 
-    SET(newValue: number | string) {
+    SET(newValue?: number | string) {
         if (typeof newValue == 'string') {
             const possibleInteger = this.engine.getObject(newValue)
             if (possibleInteger instanceof Integer) {
                 this.value = possibleInteger.value
                 return
             }
+        }
+
+        // That's how the game works
+        if (newValue === undefined) {
+            this.value = 0
+            return
         }
 
         this.value = ForceNumber(newValue)
