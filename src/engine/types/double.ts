@@ -12,6 +12,11 @@ export class Double extends ValueType<DoubleDefinition> {
         return this.value
     }
 
+    ADD(value: number | string) {
+        this.value += Number(value)
+        return this.value
+    }
+
     SET(newValue: number | string) {
         this.value = Number(newValue)
     }
