@@ -11,7 +11,6 @@ import {loadSound} from '../assetsLoader'
 import {Sound as PIXISound} from '@pixi/sound'
 import {FileNotFoundError} from '../../filesLoader'
 
-//TODO: Try to use Image class here
 export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent | null = null
 
@@ -58,6 +57,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     ready() {
         assert(this.annFile !== null)
 
+        // Find first event with any frames
         const defaultEvent = this.annFile.events.find(event => event.framesCount > 0)
         if (defaultEvent !== undefined) {
             this.renderFrame(defaultEvent, 0)
@@ -89,9 +89,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private async loadAnimation() {
         assert(this.engine.currentScene !== undefined)
 
-        const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME)
-
         try {
+            const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME)
             const annFile = await this.engine.fileLoader.getANNFile(relativePath)
             await this.loadSfx(annFile)
 
@@ -139,12 +138,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     getTextureFrom(imageIndex: number): Texture {
+        assert(this.annFile != null)
+
+        // Check if cached already
         if (this.textures.has(imageIndex)) {
             return this.textures.get(imageIndex)!
-        }
-
-        if (this.annFile == null) {
-            throw new Error('Animation is not loaded yet!')
         }
 
         const baseTexture = PIXI.BaseTexture.fromBuffer(
@@ -155,7 +153,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         const texture = new PIXI.Texture(baseTexture)
         this.textures.set(imageIndex, texture)
-
         return texture
     }
 
@@ -187,8 +184,18 @@ export class Animo extends DisplayType<AnimoDefinition> {
             }
         }
 
-        this.currentFrameIdx += 1
-        this.invokeIfAnimationCompleted(event)
+        this.currentFrameIdx++
+
+        if (this.currentFrameIdx >= event.framesCount) {
+            if (this.currentLoop >= event.loopNumber) {
+                this.STOP(false)
+                this.ONFINISHED()
+            }
+
+            this.currentLoop++
+            this.currentFrameIdx = 0
+        }
+
         this.ONFRAMECHANGED()
     }
 
@@ -211,18 +218,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.height = annImage.height
     }
 
-    private invokeIfAnimationCompleted(event: Event) {
-        if (this.currentFrameIdx < event.framesCount) return
-
-        if (this.currentLoop >= event.loopNumber) {
-            this.STOP(false)
-            this.ONFINISHED()
-        }
-
-        this.currentLoop += 1
-        this.currentFrameIdx = 0
-    }
-
     private ONFINISHED() {
         const index = this.currentEvent.toString()
         this.callbacks.run('ONFINISHED', index.toString())
@@ -238,16 +233,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     PLAY(name: string | number) {
-        if (!this.getEventByName(name.toString())) {
-            return false
-        }
+        assert(this.hasEvent(name.toString()))
 
         this.isPlaying = true
         this.currentFrameIdx = 0
         this.currentEvent = name.toString().toUpperCase()
 
-        this.SHOW() //I noticed that play method should call show method
-        return true
+        this.SHOW()
     }
 
     STOP(arg: boolean) {
@@ -325,7 +317,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
     onButtonStateChange(prevState: State, event: FSMEvent, newState: State) {
         switch (newState) {
         case State.HOVERED:
-            this.PLAY('ONFOCUSON') || this.PLAY('PLAY')
+            if (this.hasEvent('ONFOCUSON')) {
+                this.PLAY('ONFOCUSON')
+            } else if (this.hasEvent('PLAY')) {
+                this.PLAY('PLAY')
+            }
+
             if (event === FSMEvent.UP) {
                 this.callbacks.run('ONRELEASE')
             } else {
@@ -334,14 +331,26 @@ export class Animo extends DisplayType<AnimoDefinition> {
             break
         case State.STANDARD:
             if (event === FSMEvent.ENABLE) {
-                this.PLAY('ONNOEVENT') || this.PLAY('PLAY')
+                if (this.hasEvent('ONNOEVENT')) {
+                    this.PLAY('ONNOEVENT')
+                } else if (this.hasEvent('PLAY')) {
+                    this.PLAY('PLAY')
+                }
             } else {
-                this.PLAY('ONFOCUSOFF') || this.PLAY('PLAY')
+                if (this.hasEvent('ONFOCUSOFF')) {
+                    this.PLAY('ONFOCUSOFF')
+                } else if (this.hasEvent('PLAY')) {
+                    this.PLAY('PLAY')
+                }
                 this.callbacks.run('ONFOCUSOFF')
             }
             break
         case State.PRESSED:
-            this.PLAY('ONCLICK') || this.PLAY('PLAY')
+            if (this.hasEvent('ONCLICK')) {
+                this.PLAY('ONCLICK')
+            } else if (this.hasEvent('PLAY')) {
+                this.PLAY('PLAY')
+            }
             this.callbacks.run('ONCLICKED')
             this.callbacks.run('ONCLICK') // Used in S73_0_KOD in Ufo
             break
@@ -430,6 +439,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return this.annFile!.events.find(
             event => event.name.toUpperCase() === name.toUpperCase()
         ) ?? null
+    }
+
+    hasEvent(name: string): boolean {
+        return this.getEventByName(name) !== null
     }
 
     renderFrame(event: Event, frameIdx: number) {
