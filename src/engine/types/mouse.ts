@@ -83,11 +83,4 @@ export class Mouse extends Type<MouseDefinition> {
     GETPOSY() {
         return this.mousePosition.y
     }
-
-    debuggerValues() {
-        return {
-            ...super.debuggerValues(),
-            position: this.mousePosition
-        }
-    }
 }

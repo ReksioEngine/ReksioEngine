@@ -56,11 +56,4 @@ export class Keyboard extends Type<KeyboardDefinition> {
         }
         return false
     }
-
-    debuggerValues() {
-        return {
-            ...super.debuggerValues(),
-            keysState: Object.fromEntries(this.keysState.entries())
-        }
-    }
 }
