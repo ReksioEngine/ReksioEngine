@@ -12,7 +12,7 @@ export const valueAsString = (value: any) => {
 
 export const ForceNumber = (value: any) => {
     const numberValue = Number(value)
-    assert(!isNaN(numberValue))
+    assert(!isNaN(numberValue), `${value} is not a number`)
     return numberValue
 }
 

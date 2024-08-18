@@ -1,5 +1,4 @@
 import {Application, Graphics, Sprite, Rectangle} from 'pixi.js'
-import {assert} from './errors'
 
 export const pathJoin = (...parts: Array<string>) => {
     const fixedParts = parts.map(part => part.replace(/\\/g, '/'))
