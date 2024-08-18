@@ -390,7 +390,7 @@ const DoubleStructure = {
 
 export type ExpressionDefinition = TypeDefinition & {
     OPERAND1: callback
-    OPERATOR: 'ADD'
+    OPERATOR: 'ADD' | 'SUB' | 'MUL' | 'DIV' | 'MOD'
     OPERAND2: callback
 }
 

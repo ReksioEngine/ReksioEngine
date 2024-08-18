@@ -17,6 +17,18 @@ export class Expression extends ValueType<ExpressionDefinition> {
         case 'ADD':
             result = operand1 + operand2
             break
+        case 'SUB':
+            result = operand1 + operand2
+            break
+        case 'MUL':
+            result = operand1 * operand2
+            break
+        case 'DIV':
+            result = operand1 / operand2
+            break
+        case 'MOD':
+            result = operand1 % operand2
+            break
         default:
             throw new NotImplementedError()
         }
