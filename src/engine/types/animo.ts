@@ -307,7 +307,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.buttonLogic = new ButtonLogicComponent(this.onButtonStateChange.bind(this))
             this.buttonLogic.registerInteractive(this.sprite)
             this.buttonLogic.enable()
-            this.PLAY('ONNOEVENT')
+            if (this.hasEvent('ONNOEVENT')) {
+                this.PLAY('ONNOEVENT')
+            }
         } else {
             this.buttonLogic?.unregisterInteractive(this.sprite)
             this.buttonLogic?.disable()
