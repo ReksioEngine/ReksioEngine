@@ -28,6 +28,8 @@ import {ComplexCondition} from './types/complexCondition'
 import {Rand} from './types/rand'
 import {Double} from './types/double'
 import {Expression} from './types/expression'
+import {Vector} from './types/vector'
+import {StaticFilter} from './types/staticFilter'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -81,12 +83,16 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Sequence(engine, definition)
     case 'SOUND':
         return new Sound(engine, definition)
+    case 'STATICFILTER':
+        return new StaticFilter(engine, definition)
     case 'STRING':
         return new StringType(engine, definition)
     case 'TEXT':
         return new Text(engine, definition)
     case 'TIMER':
         return new Timer(engine, definition)
+    case 'VECTOR':
+        return new Vector(engine, definition)
     default:
         console.error(definition)
         throw new Error(`Unknown object type '${definition.TYPE}'`)

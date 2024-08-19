@@ -400,6 +400,24 @@ const ExpressionDefinitionStructure = {
     OPERAND2: code
 }
 
+export type VectorDefinition = TypeDefinition & {
+    SIZE: number,
+    VALUE: string
+}
+
+const VectorDefinitionStructure = {
+    SIZE: number,
+    VALUE: stringArray
+}
+
+export type StaticFilterDefinition = TypeDefinition & {
+    ACTION: string
+}
+
+const StaticFilterDefinitionStructure = {
+    ACTION: string
+}
+
 export const structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -428,4 +446,6 @@ export const structureDefinitions = {
     RAND: RandDefinitionStructure,
     DOUBLE: DoubleStructure,
     EXPRESSION: ExpressionDefinitionStructure,
+    VECTOR: VectorDefinitionStructure,
+    STATICFILTER: StaticFilterDefinitionStructure
 } as any
