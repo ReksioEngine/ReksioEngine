@@ -90,10 +90,6 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     MSGBOX() {
     }
 
-    valueChanged(oldValue: any, newValue: any) {
-        this.saveToINI()
-    }
-
     clone() {
         const cloned = super.clone() as ArrayObject
         cloned.value = [...this.value]

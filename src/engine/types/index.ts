@@ -92,7 +92,11 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
     constructor(engine: Engine, definition: DefinitionType, defaultValue?: number | string | boolean | any[]) {
         super(engine, definition)
         if (defaultValue !== undefined) {
-            this.value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue
+            let initialValue = null
+            if (this.definition.TOINI) {
+                initialValue = this.getFromINI()
+            }
+            this.value = initialValue ?? this.definition.VALUE ?? defaultValue
         }
     }
 
@@ -106,25 +110,24 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
         const oldValue = this._value
         this._value = newValue
         this.valueChanged(oldValue, newValue)
-        this.saveToINI()
+
+        if (this.definition.TOINI) {
+            this.saveToINI()
+        }
     }
 
     valueChanged(oldValue: any, newValue: any) {}
 
     protected getFromINI() {
-        if (this.definition.TOINI) {
-            const loadedValue = this.engine.saveFile.load(this)
-            if (loadedValue !== null) {
-                return this.deserialize(loadedValue)
-            }
+        const loadedValue = this.engine.saveFile.load(this)
+        if (loadedValue !== null) {
+            return this.deserialize(loadedValue)
         }
         return null
     }
 
     protected saveToINI() {
-        if (this.definition.TOINI) {
-            this.engine.saveFile.save(this, this.serialize())
-        }
+        this.engine.saveFile.save(this, this.serialize())
     }
 
     serialize(): string {
