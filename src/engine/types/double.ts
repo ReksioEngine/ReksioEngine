@@ -7,18 +7,33 @@ export class Double extends ValueType<DoubleDefinition> {
         super(engine, definition, 0.0)
     }
 
-    MUL(value: number | string) {
+    MUL(value: number) {
         this.value *= Number(value)
         return this.value
     }
 
-    ADD(value: number | string) {
+    ADD(value: number) {
         this.value += Number(value)
         return this.value
     }
 
-    SET(newValue: number | string) {
+    SUB(value: number) {
+        this.value -= Number(value)
+        return this.value
+    }
+
+    SET(newValue: number) {
         this.value = Number(newValue)
+    }
+
+    MAXA(...values: number[]) {
+        this.value = Math.max(...values)
+        return this.value
+    }
+
+    MINA(...values: number[]) {
+        this.value = Math.min(...values)
+        return this.value
     }
 
     SINUS(angle: number | string) {
