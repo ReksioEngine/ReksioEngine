@@ -79,4 +79,13 @@ export class Integer extends ValueType<IntegerDefinition> {
         }
         this.callbacks.run('ONBRUTALCHANGED', newValue)
     }
+
+    get value() {
+        return super.value
+    }
+
+    // Force always flooring values
+    set value(newValue: any) {
+        super.value = Math.floor(newValue)
+    }
 }
