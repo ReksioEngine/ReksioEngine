@@ -16,7 +16,7 @@ export class Scene extends Type<SceneDefinition> {
 
     SETMUSICVOLUME(volume: number) {
         assert(this.engine.music !== null)
-        this.engine.music.volume = volume / 100
+        this.engine.music.volume = volume / 1000
     }
 
     SETMINHSPRIORITY(arg: number) {
