@@ -28,7 +28,7 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
 
       - run: npm install
-      - run: npm run build --mode development --env debug
+      - run: npm run build -- --mode development --env debug
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
