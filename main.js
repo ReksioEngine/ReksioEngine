@@ -50654,7 +50654,7 @@ class Engine {
         this.fileLoader = new filesLoader_1.GithubFileLoader('reksioiufo');
         this.music = null;
         this.app = app;
-        this.debug = false;
+        this.debug = true;
         this.blackTexture = (0, utils_1.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0);
         this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
         this.canvasBackground.zIndex = -99999;
