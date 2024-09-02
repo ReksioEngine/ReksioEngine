@@ -1,7 +1,8 @@
-import {boolean, map, number, string, TypeDefinition} from '../common'
+import {boolean, map, number, string} from '../common'
 
 export interface SequenceFileEntry {
     TYPE: string
+    NAME: string
     [key: string]: any
 }
 
@@ -19,6 +20,7 @@ export const parseSequence = (content: string) => {
         const [key, value] = line.split(/[\s=]+/)
         if (key === 'NAME') {
             objects[value] = {
+                NAME: value,
                 TYPE: 'unknown'
             }
         } else {
@@ -37,45 +39,51 @@ export const parseSequence = (content: string) => {
     return objects
 }
 
-type SequenceMember = {
-    ADD: string // To what sequence should be added
+export type SequenceSequence = SequenceFileEntry & {
+    MODE: 'PARAMETER' | 'SEQUENCE' | 'RANDOM'
 }
-
-export type SequenceDefinition = TypeDefinition & {
-    MODE: string
-    SEQEVENT: Map<string, number>
+export type ParameterSequence = SequenceSequence & {
+    SEQEVENT?: Record<string, number> // Only for PARAMETER
 }
-const SequenceDefinitionStructure = {
+export type NormalSequence = SequenceSequence & {
+    ADD: string // Only for SEQUENCE and RANDOM
+}
+const SequenceSequenceStructure = {
     MODE: string,
-    SEQEVENT: map(number)
+    SEQEVENT: map(number),
+    ADD: string
 }
 
-export type SimpleDefinition = TypeDefinition & SequenceMember & {
+export type Simple = SequenceFileEntry & {
     FILENAME: string
     EVENT: string
+    ADD: string
 }
-const SimpleDefinitionStructure = {
+const SimpleStructure = {
     FILENAME: string,
-    EVENT: string
+    EVENT: string,
+    ADD: string
 }
 
-export type SpeakingDefinition = TypeDefinition & SequenceMember & {
-    ANIMOFN: string
+export type Speaking = SequenceFileEntry & {
+    ANIMOFX: string
     PREFIX: string
     WAVFN: string
-    STARTING: string
+    STARTING: boolean
     ENDING: boolean
+    ADD: string
 }
-const SpeakingDefinitionStructure = {
-    ANIMOFN: string,
+const SpeakingStructure = {
+    ANIMOFX: string,
     PREFIX: string,
     WAVFN: string,
     STARTING: boolean,
-    ENDING: boolean
+    ENDING: boolean,
+    ADD: string
 }
 
 export const structureDefinitions = {
-    SEQUENCE: SequenceDefinitionStructure,
-    SIMPLE: SimpleDefinitionStructure,
-    SPEAKING: SpeakingDefinitionStructure
+    SEQUENCE: SequenceSequenceStructure,
+    SIMPLE: SimpleStructure,
+    SPEAKING: SpeakingStructure
 } as any
