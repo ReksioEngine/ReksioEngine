@@ -186,6 +186,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         this.currentFrameIdx++
 
+        this.ONFRAMECHANGED()
+
         if (this.currentFrameIdx >= event.framesCount) {
             if (this.currentLoop >= event.loopNumber) {
                 this.STOP(false)
@@ -195,8 +197,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.currentLoop++
             this.currentFrameIdx = 0
         }
-
-        this.ONFRAMECHANGED()
     }
 
     private updateSprite(eventFrame: Frame, imageIndex: number, annImage: AnnImage) {
