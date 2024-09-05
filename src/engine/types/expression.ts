@@ -18,7 +18,7 @@ export class Expression extends ValueType<ExpressionDefinition> {
             result = operand1 + operand2
             break
         case 'SUB':
-            result = operand1 + operand2
+            result = operand1 - operand2
             break
         case 'MUL':
             result = operand1 * operand2
