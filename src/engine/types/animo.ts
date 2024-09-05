@@ -84,7 +84,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         const currentTime = Date.now()
         if (currentTime - this.lastFrameTime > 1 / this.fps * 1000 * (1 / this.engine.speed)) {
-            this.ONTICK()
+            this.onTick()
             this.lastFrameTime = currentTime
         }
     }
@@ -140,7 +140,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.engine.addToStage(this.sprite)
     }
 
-    getTextureFrom(imageIndex: number): Texture {
+    private getTextureFrom(imageIndex: number): Texture {
         assert(this.annFile != null)
 
         // Check if cached already
@@ -159,7 +159,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return texture
     }
 
-    ONTICK() {
+    private onTick() {
         assert(this.annFile !== null && this.sprite !== null)
         const event = this.getEventByName(this.currentEvent)
         if (event) {
@@ -187,8 +187,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
             }
         }
 
+        // TODO, is starting first frame in an event a frame change?
         this.currentFrameIdx++
-
         this.ONFRAMECHANGED()
 
         if (this.currentFrameIdx >= event.framesCount) {
@@ -236,7 +236,15 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     PLAY(name: string | number) {
-        assert(this.hasEvent(name.toString()))
+        this.SHOW()
+
+        this.playEvent(name.toString())
+    }
+
+    playEvent(name: string) {
+        if (!this.hasEvent(name.toString())) {
+            return
+        }
 
         this.isPlaying = true
         this.currentFrameIdx = 0
@@ -305,13 +313,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     SETASBUTTON(arg1: boolean, arg2: boolean) {
         assert(this.sprite !== null)
-
         if (arg1 && arg2) {
             this.buttonLogic = new ButtonLogicComponent(this.onButtonStateChange.bind(this))
             this.buttonLogic.registerInteractive(this.sprite)
             this.buttonLogic.enable()
             if (this.hasEvent('ONNOEVENT')) {
-                this.PLAY('ONNOEVENT')
+                this.playEvent('ONNOEVENT')
             }
         } else {
             this.buttonLogic?.unregisterInteractive(this.sprite)
@@ -319,13 +326,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
     }
 
-    onButtonStateChange(prevState: State, event: FSMEvent, newState: State) {
+    private onButtonStateChange(prevState: State, event: FSMEvent, newState: State) {
         switch (newState) {
         case State.HOVERED:
             if (this.hasEvent('ONFOCUSON')) {
-                this.PLAY('ONFOCUSON')
+                this.playEvent('ONFOCUSON')
             } else if (this.hasEvent('PLAY')) {
-                this.PLAY('PLAY')
+                this.playEvent('PLAY')
             }
 
             if (event === FSMEvent.UP) {
@@ -337,24 +344,24 @@ export class Animo extends DisplayType<AnimoDefinition> {
         case State.STANDARD:
             if (event === FSMEvent.ENABLE) {
                 if (this.hasEvent('ONNOEVENT')) {
-                    this.PLAY('ONNOEVENT')
+                    this.playEvent('ONNOEVENT')
                 } else if (this.hasEvent('PLAY')) {
-                    this.PLAY('PLAY')
+                    this.playEvent('PLAY')
                 }
             } else {
                 if (this.hasEvent('ONFOCUSOFF')) {
-                    this.PLAY('ONFOCUSOFF')
+                    this.playEvent('ONFOCUSOFF')
                 } else if (this.hasEvent('PLAY')) {
-                    this.PLAY('PLAY')
+                    this.playEvent('PLAY')
                 }
                 this.callbacks.run('ONFOCUSOFF')
             }
             break
         case State.PRESSED:
             if (this.hasEvent('ONCLICK')) {
-                this.PLAY('ONCLICK')
+                this.playEvent('ONCLICK')
             } else if (this.hasEvent('PLAY')) {
-                this.PLAY('PLAY')
+                this.playEvent('PLAY')
             }
             this.callbacks.run('ONCLICKED')
             this.callbacks.run('ONCLICK') // Used in S73_0_KOD in Ufo
@@ -450,7 +457,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return this.getEventByName(name) !== null
     }
 
-    renderFrame(event: Event, frameIdx: number) {
+    private renderFrame(event: Event, frameIdx: number) {
         assert(this.annFile !== null)
         assert(event !== null)
 
