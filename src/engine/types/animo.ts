@@ -320,6 +320,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             if (this.hasEvent('ONNOEVENT')) {
                 this.playEvent('ONNOEVENT')
             }
+            this.sprite.visible = true
         } else {
             this.buttonLogic?.unregisterInteractive(this.sprite)
             this.buttonLogic?.disable()
