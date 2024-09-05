@@ -1,13 +1,15 @@
-import {Type} from './index'
+import {DisplayType, Type} from './index'
 import {StaticFilterDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
-import {NotImplementedError} from '../../errors'
+import {Animo} from './animo'
 
 export class StaticFilter extends Type<StaticFilterDefinition> {
     private properties = new Map<string, any>()
+    private linked: Type<any>[]
 
     constructor(engine: Engine, definition: StaticFilterDefinition) {
         super(engine, definition)
+        this.linked = []
     }
 
     SETPROPERTY(name: string, value: any) {
@@ -15,10 +17,34 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
     }
 
     LINK(arg: any) {
-        throw new NotImplementedError()
+        const object = this.engine.getObject(arg)
+        this.linked.push(object)
+
+        for (const linkedObject of this.linked) {
+            if (!(linkedObject instanceof DisplayType)) {
+                continue
+            }
+
+            const object = linkedObject.getRenderObject()
+            if (object === null) {
+                continue
+            }
+
+            if (this.definition.ACTION === 'ROTATE') {
+                object.anchor.set(0.5, 0.5)
+
+                if (linkedObject instanceof Animo) {
+                    linkedObject.anchorXOffset = object.width/2
+                    linkedObject.anchorYOffset = object.height/2
+                }
+
+                object.angle = this.properties.get('ANGLE')
+            }
+        }
     }
 
     UNLINK(arg: any) {
-        throw new NotImplementedError()
+        const object = this.engine.getObject(arg)
+        this.linked = this.linked.filter(x => x !== object)
     }
 }
