@@ -28,7 +28,6 @@ export class Condition extends Type<ConditionDefinition> {
     }
 
     CHECK(arg: boolean): boolean {
-        // valueAsString() in order to achieve loose equality
         const operand1 = this.engine.executeCallback(this, this.definition.OPERAND1)
         const operand2 = this.engine.executeCallback(this, this.definition.OPERAND2)
 
