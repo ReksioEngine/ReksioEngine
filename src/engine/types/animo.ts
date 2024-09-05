@@ -28,6 +28,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private positionY: number = 0
     private positionOffsetY: number = 0
 
+    public anchorXOffset: number = 0
+    public anchorYOffset: number = 0
+
     private annFile: ANN | null = null
     private sprite: Sprite | null = null
 
@@ -209,10 +212,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
 
         this.positionOffsetX = annImage.positionX + eventFrame.positionX
-        this.sprite.x = this.positionX + this.positionOffsetX
+        this.sprite.x = this.positionX + this.positionOffsetX + this.anchorXOffset
 
         this.positionOffsetY = annImage.positionY + eventFrame.positionY
-        this.sprite.y = this.positionY + this.positionOffsetY
+        this.sprite.y = this.positionY + this.positionOffsetY + this.anchorYOffset
 
         this.sprite.width = annImage.width
         this.sprite.height = annImage.height
@@ -296,8 +299,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         this.positionX = x
         this.positionY = y
-        this.sprite.x = x + this.positionOffsetX
-        this.sprite.y = y + this.positionOffsetY
+        this.sprite.x = x + this.positionOffsetX + this.anchorXOffset
+        this.sprite.y = y + this.positionOffsetY + this.anchorYOffset
     }
 
     SETASBUTTON(arg1: boolean, arg2: boolean) {
