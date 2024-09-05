@@ -249,8 +249,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.isPlaying = true
         this.currentFrameIdx = 0
         this.currentEvent = name.toString().toUpperCase()
-
-        this.SHOW()
     }
 
     STOP(arg: boolean) {
