@@ -47,7 +47,7 @@ export abstract class UrlFileLoader extends FileLoader {
         return parseCNV(text)
     }
 
-    async getSequenceFile(filename: string): Promise<CNV> {
+    async getSequenceFile(filename: string): Promise<SequenceFile> {
         const data = await this.getRawFile(filename)
         const decoder = new TextDecoder()
         const text = decoder.decode(data)
