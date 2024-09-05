@@ -50993,6 +50993,8 @@ class Animo extends index_1.DisplayType {
         this.positionOffsetX = 0;
         this.positionY = 0;
         this.positionOffsetY = 0;
+        this.anchorXOffset = 0;
+        this.anchorYOffset = 0;
         this.annFile = null;
         this.sprite = null;
         this.textures = new Map();
@@ -51035,7 +51037,7 @@ class Animo extends index_1.DisplayType {
         }
         const currentTime = Date.now();
         if (currentTime - this.lastFrameTime > 1 / this.fps * 1000 * (1 / this.engine.speed)) {
-            this.ONTICK();
+            this.onTick();
             this.lastFrameTime = currentTime;
         }
     }
@@ -51099,7 +51101,7 @@ class Animo extends index_1.DisplayType {
         this.textures.set(imageIndex, texture);
         return texture;
     }
-    ONTICK() {
+    onTick() {
         (0, errors_2.assert)(this.annFile !== null && this.sprite !== null);
         const event = this.getEventByName(this.currentEvent);
         if (event) {
@@ -51123,7 +51125,9 @@ class Animo extends index_1.DisplayType {
                 sound.play();
             }
         }
+        // TODO, is starting first frame in an event a frame change?
         this.currentFrameIdx++;
+        this.ONFRAMECHANGED();
         if (this.currentFrameIdx >= event.framesCount) {
             if (this.currentLoop >= event.loopNumber) {
                 this.STOP(false);
@@ -51132,7 +51136,6 @@ class Animo extends index_1.DisplayType {
             this.currentLoop++;
             this.currentFrameIdx = 0;
         }
-        this.ONFRAMECHANGED();
     }
     updateSprite(eventFrame, imageIndex, annImage) {
         //TODO: Sometimes this.sprite.transform === null
@@ -51143,9 +51146,9 @@ class Animo extends index_1.DisplayType {
             this.sprite.texture = this.getTextureFrom(imageIndex);
         }
         this.positionOffsetX = annImage.positionX + eventFrame.positionX;
-        this.sprite.x = this.positionX + this.positionOffsetX;
+        this.sprite.x = this.positionX + this.positionOffsetX + this.anchorXOffset;
         this.positionOffsetY = annImage.positionY + eventFrame.positionY;
-        this.sprite.y = this.positionY + this.positionOffsetY;
+        this.sprite.y = this.positionY + this.positionOffsetY + this.anchorYOffset;
         this.sprite.width = annImage.width;
         this.sprite.height = annImage.height;
     }
@@ -51161,7 +51164,13 @@ class Animo extends index_1.DisplayType {
         this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
     }
     PLAY(name) {
-        (0, errors_2.assert)(this.hasEvent(name.toString()));
+        this.SHOW();
+        this.playEvent(name.toString());
+    }
+    playEvent(name) {
+        if (!this.hasEvent(name.toString())) {
+            return;
+        }
         this.isPlaying = true;
         this.currentFrameIdx = 0;
         this.currentEvent = name.toString().toUpperCase();
@@ -51209,8 +51218,8 @@ class Animo extends index_1.DisplayType {
         (0, errors_2.assert)(this.sprite !== null);
         this.positionX = x;
         this.positionY = y;
-        this.sprite.x = x + this.positionOffsetX;
-        this.sprite.y = y + this.positionOffsetY;
+        this.sprite.x = x + this.positionOffsetX + this.anchorXOffset;
+        this.sprite.y = y + this.positionOffsetY + this.anchorYOffset;
     }
     SETASBUTTON(arg1, arg2) {
         var _a, _b;
@@ -51220,8 +51229,9 @@ class Animo extends index_1.DisplayType {
             this.buttonLogic.registerInteractive(this.sprite);
             this.buttonLogic.enable();
             if (this.hasEvent('ONNOEVENT')) {
-                this.PLAY('ONNOEVENT');
+                this.playEvent('ONNOEVENT');
             }
+            this.sprite.visible = true;
         }
         else {
             (_a = this.buttonLogic) === null || _a === void 0 ? void 0 : _a.unregisterInteractive(this.sprite);
@@ -51232,10 +51242,10 @@ class Animo extends index_1.DisplayType {
         switch (newState) {
             case button_1.State.HOVERED:
                 if (this.hasEvent('ONFOCUSON')) {
-                    this.PLAY('ONFOCUSON');
+                    this.playEvent('ONFOCUSON');
                 }
                 else if (this.hasEvent('PLAY')) {
-                    this.PLAY('PLAY');
+                    this.playEvent('PLAY');
                 }
                 if (event === button_1.Event.UP) {
                     this.callbacks.run('ONRELEASE');
@@ -51247,28 +51257,28 @@ class Animo extends index_1.DisplayType {
             case button_1.State.STANDARD:
                 if (event === button_1.Event.ENABLE) {
                     if (this.hasEvent('ONNOEVENT')) {
-                        this.PLAY('ONNOEVENT');
+                        this.playEvent('ONNOEVENT');
                     }
                     else if (this.hasEvent('PLAY')) {
-                        this.PLAY('PLAY');
+                        this.playEvent('PLAY');
                     }
                 }
                 else {
                     if (this.hasEvent('ONFOCUSOFF')) {
-                        this.PLAY('ONFOCUSOFF');
+                        this.playEvent('ONFOCUSOFF');
                     }
                     else if (this.hasEvent('PLAY')) {
-                        this.PLAY('PLAY');
+                        this.playEvent('PLAY');
                     }
                     this.callbacks.run('ONFOCUSOFF');
                 }
                 break;
             case button_1.State.PRESSED:
                 if (this.hasEvent('ONCLICK')) {
-                    this.PLAY('ONCLICK');
+                    this.playEvent('ONCLICK');
                 }
                 else if (this.hasEvent('PLAY')) {
-                    this.PLAY('PLAY');
+                    this.playEvent('PLAY');
                 }
                 this.callbacks.run('ONCLICKED');
                 this.callbacks.run('ONCLICK'); // Used in S73_0_KOD in Ufo
@@ -51989,7 +51999,6 @@ class Condition extends index_1.Type {
         }
     }
     CHECK(arg) {
-        // valueAsString() in order to achieve loose equality
         const operand1 = this.engine.executeCallback(this, this.definition.OPERAND1);
         const operand2 = this.engine.executeCallback(this, this.definition.OPERAND2);
         let result;
@@ -52168,7 +52177,7 @@ class Expression extends index_1.ValueType {
                 result = operand1 + operand2;
                 break;
             case 'SUB':
-                result = operand1 + operand2;
+                result = operand1 - operand2;
                 break;
             case 'MUL':
                 result = operand1 * operand2;
@@ -52230,6 +52239,12 @@ class Group extends index_1.Type {
     ADD(...objectsNames) {
         this.objects.push(...objectsNames.map(objectName => {
             return this.engine.getObject(objectName);
+        }).filter((x, index) => {
+            if (x == undefined) {
+                // It happens in original game scripts
+                console.warn(`Script was trying to add non-existing object "${objectsNames[index]}" to a group "${this.name}"`);
+            }
+            return x !== undefined;
         }));
     }
     __call(methodName, args) {
@@ -52763,7 +52778,7 @@ class Scene extends index_1.Type {
     }
     SETMUSICVOLUME(volume) {
         (0, errors_1.assert)(this.engine.music !== null);
-        this.engine.music.volume = volume / 100;
+        this.engine.music.volume = volume / 1000;
     }
     SETMINHSPRIORITY(arg) {
         throw new errors_1.NotImplementedError();
@@ -52955,20 +52970,40 @@ exports.Sound = Sound;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.StaticFilter = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts");
 class StaticFilter extends index_1.Type {
     constructor(engine, definition) {
         super(engine, definition);
         this.properties = new Map();
+        this.linked = [];
     }
     SETPROPERTY(name, value) {
         this.properties.set(name, value);
     }
     LINK(arg) {
-        throw new errors_1.NotImplementedError();
+        const object = this.engine.getObject(arg);
+        this.linked.push(object);
+        for (const linkedObject of this.linked) {
+            if (!(linkedObject instanceof index_1.DisplayType)) {
+                continue;
+            }
+            const object = linkedObject.getRenderObject();
+            if (object === null) {
+                continue;
+            }
+            if (this.definition.ACTION === 'ROTATE') {
+                object.anchor.set(0.5, 0.5);
+                if (linkedObject instanceof animo_1.Animo) {
+                    linkedObject.anchorXOffset = object.width / 2;
+                    linkedObject.anchorYOffset = object.height / 2;
+                }
+                object.angle = this.properties.get('ANGLE');
+            }
+        }
     }
     UNLINK(arg) {
-        throw new errors_1.NotImplementedError();
+        const object = this.engine.getObject(arg);
+        this.linked = this.linked.filter(x => x !== object);
     }
 }
 exports.StaticFilter = StaticFilter;
@@ -54124,6 +54159,7 @@ const parseSequence = (content) => {
         const [key, value] = line.split(/[\s=]+/);
         if (key === 'NAME') {
             objects[value] = {
+                NAME: value,
                 TYPE: 'unknown'
             };
         }
@@ -54142,25 +54178,28 @@ const parseSequence = (content) => {
     return objects;
 };
 exports.parseSequence = parseSequence;
-const SequenceDefinitionStructure = {
+const SequenceSequenceStructure = {
     MODE: common_1.string,
-    SEQEVENT: (0, common_1.map)(common_1.number)
+    SEQEVENT: (0, common_1.map)(common_1.number),
+    ADD: common_1.string
 };
-const SimpleDefinitionStructure = {
+const SimpleStructure = {
     FILENAME: common_1.string,
-    EVENT: common_1.string
+    EVENT: common_1.string,
+    ADD: common_1.string
 };
-const SpeakingDefinitionStructure = {
-    ANIMOFN: common_1.string,
+const SpeakingStructure = {
+    ANIMOFX: common_1.string,
     PREFIX: common_1.string,
     WAVFN: common_1.string,
     STARTING: common_1.boolean,
-    ENDING: common_1.boolean
+    ENDING: common_1.boolean,
+    ADD: common_1.string
 };
 exports.structureDefinitions = {
-    SEQUENCE: SequenceDefinitionStructure,
-    SIMPLE: SimpleDefinitionStructure,
-    SPEAKING: SpeakingDefinitionStructure
+    SEQUENCE: SequenceSequenceStructure,
+    SIMPLE: SimpleStructure,
+    SPEAKING: SpeakingStructure
 };
 
 
