@@ -51174,7 +51174,6 @@ class Animo extends index_1.DisplayType {
         this.isPlaying = true;
         this.currentFrameIdx = 0;
         this.currentEvent = name.toString().toUpperCase();
-        this.SHOW();
     }
     STOP(arg) {
         this.isPlaying = false;
@@ -53194,6 +53193,19 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 class Vector extends index_1.ValueType {
     constructor(engine, definition) {
         super(engine, definition);
+        this.value = this.definition.VALUE;
+    }
+    ASSIGN(...values) {
+        this.value = values;
+    }
+    ADD(otherVector) {
+        this.value = this.value.map((val, idx) => val + otherVector[idx]);
+    }
+    MUL(scalar) {
+        this.value = this.value.map((val) => val * scalar);
+    }
+    GET(index) {
+        return this.value[index];
     }
 }
 exports.Vector = Vector;
@@ -53267,10 +53279,10 @@ const parseHeader = (view) => {
     ann.flags = view.getUint32();
     ann.transparency = view.getUint8();
     view.skip(0xC);
-    ann.authorLen = view.getUint32();
-    ann.author = decoder.decode(view.read(ann.authorLen));
-    ann.descriptionLen = view.getUint32();
-    ann.description = decoder.decode(view.read(ann.descriptionLen));
+    const authorLen = view.getUint32();
+    ann.author = decoder.decode(view.read(authorLen));
+    const descriptionLen = view.getUint32();
+    ann.description = decoder.decode(view.read(descriptionLen));
     return ann;
 };
 const parseFrame = (view) => {
@@ -53284,11 +53296,11 @@ const parseFrame = (view) => {
     view.skip(4);
     frame.transparency = view.getUint8();
     view.skip(5);
-    frame.nameSize = view.getUint32();
-    frame.name = (0, utils_2.stringUntilNull)(decoder.decode(view.read(frame.nameSize)));
+    const nameSize = view.getUint32();
+    frame.name = (0, utils_2.stringUntilNull)(decoder.decode(view.read(nameSize)));
     if (frame.sfxSwitch != 0) {
-        frame.sfxSize = view.getUint32();
-        frame.sounds = (0, utils_2.stringUntilNull)(decoder.decode(view.read(frame.sfxSize)));
+        const soundsLen = view.getUint32();
+        frame.sounds = (0, utils_2.stringUntilNull)(decoder.decode(view.read(soundsLen)));
     }
     return frame;
 };
@@ -53648,7 +53660,8 @@ const ButtonDefinitionStructure = {
 };
 const SequenceDefinitionStructure = {
     FILENAME: common_1.string,
-    ONFINISHED: common_1.callback,
+    ONFINISHED: common_1.callbacks,
+    ONSTARTED: common_1.callbacks,
     ONINIT: common_1.callback
 };
 const GroupDefinitionStructure = {};
@@ -53683,7 +53696,7 @@ const ExpressionDefinitionStructure = {
 };
 const VectorDefinitionStructure = {
     SIZE: common_1.number,
-    VALUE: common_1.stringArray
+    VALUE: (0, common_1.array)(common_1.number)
 };
 const StaticFilterDefinitionStructure = {
     ACTION: common_1.string
@@ -54497,9 +54510,9 @@ class GithubFileLoader extends UrlFileLoader {
 }
 exports.GithubFileLoader = GithubFileLoader;
 class ArchiveOrgFileLoader extends UrlFileLoader {
-    constructor() {
-        super(...arguments);
-        this.baseUrl = 'https://archive.org/download/reksio-i-ufo/2.%20Reksio%20i%20Ufo.iso/';
+    constructor(baseUrl) {
+        super();
+        this.baseUrl = baseUrl;
     }
     // Windows case-insensitive filenames moment
     fetchFilesListing() {
