@@ -105,7 +105,12 @@ export class GithubFileLoader extends UrlFileLoader {
 }
 
 export class ArchiveOrgFileLoader extends UrlFileLoader {
-    private baseUrl: string = 'https://archive.org/download/reksio-i-ufo/2.%20Reksio%20i%20Ufo.iso/'
+    private readonly baseUrl: string
+
+    constructor(baseUrl: string) {
+        super()
+        this.baseUrl = baseUrl
+    }
 
     // Windows case-insensitive filenames moment
     protected async fetchFilesListing() {
