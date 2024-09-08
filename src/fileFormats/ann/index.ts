@@ -32,7 +32,6 @@ export interface Frame {
     sfxSwitch: number
     transparency: number
     name: string
-    sfxSize: number
     sounds: string
 }
 
@@ -95,8 +94,8 @@ const parseFrame = (view: BinaryBuffer) => {
     frame.name = stringUntilNull(decoder.decode(view.read(nameSize)))
 
     if (frame.sfxSwitch != 0) {
-        frame.sfxSize = view.getUint32()
-        frame.sounds = stringUntilNull(decoder.decode(view.read(frame.sfxSize)))
+        const soundsLen = view.getUint32()
+        frame.sounds = stringUntilNull(decoder.decode(view.read(soundsLen)))
     }
 
     return frame
