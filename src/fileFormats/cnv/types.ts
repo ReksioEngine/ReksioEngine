@@ -317,13 +317,15 @@ const ButtonDefinitionStructure = {
 
 export type SequenceDefinition = TypeDefinition & {
     FILENAME: string
-    ONFINISHED: callback
+    ONFINISHED: callbacks<string>
+    ONSTARTED: callbacks<string>
     ONINIT: callback
 }
 
 const SequenceDefinitionStructure = {
     FILENAME: string,
-    ONFINISHED: callback,
+    ONFINISHED: callbacks,
+    ONSTARTED: callbacks,
     ONINIT: callback
 }
 
