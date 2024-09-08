@@ -402,12 +402,12 @@ const ExpressionDefinitionStructure = {
 
 export type VectorDefinition = TypeDefinition & {
     SIZE: number,
-    VALUE: string
+    VALUE: Array<number>
 }
 
 const VectorDefinitionStructure = {
     SIZE: number,
-    VALUE: stringArray
+    VALUE: array(number)
 }
 
 export type StaticFilterDefinition = TypeDefinition & {
