@@ -11,9 +11,7 @@ interface AnnHeader {
     fps: number
     flags: number
     transparency: number
-    authorLen: number
     author: string
-    descriptionLen: number
     description: string
 }
 
@@ -33,7 +31,6 @@ export interface Frame {
     positionY: number
     sfxSwitch: number
     transparency: number
-    nameSize: number
     name: string
     sfxSize: number
     sounds: string
@@ -72,10 +69,12 @@ const parseHeader = (view: BinaryBuffer) => {
     ann.flags = view.getUint32()
     ann.transparency = view.getUint8()
     view.skip(0xC)
-    ann.authorLen = view.getUint32()
-    ann.author = decoder.decode(view.read(ann.authorLen))
-    ann.descriptionLen = view.getUint32()
-    ann.description = decoder.decode(view.read(ann.descriptionLen))
+
+    const authorLen = view.getUint32()
+    ann.author = decoder.decode(view.read(authorLen))
+
+    const descriptionLen = view.getUint32()
+    ann.description = decoder.decode(view.read(descriptionLen))
 
     return ann
 }
@@ -91,8 +90,9 @@ const parseFrame = (view: BinaryBuffer) => {
     view.skip(4)
     frame.transparency = view.getUint8()
     view.skip(5)
-    frame.nameSize = view.getUint32()
-    frame.name = stringUntilNull(decoder.decode(view.read(frame.nameSize)))
+
+    const nameSize = view.getUint32()
+    frame.name = stringUntilNull(decoder.decode(view.read(nameSize)))
 
     if (frame.sfxSwitch != 0) {
         frame.sfxSize = view.getUint32()
