@@ -9,7 +9,7 @@ import {ANN, AnnImage, Event, Frame} from '../../fileFormats/ann'
 import {ButtonLogicComponent, Event as FSMEvent, State} from '../components/button'
 import {loadSound} from '../assetsLoader'
 import {Sound as PIXISound} from '@pixi/sound'
-import {FileNotFoundError} from '../../filesLoader'
+import {FileNotFoundError} from '../filesLoader'
 
 export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent | null = null

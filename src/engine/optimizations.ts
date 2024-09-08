@@ -1,5 +1,5 @@
 import {Scene} from './types/scene'
-import {UrlFileLoader} from '../filesLoader'
+import {UrlFileLoader} from './filesLoader'
 
 export const preloadAssets = async (fileLoader: UrlFileLoader, scene: Scene) => {
     const scenePath = scene.getRelativePath('').toLowerCase()

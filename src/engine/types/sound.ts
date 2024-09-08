@@ -3,7 +3,7 @@ import {Engine} from '../index'
 import {loadSound} from '../assetsLoader'
 import {SoundDefinition} from '../../fileFormats/cnv/types'
 import {Sound as PIXISound} from '@pixi/sound'
-import {FileNotFoundError} from '../../filesLoader'
+import {FileNotFoundError} from '../filesLoader'
 import {assert} from '../../errors'
 
 export class Sound extends Type<SoundDefinition> {

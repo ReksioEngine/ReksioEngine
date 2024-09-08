@@ -1,7 +1,7 @@
 import {Type} from './index'
 import {Engine} from '../index'
 import {SequenceDefinition} from '../../fileFormats/cnv/types'
-import {FileNotFoundError} from '../../filesLoader'
+import {FileNotFoundError} from '../filesLoader'
 import {SequenceFile} from '../../fileFormats/seq'
 import {NotImplementedError} from '../../errors'
 
