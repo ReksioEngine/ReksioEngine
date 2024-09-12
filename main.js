@@ -50256,7 +50256,7 @@ class ButtonLogicComponent {
         this.stateMachine = new typescript_fsm_1.StateMachine(State.INIT, transitions);
     }
     registerInteractive(sprite) {
-        sprite.interactive = true;
+        sprite.eventMode = 'dynamic';
         sprite.cursor = 'pointer';
         sprite.addListener('pointerover', this.onMouseOverCallback);
         sprite.addListener('pointerout', this.onMouseOutCallback);
@@ -50264,7 +50264,7 @@ class ButtonLogicComponent {
         sprite.addListener('pointerup', this.onMouseUpCallback);
     }
     unregisterInteractive(sprite) {
-        sprite.interactive = false;
+        sprite.eventMode = 'auto';
         sprite.cursor = 'default';
         sprite.removeListener('pointerover', this.onMouseOverCallback);
         sprite.removeListener('pointerout', this.onMouseOutCallback);
@@ -50611,6 +50611,148 @@ exports.loadDefinition = loadDefinition;
 
 /***/ }),
 
+/***/ "./src/engine/filesLoader.ts":
+/*!***********************************!*\
+  !*** ./src/engine/filesLoader.ts ***!
+  \***********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
+const cnv_1 = __webpack_require__(/*! ../fileFormats/cnv */ "./src/fileFormats/cnv/index.ts");
+const img_1 = __webpack_require__(/*! ../fileFormats/img */ "./src/fileFormats/img/index.ts");
+const ann_1 = __webpack_require__(/*! ../fileFormats/ann */ "./src/fileFormats/ann/index.ts");
+const seq_1 = __webpack_require__(/*! ../fileFormats/seq */ "./src/fileFormats/seq/index.ts");
+class FileNotFoundError extends Error {
+    constructor(filename) {
+        super(`File '${filename}' not found in files listing`);
+    }
+}
+exports.FileNotFoundError = FileNotFoundError;
+class FileLoader {
+}
+exports.FileLoader = FileLoader;
+class UrlFileLoader extends FileLoader {
+    constructor() {
+        super(...arguments);
+        this.listing = null;
+        this.history = new Set();
+    }
+    getFilesListing() {
+        return [...this.listing.keys()];
+    }
+    getHistory() {
+        return this.history;
+    }
+    getANNFile(filename) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = yield this.getRawFile(filename);
+            return (0, ann_1.loadAnn)(data);
+        });
+    }
+    getCNVFile(filename) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = yield this.getRawFile(filename);
+            const text = (0, cnv_1.decryptCNV)(data);
+            console.log(text);
+            return (0, cnv_1.parseCNV)(text);
+        });
+    }
+    getSequenceFile(filename) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = yield this.getRawFile(filename);
+            const decoder = new TextDecoder();
+            const text = decoder.decode(data);
+            console.log(text);
+            return (0, seq_1.parseSequence)(text);
+        });
+    }
+    getIMGFile(filename) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!filename.toLowerCase().endsWith('.img')) {
+                filename = filename + '.img';
+            }
+            const data = yield this.getRawFile(filename);
+            return (0, img_1.loadImage)(data);
+        });
+    }
+    getRawFile(filename) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.listing == null) {
+                console.debug('Fetching files listing...');
+                this.listing = yield this.fetchFilesListing();
+            }
+            const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
+            console.debug(`Fetching '${normalizedFilename}'...`);
+            const fileUrl = this.listing.get(normalizedFilename);
+            if (fileUrl == null) {
+                throw new FileNotFoundError(normalizedFilename);
+            }
+            const response = yield fetch(fileUrl);
+            this.history.add(normalizedFilename);
+            return yield response.arrayBuffer();
+        });
+    }
+}
+exports.UrlFileLoader = UrlFileLoader;
+class GithubFileLoader extends UrlFileLoader {
+    constructor(gameName) {
+        super();
+        this.filesListUrl = `https://api.github.com/repos/ReksioEngine/GamesFiles/git/trees/${gameName}?recursive=1/`;
+        this.filesBaseUrl = `https://raw.githubusercontent.com/ReksioEngine/GamesFiles/${gameName}/`;
+    }
+    // Windows case-insensitive filenames moment
+    fetchFilesListing() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield fetch(this.filesListUrl);
+            const data = yield response.json();
+            return new Map(data.tree.map((entry) => [
+                entry.path.toLowerCase(),
+                this.filesBaseUrl + entry.path
+            ]));
+        });
+    }
+}
+exports.GithubFileLoader = GithubFileLoader;
+class ArchiveOrgFileLoader extends UrlFileLoader {
+    constructor(baseUrl) {
+        super();
+        this.baseUrl = baseUrl;
+    }
+    // Windows case-insensitive filenames moment
+    fetchFilesListing() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield fetch(this.baseUrl);
+            const html = yield response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const table = doc.querySelector('.archext');
+            if (table == null) {
+                throw new Error('Failed to fetch files listing table');
+            }
+            const links = table.querySelectorAll('a');
+            return new Map([...links].map((link) => [
+                link.textContent.toLowerCase(), link.getAttribute('href')
+            ]));
+        });
+    }
+}
+exports.ArchiveOrgFileLoader = ArchiveOrgFileLoader;
+
+
+/***/ }),
+
 /***/ "./src/engine/index.ts":
 /*!*****************************!*\
   !*** ./src/engine/index.ts ***!
@@ -50633,7 +50775,7 @@ exports.Engine = void 0;
 const evaluator_1 = __webpack_require__(/*! ../interpreter/evaluator */ "./src/interpreter/evaluator.ts");
 const definitionLoader_1 = __webpack_require__(/*! ./definitionLoader */ "./src/engine/definitionLoader.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
-const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/filesLoader.ts");
+const filesLoader_1 = __webpack_require__(/*! ./filesLoader */ "./src/engine/filesLoader.ts");
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const sound_2 = __webpack_require__(/*! ./types/sound */ "./src/engine/types/sound.ts");
 const assetsLoader_1 = __webpack_require__(/*! ./assetsLoader */ "./src/engine/assetsLoader.ts");
@@ -50882,6 +51024,53 @@ exports.preloadAssets = preloadAssets;
 
 /***/ }),
 
+/***/ "./src/engine/rendering.ts":
+/*!*********************************!*\
+  !*** ./src/engine/rendering.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createHitmapFromImageBytes = exports.AdvancedSprite = void 0;
+const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
+class AdvancedSprite extends pixi_js_1.Sprite {
+    constructor() {
+        super(...arguments);
+        this.checkPixelPerfect = false;
+    }
+    containsPoint(point) {
+        if (!this.checkPixelPerfect || !this.hitmap) {
+            return super.containsPoint(point);
+        }
+        const tempPoint = { x: 0, y: 0 };
+        this.worldTransform.applyInverse(point, tempPoint);
+        const width = this._texture.orig.width;
+        const height = this._texture.orig.height;
+        const x = tempPoint.x + width * this.anchor.x;
+        const y = tempPoint.y + height * this.anchor.y;
+        if (x < 0 || x > width)
+            return false;
+        if (y < 0 || y > height)
+            return false;
+        const pixelOffset = (Math.floor(y) * width + Math.floor(x));
+        return pixelOffset <= this.hitmap.length - 1 && this.hitmap[pixelOffset] > 0;
+    }
+}
+exports.AdvancedSprite = AdvancedSprite;
+const createHitmapFromImageBytes = (bytes) => {
+    const hitmap = new Uint8Array(bytes.byteLength / 4);
+    for (let i = 0; i < hitmap.byteLength; i++) {
+        hitmap[i] = bytes[i * 4 + 3];
+    }
+    return hitmap;
+};
+exports.createHitmapFromImageBytes = createHitmapFromImageBytes;
+
+
+/***/ }),
+
 /***/ "./src/engine/saveFile.ts":
 /*!********************************!*\
   !*** ./src/engine/saveFile.ts ***!
@@ -50976,28 +51165,29 @@ const errors_2 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/components/button.ts");
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
-const filesLoader_1 = __webpack_require__(/*! ../../filesLoader */ "./src/filesLoader.ts");
+const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
+const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
 class Animo extends index_1.DisplayType {
     constructor(engine, definition) {
         var _a;
         super(engine, definition);
         this.buttonLogic = null;
         this.isPlaying = false;
-        this.currentFrameIdx = 0;
-        this.currentEvent = '1';
+        this.currentFrame = 0;
+        this.currentEvent = '';
         this.currentLoop = 0;
-        this.usingImageIndex = -1;
         this.fps = 16;
         this.lastFrameTime = 0;
         this.positionX = 0;
         this.positionOffsetX = 0;
         this.positionY = 0;
         this.positionOffsetY = 0;
-        this.anchorXOffset = 0;
-        this.anchorYOffset = 0;
+        this.anchorOffsetX = 0;
+        this.anchorOffsetY = 0;
         this.annFile = null;
         this.sprite = null;
         this.textures = new Map();
+        this.hitmaps = new Map();
         this.sounds = new Map();
         this.fps = (_a = definition.FPS) !== null && _a !== void 0 ? _a : 16;
         this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED);
@@ -51012,7 +51202,7 @@ class Animo extends index_1.DisplayType {
     init() {
         return __awaiter(this, void 0, void 0, function* () {
             this.annFile = yield this.loadAnimation();
-            this.initAnimatedSprite();
+            this.initSprite();
         });
     }
     ready() {
@@ -51020,7 +51210,7 @@ class Animo extends index_1.DisplayType {
         // Find first event with any frames
         const defaultEvent = this.annFile.events.find(event => event.framesCount > 0);
         if (defaultEvent !== undefined) {
-            this.renderFrame(defaultEvent, 0);
+            this.changeFrame(defaultEvent, 0);
             this.currentEvent = defaultEvent.name;
         }
         this.callbacks.run('ONINIT');
@@ -51037,7 +51227,7 @@ class Animo extends index_1.DisplayType {
         }
         const currentTime = Date.now();
         if (currentTime - this.lastFrameTime > 1 / this.fps * 1000 * (1 / this.engine.speed)) {
-            this.onTick();
+            this.tickAnimation();
             this.lastFrameTime = currentTime;
         }
     }
@@ -51066,8 +51256,7 @@ class Animo extends index_1.DisplayType {
                     if (!frame.sounds) {
                         continue;
                     }
-                    const filenames = frame.sounds.split(';').filter(x => x.trim() !== '');
-                    for (const filename of filenames) {
+                    for (const filename of frame.sounds) {
                         if (!this.sounds.has(filename)) {
                             const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '');
                             try {
@@ -51083,14 +51272,14 @@ class Animo extends index_1.DisplayType {
             }
         });
     }
-    initAnimatedSprite() {
+    initSprite() {
         (0, errors_2.assert)(this.annFile !== null);
-        this.sprite = new PIXI.Sprite();
+        this.sprite = new rendering_1.AdvancedSprite();
         this.sprite.visible = this.definition.VISIBLE;
         this.SETPRIORITY(this.definition.PRIORITY);
         this.engine.addToStage(this.sprite);
     }
-    getTextureFrom(imageIndex) {
+    getTexture(imageIndex) {
         (0, errors_2.assert)(this.annFile != null);
         // Check if cached already
         if (this.textures.has(imageIndex)) {
@@ -51101,54 +51290,62 @@ class Animo extends index_1.DisplayType {
         this.textures.set(imageIndex, texture);
         return texture;
     }
-    onTick() {
+    getHitmap(imageIndex) {
+        (0, errors_2.assert)(this.annFile != null);
+        if (this.hitmaps.has(imageIndex)) {
+            return this.hitmaps.get(imageIndex);
+        }
+        const hitmap = (0, rendering_1.createHitmapFromImageBytes)(this.annFile.images[imageIndex]);
+        this.hitmaps.set(imageIndex, hitmap);
+        return hitmap;
+    }
+    tickAnimation() {
         (0, errors_2.assert)(this.annFile !== null && this.sprite !== null);
         const event = this.getEventByName(this.currentEvent);
-        if (event) {
-            this.tickAnimation(event);
+        if (!event) {
+            return;
         }
-    }
-    tickAnimation(event) {
-        (0, errors_2.assert)(this.annFile !== null && this.sprite !== null);
-        this.renderFrame(event, this.currentFrameIdx);
-        if (this.currentFrameIdx === 0) {
+        this.changeFrame(event, this.currentFrame);
+        if (this.currentFrame === 0) {
             this.ONSTARTED();
         }
         // Random sound out of them?
-        const eventFrame = event.frames[this.currentFrameIdx];
+        const eventFrame = event.frames[this.currentFrame];
         if (eventFrame.sounds) {
-            const filenames = eventFrame.sounds.split(';');
+            const filenames = eventFrame.sounds;
             const randomFilename = filenames[Math.floor((Math.random() * filenames.length))];
-            const sound = this.sounds.get(randomFilename);
-            if (sound !== undefined) {
+            if (this.sounds.has(randomFilename)) {
                 console.debug(`Playing sound '${randomFilename}'`);
+                const sound = this.sounds.get(randomFilename);
                 sound.play();
             }
         }
         // TODO, is starting first frame in an event a frame change?
-        this.currentFrameIdx++;
+        this.currentFrame++;
         this.ONFRAMECHANGED();
-        if (this.currentFrameIdx >= event.framesCount) {
+        if (this.currentFrame >= event.framesCount) {
             if (this.currentLoop >= event.loopNumber) {
                 this.STOP(false);
                 this.ONFINISHED();
             }
             this.currentLoop++;
-            this.currentFrameIdx = 0;
+            this.currentFrame = 0;
         }
     }
-    updateSprite(eventFrame, imageIndex, annImage) {
-        //TODO: Sometimes this.sprite.transform === null
-        if (this.sprite === null)
-            return;
-        if (imageIndex != this.usingImageIndex) {
-            this.usingImageIndex = imageIndex;
-            this.sprite.texture = this.getTextureFrom(imageIndex);
-        }
+    changeFrame(event, frameIdx) {
+        (0, errors_2.assert)(this.annFile !== null);
+        (0, errors_2.assert)(this.sprite !== null);
+        (0, errors_2.assert)(event !== null);
+        const eventFrame = event.frames[frameIdx];
+        const imageIndex = event.framesImageMapping[frameIdx];
+        const annImage = this.annFile.annImages[imageIndex];
+        // TODO: refactor it so we don't assign texture and hitmap separately?
+        this.sprite.texture = this.getTexture(imageIndex);
+        this.sprite.hitmap = this.getHitmap(imageIndex);
         this.positionOffsetX = annImage.positionX + eventFrame.positionX;
-        this.sprite.x = this.positionX + this.positionOffsetX + this.anchorXOffset;
+        this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX;
         this.positionOffsetY = annImage.positionY + eventFrame.positionY;
-        this.sprite.y = this.positionY + this.positionOffsetY + this.anchorYOffset;
+        this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY;
         this.sprite.width = annImage.width;
         this.sprite.height = annImage.height;
     }
@@ -51172,12 +51369,12 @@ class Animo extends index_1.DisplayType {
             return;
         }
         this.isPlaying = true;
-        this.currentFrameIdx = 0;
+        this.currentFrame = 0;
         this.currentEvent = name.toString().toUpperCase();
     }
     STOP(arg) {
         this.isPlaying = false;
-        this.currentFrameIdx = 0;
+        this.currentFrame = 0;
     }
     PAUSE() {
         this.isPlaying = false;
@@ -51187,13 +51384,12 @@ class Animo extends index_1.DisplayType {
     }
     SETFRAME(eventName, frameIdx) {
         this.currentEvent = eventName;
-        this.currentFrameIdx = frameIdx;
+        this.currentFrame = frameIdx;
         // Don't wait for a tick because some animations might not be playing,
         // but they display something (like a keypad screen in S73_0_KOD in UFO)
         const event = this.getEventByName(eventName);
-        (0, errors_2.assert)(this.annFile !== null);
         (0, errors_2.assert)(event !== null);
-        this.renderFrame(event, frameIdx);
+        this.changeFrame(event, frameIdx);
     }
     SETFPS(fps) {
         this.fps = fps;
@@ -51217,8 +51413,8 @@ class Animo extends index_1.DisplayType {
         (0, errors_2.assert)(this.sprite !== null);
         this.positionX = x;
         this.positionY = y;
-        this.sprite.x = x + this.positionOffsetX + this.anchorXOffset;
-        this.sprite.y = y + this.positionOffsetY + this.anchorYOffset;
+        this.sprite.x = x + this.positionOffsetX + this.anchorOffsetX;
+        this.sprite.y = y + this.positionOffsetY + this.anchorOffsetY;
     }
     SETASBUTTON(arg1, arg2) {
         var _a, _b;
@@ -51303,7 +51499,7 @@ class Animo extends index_1.DisplayType {
     GETFRAMENAME() {
         const event = this.getEventByName(this.currentEvent);
         (0, errors_2.assert)(event !== null);
-        return event.frames[this.currentFrameIdx].name;
+        return event.frames[this.currentFrame].name;
     }
     GETMAXWIDTH() {
         throw new errors_1.NotImplementedError();
@@ -51315,7 +51511,7 @@ class Animo extends index_1.DisplayType {
         return this.currentEvent;
     }
     GETFRAME() {
-        return this.currentFrameIdx;
+        return this.currentFrame;
     }
     GETCURRFRAMEPOSX() {
         throw new errors_1.NotImplementedError();
@@ -51350,28 +51546,19 @@ class Animo extends index_1.DisplayType {
     hasEvent(name) {
         return this.getEventByName(name) !== null;
     }
-    renderFrame(event, frameIdx) {
-        (0, errors_2.assert)(this.annFile !== null);
-        (0, errors_2.assert)(event !== null);
-        const eventFrame = event.frames[frameIdx];
-        const imageIndex = event.framesImageMapping[frameIdx];
-        const annImage = this.annFile.annImages[imageIndex];
-        this.updateSprite(eventFrame, imageIndex, annImage);
-    }
     getRenderObject() {
         return this.sprite;
     }
     clone() {
         const clone = super.clone();
         clone.isPlaying = this.isPlaying;
-        clone.currentFrameIdx = this.currentFrameIdx;
+        clone.currentFrame = this.currentFrame;
         clone.currentEvent = this.currentEvent;
         clone.currentLoop = this.currentLoop;
-        clone.usingImageIndex = this.usingImageIndex;
         clone.annFile = this.annFile;
         clone.textures = this.textures;
         clone.sounds = this.sounds;
-        clone.initAnimatedSprite();
+        clone.initSprite();
         return clone;
     }
 }
@@ -51659,8 +51846,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Button = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const utils_1 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
+const image_1 = __webpack_require__(/*! ./image */ "./src/engine/types/image.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/components/button.ts");
+const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
+const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 class Button extends index_1.Type {
     constructor(engine, definition) {
         super(engine, definition);
@@ -51673,7 +51863,6 @@ class Button extends index_1.Type {
     }
     init() { }
     ready() {
-        var _a, _b, _c;
         if (this.definition.RECT) {
             let shape;
             if (Array.isArray(this.definition.RECT)) {
@@ -51724,19 +51913,12 @@ class Button extends index_1.Type {
         // ...including ONINIT
         this.callbacks.run('ONINIT');
         if (!this.interactArea) {
-            if ((_a = this.gfxStandard) === null || _a === void 0 ? void 0 : _a.sprite) {
-                this.logic.registerInteractive(this.gfxStandard.sprite);
-            }
-            if ((_b = this.gfxOnMove) === null || _b === void 0 ? void 0 : _b.sprite) {
-                this.logic.registerInteractive(this.gfxOnMove.sprite);
-            }
-            if ((_c = this.gfxOnClick) === null || _c === void 0 ? void 0 : _c.sprite) {
-                this.logic.registerInteractive(this.gfxOnClick.sprite);
+            if (this.gfxStandard) {
+                this.registerInteractive(this.gfxStandard);
             }
         }
     }
     destroy() {
-        var _a, _b, _c;
         if (this.interactArea) {
             this.logic.unregisterInteractive(this.interactArea);
             this.engine.app.stage.removeChild(this.interactArea);
@@ -51745,14 +51927,8 @@ class Button extends index_1.Type {
             this.engine.app.stage.removeChild(this.interactAreaDebug);
         }
         if (!this.interactArea) {
-            if ((_a = this.gfxStandard) === null || _a === void 0 ? void 0 : _a.sprite) {
-                this.logic.unregisterInteractive(this.gfxStandard.sprite);
-            }
-            if ((_b = this.gfxOnMove) === null || _b === void 0 ? void 0 : _b.sprite) {
-                this.logic.unregisterInteractive(this.gfxOnMove.sprite);
-            }
-            if ((_c = this.gfxOnClick) === null || _c === void 0 ? void 0 : _c.sprite) {
-                this.logic.unregisterInteractive(this.gfxOnClick.sprite);
+            if (this.gfxStandard) {
+                this.unregisterInteractive(this.gfxStandard);
             }
         }
     }
@@ -51781,17 +51957,36 @@ class Button extends index_1.Type {
             (_c = this.gfxOnClick) === null || _c === void 0 ? void 0 : _c.HIDE();
         }
         else if (state == button_1.State.HOVERED && this.gfxOnMove) {
-            (_d = this.gfxStandard) === null || _d === void 0 ? void 0 : _d.HIDE();
+            (_d = this.gfxStandard) === null || _d === void 0 ? void 0 : _d.SHOW();
+            // Setting alpha to 0 instead of hiding so that the mouse interactions still work
+            if (this.gfxStandard) {
+                const object = this.gfxStandard.getRenderObject();
+                if (object) {
+                    object.alpha = 0;
+                }
+            }
             (_e = this.gfxOnMove) === null || _e === void 0 ? void 0 : _e.SHOW();
             (_f = this.gfxOnClick) === null || _f === void 0 ? void 0 : _f.HIDE();
         }
         else if (state == button_1.State.PRESSED && this.gfxOnClick) {
-            (_g = this.gfxStandard) === null || _g === void 0 ? void 0 : _g.HIDE();
+            (_g = this.gfxStandard) === null || _g === void 0 ? void 0 : _g.SHOW();
+            if (this.gfxStandard) {
+                const object = this.gfxStandard.getRenderObject();
+                if (object) {
+                    object.alpha = 0;
+                }
+            }
             (_h = this.gfxOnMove) === null || _h === void 0 ? void 0 : _h.HIDE();
             (_j = this.gfxOnClick) === null || _j === void 0 ? void 0 : _j.SHOW();
         }
         else {
             (_k = this.gfxStandard) === null || _k === void 0 ? void 0 : _k.SHOW();
+            if (this.gfxStandard) {
+                const object = this.gfxStandard.getRenderObject();
+                if (object) {
+                    object.alpha = 1;
+                }
+            }
             (_l = this.gfxOnMove) === null || _l === void 0 ? void 0 : _l.HIDE();
             (_m = this.gfxOnClick) === null || _m === void 0 ? void 0 : _m.HIDE();
         }
@@ -51810,6 +52005,28 @@ class Button extends index_1.Type {
         (_a = this.gfxStandard) === null || _a === void 0 ? void 0 : _a.SETPRIORITY(priority);
         (_b = this.gfxOnMove) === null || _b === void 0 ? void 0 : _b.SETPRIORITY(priority);
         (_c = this.gfxOnClick) === null || _c === void 0 ? void 0 : _c.SETPRIORITY(priority);
+    }
+    registerInteractive(object) {
+        const renderObject = object.getRenderObject();
+        (0, errors_1.assert)(renderObject !== null);
+        this.logic.registerInteractive(renderObject);
+        if (renderObject instanceof rendering_1.AdvancedSprite) {
+            renderObject.checkPixelPerfect = true;
+        }
+        else if (object instanceof image_1.Image) {
+            renderObject.eventMode = 'dynamic';
+        }
+    }
+    unregisterInteractive(object) {
+        const renderObject = object.getRenderObject();
+        (0, errors_1.assert)(renderObject !== null);
+        this.logic.unregisterInteractive(renderObject);
+        if (renderObject instanceof rendering_1.AdvancedSprite) {
+            renderObject.checkPixelPerfect = false;
+        }
+        else if (object instanceof image_1.Image) {
+            renderObject.eventMode = 'none';
+        }
     }
 }
 exports.Button = Button;
@@ -52289,6 +52506,7 @@ class Image extends index_1.DisplayType {
         return __awaiter(this, void 0, void 0, function* () {
             this.sprite = yield this.load();
             this.sprite.visible = this.definition.VISIBLE;
+            this.sprite.eventMode = 'none';
             this.SETPRIORITY(this.definition.PRIORITY);
         });
     }
@@ -52328,12 +52546,10 @@ class Image extends index_1.DisplayType {
     SHOW() {
         (0, errors_1.assert)(this.sprite !== null);
         this.sprite.visible = true;
-        this.sprite.interactive = true;
     }
     HIDE() {
         (0, errors_1.assert)(this.sprite !== null);
         this.sprite.visible = false;
-        this.sprite.interactive = false;
     }
     GETPOSITIONY() {
         (0, errors_1.assert)(this.sprite !== null);
@@ -52818,7 +53034,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Sequence = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const filesLoader_1 = __webpack_require__(/*! ../../filesLoader */ "./src/filesLoader.ts");
+const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 class Sequence extends index_1.Type {
     constructor(engine, definition) {
@@ -52873,7 +53089,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Sound = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
-const filesLoader_1 = __webpack_require__(/*! ../../filesLoader */ "./src/filesLoader.ts");
+const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 class Sound extends index_1.Type {
     constructor(engine, definition) {
@@ -52993,8 +53209,8 @@ class StaticFilter extends index_1.Type {
             if (this.definition.ACTION === 'ROTATE') {
                 object.anchor.set(0.5, 0.5);
                 if (linkedObject instanceof animo_1.Animo) {
-                    linkedObject.anchorXOffset = object.width / 2;
-                    linkedObject.anchorYOffset = object.height / 2;
+                    linkedObject.anchorOffsetX = object.width / 2;
+                    linkedObject.anchorOffsetY = object.height / 2;
                 }
                 object.angle = this.properties.get('ANGLE');
             }
@@ -53300,7 +53516,7 @@ const parseFrame = (view) => {
     frame.name = (0, utils_2.stringUntilNull)(decoder.decode(view.read(nameSize)));
     if (frame.sfxSwitch != 0) {
         const soundsLen = view.getUint32();
-        frame.sounds = (0, utils_2.stringUntilNull)(decoder.decode(view.read(soundsLen)));
+        frame.sounds = (0, utils_2.stringUntilNull)(decoder.decode(view.read(soundsLen))).split(';').filter(x => x.trim() !== '');
     }
     return frame;
 };
@@ -54391,148 +54607,6 @@ class BinaryBuffer {
     }
 }
 exports.BinaryBuffer = BinaryBuffer;
-
-
-/***/ }),
-
-/***/ "./src/filesLoader.ts":
-/*!****************************!*\
-  !*** ./src/filesLoader.ts ***!
-  \****************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
-const cnv_1 = __webpack_require__(/*! ./fileFormats/cnv */ "./src/fileFormats/cnv/index.ts");
-const img_1 = __webpack_require__(/*! ./fileFormats/img */ "./src/fileFormats/img/index.ts");
-const ann_1 = __webpack_require__(/*! ./fileFormats/ann */ "./src/fileFormats/ann/index.ts");
-const seq_1 = __webpack_require__(/*! ./fileFormats/seq */ "./src/fileFormats/seq/index.ts");
-class FileNotFoundError extends Error {
-    constructor(filename) {
-        super(`File '${filename}' not found in files listing`);
-    }
-}
-exports.FileNotFoundError = FileNotFoundError;
-class FileLoader {
-}
-exports.FileLoader = FileLoader;
-class UrlFileLoader extends FileLoader {
-    constructor() {
-        super(...arguments);
-        this.listing = null;
-        this.history = new Set();
-    }
-    getFilesListing() {
-        return [...this.listing.keys()];
-    }
-    getHistory() {
-        return this.history;
-    }
-    getANNFile(filename) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const data = yield this.getRawFile(filename);
-            return (0, ann_1.loadAnn)(data);
-        });
-    }
-    getCNVFile(filename) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const data = yield this.getRawFile(filename);
-            const text = (0, cnv_1.decryptCNV)(data);
-            console.log(text);
-            return (0, cnv_1.parseCNV)(text);
-        });
-    }
-    getSequenceFile(filename) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const data = yield this.getRawFile(filename);
-            const decoder = new TextDecoder();
-            const text = decoder.decode(data);
-            console.log(text);
-            return (0, seq_1.parseSequence)(text);
-        });
-    }
-    getIMGFile(filename) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!filename.toLowerCase().endsWith('.img')) {
-                filename = filename + '.img';
-            }
-            const data = yield this.getRawFile(filename);
-            return (0, img_1.loadImage)(data);
-        });
-    }
-    getRawFile(filename) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.listing == null) {
-                console.debug('Fetching files listing...');
-                this.listing = yield this.fetchFilesListing();
-            }
-            const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
-            console.debug(`Fetching '${normalizedFilename}'...`);
-            const fileUrl = this.listing.get(normalizedFilename);
-            if (fileUrl == null) {
-                throw new FileNotFoundError(normalizedFilename);
-            }
-            const response = yield fetch(fileUrl);
-            this.history.add(normalizedFilename);
-            return yield response.arrayBuffer();
-        });
-    }
-}
-exports.UrlFileLoader = UrlFileLoader;
-class GithubFileLoader extends UrlFileLoader {
-    constructor(gameName) {
-        super();
-        this.filesListUrl = `https://api.github.com/repos/ReksioEngine/GamesFiles/git/trees/${gameName}?recursive=1/`;
-        this.filesBaseUrl = `https://raw.githubusercontent.com/ReksioEngine/GamesFiles/${gameName}/`;
-    }
-    // Windows case-insensitive filenames moment
-    fetchFilesListing() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(this.filesListUrl);
-            const data = yield response.json();
-            return new Map(data.tree.map((entry) => [
-                entry.path.toLowerCase(),
-                this.filesBaseUrl + entry.path
-            ]));
-        });
-    }
-}
-exports.GithubFileLoader = GithubFileLoader;
-class ArchiveOrgFileLoader extends UrlFileLoader {
-    constructor(baseUrl) {
-        super();
-        this.baseUrl = baseUrl;
-    }
-    // Windows case-insensitive filenames moment
-    fetchFilesListing() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(this.baseUrl);
-            const html = yield response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const table = doc.querySelector('.archext');
-            if (table == null) {
-                throw new Error('Failed to fetch files listing table');
-            }
-            const links = table.querySelectorAll('a');
-            return new Map([...links].map((link) => [
-                link.textContent.toLowerCase(), link.getAttribute('href')
-            ]));
-        });
-    }
-}
-exports.ArchiveOrgFileLoader = ArchiveOrgFileLoader;
 
 
 /***/ }),
