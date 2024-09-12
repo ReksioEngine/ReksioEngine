@@ -32,7 +32,7 @@ export interface Frame {
     sfxSwitch: number
     transparency: number
     name: string
-    sounds: string
+    sounds: string[]
 }
 
 export interface AnnImage {
@@ -95,7 +95,7 @@ const parseFrame = (view: BinaryBuffer) => {
 
     if (frame.sfxSwitch != 0) {
         const soundsLen = view.getUint32()
-        frame.sounds = stringUntilNull(decoder.decode(view.read(soundsLen)))
+        frame.sounds = stringUntilNull(decoder.decode(view.read(soundsLen))).split(';').filter(x => x.trim() !== '')
     }
 
     return frame

@@ -5,7 +5,7 @@ import {NotImplementedError} from '../../errors'
 import {assert, InvalidObjectError} from '../../errors'
 import * as PIXI from 'pixi.js'
 import {Texture} from 'pixi.js'
-import {ANN, AnnImage, Event, Frame} from '../../fileFormats/ann'
+import {ANN, Event} from '../../fileFormats/ann'
 import {ButtonLogicComponent, Event as FSMEvent, State} from '../components/button'
 import {loadSound} from '../assetsLoader'
 import {Sound as PIXISound} from '@pixi/sound'
@@ -16,10 +16,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent | null = null
 
     private isPlaying: boolean = false
-    private currentFrameIdx: number = 0
-    private currentEvent: string = '1'
+    private currentFrame: number = 0
+    private currentEvent: string = ''
     private currentLoop: number = 0
-    private usingImageIndex = -1
 
     private fps: number = 16
     private lastFrameTime: number = 0
@@ -29,8 +28,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private positionY: number = 0
     private positionOffsetY: number = 0
 
-    public anchorXOffset: number = 0
-    public anchorYOffset: number = 0
+    public anchorOffsetX: number = 0
+    public anchorOffsetY: number = 0
 
     private annFile: ANN | null = null
     private sprite: AdvancedSprite | null = null
@@ -56,7 +55,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     async init() {
         this.annFile = await this.loadAnimation()
-        this.initAnimatedSprite()
+        this.initSprite()
     }
 
     ready() {
@@ -65,7 +64,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         // Find first event with any frames
         const defaultEvent = this.annFile.events.find(event => event.framesCount > 0)
         if (defaultEvent !== undefined) {
-            this.renderFrame(defaultEvent, 0)
+            this.changeFrame(defaultEvent, 0)
             this.currentEvent = defaultEvent.name
         }
 
@@ -86,7 +85,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         const currentTime = Date.now()
         if (currentTime - this.lastFrameTime > 1 / this.fps * 1000 * (1 / this.engine.speed)) {
-            this.onTick()
+            this.tickAnimation()
             this.lastFrameTime = currentTime
         }
     }
@@ -116,8 +115,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
                     continue
                 }
 
-                const filenames = frame.sounds.split(';').filter(x => x.trim() !== '')
-                for (const filename of filenames) {
+                for (const filename of frame.sounds) {
                     if (!this.sounds.has(filename)) {
                         const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '')
                         try {
@@ -132,7 +130,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
     }
 
-    private initAnimatedSprite() {
+    private initSprite() {
         assert(this.annFile !== null)
 
         this.sprite = new AdvancedSprite()
@@ -173,65 +171,66 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return hitmap
     }
 
-    private onTick() {
+    private tickAnimation() {
         assert(this.annFile !== null && this.sprite !== null)
+
         const event = this.getEventByName(this.currentEvent)
-        if (event) {
-            this.tickAnimation(event)
+        if (!event) {
+            return
         }
-    }
 
-    private tickAnimation(event: Event) {
-        assert(this.annFile !== null && this.sprite !== null)
-        this.renderFrame(event, this.currentFrameIdx)
+        this.changeFrame(event, this.currentFrame)
 
-        if (this.currentFrameIdx === 0) {
+        if (this.currentFrame === 0) {
             this.ONSTARTED()
         }
 
         // Random sound out of them?
-        const eventFrame = event.frames[this.currentFrameIdx]
+        const eventFrame = event.frames[this.currentFrame]
         if (eventFrame.sounds) {
-            const filenames = eventFrame.sounds.split(';')
+            const filenames = eventFrame.sounds
             const randomFilename = filenames[Math.floor((Math.random()*filenames.length))]
-            const sound = this.sounds.get(randomFilename)
-            if (sound !== undefined) {
+
+            if (this.sounds.has(randomFilename)) {
                 console.debug(`Playing sound '${randomFilename}'`)
+                const sound = this.sounds.get(randomFilename)!
                 sound.play()
             }
         }
 
         // TODO, is starting first frame in an event a frame change?
-        this.currentFrameIdx++
+        this.currentFrame++
         this.ONFRAMECHANGED()
 
-        if (this.currentFrameIdx >= event.framesCount) {
+        if (this.currentFrame >= event.framesCount) {
             if (this.currentLoop >= event.loopNumber) {
                 this.STOP(false)
                 this.ONFINISHED()
             }
 
             this.currentLoop++
-            this.currentFrameIdx = 0
+            this.currentFrame = 0
         }
     }
 
-    private updateSprite(eventFrame: Frame, imageIndex: number, annImage: AnnImage) {
-        //TODO: Sometimes this.sprite.transform === null
-        if (this.sprite === null) return
+    private changeFrame(event: Event, frameIdx: number) {
+        assert(this.annFile !== null)
+        assert(this.sprite !== null)
+        assert(event !== null)
 
-        if (imageIndex != this.usingImageIndex) {
-            this.usingImageIndex = imageIndex
-            // TODO: refactor it so we don't assign texture and hitmap separately?
-            this.sprite.texture = this.getTexture(imageIndex)
-            this.sprite.hitmap = this.getHitmap(imageIndex)
-        }
+        const eventFrame = event.frames[frameIdx]
+        const imageIndex = event.framesImageMapping[frameIdx]
+        const annImage = this.annFile.annImages[imageIndex]
+
+        // TODO: refactor it so we don't assign texture and hitmap separately?
+        this.sprite.texture = this.getTexture(imageIndex)
+        this.sprite.hitmap = this.getHitmap(imageIndex)
 
         this.positionOffsetX = annImage.positionX + eventFrame.positionX
-        this.sprite.x = this.positionX + this.positionOffsetX + this.anchorXOffset
+        this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX
 
         this.positionOffsetY = annImage.positionY + eventFrame.positionY
-        this.sprite.y = this.positionY + this.positionOffsetY + this.anchorYOffset
+        this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY
 
         this.sprite.width = annImage.width
         this.sprite.height = annImage.height
@@ -253,7 +252,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     PLAY(name: string | number) {
         this.SHOW()
-
         this.playEvent(name.toString())
     }
 
@@ -263,13 +261,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
 
         this.isPlaying = true
-        this.currentFrameIdx = 0
+        this.currentFrame = 0
         this.currentEvent = name.toString().toUpperCase()
     }
 
     STOP(arg: boolean) {
         this.isPlaying = false
-        this.currentFrameIdx = 0
+        this.currentFrame = 0
     }
 
     PAUSE() {
@@ -282,15 +280,14 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     SETFRAME(eventName: string, frameIdx: number) {
         this.currentEvent = eventName
-        this.currentFrameIdx = frameIdx
+        this.currentFrame = frameIdx
 
         // Don't wait for a tick because some animations might not be playing,
         // but they display something (like a keypad screen in S73_0_KOD in UFO)
         const event = this.getEventByName(eventName)
-        assert(this.annFile !== null)
         assert(event !== null)
 
-        this.renderFrame(event, frameIdx)
+        this.changeFrame(event, frameIdx)
     }
 
     SETFPS(fps: number) {
@@ -321,8 +318,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         this.positionX = x
         this.positionY = y
-        this.sprite.x = x + this.positionOffsetX + this.anchorXOffset
-        this.sprite.y = y + this.positionOffsetY + this.anchorYOffset
+        this.sprite.x = x + this.positionOffsetX + this.anchorOffsetX
+        this.sprite.y = y + this.positionOffsetY + this.anchorOffsetY
     }
 
     SETASBUTTON(arg1: boolean, arg2: boolean) {
@@ -408,7 +405,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const event = this.getEventByName(this.currentEvent)
         assert(event !== null)
 
-        return event.frames[this.currentFrameIdx].name
+        return event.frames[this.currentFrame].name
     }
 
     GETMAXWIDTH(): number {
@@ -424,7 +421,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     GETFRAME(): number {
-        return this.currentFrameIdx
+        return this.currentFrame
     }
 
     GETCURRFRAMEPOSX(): number {
@@ -472,16 +469,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return this.getEventByName(name) !== null
     }
 
-    private renderFrame(event: Event, frameIdx: number) {
-        assert(this.annFile !== null)
-        assert(event !== null)
-
-        const eventFrame = event.frames[frameIdx]
-        const imageIndex = event.framesImageMapping[frameIdx]
-        const annImage = this.annFile.annImages[imageIndex]
-        this.updateSprite(eventFrame, imageIndex, annImage)
-    }
-
     getRenderObject() {
         return this.sprite
     }
@@ -489,14 +476,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
     clone() {
         const clone = super.clone() as Animo
         clone.isPlaying = this.isPlaying
-        clone.currentFrameIdx = this.currentFrameIdx
+        clone.currentFrame = this.currentFrame
         clone.currentEvent = this.currentEvent
         clone.currentLoop = this.currentLoop
-        clone.usingImageIndex = this.usingImageIndex
         clone.annFile = this.annFile
         clone.textures = this.textures
         clone.sounds = this.sounds
-        clone.initAnimatedSprite()
+        clone.initSprite()
         return clone
     }
 }

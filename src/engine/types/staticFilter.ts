@@ -34,8 +34,8 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
                 object.anchor.set(0.5, 0.5)
 
                 if (linkedObject instanceof Animo) {
-                    linkedObject.anchorXOffset = object.width/2
-                    linkedObject.anchorYOffset = object.height/2
+                    linkedObject.anchorOffsetX = object.width/2
+                    linkedObject.anchorOffsetY = object.height/2
                 }
 
                 object.angle = this.properties.get('ANGLE')
