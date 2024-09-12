@@ -6,13 +6,16 @@ import {Image} from './image'
 import {Graphics, Rectangle} from 'pixi.js'
 import {ButtonLogicComponent, State} from '../components/button'
 import {Event} from '../components/button'
+import {Animo} from './animo'
+import {AdvancedSprite} from '../rendering'
+import {assert} from '../../errors'
 
 export class Button extends Type<ButtonDefinition> {
     private logic: ButtonLogicComponent
 
-    private gfxStandard?: Image
-    private gfxOnClick?: Image
-    private gfxOnMove?: Image
+    private gfxStandard?: Image | Animo
+    private gfxOnClick?: Image | Animo
+    private gfxOnMove?: Image | Animo
 
     private interactArea?: Graphics
     private interactAreaDebug?: Graphics
@@ -96,14 +99,8 @@ export class Button extends Type<ButtonDefinition> {
         this.callbacks.run('ONINIT')
 
         if (!this.interactArea) {
-            if (this.gfxStandard?.sprite) {
-                this.logic.registerInteractive(this.gfxStandard.sprite)
-            }
-            if (this.gfxOnMove?.sprite) {
-                this.logic.registerInteractive(this.gfxOnMove.sprite)
-            }
-            if (this.gfxOnClick?.sprite) {
-                this.logic.registerInteractive(this.gfxOnClick.sprite)
+            if (this.gfxStandard) {
+                this.registerInteractive(this.gfxStandard)
             }
         }
     }
@@ -118,14 +115,8 @@ export class Button extends Type<ButtonDefinition> {
         }
 
         if (!this.interactArea) {
-            if (this.gfxStandard?.sprite) {
-                this.logic.unregisterInteractive(this.gfxStandard.sprite)
-            }
-            if (this.gfxOnMove?.sprite) {
-                this.logic.unregisterInteractive(this.gfxOnMove.sprite)
-            }
-            if (this.gfxOnClick?.sprite) {
-                this.logic.unregisterInteractive(this.gfxOnClick.sprite)
+            if (this.gfxStandard) {
+                this.unregisterInteractive(this.gfxStandard)
             }
         }
     }
@@ -154,15 +145,34 @@ export class Button extends Type<ButtonDefinition> {
             this.gfxOnMove?.HIDE()
             this.gfxOnClick?.HIDE()
         } else if (state == State.HOVERED && this.gfxOnMove) {
-            this.gfxStandard?.HIDE()
+            this.gfxStandard?.SHOW()
+            // Setting alpha to 0 instead of hiding so that the mouse interactions still work
+            if (this.gfxStandard) {
+                const object = this.gfxStandard.getRenderObject()
+                if (object) {
+                    object.alpha = 0
+                }
+            }
             this.gfxOnMove?.SHOW()
             this.gfxOnClick?.HIDE()
         } else if (state == State.PRESSED && this.gfxOnClick) {
-            this.gfxStandard?.HIDE()
+            this.gfxStandard?.SHOW()
+            if (this.gfxStandard) {
+                const object = this.gfxStandard.getRenderObject()
+                if (object) {
+                    object.alpha = 0
+                }
+            }
             this.gfxOnMove?.HIDE()
             this.gfxOnClick?.SHOW()
         } else {
             this.gfxStandard?.SHOW()
+            if (this.gfxStandard) {
+                const object = this.gfxStandard.getRenderObject()
+                if (object) {
+                    object.alpha = 1
+                }
+            }
             this.gfxOnMove?.HIDE()
             this.gfxOnClick?.HIDE()
         }
@@ -184,5 +194,31 @@ export class Button extends Type<ButtonDefinition> {
         this.gfxStandard?.SETPRIORITY(priority)
         this.gfxOnMove?.SETPRIORITY(priority)
         this.gfxOnClick?.SETPRIORITY(priority)
+    }
+
+    registerInteractive(object: Image | Animo) {
+        const renderObject = object.getRenderObject()
+        assert(renderObject !== null)
+
+        this.logic.registerInteractive(renderObject)
+
+        if (renderObject instanceof AdvancedSprite) {
+            renderObject.checkPixelPerfect = true
+        } else if (object instanceof Image) {
+            renderObject.eventMode = 'dynamic'
+        }
+    }
+
+    unregisterInteractive(object: Image | Animo) {
+        const renderObject = object.getRenderObject()
+        assert(renderObject !== null)
+
+        this.logic.unregisterInteractive(renderObject)
+
+        if (renderObject instanceof AdvancedSprite) {
+            renderObject.checkPixelPerfect = false
+        } else if (object instanceof Image) {
+            renderObject.eventMode = 'none'
+        }
     }
 }

@@ -4,12 +4,13 @@ import {Engine} from '../index'
 import {NotImplementedError} from '../../errors'
 import {assert, InvalidObjectError} from '../../errors'
 import * as PIXI from 'pixi.js'
-import {Sprite, Texture} from 'pixi.js'
+import {Texture} from 'pixi.js'
 import {ANN, AnnImage, Event, Frame} from '../../fileFormats/ann'
 import {ButtonLogicComponent, Event as FSMEvent, State} from '../components/button'
 import {loadSound} from '../assetsLoader'
 import {Sound as PIXISound} from '@pixi/sound'
 import {FileNotFoundError} from '../filesLoader'
+import {AdvancedSprite, createHitmapFromImageBytes} from '../rendering'
 
 export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent | null = null
@@ -32,9 +33,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
     public anchorYOffset: number = 0
 
     private annFile: ANN | null = null
-    private sprite: Sprite | null = null
+    private sprite: AdvancedSprite | null = null
 
     private textures = new Map<number, PIXI.Texture>()
+    private hitmaps = new Map<number, Uint8Array>()
     private sounds = new Map<string, PIXISound>()
 
     constructor(engine: Engine, definition: AnimoDefinition) {
@@ -133,14 +135,14 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private initAnimatedSprite() {
         assert(this.annFile !== null)
 
-        this.sprite = new PIXI.Sprite()
+        this.sprite = new AdvancedSprite()
         this.sprite.visible = this.definition.VISIBLE
         this.SETPRIORITY(this.definition.PRIORITY)
 
         this.engine.addToStage(this.sprite)
     }
 
-    private getTextureFrom(imageIndex: number): Texture {
+    private getTexture(imageIndex: number): Texture {
         assert(this.annFile != null)
 
         // Check if cached already
@@ -157,6 +159,18 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const texture = new PIXI.Texture(baseTexture)
         this.textures.set(imageIndex, texture)
         return texture
+    }
+
+    private getHitmap(imageIndex: number): Uint8Array {
+        assert(this.annFile != null)
+
+        if (this.hitmaps.has(imageIndex)) {
+            return this.hitmaps.get(imageIndex)!
+        }
+
+        const hitmap = createHitmapFromImageBytes(this.annFile.images[imageIndex])
+        this.hitmaps.set(imageIndex, hitmap)
+        return hitmap
     }
 
     private onTick() {
@@ -208,7 +222,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         if (imageIndex != this.usingImageIndex) {
             this.usingImageIndex = imageIndex
-            this.sprite.texture = this.getTextureFrom(imageIndex)
+            // TODO: refactor it so we don't assign texture and hitmap separately?
+            this.sprite.texture = this.getTexture(imageIndex)
+            this.sprite.hitmap = this.getHitmap(imageIndex)
         }
 
         this.positionOffsetX = annImage.positionX + eventFrame.positionX

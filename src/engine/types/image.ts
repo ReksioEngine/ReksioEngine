@@ -16,6 +16,7 @@ export class Image extends DisplayType<ImageDefinition> {
     async init() {
         this.sprite = await this.load()
         this.sprite.visible = this.definition.VISIBLE
+        this.sprite.eventMode = 'none'
         this.SETPRIORITY(this.definition.PRIORITY)
     }
 
@@ -60,13 +61,11 @@ export class Image extends DisplayType<ImageDefinition> {
     SHOW() {
         assert(this.sprite !== null)
         this.sprite.visible = true
-        this.sprite.interactive = true
     }
 
     HIDE() {
         assert(this.sprite !== null)
         this.sprite.visible = false
-        this.sprite.interactive = false
     }
 
     GETPOSITIONY() {

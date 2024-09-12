@@ -81,7 +81,7 @@ export class ButtonLogicComponent {
     }
 
     registerInteractive(sprite: DisplayObject) {
-        sprite.interactive = true
+        sprite.eventMode = 'dynamic'
         sprite.cursor = 'pointer'
 
         sprite.addListener('pointerover', this.onMouseOverCallback)
@@ -91,7 +91,7 @@ export class ButtonLogicComponent {
     }
 
     unregisterInteractive(sprite: DisplayObject) {
-        sprite.interactive = false
+        sprite.eventMode = 'auto'
         sprite.cursor = 'default'
 
         sprite.removeListener('pointerover', this.onMouseOverCallback)
