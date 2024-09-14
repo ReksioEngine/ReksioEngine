@@ -222,10 +222,15 @@ export class Sequence extends Type<SequenceDefinition> {
         }
     }
 
-    private async getAnimo(filename: string) {
+    private async getAnimo(source: string) {
+        const object = this.engine.getObject(source)
+        if (object) {
+            return object
+        }
+
         for (const object of Object.values(this.engine.scope)) {
             if (object instanceof Animo) {
-                if (object.definition.FILENAME === filename) {
+                if (object.definition.FILENAME === source) {
                     return object
                 }
             }
@@ -233,8 +238,8 @@ export class Sequence extends Type<SequenceDefinition> {
 
         return await createObject(this.engine, {
             TYPE: 'ANIMO',
-            NAME: filename,
-            FILENAME: filename,
+            NAME: source,
+            FILENAME: source,
             FPS: 16,
             MONITORCOLLISION: false,
             MONITORCOLLISIONALPHA: false,
