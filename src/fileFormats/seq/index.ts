@@ -43,14 +43,14 @@ export type SequenceSequence = SequenceFileEntry & {
     MODE: 'PARAMETER' | 'SEQUENCE' | 'RANDOM'
 }
 export type ParameterSequence = SequenceSequence & {
-    SEQEVENT?: Record<string, number> // Only for PARAMETER
+    SEQEVENT?: Record<string, string> // Only for PARAMETER
 }
 export type NormalSequence = SequenceSequence & {
     ADD: string // Only for SEQUENCE and RANDOM
 }
 const SequenceSequenceStructure = {
     MODE: string,
-    SEQEVENT: map(number),
+    SEQEVENT: map(string),
     ADD: string
 }
 

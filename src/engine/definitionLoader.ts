@@ -1,4 +1,4 @@
-import {CNV} from '../fileFormats/cnv/parser'
+import {CNV, CNVObject} from '../fileFormats/cnv/parser'
 import {Engine} from './index'
 import {Integer} from './types/integer'
 import {Animo} from './types/animo'
@@ -129,4 +129,22 @@ export const loadDefinition = async (engine: Engine, scope: Record<string, any>,
     orderedScope.forEach(entry => entry.ready())
 
     engine.app.ticker.start()
+}
+
+export const createObject = async (engine: Engine, definition: CNVObject, parent?: Type<any>) => {
+    engine.app.ticker.stop()
+
+    const instance = createTypeInstance(engine, definition)
+    instance.parent = parent
+    engine.scope[definition.NAME] = instance
+
+    if (instance instanceof DisplayType) {
+        engine.renderingOrder.push(instance)
+    }
+
+    await instance.init()
+    instance.ready()
+    engine.app.ticker.start()
+
+    return instance
 }
