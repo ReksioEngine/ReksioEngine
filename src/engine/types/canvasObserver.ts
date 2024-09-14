@@ -36,10 +36,15 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
                 continue
             }
 
-            const containsPoint = point.x > position.x &&
-                point.x < position?.x + renderObject.width &&
-                point.y > position.y &&
-                point.y < position.y + renderObject.height
+            let containsPoint = false
+            if (includeAlpha) {
+                containsPoint = renderObject.containsPoint(point)
+            } else {
+                containsPoint = point.x > position.x &&
+                    point.x < position?.x + renderObject.width &&
+                    point.y > position.y &&
+                    point.y < position.y + renderObject.height
+            }
 
             if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
                 return object.name
