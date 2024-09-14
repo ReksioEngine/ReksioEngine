@@ -43,7 +43,7 @@ export abstract class UrlFileLoader extends FileLoader {
     async getCNVFile(filename: string): Promise<CNV> {
         const data = await this.getRawFile(filename)
         const text = decryptCNV(data)
-        console.log(text)
+        console.debug(text)
         return parseCNV(text)
     }
 
@@ -51,7 +51,7 @@ export abstract class UrlFileLoader extends FileLoader {
         const data = await this.getRawFile(filename)
         const decoder = new TextDecoder()
         const text = decoder.decode(data)
-        console.log(text)
+        console.debug(text)
         return parseSequence(text)
     }
 
