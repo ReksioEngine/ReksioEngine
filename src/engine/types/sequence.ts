@@ -60,6 +60,8 @@ export class Sequence extends Type<SequenceDefinition> {
 
     private async load() {
         assert(this.sequenceFile !== null)
+
+        const soundsNames = []
         for (const definition of Object.values(this.sequenceFile)) {
             if (definition.TYPE === 'SEQUENCE') {
                 const sequence = definition as SequenceSequence
@@ -73,7 +75,7 @@ export class Sequence extends Type<SequenceDefinition> {
                 }
             } else if (definition.TYPE === 'SPEAKING') {
                 const sequence = definition as Speaking
-                this.sounds.set(sequence.WAVFN, await loadSound(this.engine.fileLoader, `Wavs/${sequence.WAVFN}`))
+                soundsNames.push(sequence.WAVFN)
             }
 
             if (definition.ADD) {
@@ -85,6 +87,11 @@ export class Sequence extends Type<SequenceDefinition> {
                 subEntries.push(definition)
                 this.subEntries.set(definition.ADD, subEntries)
             }
+        }
+
+        const sounds = await Promise.all(soundsNames.map(name => loadSound(this.engine.fileLoader, `Wavs/${name}`)))
+        for (let i = 0; i < sounds.length; i++) {
+            this.sounds.set(soundsNames[i], sounds[i])
         }
     }
 
