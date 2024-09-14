@@ -176,9 +176,7 @@ export class Sequence extends Type<SequenceDefinition> {
 
             if (this.activeAnimo) {
                 const sound = this.sounds.get(speaking.WAVFN)!
-                const instance = await sound.play({
-                    speed: this.engine.speed
-                })
+                const instance = await sound.play()
 
                 instance.on('start', () => {
                     if (speaking.STARTING) {

@@ -21,7 +21,6 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
 
     REFRESH() {}
 
-    // TODO include alpha
     GETGRAPHICSAT(x: number, y: number, someBool1: boolean, minZ: number, maxZ: number, includeAlpha: boolean) {
         const point = new Point(x, y)
 
