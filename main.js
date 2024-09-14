@@ -53140,6 +53140,7 @@ class Sequence extends index_1.Type {
     load() {
         return __awaiter(this, void 0, void 0, function* () {
             (0, errors_1.assert)(this.sequenceFile !== null);
+            const soundsNames = [];
             for (const definition of Object.values(this.sequenceFile)) {
                 if (definition.TYPE === 'SEQUENCE') {
                     const sequence = definition;
@@ -53153,7 +53154,7 @@ class Sequence extends index_1.Type {
                 }
                 else if (definition.TYPE === 'SPEAKING') {
                     const sequence = definition;
-                    this.sounds.set(sequence.WAVFN, yield (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/${sequence.WAVFN}`));
+                    soundsNames.push(sequence.WAVFN);
                 }
                 if (definition.ADD) {
                     let subEntries = [];
@@ -53163,6 +53164,10 @@ class Sequence extends index_1.Type {
                     subEntries.push(definition);
                     this.subEntries.set(definition.ADD, subEntries);
                 }
+            }
+            const sounds = yield Promise.all(soundsNames.map(name => (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/${name}`)));
+            for (let i = 0; i < sounds.length; i++) {
+                this.sounds.set(soundsNames[i], sounds[i]);
             }
         });
     }
