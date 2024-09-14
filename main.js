@@ -50419,6 +50419,49 @@ exports.CallbacksComponent = CallbacksComponent;
 
 /***/ }),
 
+/***/ "./src/engine/components/events.ts":
+/*!*****************************************!*\
+  !*** ./src/engine/components/events.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.EventsComponent = void 0;
+class EventsComponent {
+    constructor() {
+        this.listeners = new Map();
+    }
+    register(eventName, callback) {
+        let callbacks = this.listeners.get(eventName);
+        if (callbacks === undefined) {
+            callbacks = [];
+        }
+        callbacks.push(callback);
+        this.listeners.set(eventName, callbacks);
+    }
+    unregister(eventName, callback) {
+        let callbacks = this.listeners.get(eventName);
+        if (callbacks === undefined) {
+            return;
+        }
+        callbacks = callbacks.filter(cb => cb !== callback);
+        this.listeners.set(eventName, callbacks);
+    }
+    trigger(eventName, ...args) {
+        var _a;
+        const callbacks = (_a = this.listeners.get(eventName)) !== null && _a !== void 0 ? _a : [];
+        for (const listener of callbacks) {
+            listener(...args);
+        }
+    }
+}
+exports.EventsComponent = EventsComponent;
+
+
+/***/ }),
+
 /***/ "./src/engine/debugging.ts":
 /*!*********************************!*\
   !*** ./src/engine/debugging.ts ***!
@@ -50483,7 +50526,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.loadDefinition = void 0;
+exports.createObject = exports.loadDefinition = void 0;
 const integer_1 = __webpack_require__(/*! ./types/integer */ "./src/engine/types/integer.ts");
 const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/animo.ts");
 const music_1 = __webpack_require__(/*! ./types/music */ "./src/engine/types/music.ts");
@@ -50607,6 +50650,20 @@ const loadDefinition = (engine, scope, definition, parent) => __awaiter(void 0, 
     engine.app.ticker.start();
 });
 exports.loadDefinition = loadDefinition;
+const createObject = (engine, definition, parent) => __awaiter(void 0, void 0, void 0, function* () {
+    engine.app.ticker.stop();
+    const instance = createTypeInstance(engine, definition);
+    instance.parent = parent;
+    engine.scope[definition.NAME] = instance;
+    if (instance instanceof types_1.DisplayType) {
+        engine.renderingOrder.push(instance);
+    }
+    yield instance.init();
+    instance.ready();
+    engine.app.ticker.start();
+    return instance;
+});
+exports.createObject = createObject;
 
 
 /***/ }),
@@ -51350,12 +51407,16 @@ class Animo extends index_1.DisplayType {
         this.sprite.height = annImage.height;
     }
     ONFINISHED() {
+        var _a;
         const index = this.currentEvent.toString();
         this.callbacks.run('ONFINISHED', index.toString());
+        (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONFINISHED', index.toString());
     }
     ONSTARTED() {
+        var _a;
         const index = this.currentEvent.toString();
         this.callbacks.run('ONSTARTED', index.toString());
+        (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONSTARTED', index.toString());
     }
     ONFRAMECHANGED() {
         this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
@@ -51563,6 +51624,10 @@ class Animo extends index_1.DisplayType {
     }
 }
 exports.Animo = Animo;
+Animo.Events = {
+    ONFINISHED: 'ONFINISHED',
+    ONSTARTED: 'ONSTARTED'
+};
 
 
 /***/ }),
@@ -51589,7 +51654,6 @@ exports.Application = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const utils_1 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
-const string_1 = __webpack_require__(/*! ./string */ "./src/engine/types/string.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 class Application extends index_1.Type {
     constructor(engine, definition) {
@@ -51613,10 +51677,7 @@ class Application extends index_1.Type {
         return this.language;
     }
     RUN(objectName, methodName, ...args) {
-        let object = this.engine.getObject(objectName);
-        if (object instanceof string_1.String) {
-            object = this.engine.getObject(object.value);
-        }
+        const object = this.engine.getObject(objectName);
         if (object[methodName]) {
             return object[methodName](...args);
         }
@@ -52589,8 +52650,10 @@ exports.ValueType = exports.DisplayType = exports.Type = void 0;
 const callbacks_1 = __webpack_require__(/*! ../components/callbacks */ "./src/engine/components/callbacks.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const events_1 = __webpack_require__(/*! ../components/events */ "./src/engine/components/events.ts");
 class Type {
     constructor(engine, definition) {
+        this.events = new events_1.EventsComponent();
         this.name = '';
         this.clones = [];
         this.engine = engine;
@@ -52627,6 +52690,7 @@ class Type {
     }
 }
 exports.Type = Type;
+Type.Events = {};
 class DisplayType extends Type {
     constructor(engine, definition) {
         var _a;
@@ -53036,9 +53100,28 @@ exports.Sequence = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts");
+const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
+const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
+const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~';
 class Sequence extends index_1.Type {
     constructor(engine, definition) {
         super(engine, definition);
+        this.sequenceFile = null;
+        this.parametersMapping = new Map();
+        this.subEntries = new Map();
+        this.parameterSequence = null;
+        this.sounds = new Map();
+        this.queue = [];
+        this.activeAnimo = null;
+        this.currentAnimoEvent = null;
+        this.sequenceName = null;
+        this.runningSubSequence = null;
+        this.loop = false;
+        this.loopIndex = 0;
+        this.callbacks.register('ONINIT', definition.ONINIT);
+        this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED);
+        this.onAnimoEventFinishedCallback = this.onAnimoEventFinished.bind(this);
     }
     init() {
         var _a;
@@ -53048,10 +53131,183 @@ class Sequence extends index_1.Type {
                 throw new filesLoader_1.FileNotFoundError('Could not get scene directory path');
             }
             this.sequenceFile = yield this.engine.fileLoader.getSequenceFile(relativePath);
+            yield this.load();
         });
     }
-    PLAY() {
-        throw new errors_1.NotImplementedError();
+    ready() {
+        this.callbacks.run('ONINIT');
+    }
+    load() {
+        return __awaiter(this, void 0, void 0, function* () {
+            (0, errors_1.assert)(this.sequenceFile !== null);
+            for (const definition of Object.values(this.sequenceFile)) {
+                if (definition.TYPE === 'SEQUENCE') {
+                    const sequence = definition;
+                    if (sequence.MODE === 'PARAMETER') {
+                        this.parameterSequence = sequence;
+                        (0, errors_1.assert)(this.parameterSequence.SEQEVENT !== undefined);
+                        for (const [name, indexer] of Object.entries(this.parameterSequence.SEQEVENT)) {
+                            this.parametersMapping.set(name, paramsCharacterSet.indexOf(indexer));
+                        }
+                    }
+                }
+                else if (definition.TYPE === 'SPEAKING') {
+                    const sequence = definition;
+                    this.sounds.set(sequence.WAVFN, yield (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/${sequence.WAVFN}`));
+                }
+                if (definition.ADD) {
+                    let subEntries = [];
+                    if (this.subEntries.has(definition.ADD)) {
+                        subEntries = this.subEntries.get(definition.ADD);
+                    }
+                    subEntries.push(definition);
+                    this.subEntries.set(definition.ADD, subEntries);
+                }
+            }
+        });
+    }
+    PLAY(sequenceName) {
+        (0, errors_1.assert)(this.parameterSequence !== null && this.subEntries !== null);
+        const subEntries = this.subEntries.get(this.parameterSequence.NAME);
+        if (subEntries !== undefined && this.parametersMapping.has(sequenceName)) {
+            const entryIndex = this.parametersMapping.get(sequenceName);
+            const entry = subEntries[entryIndex];
+            this.sequenceName = sequenceName;
+            this.fillQueue(entry);
+            this.progressNext();
+        }
+    }
+    fillQueue(entry) {
+        this.queue.push(entry);
+        if (!this.subEntries.has(entry.NAME)) {
+            return;
+        }
+        let subEntries = this.subEntries.get(entry.NAME);
+        if (entry.MODE === 'RANDOM') {
+            subEntries = subEntries
+                .map(value => ({ value, sort: Math.random() }))
+                .sort((a, b) => a.sort - b.sort)
+                .map(({ value }) => value);
+        }
+        for (const subEntry of subEntries) {
+            this.fillQueue(subEntry);
+        }
+    }
+    onAnimoEventFinished(eventName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            (0, errors_1.assert)(this.activeAnimo !== null);
+            if (this.currentAnimoEvent === eventName) {
+                yield this.progressNext();
+            }
+            else if (this.loop && this.runningSubSequence !== null) {
+                let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`;
+                if (!this.activeAnimo.hasEvent(eventName)) {
+                    this.loopIndex = 1;
+                    eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`;
+                }
+                this.activeAnimo.playEvent(eventName);
+            }
+        });
+    }
+    progressNext() {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.sequenceName === null) {
+                return;
+            }
+            if (this.queue.length === 0) {
+                this.callbacks.run('ONFINISHED', this.sequenceName);
+                return;
+            }
+            const next = this.queue.shift();
+            if (next.TYPE === 'SEQUENCE') {
+                yield this.progressNext();
+                return;
+            }
+            if (next.TYPE === 'SPEAKING') {
+                const speaking = next;
+                if (((_a = this.activeAnimo) === null || _a === void 0 ? void 0 : _a.definition.FILENAME) !== speaking.ANIMOFN) {
+                    if (this.activeAnimo) {
+                        this.activeAnimo.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                    }
+                    this.activeAnimo = yield this.getAnimo(speaking.ANIMOFN);
+                    if (this.activeAnimo) {
+                        this.activeAnimo.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                    }
+                }
+                if (this.activeAnimo) {
+                    const sound = this.sounds.get(speaking.WAVFN);
+                    const instance = yield sound.play({
+                        speed: this.engine.speed
+                    });
+                    instance.on('start', () => {
+                        if (speaking.STARTING) {
+                            this.currentAnimoEvent = speaking.PREFIX + '_START';
+                            this.activeAnimo.playEvent(speaking.PREFIX + '_START');
+                        }
+                    });
+                    instance.on('end', () => __awaiter(this, void 0, void 0, function* () {
+                        if (speaking.ENDING) {
+                            this.currentAnimoEvent = speaking.PREFIX + '_STOP';
+                            this.activeAnimo.playEvent(speaking.PREFIX + '_STOP');
+                            this.loop = false;
+                        }
+                    }));
+                    this.runningSubSequence = speaking;
+                    if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
+                        this.loop = true;
+                        this.loopIndex = 1;
+                        this.activeAnimo.playEvent(speaking.PREFIX + '_1');
+                    }
+                }
+            }
+            else if (next.TYPE === 'SIMPLE') {
+                const simple = next;
+                if (((_b = this.activeAnimo) === null || _b === void 0 ? void 0 : _b.definition.FILENAME) !== simple.FILENAME) {
+                    if (this.activeAnimo) {
+                        this.activeAnimo.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                    }
+                    this.activeAnimo = yield this.getAnimo(simple.FILENAME);
+                    if (this.activeAnimo) {
+                        this.activeAnimo.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                    }
+                }
+                if (this.activeAnimo) {
+                    if (!this.activeAnimo.hasEvent(simple.EVENT)) {
+                        yield this.progressNext();
+                        return;
+                    }
+                    this.currentAnimoEvent = simple.EVENT;
+                    this.runningSubSequence = simple;
+                    this.activeAnimo.playEvent(simple.EVENT);
+                }
+            }
+        });
+    }
+    getAnimo(filename) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (const object of Object.values(this.engine.scope)) {
+                if (object instanceof animo_1.Animo) {
+                    if (object.definition.FILENAME === filename) {
+                        return object;
+                    }
+                }
+            }
+            return yield (0, definitionLoader_1.createObject)(this.engine, {
+                TYPE: 'ANIMO',
+                NAME: filename,
+                FILENAME: filename,
+                FPS: 16,
+                MONITORCOLLISION: false,
+                MONITORCOLLISIONALPHA: false,
+                PRELOAD: true,
+                PRIORITY: 0,
+                RELEASE: true,
+                TOCANVAS: true,
+                TOINI: false,
+                VISIBLE: true
+            });
+        });
     }
     ISPLAYING() {
         throw new errors_1.NotImplementedError();
@@ -53059,8 +53315,15 @@ class Sequence extends index_1.Type {
     HIDE() {
         throw new errors_1.NotImplementedError();
     }
-    STOP() {
-        throw new errors_1.NotImplementedError();
+    STOP(arg) {
+        var _a;
+        this.queue = [];
+        this.sequenceName = null;
+        this.runningSubSequence = null;
+        this.loop = false;
+        this.loopIndex = 0;
+        (_a = this.activeAnimo) === null || _a === void 0 ? void 0 : _a.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+        this.activeAnimo = null;
     }
 }
 exports.Sequence = Sequence;
@@ -54409,7 +54672,7 @@ const parseSequence = (content) => {
 exports.parseSequence = parseSequence;
 const SequenceSequenceStructure = {
     MODE: common_1.string,
-    SEQEVENT: (0, common_1.map)(common_1.number),
+    SEQEVENT: (0, common_1.map)(common_1.string),
     ADD: common_1.string
 };
 const SimpleStructure = {
