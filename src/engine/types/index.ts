@@ -3,9 +3,12 @@ import {DisplayTypeDefinition, TypeDefinition, ValueTypeDefinition} from '../../
 import {CallbacksComponent} from '../components/callbacks'
 import {Point, Sprite} from 'pixi.js'
 import {assert, NotImplementedError} from '../../errors'
+import {EventsComponent} from '../components/events'
 
 export class Type<DefinitionType extends TypeDefinition> {
     protected callbacks: CallbacksComponent
+    public events: EventsComponent = new EventsComponent()
+    public static Events = {}
 
     protected engine: Engine
     public readonly definition: DefinitionType

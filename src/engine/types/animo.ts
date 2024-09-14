@@ -38,6 +38,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private hitmaps = new Map<number, Uint8Array>()
     private sounds = new Map<string, PIXISound>()
 
+    public static Events = {
+        ONFINISHED: 'ONFINISHED',
+        ONSTARTED: 'ONSTARTED'
+    }
+
     constructor(engine: Engine, definition: AnimoDefinition) {
         super(engine, definition)
         this.fps = definition.FPS ?? 16
@@ -239,11 +244,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private ONFINISHED() {
         const index = this.currentEvent.toString()
         this.callbacks.run('ONFINISHED', index.toString())
+        this.events?.trigger('ONFINISHED', index.toString())
     }
 
     private ONSTARTED() {
         const index = this.currentEvent.toString()
         this.callbacks.run('ONSTARTED', index.toString())
+        this.events?.trigger('ONSTARTED', index.toString())
     }
 
     private ONFRAMECHANGED() {
