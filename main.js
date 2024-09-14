@@ -53284,19 +53284,23 @@ class Sequence extends index_1.Type {
             }
         });
     }
-    getAnimo(filename) {
+    getAnimo(source) {
         return __awaiter(this, void 0, void 0, function* () {
+            const object = this.engine.getObject(source);
+            if (object) {
+                return object;
+            }
             for (const object of Object.values(this.engine.scope)) {
                 if (object instanceof animo_1.Animo) {
-                    if (object.definition.FILENAME === filename) {
+                    if (object.definition.FILENAME === source) {
                         return object;
                     }
                 }
             }
             return yield (0, definitionLoader_1.createObject)(this.engine, {
                 TYPE: 'ANIMO',
-                NAME: filename,
-                FILENAME: filename,
+                NAME: source,
+                FILENAME: source,
                 FPS: 16,
                 MONITORCOLLISION: false,
                 MONITORCOLLISIONALPHA: false,
