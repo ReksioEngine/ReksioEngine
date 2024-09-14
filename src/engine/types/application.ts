@@ -4,11 +4,10 @@ import {Engine} from '../index'
 import {pathJoin} from '../../utils'
 import {loadDefinition} from '../definitionLoader'
 import {Episode} from './episode'
-import {String} from './string'
 import {NotImplementedError} from '../../errors'
 
 export class Application extends Type<ApplicationDefinition> {
-    private language: string = '0415'
+    private language: string = 'POL'
 
     constructor(engine: Engine, definition: ApplicationDefinition) {
         super(engine, definition)
@@ -26,7 +25,20 @@ export class Application extends Type<ApplicationDefinition> {
     }
 
     SETLANGUAGE(langCode: string) {
-        this.language = langCode
+        switch (langCode) {
+        case '0415':
+            this.language = 'POL'
+            break
+        case '040E':
+            this.language = 'HUN'
+            break
+        case '0405':
+            this.language = 'CZE'
+            break
+        case '0418':
+            this.language = 'ROU'
+            break
+        }
     }
 
     GETLANGUAGE() {
