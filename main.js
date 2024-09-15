@@ -50466,16 +50466,35 @@ exports.EventsComponent = EventsComponent;
 /*!*********************************!*\
   !*** ./src/engine/debugging.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.updateCurrentScene = exports.setupDebugScene = void 0;
+const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const setupDebugScene = (engine) => {
     if (engine.debug) {
         const debug = document.querySelector('#debug');
         debug.style.display = 'block';
+        debug.querySelector('#speed').addEventListener('input', (e) => {
+            const target = e.target;
+            let sliderValue = target.value;
+            if (sliderValue > 1) {
+                sliderValue = Math.round(1 + (sliderValue - 1) * 10);
+            }
+            engine.speed = sliderValue;
+            engine.app.ticker.speed = sliderValue;
+            sound_1.sound.speedAll = sliderValue;
+            debug.querySelector('#speedDisplay').textContent = `(${sliderValue}x)`;
+        });
+        debug.querySelector('#speedReset').addEventListener('click', (e) => {
+            debug.querySelector('#speed').value = 1;
+            engine.speed = 1;
+            engine.app.ticker.speed = 1;
+            sound_1.sound.speedAll = 1;
+            debug.querySelector('#speedDisplay').textContent = '(1x)';
+        });
         const episode = Object.values(engine.globalScope).find((object) => object.definition.TYPE === 'EPISODE');
         const container = document.querySelector('#sceneSelector');
         for (const sceneName of episode.definition.SCENES) {
@@ -50722,7 +50741,7 @@ class UrlFileLoader extends FileLoader {
         return __awaiter(this, void 0, void 0, function* () {
             const data = yield this.getRawFile(filename);
             const text = (0, cnv_1.decryptCNV)(data);
-            console.log(text);
+            console.debug(text);
             return (0, cnv_1.parseCNV)(text);
         });
     }
@@ -50731,7 +50750,7 @@ class UrlFileLoader extends FileLoader {
             const data = yield this.getRawFile(filename);
             const decoder = new TextDecoder();
             const text = decoder.decode(data);
-            console.log(text);
+            console.debug(text);
             return (0, seq_1.parseSequence)(text);
         });
     }
@@ -50994,9 +51013,9 @@ class Engine {
         });
     }
     getObject(name) {
-        var _a;
+        var _a, _b;
         if (typeof name == 'string') {
-            return (_a = this.scope[name]) !== null && _a !== void 0 ? _a : this.globalScope[name];
+            return (_b = (_a = this.scope[name]) !== null && _a !== void 0 ? _a : this.globalScope[name]) !== null && _b !== void 0 ? _b : null;
         }
         else {
             return this.getObject(name.objectName);
@@ -51658,7 +51677,7 @@ const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 class Application extends index_1.Type {
     constructor(engine, definition) {
         super(engine, definition);
-        this.language = '0415';
+        this.language = 'POL';
     }
     init() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -51671,13 +51690,29 @@ class Application extends index_1.Type {
         });
     }
     SETLANGUAGE(langCode) {
-        this.language = langCode;
+        switch (langCode) {
+            case '0415':
+                this.language = 'POL';
+                break;
+            case '040E':
+                this.language = 'HUN';
+                break;
+            case '0405':
+                this.language = 'CZE';
+                break;
+            case '0418':
+                this.language = 'ROU';
+                break;
+        }
     }
     GETLANGUAGE() {
         return this.language;
     }
     RUN(objectName, methodName, ...args) {
         const object = this.engine.getObject(objectName);
+        if (object === null) {
+            return;
+        }
         if (object[methodName]) {
             return object[methodName](...args);
         }
@@ -51754,23 +51789,16 @@ class ArrayObject extends index_1.ValueType {
         this.value = [];
     }
     FIND(value) {
-        if (this.value.indexOf(value) === -1) {
-            return -1;
-        }
         return this.value.indexOf(value);
     }
     REVERSEFIND(value) {
-        if (this.value.lastIndexOf(value) === -1) {
-            return -1;
-        }
         return this.value.lastIndexOf(value);
     }
     SAVEINI() {
         this.saveToINI();
     }
     LOADINI() {
-        var _a;
-        this.value = (_a = this.getFromINI()) !== null && _a !== void 0 ? _a : [];
+        this.value = this.getFromINI();
     }
     MSGBOX() {
     }
@@ -51783,6 +51811,9 @@ class ArrayObject extends index_1.ValueType {
         return this.value.join(',');
     }
     deserialize(value) {
+        if (value === '') {
+            return [];
+        }
         return value.split(',');
     }
 }
@@ -52133,7 +52164,6 @@ class CanvasObserver extends index_1.Type {
         });
     }
     REFRESH() { }
-    // TODO include alpha
     GETGRAPHICSAT(x, y, someBool1, minZ, maxZ, includeAlpha) {
         const point = new pixi_js_1.Point(x, y);
         for (const object of Object.values(this.engine.scope)) {
@@ -52145,10 +52175,16 @@ class CanvasObserver extends index_1.Type {
             if (position === null) {
                 continue;
             }
-            const containsPoint = point.x > position.x &&
-                point.x < (position === null || position === void 0 ? void 0 : position.x) + renderObject.width &&
-                point.y > position.y &&
-                point.y < position.y + renderObject.height;
+            let containsPoint = false;
+            if (includeAlpha) {
+                containsPoint = renderObject.containsPoint(point);
+            }
+            else {
+                containsPoint = point.x > position.x &&
+                    point.x < (position === null || position === void 0 ? void 0 : position.x) + renderObject.width &&
+                    point.y > position.y &&
+                    point.y < position.y + renderObject.height;
+            }
             if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
                 return object.name;
             }
@@ -53242,9 +53278,7 @@ class Sequence extends index_1.Type {
                 }
                 if (this.activeAnimo) {
                     const sound = this.sounds.get(speaking.WAVFN);
-                    const instance = yield sound.play({
-                        speed: this.engine.speed
-                    });
+                    const instance = yield sound.play();
                     instance.on('start', () => {
                         if (speaking.STARTING) {
                             this.currentAnimoEvent = speaking.PREFIX + '_START';
@@ -53390,9 +53424,7 @@ class Sound extends index_1.Type {
     PLAY(arg) {
         return __awaiter(this, void 0, void 0, function* () {
             (0, errors_1.assert)(this.sound !== null);
-            const instance = yield this.sound.play({
-                speed: this.engine.speed
-            });
+            const instance = yield this.sound.play();
             instance.on('start', this.onStart.bind(this));
             instance.on('end', this.onEnd.bind(this));
         });
@@ -56186,7 +56218,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 const object = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject(ctx.IDENTIFIER().getText());
                 this.methodCallUsedVariables[identifier] = object;
                 this.scriptUsedVariables[identifier] = object;
-                if (object === undefined) {
+                if (object === null) {
                     const code = this.markInCode(ctx);
                     console.error('Unknown identifier\n' +
                         '\n' +
@@ -56203,7 +56235,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             var _a, _b, _c, _d;
             this.lastContext = ctx;
             const object = this.visitObjectName(ctx.objectName());
-            if (object == undefined) {
+            if (object == null) {
                 return;
             }
             const methodName = ctx.methodName().getText();
@@ -56309,7 +56341,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             const object = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject(objectName);
             this.methodCallUsedVariables[objectName] = object;
             this.scriptUsedVariables[objectName] = object;
-            if (object === undefined) {
+            if (object === null) {
                 if (this.libraries.has(objectName)) {
                     return this.libraries.get(objectName);
                 }
