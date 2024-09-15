@@ -208,7 +208,7 @@ export class Engine {
 
     getObject(name: string | reference): any {
         if (typeof name == 'string') {
-            return this.scope[name] ?? this.globalScope[name]
+            return this.scope[name] ?? this.globalScope[name] ?? null
         } else {
             return this.getObject(name.objectName)
         }

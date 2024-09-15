@@ -47,6 +47,10 @@ export class Application extends Type<ApplicationDefinition> {
 
     RUN(objectName: string, methodName: string, ...args: any[]) {
         const object = this.engine.getObject(objectName)
+        if (object === null) {
+            return
+        }
+
         if (object[methodName]) {
             return object[methodName](...args)
         } else {

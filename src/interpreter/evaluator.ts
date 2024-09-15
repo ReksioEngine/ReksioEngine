@@ -94,7 +94,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             const object = this.engine?.getObject(ctx.IDENTIFIER().getText())
             this.methodCallUsedVariables[identifier] = object
             this.scriptUsedVariables[identifier] = object
-            if (object === undefined) {
+            if (object === null) {
                 const code = this.markInCode(ctx)
                 console.error(
                     'Unknown identifier\n' +
@@ -118,7 +118,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     visitMethodCall = (ctx: MethodCallContext): any => {
         this.lastContext = ctx
         const object = this.visitObjectName(ctx.objectName())
-        if (object == undefined) {
+        if (object == null) {
             return
         }
 
@@ -250,7 +250,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         this.methodCallUsedVariables[objectName] = object
         this.scriptUsedVariables[objectName] = object
 
-        if (object === undefined) {
+        if (object === null) {
             if (this.libraries.has(objectName)) {
                 return this.libraries.get(objectName)
             }
