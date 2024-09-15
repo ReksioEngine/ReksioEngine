@@ -78,7 +78,7 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     LOADINI() {
-        this.value = this.getFromINI() ?? []
+        this.value = this.getFromINI()
     }
 
     MSGBOX() {
@@ -95,6 +95,9 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     deserialize(value: string) {
+        if (value === '') {
+            return []
+        }
         return value.split(',')
     }
 }
