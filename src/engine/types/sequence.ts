@@ -13,7 +13,7 @@ import {
 import {assert, NotImplementedError} from '../../errors'
 import {Animo} from './animo'
 import {loadSound} from '../assetsLoader'
-import {Sound} from '@pixi/sound'
+import {IMediaInstance, Sound} from '@pixi/sound'
 import {createObject} from '../definitionLoader'
 
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~'
@@ -28,6 +28,7 @@ export class Sequence extends Type<SequenceDefinition> {
 
     private queue: SequenceFileEntry[] = []
     private activeAnimo: Animo | null = null
+    private playingSound: IMediaInstance | null = null
     private currentAnimoEvent: string | null = null
     private sequenceName: string | null = null
     private runningSubSequence: SequenceFileEntry | null = null
@@ -177,6 +178,7 @@ export class Sequence extends Type<SequenceDefinition> {
             if (this.activeAnimo) {
                 const sound = this.sounds.get(speaking.WAVFN)!
                 const instance = await sound.play()
+                this.playingSound = instance
 
                 instance.on('start', () => {
                     if (speaking.STARTING) {
@@ -273,5 +275,6 @@ export class Sequence extends Type<SequenceDefinition> {
         this.loopIndex = 0
         this.activeAnimo?.events.unregister(Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback)
         this.activeAnimo = null
+        this.playingSound?.stop()
     }
 }
