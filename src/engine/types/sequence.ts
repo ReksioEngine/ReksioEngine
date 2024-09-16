@@ -59,6 +59,10 @@ export class Sequence extends Type<SequenceDefinition> {
         this.callbacks.run('ONINIT')
     }
 
+    destroy() {
+        this.playingSound?.stop()
+    }
+
     private async load() {
         assert(this.sequenceFile !== null)
 
