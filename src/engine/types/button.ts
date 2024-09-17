@@ -4,8 +4,7 @@ import {ButtonDefinition} from '../../fileFormats/cnv/types'
 import {createColorGraphics} from '../../utils'
 import {Image} from './image'
 import {Graphics, Rectangle} from 'pixi.js'
-import {ButtonLogicComponent, State} from '../components/button'
-import {Event} from '../components/button'
+import {ButtonLogicComponent, Event, State} from '../components/button'
 import {Animo} from './animo'
 import {AdvancedSprite} from '../rendering'
 import {assert} from '../../errors'
@@ -71,7 +70,6 @@ export class Button extends Type<ButtonDefinition> {
         }
 
         if (this.interactArea) {
-            this.logic.registerInteractive(this.interactArea)
             this.engine.app.stage.addChild(this.interactArea)
         }
         if (this.interactAreaDebug) {
@@ -97,12 +95,6 @@ export class Button extends Type<ButtonDefinition> {
 
         // ...including ONINIT
         this.callbacks.run('ONINIT')
-
-        if (!this.interactArea) {
-            if (this.gfxStandard) {
-                this.registerInteractive(this.gfxStandard)
-            }
-        }
     }
 
     destroy() {
@@ -144,37 +136,43 @@ export class Button extends Type<ButtonDefinition> {
             this.gfxStandard?.HIDE()
             this.gfxOnMove?.HIDE()
             this.gfxOnClick?.HIDE()
+        } else if (state == State.DISABLED_BUT_VISIBLE) {
+            this.gfxStandard?.SHOW()
+            this.setSpriteAlpha(this.gfxStandard, 1)
+            this.gfxOnMove?.HIDE()
+            this.gfxOnClick?.HIDE()
         } else if (state == State.HOVERED && this.gfxOnMove) {
             this.gfxStandard?.SHOW()
             // Setting alpha to 0 instead of hiding so that the mouse interactions still work
-            if (this.gfxStandard) {
-                const object = this.gfxStandard.getRenderObject()
-                if (object) {
-                    object.alpha = 0
-                }
-            }
+            this.setSpriteAlpha(this.gfxStandard, 0)
             this.gfxOnMove?.SHOW()
             this.gfxOnClick?.HIDE()
         } else if (state == State.PRESSED && this.gfxOnClick) {
             this.gfxStandard?.SHOW()
-            if (this.gfxStandard) {
-                const object = this.gfxStandard.getRenderObject()
-                if (object) {
-                    object.alpha = 0
-                }
-            }
+            this.setSpriteAlpha(this.gfxStandard, 0)
             this.gfxOnMove?.HIDE()
             this.gfxOnClick?.SHOW()
         } else {
             this.gfxStandard?.SHOW()
-            if (this.gfxStandard) {
-                const object = this.gfxStandard.getRenderObject()
-                if (object) {
-                    object.alpha = 1
-                }
-            }
+            this.setSpriteAlpha(this.gfxStandard, 1)
             this.gfxOnMove?.HIDE()
             this.gfxOnClick?.HIDE()
+        }
+
+        if (event == Event.ENABLE) {
+            if (this.gfxStandard) {
+                this.registerInteractive(this.gfxStandard)
+            }
+            if (this.interactArea) {
+                this.logic.registerInteractive(this.interactArea)
+            }
+        } else if (event == Event.DISABLE || event == Event.DISABLE_BUT_VISIBLE) {
+            if (this.gfxStandard) {
+                this.unregisterInteractive(this.gfxStandard)
+            }
+            if (this.interactArea) {
+                this.logic.unregisterInteractive(this.interactArea)
+            }
         }
     }
 
@@ -219,6 +217,15 @@ export class Button extends Type<ButtonDefinition> {
             renderObject.checkPixelPerfect = false
         } else if (object instanceof Image) {
             renderObject.eventMode = 'none'
+        }
+    }
+
+    private setSpriteAlpha(object: Image | Animo | undefined, alpha: number) {
+        if (object) {
+            const renderObject = object.getRenderObject()
+            if (renderObject) {
+                renderObject.alpha = alpha
+            }
         }
     }
 }

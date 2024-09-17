@@ -2,7 +2,6 @@ import {StateMachine, t} from 'typescript-fsm'
 import {DisplayObject} from 'pixi.js'
 
 export enum State {
-    INIT,
     DISABLED,
     DISABLED_BUT_VISIBLE,
     STANDARD,
@@ -57,15 +56,13 @@ export class ButtonLogicComponent {
 
         const stateCallback = this.onStateChange.bind(this)
         const transitions = [
-            t(State.INIT, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
-            t(State.INIT, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
-
             t(State.STANDARD, Event.OVER, State.HOVERED, () => stateCallback(Event.OVER)),
             t(State.HOVERED, Event.OUT, State.STANDARD, () => stateCallback(Event.OUT)),
             t(State.HOVERED, Event.DOWN, State.PRESSED, () => stateCallback(Event.DOWN)),
             t(State.PRESSED, Event.UP, State.HOVERED, () => stateCallback(Event.UP)),
             t(State.PRESSED, Event.OUT, State.STANDARD, () => stateCallback(Event.OUT)),
             t(State.DISABLED, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
+            t(State.DISABLED_BUT_VISIBLE, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
 
             t(State.STANDARD, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
             t(State.HOVERED, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
@@ -73,9 +70,15 @@ export class ButtonLogicComponent {
 
             t(State.STANDARD, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
             t(State.DISABLED, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
+            t(State.DISABLED, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE, () => stateCallback(Event.DISABLE_BUT_VISIBLE)),
+            t(State.DISABLED_BUT_VISIBLE, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
+
+            t(State.STANDARD, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE, () => stateCallback(Event.DISABLE_BUT_VISIBLE)),
+            t(State.HOVERED, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE, () => stateCallback(Event.DISABLE_BUT_VISIBLE)),
+            t(State.PRESSED, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE, () => stateCallback(Event.DISABLE_BUT_VISIBLE)),
         ]
         this.stateMachine = new StateMachine<State, Event>(
-            State.INIT,
+            State.DISABLED,
             transitions
         )
     }
