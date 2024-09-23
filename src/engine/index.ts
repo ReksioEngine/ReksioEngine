@@ -6,7 +6,6 @@ import {Application, Rectangle, Sprite} from 'pixi.js'
 import {Scene} from './types/scene'
 import {FileLoader, GithubFileLoader, UrlFileLoader} from './filesLoader'
 import {sound, Sound} from '@pixi/sound'
-import {Sound as SoundObject} from './types/sound'
 import {loadSound, loadTexture} from './assetsLoader'
 import {SaveFile} from './saveFile'
 import {createColorTexture} from '../utils'
@@ -54,30 +53,11 @@ export class Engine {
             sound.disableAutoPause = true
 
             this.app.stage.addChild(this.canvasBackground)
-            this.app.ticker.add(delta => {
-                try {
-                    this.tick(delta)
-                } catch (err) {
-                    if (err instanceof IrrecoverableError) {
-                        console.error(
-                            'Irrecoverable error occurred. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O',
-                            'font-weight: bold', 'font-weight: inherit', this.scope
-                        )
-                        this.pause()
-                    } else {
-                        console.error(
-                            'Unhandled error occurred during tick. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O',
-                            'font-weight: bold', 'font-weight: inherit', this.scope
-                        )
-                        console.error(err)
-                        this.pause()
-                    }
-                }
-            })
+            this.app.ticker.add(this.tick.bind(this))
 
-            // @ts-ignore
+            // @ts-expect-error no engine in globalThis
             globalThis.engine = this
-            // @ts-ignore
+            // @ts-expect-error no __PIXI_APP__ in globalThis
             globalThis.__PIXI_APP__ = this.app
         } catch (err) {
             console.error(
@@ -90,7 +70,23 @@ export class Engine {
 
     tick(delta: number) {
         for (const object of Object.values(this.scope)) {
-            object.tick(delta)
+            try {
+                object.tick(delta)
+            } catch (err) {
+                if (err instanceof IrrecoverableError) {
+                    console.error(
+                        'Irrecoverable error occurred. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O',
+                        'font-weight: bold', 'font-weight: inherit', this.scope
+                    )
+                } else {
+                    console.error(
+                        'Unhandled error occurred during tick. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O',
+                        'font-weight: bold', 'font-weight: inherit', this.scope
+                    )
+                    console.error(err)
+                }
+                this.pause()
+            }
         }
     }
 
@@ -112,10 +108,6 @@ export class Engine {
             }
             return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments)
         }
-    }
-
-    executeScript(code: string) {
-        return runScript(this, code, [], false)
     }
 
     addToStage(sprite: Sprite) {
@@ -159,7 +151,8 @@ export class Engine {
 
     async changeScene(sceneName: string) {
         this.app.ticker.stop()
-        if (this.music != null) {
+        sound.stopAll()
+        if (this.music !== null) {
             this.music.stop()
         }
 
@@ -173,22 +166,24 @@ export class Engine {
         }
         this.renderingOrder = []
 
+        // Load new scene
         this.currentScene = this.getObject(sceneName) as Scene
-        const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(`${sceneName}.cnv`))
+        const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'))
         await loadDefinition(this, this.scope, sceneDefinition, this.currentScene)
 
         for (const object of objectsToRemove) {
             object.destroy()
         }
 
+        // Play new scene background music
         if (this.currentScene.definition.MUSIC) {
             this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
                 loop: true
             })
-            this.music.play({
-                speed: this.speed
-            })
+            this.music.play()
         }
+
+        // Set background image
         if (this.currentScene.definition.BACKGROUND) {
             this.canvasBackground.texture = await loadTexture(
                 this.fileLoader,
@@ -198,6 +193,7 @@ export class Engine {
             this.canvasBackground.texture = this.blackTexture
         }
 
+        // Wait for assets to load
         if (this.fileLoader instanceof UrlFileLoader) {
             await preloadAssets(this.fileLoader, this.currentScene)
         }
@@ -224,13 +220,9 @@ export class Engine {
     }
 
     resume() {
-        if (this.music !== null) {
-            this.music.resume()
-        }
+        sound.resumeAll()
         for (const object of Object.values(this.scope)) {
-            if (object instanceof SoundObject) {
-                object.RESUME()
-            } else if (object instanceof Timer) {
+            if (object instanceof Timer) {
                 object.ENABLE()
             }
         }
@@ -239,13 +231,9 @@ export class Engine {
 
     pause() {
         this.app.ticker.stop()
-        if (this.music !== null) {
-            this.music.pause()
-        }
+        sound.pauseAll()
         for (const object of Object.values(this.scope)) {
-            if (object instanceof SoundObject) {
-                object.PAUSE()
-            } else if (object instanceof Timer) {
+            if (object instanceof Timer) {
                 object.DISABLE()
             }
         }
