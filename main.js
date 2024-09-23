@@ -50208,12 +50208,11 @@ exports.ButtonLogicComponent = exports.Event = exports.State = void 0;
 const typescript_fsm_1 = __webpack_require__(/*! typescript-fsm */ "./node_modules/typescript-fsm/dist/stateMachine.js");
 var State;
 (function (State) {
-    State[State["INIT"] = 0] = "INIT";
-    State[State["DISABLED"] = 1] = "DISABLED";
-    State[State["DISABLED_BUT_VISIBLE"] = 2] = "DISABLED_BUT_VISIBLE";
-    State[State["STANDARD"] = 3] = "STANDARD";
-    State[State["HOVERED"] = 4] = "HOVERED";
-    State[State["PRESSED"] = 5] = "PRESSED";
+    State[State["DISABLED"] = 0] = "DISABLED";
+    State[State["DISABLED_BUT_VISIBLE"] = 1] = "DISABLED_BUT_VISIBLE";
+    State[State["STANDARD"] = 2] = "STANDARD";
+    State[State["HOVERED"] = 3] = "HOVERED";
+    State[State["PRESSED"] = 4] = "PRESSED";
 })(State || (exports.State = State = {}));
 var Event;
 (function (Event) {
@@ -50239,21 +50238,25 @@ class ButtonLogicComponent {
         this.onMouseUpCallback = this.onMouseUp.bind(this);
         const stateCallback = this.onStateChange.bind(this);
         const transitions = [
-            (0, typescript_fsm_1.t)(State.INIT, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
-            (0, typescript_fsm_1.t)(State.INIT, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
             (0, typescript_fsm_1.t)(State.STANDARD, Event.OVER, State.HOVERED, () => stateCallback(Event.OVER)),
             (0, typescript_fsm_1.t)(State.HOVERED, Event.OUT, State.STANDARD, () => stateCallback(Event.OUT)),
             (0, typescript_fsm_1.t)(State.HOVERED, Event.DOWN, State.PRESSED, () => stateCallback(Event.DOWN)),
             (0, typescript_fsm_1.t)(State.PRESSED, Event.UP, State.HOVERED, () => stateCallback(Event.UP)),
             (0, typescript_fsm_1.t)(State.PRESSED, Event.OUT, State.STANDARD, () => stateCallback(Event.OUT)),
             (0, typescript_fsm_1.t)(State.DISABLED, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
+            (0, typescript_fsm_1.t)(State.DISABLED_BUT_VISIBLE, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
             (0, typescript_fsm_1.t)(State.STANDARD, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
             (0, typescript_fsm_1.t)(State.HOVERED, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
             (0, typescript_fsm_1.t)(State.PRESSED, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
             (0, typescript_fsm_1.t)(State.STANDARD, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
             (0, typescript_fsm_1.t)(State.DISABLED, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
+            (0, typescript_fsm_1.t)(State.DISABLED, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE, () => stateCallback(Event.DISABLE_BUT_VISIBLE)),
+            (0, typescript_fsm_1.t)(State.DISABLED_BUT_VISIBLE, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
+            (0, typescript_fsm_1.t)(State.STANDARD, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE, () => stateCallback(Event.DISABLE_BUT_VISIBLE)),
+            (0, typescript_fsm_1.t)(State.HOVERED, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE, () => stateCallback(Event.DISABLE_BUT_VISIBLE)),
+            (0, typescript_fsm_1.t)(State.PRESSED, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE, () => stateCallback(Event.DISABLE_BUT_VISIBLE)),
         ];
-        this.stateMachine = new typescript_fsm_1.StateMachine(State.INIT, transitions);
+        this.stateMachine = new typescript_fsm_1.StateMachine(State.DISABLED, transitions);
     }
     registerInteractive(sprite) {
         sprite.eventMode = 'dynamic';
@@ -51980,7 +51983,6 @@ class Button extends index_1.Type {
             }
         }
         if (this.interactArea) {
-            this.logic.registerInteractive(this.interactArea);
             this.engine.app.stage.addChild(this.interactArea);
         }
         if (this.interactAreaDebug) {
@@ -52004,11 +52006,6 @@ class Button extends index_1.Type {
         }
         // ...including ONINIT
         this.callbacks.run('ONINIT');
-        if (!this.interactArea) {
-            if (this.gfxStandard) {
-                this.registerInteractive(this.gfxStandard);
-            }
-        }
     }
     destroy() {
         if (this.interactArea) {
@@ -52025,7 +52022,7 @@ class Button extends index_1.Type {
         }
     }
     onStateChange(prevState, event, state) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
         if (this.interactArea) {
             // For area button
             this.interactArea.visible = state != button_1.State.DISABLED;
@@ -52048,39 +52045,46 @@ class Button extends index_1.Type {
             (_b = this.gfxOnMove) === null || _b === void 0 ? void 0 : _b.HIDE();
             (_c = this.gfxOnClick) === null || _c === void 0 ? void 0 : _c.HIDE();
         }
-        else if (state == button_1.State.HOVERED && this.gfxOnMove) {
+        else if (state == button_1.State.DISABLED_BUT_VISIBLE) {
             (_d = this.gfxStandard) === null || _d === void 0 ? void 0 : _d.SHOW();
-            // Setting alpha to 0 instead of hiding so that the mouse interactions still work
-            if (this.gfxStandard) {
-                const object = this.gfxStandard.getRenderObject();
-                if (object) {
-                    object.alpha = 0;
-                }
-            }
-            (_e = this.gfxOnMove) === null || _e === void 0 ? void 0 : _e.SHOW();
+            this.setSpriteAlpha(this.gfxStandard, 1);
+            (_e = this.gfxOnMove) === null || _e === void 0 ? void 0 : _e.HIDE();
             (_f = this.gfxOnClick) === null || _f === void 0 ? void 0 : _f.HIDE();
         }
-        else if (state == button_1.State.PRESSED && this.gfxOnClick) {
+        else if (state == button_1.State.HOVERED && this.gfxOnMove) {
             (_g = this.gfxStandard) === null || _g === void 0 ? void 0 : _g.SHOW();
-            if (this.gfxStandard) {
-                const object = this.gfxStandard.getRenderObject();
-                if (object) {
-                    object.alpha = 0;
-                }
-            }
-            (_h = this.gfxOnMove) === null || _h === void 0 ? void 0 : _h.HIDE();
-            (_j = this.gfxOnClick) === null || _j === void 0 ? void 0 : _j.SHOW();
+            // Setting alpha to 0 instead of hiding so that the mouse interactions still work
+            this.setSpriteAlpha(this.gfxStandard, 0);
+            (_h = this.gfxOnMove) === null || _h === void 0 ? void 0 : _h.SHOW();
+            (_j = this.gfxOnClick) === null || _j === void 0 ? void 0 : _j.HIDE();
+        }
+        else if (state == button_1.State.PRESSED && this.gfxOnClick) {
+            (_k = this.gfxStandard) === null || _k === void 0 ? void 0 : _k.SHOW();
+            this.setSpriteAlpha(this.gfxStandard, 0);
+            (_l = this.gfxOnMove) === null || _l === void 0 ? void 0 : _l.HIDE();
+            (_m = this.gfxOnClick) === null || _m === void 0 ? void 0 : _m.SHOW();
         }
         else {
-            (_k = this.gfxStandard) === null || _k === void 0 ? void 0 : _k.SHOW();
+            (_o = this.gfxStandard) === null || _o === void 0 ? void 0 : _o.SHOW();
+            this.setSpriteAlpha(this.gfxStandard, 1);
+            (_p = this.gfxOnMove) === null || _p === void 0 ? void 0 : _p.HIDE();
+            (_q = this.gfxOnClick) === null || _q === void 0 ? void 0 : _q.HIDE();
+        }
+        if (event == button_1.Event.ENABLE) {
             if (this.gfxStandard) {
-                const object = this.gfxStandard.getRenderObject();
-                if (object) {
-                    object.alpha = 1;
-                }
+                this.registerInteractive(this.gfxStandard);
             }
-            (_l = this.gfxOnMove) === null || _l === void 0 ? void 0 : _l.HIDE();
-            (_m = this.gfxOnClick) === null || _m === void 0 ? void 0 : _m.HIDE();
+            if (this.interactArea) {
+                this.logic.registerInteractive(this.interactArea);
+            }
+        }
+        else if (event == button_1.Event.DISABLE || event == button_1.Event.DISABLE_BUT_VISIBLE) {
+            if (this.gfxStandard) {
+                this.unregisterInteractive(this.gfxStandard);
+            }
+            if (this.interactArea) {
+                this.logic.unregisterInteractive(this.interactArea);
+            }
         }
     }
     ENABLE() {
@@ -52118,6 +52122,14 @@ class Button extends index_1.Type {
         }
         else if (object instanceof image_1.Image) {
             renderObject.eventMode = 'none';
+        }
+    }
+    setSpriteAlpha(object, alpha) {
+        if (object) {
+            const renderObject = object.getRenderObject();
+            if (renderObject) {
+                renderObject.alpha = alpha;
+            }
         }
     }
 }
@@ -53150,6 +53162,7 @@ class Sequence extends index_1.Type {
         this.sounds = new Map();
         this.queue = [];
         this.activeAnimo = null;
+        this.playingSound = null;
         this.currentAnimoEvent = null;
         this.sequenceName = null;
         this.runningSubSequence = null;
@@ -53172,6 +53185,10 @@ class Sequence extends index_1.Type {
     }
     ready() {
         this.callbacks.run('ONINIT');
+    }
+    destroy() {
+        var _a;
+        (_a = this.playingSound) === null || _a === void 0 ? void 0 : _a.stop();
     }
     load() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -53279,6 +53296,7 @@ class Sequence extends index_1.Type {
                 if (this.activeAnimo) {
                     const sound = this.sounds.get(speaking.WAVFN);
                     const instance = yield sound.play();
+                    this.playingSound = instance;
                     instance.on('start', () => {
                         if (speaking.STARTING) {
                             this.currentAnimoEvent = speaking.PREFIX + '_START';
@@ -53359,7 +53377,7 @@ class Sequence extends index_1.Type {
         throw new errors_1.NotImplementedError();
     }
     STOP(arg) {
-        var _a;
+        var _a, _b;
         this.queue = [];
         this.sequenceName = null;
         this.runningSubSequence = null;
@@ -53367,6 +53385,7 @@ class Sequence extends index_1.Type {
         this.loopIndex = 0;
         (_a = this.activeAnimo) === null || _a === void 0 ? void 0 : _a.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
         this.activeAnimo = null;
+        (_b = this.playingSound) === null || _b === void 0 ? void 0 : _b.stop();
     }
 }
 exports.Sequence = Sequence;
