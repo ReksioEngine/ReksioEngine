@@ -51663,6 +51663,7 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const utils_1 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
 class Application extends index_1.Type {
     constructor(engine, definition) {
         super(engine, definition);
@@ -51670,12 +51671,17 @@ class Application extends index_1.Type {
     }
     init() {
         return __awaiter(this, void 0, void 0, function* () {
-            const currentEpisode = this.engine.getObject(this.definition.STARTWITH);
-            if (currentEpisode.definition.PATH) {
-                const episodeDefinition = yield this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', currentEpisode.definition.PATH, this.definition.STARTWITH + '.cnv'));
-                yield (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.globalScope, episodeDefinition, currentEpisode);
+            if (this.definition.PATH) {
+                try {
+                    const applicationDefinition = yield this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
+                    yield (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.globalScope, applicationDefinition, this);
+                }
+                catch (err) {
+                    if (err instanceof filesLoader_1.FileNotFoundError) {
+                        throw err;
+                    }
+                }
             }
-            currentEpisode.start();
         });
     }
     SETLANGUAGE(langCode) {
@@ -52432,11 +52438,29 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Episode = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const utils_1 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
+const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
+const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
 class Episode extends index_1.Type {
     constructor(engine, definition) {
         super(engine, definition);
     }
-    start() {
+    init() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.definition.PATH) {
+                try {
+                    const applicationDefinition = yield this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
+                    yield (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.globalScope, applicationDefinition, this);
+                }
+                catch (err) {
+                    if (err instanceof filesLoader_1.FileNotFoundError) {
+                        throw err;
+                    }
+                }
+            }
+        });
+    }
+    ready() {
         this.GOTO(this.definition.STARTWITH);
     }
     GOTO(sceneName) {
