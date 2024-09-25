@@ -50856,7 +50856,6 @@ const definitionLoader_1 = __webpack_require__(/*! ./definitionLoader */ "./src/
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const filesLoader_1 = __webpack_require__(/*! ./filesLoader */ "./src/engine/filesLoader.ts");
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
-const sound_2 = __webpack_require__(/*! ./types/sound */ "./src/engine/types/sound.ts");
 const assetsLoader_1 = __webpack_require__(/*! ./assetsLoader */ "./src/engine/assetsLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
 const utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
@@ -50890,25 +50889,10 @@ class Engine {
                 this.app.stage.interactive = true;
                 sound_1.sound.disableAutoPause = true;
                 this.app.stage.addChild(this.canvasBackground);
-                this.app.ticker.add(delta => {
-                    try {
-                        this.tick(delta);
-                    }
-                    catch (err) {
-                        if (err instanceof errors_1.IrrecoverableError) {
-                            console.error('Irrecoverable error occurred. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
-                            this.pause();
-                        }
-                        else {
-                            console.error('Unhandled error occurred during tick. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
-                            console.error(err);
-                            this.pause();
-                        }
-                    }
-                });
-                // @ts-ignore
+                this.app.ticker.add(this.tick.bind(this));
+                // @ts-expect-error no engine in globalThis
                 globalThis.engine = this;
-                // @ts-ignore
+                // @ts-expect-error no __PIXI_APP__ in globalThis
                 globalThis.__PIXI_APP__ = this.app;
             }
             catch (err) {
@@ -50919,7 +50903,19 @@ class Engine {
     }
     tick(delta) {
         for (const object of Object.values(this.scope)) {
-            object.tick(delta);
+            try {
+                object.tick(delta);
+            }
+            catch (err) {
+                if (err instanceof errors_1.IrrecoverableError) {
+                    console.error('Irrecoverable error occurred. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
+                }
+                else {
+                    console.error('Unhandled error occurred during tick. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
+                    console.error(err);
+                }
+                this.pause();
+            }
         }
     }
     executeCallback(caller, callback, args) {
@@ -50936,9 +50932,6 @@ class Engine {
             }
             return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments);
         }
-    }
-    executeScript(code) {
-        return (0, evaluator_1.runScript)(this, code, [], false);
     }
     addToStage(sprite) {
         this.app.stage.addChild(sprite);
@@ -50976,7 +50969,8 @@ class Engine {
     changeScene(sceneName) {
         return __awaiter(this, void 0, void 0, function* () {
             this.app.ticker.stop();
-            if (this.music != null) {
+            sound_1.sound.stopAll();
+            if (this.music !== null) {
                 this.music.stop();
             }
             // Remove non-global objects from scope
@@ -50988,26 +50982,28 @@ class Engine {
                 delete this.scope[key];
             }
             this.renderingOrder = [];
+            // Load new scene
             this.currentScene = this.getObject(sceneName);
-            const sceneDefinition = yield this.fileLoader.getCNVFile(this.currentScene.getRelativePath(`${sceneName}.cnv`));
+            const sceneDefinition = yield this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
             yield (0, definitionLoader_1.loadDefinition)(this, this.scope, sceneDefinition, this.currentScene);
             for (const object of objectsToRemove) {
                 object.destroy();
             }
+            // Play new scene background music
             if (this.currentScene.definition.MUSIC) {
                 this.music = yield (0, assetsLoader_1.loadSound)(this.fileLoader, this.currentScene.definition.MUSIC, {
                     loop: true
                 });
-                this.music.play({
-                    speed: this.speed
-                });
+                this.music.play();
             }
+            // Set background image
             if (this.currentScene.definition.BACKGROUND) {
                 this.canvasBackground.texture = yield (0, assetsLoader_1.loadTexture)(this.fileLoader, this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND));
             }
             else {
                 this.canvasBackground.texture = this.blackTexture;
             }
+            // Wait for assets to load
             if (this.fileLoader instanceof filesLoader_1.UrlFileLoader) {
                 yield (0, optimizations_1.preloadAssets)(this.fileLoader, this.currentScene);
             }
@@ -51032,14 +51028,9 @@ class Engine {
         return clone;
     }
     resume() {
-        if (this.music !== null) {
-            this.music.resume();
-        }
+        sound_1.sound.resumeAll();
         for (const object of Object.values(this.scope)) {
-            if (object instanceof sound_2.Sound) {
-                object.RESUME();
-            }
-            else if (object instanceof timer_1.Timer) {
+            if (object instanceof timer_1.Timer) {
                 object.ENABLE();
             }
         }
@@ -51047,14 +51038,9 @@ class Engine {
     }
     pause() {
         this.app.ticker.stop();
-        if (this.music !== null) {
-            this.music.pause();
-        }
+        sound_1.sound.pauseAll();
         for (const object of Object.values(this.scope)) {
-            if (object instanceof sound_2.Sound) {
-                object.PAUSE();
-            }
-            else if (object instanceof timer_1.Timer) {
+            if (object instanceof timer_1.Timer) {
                 object.DISABLE();
             }
         }
