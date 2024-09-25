@@ -56285,7 +56285,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 }
                 const savedThis = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject('THIS');
                 const result = method.bind(object)(...args);
-                if (savedThis !== undefined) {
+                if (savedThis !== null) {
                     this.engine.scope['THIS'] = savedThis;
                 }
                 return result === null ? 'NULL' : result;
