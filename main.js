@@ -51451,14 +51451,19 @@ class Animo extends index_1.DisplayType {
     RESUME() {
         this.isPlaying = true;
     }
-    SETFRAME(eventName, frameIdx) {
-        this.currentEvent = eventName;
-        this.currentFrame = frameIdx;
+    SETFRAME(eventNameOrFrameIdx, frameIdx) {
+        if (frameIdx === undefined) {
+            this.currentFrame = Number(eventNameOrFrameIdx);
+        }
+        else {
+            this.currentEvent = eventNameOrFrameIdx.toString();
+            this.currentFrame = Number(frameIdx);
+        }
         // Don't wait for a tick because some animations might not be playing,
         // but they display something (like a keypad screen in S73_0_KOD in UFO)
-        const event = this.getEventByName(eventName);
+        const event = this.getEventByName(this.currentEvent);
         (0, errors_2.assert)(event !== null);
-        this.changeFrame(event, frameIdx);
+        this.changeFrame(event, this.currentFrame);
     }
     SETFPS(fps) {
         this.fps = fps;
