@@ -52743,7 +52743,8 @@ class Type {
     tick(delta) { }
     // Called when trying to call a method that is not existing for a type
     __call(methodName, args) {
-        throw new Error(`Method '${methodName}' does not exist`);
+        const argumentsString = args.map((arg) => typeof arg).join(', ');
+        throw new Error(`Method '${methodName}(${argumentsString})' does not exist`);
     }
     clone() {
         // @ts-ignore
