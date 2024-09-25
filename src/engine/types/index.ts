@@ -45,7 +45,7 @@ export class Type<DefinitionType extends TypeDefinition> {
 
     // Called when trying to call a method that is not existing for a type
     __call(methodName: string, args: any[]) {
-        const argumentsString = args.map((arg) => typeof arg).join(', ')
+        const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : ''
         throw new Error(`Method '${methodName}(${argumentsString})' does not exist`)
     }
 
