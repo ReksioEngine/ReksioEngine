@@ -3,6 +3,9 @@ import {EpisodeDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {Scene} from './scene'
 import {assert} from '../../errors'
+import {pathJoin} from '../../utils'
+import {loadDefinition} from '../definitionLoader'
+import {FileNotFoundError} from '../filesLoader'
 
 export class Episode extends Type<EpisodeDefinition> {
     private previousScene?: Scene
@@ -11,7 +14,20 @@ export class Episode extends Type<EpisodeDefinition> {
         super(engine, definition)
     }
 
-    start() {
+    async init() {
+        if (this.definition.PATH) {
+            try {
+                const applicationDefinition = await this.engine.fileLoader.getCNVFile(pathJoin('DANE', this.definition.PATH, this.name + '.cnv'))
+                await loadDefinition(this.engine, this.engine.globalScope, applicationDefinition, this)
+            } catch (err) {
+                if (err !instanceof FileNotFoundError) {
+                    throw err
+                }
+            }
+        }
+    }
+
+    ready() {
         this.GOTO(this.definition.STARTWITH)
     }
 

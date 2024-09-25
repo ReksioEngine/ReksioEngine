@@ -3,8 +3,8 @@ import {ApplicationDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {pathJoin} from '../../utils'
 import {loadDefinition} from '../definitionLoader'
-import {Episode} from './episode'
 import {NotImplementedError} from '../../errors'
+import {FileNotFoundError} from '../filesLoader'
 
 export class Application extends Type<ApplicationDefinition> {
     private language: string = 'POL'
@@ -14,14 +14,16 @@ export class Application extends Type<ApplicationDefinition> {
     }
 
     async init() {
-        const currentEpisode: Episode = this.engine.getObject(this.definition.STARTWITH)
-
-        if (currentEpisode.definition.PATH) {
-            const episodeDefinition = await this.engine.fileLoader.getCNVFile(pathJoin('DANE', currentEpisode.definition.PATH, this.definition.STARTWITH + '.cnv'))
-            await loadDefinition(this.engine, this.engine.globalScope, episodeDefinition, currentEpisode)
+        if (this.definition.PATH) {
+            try {
+                const applicationDefinition = await this.engine.fileLoader.getCNVFile(pathJoin('DANE', this.definition.PATH, this.name + '.cnv'))
+                await loadDefinition(this.engine, this.engine.globalScope, applicationDefinition, this)
+            } catch (err) {
+                if (err !instanceof FileNotFoundError) {
+                    throw err
+                }
+            }
         }
-
-        currentEpisode.start()
     }
 
     SETLANGUAGE(langCode: string) {
