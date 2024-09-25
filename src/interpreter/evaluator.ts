@@ -138,7 +138,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             const savedThis = this.engine?.getObject('THIS')
             const result = method.bind(object)(...args)
 
-            if (savedThis !== undefined) {
+            if (savedThis !== null) {
                 this.engine!.scope['THIS'] = savedThis
             }
 
