@@ -15,11 +15,11 @@ export class Group extends Type<GroupDefinition> {
             ...objectsNames.map(objectName => {
                 return this.engine.getObject(objectName)
             }).filter((x, index) => {
-                if (x == undefined) {
+                if (x == null) {
                     // It happens in original game scripts
                     console.warn(`Script was trying to add non-existing object "${objectsNames[index]}" to a group "${this.name}"`)
                 }
-                return x !== undefined
+                return x !== null
             })
         )
     }
