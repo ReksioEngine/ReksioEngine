@@ -51798,7 +51798,8 @@ class ArrayObject extends index_1.ValueType {
         this.saveToINI();
     }
     LOADINI() {
-        this.value = this.getFromINI();
+        var _a;
+        this.value = (_a = this.getFromINI()) !== null && _a !== void 0 ? _a : [];
     }
     MSGBOX() {
     }
@@ -52580,11 +52581,11 @@ class Group extends index_1.Type {
         this.objects.push(...objectsNames.map(objectName => {
             return this.engine.getObject(objectName);
         }).filter((x, index) => {
-            if (x == undefined) {
+            if (x == null) {
                 // It happens in original game scripts
                 console.warn(`Script was trying to add non-existing object "${objectsNames[index]}" to a group "${this.name}"`);
             }
-            return x !== undefined;
+            return x !== null;
         }));
     }
     __call(methodName, args) {
@@ -52743,7 +52744,7 @@ class Type {
     tick(delta) { }
     // Called when trying to call a method that is not existing for a type
     __call(methodName, args) {
-        const argumentsString = args.map((arg) => typeof arg).join(', ');
+        const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
         throw new Error(`Method '${methodName}(${argumentsString})' does not exist`);
     }
     clone() {
