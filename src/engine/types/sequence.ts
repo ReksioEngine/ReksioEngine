@@ -264,7 +264,7 @@ export class Sequence extends Type<SequenceDefinition> {
     }
 
     ISPLAYING() {
-        throw new NotImplementedError()
+        return this.sequenceName !== null
     }
 
     HIDE() {
