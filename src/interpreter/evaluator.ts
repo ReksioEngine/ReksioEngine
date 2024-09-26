@@ -209,12 +209,12 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 result = Compare.LessOrEqual(left, right)
             }
 
-            const onTrue: Behaviour | undefined = this.engine?.getObject(args[3])
-            const onFalse: Behaviour | undefined = this.engine?.getObject(args[4])
+            const onTrue: Behaviour | null = this.engine?.getObject(args[3])
+            const onFalse: Behaviour | null = this.engine?.getObject(args[4])
 
-            if (result && onTrue !== undefined) {
+            if (result && onTrue !== null) {
                 onTrue.RUNC()
-            } else if (!result && onFalse !== undefined) {
+            } else if (!result && onFalse !== null) {
                 onFalse.RUNC()
             }
         } else {
