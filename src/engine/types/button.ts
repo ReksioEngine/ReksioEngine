@@ -63,6 +63,10 @@ export class Button extends Type<ButtonDefinition> {
     }
 
     private setRect(rect: number[] | reference) {
+        if (this.gfxStandard) {
+            this.unregisterInteractive(this.gfxStandard)
+        }
+
         let shape
         if (Array.isArray(rect)) {
             shape = rect
@@ -84,7 +88,7 @@ export class Button extends Type<ButtonDefinition> {
         }
 
         this.interactArea.hitArea = rectangle
-        this.interactArea.zIndex = 9999999 - y1
+        this.interactArea.zIndex = 9999999 - rectangle.top
     }
 
     destroy() {
