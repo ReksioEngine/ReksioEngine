@@ -104,7 +104,7 @@ export class Engine {
                     'font-weight: bold', 'font-weight: inherit', callback,
                     'font-weight: bold', 'font-weight: inherit', caller
                 )
-                throw new IrrecoverableError()
+                return
             }
             return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments)
         }
