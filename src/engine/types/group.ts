@@ -3,7 +3,7 @@ import {Engine} from '../index'
 import {GroupDefinition} from '../../fileFormats/cnv/types'
 
 export class Group extends Type<GroupDefinition> {
-    private readonly objects: any[]
+    private objects: any[]
 
     constructor(engine: Engine, definition: GroupDefinition) {
         super(engine, definition)
@@ -22,6 +22,10 @@ export class Group extends Type<GroupDefinition> {
                 return x !== null
             })
         )
+    }
+
+    REMOVE(...objectsNames: string[]) {
+        this.objects = this.objects.filter(object => objectsNames.includes(object.name))
     }
 
     __call(methodName: string, args: any[]) {
