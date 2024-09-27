@@ -122,6 +122,7 @@ export type TypeDefinition = {
 
 export type ValueTypeDefinition = TypeDefinition & {
     VALUE?: any
+    DEFAULT?: any
 }
 
 export type DisplayTypeDefinition = TypeDefinition & {

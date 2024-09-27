@@ -80,6 +80,7 @@ const SceneStructure = {
 
 export type IntegerDefinition = TypeDefinition & {
     VALUE: number
+    DEFAULT: number
     TOINI: boolean
     ONINIT: callback,
     ONCHANGED: callbacks<number>
@@ -88,6 +89,7 @@ export type IntegerDefinition = TypeDefinition & {
 
 const IntegerStructure = {
     VALUE: number,
+    DEFAULT: number,
     TOINI: boolean,
     ONINIT: callback,
     ONCHANGED: numberParam(callbacks),
@@ -251,6 +253,7 @@ const ConditionDefinitionStructure = {
 export type StringDefinition = TypeDefinition & {
     TOINI: boolean
     VALUE: string
+    DEFAULT: string
     ONCHANGED: callbacks<string>
     ONBRUTALCHANGED: callbacks<string>
 }
@@ -258,16 +261,19 @@ export type StringDefinition = TypeDefinition & {
 const StringDefinitionStructure = {
     TOINI: boolean,
     VALUE: string,
+    DEFAULT: string,
     ONCHANGED: callbacks,
     ONBRUTALCHANGED: callbacks
 }
 
 export type BoolDefinition = TypeDefinition & {
     VALUE: boolean
+    DEFAULT: boolean
 }
 
 const BoolDefinitionStructure = {
-    VALUE: boolean
+    VALUE: boolean,
+    DEFAULT: boolean
 }
 
 export type ArrayDefinition = TypeDefinition & {
@@ -392,10 +398,12 @@ const RandDefinitionStructure = {}
 
 export type DoubleDefinition = TypeDefinition & {
     VALUE: string
+    DEFAULT: number
 }
 
 const DoubleStructure = {
     VALUE: number,
+    DEFAULT: number
 }
 
 export type ExpressionDefinition = TypeDefinition & {

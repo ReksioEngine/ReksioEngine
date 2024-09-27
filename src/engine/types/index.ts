@@ -87,15 +87,24 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
 
 export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<DefinitionType> {
     protected _value?: any
+    private readonly defaultValue?: number | string | boolean | any[]
 
     constructor(engine: Engine, definition: DefinitionType, defaultValue?: number | string | boolean | any[]) {
         super(engine, definition)
+        this.defaultValue = defaultValue
+
         if (defaultValue !== undefined) {
             let initialValue = null
             if (this.definition.TOINI) {
                 initialValue = this.getFromINI()
             }
             this.value = initialValue ?? this.definition.VALUE ?? defaultValue
+        }
+    }
+
+    RESETINI() {
+        if (this.definition.TOINI) {
+            this.value = this.definition.DEFAULT ?? this.definition.VALUE ?? this.defaultValue
         }
     }
 
