@@ -56346,10 +56346,10 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 }
                 const onTrue = (_g = this.engine) === null || _g === void 0 ? void 0 : _g.getObject(args[3]);
                 const onFalse = (_h = this.engine) === null || _h === void 0 ? void 0 : _h.getObject(args[4]);
-                if (result && onTrue !== undefined) {
+                if (result && onTrue !== null) {
                     onTrue.RUNC();
                 }
-                else if (!result && onFalse !== undefined) {
+                else if (!result && onFalse !== null) {
                     onFalse.RUNC();
                 }
             }
