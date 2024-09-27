@@ -26,7 +26,12 @@ export class Group extends Type<GroupDefinition> {
 
     __call(methodName: string, args: any[]) {
         for (const object of this.objects) {
-            object[methodName](...args)
+            if (methodName in object) {
+                object[methodName](...args)
+            } else {
+                const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : ''
+                throw new Error(`Method '${methodName}(${argumentsString})' does not exist in ${object.constructor.name}`)
+            }
         }
     }
 }
