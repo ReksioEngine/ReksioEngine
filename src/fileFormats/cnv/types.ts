@@ -285,10 +285,14 @@ export type ButtonDefinition = TypeDefinition & {
     GFXSTANDARD?: reference
     GFXONCLICK?: reference
     GFXONMOVE?: reference
-    ONRELEASED?: callback
+    ONACTION?: callback
     ONCLICKED?: callback
+    ONDRAGGING?: callback
+    ONENDDRAGGING?: callback
     ONFOCUSON?: callback
     ONFOCUSOFF?: callback
+    ONRELEASED?: callback
+    ONSTARTDRAGGING?: callback
     ONINIT?: callback
     RECT?: Array<number> | reference
 }
@@ -300,10 +304,14 @@ const ButtonDefinitionStructure = {
     GFXSTANDARD: reference,
     GFXONCLICK: reference,
     GFXONMOVE: reference,
-    ONRELEASED: callback,
+    ONACTION: callback,
     ONCLICKED: callback,
+    ONDRAGGING: callback,
+    ONENDDRAGGING: callback,
     ONFOCUSON: callback,
     ONFOCUSOFF: callback,
+    ONRELEASED: callback,
+    ONSTARTDRAGGING: callback,
     ONINIT: callback,
     RECT: (object: any, key: string, param: string, value: string) => {
         const parts = value.split(',')
