@@ -83,7 +83,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     tick(delta: number) {
-        assert(this.sprite !== null)
         if (!this.isPlaying) {
             return
         }
