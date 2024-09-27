@@ -50903,7 +50903,7 @@ class Engine {
         else if (callback.behaviourReference) {
             if (!this.scope[callback.behaviourReference]) {
                 console.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`, 'font-weight: bold', 'font-weight: inherit', callback, 'font-weight: bold', 'font-weight: inherit', caller);
-                throw new errors_1.IrrecoverableError();
+                return;
             }
             return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments);
         }
@@ -51313,10 +51313,11 @@ class Animo extends index_1.DisplayType {
         });
     }
     initSprite() {
+        var _a;
         (0, errors_2.assert)(this.annFile !== null);
         this.sprite = new rendering_1.AdvancedSprite();
         this.sprite.visible = this.definition.VISIBLE;
-        this.SETPRIORITY(this.definition.PRIORITY);
+        this.SETPRIORITY((_a = this.definition.PRIORITY) !== null && _a !== void 0 ? _a : 0);
         this.engine.addToStage(this.sprite);
     }
     getTexture(imageIndex) {
@@ -51925,10 +51926,14 @@ class Button extends index_1.Type {
         this.gfxOnClick = null;
         this.gfxOnMove = null;
         this.interactArea = null;
+        this.callbacks.register('ONACTION', definition.ONACTION);
+        this.callbacks.register('ONCLICKED', definition.ONCLICKED);
+        this.callbacks.register('ONDRAGGING', definition.ONDRAGGING);
+        this.callbacks.register('ONENDDRAGGING', definition.ONENDDRAGGING);
         this.callbacks.register('ONFOCUSON', definition.ONFOCUSON);
         this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF);
-        this.callbacks.register('ONCLICKED', definition.ONCLICKED);
         this.callbacks.register('ONRELEASED', definition.ONRELEASED);
+        this.callbacks.register('ONSTARTDRAGGING', definition.ONSTARTDRAGGING);
         this.callbacks.register('ONINIT', definition.ONINIT);
         this.logic = new button_1.ButtonLogicComponent(this.onStateChange.bind(this));
     }
@@ -51959,6 +51964,11 @@ class Button extends index_1.Type {
         this.callbacks.run('ONINIT');
     }
     setRect(rect) {
+        if (this.gfxStandard) {
+            // this won't be registered ever again as the original engine prefers RECT over GFXSTANDARD
+            // and there is no known way of removing the rect (neither SETSTD nor SETRECT with no/empty argument works)
+            this.unregisterInteractive(this.gfxStandard);
+        }
         let shape;
         if (Array.isArray(rect)) {
             shape = rect;
@@ -51977,7 +51987,7 @@ class Button extends index_1.Type {
             this.engine.app.stage.addChild(this.interactArea);
         }
         this.interactArea.hitArea = rectangle;
-        this.interactArea.zIndex = 9999999 - y1;
+        this.interactArea.zIndex = 9999999 - rectangle.top;
     }
     destroy() {
         if (this.interactArea) {
@@ -52046,6 +52056,7 @@ class Button extends index_1.Type {
         }
         else if (event == button_1.Event.UP) {
             this.callbacks.run('ONRELEASED');
+            this.callbacks.run('ONACTION');
         }
         else if (event == button_1.Event.OVER) {
             this.callbacks.run('ONFOCUSON');
@@ -52600,11 +52611,12 @@ class Image extends index_1.DisplayType {
         this.callbacks.register('ONINIT', this.definition.ONINIT);
     }
     init() {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             this.sprite = yield this.load();
             this.sprite.visible = this.definition.VISIBLE;
             this.sprite.eventMode = 'none';
-            this.SETPRIORITY(this.definition.PRIORITY);
+            this.SETPRIORITY((_a = this.definition.PRIORITY) !== null && _a !== void 0 ? _a : 0);
         });
     }
     ready() {
@@ -52729,11 +52741,9 @@ class Type {
 exports.Type = Type;
 Type.Events = {};
 class DisplayType extends Type {
-    constructor(engine, definition) {
-        var _a;
-        super(engine, definition);
+    constructor() {
+        super(...arguments);
         this.priority = 0;
-        this.priority = (_a = definition.PRIORITY) !== null && _a !== void 0 ? _a : 0;
     }
     GETPRIORITY() {
         return this.priority;
@@ -52870,6 +52880,14 @@ class Integer extends index_1.ValueType {
     }
     GET() {
         return this.value;
+    }
+    SWITCH(first, second) {
+        if (this.value == (0, types_1.ForceNumber)(first)) {
+            this.value = (0, types_1.ForceNumber)(second);
+        }
+        else {
+            this.value = (0, types_1.ForceNumber)(first);
+        }
     }
     valueChanged(oldValue, newValue) {
         if (oldValue !== newValue) {
@@ -53263,7 +53281,9 @@ class Sequence extends index_1.Type {
                 return;
             }
             if (this.queue.length === 0) {
-                this.callbacks.run('ONFINISHED', this.sequenceName);
+                const finishedName = this.sequenceName;
+                this.sequenceName = null;
+                this.callbacks.run('ONFINISHED', finishedName);
                 return;
             }
             const next = this.queue.shift();
@@ -53360,7 +53380,7 @@ class Sequence extends index_1.Type {
         });
     }
     ISPLAYING() {
-        throw new errors_1.NotImplementedError();
+        return this.sequenceName !== null;
     }
     HIDE() {
         throw new errors_1.NotImplementedError();
@@ -54165,17 +54185,12 @@ const ArrayDefinitionStructure = {
     ONINIT: common_1.callback
 };
 const ButtonDefinitionStructure = {
-    VISIBLE: common_1.boolean,
     ENABLE: common_1.boolean,
     DRAGGABLE: common_1.boolean,
     GFXSTANDARD: common_1.reference,
     GFXONCLICK: common_1.reference,
     GFXONMOVE: common_1.reference,
-    ONRELEASED: common_1.callback,
-    ONCLICKED: common_1.callback,
-    ONFOCUSON: common_1.callback,
-    ONFOCUSOFF: common_1.callback,
-    ONINIT: common_1.callback,
+    SNDONMOVE: common_1.reference,
     RECT: (object, key, param, value) => {
         const parts = value.split(',');
         if (parts.length == 4) {
@@ -54184,7 +54199,16 @@ const ButtonDefinitionStructure = {
         else {
             return (0, common_1.reference)(object, key, param, value);
         }
-    }
+    },
+    ONACTION: common_1.callback,
+    ONCLICKED: common_1.callback,
+    ONDRAGGING: common_1.callback,
+    ONENDDRAGGING: common_1.callback,
+    ONFOCUSON: common_1.callback,
+    ONFOCUSOFF: common_1.callback,
+    ONRELEASED: common_1.callback,
+    ONSTARTDRAGGING: common_1.callback,
+    ONINIT: common_1.callback
 };
 const SequenceDefinitionStructure = {
     FILENAME: common_1.string,
