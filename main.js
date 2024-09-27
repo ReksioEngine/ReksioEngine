@@ -51261,7 +51261,6 @@ class Animo extends index_1.DisplayType {
         this.engine.removeFromStage(this.sprite);
     }
     tick(delta) {
-        (0, errors_2.assert)(this.sprite !== null);
         if (!this.isPlaying) {
             return;
         }
@@ -52571,9 +52570,18 @@ class Group extends index_1.Type {
             return x !== null;
         }));
     }
+    REMOVE(...objectsNames) {
+        this.objects = this.objects.filter(object => objectsNames.includes(object.name));
+    }
     __call(methodName, args) {
         for (const object of this.objects) {
-            object[methodName](...args);
+            if (methodName in object) {
+                object[methodName](...args);
+            }
+            else {
+                const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
+                throw new Error(`Method '${methodName}(${argumentsString})' does not exist in ${object.constructor.name}`);
+            }
         }
     }
 }
@@ -52771,12 +52779,19 @@ class ValueType extends Type {
     constructor(engine, definition, defaultValue) {
         var _a;
         super(engine, definition);
+        this.defaultValue = defaultValue;
         if (defaultValue !== undefined) {
             let initialValue = null;
             if (this.definition.TOINI) {
                 initialValue = this.getFromINI();
             }
             this.value = (_a = initialValue !== null && initialValue !== void 0 ? initialValue : this.definition.VALUE) !== null && _a !== void 0 ? _a : defaultValue;
+        }
+    }
+    RESETINI() {
+        var _a, _b;
+        if (this.definition.TOINI) {
+            this.value = (_b = (_a = this.definition.DEFAULT) !== null && _a !== void 0 ? _a : this.definition.VALUE) !== null && _b !== void 0 ? _b : this.defaultValue;
         }
     }
     get value() {
@@ -54101,6 +54116,7 @@ const SceneStructure = {
 };
 const IntegerStructure = {
     VALUE: common_1.number,
+    DEFAULT: common_1.number,
     TOINI: common_1.boolean,
     ONINIT: common_1.callback,
     ONCHANGED: (0, common_1.numberParam)(common_1.callbacks),
@@ -54175,11 +54191,13 @@ const ConditionDefinitionStructure = {
 const StringDefinitionStructure = {
     TOINI: common_1.boolean,
     VALUE: common_1.string,
+    DEFAULT: common_1.string,
     ONCHANGED: common_1.callbacks,
     ONBRUTALCHANGED: common_1.callbacks
 };
 const BoolDefinitionStructure = {
-    VALUE: common_1.boolean
+    VALUE: common_1.boolean,
+    DEFAULT: common_1.boolean
 };
 const ArrayDefinitionStructure = {
     ONINIT: common_1.callback
@@ -54240,6 +54258,7 @@ const ComplexConditionDefinitionStructure = {
 const RandDefinitionStructure = {};
 const DoubleStructure = {
     VALUE: common_1.number,
+    DEFAULT: common_1.number
 };
 const ExpressionDefinitionStructure = {
     OPERAND1: common_1.code,
