@@ -68,6 +68,8 @@ export class Button extends Type<ButtonDefinition> {
 
     private setRect(rect: number[] | reference) {
         if (this.gfxStandard) {
+            // this won't be registered ever again as the original engine prefers RECT over GFXSTANDARD
+            // and there is no known way of removing the rect (neither SETSTD nor SETRECT with no/empty argument works)
             this.unregisterInteractive(this.gfxStandard)
         }
 
