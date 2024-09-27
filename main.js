@@ -50205,58 +50205,54 @@ exports.loadTexture = loadTexture;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ButtonLogicComponent = exports.Event = exports.State = void 0;
-const typescript_fsm_1 = __webpack_require__(/*! typescript-fsm */ "./node_modules/typescript-fsm/dist/stateMachine.js");
+const stateMachine_1 = __webpack_require__(/*! ../../stateMachine */ "./src/stateMachine.ts");
 var State;
 (function (State) {
-    State[State["DISABLED"] = 0] = "DISABLED";
-    State[State["DISABLED_BUT_VISIBLE"] = 1] = "DISABLED_BUT_VISIBLE";
-    State[State["STANDARD"] = 2] = "STANDARD";
-    State[State["HOVERED"] = 3] = "HOVERED";
-    State[State["PRESSED"] = 4] = "PRESSED";
+    State["INIT"] = "INIT";
+    State["DISABLED"] = "DISABLED";
+    State["DISABLED_BUT_VISIBLE"] = "DISABLED_BUT_VISIBLE";
+    State["STANDARD"] = "STANDARD";
+    State["HOVERED"] = "HOVERED";
+    State["PRESSED"] = "PRESSED";
 })(State || (exports.State = State = {}));
 var Event;
 (function (Event) {
-    Event[Event["OVER"] = 0] = "OVER";
-    Event[Event["DOWN"] = 1] = "DOWN";
-    Event[Event["UP"] = 2] = "UP";
-    Event[Event["OUT"] = 3] = "OUT";
-    Event[Event["ENABLE"] = 4] = "ENABLE";
-    Event[Event["DISABLE"] = 5] = "DISABLE";
-    Event[Event["DISABLE_BUT_VISIBLE"] = 6] = "DISABLE_BUT_VISIBLE";
+    Event["OVER"] = "OVER";
+    Event["DOWN"] = "DOWN";
+    Event["UP"] = "UP";
+    Event["OUT"] = "OUT";
+    Event["ENABLE"] = "ENABLE";
+    Event["DISABLE"] = "DISABLE";
+    Event["DISABLE_BUT_VISIBLE"] = "DISABLE_BUT_VISIBLE";
 })(Event || (exports.Event = Event = {}));
 class ButtonLogicComponent {
-    constructor(onStateChange, onMouseOver, onMouseOut, onMouseUp, onMouseDown) {
-        this.prevState = State.DISABLED;
+    constructor(onStateChange) {
         this.onStateChangeCallback = onStateChange;
-        this.onMouseOverCustomCallback = onMouseOver;
-        this.onMouseOutCustomCallback = onMouseOut;
-        this.onMouseUpCustomCallback = onMouseUp;
-        this.onMouseDownCustomCallback = onMouseDown;
         this.onMouseOverCallback = this.onMouseOver.bind(this);
         this.onMouseOutCallback = this.onMouseOut.bind(this);
         this.onMouseDownCallback = this.onMouseDown.bind(this);
         this.onMouseUpCallback = this.onMouseUp.bind(this);
-        const stateCallback = this.onStateChange.bind(this);
         const transitions = [
-            (0, typescript_fsm_1.t)(State.STANDARD, Event.OVER, State.HOVERED, () => stateCallback(Event.OVER)),
-            (0, typescript_fsm_1.t)(State.HOVERED, Event.OUT, State.STANDARD, () => stateCallback(Event.OUT)),
-            (0, typescript_fsm_1.t)(State.HOVERED, Event.DOWN, State.PRESSED, () => stateCallback(Event.DOWN)),
-            (0, typescript_fsm_1.t)(State.PRESSED, Event.UP, State.HOVERED, () => stateCallback(Event.UP)),
-            (0, typescript_fsm_1.t)(State.PRESSED, Event.OUT, State.STANDARD, () => stateCallback(Event.OUT)),
-            (0, typescript_fsm_1.t)(State.DISABLED, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
-            (0, typescript_fsm_1.t)(State.DISABLED_BUT_VISIBLE, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
-            (0, typescript_fsm_1.t)(State.STANDARD, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
-            (0, typescript_fsm_1.t)(State.HOVERED, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
-            (0, typescript_fsm_1.t)(State.PRESSED, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
-            (0, typescript_fsm_1.t)(State.STANDARD, Event.ENABLE, State.STANDARD, () => stateCallback(Event.ENABLE)),
-            (0, typescript_fsm_1.t)(State.DISABLED, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
-            (0, typescript_fsm_1.t)(State.DISABLED, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE, () => stateCallback(Event.DISABLE_BUT_VISIBLE)),
-            (0, typescript_fsm_1.t)(State.DISABLED_BUT_VISIBLE, Event.DISABLE, State.DISABLED, () => stateCallback(Event.DISABLE)),
-            (0, typescript_fsm_1.t)(State.STANDARD, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE, () => stateCallback(Event.DISABLE_BUT_VISIBLE)),
-            (0, typescript_fsm_1.t)(State.HOVERED, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE, () => stateCallback(Event.DISABLE_BUT_VISIBLE)),
-            (0, typescript_fsm_1.t)(State.PRESSED, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE, () => stateCallback(Event.DISABLE_BUT_VISIBLE)),
+            (0, stateMachine_1.t)(State.INIT, Event.DISABLE, State.DISABLED),
+            (0, stateMachine_1.t)(State.INIT, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE),
+            (0, stateMachine_1.t)(State.INIT, Event.ENABLE, State.STANDARD),
+            (0, stateMachine_1.t)(State.STANDARD, Event.OVER, State.HOVERED),
+            (0, stateMachine_1.t)(State.STANDARD, Event.DISABLE, State.DISABLED),
+            (0, stateMachine_1.t)(State.STANDARD, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE),
+            (0, stateMachine_1.t)(State.HOVERED, Event.DISABLE, State.DISABLED),
+            (0, stateMachine_1.t)(State.HOVERED, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE),
+            (0, stateMachine_1.t)(State.HOVERED, Event.OUT, State.STANDARD),
+            (0, stateMachine_1.t)(State.HOVERED, Event.DOWN, State.PRESSED),
+            (0, stateMachine_1.t)(State.PRESSED, Event.DISABLE, State.DISABLED),
+            (0, stateMachine_1.t)(State.PRESSED, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE),
+            (0, stateMachine_1.t)(State.PRESSED, Event.UP, State.HOVERED),
+            (0, stateMachine_1.t)(State.PRESSED, Event.OUT, State.STANDARD),
+            (0, stateMachine_1.t)(State.DISABLED, Event.ENABLE, State.STANDARD),
+            (0, stateMachine_1.t)(State.DISABLED, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE),
+            (0, stateMachine_1.t)(State.DISABLED_BUT_VISIBLE, Event.ENABLE, State.STANDARD),
+            (0, stateMachine_1.t)(State.DISABLED_BUT_VISIBLE, Event.DISABLE, State.DISABLED),
         ];
-        this.stateMachine = new typescript_fsm_1.StateMachine(State.DISABLED, transitions);
+        this.stateMachine = new stateMachine_1.StateMachine(State.INIT, transitions, this.onStateChangeCallback);
     }
     registerInteractive(sprite) {
         sprite.eventMode = 'dynamic';
@@ -50293,45 +50289,24 @@ class ButtonLogicComponent {
         }
     }
     onMouseOver() {
-        if (this.stateMachine.getState() == State.DISABLED) {
-            return;
-        }
         if (this.stateMachine.can(Event.OVER)) {
             this.stateMachine.dispatch(Event.OVER);
         }
-        this.onMouseOverCustomCallback && this.onMouseOverCustomCallback();
     }
     onMouseUp() {
-        if (this.stateMachine.getState() == State.DISABLED) {
-            return;
-        }
         if (this.stateMachine.can(Event.UP)) {
             this.stateMachine.dispatch(Event.UP);
         }
-        this.onMouseUpCustomCallback && this.onMouseUpCustomCallback();
     }
     onMouseOut() {
-        if (this.stateMachine.getState() == State.DISABLED) {
-            return;
-        }
         if (this.stateMachine.can(Event.OUT)) {
             this.stateMachine.dispatch(Event.OUT);
         }
-        this.onMouseOutCustomCallback && this.onMouseOutCustomCallback();
     }
     onMouseDown() {
-        if (this.stateMachine.getState() == State.DISABLED) {
-            return;
-        }
         if (this.stateMachine.can(Event.DOWN)) {
             this.stateMachine.dispatch(Event.DOWN);
         }
-        this.onMouseDownCustomCallback && this.onMouseDownCustomCallback();
-    }
-    onStateChange(event) {
-        const state = this.stateMachine.getState();
-        this.onStateChangeCallback(this.prevState, event, state);
-        this.prevState = state;
     }
 }
 exports.ButtonLogicComponent = ButtonLogicComponent;
@@ -51938,7 +51913,6 @@ exports.Bool = Bool;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Button = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const utils_1 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
 const image_1 = __webpack_require__(/*! ./image */ "./src/engine/types/image.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/components/button.ts");
@@ -51947,54 +51921,34 @@ const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 class Button extends index_1.Type {
     constructor(engine, definition) {
         super(engine, definition);
+        this.gfxStandard = null;
+        this.gfxOnClick = null;
+        this.gfxOnMove = null;
+        this.interactArea = null;
         this.callbacks.register('ONFOCUSON', definition.ONFOCUSON);
         this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF);
         this.callbacks.register('ONCLICKED', definition.ONCLICKED);
         this.callbacks.register('ONRELEASED', definition.ONRELEASED);
         this.callbacks.register('ONINIT', definition.ONINIT);
-        this.logic = new button_1.ButtonLogicComponent(this.onStateChange.bind(this), () => this.callbacks.run('ONFOCUSON'), () => this.callbacks.run('ONFOCUSOFF'), () => this.callbacks.run('ONRELEASED'), () => this.callbacks.run('ONCLICKED'));
+        this.logic = new button_1.ButtonLogicComponent(this.onStateChange.bind(this));
     }
-    init() { }
-    ready() {
-        if (this.definition.RECT) {
-            let shape;
-            if (Array.isArray(this.definition.RECT)) {
-                shape = this.definition.RECT;
-            }
-            else {
-                const object = this.engine.getObject(this.definition.RECT);
-                const sprite = object.getRenderObject();
-                shape = [sprite.x, sprite.y, sprite.x + sprite.width, sprite.y + sprite.height];
-            }
-            const [x1, y1, x2, y2] = shape;
-            const rect = new pixi_js_1.Rectangle(x1, y1, x2 - x1, y2 - y1);
-            this.interactArea = (0, utils_1.createColorGraphics)(rect, 0, 0);
-            this.interactArea.hitArea = rect;
-            this.interactArea.zIndex = 9999999 - y1;
-            this.interactArea.visible = this.definition.ENABLE;
-            if (this.engine.debug) {
-                this.interactAreaDebugEnabled = (0, utils_1.createColorGraphics)(rect, 0, 0, 3, 0x00ff00);
-                this.interactAreaDebugEnabled.zIndex = 99999999;
-                this.interactAreaDebug = this.logic.getState() != button_1.State.DISABLED ? this.interactAreaDebugEnabled : this.interactAreaDebugDisabled;
-                this.interactAreaDebugDisabled = (0, utils_1.createColorGraphics)(rect, 0, 0, 3, 0xff0000);
-                this.interactAreaDebugDisabled.zIndex = 99999999;
-            }
-        }
-        if (this.interactArea) {
-            this.engine.app.stage.addChild(this.interactArea);
-        }
-        if (this.interactAreaDebug) {
-            this.engine.app.stage.addChild(this.interactAreaDebug);
-        }
-        // This has to be in ready() because it references other objects assigned in init()...
+    init() {
         if (this.definition.GFXSTANDARD) {
             this.gfxStandard = this.engine.getObject(this.definition.GFXSTANDARD);
+            (0, errors_1.assert)(this.gfxStandard !== null, 'the GFXSTANDARD object should exist');
         }
         if (this.definition.GFXONCLICK) {
             this.gfxOnClick = this.engine.getObject(this.definition.GFXONCLICK);
+            (0, errors_1.assert)(this.gfxOnClick !== null, 'the GFXONCLICK object should exist');
         }
         if (this.definition.GFXONMOVE) {
             this.gfxOnMove = this.engine.getObject(this.definition.GFXONMOVE);
+            (0, errors_1.assert)(this.gfxOnMove !== null, 'the GFXONMOVE object should exist');
+        }
+    }
+    ready() {
+        if (this.definition.RECT) {
+            this.setRect(this.definition.RECT);
         }
         if (this.definition.ENABLE) {
             this.logic.enable();
@@ -52002,21 +51956,36 @@ class Button extends index_1.Type {
         else {
             this.logic.disable();
         }
-        // ...including ONINIT
         this.callbacks.run('ONINIT');
+    }
+    setRect(rect) {
+        let shape;
+        if (Array.isArray(rect)) {
+            shape = rect;
+        }
+        else {
+            const object = this.engine.getObject(rect);
+            (0, errors_1.assert)(object !== null, 'object referred by RECT should exist');
+            const sprite = object.getRenderObject();
+            shape = [sprite.x, sprite.y, sprite.x + sprite.width, sprite.y + sprite.height];
+        }
+        const [x1, y1, x2, y2] = shape;
+        const rectangle = new pixi_js_1.Rectangle(x1, y1, x2 - x1, y2 - y1);
+        if (this.interactArea === null) {
+            this.interactArea = new pixi_js_1.Graphics();
+            this.interactArea.visible = this.definition.ENABLE;
+            this.engine.app.stage.addChild(this.interactArea);
+        }
+        this.interactArea.hitArea = rectangle;
+        this.interactArea.zIndex = 9999999 - y1;
     }
     destroy() {
         if (this.interactArea) {
             this.logic.unregisterInteractive(this.interactArea);
             this.engine.app.stage.removeChild(this.interactArea);
         }
-        if (this.interactAreaDebug) {
-            this.engine.app.stage.removeChild(this.interactAreaDebug);
-        }
-        if (!this.interactArea) {
-            if (this.gfxStandard) {
-                this.unregisterInteractive(this.gfxStandard);
-            }
+        else if (this.gfxStandard) {
+            this.unregisterInteractive(this.gfxStandard);
         }
     }
     onStateChange(prevState, event, state) {
@@ -52025,18 +51994,6 @@ class Button extends index_1.Type {
             // For area button
             this.interactArea.visible = state != button_1.State.DISABLED;
             this.interactArea.interactive = state != button_1.State.DISABLED;
-            if (this.engine.debug) {
-                if (state == button_1.State.DISABLED) {
-                    this.engine.app.stage.removeChild(this.interactAreaDebug);
-                    this.interactAreaDebug = this.interactAreaDebugDisabled;
-                    this.engine.app.stage.addChild(this.interactAreaDebug);
-                }
-                else {
-                    this.engine.app.stage.removeChild(this.interactAreaDebug);
-                    this.interactAreaDebug = this.interactAreaDebugEnabled;
-                    this.engine.app.stage.addChild(this.interactAreaDebug);
-                }
-            }
         }
         if (state == button_1.State.DISABLED) {
             (_a = this.gfxStandard) === null || _a === void 0 ? void 0 : _a.HIDE();
@@ -52084,6 +52041,18 @@ class Button extends index_1.Type {
                 this.logic.unregisterInteractive(this.interactArea);
             }
         }
+        else if (event == button_1.Event.DOWN) {
+            this.callbacks.run('ONCLICKED');
+        }
+        else if (event == button_1.Event.UP) {
+            this.callbacks.run('ONRELEASED');
+        }
+        else if (event == button_1.Event.OVER) {
+            this.callbacks.run('ONFOCUSON');
+        }
+        else if (event == button_1.Event.OUT) {
+            this.callbacks.run('ONFOCUSOFF');
+        }
     }
     ENABLE() {
         this.logic.enable();
@@ -52099,6 +52068,9 @@ class Button extends index_1.Type {
         (_a = this.gfxStandard) === null || _a === void 0 ? void 0 : _a.SETPRIORITY(priority);
         (_b = this.gfxOnMove) === null || _b === void 0 ? void 0 : _b.SETPRIORITY(priority);
         (_c = this.gfxOnClick) === null || _c === void 0 ? void 0 : _c.SETPRIORITY(priority);
+    }
+    SETRECT(objectName) {
+        this.setRect({ objectName });
     }
     registerInteractive(object) {
         const renderObject = object.getRenderObject();
@@ -56524,6 +56496,51 @@ exports.RandomLibrary = RandomLibrary;
 
 /***/ }),
 
+/***/ "./src/stateMachine.ts":
+/*!*****************************!*\
+  !*** ./src/stateMachine.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.t = exports.StateMachine = void 0;
+class StateMachine {
+    constructor(initialState, transitions = [], onStateChange) {
+        this.transitions = transitions;
+        this.currentState = initialState;
+        this.onStateChange = onStateChange;
+    }
+    getState() {
+        return this.currentState;
+    }
+    can(event) {
+        return this.transitions.some(transition => transition.from === this.currentState && transition.event === event);
+    }
+    dispatch(event) {
+        const transition = this.transitions.find(transition => transition.from === this.currentState && transition.event === event);
+        if (transition === undefined) {
+            throw new Error('No transition found for event from current state');
+        }
+        const previousState = this.currentState;
+        this.currentState = transition.to;
+        this.onStateChange(previousState, event, this.currentState);
+    }
+}
+exports.StateMachine = StateMachine;
+function t(from, event, to) {
+    return {
+        from,
+        event,
+        to,
+    };
+}
+exports.t = t;
+
+
+/***/ }),
+
 /***/ "./src/types.ts":
 /*!**********************!*\
   !*** ./src/types.ts ***!
@@ -56584,7 +56601,7 @@ exports.Compare = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createColorSprite = exports.createColorTexture = exports.createColorGraphics = exports.stringUntilNull = exports.pathJoin = void 0;
+exports.createColorTexture = exports.drawRectangle = exports.stringUntilNull = exports.pathJoin = void 0;
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const pathJoin = (...parts) => {
     const fixedParts = parts.map(part => part.replace(/\\/g, '/'));
@@ -56595,132 +56612,21 @@ const stringUntilNull = (text) => {
     return text.substring(0, text.indexOf('\x00'));
 };
 exports.stringUntilNull = stringUntilNull;
-const createColorGraphics = (dimensions, color, alpha, borderWidth, borderColor) => {
-    const graphics = new pixi_js_1.Graphics();
+const drawRectangle = (graphics, dimensions, color, alpha, borderWidth, borderColor) => {
     graphics.beginFill(color, alpha);
     if (borderWidth !== undefined && borderWidth > 0) {
         graphics.lineStyle(borderWidth, borderColor !== null && borderColor !== void 0 ? borderColor : 0xffa500);
     }
     graphics.drawRect(dimensions.x, dimensions.y, dimensions.width, dimensions.height);
-    return graphics;
 };
-exports.createColorGraphics = createColorGraphics;
+exports.drawRectangle = drawRectangle;
 const createColorTexture = (app, dimensions, color, alpha) => {
-    const graphics = (0, exports.createColorGraphics)(dimensions, color, alpha);
+    const graphics = new pixi_js_1.Graphics();
+    (0, exports.drawRectangle)(graphics, dimensions, color, alpha);
     return app.renderer.generateTexture(graphics);
 };
 exports.createColorTexture = createColorTexture;
-const createColorSprite = (app, dimensions, color, alpha) => {
-    const background = new pixi_js_1.Sprite((0, exports.createColorTexture)(app, dimensions, color, alpha));
-    background.zIndex = -99999;
-    return background;
-};
-exports.createColorSprite = createColorSprite;
 
-
-/***/ }),
-
-/***/ "./node_modules/typescript-fsm/dist/stateMachine.js":
-/*!**********************************************************!*\
-  !*** ./node_modules/typescript-fsm/dist/stateMachine.js ***!
-  \**********************************************************/
-/***/ (function(__unused_webpack_module, exports) {
-
-"use strict";
-
-/*
- * StateMachine.ts
- * TypeScript finite state machine class with async transformations using promises.
- */
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-};
-var _StateMachine_instances, _StateMachine_formatNoTransitionError;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.StateMachine = exports.t = void 0;
-function t(fromState, event, toState, cb) {
-    return { fromState, event, toState, cb };
-}
-exports.t = t;
-class StateMachine {
-    // initialize the state-machine
-    constructor(_init, transitions = [], logger = console) {
-        _StateMachine_instances.add(this);
-        this.transitions = transitions;
-        this.logger = logger;
-        this._current = _init;
-    }
-    addTransitions(transitions) {
-        // bind any unbound method
-        transitions.forEach((_tran) => {
-            const tran = Object.create(_tran);
-            if (tran.cb && !tran.cb.name?.startsWith("bound ")) {
-                tran.cb = tran.cb.bind(this);
-            }
-            this.transitions.push(tran);
-        });
-    }
-    getState() { return this._current; }
-    can(event) {
-        return this.transitions.some((trans) => (trans.fromState === this._current && trans.event === event));
-    }
-    getNextState(event) {
-        const transition = this.transitions.find((tran) => tran.fromState === this._current && tran.event === event);
-        return transition?.toState;
-    }
-    isFinal() {
-        // search for a transition that starts from current state.
-        // if none is found it's a terminal state.
-        return this.transitions.every((trans) => (trans.fromState !== this._current));
-    }
-    // post event async
-    async dispatch(event, ...args) {
-        return new Promise((resolve, reject) => {
-            // delay execution to make it async
-            setTimeout((me) => {
-                // find transition
-                const found = this.transitions.some((tran) => {
-                    if (tran.fromState === me._current && tran.event === event) {
-                        me._current = tran.toState;
-                        if (tran.cb) {
-                            try {
-                                const p = tran.cb(...args);
-                                if (p instanceof Promise) {
-                                    p.then(resolve).catch((e) => reject(e));
-                                }
-                                else {
-                                    resolve();
-                                }
-                            }
-                            catch (e) {
-                                this.logger.error("Exception caught in callback", e);
-                                reject(e);
-                            }
-                        }
-                        else {
-                            resolve();
-                        }
-                        return true;
-                    }
-                    return false;
-                });
-                // no such transition
-                if (!found) {
-                    const errorMessage = __classPrivateFieldGet(this, _StateMachine_instances, "m", _StateMachine_formatNoTransitionError).call(this, me._current, event);
-                    this.logger.error(errorMessage);
-                    reject(new Error(errorMessage));
-                }
-            }, 0, this);
-        });
-    }
-}
-exports.StateMachine = StateMachine;
-_StateMachine_instances = new WeakSet(), _StateMachine_formatNoTransitionError = function _StateMachine_formatNoTransitionError(fromState, event) {
-    return `No transition: from ${String(fromState)} event ${String(event)}`;
-};
-//# sourceMappingURL=stateMachine.js.map
 
 /***/ }),
 
