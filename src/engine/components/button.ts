@@ -41,7 +41,7 @@ export class ButtonLogicComponent {
 
         const transitions = [
             t(State.INIT, Event.DISABLE, State.DISABLED),
-            t(State.INIT, Event.DISABLE, State.DISABLED_BUT_VISIBLE),
+            t(State.INIT, Event.DISABLE_BUT_VISIBLE, State.DISABLED_BUT_VISIBLE),
             t(State.INIT, Event.ENABLE, State.STANDARD),
 
             t(State.STANDARD, Event.OVER, State.HOVERED),
