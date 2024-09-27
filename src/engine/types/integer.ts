@@ -73,6 +73,14 @@ export class Integer extends ValueType<IntegerDefinition> {
         return this.value
     }
 
+    SWITCH(first: string | number, second: string | number) {
+        if (this.value == ForceNumber(first)) {
+            this.value = ForceNumber(second)
+        } else {
+            this.value = ForceNumber(first)
+        }
+    }
+
     valueChanged(oldValue: any, newValue: any) {
         if (oldValue !== newValue) {
             this.callbacks.run('ONCHANGED', newValue)
