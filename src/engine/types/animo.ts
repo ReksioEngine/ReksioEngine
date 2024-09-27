@@ -140,7 +140,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         this.sprite = new AdvancedSprite()
         this.sprite.visible = this.definition.VISIBLE
-        this.SETPRIORITY(this.definition.PRIORITY)
+        this.SETPRIORITY(this.definition.PRIORITY ?? 0)
 
         this.engine.addToStage(this.sprite)
     }

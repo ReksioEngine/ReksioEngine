@@ -98,7 +98,7 @@ export type AnimoDefinition = TypeDefinition & {
     VISIBLE: boolean
     FILENAME: string
     TOCANVAS: boolean
-    PRIORITY: number
+    PRIORITY?: number
     FPS: number
     PRELOAD: boolean
     RELEASE: boolean
@@ -193,7 +193,7 @@ export type ImageDefinition = TypeDefinition & {
     VISIBLE: boolean
     FILENAME: string
     TOCANVAS: boolean
-    PRIORITY: number
+    PRIORITY?: number
     PRELOAD: boolean
     RELEASE: boolean
     MONITORCOLLISION: boolean
@@ -345,7 +345,7 @@ export type TextDefinition = TypeDefinition & {
     VJUSTIFY: boolean
     TOCANVAS: boolean
     RECT: Array<number>
-    PRIORITY: number
+    PRIORITY?: number
     MONITORCOLLISIONALPHA: boolean
     MONITORCOLLISION: boolean
     FONT: string

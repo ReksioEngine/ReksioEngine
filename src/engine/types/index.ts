@@ -60,11 +60,6 @@ export class Type<DefinitionType extends TypeDefinition> {
 export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends Type<DefinitionType> {
     private priority: number = 0
 
-    constructor(engine: Engine, definition: DefinitionType) {
-        super(engine, definition)
-        this.priority = definition.PRIORITY ?? 0
-    }
-
     GETPRIORITY() {
         return this.priority
     }
