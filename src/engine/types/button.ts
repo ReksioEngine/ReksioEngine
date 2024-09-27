@@ -81,11 +81,8 @@ export class Button extends Type<ButtonDefinition> {
             this.interactArea = new Graphics()
             this.interactArea.visible = this.definition.ENABLE
             this.engine.app.stage.addChild(this.interactArea)
-        } else {
-            this.interactArea.clear()
         }
 
-        drawRectangle(this.interactArea, rectangle, 0, 0)
         this.interactArea.hitArea = rectangle
         this.interactArea.zIndex = 9999999 - y1
     }
