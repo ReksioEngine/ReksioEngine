@@ -105,6 +105,7 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
     RESETINI() {
         if (this.definition.TOINI) {
             this.value = this.definition.DEFAULT ?? this.definition.VALUE ?? this.defaultValue
+            this.saveToINI()
         }
     }
 
