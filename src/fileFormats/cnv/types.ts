@@ -279,12 +279,13 @@ const ArrayDefinitionStructure = {
 }
 
 export type ButtonDefinition = TypeDefinition & {
-    VISIBLE: boolean
-    ENABLE: boolean
     DRAGGABLE: boolean
+    ENABLE: boolean
     GFXSTANDARD?: reference
     GFXONCLICK?: reference
     GFXONMOVE?: reference
+    RECT?: Array<number> | reference
+    SNDONMOVE?: reference
     ONACTION?: callback
     ONCLICKED?: callback
     ONDRAGGING?: callback
@@ -294,16 +295,23 @@ export type ButtonDefinition = TypeDefinition & {
     ONRELEASED?: callback
     ONSTARTDRAGGING?: callback
     ONINIT?: callback
-    RECT?: Array<number> | reference
 }
 
 const ButtonDefinitionStructure = {
-    VISIBLE: boolean,
     ENABLE: boolean,
     DRAGGABLE: boolean,
     GFXSTANDARD: reference,
     GFXONCLICK: reference,
     GFXONMOVE: reference,
+    SNDONMOVE: reference,
+    RECT: (object: any, key: string, param: string, value: string) => {
+        const parts = value.split(',')
+        if (parts.length == 4) {
+            return array(number)(object, key, param, value)
+        } else {
+            return reference(object, key, param, value)
+        }
+    },
     ONACTION: callback,
     ONCLICKED: callback,
     ONDRAGGING: callback,
@@ -312,15 +320,7 @@ const ButtonDefinitionStructure = {
     ONFOCUSOFF: callback,
     ONRELEASED: callback,
     ONSTARTDRAGGING: callback,
-    ONINIT: callback,
-    RECT: (object: any, key: string, param: string, value: string) => {
-        const parts = value.split(',')
-        if (parts.length == 4) {
-            return array(number)(object, key, param, value)
-        } else {
-            return reference(object, key, param, value)
-        }
-    }
+    ONINIT: callback
 }
 
 export type SequenceDefinition = TypeDefinition & {
