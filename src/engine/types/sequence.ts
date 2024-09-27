@@ -156,6 +156,7 @@ export class Sequence extends Type<SequenceDefinition> {
 
         if (this.queue.length === 0) {
             this.callbacks.run('ONFINISHED', this.sequenceName)
+            this.sequenceName = null
             return
         }
 
