@@ -17,7 +17,7 @@ export class Image extends DisplayType<ImageDefinition> {
         this.sprite = await this.load()
         this.sprite.visible = this.definition.VISIBLE
         this.sprite.eventMode = 'none'
-        this.SETPRIORITY(this.definition.PRIORITY)
+        this.SETPRIORITY(this.definition.PRIORITY ?? 0)
     }
 
     ready() {

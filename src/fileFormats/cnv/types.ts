@@ -98,7 +98,7 @@ export type AnimoDefinition = TypeDefinition & {
     VISIBLE: boolean
     FILENAME: string
     TOCANVAS: boolean
-    PRIORITY: number
+    PRIORITY?: number
     FPS: number
     PRELOAD: boolean
     RELEASE: boolean
@@ -193,7 +193,7 @@ export type ImageDefinition = TypeDefinition & {
     VISIBLE: boolean
     FILENAME: string
     TOCANVAS: boolean
-    PRIORITY: number
+    PRIORITY?: number
     PRELOAD: boolean
     RELEASE: boolean
     MONITORCOLLISION: boolean
@@ -279,32 +279,31 @@ const ArrayDefinitionStructure = {
 }
 
 export type ButtonDefinition = TypeDefinition & {
-    VISIBLE: boolean
-    ENABLE: boolean
     DRAGGABLE: boolean
+    ENABLE: boolean
     GFXSTANDARD?: reference
     GFXONCLICK?: reference
     GFXONMOVE?: reference
-    ONRELEASED?: callback
+    RECT?: Array<number> | reference
+    SNDONMOVE?: reference
+    ONACTION?: callback
     ONCLICKED?: callback
+    ONDRAGGING?: callback
+    ONENDDRAGGING?: callback
     ONFOCUSON?: callback
     ONFOCUSOFF?: callback
+    ONRELEASED?: callback
+    ONSTARTDRAGGING?: callback
     ONINIT?: callback
-    RECT?: Array<number> | reference
 }
 
 const ButtonDefinitionStructure = {
-    VISIBLE: boolean,
     ENABLE: boolean,
     DRAGGABLE: boolean,
     GFXSTANDARD: reference,
     GFXONCLICK: reference,
     GFXONMOVE: reference,
-    ONRELEASED: callback,
-    ONCLICKED: callback,
-    ONFOCUSON: callback,
-    ONFOCUSOFF: callback,
-    ONINIT: callback,
+    SNDONMOVE: reference,
     RECT: (object: any, key: string, param: string, value: string) => {
         const parts = value.split(',')
         if (parts.length == 4) {
@@ -312,7 +311,16 @@ const ButtonDefinitionStructure = {
         } else {
             return reference(object, key, param, value)
         }
-    }
+    },
+    ONACTION: callback,
+    ONCLICKED: callback,
+    ONDRAGGING: callback,
+    ONENDDRAGGING: callback,
+    ONFOCUSON: callback,
+    ONFOCUSOFF: callback,
+    ONRELEASED: callback,
+    ONSTARTDRAGGING: callback,
+    ONINIT: callback
 }
 
 export type SequenceDefinition = TypeDefinition & {
@@ -337,7 +345,7 @@ export type TextDefinition = TypeDefinition & {
     VJUSTIFY: boolean
     TOCANVAS: boolean
     RECT: Array<number>
-    PRIORITY: number
+    PRIORITY?: number
     MONITORCOLLISIONALPHA: boolean
     MONITORCOLLISION: boolean
     FONT: string

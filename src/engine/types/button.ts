@@ -22,10 +22,14 @@ export class Button extends Type<ButtonDefinition> {
     constructor(engine: Engine, definition: ButtonDefinition) {
         super(engine, definition)
 
+        this.callbacks.register('ONACTION', definition.ONACTION)
+        this.callbacks.register('ONCLICKED', definition.ONCLICKED)
+        this.callbacks.register('ONDRAGGING', definition.ONDRAGGING)
+        this.callbacks.register('ONENDDRAGGING', definition.ONENDDRAGGING)
         this.callbacks.register('ONFOCUSON', definition.ONFOCUSON)
         this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF)
-        this.callbacks.register('ONCLICKED', definition.ONCLICKED)
         this.callbacks.register('ONRELEASED', definition.ONRELEASED)
+        this.callbacks.register('ONSTARTDRAGGING', definition.ONSTARTDRAGGING)
         this.callbacks.register('ONINIT', definition.ONINIT)
 
         this.logic = new ButtonLogicComponent(
@@ -63,6 +67,12 @@ export class Button extends Type<ButtonDefinition> {
     }
 
     private setRect(rect: number[] | reference) {
+        if (this.gfxStandard) {
+            // this won't be registered ever again as the original engine prefers RECT over GFXSTANDARD
+            // and there is no known way of removing the rect (neither SETSTD nor SETRECT with no/empty argument works)
+            this.unregisterInteractive(this.gfxStandard)
+        }
+
         let shape
         if (Array.isArray(rect)) {
             shape = rect
@@ -84,7 +94,7 @@ export class Button extends Type<ButtonDefinition> {
         }
 
         this.interactArea.hitArea = rectangle
-        this.interactArea.zIndex = 9999999 - y1
+        this.interactArea.zIndex = 9999999 - rectangle.top
     }
 
     destroy() {
@@ -148,6 +158,7 @@ export class Button extends Type<ButtonDefinition> {
             this.callbacks.run('ONCLICKED')
         } else if (event == Event.UP) {
             this.callbacks.run('ONRELEASED')
+            this.callbacks.run('ONACTION')
         } else if (event == Event.OVER) {
             this.callbacks.run('ONFOCUSON')
         } else if (event == Event.OUT) {
