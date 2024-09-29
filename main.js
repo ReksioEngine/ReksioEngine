@@ -53224,7 +53224,7 @@ class Sequence extends index_1.Type {
                     if (sequence.MODE === 'PARAMETER') {
                         this.parameterSequence = sequence;
                         (0, errors_1.assert)(this.parameterSequence.SEQEVENT !== undefined);
-                        for (const [name, indexer] of Object.entries(this.parameterSequence.SEQEVENT)) {
+                        for (const [name, indexer] of this.parameterSequence.SEQEVENT) {
                             this.parametersMapping.set(name, paramsCharacterSet.indexOf(indexer));
                         }
                     }
@@ -54026,6 +54026,7 @@ const splitOnce = (text, separator) => {
     return [text.substring(0, index), text.substring(index + 1)];
 };
 const parseCNV = (content) => {
+    var _a;
     const lines = content.split('\n');
     const objects = {};
     for (const line of lines) {
@@ -54056,13 +54057,26 @@ const parseCNV = (content) => {
             const object = objects[objectName];
             const definition = types_1.structureDefinitions[object.TYPE];
             if (definition && variableName in definition) {
-                definition[variableName](object, variableName, param, value);
+                const fieldTypeDefinition = definition[variableName];
+                object[variableName] = fieldTypeDefinition.processor(object, variableName, param, value);
             }
             else {
                 if (variableName.startsWith('ON')) {
                     console.warn(`Unsupported event callback "${variableName}" in type ${object.TYPE}`);
                 }
+                else if (variableName !== 'TYPE') {
+                    console.warn(`Unsupported field ${variableName} in type ${object.TYPE}`);
+                }
                 object[variableName] = value;
+            }
+        }
+    }
+    for (const object of Object.values(objects)) {
+        const typeDefinition = types_1.structureDefinitions[object.TYPE];
+        for (const field in typeDefinition) {
+            const typeInfo = typeDefinition[field];
+            if (!(field in object) && !((_a = typeInfo === null || typeInfo === void 0 ? void 0 : typeInfo.flags) === null || _a === void 0 ? void 0 : _a.optional)) {
+                console.warn(`Field '${field}' in type ${object.TYPE} is missing but is not optional`);
             }
         }
     }
@@ -54105,41 +54119,41 @@ const EpisodeStructure = {
     STARTWITH: common_1.string
 };
 const SceneStructure = {
-    DESCRIPTION: common_1.string,
+    DESCRIPTION: (0, common_1.optional)(common_1.string),
     CREATIONTIME: common_1.string,
     LASTMODIFYTIME: common_1.string,
     VERSION: common_1.string,
     PATH: common_1.string,
-    BACKGROUND: common_1.string,
-    MUSIC: common_1.string,
-    DLLS: common_1.stringArray
+    BACKGROUND: (0, common_1.optional)(common_1.string),
+    MUSIC: (0, common_1.optional)(common_1.string),
+    DLLS: (0, common_1.optional)(common_1.stringArray)
 };
 const IntegerStructure = {
-    VALUE: common_1.number,
-    DEFAULT: common_1.number,
-    TOINI: common_1.boolean,
-    ONINIT: common_1.callback,
-    ONCHANGED: (0, common_1.numberParam)(common_1.callbacks),
-    ONBRUTALCHANGED: (0, common_1.numberParam)(common_1.callbacks)
+    VALUE: (0, common_1.optional)(common_1.number),
+    DEFAULT: (0, common_1.optional)(common_1.number),
+    TOINI: (0, common_1.optional)(common_1.boolean),
+    ONINIT: (0, common_1.optional)(common_1.callback),
+    ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.number)),
+    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.number))
 };
 const AnimoStructure = {
     VISIBLE: common_1.boolean,
     FILENAME: common_1.string,
     TOCANVAS: common_1.boolean,
-    PRIORITY: common_1.number,
+    PRIORITY: (0, common_1.optional)(common_1.number),
     FPS: common_1.number,
     PRELOAD: common_1.boolean,
     RELEASE: common_1.boolean,
     MONITORCOLLISION: common_1.boolean,
     MONITORCOLLISIONALPHA: common_1.boolean,
-    ONINIT: common_1.callback,
-    ONFINISHED: common_1.callbacks,
-    ONSTARTED: common_1.callbacks,
-    ONFRAMECHANGED: common_1.callbacks,
-    ONFOCUSON: common_1.callback,
-    ONFOCUSOFF: common_1.callback,
-    ONCLICK: common_1.callback,
-    ONRELEASE: common_1.callback
+    ONINIT: (0, common_1.optional)(common_1.callback),
+    ONFINISHED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONSTARTED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONFRAMECHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONFOCUSON: (0, common_1.optional)(common_1.callback),
+    ONFOCUSOFF: (0, common_1.optional)(common_1.callback),
+    ONCLICK: (0, common_1.optional)(common_1.callback),
+    ONRELEASE: (0, common_1.optional)(common_1.callback)
 };
 const MusicStructure = {
     FILENAME: common_1.string
@@ -54148,20 +54162,20 @@ const SoundStructure = {
     FILENAME: common_1.string,
     PRELOAD: common_1.boolean,
     FLUSHAFTERPLAYED: common_1.boolean,
-    ONINIT: common_1.callback,
-    ONFINISHED: common_1.callback,
-    ONSTARTED: common_1.callback
+    ONINIT: (0, common_1.optional)(common_1.callback),
+    ONFINISHED: (0, common_1.optional)(common_1.callback),
+    ONSTARTED: (0, common_1.optional)(common_1.callback)
 };
 const TimerStructure = {
     ENABLED: common_1.boolean,
     ELAPSE: common_1.number,
     TICKS: common_1.number,
-    ONINIT: common_1.callback,
-    ONTICK: (0, common_1.numberParam)(common_1.callbacks)
+    ONINIT: (0, common_1.optional)(common_1.callback),
+    ONTICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.number))
 };
 const BehaviourStructure = {
     CODE: common_1.callback,
-    CONDITION: common_1.reference
+    CONDITION: (0, common_1.optional)(common_1.reference)
 };
 const ImageStructure = {
     VISIBLE: common_1.boolean,
@@ -54172,11 +54186,11 @@ const ImageStructure = {
     RELEASE: common_1.boolean,
     MONITORCOLLISION: common_1.boolean,
     MONITORCOLLISIONALPHA: common_1.boolean,
-    ONINIT: common_1.callback
+    ONINIT: (0, common_1.optional)(common_1.callback)
 };
 const MouseStructure = {
-    ONCLICK: common_1.callbacks,
-    ONRELEASE: common_1.callbacks
+    ONCLICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONRELEASE: (0, common_1.optional)((0, common_1.callbacks)(common_1.string))
 };
 const KeyboardStructure = {};
 const CanvasObserverStructure = {};
@@ -54185,57 +54199,61 @@ const ConditionDefinitionStructure = {
     OPERAND1: common_1.code,
     OPERATOR: common_1.string,
     OPERAND2: common_1.code,
-    ONRUNTIMESUCCESS: common_1.callback,
-    ONRUNTIMEFAILED: common_1.callback
+    ONRUNTIMESUCCESS: (0, common_1.optional)(common_1.callback),
+    ONRUNTIMEFAILED: (0, common_1.optional)(common_1.callback)
 };
 const StringDefinitionStructure = {
-    TOINI: common_1.boolean,
-    VALUE: common_1.string,
-    DEFAULT: common_1.string,
-    ONCHANGED: common_1.callbacks,
-    ONBRUTALCHANGED: common_1.callbacks
+    TOINI: (0, common_1.optional)(common_1.boolean),
+    VALUE: (0, common_1.optional)(common_1.string),
+    DEFAULT: (0, common_1.optional)(common_1.string),
+    ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string))
 };
 const BoolDefinitionStructure = {
-    VALUE: common_1.boolean,
-    DEFAULT: common_1.boolean
+    VALUE: (0, common_1.optional)(common_1.boolean),
+    DEFAULT: (0, common_1.optional)(common_1.boolean)
 };
 const ArrayDefinitionStructure = {
-    ONINIT: common_1.callback
+    ONINIT: (0, common_1.optional)(common_1.callback)
 };
 const ButtonDefinitionStructure = {
-    ENABLE: common_1.boolean,
     DRAGGABLE: common_1.boolean,
-    GFXSTANDARD: common_1.reference,
-    GFXONCLICK: common_1.reference,
-    GFXONMOVE: common_1.reference,
-    SNDONMOVE: common_1.reference,
-    RECT: (object, key, param, value) => {
-        const parts = value.split(',');
-        if (parts.length == 4) {
-            return (0, common_1.array)(common_1.number)(object, key, param, value);
+    ENABLE: common_1.boolean,
+    VISIBLE: common_1.boolean,
+    GFXSTANDARD: (0, common_1.optional)(common_1.reference),
+    GFXONCLICK: (0, common_1.optional)(common_1.reference),
+    GFXONMOVE: (0, common_1.optional)(common_1.reference),
+    SNDONMOVE: (0, common_1.optional)(common_1.reference),
+    RECT: (0, common_1.optional)({
+        name: 'rect',
+        processor: (object, key, param, value) => {
+            const parts = value.split(',');
+            if (parts.length == 4) {
+                return (0, common_1.array)(common_1.number).processor(object, key, param, value);
+            }
+            else {
+                return common_1.reference.processor(object, key, param, value);
+            }
         }
-        else {
-            return (0, common_1.reference)(object, key, param, value);
-        }
-    },
-    ONACTION: common_1.callback,
-    ONCLICKED: common_1.callback,
-    ONDRAGGING: common_1.callback,
-    ONENDDRAGGING: common_1.callback,
-    ONFOCUSON: common_1.callback,
-    ONFOCUSOFF: common_1.callback,
-    ONRELEASED: common_1.callback,
-    ONSTARTDRAGGING: common_1.callback,
-    ONINIT: common_1.callback
+    }),
+    ONACTION: (0, common_1.optional)(common_1.callback),
+    ONCLICKED: (0, common_1.optional)(common_1.callback),
+    ONDRAGGING: (0, common_1.optional)(common_1.callback),
+    ONENDDRAGGING: (0, common_1.optional)(common_1.callback),
+    ONFOCUSON: (0, common_1.optional)(common_1.callback),
+    ONFOCUSOFF: (0, common_1.optional)(common_1.callback),
+    ONRELEASED: (0, common_1.optional)(common_1.callback),
+    ONSTARTDRAGGING: (0, common_1.optional)(common_1.callback),
+    ONINIT: (0, common_1.optional)(common_1.callback)
 };
 const SequenceDefinitionStructure = {
     FILENAME: common_1.string,
-    ONFINISHED: common_1.callbacks,
-    ONSTARTED: common_1.callbacks,
-    ONINIT: common_1.callback
+    ONFINISHED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONSTARTED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONINIT: (0, common_1.optional)(common_1.callback)
 };
 const GroupDefinitionStructure = {
-    ONINIT: common_1.callback
+    ONINIT: (0, common_1.optional)(common_1.callback)
 };
 const TextDefinitionStructure = {
     VISIBLE: common_1.boolean,
@@ -54253,14 +54271,14 @@ const FontDefinitionStructure = {
 const ComplexConditionDefinitionStructure = {
     CONDITION1: common_1.reference,
     CONDITION2: common_1.reference,
-    ONRUNTIMEFAILED: common_1.callback,
-    ONRUNTIMESUCCESS: common_1.callback,
+    ONRUNTIMEFAILED: (0, common_1.optional)(common_1.callback),
+    ONRUNTIMESUCCESS: (0, common_1.optional)(common_1.callback),
     OPERATOR: common_1.string
 };
 const RandDefinitionStructure = {};
 const DoubleStructure = {
-    VALUE: common_1.number,
-    DEFAULT: common_1.number
+    VALUE: (0, common_1.optional)(common_1.number),
+    DEFAULT: (0, common_1.optional)(common_1.number)
 };
 const ExpressionDefinitionStructure = {
     OPERAND1: common_1.code,
@@ -54287,6 +54305,7 @@ exports.structureDefinitions = {
     MOUSE: MouseStructure,
     KEYBOARD: KeyboardStructure,
     CANVASOBSERVER: CanvasObserverStructure,
+    CANVAS_OBSERVER: CanvasObserverStructure,
     CNVLOADER: CNVLoaderStructure,
     CONDITION: ConditionDefinitionStructure,
     SOUND: SoundStructure,
@@ -54318,72 +54337,108 @@ exports.structureDefinitions = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.reference = exports.code = exports.numberParam = exports.convertParam = exports.callbacks = exports.map = exports.array = exports.callback = exports.stringArray = exports.boolean = exports.number = exports.string = void 0;
+exports.callbacks = exports.map = exports.array = exports.reference = exports.code = exports.callback = exports.stringArray = exports.boolean = exports.number = exports.string = exports.optional = void 0;
 const evaluator_1 = __webpack_require__(/*! ../../interpreter/evaluator */ "./src/interpreter/evaluator.ts");
-const string = (object, key, param, value) => object[key] = value;
-exports.string = string;
-const number = (object, key, param, value) => {
-    if (value.startsWith('"')) {
-        object[key] = Number(value.slice(1, -1));
+const optional = (subType) => {
+    var _a;
+    return (Object.assign(Object.assign({}, subType), { flags: Object.assign(Object.assign({}, ((_a = subType.flags) !== null && _a !== void 0 ? _a : {})), { optional: true }) }));
+};
+exports.optional = optional;
+exports.string = {
+    name: 'string',
+    processor: (object, key, param, value) => {
+        return value;
+    },
+};
+exports.number = {
+    name: 'number',
+    processor: (object, key, param, value) => {
+        if (value.startsWith('"')) {
+            return Number(value.slice(1, -1));
+        }
+        else {
+            return Number(value);
+        }
     }
-    else {
-        object[key] = Number(value);
+};
+exports.boolean = {
+    name: 'boolean',
+    processor: (object, key, param, value) => {
+        return value === 'TRUE';
     }
 };
-exports.number = number;
-const boolean = (object, key, param, value) => object[key] = value === 'TRUE';
-exports.boolean = boolean;
-const stringArray = (object, key, param, value) => object[key] = value.split(',');
-exports.stringArray = stringArray;
-const callback = (object, key, param, value) => object[key] = createCallback(value);
-exports.callback = callback;
-const array = (valueParser) => {
-    return (object, key, param, value) => {
-        const parts = value.split(',');
-        if (!object[key]) {
-            object[key] = new Array(parts.length);
-        }
-        for (const i in parts) {
-            valueParser(object[key], i, '', parts[i]);
-        }
-    };
+exports.stringArray = {
+    name: 'stringArray',
+    processor: (object, key, param, value) => {
+        return value.split(',');
+    }
 };
-exports.array = array;
-const map = (valueParser) => {
-    return (object, key, param, value) => {
-        if (!object[key]) {
-            object[key] = {};
-        }
-        valueParser(object[key], param, '', value);
-    };
+exports.callback = {
+    name: 'callback',
+    processor: (object, key, param, value) => {
+        return createCallback(value);
+    }
 };
-exports.map = map;
-const callbacks = (object, key, param, value) => {
-    if (!Object.prototype.hasOwnProperty.call(object, key)) {
-        object[key] = {
-            nonParametrized: null,
-            parametrized: new Map()
+exports.code = {
+    name: 'code',
+    processor: (object, key, param, value) => {
+        return {
+            code: value,
+            isSingleStatement: true
         };
     }
-    const callbackInstance = createCallback(value);
-    if (param == undefined) {
-        object[key].nonParametrized = callbackInstance;
-    }
-    else {
-        object[key].parametrized.set(param, callbackInstance);
+};
+exports.reference = {
+    name: 'reference',
+    processor: (object, key, param, value) => {
+        return {
+            objectName: value
+        };
     }
 };
+const array = (subType) => ({
+    subType,
+    name: 'array',
+    processor: (object, key, param, value) => {
+        return value.split(',').map(part => subType.processor(object, key, param, part));
+    }
+});
+exports.array = array;
+const map = (subType) => ({
+    subType,
+    name: 'map',
+    processor: (object, key, param, value) => {
+        let result = object[key];
+        if (result === undefined) {
+            result = new Map();
+        }
+        result.set(param, subType.processor(object, key, param, value));
+        return result;
+    }
+});
+exports.map = map;
+const callbacks = (subType) => ({
+    subType,
+    name: 'callbacks',
+    processor: (object, key, param, value) => {
+        let result = object[key];
+        if (result === undefined) {
+            result = {
+                nonParametrized: null,
+                parametrized: new Map()
+            };
+        }
+        const callbackInstance = createCallback(value);
+        if (param == undefined) {
+            result.nonParametrized = callbackInstance;
+        }
+        else {
+            result.parametrized.set(subType.processor(object, key, param, param), callbackInstance);
+        }
+        return result;
+    }
+});
 exports.callbacks = callbacks;
-const convertParam = (func, modifier) => {
-    return (object, key, param, value) => {
-        func(object, key, modifier(param), value);
-    };
-};
-exports.convertParam = convertParam;
-const numberParam = (func) => {
-    return (0, exports.convertParam)(func, (value => value !== undefined ? +value : value));
-};
-exports.numberParam = numberParam;
 const createCallback = (value) => {
     if (value.startsWith('{')) {
         return {
@@ -54406,19 +54461,6 @@ const createCallback = (value) => {
         }
     }
 };
-const code = (object, key, param, value) => {
-    object[key] = {
-        code: value,
-        isSingleStatement: true
-    };
-};
-exports.code = code;
-const reference = (object, key, param, value) => {
-    object[key] = {
-        objectName: value
-    };
-};
-exports.reference = reference;
 
 
 /***/ }),
@@ -54754,7 +54796,8 @@ const parseSequence = (content) => {
             const object = objects[objectName];
             const definition = exports.structureDefinitions[object.TYPE];
             if (definition && variableName in definition) {
-                definition[variableName](object, variableName, subKey, value);
+                const typeDefinition = definition[variableName];
+                object[variableName] = typeDefinition.processor(object, variableName, subKey, value);
             }
             else {
                 object[variableName] = value;
