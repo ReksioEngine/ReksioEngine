@@ -1,4 +1,5 @@
 import {structureDefinitions} from './types'
+import {FieldTypeEntry} from '../common'
 
 export interface CNVObject {
     TYPE: string
@@ -49,12 +50,26 @@ export const parseCNV = (content: string) => {
             const definition = structureDefinitions[object.TYPE]
 
             if (definition && variableName in definition) {
-                definition[variableName](object, variableName, param, value)
+                const fieldTypeDefinition: FieldTypeEntry = definition[variableName]
+                object[variableName] = fieldTypeDefinition.processor(object, variableName, param, value)
             } else {
                 if (variableName.startsWith('ON')) {
                     console.warn(`Unsupported event callback "${variableName}" in type ${object.TYPE}`)
+                } else if (variableName !== 'TYPE') {
+                    console.warn(`Unsupported field ${variableName} in type ${object.TYPE}`)
                 }
                 object[variableName] = value
+            }
+        }
+    }
+
+    for (const object of Object.values(objects)) {
+        const typeDefinition = structureDefinitions[object.TYPE]
+        for (const field in typeDefinition) {
+            const typeInfo: FieldTypeEntry = typeDefinition[field]
+
+            if (!(field in object) && !typeInfo?.flags?.optional) {
+                console.warn(`Field '${field}' in type ${object.TYPE} is missing but is not optional`)
             }
         }
     }

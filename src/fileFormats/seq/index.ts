@@ -1,4 +1,4 @@
-import {boolean, map, number, string} from '../common'
+import {boolean, map, string} from '../common'
 
 export interface SequenceFileEntry {
     TYPE: string
@@ -29,7 +29,8 @@ export const parseSequence = (content: string) => {
             const definition = structureDefinitions[object.TYPE]
 
             if (definition && variableName in definition) {
-                definition[variableName](object, variableName, subKey, value)
+                const typeDefinition = definition[variableName]
+                object[variableName] = typeDefinition.processor(object, variableName, subKey, value)
             } else {
                 object[variableName] = value
             }
@@ -42,12 +43,15 @@ export const parseSequence = (content: string) => {
 export type SequenceSequence = SequenceFileEntry & {
     MODE: 'PARAMETER' | 'SEQUENCE' | 'RANDOM'
 }
+
 export type ParameterSequence = SequenceSequence & {
-    SEQEVENT?: Record<string, string> // Only for PARAMETER
+    SEQEVENT?: Map<string, string> // Only for PARAMETER
 }
+
 export type NormalSequence = SequenceSequence & {
     ADD: string // Only for SEQUENCE and RANDOM
 }
+
 const SequenceSequenceStructure = {
     MODE: string,
     SEQEVENT: map(string),

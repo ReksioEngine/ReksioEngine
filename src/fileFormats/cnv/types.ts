@@ -4,7 +4,7 @@ import {
     callback,
     callbacks, code,
     number,
-    numberParam,
+    optional,
     reference,
     string,
     stringArray,
@@ -57,43 +57,43 @@ const EpisodeStructure = {
 }
 
 export type SceneDefinition = TypeDefinition & {
-    DESCRIPTION: string
+    DESCRIPTION?: string
     CREATIONTIME: string
     LASTMODIFYTIME: string
     VERSION: string
     PATH: string
-    BACKGROUND: string
-    MUSIC: string
-    DLLS: Array<string>
+    BACKGROUND?: string
+    MUSIC?: string
+    DLLS?: Array<string>
 }
 
 const SceneStructure = {
-    DESCRIPTION: string,
+    DESCRIPTION: optional(string),
     CREATIONTIME: string,
     LASTMODIFYTIME: string,
     VERSION: string,
     PATH: string,
-    BACKGROUND: string,
-    MUSIC: string,
-    DLLS: stringArray
+    BACKGROUND: optional(string),
+    MUSIC: optional(string),
+    DLLS: optional(stringArray)
 }
 
 export type IntegerDefinition = TypeDefinition & {
-    VALUE: number
-    DEFAULT: number
-    TOINI: boolean
-    ONINIT: callback,
-    ONCHANGED: callbacks<number>
-    ONBRUTALCHANGED: callbacks<number>
+    VALUE?: number
+    DEFAULT?: number
+    TOINI?: boolean
+    ONINIT?: callback,
+    ONCHANGED?: callbacks<number>
+    ONBRUTALCHANGED?: callbacks<number>
 }
 
 const IntegerStructure = {
-    VALUE: number,
-    DEFAULT: number,
-    TOINI: boolean,
-    ONINIT: callback,
-    ONCHANGED: numberParam(callbacks),
-    ONBRUTALCHANGED: numberParam(callbacks)
+    VALUE: optional(number),
+    DEFAULT: optional(number),
+    TOINI: optional(boolean),
+    ONINIT: optional(callback),
+    ONCHANGED: optional(callbacks(number)),
+    ONBRUTALCHANGED: optional(callbacks(number))
 }
 
 export type AnimoDefinition = TypeDefinition & {
@@ -122,21 +122,21 @@ const AnimoStructure = {
     VISIBLE: boolean,
     FILENAME: string,
     TOCANVAS: boolean,
-    PRIORITY: number,
+    PRIORITY: optional(number),
     FPS: number,
     PRELOAD: boolean,
     RELEASE: boolean,
     MONITORCOLLISION: boolean,
     MONITORCOLLISIONALPHA: boolean,
-    ONINIT: callback,
-    ONFINISHED: callbacks,
-    ONSTARTED: callbacks,
-    ONFRAMECHANGED: callbacks,
+    ONINIT: optional(callback),
+    ONFINISHED: optional(callbacks(string)),
+    ONSTARTED: optional(callbacks(string)),
+    ONFRAMECHANGED: optional(callbacks(string)),
 
-    ONFOCUSON: callback,
-    ONFOCUSOFF: callback,
-    ONCLICK: callback,
-    ONRELEASE: callback
+    ONFOCUSON: optional(callback),
+    ONFOCUSOFF: optional(callback),
+    ONCLICK: optional(callback),
+    ONRELEASE: optional(callback)
 }
 
 export type MusicDefinition = TypeDefinition & {
@@ -151,44 +151,44 @@ export type SoundDefinition = TypeDefinition & {
     FILENAME: string
     PRELOAD: boolean
     FLUSHAFTERPLAYED: boolean
-    ONINIT: callback
-    ONFINISHED: callback
-    ONSTARTED: callback
+    ONINIT?: callback
+    ONFINISHED?: callback
+    ONSTARTED?: callback
 }
 
 const SoundStructure = {
     FILENAME: string,
     PRELOAD: boolean,
     FLUSHAFTERPLAYED: boolean,
-    ONINIT: callback,
-    ONFINISHED: callback,
-    ONSTARTED: callback
+    ONINIT: optional(callback),
+    ONFINISHED: optional(callback),
+    ONSTARTED: optional(callback)
 }
 
 export type TimerDefinition = TypeDefinition & {
     ENABLED: boolean
     ELAPSE: number
     TICKS: number
-    ONINIT: callback
-    ONTICK: callbacks<number>
+    ONINIT?: callback
+    ONTICK?: callbacks<number>
 }
 
 const TimerStructure = {
     ENABLED: boolean,
     ELAPSE: number,
     TICKS: number,
-    ONINIT: callback,
-    ONTICK: numberParam(callbacks)
+    ONINIT: optional(callback),
+    ONTICK: optional(callbacks(number))
 }
 
 export type BehaviourDefinition = TypeDefinition & {
     CODE: callback
-    CONDITION: reference
+    CONDITION?: reference
 }
 
 const BehaviourStructure = {
     CODE: callback,
-    CONDITION: reference
+    CONDITION: optional(reference)
 }
 
 export type ImageDefinition = TypeDefinition & {
@@ -200,7 +200,7 @@ export type ImageDefinition = TypeDefinition & {
     RELEASE: boolean
     MONITORCOLLISION: boolean
     MONITORCOLLISIONALPHA: boolean,
-    ONINIT: callback
+    ONINIT?: callback
 }
 
 const ImageStructure = {
@@ -212,17 +212,17 @@ const ImageStructure = {
     RELEASE: boolean,
     MONITORCOLLISION: boolean,
     MONITORCOLLISIONALPHA: boolean,
-    ONINIT: callback
+    ONINIT: optional(callback)
 }
 
 export type MouseDefinition = TypeDefinition & {
-    ONCLICK: callbacks<string>
-    ONRELEASE: callbacks<string>
+    ONCLICK?: callbacks<string>
+    ONRELEASE?: callbacks<string>
 }
 
 const MouseStructure = {
-    ONCLICK: callbacks,
-    ONRELEASE: callbacks
+    ONCLICK: optional(callbacks(string)),
+    ONRELEASE: optional(callbacks(string))
 }
 
 export type KeyboardDefinition = TypeDefinition & NonNullable<unknown>
@@ -238,55 +238,56 @@ export type ConditionDefinition = TypeDefinition & {
     OPERAND1: callback
     OPERATOR: 'EQUAL' | 'NOTEQUAL' | 'LESS' | 'GREATER' | 'LESSEQUAL' | 'GREATEREQUAL'
     OPERAND2: callback
-    ONRUNTIMESUCCESS: callback
-    ONRUNTIMEFAILED: callback
+    ONRUNTIMESUCCESS?: callback
+    ONRUNTIMEFAILED?: callback
 }
 
 const ConditionDefinitionStructure = {
     OPERAND1: code,
     OPERATOR: string,
     OPERAND2: code,
-    ONRUNTIMESUCCESS: callback,
-    ONRUNTIMEFAILED: callback
+    ONRUNTIMESUCCESS: optional(callback),
+    ONRUNTIMEFAILED: optional(callback)
 }
 
 export type StringDefinition = TypeDefinition & {
-    TOINI: boolean
-    VALUE: string
-    DEFAULT: string
-    ONCHANGED: callbacks<string>
-    ONBRUTALCHANGED: callbacks<string>
+    TOINI?: boolean
+    VALUE?: string
+    DEFAULT?: string
+    ONCHANGED?: callbacks<string>
+    ONBRUTALCHANGED?: callbacks<string>
 }
 
 const StringDefinitionStructure = {
-    TOINI: boolean,
-    VALUE: string,
-    DEFAULT: string,
-    ONCHANGED: callbacks,
-    ONBRUTALCHANGED: callbacks
+    TOINI: optional(boolean),
+    VALUE: optional(string),
+    DEFAULT: optional(string),
+    ONCHANGED: optional(callbacks(string)),
+    ONBRUTALCHANGED: optional(callbacks(string))
 }
 
 export type BoolDefinition = TypeDefinition & {
-    VALUE: boolean
-    DEFAULT: boolean
+    VALUE?: boolean
+    DEFAULT?: boolean
 }
 
 const BoolDefinitionStructure = {
-    VALUE: boolean,
-    DEFAULT: boolean
+    VALUE: optional(boolean),
+    DEFAULT: optional(boolean)
 }
 
 export type ArrayDefinition = TypeDefinition & {
-    ONINIT: callback
+    ONINIT?: callback
 }
 
 const ArrayDefinitionStructure = {
-    ONINIT: callback
+    ONINIT: optional(callback)
 }
 
 export type ButtonDefinition = TypeDefinition & {
     DRAGGABLE: boolean
     ENABLE: boolean
+    VISIBLE: boolean
     GFXSTANDARD?: reference
     GFXONCLICK?: reference
     GFXONMOVE?: reference
@@ -304,51 +305,55 @@ export type ButtonDefinition = TypeDefinition & {
 }
 
 const ButtonDefinitionStructure = {
-    ENABLE: boolean,
     DRAGGABLE: boolean,
-    GFXSTANDARD: reference,
-    GFXONCLICK: reference,
-    GFXONMOVE: reference,
-    SNDONMOVE: reference,
-    RECT: (object: any, key: string, param: string, value: string) => {
-        const parts = value.split(',')
-        if (parts.length == 4) {
-            return array(number)(object, key, param, value)
-        } else {
-            return reference(object, key, param, value)
+    ENABLE: boolean,
+    VISIBLE: boolean,
+    GFXSTANDARD: optional(reference),
+    GFXONCLICK: optional(reference),
+    GFXONMOVE: optional(reference),
+    SNDONMOVE: optional(reference),
+    RECT: optional({
+        name: 'rect',
+        processor: (object: any, key: string, param: string, value: string) => {
+            const parts = value.split(',')
+            if (parts.length == 4) {
+                return array(number).processor(object, key, param, value)
+            } else {
+                return reference.processor(object, key, param, value)
+            }
         }
-    },
-    ONACTION: callback,
-    ONCLICKED: callback,
-    ONDRAGGING: callback,
-    ONENDDRAGGING: callback,
-    ONFOCUSON: callback,
-    ONFOCUSOFF: callback,
-    ONRELEASED: callback,
-    ONSTARTDRAGGING: callback,
-    ONINIT: callback
+    }),
+    ONACTION: optional(callback),
+    ONCLICKED: optional(callback),
+    ONDRAGGING: optional(callback),
+    ONENDDRAGGING: optional(callback),
+    ONFOCUSON: optional(callback),
+    ONFOCUSOFF: optional(callback),
+    ONRELEASED: optional(callback),
+    ONSTARTDRAGGING: optional(callback),
+    ONINIT: optional(callback)
 }
 
 export type SequenceDefinition = TypeDefinition & {
     FILENAME: string
-    ONFINISHED: callbacks<string>
-    ONSTARTED: callbacks<string>
-    ONINIT: callback
+    ONFINISHED?: callbacks<string>
+    ONSTARTED?: callbacks<string>
+    ONINIT?: callback
 }
 
 const SequenceDefinitionStructure = {
     FILENAME: string,
-    ONFINISHED: callbacks,
-    ONSTARTED: callbacks,
-    ONINIT: callback
+    ONFINISHED: optional(callbacks(string)),
+    ONSTARTED: optional(callbacks(string)),
+    ONINIT: optional(callback)
 }
 
 export type GroupDefinition = TypeDefinition & {
-    ONINIT: callback
+    ONINIT?: callback
 }
 
 const GroupDefinitionStructure = {
-    ONINIT: callback
+    ONINIT: optional(callback)
 }
 
 export type TextDefinition = TypeDefinition & {
@@ -384,16 +389,16 @@ const FontDefinitionStructure = {
 export type ComplexConditionDefinition = TypeDefinition & {
     CONDITION1: reference,
     CONDITION2: reference,
-    ONRUNTIMEFAILED: callback,
-    ONRUNTIMESUCCESS: callback,
+    ONRUNTIMEFAILED?: callback,
+    ONRUNTIMESUCCESS?: callback,
     OPERATOR: 'AND' | 'OR',
 }
 
 const ComplexConditionDefinitionStructure = {
     CONDITION1: reference,
     CONDITION2: reference,
-    ONRUNTIMEFAILED: callback,
-    ONRUNTIMESUCCESS: callback,
+    ONRUNTIMEFAILED: optional(callback),
+    ONRUNTIMESUCCESS: optional(callback),
     OPERATOR: string
 }
 
@@ -402,13 +407,13 @@ export type RandDefinition = TypeDefinition
 const RandDefinitionStructure = {}
 
 export type DoubleDefinition = TypeDefinition & {
-    VALUE: string
-    DEFAULT: number
+    VALUE?: string
+    DEFAULT?: number
 }
 
 const DoubleStructure = {
-    VALUE: number,
-    DEFAULT: number
+    VALUE: optional(number),
+    DEFAULT: optional(number)
 }
 
 export type ExpressionDefinition = TypeDefinition & {
@@ -454,6 +459,7 @@ export const structureDefinitions = {
     MOUSE: MouseStructure,
     KEYBOARD: KeyboardStructure,
     CANVASOBSERVER: CanvasObserverStructure,
+    CANVAS_OBSERVER: CanvasObserverStructure,
     CNVLOADER: CNVLoaderStructure,
     CONDITION: ConditionDefinitionStructure,
     SOUND: SoundStructure,

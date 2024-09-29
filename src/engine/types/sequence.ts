@@ -74,7 +74,7 @@ export class Sequence extends Type<SequenceDefinition> {
                     this.parameterSequence = sequence as ParameterSequence
                     assert(this.parameterSequence.SEQEVENT !== undefined)
 
-                    for (const [name, indexer] of Object.entries(this.parameterSequence.SEQEVENT)) {
+                    for (const [name, indexer] of this.parameterSequence.SEQEVENT) {
                         this.parametersMapping.set(name, paramsCharacterSet.indexOf(indexer))
                     }
                 }

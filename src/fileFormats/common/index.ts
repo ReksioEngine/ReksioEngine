@@ -1,67 +1,126 @@
 import {parseArgs} from '../../interpreter/evaluator'
 
-export type FieldTypeParser = (object: any, key: string, param: string, value: string) => void
+type FieldTypeProcessor = (object: any, key: string, param: string, value: string) => any
 
-export const string = (object: any, key: string, param: string, value: string) => object[key] = value
-export const number = (object: any, key: string, param: string, value: string) => {
-    if (value.startsWith('"')) {
-        object[key] = Number(value.slice(1,-1))
-    } else {
-        object[key] = Number(value)
+export type FieldTypeEntry = {
+    subType?: FieldTypeEntry,
+    flags?: {
+      optional?: boolean,
+    },
+    name: string
+    processor: FieldTypeProcessor
+}
+
+export const optional = (subType: FieldTypeEntry) => ({
+    ...subType,
+    flags: {
+        ...(subType.flags ?? {}),
+        optional: true,
+    },
+})
+
+export const string = {
+    name: 'string',
+    processor: (object: any, key: string, param: string, value: string) => {
+        return value
+    },
+}
+
+export const number = {
+    name: 'number',
+    processor: (object: any, key: string, param: string, value: string) => {
+        if (value.startsWith('"')) {
+            return Number(value.slice(1,-1))
+        } else {
+            return Number(value)
+        }
     }
 }
-export const boolean = (object: any, key: string, param: string, value: string) => object[key] = value === 'TRUE'
-export const stringArray = (object: any, key: string, param: string, value: string) => object[key] = value.split(',')
-export const callback = (object: any, key: string, param: string, value: string) => object[key] = createCallback(value)
 
-export const array = (valueParser: FieldTypeParser) => {
-    return (object: any, key: string, param: string, value: string) => {
-        const parts = value.split(',')
+export const boolean = {
+    name: 'boolean',
+    processor: (object: any, key: string, param: string, value: string) => {
+        return value === 'TRUE'
+    }
+}
 
-        if (!object[key]) {
-            object[key] = new Array(parts.length)
+export const stringArray = {
+    name: 'stringArray',
+    processor: (object: any, key: string, param: string, value: string) => {
+        return value.split(',')
+    }
+}
+
+export const callback = {
+    name: 'callback',
+    processor: (object: any, key: string, param: string, value: string) => {
+        return createCallback(value)
+    }
+}
+
+export const code = {
+    name: 'code',
+    processor: (object: any, key: string, param: string, value: string) => {
+        return {
+            code: value,
+            isSingleStatement: true
+        }
+    }
+}
+
+export const reference = {
+    name: 'reference',
+    processor: (object: any, key: string, param: string, value: string) => {
+        return {
+            objectName: value
+        }
+    }
+}
+
+export const array = (subType: FieldTypeEntry) => ({
+    subType,
+    name: 'array',
+    processor: (object: any, key: string, param: string, value: string) => {
+        return value.split(',').map(part => subType.processor(object, key, param, part))
+    }
+})
+
+export const map = (subType: FieldTypeEntry) => ({
+    subType,
+    name: 'map',
+    processor: (object: any, key: string, param: string, value: string) => {
+        let result = object[key]
+        if (result === undefined) {
+            result = new Map()
         }
 
-        for (const i in parts) {
-            valueParser(object[key], i, '', parts[i])
+        result.set(param, subType.processor(object, key, param, value))
+        return result
+    }
+})
+
+export const callbacks = <K>(subType: FieldTypeEntry) => ({
+    subType,
+    name: 'callbacks',
+    processor: <K>(object: any, key: string, param: string, value: string) => {
+        let result = object[key]
+        if (result === undefined) {
+            result = {
+                nonParametrized: null,
+                parametrized: new Map<K, callback>()
+            } as callbacks<K>
         }
-    }
-}
 
-export const map = (valueParser: FieldTypeParser) => {
-    return (object: any, key: string, param: string, value: string) => {
-        if (!object[key]) {
-            object[key] = {}
+        const callbackInstance = createCallback(value)
+        if (param == undefined) {
+            result.nonParametrized = callbackInstance
+        } else {
+            result.parametrized.set(subType.processor(object, key, param, param), callbackInstance)
         }
-        valueParser(object[key], param, '', value)
-    }
-}
 
-export const callbacks = <K>(object: any, key: string, param: string, value: string) => {
-    if (!Object.prototype.hasOwnProperty.call(object, key)) {
-        object[key] = {
-            nonParametrized: null,
-            parametrized: new Map<K, callback>()
-        } as callbacks<K>
+        return result
     }
-
-    const callbackInstance = createCallback(value)
-    if (param == undefined) {
-        object[key].nonParametrized = callbackInstance
-    } else {
-        object[key].parametrized.set(param, callbackInstance)
-    }
-}
-
-export const convertParam = (func: FieldTypeParser, modifier: (value: string) => any) => {
-    return <K>(object: any, key: string, param: string, value: string) => {
-        func(object, key, modifier(param), value)
-    }
-}
-
-export const numberParam = (func: FieldTypeParser) => {
-    return convertParam(func, (value => value !== undefined ? +value : value))
-}
+})
 
 const createCallback = (value: string) => {
     if (value.startsWith('{')) {
@@ -83,19 +142,6 @@ const createCallback = (value: string) => {
                 isSingleStatement: false
             }
         }
-    }
-}
-
-export const code = (object: any, key: string, param: string, value: string) => {
-    object[key] = {
-        code: value,
-        isSingleStatement: true
-    }
-}
-
-export const reference = (object: any, key: string, param: string, value: string) => {
-    object[key] = {
-        objectName: value
     }
 }
 
