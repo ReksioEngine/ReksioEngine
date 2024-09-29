@@ -37,7 +37,7 @@ export class Sound extends Type<SoundDefinition> {
         assert(this.sound !== null)
 
         const instance = await this.sound.play()
-        instance.on('start', this.onStart.bind(this))
+        this.onStart()
         instance.on('end', this.onEnd.bind(this))
     }
 

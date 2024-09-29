@@ -186,12 +186,10 @@ export class Sequence extends Type<SequenceDefinition> {
                 const instance = await sound.play()
                 this.playingSound = instance
 
-                instance.on('start', () => {
-                    if (speaking.STARTING) {
-                        this.currentAnimoEvent = speaking.PREFIX + '_START'
-                        this.activeAnimo!.playEvent(speaking.PREFIX + '_START')
-                    }
-                })
+                if (speaking.STARTING) {
+                    this.currentAnimoEvent = speaking.PREFIX + '_START'
+                    this.activeAnimo!.playEvent(speaking.PREFIX + '_START')
+                }
                 instance.on('end', async () => {
                     if (speaking.ENDING) {
                         this.currentAnimoEvent = speaking.PREFIX + '_STOP'
