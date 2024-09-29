@@ -51939,15 +51939,12 @@ class Button extends index_1.Type {
     init() {
         if (this.definition.GFXSTANDARD) {
             this.gfxStandard = this.engine.getObject(this.definition.GFXSTANDARD);
-            (0, errors_1.assert)(this.gfxStandard !== null, 'the GFXSTANDARD object should exist');
         }
         if (this.definition.GFXONCLICK) {
             this.gfxOnClick = this.engine.getObject(this.definition.GFXONCLICK);
-            (0, errors_1.assert)(this.gfxOnClick !== null, 'the GFXONCLICK object should exist');
         }
         if (this.definition.GFXONMOVE) {
             this.gfxOnMove = this.engine.getObject(this.definition.GFXONMOVE);
-            (0, errors_1.assert)(this.gfxOnMove !== null, 'the GFXONMOVE object should exist');
         }
     }
     ready() {
@@ -52558,6 +52555,10 @@ class Group extends index_1.Type {
     constructor(engine, definition) {
         super(engine, definition);
         this.objects = [];
+        this.callbacks.register('ONINIT', this.definition.ONINIT);
+    }
+    ready() {
+        this.callbacks.run('ONINIT');
     }
     ADD(...objectsNames) {
         this.objects.push(...objectsNames.map(objectName => {
@@ -54233,7 +54234,9 @@ const SequenceDefinitionStructure = {
     ONSTARTED: common_1.callbacks,
     ONINIT: common_1.callback
 };
-const GroupDefinitionStructure = {};
+const GroupDefinitionStructure = {
+    ONINIT: common_1.callback
+};
 const TextDefinitionStructure = {
     VISIBLE: common_1.boolean,
     VJUSTIFY: common_1.boolean,
