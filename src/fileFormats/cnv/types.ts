@@ -343,8 +343,13 @@ const SequenceDefinitionStructure = {
     ONINIT: callback
 }
 
-export type GroupDefinition = TypeDefinition & NonNullable<unknown>
-const GroupDefinitionStructure = {}
+export type GroupDefinition = TypeDefinition & {
+    ONINIT: callback
+}
+
+const GroupDefinitionStructure = {
+    ONINIT: callback
+}
 
 export type TextDefinition = TypeDefinition & {
     VISIBLE: boolean
