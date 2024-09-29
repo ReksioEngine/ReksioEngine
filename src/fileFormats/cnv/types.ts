@@ -7,7 +7,6 @@ import {
     optional,
     reference,
     string,
-    stringArray,
     TypeDefinition
 } from '../common'
 
@@ -30,7 +29,7 @@ const ApplicationStructure = {
     AUTHOR: string,
     VERSION: string,
     PATH: string,
-    EPISODES: stringArray,
+    EPISODES: array(string),
     STARTWITH: string
 }
 
@@ -52,7 +51,7 @@ const EpisodeStructure = {
     AUTHOR: string,
     VERSION: string,
     PATH: string,
-    SCENES: stringArray,
+    SCENES: array(string),
     STARTWITH: string
 }
 
@@ -75,7 +74,7 @@ const SceneStructure = {
     PATH: string,
     BACKGROUND: optional(string),
     MUSIC: optional(string),
-    DLLS: optional(stringArray)
+    DLLS: optional(array(string))
 }
 
 export type IntegerDefinition = TypeDefinition & {

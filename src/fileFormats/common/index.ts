@@ -44,13 +44,6 @@ export const boolean = {
     }
 }
 
-export const stringArray = {
-    name: 'stringArray',
-    processor: (object: any, key: string, param: string, value: string) => {
-        return value.split(',')
-    }
-}
-
 export const callback = {
     name: 'callback',
     processor: (object: any, key: string, param: string, value: string) => {
