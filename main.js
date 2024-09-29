@@ -54105,7 +54105,7 @@ const ApplicationStructure = {
     AUTHOR: common_1.string,
     VERSION: common_1.string,
     PATH: common_1.string,
-    EPISODES: common_1.stringArray,
+    EPISODES: (0, common_1.array)(common_1.string),
     STARTWITH: common_1.string
 };
 const EpisodeStructure = {
@@ -54115,7 +54115,7 @@ const EpisodeStructure = {
     AUTHOR: common_1.string,
     VERSION: common_1.string,
     PATH: common_1.string,
-    SCENES: common_1.stringArray,
+    SCENES: (0, common_1.array)(common_1.string),
     STARTWITH: common_1.string
 };
 const SceneStructure = {
@@ -54126,7 +54126,7 @@ const SceneStructure = {
     PATH: common_1.string,
     BACKGROUND: (0, common_1.optional)(common_1.string),
     MUSIC: (0, common_1.optional)(common_1.string),
-    DLLS: (0, common_1.optional)(common_1.stringArray)
+    DLLS: (0, common_1.optional)((0, common_1.array)(common_1.string))
 };
 const IntegerStructure = {
     VALUE: (0, common_1.optional)(common_1.number),
@@ -54337,8 +54337,9 @@ exports.structureDefinitions = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.callbacks = exports.map = exports.array = exports.reference = exports.code = exports.callback = exports.stringArray = exports.boolean = exports.number = exports.string = exports.optional = void 0;
+exports.callbacks = exports.map = exports.array = exports.reference = exports.code = exports.callback = exports.boolean = exports.number = exports.string = exports.optional = void 0;
 const evaluator_1 = __webpack_require__(/*! ../../interpreter/evaluator */ "./src/interpreter/evaluator.ts");
+const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const optional = (subType) => {
     var _a;
     return (Object.assign(Object.assign({}, subType), { flags: Object.assign(Object.assign({}, ((_a = subType.flags) !== null && _a !== void 0 ? _a : {})), { optional: true }) }));
@@ -54353,24 +54354,16 @@ exports.string = {
 exports.number = {
     name: 'number',
     processor: (object, key, param, value) => {
-        if (value.startsWith('"')) {
-            return Number(value.slice(1, -1));
-        }
-        else {
-            return Number(value);
-        }
+        const result = Number(value.startsWith('"') ? value.slice(1, -1) : value);
+        (0, errors_1.assert)(!isNaN(result));
+        return result;
     }
 };
 exports.boolean = {
     name: 'boolean',
     processor: (object, key, param, value) => {
+        (0, errors_1.assert)(value === 'TRUE' || value === 'FALSE', 'Expected TRUE or FALSE');
         return value === 'TRUE';
-    }
-};
-exports.stringArray = {
-    name: 'stringArray',
-    processor: (object, key, param, value) => {
-        return value.split(',');
     }
 };
 exports.callback = {
