@@ -1,4 +1,5 @@
 import {parseArgs} from '../../interpreter/evaluator'
+import {assert} from '../../errors'
 
 type FieldTypeProcessor = (object: any, key: string, param: string, value: string) => any
 
@@ -29,17 +30,16 @@ export const string = {
 export const number = {
     name: 'number',
     processor: (object: any, key: string, param: string, value: string) => {
-        if (value.startsWith('"')) {
-            return Number(value.slice(1,-1))
-        } else {
-            return Number(value)
-        }
+        const result = Number(value.startsWith('"') ? value.slice(1,-1) : value)
+        assert(!isNaN(result))
+        return result
     }
 }
 
 export const boolean = {
     name: 'boolean',
     processor: (object: any, key: string, param: string, value: string) => {
+        assert(value === 'TRUE' || value === 'FALSE', 'Expected TRUE or FALSE')
         return value === 'TRUE'
     }
 }
