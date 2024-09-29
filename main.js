@@ -52792,6 +52792,7 @@ class ValueType extends Type {
         var _a, _b;
         if (this.definition.TOINI) {
             this.value = (_b = (_a = this.definition.DEFAULT) !== null && _a !== void 0 ? _a : this.definition.VALUE) !== null && _b !== void 0 ? _b : this.defaultValue;
+            this.saveToINI();
         }
     }
     get value() {
@@ -53321,12 +53322,10 @@ class Sequence extends index_1.Type {
                     const sound = this.sounds.get(speaking.WAVFN);
                     const instance = yield sound.play();
                     this.playingSound = instance;
-                    instance.on('start', () => {
-                        if (speaking.STARTING) {
-                            this.currentAnimoEvent = speaking.PREFIX + '_START';
-                            this.activeAnimo.playEvent(speaking.PREFIX + '_START');
-                        }
-                    });
+                    if (speaking.STARTING) {
+                        this.currentAnimoEvent = speaking.PREFIX + '_START';
+                        this.activeAnimo.playEvent(speaking.PREFIX + '_START');
+                    }
                     instance.on('end', () => __awaiter(this, void 0, void 0, function* () {
                         if (speaking.ENDING) {
                             this.currentAnimoEvent = speaking.PREFIX + '_STOP';
@@ -53468,7 +53467,7 @@ class Sound extends index_1.Type {
         return __awaiter(this, void 0, void 0, function* () {
             (0, errors_1.assert)(this.sound !== null);
             const instance = yield this.sound.play();
-            instance.on('start', this.onStart.bind(this));
+            this.onStart();
             instance.on('end', this.onEnd.bind(this));
         });
     }
