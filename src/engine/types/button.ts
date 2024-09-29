@@ -40,15 +40,12 @@ export class Button extends Type<ButtonDefinition> {
     init() {
         if (this.definition.GFXSTANDARD) {
             this.gfxStandard = this.engine.getObject(this.definition.GFXSTANDARD)
-            assert(this.gfxStandard !== null, 'the GFXSTANDARD object should exist')
         }
         if (this.definition.GFXONCLICK) {
             this.gfxOnClick = this.engine.getObject(this.definition.GFXONCLICK)
-            assert(this.gfxOnClick !== null, 'the GFXONCLICK object should exist')
         }
         if (this.definition.GFXONMOVE) {
             this.gfxOnMove = this.engine.getObject(this.definition.GFXONMOVE)
-            assert(this.gfxOnMove !== null, 'the GFXONMOVE object should exist')
         }
     }
 
