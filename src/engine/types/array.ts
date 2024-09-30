@@ -18,7 +18,7 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     ADDAT(position: number, value: number) {
-        this.value.splice(position, 0, value)
+        this.value[position] += value
     }
 
     MODAT(position: number, value: number) {
