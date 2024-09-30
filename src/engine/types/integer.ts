@@ -17,38 +17,47 @@ export class Integer extends ValueType<IntegerDefinition> {
 
     INC() {
         this.value++
+        return this.value
     }
 
     DEC() {
         this.value--
+        return this.value
     }
 
     ADD(value: number | string) {
         this.value += ForceNumber(value)
+        return this.value
     }
 
     SUB(value: number | string) {
         this.value -= ForceNumber(value)
+        return this.value
     }
 
     MUL(value: number | string) {
         this.value *= ForceNumber(value)
+        return this.value
     }
 
     DIV(value: number | string) {
         this.value /= ForceNumber(value)
+        return this.value
     }
 
     MOD(value: number) {
         this.value %= ForceNumber(value)
+        return this.value
     }
 
     CLAMP(min: number | string, max: number | string) {
         this.value = Math.min(ForceNumber(max), Math.max(this.value, ForceNumber(min)))
+        return this.value
     }
 
     AND(value: number | string) {
         this.value &= ForceNumber(value)
+        return this.value
     }
 
     SET(newValue?: number | string) {
@@ -79,6 +88,12 @@ export class Integer extends ValueType<IntegerDefinition> {
         } else {
             this.value = ForceNumber(first)
         }
+        return this.value
+    }
+
+    ABS(value: number | string) {
+        this.value = Math.abs(ForceNumber(value))
+        return this.value
     }
 
     valueChanged(oldValue: any, newValue: any) {
