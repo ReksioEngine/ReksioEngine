@@ -267,6 +267,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
 
         this.isPlaying = true
+
+        assert(this.sprite !== null)
+        this.sprite.visible = true
+
         this.currentFrame = 0
         this.currentEvent = name.toString().toUpperCase()
 
@@ -341,7 +345,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
             if (this.hasEvent('ONNOEVENT')) {
                 this.playEvent('ONNOEVENT')
             }
-            this.sprite.visible = true
         } else {
             this.buttonLogic?.unregisterInteractive(this.sprite)
             this.buttonLogic?.disable()
