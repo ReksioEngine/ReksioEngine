@@ -51415,6 +51415,8 @@ class Animo extends index_1.DisplayType {
         this.isPlaying = true;
         this.currentFrame = 0;
         this.currentEvent = name.toString().toUpperCase();
+        // Animation could be paused before next tick and it wouldn't render new frame
+        this.forceRender();
     }
     STOP(arg) {
         this.isPlaying = false;
@@ -51436,9 +51438,7 @@ class Animo extends index_1.DisplayType {
         }
         // Don't wait for a tick because some animations might not be playing,
         // but they display something (like a keypad screen in S73_0_KOD in UFO)
-        const event = this.getEventByName(this.currentEvent);
-        (0, errors_2.assert)(event !== null);
-        this.changeFrame(event, this.currentFrame);
+        this.forceRender();
     }
     SETFPS(fps) {
         this.fps = fps;
@@ -51586,6 +51586,11 @@ class Animo extends index_1.DisplayType {
     }
     ADDBEHAVIOUR(callbackString, behaviourName) {
         this.callbacks.addBehaviour(callbackString, behaviourName);
+    }
+    forceRender() {
+        const event = this.getEventByName(this.currentEvent);
+        (0, errors_2.assert)(event !== null);
+        this.changeFrame(event, this.currentFrame);
     }
     getEventByName(name) {
         var _a;
