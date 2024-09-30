@@ -269,6 +269,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.isPlaying = true
         this.currentFrame = 0
         this.currentEvent = name.toString().toUpperCase()
+
+        // Animation could be paused before next tick and it wouldn't render new frame
+        this.forceRender()
     }
 
     STOP(arg: boolean) {
@@ -294,10 +297,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         // Don't wait for a tick because some animations might not be playing,
         // but they display something (like a keypad screen in S73_0_KOD in UFO)
-        const event = this.getEventByName(this.currentEvent)
-        assert(event !== null)
-
-        this.changeFrame(event, this.currentFrame)
+        this.forceRender()
     }
 
     SETFPS(fps: number) {
@@ -466,6 +466,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     ADDBEHAVIOUR(callbackString: string, behaviourName: string) {
         this.callbacks.addBehaviour(callbackString, behaviourName)
+    }
+
+    private forceRender() {
+        const event = this.getEventByName(this.currentEvent)
+        assert(event !== null)
+        this.changeFrame(event, this.currentFrame)
     }
 
     getEventByName(name: string): Event | null {
