@@ -51413,6 +51413,8 @@ class Animo extends index_1.DisplayType {
             return;
         }
         this.isPlaying = true;
+        (0, errors_2.assert)(this.sprite !== null);
+        this.sprite.visible = true;
         this.currentFrame = 0;
         this.currentEvent = name.toString().toUpperCase();
         // Animation could be paused before next tick and it wouldn't render new frame
@@ -51475,7 +51477,6 @@ class Animo extends index_1.DisplayType {
             if (this.hasEvent('ONNOEVENT')) {
                 this.playEvent('ONNOEVENT');
             }
-            this.sprite.visible = true;
         }
         else {
             (_a = this.buttonLogic) === null || _a === void 0 ? void 0 : _a.unregisterInteractive(this.sprite);
