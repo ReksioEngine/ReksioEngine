@@ -1,7 +1,7 @@
 import {ValueType} from './index'
 import {Engine} from '../index'
 import {ArrayDefinition} from '../../fileFormats/cnv/types'
-import {NotImplementedError} from '../../errors'
+import {assert, NotImplementedError} from '../../errors'
 
 export class ArrayObject extends ValueType<ArrayDefinition> {
     constructor(engine: Engine, definition: ArrayDefinition) {
@@ -18,18 +18,22 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     ADDAT(position: number, value: number) {
+        assert(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
         this.value[position] += value
     }
 
     MODAT(position: number, value: number) {
+        assert(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
         this.value[position] %= value
     }
 
     CLAMPAT(position: number, min: number, max: number) {
+        assert(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
         this.value[position] = Math.min(Math.max(this.value[position], min), max)
     }
 
     MULAT(position: number, value: number) {
+        assert(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
         this.value[position] *= value
     }
 
@@ -42,10 +46,12 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     SUBAT(position: number, value: number) {
+        assert(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
         this.value[position] -= value
     }
 
     GET(position: number) {
+        assert(position < this.value.length, `Tried to access an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
         return this.value[position]
     }
 
@@ -54,10 +60,12 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     CHANGEAT(position: number, value: any) {
+        assert(position < this.value.length, `Tried to set an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
         this.value[position] = value
     }
 
     REMOVEAT(position: number) {
+        assert(position < this.value.length, `Tried to remove an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
         this.value.splice(position, 1)
     }
 
