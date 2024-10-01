@@ -19,6 +19,7 @@ export class Engine {
     public debug: boolean = false
     public speed: number = 1
 
+    private thisQueue: Type<any>[] = []
     public globalScope: Record<string, any> = {}
     public scope: Record<string, any> = {}
     public renderingOrder: DisplayType<any>[] = []
@@ -92,21 +93,25 @@ export class Engine {
 
     executeCallback(caller: Type<any> | null, callback: callback, args?: any[]) {
         if (caller !== null) {
-            this.scope.THIS = caller
+            this.thisQueue.unshift(caller)
         }
 
-        if (callback.code) {
-            return runScript(this, callback.code, args, callback.isSingleStatement)
-        } else if (callback.behaviourReference) {
-            if (!this.scope[callback.behaviourReference]) {
-                console.error(
-                    `Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`,
-                    'font-weight: bold', 'font-weight: inherit', callback,
-                    'font-weight: bold', 'font-weight: inherit', caller
-                )
-                return
+        try {
+            if (callback.code) {
+                return runScript(this, callback.code, args, callback.isSingleStatement)
+            } else if (callback.behaviourReference) {
+                if (!this.scope[callback.behaviourReference]) {
+                    console.error(
+                        `Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`,
+                        'font-weight: bold', 'font-weight: inherit', callback,
+                        'font-weight: bold', 'font-weight: inherit', caller
+                    )
+                    return
+                }
+                return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments)
             }
-            return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments)
+        } finally {
+            this.thisQueue.shift()
         }
     }
 
@@ -204,6 +209,10 @@ export class Engine {
 
     getObject(name: string | reference): any {
         if (typeof name == 'string') {
+            if (name === 'THIS') {
+                return this.thisQueue[0]
+            }
+
             return this.scope[name] ?? this.globalScope[name] ?? null
         } else {
             return this.getObject(name.objectName)
