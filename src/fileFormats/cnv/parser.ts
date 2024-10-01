@@ -54,7 +54,11 @@ export const parseCNV = (content: string) => {
                 object[variableName] = fieldTypeDefinition.processor(object, variableName, param, value)
             } else {
                 if (variableName.startsWith('ON')) {
-                    console.warn(`Unsupported event callback "${variableName}" in type ${object.TYPE}`)
+                    if (param) {
+                        console.warn(`Unsupported parametrized event callback "${variableName}" with param "${param}" in type ${object.TYPE}`)
+                    } else {
+                        console.warn(`Unsupported non-parametrized event callback "${variableName}" in type ${object.TYPE}`)
+                    }
                 } else if (variableName !== 'TYPE') {
                     console.warn(`Unsupported field ${variableName} in type ${object.TYPE}`)
                 }
