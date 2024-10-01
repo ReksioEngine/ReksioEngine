@@ -69,6 +69,11 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
         this.value.splice(position, 1)
     }
 
+    INSERTAT(position: number, value: any) {
+        assert(position < this.value.length, `Tried to insert an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
+        this.value.splice(position, 0, value)
+    }
+
     REMOVEALL() {
         this.value = []
     }
