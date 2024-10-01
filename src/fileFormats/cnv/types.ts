@@ -224,8 +224,15 @@ const MouseStructure = {
     ONRELEASE: optional(callbacks(string))
 }
 
-export type KeyboardDefinition = TypeDefinition & NonNullable<unknown>
-const KeyboardStructure = {}
+export type KeyboardDefinition = TypeDefinition & {
+    ONKEYDOWN?: callbacks<string>
+    ONKEYUP?: callbacks<string>
+}
+
+const KeyboardStructure = {
+    ONKEYDOWN: optional(callbacks(string)),
+    ONKEYUP: optional(callbacks(string)),
+}
 
 export type CanvasObserverDefinition = TypeDefinition & NonNullable<unknown>
 const CanvasObserverStructure = {}

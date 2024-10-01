@@ -12,8 +12,11 @@ const keysMapping = {
     Digit2: '2'
 } as any
 
+type KeyState = {name: string, state: boolean}
+
 export class Keyboard extends Type<KeyboardDefinition> {
     private keysState = new Map<string, boolean>()
+    private changeQueue: KeyState[] = []
 
     private readonly onKeyDownCallback: (event: KeyboardEvent) => void
     private readonly onKeyUpCallback: (event: KeyboardEvent) => void
@@ -22,6 +25,9 @@ export class Keyboard extends Type<KeyboardDefinition> {
         super(engine, definition)
         this.onKeyDownCallback = this.onKeyDown.bind(this)
         this.onKeyUpCallback = this.onKeyUp.bind(this)
+
+        this.callbacks.registerGroup('ONKEYDOWN', this.definition.ONKEYDOWN)
+        this.callbacks.registerGroup('ONKEYUP', this.definition.ONKEYUP)
     }
 
     ready() {
@@ -32,6 +38,17 @@ export class Keyboard extends Type<KeyboardDefinition> {
     destroy() {
         window.removeEventListener('keydown', this.onKeyDownCallback)
         window.removeEventListener('keyup', this.onKeyUpCallback)
+    }
+
+    tick() {
+        for (const change of this.changeQueue) {
+            if (change.state) {
+                this.callbacks.run('ONKEYDOWN', change.name)
+            } else {
+                this.callbacks.run('ONKEYUP', change.name)
+            }
+        }
+        this.changeQueue = []
     }
 
     onKeyDown(event: KeyboardEvent) {
@@ -48,6 +65,7 @@ export class Keyboard extends Type<KeyboardDefinition> {
             console.warn(`Unsupported keyboard key code ${keyCode}`)
         }
         this.keysState.set(mapped, value)
+        this.changeQueue.push({name: mapped, state: value})
     }
 
     ISKEYDOWN(keyName: string) {
