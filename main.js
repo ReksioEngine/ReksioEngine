@@ -51230,7 +51230,7 @@ class Animo extends index_1.DisplayType {
         this.buttonLogic = null;
         this.isPlaying = false;
         this.currentFrame = 0;
-        this.currentEvent = null;
+        this.currentEvent = '';
         this.currentLoop = 0;
         this.fps = 16;
         this.lastFrameTime = 0;
@@ -51267,7 +51267,7 @@ class Animo extends index_1.DisplayType {
         const defaultEvent = this.annFile.events.find(event => event.framesCount > 0);
         if (defaultEvent !== undefined) {
             this.changeFrame(defaultEvent, 0);
-            this.currentEvent = defaultEvent;
+            this.currentEvent = defaultEvent.name;
         }
         this.callbacks.run('ONINIT');
         this.tick(0);
@@ -51357,15 +51357,16 @@ class Animo extends index_1.DisplayType {
     }
     tickAnimation() {
         (0, errors_2.assert)(this.annFile !== null && this.sprite !== null);
-        if (!this.currentEvent) {
+        const event = this.getEventByName(this.currentEvent);
+        if (!event) {
             return;
         }
-        this.changeFrame(this.currentEvent, this.currentFrame);
+        this.changeFrame(event, this.currentFrame);
         if (this.currentFrame === 0) {
             this.ONSTARTED();
         }
         // Random sound out of them?
-        const eventFrame = this.currentEvent.frames[this.currentFrame];
+        const eventFrame = event.frames[this.currentFrame];
         if (eventFrame.sounds) {
             const filenames = eventFrame.sounds;
             const randomFilename = filenames[Math.floor((Math.random() * filenames.length))];
@@ -51378,8 +51379,8 @@ class Animo extends index_1.DisplayType {
         // TODO, is starting first frame in an event a frame change?
         this.currentFrame++;
         this.ONFRAMECHANGED();
-        if (this.currentFrame >= this.currentEvent.framesCount) {
-            if (this.currentLoop >= this.currentEvent.loopNumber) {
+        if (this.currentFrame >= event.framesCount) {
+            if (this.currentLoop >= event.loopNumber) {
                 this.STOP(false);
                 this.ONFINISHED();
             }
@@ -51406,15 +51407,13 @@ class Animo extends index_1.DisplayType {
     }
     ONFINISHED() {
         var _a;
-        (0, errors_2.assert)(this.currentEvent != null);
-        const index = this.currentEvent.name.toString();
+        const index = this.currentEvent.toString();
         this.callbacks.run('ONFINISHED', index.toString());
         (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONFINISHED', index.toString());
     }
     ONSTARTED() {
         var _a;
-        (0, errors_2.assert)(this.currentEvent != null);
-        const index = this.currentEvent.name.toString();
+        const index = this.currentEvent.toString();
         this.callbacks.run('ONSTARTED', index.toString());
         (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONSTARTED', index.toString());
     }
@@ -51437,7 +51436,7 @@ class Animo extends index_1.DisplayType {
         (0, errors_2.assert)(this.sprite !== null);
         this.sprite.visible = true;
         this.currentFrame = 0;
-        this.currentEvent = this.getEventByName(name.toString().toUpperCase());
+        this.currentEvent = name.toString().toUpperCase();
         // Animation could be paused before next tick and it wouldn't render new frame
         this.forceRender();
     }
@@ -51456,7 +51455,7 @@ class Animo extends index_1.DisplayType {
             this.currentFrame = Number(eventNameOrFrameIdx);
         }
         else {
-            this.currentEvent = this.getEventByName(eventNameOrFrameIdx.toString());
+            this.currentEvent = eventNameOrFrameIdx.toString();
             this.currentFrame = Number(frameIdx);
         }
         // Don't wait for a tick because some animations might not be playing,
@@ -51568,8 +51567,9 @@ class Animo extends index_1.DisplayType {
         return this.getGlobalPosition().y;
     }
     GETFRAMENAME() {
-        (0, errors_2.assert)(this.currentEvent !== null);
-        return this.currentEvent.frames[this.currentFrame].name;
+        const event = this.getEventByName(this.currentEvent);
+        (0, errors_2.assert)(event !== null);
+        return event.frames[this.currentFrame].name;
     }
     GETMAXWIDTH() {
         (0, errors_2.assert)(this.annFile !== null);
@@ -51579,8 +51579,7 @@ class Animo extends index_1.DisplayType {
         throw new errors_1.NotImplementedError();
     }
     GETEVENTNAME() {
-        (0, errors_2.assert)(this.currentEvent !== null);
-        return this.currentEvent.name;
+        return this.currentEvent;
     }
     GETFRAME() {
         return this.currentFrame;
@@ -51590,19 +51589,21 @@ class Animo extends index_1.DisplayType {
         return this.annFile.header.framesCount;
     }
     GETCURRFRAMEPOSX() {
-        (0, errors_2.assert)(this.currentEvent !== null);
-        return this.currentEvent.frames[this.currentFrame].positionX;
+        const event = this.getEventByName(this.currentEvent);
+        (0, errors_2.assert)(event !== null);
+        return event.frames[this.currentFrame].positionX;
     }
     GETCURRFRAMEPOSY() {
-        (0, errors_2.assert)(this.currentEvent !== null);
-        return this.currentEvent.frames[this.currentFrame].positionY;
+        const event = this.getEventByName(this.currentEvent);
+        (0, errors_2.assert)(event !== null);
+        return event.frames[this.currentFrame].positionY;
     }
     ISPLAYING(animName) {
         if (animName === undefined) {
             return this.isPlaying;
         }
         (0, errors_2.assert)(this.currentEvent !== null);
-        return this.isPlaying && this.currentEvent.name == animName;
+        return this.isPlaying && this.currentEvent == animName;
     }
     ISNEAR(objectName, arg) {
         const otherObject = this.engine.getObject(objectName);
@@ -51618,8 +51619,9 @@ class Animo extends index_1.DisplayType {
         this.callbacks.addBehaviour(callbackString, behaviourName);
     }
     forceRender() {
-        (0, errors_2.assert)(this.currentEvent !== null);
-        this.changeFrame(this.currentEvent, this.currentFrame);
+        const event = this.getEventByName(this.currentEvent);
+        (0, errors_2.assert)(event !== null);
+        this.changeFrame(event, this.currentFrame);
     }
     getEventByName(name) {
         var _a;
