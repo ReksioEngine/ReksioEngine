@@ -268,11 +268,15 @@ const StringDefinitionStructure = {
 export type BoolDefinition = TypeDefinition & {
     VALUE?: boolean
     DEFAULT?: boolean
+    ONCHANGED?: callbacks<boolean>
+    ONBRUTALCHANGED?: callbacks<boolean>
 }
 
 const BoolDefinitionStructure = {
     VALUE: optional(boolean),
-    DEFAULT: optional(boolean)
+    DEFAULT: optional(boolean),
+    ONCHANGED: optional(callbacks(boolean)),
+    ONBRUTALCHANGED: optional(callbacks(boolean))
 }
 
 export type ArrayDefinition = TypeDefinition & {
