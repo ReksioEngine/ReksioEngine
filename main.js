@@ -50628,7 +50628,12 @@ const loadDefinition = (engine, scope, definition, parent) => __awaiter(void 0, 
         const instance = createTypeInstance(engine, value);
         instance.parent = parent;
         scope[key] = instance;
-        orderedScope.push(instance);
+        if (instance instanceof behaviour_1.Behaviour && instance.name === '__INIT__') {
+            orderedScope.unshift(instance);
+        }
+        else {
+            orderedScope.push(instance);
+        }
         if (instance instanceof types_1.DisplayType) {
             engine.renderingOrder.push(instance);
         }
@@ -51734,15 +51739,19 @@ class ArrayObject extends index_1.ValueType {
         this.value.push(...args);
     }
     ADDAT(position, value) {
-        this.value.splice(position, 0, value);
+        (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+        this.value[position] += value;
     }
     MODAT(position, value) {
+        (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
         this.value[position] %= value;
     }
     CLAMPAT(position, min, max) {
+        (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
         this.value[position] = Math.min(Math.max(this.value[position], min), max);
     }
     MULAT(position, value) {
+        (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
         this.value[position] *= value;
     }
     CONTAINS(value) {
@@ -51752,18 +51761,22 @@ class ArrayObject extends index_1.ValueType {
         throw new errors_1.NotImplementedError();
     }
     SUBAT(position, value) {
+        (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
         this.value[position] -= value;
     }
     GET(position) {
+        (0, errors_1.assert)(position < this.value.length, `Tried to access an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
         return this.value[position];
     }
     GETSIZE() {
         return this.value.length;
     }
     CHANGEAT(position, value) {
+        (0, errors_1.assert)(position < this.value.length, `Tried to set an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
         this.value[position] = value;
     }
     REMOVEAT(position) {
+        (0, errors_1.assert)(position < this.value.length, `Tried to remove an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
         this.value.splice(position, 1);
     }
     REMOVEALL() {
@@ -52861,30 +52874,39 @@ class Integer extends index_1.ValueType {
     }
     INC() {
         this.value++;
+        return this.value;
     }
     DEC() {
         this.value--;
+        return this.value;
     }
     ADD(value) {
         this.value += (0, types_1.ForceNumber)(value);
+        return this.value;
     }
     SUB(value) {
         this.value -= (0, types_1.ForceNumber)(value);
+        return this.value;
     }
     MUL(value) {
         this.value *= (0, types_1.ForceNumber)(value);
+        return this.value;
     }
     DIV(value) {
         this.value /= (0, types_1.ForceNumber)(value);
+        return this.value;
     }
     MOD(value) {
         this.value %= (0, types_1.ForceNumber)(value);
+        return this.value;
     }
     CLAMP(min, max) {
         this.value = Math.min((0, types_1.ForceNumber)(max), Math.max(this.value, (0, types_1.ForceNumber)(min)));
+        return this.value;
     }
     AND(value) {
         this.value &= (0, types_1.ForceNumber)(value);
+        return this.value;
     }
     SET(newValue) {
         if (typeof newValue == 'string') {
@@ -52911,6 +52933,11 @@ class Integer extends index_1.ValueType {
         else {
             this.value = (0, types_1.ForceNumber)(first);
         }
+        return this.value;
+    }
+    ABS(value) {
+        this.value = Math.abs((0, types_1.ForceNumber)(value));
+        return this.value;
     }
     valueChanged(oldValue, newValue) {
         if (oldValue !== newValue) {
@@ -53759,6 +53786,7 @@ exports.Timer = Timer;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Vector = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
+const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 class Vector extends index_1.ValueType {
     constructor(engine, definition) {
         super(engine, definition);
@@ -53775,6 +53803,21 @@ class Vector extends index_1.ValueType {
     }
     GET(index) {
         return this.value[index];
+    }
+    NORMALIZE() {
+        const magnitude = Math.sqrt(this.value.reduce((sum, val) => sum + val * val, 0));
+        (0, errors_1.assert)(magnitude !== 0, 'Cannot normalize a zero vector');
+        this.value = this.value.map((val) => val / magnitude);
+    }
+    REFLECT(vector, normal) {
+        (0, errors_1.assert)(this.value.length === normal.length && this.value.length === vector.length, 'Vector and normal must have the same dimensionality');
+        // Calculate the dot product of the vector and the normal vector
+        const dotProduct = vector.reduce((sum, val, idx) => sum + val * normal[idx], 0);
+        // Calculate the reflection: v - 2 * (v . n) * n
+        this.value = vector.map((val, idx) => val - 2 * dotProduct * normal[idx]);
+    }
+    LEN() {
+        return Math.sqrt(this.value.reduce((sum, val) => sum + val * val, 0));
     }
 }
 exports.Vector = Vector;
@@ -54068,7 +54111,12 @@ const parseCNV = (content) => {
             }
             else {
                 if (variableName.startsWith('ON')) {
-                    console.warn(`Unsupported event callback "${variableName}" in type ${object.TYPE}`);
+                    if (param) {
+                        console.warn(`Unsupported parametrized event callback "${variableName}" with param "${param}" in type ${object.TYPE}`);
+                    }
+                    else {
+                        console.warn(`Unsupported non-parametrized event callback "${variableName}" in type ${object.TYPE}`);
+                    }
                 }
                 else if (variableName !== 'TYPE') {
                     console.warn(`Unsupported field ${variableName} in type ${object.TYPE}`);
