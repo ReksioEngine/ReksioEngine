@@ -51230,7 +51230,7 @@ class Animo extends index_1.DisplayType {
         this.buttonLogic = null;
         this.isPlaying = false;
         this.currentFrame = 0;
-        this.currentEvent = '';
+        this.currentEvent = null;
         this.currentLoop = 0;
         this.fps = 16;
         this.lastFrameTime = 0;
@@ -51267,7 +51267,7 @@ class Animo extends index_1.DisplayType {
         const defaultEvent = this.annFile.events.find(event => event.framesCount > 0);
         if (defaultEvent !== undefined) {
             this.changeFrame(defaultEvent, 0);
-            this.currentEvent = defaultEvent.name;
+            this.currentEvent = defaultEvent;
         }
         this.callbacks.run('ONINIT');
         this.tick(0);
@@ -51357,16 +51357,15 @@ class Animo extends index_1.DisplayType {
     }
     tickAnimation() {
         (0, errors_2.assert)(this.annFile !== null && this.sprite !== null);
-        const event = this.getEventByName(this.currentEvent);
-        if (!event) {
+        if (!this.currentEvent) {
             return;
         }
-        this.changeFrame(event, this.currentFrame);
+        this.changeFrame(this.currentEvent, this.currentFrame);
         if (this.currentFrame === 0) {
             this.ONSTARTED();
         }
         // Random sound out of them?
-        const eventFrame = event.frames[this.currentFrame];
+        const eventFrame = this.currentEvent.frames[this.currentFrame];
         if (eventFrame.sounds) {
             const filenames = eventFrame.sounds;
             const randomFilename = filenames[Math.floor((Math.random() * filenames.length))];
@@ -51379,8 +51378,8 @@ class Animo extends index_1.DisplayType {
         // TODO, is starting first frame in an event a frame change?
         this.currentFrame++;
         this.ONFRAMECHANGED();
-        if (this.currentFrame >= event.framesCount) {
-            if (this.currentLoop >= event.loopNumber) {
+        if (this.currentFrame >= this.currentEvent.framesCount) {
+            if (this.currentLoop >= this.currentEvent.loopNumber) {
                 this.STOP(false);
                 this.ONFINISHED();
             }
@@ -51407,13 +51406,15 @@ class Animo extends index_1.DisplayType {
     }
     ONFINISHED() {
         var _a;
-        const index = this.currentEvent.toString();
+        (0, errors_2.assert)(this.currentEvent != null);
+        const index = this.currentEvent.name.toString();
         this.callbacks.run('ONFINISHED', index.toString());
         (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONFINISHED', index.toString());
     }
     ONSTARTED() {
         var _a;
-        const index = this.currentEvent.toString();
+        (0, errors_2.assert)(this.currentEvent != null);
+        const index = this.currentEvent.name.toString();
         this.callbacks.run('ONSTARTED', index.toString());
         (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONSTARTED', index.toString());
     }
@@ -51436,7 +51437,7 @@ class Animo extends index_1.DisplayType {
         (0, errors_2.assert)(this.sprite !== null);
         this.sprite.visible = true;
         this.currentFrame = 0;
-        this.currentEvent = name.toString().toUpperCase();
+        this.currentEvent = this.getEventByName(name.toString().toUpperCase());
         // Animation could be paused before next tick and it wouldn't render new frame
         this.forceRender();
     }
@@ -51455,7 +51456,7 @@ class Animo extends index_1.DisplayType {
             this.currentFrame = Number(eventNameOrFrameIdx);
         }
         else {
-            this.currentEvent = eventNameOrFrameIdx.toString();
+            this.currentEvent = this.getEventByName(eventNameOrFrameIdx.toString());
             this.currentFrame = Number(frameIdx);
         }
         // Don't wait for a tick because some animations might not be playing,
@@ -51567,18 +51568,19 @@ class Animo extends index_1.DisplayType {
         return this.getGlobalPosition().y;
     }
     GETFRAMENAME() {
-        const event = this.getEventByName(this.currentEvent);
-        (0, errors_2.assert)(event !== null);
-        return event.frames[this.currentFrame].name;
+        (0, errors_2.assert)(this.currentEvent !== null);
+        return this.currentEvent.frames[this.currentFrame].name;
     }
     GETMAXWIDTH() {
-        throw new errors_1.NotImplementedError();
+        (0, errors_2.assert)(this.annFile !== null);
+        return Math.max(...this.annFile.annImages.map(e => e.width));
     }
     GETNOFINEVENT() {
         throw new errors_1.NotImplementedError();
     }
     GETEVENTNAME() {
-        return this.currentEvent;
+        (0, errors_2.assert)(this.currentEvent !== null);
+        return this.currentEvent.name;
     }
     GETFRAME() {
         return this.currentFrame;
@@ -51588,16 +51590,19 @@ class Animo extends index_1.DisplayType {
         return this.annFile.header.framesCount;
     }
     GETCURRFRAMEPOSX() {
-        throw new errors_1.NotImplementedError();
+        (0, errors_2.assert)(this.currentEvent !== null);
+        return this.currentEvent.frames[this.currentFrame].positionX;
     }
     GETCURRFRAMEPOSY() {
-        throw new errors_1.NotImplementedError();
+        (0, errors_2.assert)(this.currentEvent !== null);
+        return this.currentEvent.frames[this.currentFrame].positionY;
     }
     ISPLAYING(animName) {
         if (animName === undefined) {
             return this.isPlaying;
         }
-        return this.isPlaying && this.currentEvent == animName;
+        (0, errors_2.assert)(this.currentEvent !== null);
+        return this.isPlaying && this.currentEvent.name == animName;
     }
     ISNEAR(objectName, arg) {
         const otherObject = this.engine.getObject(objectName);
@@ -51613,9 +51618,8 @@ class Animo extends index_1.DisplayType {
         this.callbacks.addBehaviour(callbackString, behaviourName);
     }
     forceRender() {
-        const event = this.getEventByName(this.currentEvent);
-        (0, errors_2.assert)(event !== null);
-        this.changeFrame(event, this.currentFrame);
+        (0, errors_2.assert)(this.currentEvent !== null);
+        this.changeFrame(this.currentEvent, this.currentFrame);
     }
     getEventByName(name) {
         var _a;
@@ -51927,17 +51931,22 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 class Bool extends index_1.ValueType {
     constructor(engine, definition) {
         super(engine, definition, false);
+        this.callbacks.registerGroup('ONCHANGED', this.definition.ONCHANGED);
+        this.callbacks.registerGroup('ONBRUTALCHANGED', this.definition.ONBRUTALCHANGED);
     }
     // The arguments don't seem to matter
     SWITCH(arg1, arg2) {
         this.value = !this.value;
-        this.ONCHANGED();
     }
     SET(newValue) {
         this.value = newValue;
-        this.ONCHANGED();
     }
-    ONCHANGED() { }
+    valueChanged(oldValue, newValue) {
+        if (oldValue !== newValue) {
+            this.callbacks.run('ONCHANGED', newValue);
+        }
+        this.callbacks.run('ONBRUTALCHANGED', newValue);
+    }
 }
 exports.Bool = Bool;
 
@@ -53005,8 +53014,11 @@ class Keyboard extends index_1.Type {
     constructor(engine, definition) {
         super(engine, definition);
         this.keysState = new Map();
+        this.changeQueue = [];
         this.onKeyDownCallback = this.onKeyDown.bind(this);
         this.onKeyUpCallback = this.onKeyUp.bind(this);
+        this.callbacks.registerGroup('ONKEYDOWN', this.definition.ONKEYDOWN);
+        this.callbacks.registerGroup('ONKEYUP', this.definition.ONKEYUP);
     }
     ready() {
         window.addEventListener('keydown', this.onKeyDownCallback);
@@ -53015,6 +53027,17 @@ class Keyboard extends index_1.Type {
     destroy() {
         window.removeEventListener('keydown', this.onKeyDownCallback);
         window.removeEventListener('keyup', this.onKeyUpCallback);
+    }
+    tick() {
+        for (const change of this.changeQueue) {
+            if (change.state) {
+                this.callbacks.run('ONKEYDOWN', change.name);
+            }
+            else {
+                this.callbacks.run('ONKEYUP', change.name);
+            }
+        }
+        this.changeQueue = [];
     }
     onKeyDown(event) {
         this.setKeyState(event.code, true);
@@ -53028,6 +53051,7 @@ class Keyboard extends index_1.Type {
             console.warn(`Unsupported keyboard key code ${keyCode}`);
         }
         this.keysState.set(mapped, value);
+        this.changeQueue.push({ name: mapped, state: value });
     }
     ISKEYDOWN(keyName) {
         if (this.keysState.has(keyName)) {
@@ -54269,7 +54293,10 @@ const MouseStructure = {
     ONCLICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONRELEASE: (0, common_1.optional)((0, common_1.callbacks)(common_1.string))
 };
-const KeyboardStructure = {};
+const KeyboardStructure = {
+    ONKEYDOWN: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONKEYUP: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+};
 const CanvasObserverStructure = {};
 const CNVLoaderStructure = {};
 const ConditionDefinitionStructure = {
@@ -54288,7 +54315,9 @@ const StringDefinitionStructure = {
 };
 const BoolDefinitionStructure = {
     VALUE: (0, common_1.optional)(common_1.boolean),
-    DEFAULT: (0, common_1.optional)(common_1.boolean)
+    DEFAULT: (0, common_1.optional)(common_1.boolean),
+    ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.boolean)),
+    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.boolean))
 };
 const ArrayDefinitionStructure = {
     ONINIT: (0, common_1.optional)(common_1.callback)
