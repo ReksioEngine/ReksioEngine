@@ -111,7 +111,9 @@ export class Engine {
                 return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments)
             }
         } finally {
-            this.thisQueue.shift()
+            if (caller !== null) {
+                this.thisQueue.shift()
+            }
         }
     }
 
