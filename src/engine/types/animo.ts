@@ -449,11 +449,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     GETCURRFRAMEPOSX(): number {
-        throw new NotImplementedError()
+        assert(this.currentEvent !== null)
+        return this.currentEvent.frames[this.currentFrame].positionX
     }
 
     GETCURRFRAMEPOSY(): number {
-        throw new NotImplementedError()
+        assert(this.currentEvent !== null)
+        return this.currentEvent.frames[this.currentFrame].positionY
     }
 
     ISPLAYING(animName?: string) {
