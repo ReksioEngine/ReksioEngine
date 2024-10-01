@@ -51421,7 +51421,11 @@ class Animo extends index_1.DisplayType {
         this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
     }
     PLAY(name) {
-        this.SHOW();
+        if (name === undefined) {
+            this.SHOW();
+            this.RESUME();
+            return;
+        }
         this.playEvent(name.toString());
     }
     playEvent(name) {
@@ -51578,6 +51582,10 @@ class Animo extends index_1.DisplayType {
     }
     GETFRAME() {
         return this.currentFrame;
+    }
+    GETNOF() {
+        (0, errors_2.assert)(this.annFile !== null);
+        return this.annFile.header.framesCount;
     }
     GETCURRFRAMEPOSX() {
         throw new errors_1.NotImplementedError();
