@@ -17,7 +17,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     private isPlaying: boolean = false
     private currentFrame: number = 0
-    private currentEvent: string = ''
+    private currentEvent: Event | null = null
     private currentLoop: number = 0
 
     private fps: number = 16
@@ -70,7 +70,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const defaultEvent = this.annFile.events.find(event => event.framesCount > 0)
         if (defaultEvent !== undefined) {
             this.changeFrame(defaultEvent, 0)
-            this.currentEvent = defaultEvent.name
+            this.currentEvent = defaultEvent
         }
 
         this.callbacks.run('ONINIT')
@@ -178,19 +178,18 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private tickAnimation() {
         assert(this.annFile !== null && this.sprite !== null)
 
-        const event = this.getEventByName(this.currentEvent)
-        if (!event) {
+        if (!this.currentEvent) {
             return
         }
 
-        this.changeFrame(event, this.currentFrame)
+        this.changeFrame(this.currentEvent, this.currentFrame)
 
         if (this.currentFrame === 0) {
             this.ONSTARTED()
         }
 
         // Random sound out of them?
-        const eventFrame = event.frames[this.currentFrame]
+        const eventFrame = this.currentEvent.frames[this.currentFrame]
         if (eventFrame.sounds) {
             const filenames = eventFrame.sounds
             const randomFilename = filenames[Math.floor((Math.random()*filenames.length))]
@@ -206,8 +205,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.currentFrame++
         this.ONFRAMECHANGED()
 
-        if (this.currentFrame >= event.framesCount) {
-            if (this.currentLoop >= event.loopNumber) {
+        if (this.currentFrame >= this.currentEvent.framesCount) {
+            if (this.currentLoop >= this.currentEvent.loopNumber) {
                 this.STOP(false)
                 this.ONFINISHED()
             }
@@ -241,13 +240,15 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     private ONFINISHED() {
-        const index = this.currentEvent.toString()
+        assert(this.currentEvent != null)
+        const index = this.currentEvent.name.toString()
         this.callbacks.run('ONFINISHED', index.toString())
         this.events?.trigger('ONFINISHED', index.toString())
     }
 
     private ONSTARTED() {
-        const index = this.currentEvent.toString()
+        assert(this.currentEvent != null)
+        const index = this.currentEvent.name.toString()
         this.callbacks.run('ONSTARTED', index.toString())
         this.events?.trigger('ONSTARTED', index.toString())
     }
@@ -277,7 +278,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.visible = true
 
         this.currentFrame = 0
-        this.currentEvent = name.toString().toUpperCase()
+        this.currentEvent = this.getEventByName(name.toString().toUpperCase())
 
         // Animation could be paused before next tick and it wouldn't render new frame
         this.forceRender()
@@ -300,7 +301,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         if (frameIdx === undefined) {
             this.currentFrame = Number(eventNameOrFrameIdx)
         } else {
-            this.currentEvent = eventNameOrFrameIdx.toString()
+            this.currentEvent = this.getEventByName(eventNameOrFrameIdx.toString())
             this.currentFrame = Number(frameIdx)
         }
 
@@ -420,14 +421,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     GETFRAMENAME(): string {
-        const event = this.getEventByName(this.currentEvent)
-        assert(event !== null)
-
-        return event.frames[this.currentFrame].name
+        assert(this.currentEvent !== null)
+        return this.currentEvent.frames[this.currentFrame].name
     }
 
     GETMAXWIDTH(): number {
-        throw new NotImplementedError()
+        assert(this.annFile !== null)
+        return Math.max(...this.annFile.annImages.map(e => e.width))
     }
 
     GETNOFINEVENT(): string {
@@ -435,7 +435,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     GETEVENTNAME(): string {
-        return this.currentEvent
+        assert(this.currentEvent !== null)
+        return this.currentEvent.name
     }
 
     GETFRAME(): number {
@@ -460,7 +461,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return this.isPlaying
         }
 
-        return this.isPlaying && this.currentEvent == animName
+        assert(this.currentEvent !== null)
+        return this.isPlaying && this.currentEvent.name == animName
     }
 
     ISNEAR(objectName: string, arg: number) {
@@ -482,9 +484,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     private forceRender() {
-        const event = this.getEventByName(this.currentEvent)
-        assert(event !== null)
-        this.changeFrame(event, this.currentFrame)
+        assert(this.currentEvent !== null)
+        this.changeFrame(this.currentEvent, this.currentFrame)
     }
 
     getEventByName(name: string): Event | null {
