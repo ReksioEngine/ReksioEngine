@@ -93,7 +93,7 @@ export class Engine {
 
     executeCallback(caller: Type<any> | null, callback: callback, args?: any[]) {
         if (caller !== null) {
-            this.thisQueue.unshift(caller)
+            this.thisQueue.push(caller)
         }
 
         try {
@@ -112,7 +112,7 @@ export class Engine {
             }
         } finally {
             if (caller !== null) {
-                this.thisQueue.shift()
+                this.thisQueue.pop()
             }
         }
     }
@@ -212,7 +212,7 @@ export class Engine {
     getObject(name: string | reference): any {
         if (typeof name == 'string') {
             if (name === 'THIS') {
-                return this.thisQueue[0]
+                return this.thisQueue[this.thisQueue.length - 1]
             }
 
             return this.scope[name] ?? this.globalScope[name] ?? null
