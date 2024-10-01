@@ -50847,6 +50847,7 @@ class Engine {
     constructor(app) {
         this.debug = false;
         this.speed = 1;
+        this.thisQueue = [];
         this.globalScope = {};
         this.scope = {};
         this.renderingOrder = [];
@@ -50900,17 +50901,24 @@ class Engine {
     }
     executeCallback(caller, callback, args) {
         if (caller !== null) {
-            this.scope.THIS = caller;
+            this.thisQueue.push(caller);
         }
-        if (callback.code) {
-            return (0, evaluator_1.runScript)(this, callback.code, args, callback.isSingleStatement);
-        }
-        else if (callback.behaviourReference) {
-            if (!this.scope[callback.behaviourReference]) {
-                console.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`, 'font-weight: bold', 'font-weight: inherit', callback, 'font-weight: bold', 'font-weight: inherit', caller);
-                return;
+        try {
+            if (callback.code) {
+                return (0, evaluator_1.runScript)(this, callback.code, args, callback.isSingleStatement);
             }
-            return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments);
+            else if (callback.behaviourReference) {
+                if (!this.scope[callback.behaviourReference]) {
+                    console.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`, 'font-weight: bold', 'font-weight: inherit', callback, 'font-weight: bold', 'font-weight: inherit', caller);
+                    return;
+                }
+                return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments);
+            }
+        }
+        finally {
+            if (caller !== null) {
+                this.thisQueue.pop();
+            }
         }
     }
     addToStage(sprite) {
@@ -50994,6 +51002,9 @@ class Engine {
     getObject(name) {
         var _a, _b;
         if (typeof name == 'string') {
+            if (name === 'THIS') {
+                return this.thisQueue[this.thisQueue.length - 1];
+            }
             return (_b = (_a = this.scope[name]) !== null && _a !== void 0 ? _a : this.globalScope[name]) !== null && _b !== void 0 ? _b : null;
         }
         else {
@@ -56375,7 +56386,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             return this.visitChildren(ctx)[0];
         };
         this.visitMethodCall = (ctx) => {
-            var _a, _b, _c, _d;
+            var _a, _b, _c;
             this.lastContext = ctx;
             const object = this.visitObjectName(ctx.objectName());
             if (object == null) {
@@ -56391,11 +56402,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 if (method == undefined) {
                     return object.__call(methodName, args);
                 }
-                const savedThis = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject('THIS');
                 const result = method.bind(object)(...args);
-                if (savedThis !== null) {
-                    this.engine.scope['THIS'] = savedThis;
-                }
                 return result === null ? 'NULL' : result;
             }
             catch (err) {
@@ -56409,10 +56416,10 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                     '\n' +
                     '%cObject:%c %O\n' +
                     (args.length > 0 ? '%cArguments:%c %O\n' : '') +
-                    (((_b = this.args) === null || _b === void 0 ? void 0 : _b.length) ? '%cBehaviour Arguments:%c %O\n' : '') +
+                    (((_a = this.args) === null || _a === void 0 ? void 0 : _a.length) ? '%cBehaviour Arguments:%c %O\n' : '') +
                     (Object.keys(argsVariables).length > 0 ? '%cVariables used in call:%c %O\n' : '') +
                     (Object.keys(this.scriptUsedVariables).length > 0 ? '%cVariables used in script:%c %O\n' : '') +
-                    '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', object, ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []), ...(((_c = this.args) === null || _c === void 0 ? void 0 : _c.length) ? ['font-weight: bold', 'font-weight: inherit', this.args] : []), ...(Object.keys(argsVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', argsVariables] : []), ...(Object.keys(this.scriptUsedVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables] : []), 'font-weight: bold', 'font-weight: inherit', (_d = this.engine) === null || _d === void 0 ? void 0 : _d.scope);
+                    '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', object, ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []), ...(((_b = this.args) === null || _b === void 0 ? void 0 : _b.length) ? ['font-weight: bold', 'font-weight: inherit', this.args] : []), ...(Object.keys(argsVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', argsVariables] : []), ...(Object.keys(this.scriptUsedVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables] : []), 'font-weight: bold', 'font-weight: inherit', (_c = this.engine) === null || _c === void 0 ? void 0 : _c.scope);
                 console.error(err);
                 if (err instanceof errors_1.NotImplementedError) {
                     return null;
