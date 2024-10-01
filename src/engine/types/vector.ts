@@ -46,4 +46,8 @@ export class Vector extends ValueType<VectorDefinition> {
             val - 2 * dotProduct * normal[idx]
         )
     }
+
+    LEN(): number {
+        return Math.sqrt(this.value.reduce((sum: number, val: number) => sum + val * val, 0))
+    }
 }
