@@ -256,8 +256,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
     }
 
-    PLAY(name: string | number) {
-        this.SHOW()
+    PLAY(name?: string | number) {
+        if (name === undefined) {
+            this.SHOW()
+            this.RESUME()
+            return
+        }
+
         this.playEvent(name.toString())
     }
 
