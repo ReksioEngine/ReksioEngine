@@ -437,6 +437,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return this.currentFrame
     }
 
+    GETNOF(): number {
+        assert(this.annFile !== null)
+        return this.annFile.header.framesCount
+    }
+
     GETCURRFRAMEPOSX(): number {
         throw new NotImplementedError()
     }
