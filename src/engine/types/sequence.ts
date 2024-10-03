@@ -75,7 +75,9 @@ export class Sequence extends Type<SequenceDefinition> {
                     assert(this.parameterSequence.SEQEVENT !== undefined)
 
                     for (const [name, indexer] of this.parameterSequence.SEQEVENT) {
-                        this.parametersMapping.set(name, paramsCharacterSet.indexOf(indexer))
+                        // It seems that only first letter matters as in S56_0_WIOSKA (Ufo)
+                        // they accidentally added extra character and it still works
+                        this.parametersMapping.set(name, paramsCharacterSet.indexOf(indexer.charAt(0)))
                     }
                 }
             } else if (definition.TYPE === 'SPEAKING') {
