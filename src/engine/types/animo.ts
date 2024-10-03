@@ -61,10 +61,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async init() {
         this.annFile = await this.loadAnimation()
         this.initSprite()
-    }
-
-    ready() {
-        assert(this.annFile !== null)
 
         // Find first event with any frames
         const defaultEvent = this.annFile.events.find(event => event.framesCount > 0)
@@ -72,7 +68,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.changeFrame(defaultEvent, 0)
             this.currentEvent = defaultEvent.name
         }
+    }
 
+    ready() {
         this.callbacks.run('ONINIT')
         this.tick(0)
     }
