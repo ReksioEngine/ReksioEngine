@@ -39,7 +39,7 @@ export type EpisodeDefinition = TypeDefinition & {
     LASTMODIFYTIME: string
     AUTHOR: string
     VERSION: string
-    PATH: string
+    PATH?: string
     SCENES: Array<string>
     STARTWITH: string
 }
@@ -50,7 +50,7 @@ const EpisodeStructure = {
     LASTMODIFYTIME: string,
     AUTHOR: string,
     VERSION: string,
-    PATH: string,
+    PATH: optional(string),
     SCENES: array(string),
     STARTWITH: string
 }
@@ -100,11 +100,11 @@ export type AnimoDefinition = TypeDefinition & {
     FILENAME: string
     TOCANVAS: boolean
     PRIORITY?: number
-    FPS: number
-    PRELOAD: boolean
-    RELEASE: boolean
-    MONITORCOLLISION: boolean
-    MONITORCOLLISIONALPHA: boolean
+    FPS?: number
+    PRELOAD?: boolean
+    RELEASE?: boolean
+    MONITORCOLLISION?: boolean
+    MONITORCOLLISIONALPHA?: boolean
     ONINIT?: callback
     ONFINISHED?: callbacks<string>
     ONSTARTED?: callbacks<string>
@@ -122,11 +122,11 @@ const AnimoStructure = {
     FILENAME: string,
     TOCANVAS: boolean,
     PRIORITY: optional(number),
-    FPS: number,
-    PRELOAD: boolean,
-    RELEASE: boolean,
-    MONITORCOLLISION: boolean,
-    MONITORCOLLISIONALPHA: boolean,
+    FPS: optional(number),
+    PRELOAD: optional(boolean),
+    RELEASE: optional(boolean),
+    MONITORCOLLISION: optional(boolean),
+    MONITORCOLLISIONALPHA: optional(boolean),
     ONINIT: optional(callback),
     ONFINISHED: optional(callbacks(string)),
     ONSTARTED: optional(callbacks(string)),
@@ -148,8 +148,8 @@ const MusicStructure = {
 
 export type SoundDefinition = TypeDefinition & {
     FILENAME: string
-    PRELOAD: boolean
-    FLUSHAFTERPLAYED: boolean
+    PRELOAD?: boolean
+    FLUSHAFTERPLAYED?: boolean
     ONINIT?: callback
     ONFINISHED?: callback
     ONSTARTED?: callback
@@ -157,15 +157,15 @@ export type SoundDefinition = TypeDefinition & {
 
 const SoundStructure = {
     FILENAME: string,
-    PRELOAD: boolean,
-    FLUSHAFTERPLAYED: boolean,
+    PRELOAD: optional(boolean),
+    FLUSHAFTERPLAYED: optional(boolean),
     ONINIT: optional(callback),
     ONFINISHED: optional(callback),
     ONSTARTED: optional(callback)
 }
 
 export type TimerDefinition = TypeDefinition & {
-    ENABLED: boolean
+    ENABLED?: boolean
     ELAPSE: number
     TICKS?: number
     ONINIT?: callback
@@ -173,7 +173,7 @@ export type TimerDefinition = TypeDefinition & {
 }
 
 const TimerStructure = {
-    ENABLED: boolean,
+    ENABLED: optional(boolean),
     ELAPSE: number,
     TICKS: optional(number),
     ONINIT: optional(callback),
@@ -195,10 +195,10 @@ export type ImageDefinition = TypeDefinition & {
     FILENAME: string
     TOCANVAS: boolean
     PRIORITY?: number
-    PRELOAD: boolean
-    RELEASE: boolean
-    MONITORCOLLISION: boolean
-    MONITORCOLLISIONALPHA: boolean,
+    PRELOAD?: boolean
+    RELEASE?: boolean
+    MONITORCOLLISION?: boolean
+    MONITORCOLLISIONALPHA?: boolean,
     ONINIT?: callback
 }
 
@@ -206,11 +206,11 @@ const ImageStructure = {
     VISIBLE: boolean,
     FILENAME: string,
     TOCANVAS: boolean,
-    PRIORITY: number,
-    PRELOAD: boolean,
-    RELEASE: boolean,
-    MONITORCOLLISION: boolean,
-    MONITORCOLLISIONALPHA: boolean,
+    PRIORITY: optional(number),
+    PRELOAD: optional(boolean),
+    RELEASE: optional(boolean),
+    MONITORCOLLISION: optional(boolean),
+    MONITORCOLLISIONALPHA: optional(boolean),
     ONINIT: optional(callback)
 }
 
@@ -297,9 +297,9 @@ const ArrayDefinitionStructure = {
 }
 
 export type ButtonDefinition = TypeDefinition & {
-    DRAGGABLE: boolean
+    DRAGGABLE?: boolean
     ENABLE: boolean
-    VISIBLE: boolean
+    VISIBLE?: boolean
     GFXSTANDARD?: reference
     GFXONCLICK?: reference
     GFXONMOVE?: reference
@@ -317,9 +317,9 @@ export type ButtonDefinition = TypeDefinition & {
 }
 
 const ButtonDefinitionStructure = {
-    DRAGGABLE: boolean,
+    DRAGGABLE: optional(boolean),
     ENABLE: boolean,
-    VISIBLE: boolean,
+    VISIBLE: optional(boolean),
     GFXSTANDARD: optional(reference),
     GFXONCLICK: optional(reference),
     GFXONMOVE: optional(reference),
