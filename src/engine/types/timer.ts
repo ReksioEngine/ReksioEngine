@@ -5,7 +5,7 @@ import {Integer} from './integer'
 
 export class Timer extends Type<TimerDefinition> {
     private currentTick: number = 0
-    private startTime: number = 0
+    private collectedTime: number = 0
 
     private elapse: number
     private enabled: boolean
@@ -18,8 +18,6 @@ export class Timer extends Type<TimerDefinition> {
         this.callbacks.registerGroup('ONTICK', definition.ONTICK)
         this.callbacks.register('ONINIT', definition.ONINIT)
     }
-
-    init() {}
 
     ready() {
         if (this.enabled) {
@@ -37,10 +35,12 @@ export class Timer extends Type<TimerDefinition> {
             return
         }
 
-        const expectedTick = Math.floor((Date.now() - this.startTime) / (this.elapse * (1 / this.engine.speed)))
-        while (this.currentTick < expectedTick) {
+        this.collectedTime += this.engine.app.ticker.elapsedMS * this.engine.speed
+
+        while (this.collectedTime >= this.elapse) {
             this.currentTick++
             this.ONTICK()
+            this.collectedTime -= this.elapse
         }
     }
 
@@ -53,7 +53,7 @@ export class Timer extends Type<TimerDefinition> {
     }
 
     RESET() {
-        this.startTime = Date.now()
+        this.collectedTime = 0
         this.currentTick = 0
     }
 
@@ -63,7 +63,7 @@ export class Timer extends Type<TimerDefinition> {
 
     ENABLE() {
         this.enabled = true
-        this.startTime = Date.now()
+        this.collectedTime = 0
     }
 
     ONTICK() {
