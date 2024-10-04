@@ -41,6 +41,12 @@ export class Timer extends Type<TimerDefinition> {
             this.currentTick++
             this.ONTICK()
             this.collectedTime -= this.elapse
+
+            const ticksLimit = this.definition.TICKS ?? 0
+            if (ticksLimit > 0 && this.currentTick >= ticksLimit) {
+                this.DISABLE()
+                return
+            }
         }
     }
 

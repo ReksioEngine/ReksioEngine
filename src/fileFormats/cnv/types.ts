@@ -167,7 +167,7 @@ const SoundStructure = {
 export type TimerDefinition = TypeDefinition & {
     ENABLED: boolean
     ELAPSE: number
-    TICKS: number
+    TICKS?: number
     ONINIT?: callback
     ONTICK?: callbacks<number>
 }
@@ -175,7 +175,7 @@ export type TimerDefinition = TypeDefinition & {
 const TimerStructure = {
     ENABLED: boolean,
     ELAPSE: number,
-    TICKS: number,
+    TICKS: optional(number),
     ONINIT: optional(callback),
     ONTICK: optional(callbacks(number))
 }
