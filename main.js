@@ -50449,10 +50449,37 @@ exports.EventsComponent = EventsComponent;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.updateCurrentScene = exports.setupDebugScene = void 0;
+exports.Debugging = void 0;
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
-const setupDebugScene = (engine) => {
-    if (engine.debug) {
+const filesLoader_1 = __webpack_require__(/*! ./filesLoader */ "./src/engine/filesLoader.ts");
+class Debugging {
+    constructor(engine, isDebug) {
+        this.isDebug = false;
+        this.nextSceneOverwrite = null;
+        this.engine = engine;
+        this.isDebug = isDebug;
+    }
+    applyQueryParams() {
+        if (!this.isDebug) {
+            return;
+        }
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('loader') && urlParams.has('source')) {
+            const loader = urlParams.get('loader');
+            const source = urlParams.get('source');
+            if (loader === 'github') {
+                this.engine.fileLoader = new filesLoader_1.GithubFileLoader(source);
+            }
+            else if (loader === 'archiveorg') {
+                this.engine.fileLoader = new filesLoader_1.ArchiveOrgFileLoader(source);
+            }
+        }
+        this.nextSceneOverwrite = urlParams.get('scene');
+    }
+    setupSceneSelector() {
+        if (!this.isDebug) {
+            return;
+        }
         const debug = document.querySelector('#debug');
         debug.style.display = 'block';
         debug.querySelector('#speed').addEventListener('input', (e) => {
@@ -50461,26 +50488,26 @@ const setupDebugScene = (engine) => {
             if (sliderValue > 1) {
                 sliderValue = Math.round(1 + (sliderValue - 1) * 10);
             }
-            engine.speed = sliderValue;
-            engine.app.ticker.speed = sliderValue;
+            this.engine.speed = sliderValue;
+            this.engine.app.ticker.speed = sliderValue;
             sound_1.sound.speedAll = sliderValue;
             debug.querySelector('#speedDisplay').textContent = `(${sliderValue}x)`;
         });
         debug.querySelector('#speedReset').addEventListener('click', (e) => {
             debug.querySelector('#speed').value = 1;
-            engine.speed = 1;
-            engine.app.ticker.speed = 1;
+            this.engine.speed = 1;
+            this.engine.app.ticker.speed = 1;
             sound_1.sound.speedAll = 1;
             debug.querySelector('#speedDisplay').textContent = '(1x)';
         });
-        const episode = Object.values(engine.globalScope).find((object) => object.definition.TYPE === 'EPISODE');
+        const episode = Object.values(this.engine.globalScope).find((object) => object.definition.TYPE === 'EPISODE');
         const container = document.querySelector('#sceneSelector');
         for (const sceneName of episode.definition.SCENES) {
-            const scene = Object.values(engine.globalScope).find((object) => {
+            const scene = Object.values(this.engine.globalScope).find((object) => {
                 return object.definition.TYPE === 'SCENE' && object.definition.NAME === sceneName;
             });
             const sceneDefPath = scene.getRelativePath(`${sceneName}.cnv`);
-            const canGoTo = engine.fileLoader.getFilesListing().includes(sceneDefPath.toLowerCase());
+            const canGoTo = this.engine.fileLoader.getFilesListing().includes(sceneDefPath.toLowerCase());
             const option = document.createElement('option');
             option.value = sceneName;
             option.text = sceneName;
@@ -50489,18 +50516,17 @@ const setupDebugScene = (engine) => {
         }
         const button = document.querySelector('#changeScene');
         button.addEventListener('click', () => {
-            engine.changeScene(container.value);
+            this.engine.changeScene(container.value);
         });
     }
-};
-exports.setupDebugScene = setupDebugScene;
-const updateCurrentScene = (engine) => {
-    if (engine.debug) {
-        const currentScene = document.querySelector('#currentScene');
-        currentScene.textContent = engine.currentScene.definition.NAME;
+    updateCurrentScene() {
+        if (this.isDebug) {
+            const currentScene = document.querySelector('#currentScene');
+            currentScene.textContent = this.engine.currentScene.definition.NAME;
+        }
     }
-};
-exports.updateCurrentScene = updateCurrentScene;
+}
+exports.Debugging = Debugging;
 
 
 /***/ }),
@@ -50845,7 +50871,6 @@ const timer_1 = __webpack_require__(/*! ./types/timer */ "./src/engine/types/tim
 const errors_1 = __webpack_require__(/*! ../errors */ "./src/errors.ts");
 class Engine {
     constructor(app) {
-        this.debug = false;
         this.speed = 1;
         this.thisQueue = [];
         this.globalScope = {};
@@ -50855,7 +50880,7 @@ class Engine {
         this.fileLoader = new filesLoader_1.GithubFileLoader('reksioiufo');
         this.music = null;
         this.app = app;
-        this.debug = true;
+        this.debug = new debugging_1.Debugging(this, true);
         this.blackTexture = (0, utils_1.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0);
         this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
         this.canvasBackground.zIndex = -99999;
@@ -50863,9 +50888,10 @@ class Engine {
     init() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                this.debug.applyQueryParams();
                 const applicationDef = yield this.fileLoader.getCNVFile('DANE/Application.def');
                 yield (0, definitionLoader_1.loadDefinition)(this, this.globalScope, applicationDef);
-                (0, debugging_1.setupDebugScene)(this);
+                this.debug.setupSceneSelector();
                 this.app.ticker.maxFPS = 60;
                 this.app.stage.interactive = true;
                 sound_1.sound.disableAutoPause = true;
@@ -50971,6 +50997,10 @@ class Engine {
             }
             this.renderingOrder = [];
             // Load new scene
+            if (this.debug.nextSceneOverwrite) {
+                sceneName = this.debug.nextSceneOverwrite;
+                this.debug.nextSceneOverwrite = null;
+            }
             this.currentScene = this.getObject(sceneName);
             const sceneDefinition = yield this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
             yield (0, definitionLoader_1.loadDefinition)(this, this.scope, sceneDefinition, this.currentScene);
@@ -50996,7 +51026,7 @@ class Engine {
                 yield (0, optimizations_1.preloadAssets)(this.fileLoader, this.currentScene);
             }
             this.app.ticker.start();
-            (0, debugging_1.updateCurrentScene)(this);
+            this.debug.updateCurrentScene();
         });
     }
     getObject(name) {
