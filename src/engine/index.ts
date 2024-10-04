@@ -10,13 +10,13 @@ import {loadSound, loadTexture} from './assetsLoader'
 import {SaveFile} from './saveFile'
 import {createColorTexture} from '../utils'
 import {preloadAssets} from './optimizations'
-import {setupDebugScene, updateCurrentScene} from './debugging'
+import {Debugging} from './debugging'
 import {Timer} from './types/timer'
 import {IrrecoverableError} from '../errors'
 
 export class Engine {
     readonly app: Application
-    public debug: boolean = false
+    public debug: Debugging
     public speed: number = 1
 
     private thisQueue: Type<any>[] = []
@@ -35,7 +35,7 @@ export class Engine {
 
     constructor(app: Application) {
         this.app = app
-        this.debug = process.env.debug as unknown as boolean
+        this.debug = new Debugging(this, process.env.debug as unknown as boolean)
 
         this.blackTexture = createColorTexture(this.app, new Rectangle(0, 0, this.app.view.width, this.app.view.height), 0)
         this.canvasBackground = new Sprite(this.blackTexture)
@@ -44,10 +44,12 @@ export class Engine {
 
     async init() {
         try {
+            this.debug.applyQueryParams()
+
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
             await loadDefinition(this, this.globalScope, applicationDef)
 
-            setupDebugScene(this)
+            this.debug.setupSceneSelector()
 
             this.app.ticker.maxFPS = 60
             this.app.stage.interactive = true
@@ -174,6 +176,11 @@ export class Engine {
         this.renderingOrder = []
 
         // Load new scene
+        if (this.debug.nextSceneOverwrite) {
+            sceneName = this.debug.nextSceneOverwrite
+            this.debug.nextSceneOverwrite = null
+        }
+
         this.currentScene = this.getObject(sceneName) as Scene
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'))
         await loadDefinition(this, this.scope, sceneDefinition, this.currentScene)
@@ -206,7 +213,7 @@ export class Engine {
         }
 
         this.app.ticker.start()
-        updateCurrentScene(this)
+        this.debug.updateCurrentScene()
     }
 
     getObject(name: string | reference): any {
