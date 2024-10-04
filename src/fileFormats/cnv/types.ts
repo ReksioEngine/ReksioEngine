@@ -260,6 +260,7 @@ export type StringDefinition = TypeDefinition & {
     TOINI?: boolean
     VALUE?: string
     DEFAULT?: string
+    ONINIT?: callback
     ONCHANGED?: callbacks<string>
     ONBRUTALCHANGED?: callbacks<string>
 }
@@ -268,6 +269,7 @@ const StringDefinitionStructure = {
     TOINI: optional(boolean),
     VALUE: optional(string),
     DEFAULT: optional(string),
+    ONINIT: optional(callback),
     ONCHANGED: optional(callbacks(string)),
     ONBRUTALCHANGED: optional(callbacks(string))
 }
