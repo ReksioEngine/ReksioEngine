@@ -53806,6 +53806,7 @@ class Timer extends index_1.Type {
         this.DISABLE();
     }
     tick(delta) {
+        var _a;
         if (!this.enabled) {
             return;
         }
@@ -53814,6 +53815,11 @@ class Timer extends index_1.Type {
             this.currentTick++;
             this.ONTICK();
             this.collectedTime -= this.elapse;
+            const ticksLimit = (_a = this.definition.TICKS) !== null && _a !== void 0 ? _a : 0;
+            if (ticksLimit > 0 && this.currentTick >= ticksLimit) {
+                this.DISABLE();
+                return;
+            }
         }
     }
     SETELAPSE(newElapse) {
@@ -54292,7 +54298,7 @@ const SoundStructure = {
 const TimerStructure = {
     ENABLED: common_1.boolean,
     ELAPSE: common_1.number,
-    TICKS: common_1.number,
+    TICKS: (0, common_1.optional)(common_1.number),
     ONINIT: (0, common_1.optional)(common_1.callback),
     ONTICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.number))
 };
