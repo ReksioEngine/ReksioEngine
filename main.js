@@ -53719,8 +53719,12 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 class String extends index_1.ValueType {
     constructor(engine, definition) {
         super(engine, definition, '');
+        this.callbacks.register('ONINIT', definition.ONINIT);
         this.callbacks.registerGroup('ONCHANGED', definition.ONCHANGED);
         this.callbacks.registerGroup('ONBRUTALCHANGED', definition.ONBRUTALCHANGED);
+    }
+    ready() {
+        this.callbacks.run('ONINIT');
     }
     ADD(text) {
         this.value += text;
@@ -54273,7 +54277,7 @@ const EpisodeStructure = {
     LASTMODIFYTIME: common_1.string,
     AUTHOR: common_1.string,
     VERSION: common_1.string,
-    PATH: common_1.string,
+    PATH: (0, common_1.optional)(common_1.string),
     SCENES: (0, common_1.array)(common_1.string),
     STARTWITH: common_1.string
 };
@@ -54300,11 +54304,11 @@ const AnimoStructure = {
     FILENAME: common_1.string,
     TOCANVAS: common_1.boolean,
     PRIORITY: (0, common_1.optional)(common_1.number),
-    FPS: common_1.number,
-    PRELOAD: common_1.boolean,
-    RELEASE: common_1.boolean,
-    MONITORCOLLISION: common_1.boolean,
-    MONITORCOLLISIONALPHA: common_1.boolean,
+    FPS: (0, common_1.optional)(common_1.number),
+    PRELOAD: (0, common_1.optional)(common_1.boolean),
+    RELEASE: (0, common_1.optional)(common_1.boolean),
+    MONITORCOLLISION: (0, common_1.optional)(common_1.boolean),
+    MONITORCOLLISIONALPHA: (0, common_1.optional)(common_1.boolean),
     ONINIT: (0, common_1.optional)(common_1.callback),
     ONFINISHED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONSTARTED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
@@ -54319,14 +54323,14 @@ const MusicStructure = {
 };
 const SoundStructure = {
     FILENAME: common_1.string,
-    PRELOAD: common_1.boolean,
-    FLUSHAFTERPLAYED: common_1.boolean,
+    PRELOAD: (0, common_1.optional)(common_1.boolean),
+    FLUSHAFTERPLAYED: (0, common_1.optional)(common_1.boolean),
     ONINIT: (0, common_1.optional)(common_1.callback),
     ONFINISHED: (0, common_1.optional)(common_1.callback),
     ONSTARTED: (0, common_1.optional)(common_1.callback)
 };
 const TimerStructure = {
-    ENABLED: common_1.boolean,
+    ENABLED: (0, common_1.optional)(common_1.boolean),
     ELAPSE: common_1.number,
     TICKS: (0, common_1.optional)(common_1.number),
     ONINIT: (0, common_1.optional)(common_1.callback),
@@ -54340,11 +54344,11 @@ const ImageStructure = {
     VISIBLE: common_1.boolean,
     FILENAME: common_1.string,
     TOCANVAS: common_1.boolean,
-    PRIORITY: common_1.number,
-    PRELOAD: common_1.boolean,
-    RELEASE: common_1.boolean,
-    MONITORCOLLISION: common_1.boolean,
-    MONITORCOLLISIONALPHA: common_1.boolean,
+    PRIORITY: (0, common_1.optional)(common_1.number),
+    PRELOAD: (0, common_1.optional)(common_1.boolean),
+    RELEASE: (0, common_1.optional)(common_1.boolean),
+    MONITORCOLLISION: (0, common_1.optional)(common_1.boolean),
+    MONITORCOLLISIONALPHA: (0, common_1.optional)(common_1.boolean),
     ONINIT: (0, common_1.optional)(common_1.callback)
 };
 const MouseStructure = {
@@ -54368,6 +54372,7 @@ const StringDefinitionStructure = {
     TOINI: (0, common_1.optional)(common_1.boolean),
     VALUE: (0, common_1.optional)(common_1.string),
     DEFAULT: (0, common_1.optional)(common_1.string),
+    ONINIT: (0, common_1.optional)(common_1.callback),
     ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string))
 };
@@ -54381,9 +54386,9 @@ const ArrayDefinitionStructure = {
     ONINIT: (0, common_1.optional)(common_1.callback)
 };
 const ButtonDefinitionStructure = {
-    DRAGGABLE: common_1.boolean,
+    DRAGGABLE: (0, common_1.optional)(common_1.boolean),
     ENABLE: common_1.boolean,
-    VISIBLE: common_1.boolean,
+    VISIBLE: (0, common_1.optional)(common_1.boolean),
     GFXSTANDARD: (0, common_1.optional)(common_1.reference),
     GFXONCLICK: (0, common_1.optional)(common_1.reference),
     GFXONMOVE: (0, common_1.optional)(common_1.reference),
