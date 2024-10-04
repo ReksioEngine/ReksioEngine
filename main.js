@@ -51259,16 +51259,15 @@ class Animo extends index_1.DisplayType {
         return __awaiter(this, void 0, void 0, function* () {
             this.annFile = yield this.loadAnimation();
             this.initSprite();
+            // Find first event with any frames
+            const defaultEvent = this.annFile.events.find(event => event.framesCount > 0);
+            if (defaultEvent !== undefined) {
+                this.changeFrame(defaultEvent, 0);
+                this.currentEvent = defaultEvent.name;
+            }
         });
     }
     ready() {
-        (0, errors_2.assert)(this.annFile !== null);
-        // Find first event with any frames
-        const defaultEvent = this.annFile.events.find(event => event.framesCount > 0);
-        if (defaultEvent !== undefined) {
-            this.changeFrame(defaultEvent, 0);
-            this.currentEvent = defaultEvent.name;
-        }
         this.callbacks.run('ONINIT');
         this.tick(0);
     }
@@ -53307,7 +53306,9 @@ class Sequence extends index_1.Type {
                         this.parameterSequence = sequence;
                         (0, errors_1.assert)(this.parameterSequence.SEQEVENT !== undefined);
                         for (const [name, indexer] of this.parameterSequence.SEQEVENT) {
-                            this.parametersMapping.set(name, paramsCharacterSet.indexOf(indexer));
+                            // It seems that only first letter matters as in S56_0_WIOSKA (Ufo)
+                            // they accidentally added extra character and it still works
+                            this.parametersMapping.set(name, paramsCharacterSet.indexOf(indexer.charAt(0)));
                         }
                     }
                 }
@@ -56401,7 +56402,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 return (0, types_1.ForceNumber)(ctx.negativeNumber().getText());
             }
             else if (ctx.STRING() != null) {
-                return ctx.STRING().getText().replace(/^"|"$/g, '');
+                return ctx.STRING().getText().replace(/^"+|"+$/g, '');
             }
             else if (ctx.IDENTIFIER() != null) {
                 const identifier = ctx.IDENTIFIER().getText();
