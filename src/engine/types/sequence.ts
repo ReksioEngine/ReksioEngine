@@ -10,7 +10,7 @@ import {
     Simple,
     Speaking
 } from '../../fileFormats/seq'
-import {assert, NotImplementedError} from '../../errors'
+import {assert} from '../../errors'
 import {Animo} from './animo'
 import {loadSound} from '../assetsLoader'
 import {IMediaInstance, Sound} from '@pixi/sound'
@@ -23,6 +23,7 @@ export class Sequence extends Type<SequenceDefinition> {
     private parametersMapping: Map<string, number> = new Map()
     private subEntries: Map<string, SequenceFileEntry[]> = new Map<string, SequenceFileEntry[]>()
     private parameterSequence: ParameterSequence | null = null
+    private allAnimoFilenames: string[] = []
 
     private sounds: Map<string, Sound> = new Map()
 
@@ -83,6 +84,9 @@ export class Sequence extends Type<SequenceDefinition> {
             } else if (definition.TYPE === 'SPEAKING') {
                 const sequence = definition as Speaking
                 soundsNames.push(sequence.WAVFN)
+                this.allAnimoFilenames.push(definition.ANIMOFN)
+            } else if (definition.TYPE === 'SIMPLE') {
+                this.allAnimoFilenames.push(definition.FILENAME)
             }
 
             if (definition.ADD) {
@@ -235,18 +239,10 @@ export class Sequence extends Type<SequenceDefinition> {
         }
     }
 
-    private async getAnimo(source: string) {
-        const object = this.engine.getObject(source)
-        if (object) {
+    private async getAnimo(source: string): Promise<Animo> {
+        const object = this.getExistingAnimo(source)
+        if (object !== null) {
             return object
-        }
-
-        for (const object of Object.values(this.engine.scope)) {
-            if (object instanceof Animo) {
-                if (object.definition.FILENAME === source) {
-                    return object
-                }
-            }
         }
 
         return await createObject(this.engine, {
@@ -265,12 +261,36 @@ export class Sequence extends Type<SequenceDefinition> {
         }) as Animo
     }
 
+    private getExistingAnimo(source: string): Animo | null {
+        const object = this.engine.getObject(source)
+        if (object) {
+            return object
+        }
+
+        for (const object of Object.values(this.engine.scope)) {
+            if (object instanceof Animo) {
+                if (object.definition.FILENAME === source) {
+                    return object
+                }
+            }
+        }
+
+        return null
+    }
+
     ISPLAYING() {
         return this.sequenceName !== null
     }
 
     HIDE() {
-        throw new NotImplementedError()
+        assert(this.sequenceFile !== null)
+
+        // HIDE() might be called before sequence is playing, so we can't just hide activeAnimo
+        // because activeAnimo would be null at that point, we don't know what sequence is gonna be played
+        for (const filename of this.allAnimoFilenames) {
+            const animo = this.getExistingAnimo(filename)
+            animo?.HIDE()
+        }
     }
 
     STOP(arg: boolean) {
