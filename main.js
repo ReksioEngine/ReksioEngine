@@ -51233,7 +51233,7 @@ class Animo extends index_1.DisplayType {
         this.currentEvent = '';
         this.currentLoop = 0;
         this.fps = 16;
-        this.lastFrameTime = 0;
+        this.timeSinceLastFrame = 0;
         this.positionX = 0;
         this.positionOffsetX = 0;
         this.positionY = 0;
@@ -51279,10 +51279,11 @@ class Animo extends index_1.DisplayType {
         if (!this.isPlaying) {
             return;
         }
-        const currentTime = Date.now();
-        if (currentTime - this.lastFrameTime > 1 / this.fps * 1000 * (1 / this.engine.speed)) {
+        this.timeSinceLastFrame += this.engine.app.ticker.elapsedMS * this.engine.speed;
+        const frameLength = 1 / this.fps * 1000;
+        while (this.timeSinceLastFrame >= frameLength) {
             this.tickAnimation();
-            this.lastFrameTime = currentTime;
+            this.timeSinceLastFrame -= frameLength;
         }
     }
     loadAnimation() {
@@ -53264,6 +53265,7 @@ class Sequence extends index_1.Type {
         this.parametersMapping = new Map();
         this.subEntries = new Map();
         this.parameterSequence = null;
+        this.allAnimoFilenames = [];
         this.sounds = new Map();
         this.queue = [];
         this.activeAnimo = null;
@@ -53315,6 +53317,10 @@ class Sequence extends index_1.Type {
                 else if (definition.TYPE === 'SPEAKING') {
                     const sequence = definition;
                     soundsNames.push(sequence.WAVFN);
+                    this.allAnimoFilenames.push(definition.ANIMOFN);
+                }
+                else if (definition.TYPE === 'SIMPLE') {
+                    this.allAnimoFilenames.push(definition.FILENAME);
                 }
                 if (definition.ADD) {
                     let subEntries = [];
@@ -53450,16 +53456,9 @@ class Sequence extends index_1.Type {
     }
     getAnimo(source) {
         return __awaiter(this, void 0, void 0, function* () {
-            const object = this.engine.getObject(source);
-            if (object) {
+            const object = this.getExistingAnimo(source);
+            if (object !== null) {
                 return object;
-            }
-            for (const object of Object.values(this.engine.scope)) {
-                if (object instanceof animo_1.Animo) {
-                    if (object.definition.FILENAME === source) {
-                        return object;
-                    }
-                }
             }
             return yield (0, definitionLoader_1.createObject)(this.engine, {
                 TYPE: 'ANIMO',
@@ -53477,11 +53476,31 @@ class Sequence extends index_1.Type {
             });
         });
     }
+    getExistingAnimo(source) {
+        const object = this.engine.getObject(source);
+        if (object) {
+            return object;
+        }
+        for (const object of Object.values(this.engine.scope)) {
+            if (object instanceof animo_1.Animo) {
+                if (object.definition.FILENAME === source) {
+                    return object;
+                }
+            }
+        }
+        return null;
+    }
     ISPLAYING() {
         return this.sequenceName !== null;
     }
     HIDE() {
-        throw new errors_1.NotImplementedError();
+        (0, errors_1.assert)(this.sequenceFile !== null);
+        // HIDE() might be called before sequence is playing, so we can't just hide activeAnimo
+        // because activeAnimo would be null at that point, we don't know what sequence is gonna be played
+        for (const filename of this.allAnimoFilenames) {
+            const animo = this.getExistingAnimo(filename);
+            animo === null || animo === void 0 ? void 0 : animo.HIDE();
+        }
     }
     STOP(arg) {
         var _a, _b;
@@ -53771,13 +53790,12 @@ class Timer extends index_1.Type {
         var _a;
         super(engine, definition);
         this.currentTick = 0;
-        this.startTime = 0;
+        this.collectedTime = 0;
         this.elapse = definition.ELAPSE;
         this.enabled = (_a = definition.ENABLED) !== null && _a !== void 0 ? _a : true;
         this.callbacks.registerGroup('ONTICK', definition.ONTICK);
         this.callbacks.register('ONINIT', definition.ONINIT);
     }
-    init() { }
     ready() {
         if (this.enabled) {
             this.callbacks.run('ONINIT');
@@ -53791,10 +53809,11 @@ class Timer extends index_1.Type {
         if (!this.enabled) {
             return;
         }
-        const expectedTick = Math.floor((Date.now() - this.startTime) / (this.elapse * (1 / this.engine.speed)));
-        while (this.currentTick < expectedTick) {
+        this.collectedTime += this.engine.app.ticker.elapsedMS * this.engine.speed;
+        while (this.collectedTime >= this.elapse) {
             this.currentTick++;
             this.ONTICK();
+            this.collectedTime -= this.elapse;
         }
     }
     SETELAPSE(newElapse) {
@@ -53806,7 +53825,7 @@ class Timer extends index_1.Type {
         }
     }
     RESET() {
-        this.startTime = Date.now();
+        this.collectedTime = 0;
         this.currentTick = 0;
     }
     DISABLE() {
@@ -53814,7 +53833,7 @@ class Timer extends index_1.Type {
     }
     ENABLE() {
         this.enabled = true;
-        this.startTime = Date.now();
+        this.collectedTime = 0;
     }
     ONTICK() {
         this.callbacks.run('ONTICK', this.currentTick);
