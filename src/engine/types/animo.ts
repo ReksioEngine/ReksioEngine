@@ -21,7 +21,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private currentLoop: number = 0
 
     private fps: number = 16
-    private lastFrameTime: number = 0
+    private timeSinceLastFrame: number = 0
 
     private positionX: number = 0
     private positionOffsetX: number = 0
@@ -85,10 +85,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
-        const currentTime = Date.now()
-        if (currentTime - this.lastFrameTime > 1 / this.fps * 1000 * (1 / this.engine.speed)) {
+        this.timeSinceLastFrame += this.engine.app.ticker.elapsedMS * this.engine.speed
+
+        const frameLength = 1 / this.fps * 1000
+        while (this.timeSinceLastFrame >= frameLength) {
             this.tickAnimation()
-            this.lastFrameTime = currentTime
+            this.timeSinceLastFrame -= frameLength
         }
     }
 
