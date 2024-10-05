@@ -28,8 +28,8 @@ export class Condition extends Type<ConditionDefinition> {
     }
 
     CHECK(arg: boolean): boolean {
-        const operand1 = this.engine.executeCallback(this, this.definition.OPERAND1)
-        const operand2 = this.engine.executeCallback(this, this.definition.OPERAND2)
+        const operand1 = this.engine.executeCallback(null, this.definition.OPERAND1)
+        const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2)
 
         let result
         switch (this.definition.OPERATOR) {
@@ -54,9 +54,9 @@ export class Condition extends Type<ConditionDefinition> {
         }
 
         if (result) {
-            this.callbacks.run('ONRUNTIMESUCCESS')
+            this.callbacks.run('ONRUNTIMESUCCESS', null, null)
         } else {
-            this.callbacks.run('ONRUNTIMEFAILED')
+            this.callbacks.run('ONRUNTIMEFAILED', null, null)
         }
 
         return result

@@ -46,15 +46,17 @@ export class CallbacksComponent {
         return callbacks.nonParametrized !== null || callbacks.parametrized.size > 0
     }
 
-    run(type: string, param?: any) {
+    run(type: string, param?: any, thisOverride?: Type<any> | null) {
+        const thisReference = thisOverride !== undefined ? thisOverride : this.object
+
         try {
             const callbackGroup = this.registry.get(type)
             if (callbackGroup?.nonParametrized) {
-                this.engine.executeCallback(this.object, callbackGroup.nonParametrized)
+                this.engine.executeCallback(thisReference, callbackGroup.nonParametrized)
             }
 
-            if (param !== undefined && callbackGroup?.parametrized.has(param)) {
-                this.engine.executeCallback(this.object, callbackGroup.parametrized.get(param)!)
+            if (param && callbackGroup?.parametrized.has(param)) {
+                this.engine.executeCallback(thisReference, callbackGroup.parametrized.get(param)!)
             }
         } catch (err) {
             if (!(err instanceof InterruptScriptExecution)) {
