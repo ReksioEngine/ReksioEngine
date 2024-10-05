@@ -56,6 +56,11 @@ export class Sound extends Type<SoundDefinition> {
         this.sound.pause()
     }
 
+    RELEASE() {
+        this.sound?.stop()
+        this.sound?.destroy()
+    }
+
     async LOAD(filename: string) {
         await this.loadSound(filename.substring(1))
     }
