@@ -50360,14 +50360,15 @@ class CallbacksComponent {
         (0, errors_1.assert)(callbacks !== undefined);
         return callbacks.nonParametrized !== null || callbacks.parametrized.size > 0;
     }
-    run(type, param) {
+    run(type, param, thisOverride) {
+        const thisReference = thisOverride !== undefined ? thisOverride : this.object;
         try {
             const callbackGroup = this.registry.get(type);
             if (callbackGroup === null || callbackGroup === void 0 ? void 0 : callbackGroup.nonParametrized) {
-                this.engine.executeCallback(this.object, callbackGroup.nonParametrized);
+                this.engine.executeCallback(thisReference, callbackGroup.nonParametrized);
             }
-            if (param !== undefined && (callbackGroup === null || callbackGroup === void 0 ? void 0 : callbackGroup.parametrized.has(param))) {
-                this.engine.executeCallback(this.object, callbackGroup.parametrized.get(param));
+            if (param && (callbackGroup === null || callbackGroup === void 0 ? void 0 : callbackGroup.parametrized.has(param))) {
+                this.engine.executeCallback(thisReference, callbackGroup.parametrized.get(param));
             }
         }
         catch (err) {
@@ -52384,8 +52385,8 @@ class Condition extends index_1.Type {
         }
     }
     CHECK(arg) {
-        const operand1 = this.engine.executeCallback(this, this.definition.OPERAND1);
-        const operand2 = this.engine.executeCallback(this, this.definition.OPERAND2);
+        const operand1 = this.engine.executeCallback(null, this.definition.OPERAND1);
+        const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2);
         let result;
         switch (this.definition.OPERATOR) {
             case 'EQUAL':
@@ -52408,10 +52409,10 @@ class Condition extends index_1.Type {
                 break;
         }
         if (result) {
-            this.callbacks.run('ONRUNTIMESUCCESS');
+            this.callbacks.run('ONRUNTIMESUCCESS', null, null);
         }
         else {
-            this.callbacks.run('ONRUNTIMEFAILED');
+            this.callbacks.run('ONRUNTIMEFAILED', null, null);
         }
         return result;
     }
@@ -53615,6 +53616,11 @@ class Sound extends index_1.Type {
     PAUSE() {
         (0, errors_1.assert)(this.sound !== null);
         this.sound.pause();
+    }
+    RELEASE() {
+        var _a, _b;
+        (_a = this.sound) === null || _a === void 0 ? void 0 : _a.stop();
+        (_b = this.sound) === null || _b === void 0 ? void 0 : _b.destroy();
     }
     LOAD(filename) {
         return __awaiter(this, void 0, void 0, function* () {
