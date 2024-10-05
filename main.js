@@ -50897,7 +50897,7 @@ class Engine {
                 this.app.stage.interactive = true;
                 sound_1.sound.disableAutoPause = true;
                 this.app.stage.addChild(this.canvasBackground);
-                this.app.ticker.add(this.tick.bind(this));
+                this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS));
                 // @ts-expect-error no engine in globalThis
                 globalThis.engine = this;
                 // @ts-expect-error no __PIXI_APP__ in globalThis
@@ -50909,10 +50909,10 @@ class Engine {
             }
         });
     }
-    tick(delta) {
+    tick(elapsedMS) {
         for (const object of Object.values(this.scope)) {
             try {
-                object.tick(delta);
+                object.tick(elapsedMS);
             }
             catch (err) {
                 if (err instanceof errors_1.IrrecoverableError) {
@@ -51306,11 +51306,11 @@ class Animo extends index_1.DisplayType {
         (0, errors_2.assert)(this.sprite !== null);
         this.engine.removeFromStage(this.sprite);
     }
-    tick(delta) {
+    tick(elapsedMS) {
         if (!this.isPlaying) {
             return;
         }
-        this.timeSinceLastFrame += this.engine.app.ticker.elapsedMS * this.engine.speed;
+        this.timeSinceLastFrame += elapsedMS * this.engine.speed;
         const frameLength = 1 / this.fps * 1000;
         while (this.timeSinceLastFrame >= frameLength) {
             this.tickAnimation();
@@ -52818,7 +52818,7 @@ class Type {
     init() { }
     ready() { }
     destroy() { }
-    tick(delta) { }
+    tick(elapsedMS) { }
     // Called when trying to call a method that is not existing for a type
     __call(methodName, args) {
         const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
@@ -53126,7 +53126,7 @@ class Mouse extends index_1.Type {
     destroy() {
         this.DISABLE();
     }
-    tick(delta) {
+    tick(elapsedMS) {
         if (this.clicked) {
             this.callbacks.run('ONCLICK');
             this.clicked = false;
@@ -53845,12 +53845,12 @@ class Timer extends index_1.Type {
     destroy() {
         this.DISABLE();
     }
-    tick(delta) {
+    tick(elapsedMS) {
         var _a;
         if (!this.enabled) {
             return;
         }
-        this.collectedTime += this.engine.app.ticker.elapsedMS * this.engine.speed;
+        this.collectedTime += elapsedMS * this.engine.speed;
         while (this.collectedTime >= this.elapse) {
             this.currentTick++;
             this.ONTICK();
