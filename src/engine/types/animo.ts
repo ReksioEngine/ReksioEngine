@@ -80,12 +80,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.engine.removeFromStage(this.sprite)
     }
 
-    tick(delta: number) {
+    tick(elapsedMS: number) {
         if (!this.isPlaying) {
             return
         }
 
-        this.timeSinceLastFrame += this.engine.app.ticker.elapsedMS * this.engine.speed
+        this.timeSinceLastFrame += elapsedMS * this.engine.speed
 
         const frameLength = 1 / this.fps * 1000
         while (this.timeSinceLastFrame >= frameLength) {

@@ -56,7 +56,7 @@ export class Engine {
             sound.disableAutoPause = true
 
             this.app.stage.addChild(this.canvasBackground)
-            this.app.ticker.add(this.tick.bind(this))
+            this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS))
 
             // @ts-expect-error no engine in globalThis
             globalThis.engine = this
@@ -71,10 +71,10 @@ export class Engine {
         }
     }
 
-    tick(delta: number) {
+    tick(elapsedMS: number) {
         for (const object of Object.values(this.scope)) {
             try {
-                object.tick(delta)
+                object.tick(elapsedMS)
             } catch (err) {
                 if (err instanceof IrrecoverableError) {
                     console.error(

@@ -30,12 +30,12 @@ export class Timer extends Type<TimerDefinition> {
         this.DISABLE()
     }
 
-    tick(delta: number) {
+    tick(elapsedMS: number) {
         if (!this.enabled) {
             return
         }
 
-        this.collectedTime += this.engine.app.ticker.elapsedMS * this.engine.speed
+        this.collectedTime += elapsedMS * this.engine.speed
 
         while (this.collectedTime >= this.elapse) {
             this.currentTick++

@@ -28,7 +28,7 @@ export class Mouse extends Type<MouseDefinition> {
         this.DISABLE()
     }
 
-    tick(delta: number) {
+    tick(elapsedMS: number) {
         if (this.clicked) {
             this.callbacks.run('ONCLICK')
             this.clicked = false

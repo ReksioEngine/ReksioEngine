@@ -41,7 +41,7 @@ export class Type<DefinitionType extends TypeDefinition> {
     init() {}
     ready() {}
     destroy() {}
-    tick(delta: number) {}
+    tick(elapsedMS: number) {}
 
     // Called when trying to call a method that is not existing for a type
     __call(methodName: string, args: any[]) {
