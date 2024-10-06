@@ -30,6 +30,7 @@ import {Double} from './types/double'
 import {Expression} from './types/expression'
 import {Vector} from './types/vector'
 import {StaticFilter} from './types/staticFilter'
+import {Filter} from './types/filter'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -61,6 +62,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Episode(engine, definition)
     case 'EXPRESSION':
         return new Expression(engine, definition)
+    case 'FILTER':
+        return new Filter(engine, definition)
     case 'FONT':
         return new Font(engine, definition)
     case 'GROUP':

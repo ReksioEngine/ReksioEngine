@@ -458,6 +458,14 @@ const StaticFilterDefinitionStructure = {
     ACTION: string
 }
 
+export type FilterDefinition = TypeDefinition & {
+    ACTION: string
+}
+
+const FilterDefinitionStructure = {
+    ACTION: string
+}
+
 export const structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -488,5 +496,6 @@ export const structureDefinitions = {
     DOUBLE: DoubleStructure,
     EXPRESSION: ExpressionDefinitionStructure,
     VECTOR: VectorDefinitionStructure,
-    STATICFILTER: StaticFilterDefinitionStructure
+    STATICFILTER: StaticFilterDefinitionStructure,
+    FILTER: FilterDefinitionStructure
 } as any
