@@ -50367,7 +50367,7 @@ class CallbacksComponent {
             if (callbackGroup === null || callbackGroup === void 0 ? void 0 : callbackGroup.nonParametrized) {
                 this.engine.executeCallback(thisReference, callbackGroup.nonParametrized);
             }
-            if (param && (callbackGroup === null || callbackGroup === void 0 ? void 0 : callbackGroup.parametrized.has(param))) {
+            if (param !== null && param !== undefined && (callbackGroup === null || callbackGroup === void 0 ? void 0 : callbackGroup.parametrized.has(param))) {
                 this.engine.executeCallback(thisReference, callbackGroup.parametrized.get(param));
             }
         }
