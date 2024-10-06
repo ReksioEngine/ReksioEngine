@@ -55,7 +55,7 @@ export class CallbacksComponent {
                 this.engine.executeCallback(thisReference, callbackGroup.nonParametrized)
             }
 
-            if (param && callbackGroup?.parametrized.has(param)) {
+            if (param !== null && param !== undefined && callbackGroup?.parametrized.has(param)) {
                 this.engine.executeCallback(thisReference, callbackGroup.parametrized.get(param)!)
             }
         } catch (err) {
