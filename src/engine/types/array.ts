@@ -41,8 +41,8 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
         return this.value.includes(value)
     }
 
-    SUM() {
-        throw new NotImplementedError()
+    SUM(arg: number) {
+        this.value = this.value.map((value: number) => value + arg)
     }
 
     SUBAT(position: number, value: number) {
