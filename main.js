@@ -51396,8 +51396,15 @@ class Animo extends index_1.DisplayType {
             return;
         }
         this.changeFrame(event, this.currentFrame);
+        this.ONFRAMECHANGED(); // This is called before ONSTARTED according to my tests
         if (this.currentFrame === 0) {
             this.ONSTARTED();
+        }
+        // Animation might get stopped in ONFRAMECHANGED callback like in UFO:S65_ZAMEK
+        // If we wouldn't return there then if ONFINISHED has PLAY then it will never stop running
+        // because PLAY is changing isPlaying back to true
+        if (!this.isPlaying) {
+            return;
         }
         // Random sound out of them?
         const eventFrame = event.frames[this.currentFrame];
@@ -51410,16 +51417,16 @@ class Animo extends index_1.DisplayType {
                 sound.play();
             }
         }
-        // TODO, is starting first frame in an event a frame change?
-        this.currentFrame++;
-        this.ONFRAMECHANGED();
-        if (this.currentFrame >= event.framesCount) {
+        if (this.currentFrame + 1 >= event.framesCount) {
             if (this.currentLoop >= event.loopNumber) {
                 this.STOP(false);
                 this.ONFINISHED();
             }
             this.currentLoop++;
             this.currentFrame = 0;
+        }
+        else {
+            this.currentFrame++;
         }
     }
     changeFrame(event, frameIdx) {
