@@ -23,7 +23,7 @@ export class Sequence extends Type<SequenceDefinition> {
     private parametersMapping: Map<string, number> = new Map()
     private subEntries: Map<string, SequenceFileEntry[]> = new Map<string, SequenceFileEntry[]>()
     private parameterSequence: ParameterSequence | null = null
-    private allAnimoFilenames: string[] = []
+    private allAnimoFilenames: Set<string> = new Set()
 
     private sounds: Map<string, Sound> = new Map()
 
@@ -84,9 +84,9 @@ export class Sequence extends Type<SequenceDefinition> {
             } else if (definition.TYPE === 'SPEAKING') {
                 const sequence = definition as Speaking
                 soundsNames.push(sequence.WAVFN)
-                this.allAnimoFilenames.push(definition.ANIMOFN)
+                this.allAnimoFilenames.add(definition.ANIMOFN)
             } else if (definition.TYPE === 'SIMPLE') {
-                this.allAnimoFilenames.push(definition.FILENAME)
+                this.allAnimoFilenames.add(definition.FILENAME)
             }
 
             if (definition.ADD) {
