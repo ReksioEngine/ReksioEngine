@@ -50581,6 +50581,7 @@ const double_1 = __webpack_require__(/*! ./types/double */ "./src/engine/types/d
 const expression_1 = __webpack_require__(/*! ./types/expression */ "./src/engine/types/expression.ts");
 const vector_1 = __webpack_require__(/*! ./types/vector */ "./src/engine/types/vector.ts");
 const staticFilter_1 = __webpack_require__(/*! ./types/staticFilter */ "./src/engine/types/staticFilter.ts");
+const filter_1 = __webpack_require__(/*! ./types/filter */ "./src/engine/types/filter.ts");
 const createTypeInstance = (engine, definition) => {
     switch (definition.TYPE) {
         case 'ANIMO':
@@ -50611,6 +50612,8 @@ const createTypeInstance = (engine, definition) => {
             return new episode_1.Episode(engine, definition);
         case 'EXPRESSION':
             return new expression_1.Expression(engine, definition);
+        case 'FILTER':
+            return new filter_1.Filter(engine, definition);
         case 'FONT':
             return new font_1.Font(engine, definition);
         case 'GROUP':
@@ -52603,6 +52606,24 @@ exports.Expression = Expression;
 
 /***/ }),
 
+/***/ "./src/engine/types/filter.ts":
+/*!************************************!*\
+  !*** ./src/engine/types/filter.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Filter = void 0;
+const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
+class Filter extends index_1.Type {
+}
+exports.Filter = Filter;
+
+
+/***/ }),
+
 /***/ "./src/engine/types/font.ts":
 /*!**********************************!*\
   !*** ./src/engine/types/font.ts ***!
@@ -53296,7 +53317,7 @@ class Sequence extends index_1.Type {
         this.parametersMapping = new Map();
         this.subEntries = new Map();
         this.parameterSequence = null;
-        this.allAnimoFilenames = [];
+        this.allAnimoFilenames = new Set();
         this.sounds = new Map();
         this.queue = [];
         this.activeAnimo = null;
@@ -53348,10 +53369,10 @@ class Sequence extends index_1.Type {
                 else if (definition.TYPE === 'SPEAKING') {
                     const sequence = definition;
                     soundsNames.push(sequence.WAVFN);
-                    this.allAnimoFilenames.push(definition.ANIMOFN);
+                    this.allAnimoFilenames.add(definition.ANIMOFN);
                 }
                 else if (definition.TYPE === 'SIMPLE') {
-                    this.allAnimoFilenames.push(definition.FILENAME);
+                    this.allAnimoFilenames.add(definition.FILENAME);
                 }
                 if (definition.ADD) {
                     let subEntries = [];
@@ -53370,6 +53391,7 @@ class Sequence extends index_1.Type {
     }
     PLAY(sequenceName) {
         (0, errors_1.assert)(this.parameterSequence !== null && this.subEntries !== null);
+        sequenceName = sequenceName.toString();
         const subEntries = this.subEntries.get(this.parameterSequence.NAME);
         if (subEntries !== undefined && this.parametersMapping.has(sequenceName)) {
             const entryIndex = this.parametersMapping.get(sequenceName);
@@ -54467,6 +54489,9 @@ const VectorDefinitionStructure = {
 const StaticFilterDefinitionStructure = {
     ACTION: common_1.string
 };
+const FilterDefinitionStructure = {
+    ACTION: common_1.string
+};
 exports.structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -54497,7 +54522,8 @@ exports.structureDefinitions = {
     DOUBLE: DoubleStructure,
     EXPRESSION: ExpressionDefinitionStructure,
     VECTOR: VectorDefinitionStructure,
-    STATICFILTER: StaticFilterDefinitionStructure
+    STATICFILTER: StaticFilterDefinitionStructure,
+    FILTER: FilterDefinitionStructure
 };
 
 
