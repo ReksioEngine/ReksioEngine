@@ -51514,6 +51514,10 @@ class Animo extends index_1.DisplayType {
         (0, errors_2.assert)(this.sprite !== null);
         this.sprite.visible = false;
     }
+    ISVISIBLE() {
+        (0, errors_2.assert)(this.sprite !== null);
+        return this.sprite.visible;
+    }
     MOVE(xOffset, yOffset) {
         (0, errors_2.assert)(this.sprite !== null);
         this.positionX += xOffset;
@@ -51823,8 +51827,8 @@ class ArrayObject extends index_1.ValueType {
     CONTAINS(value) {
         return this.value.includes(value);
     }
-    SUM() {
-        throw new errors_1.NotImplementedError();
+    SUM(arg) {
+        this.value = this.value.map((value) => value + arg);
     }
     SUBAT(position, value) {
         (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
