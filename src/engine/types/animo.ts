@@ -329,6 +329,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.visible = false
     }
 
+    ISVISIBLE() {
+        assert(this.sprite !== null)
+        return this.sprite.visible
+    }
+
     MOVE(xOffset: number, yOffset: number) {
         assert(this.sprite !== null)
 
