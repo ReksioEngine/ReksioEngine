@@ -106,8 +106,9 @@ export class Sequence extends Type<SequenceDefinition> {
         }
     }
 
-    PLAY(sequenceName: string) {
+    PLAY(sequenceName: string | number) {
         assert(this.parameterSequence !== null && this.subEntries !== null)
+        sequenceName = sequenceName.toString()
 
         const subEntries = this.subEntries.get(this.parameterSequence.NAME)
         if (subEntries !== undefined && this.parametersMapping.has(sequenceName)) {
