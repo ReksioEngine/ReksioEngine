@@ -32,6 +32,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     private readonly engine?: Engine
     private readonly args: any[]
     private readonly script?: string
+    private readonly printDebug: boolean
 
     public lastContext: ParserRuleContext | null = null
     public methodCallUsedVariables: any = {}
@@ -39,12 +40,12 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 
     private libraries = new Map<string, any>()
 
-    constructor(engine?: Engine, script?: string, args?: any[]) {
+    constructor(engine?: Engine, script?: string, args?: any[], printDebug?: boolean) {
         super()
         this.engine = engine
         this.script = script
-        this.args = args
         this.args = args ?? []
+        this.printDebug = printDebug ?? true
         this.loadLibraries()
     }
 
@@ -96,16 +97,18 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             this.methodCallUsedVariables[identifier] = object
             this.scriptUsedVariables[identifier] = object
             if (object === null) {
-                const code = this.markInCode(ctx)
-                console.error(
-                    'Unknown identifier\n' +
-                    '\n' +
-                    `%cCode:%c\n${code}\n\n` +
-                    '%cUsed variables:%c%O',
-                    'font-weight: bold', 'font-weight: inherit',
-                    'color: red', 'color: inherit',
-                    'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables
-                )
+                if (this.printDebug) {
+                    const code = this.markInCode(ctx)
+                    console.error(
+                        'Unknown identifier\n' +
+                        '\n' +
+                        `%cCode:%c\n${code}\n\n` +
+                        '%cUsed variables:%c%O',
+                        'font-weight: bold', 'font-weight: inherit',
+                        'color: red', 'color: inherit',
+                        'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables
+                    )
+                }
 
                 // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
                 return null
@@ -150,28 +153,30 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 throw err
             }
 
-            const code = this.markInCode(ctx)
-            console.error(
-                'Error occurred during method call\n' +
-                '\n' +
-                `%cCode:%c\n${code}` +
-                '\n' +
-                '%cObject:%c %O\n' +
-                (args.length > 0 ? '%cArguments:%c %O\n' : '') +
-                (this.args?.length ? '%cBehaviour Arguments:%c %O\n' : '') +
-                (Object.keys(argsVariables).length > 0 ? '%cVariables used in call:%c %O\n' : '') +
-                (Object.keys(this.scriptUsedVariables).length > 0 ? '%cVariables used in script:%c %O\n' : '') +
-                '%cScope:%c %O\n',
-                'font-weight: bold', 'font-weight: inherit',
-                'color: red', 'color: inherit',
-                'font-weight: bold', 'font-weight: inherit', object,
-                ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []),
-                ...(this.args?.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []),
-                ...(Object.keys(argsVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', argsVariables] : []),
-                ...(Object.keys(this.scriptUsedVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables] : []),
-                'font-weight: bold', 'font-weight: inherit', this.engine?.scope,
-            )
-            console.error(err)
+            if (this.printDebug) {
+                const code = this.markInCode(ctx)
+                console.error(
+                    'Error occurred during method call\n' +
+                    '\n' +
+                    `%cCode:%c\n${code}` +
+                    '\n' +
+                    '%cObject:%c %O\n' +
+                    (args.length > 0 ? '%cArguments:%c %O\n' : '') +
+                    (this.args.length ? '%cBehaviour Arguments:%c %O\n' : '') +
+                    (Object.keys(argsVariables).length > 0 ? '%cVariables used in call:%c %O\n' : '') +
+                    (Object.keys(this.scriptUsedVariables).length > 0 ? '%cVariables used in script:%c %O\n' : '') +
+                    '%cScope:%c %O\n',
+                    'font-weight: bold', 'font-weight: inherit',
+                    'color: red', 'color: inherit',
+                    'font-weight: bold', 'font-weight: inherit', object,
+                    ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []),
+                    ...(this.args.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []),
+                    ...(Object.keys(argsVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', argsVariables] : []),
+                    ...(Object.keys(this.scriptUsedVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables] : []),
+                    'font-weight: bold', 'font-weight: inherit', this.engine?.scope,
+                )
+                console.error(err)
+            }
 
             if (err instanceof NotImplementedError) {
                 return null
@@ -219,7 +224,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             } else if (!result && onFalse !== null) {
                 onFalse.RUNC()
             }
-        } else {
+        } else if (this.printDebug) {
             const code = this.markInCode(ctx)
             console.error(
                 `Unknown special call ${methodName}` +
@@ -257,18 +262,20 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 return this.libraries.get(objectName)
             }
 
-            const code = this.markInCode(ctx)
-            console.error(
-                'Unknown identifier\n' +
-                '\n' +
-                `%cCode:%c\n${code}\n\n` +
-                '%cUsed variables:%c %O\n' +
-                '%cScope:%c %O\n',
-                'font-weight: bold', 'font-weight: inherit',
-                'color: red', 'color: inherit',
-                'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables,
-                'font-weight: bold', 'font-weight: inherit', this.engine?.scope,
-            )
+            if (this.printDebug) {
+                const code = this.markInCode(ctx)
+                console.error(
+                    'Unknown identifier\n' +
+                    '\n' +
+                    `%cCode:%c\n${code}\n\n` +
+                    '%cUsed variables:%c %O\n' +
+                    '%cScope:%c %O\n',
+                    'font-weight: bold', 'font-weight: inherit',
+                    'color: red', 'color: inherit',
+                    'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables,
+                    'font-weight: bold', 'font-weight: inherit', this.engine?.scope,
+                )
+            }
 
             // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
             return null
@@ -322,13 +329,13 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 }
 
-export const runScript = (engine: Engine, script: string, args?: any[], singleStatement: boolean = false) => {
+export const runScript = (engine: Engine, script: string, args?: any[], singleStatement: boolean = false, printDebug = true) => {
     const lexer = new ReksioLangLexer(new antlr4.CharStream(script))
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioLangParser(tokens)
     const tree = singleStatement ? parser.statement() : parser.statementList()
 
-    const evaluator = new ScriptEvaluator(engine, script, args)
+    const evaluator = new ScriptEvaluator(engine, script, args, printDebug)
     try {
         return tree.accept(evaluator)
     } catch (err) {
@@ -337,14 +344,19 @@ export const runScript = (engine: Engine, script: string, args?: any[], singleSt
         } else if (!(err instanceof AlreadyDisplayedError)) {
             if (evaluator.lastContext) {
                 const code = evaluator.markInCode(evaluator.lastContext)
-                console.error(
-                    'Execution stopped due to irrecoverable error\n\n' +
-                    `%cCode:%c\n${code}`,
-                    'font-weight: bold', 'font-weight: inherit',
-                    'color: red', 'color: inherit',
-                )
+
+                if (printDebug) {
+                    console.error(
+                        'Execution stopped due to irrecoverable error\n\n' +
+                        `%cCode:%c\n${code}`,
+                        'font-weight: bold', 'font-weight: inherit',
+                        'color: red', 'color: inherit',
+                    )
+                }
             }
-            console.error(err)
+            if (printDebug) {
+                console.error(err)
+            }
             throw err
         }
     }

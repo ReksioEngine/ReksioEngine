@@ -34,13 +34,22 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     RUNLOOPED(init: number, len: number, step: number = 1, ...args: any[]) {
+        const resolvedArgs = args.map((arg) => {
+            if (typeof arg !== 'string') {
+                return arg
+            }
+
+            const result = this.engine.runScript(arg.toString(), [], true, false)
+            return result !== null ? result : arg
+        })
+
         for (let i = init; i < len; i += step) {
             try {
                 if (!this.shouldRun()) {
                     continue
                 }
 
-                this.engine.executeCallback(null, this.definition.CODE, [i, ...args])
+                this.engine.executeCallback(null, this.definition.CODE, [i, step, ...resolvedArgs])
             } catch (err) {
                 if (err instanceof InterruptScriptExecution) {
                     if (err.one) {

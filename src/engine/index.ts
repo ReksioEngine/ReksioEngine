@@ -119,6 +119,10 @@ export class Engine {
         }
     }
 
+    runScript(code: string, args: any[], isSingleStatement: boolean, printDebug: boolean) {
+        return runScript(this, code, args, isSingleStatement, printDebug)
+    }
+
     addToStage(sprite: Sprite) {
         this.app.stage.addChild(sprite)
         this.sortObjects()
