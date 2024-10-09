@@ -191,9 +191,8 @@ export class Button extends Type<ButtonDefinition> {
 
         this.logic.registerInteractive(renderObject)
 
-        if (renderObject instanceof AdvancedSprite) {
-            renderObject.checkPixelPerfect = true
-        } else if (object instanceof Image) {
+        renderObject.checkPixelPerfect = true
+        if (object instanceof Image) {
             renderObject.eventMode = 'dynamic'
         }
     }
@@ -204,9 +203,8 @@ export class Button extends Type<ButtonDefinition> {
 
         this.logic.unregisterInteractive(renderObject)
 
-        if (renderObject instanceof AdvancedSprite) {
-            renderObject.checkPixelPerfect = false
-        } else if (object instanceof Image) {
+        renderObject.checkPixelPerfect = true
+        if (object instanceof Image) {
             renderObject.eventMode = 'none'
         }
     }

@@ -2,11 +2,12 @@ import {DisplayType} from './index'
 import {Engine} from '../index'
 import {ImageDefinition} from '../../fileFormats/cnv/types'
 import {assert, NotImplementedError} from '../../errors'
-import {Sprite} from 'pixi.js'
+import {Point} from 'pixi.js'
 import {loadSprite} from '../assetsLoader'
+import {AdvancedSprite} from '../rendering'
 
 export class Image extends DisplayType<ImageDefinition> {
-    public sprite: Sprite | null = null
+    public sprite: AdvancedSprite | null = null
 
     constructor(engine: Engine, definition: ImageDefinition) {
         super(engine, definition)
@@ -74,7 +75,8 @@ export class Image extends DisplayType<ImageDefinition> {
     }
 
     GETALPHA(x: number, y: number) {
-        throw new NotImplementedError()
+        assert(this.sprite !== null)
+        return this.sprite.getAlphaAt(new Point(x, y))
     }
 
     getRenderObject() {
