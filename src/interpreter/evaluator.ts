@@ -30,7 +30,7 @@ class AlreadyDisplayedError {
 
 export class ScriptEvaluator extends ReksioLangVisitor<any> {
     private readonly engine?: Engine
-    private readonly args?: any[]
+    private readonly args: any[]
     private readonly script?: string
 
     public lastContext: ParserRuleContext | null = null
@@ -44,6 +44,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         this.engine = engine
         this.script = script
         this.args = args
+        this.args = args ?? []
         this.loadLibraries()
     }
 
@@ -79,7 +80,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         } else if (ctx.negativeNumber() != null) {
             return ForceNumber(ctx.negativeNumber().getText())
         } else if (ctx.STRING() != null) {
-            return ctx.STRING().getText().replace(/^"+|"+$/g, '')
+            return this.replacePlaceholders(ctx.STRING().getText().replace(/^"+|"+$/g, ''))
         } else if (ctx.IDENTIFIER() != null) {
             const identifier = ctx.IDENTIFIER().getText()
             if (identifier.startsWith('$') && this.args) {
@@ -113,6 +114,13 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         }
 
         return this.visitChildren(ctx)[0]
+    }
+
+    replacePlaceholders(str: string): string {
+        return str.replace(/\$(\d+)/g, (match, index) => {
+            const valueIndex = parseInt(index, 10) - 1
+            return valueIndex >= 0 && valueIndex < this.args.length ? this.args[valueIndex] : match
+        })
     }
 
     visitMethodCall = (ctx: MethodCallContext): any => {
