@@ -58,6 +58,10 @@ export class Timer extends Type<TimerDefinition> {
         }
     }
 
+    SET(value: number) {
+        this.collectedTime = value
+    }
+
     RESET() {
         this.collectedTime = 0
         this.currentTick = 0
