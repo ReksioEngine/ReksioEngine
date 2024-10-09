@@ -56,7 +56,7 @@ export class Application extends Type<ApplicationDefinition> {
         if (object[methodName]) {
             return object[methodName](...args)
         } else {
-            return object.__call(methodName, ...args)
+            return object.__call(methodName, args)
         }
     }
 
