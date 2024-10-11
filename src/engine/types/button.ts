@@ -16,6 +16,7 @@ export class Button extends Type<ButtonDefinition> {
     private gfxOnMove: Image | Animo | null = null
 
     private interactArea: Graphics | null = null
+    private rect: Rectangle | null = null
 
     constructor(engine: Engine, definition: ButtonDefinition) {
         super(engine, definition)
@@ -88,6 +89,7 @@ export class Button extends Type<ButtonDefinition> {
             this.engine.app.stage.addChild(this.interactArea)
         }
 
+        this.rect = rectangle
         this.interactArea.hitArea = rectangle
         this.interactArea.zIndex = 9999999 - rectangle.top
     }
@@ -214,5 +216,14 @@ export class Button extends Type<ButtonDefinition> {
                 renderObject.alpha = alpha
             }
         }
+    }
+
+    public getArea() {
+        if (this.rect !== null) {
+            return this.rect
+        } else if (this.gfxStandard?.getRenderObject()) {
+            return this.gfxStandard.getRenderObject()!.getBounds()
+        }
+        return null
     }
 }

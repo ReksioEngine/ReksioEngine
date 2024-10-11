@@ -91,6 +91,8 @@ export class Engine {
                 this.pause()
             }
         }
+
+        this.debug.updateXRay()
     }
 
     executeCallback(caller: Type<any> | null, callback: callback, args?: any[]) {
