@@ -50171,17 +50171,20 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.loadTexture = exports.loadSprite = exports.loadSound = void 0;
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
+const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
 const loadSound = (fileLoader, filename, options) => __awaiter(void 0, void 0, void 0, function* () {
     return sound_1.Sound.from(Object.assign({ source: yield fileLoader.getRawFile(filename) }, options));
 });
 exports.loadSound = loadSound;
 const loadSprite = (fileLoader, filename) => __awaiter(void 0, void 0, void 0, function* () {
     const image = yield fileLoader.getIMGFile(filename);
+    const imageBytes = new Uint8Array(image.bytes);
     const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(image.bytes), image.header.width, image.header.height);
     const texture = new PIXI.Texture(baseTexture);
-    const sprite = new PIXI.Sprite(texture);
+    const sprite = new rendering_1.AdvancedSprite(texture);
     sprite.x = image.header.positionX;
     sprite.y = image.header.positionY;
+    sprite.hitmap = (0, rendering_1.createHitmapFromImageBytes)(imageBytes);
     return sprite;
 });
 exports.loadSprite = loadSprite;
@@ -50451,12 +50454,19 @@ exports.EventsComponent = EventsComponent;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Debugging = void 0;
+const types_1 = __webpack_require__(/*! ./types */ "./src/engine/types/index.ts");
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const filesLoader_1 = __webpack_require__(/*! ./filesLoader */ "./src/engine/filesLoader.ts");
+const utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
+const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
+const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/animo.ts");
+const button_1 = __webpack_require__(/*! ./types/button */ "./src/engine/types/button.ts");
 class Debugging {
     constructor(engine, isDebug) {
         this.isDebug = false;
         this.nextSceneOverwrite = null;
+        this.xrays = new Map();
+        this.enableXRay = false;
         this.engine = engine;
         this.isDebug = isDebug;
     }
@@ -50501,6 +50511,10 @@ class Debugging {
             sound_1.sound.speedAll = 1;
             debug.querySelector('#speedDisplay').textContent = '(1x)';
         });
+        debug.querySelector('#xray').addEventListener('change', (e) => {
+            const target = e.target;
+            this.enableXRay = target.checked;
+        });
         const episode = Object.values(this.engine.globalScope).find((object) => object.definition.TYPE === 'EPISODE');
         const container = document.querySelector('#sceneSelector');
         for (const sceneName of episode.definition.SCENES) {
@@ -50524,6 +50538,100 @@ class Debugging {
         if (this.isDebug) {
             const currentScene = document.querySelector('#currentScene');
             currentScene.textContent = this.engine.currentScene.definition.NAME;
+        }
+        for (const [name, sprite] of this.xrays) {
+            this.engine.app.stage.removeChild(sprite);
+            this.xrays.delete(name);
+        }
+    }
+    updateXRay() {
+        if (!this.enableXRay) {
+            for (const [name, sprite] of this.xrays) {
+                this.engine.app.stage.removeChild(sprite);
+                this.xrays.delete(name);
+            }
+            return;
+        }
+        for (const object of Object.values(this.engine.scope)) {
+            if (!(object instanceof types_1.DisplayType) && !(object instanceof button_1.Button)) {
+                continue;
+            }
+            let rectangle;
+            let visible;
+            let isInteractive;
+            let position = 'inside';
+            if (object instanceof types_1.DisplayType) {
+                const renderObject = object.getRenderObject();
+                if (renderObject === null) {
+                    continue;
+                }
+                rectangle = renderObject.getBounds();
+                visible = renderObject.visible;
+                const listenersCount = renderObject.listenerCount('pointerover')
+                    + renderObject.listenerCount('pointerout')
+                    + renderObject.listenerCount('pointerdown')
+                    + renderObject.listenerCount('pointerup');
+                isInteractive = listenersCount > 0;
+                position = 'inside';
+            }
+            else {
+                const area = object.getArea();
+                if (area === null) {
+                    continue;
+                }
+                rectangle = area;
+                visible = true;
+                isInteractive = true;
+                position = 'outside';
+            }
+            if (this.xrays.has(object.name)) {
+                const oldRectangle = this.xrays.get(object.name);
+                if (oldRectangle.x === rectangle.x && oldRectangle.y === rectangle.y && oldRectangle.width === rectangle.width && oldRectangle.height === rectangle.height) {
+                    continue;
+                }
+                this.engine.app.stage.removeChild(this.xrays.get(object.name));
+                this.xrays.delete(object.name);
+            }
+            if (!visible) {
+                continue;
+            }
+            const drawRect = new pixi_js_1.Rectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+            const graphics = new pixi_js_1.Graphics();
+            if (isInteractive) {
+                (0, utils_1.drawRectangle)(graphics, drawRect, 0, 0, 1, 0x00ff00);
+            }
+            else {
+                (0, utils_1.drawRectangle)(graphics, drawRect, 0, 0, 1, 0x0000ff);
+            }
+            const container = new pixi_js_1.Container();
+            container.eventMode = 'none';
+            const texture = this.engine.app.renderer.generateTexture(graphics);
+            const sprite = new pixi_js_1.Sprite(texture);
+            sprite.zIndex = 99999999;
+            sprite.x = rectangle.x;
+            sprite.y = rectangle.y;
+            container.addChild(sprite);
+            const nameText = new pixi_js_1.Text(object.name);
+            nameText.style.fontSize = position === 'outside' ? 7 : 11;
+            nameText.style.fontWeight = 'bold';
+            nameText.style.fill = '#ff0000';
+            nameText.style.stroke = '#000000';
+            nameText.style.strokeThickness = 2;
+            nameText.x = (position === 'outside' ? rectangle.x : rectangle.x + 5);
+            nameText.y = (position === 'outside' ? rectangle.y - 16 : rectangle.y) + 5;
+            container.addChild(nameText);
+            if (object instanceof animo_1.Animo) {
+                const eventText = new pixi_js_1.Text(object.GETEVENTNAME());
+                eventText.style.fontSize = 8;
+                eventText.style.fill = '#00ffff';
+                eventText.style.stroke = '#000000';
+                eventText.style.strokeThickness = 2;
+                eventText.x = position === 'outside' ? rectangle.x : rectangle.x + 5;
+                eventText.y = (position === 'outside' ? rectangle.y - 15 : rectangle.y) + 5 + 12;
+                container.addChild(eventText);
+            }
+            this.engine.app.stage.addChild(container);
+            this.xrays.set(object.name, container);
         }
     }
 }
@@ -50928,6 +51036,7 @@ class Engine {
                 this.pause();
             }
         }
+        this.debug.updateXRay();
     }
     executeCallback(caller, callback, args) {
         if (caller !== null) {
@@ -51128,27 +51237,35 @@ exports.preloadAssets = preloadAssets;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createHitmapFromImageBytes = exports.AdvancedSprite = void 0;
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
+const errors_1 = __webpack_require__(/*! ../errors */ "./src/errors.ts");
 class AdvancedSprite extends pixi_js_1.Sprite {
     constructor() {
         super(...arguments);
         this.checkPixelPerfect = false;
     }
-    containsPoint(point) {
-        if (!this.checkPixelPerfect || !this.hitmap) {
-            return super.containsPoint(point);
-        }
+    getAlphaAt(point) {
+        (0, errors_1.assert)(this.hitmap !== undefined);
         const tempPoint = { x: 0, y: 0 };
         this.worldTransform.applyInverse(point, tempPoint);
         const width = this._texture.orig.width;
         const height = this._texture.orig.height;
-        const x = tempPoint.x + width * this.anchor.x;
-        const y = tempPoint.y + height * this.anchor.y;
-        if (x < 0 || x > width)
-            return false;
-        if (y < 0 || y > height)
-            return false;
-        const pixelOffset = (Math.floor(y) * width + Math.floor(x));
-        return pixelOffset <= this.hitmap.length - 1 && this.hitmap[pixelOffset] > 0;
+        const x = Math.floor(tempPoint.x + width * this.anchor.x);
+        const y = Math.floor(tempPoint.y + height * this.anchor.y);
+        if (x < 0 || x > width || y < 0 || y > height) {
+            return 0; // unsure
+        }
+        const pixelOffset = (y * width + x);
+        if (pixelOffset > this.hitmap.length - 1) {
+            return 0; // unsure
+        }
+        return this.hitmap[pixelOffset];
+    }
+    containsPoint(point) {
+        if (!this.checkPixelPerfect || !this.hitmap) {
+            return super.containsPoint(point);
+        }
+        const alpha = this.getAlphaAt(point);
+        return alpha !== null && alpha > 0;
     }
 }
 exports.AdvancedSprite = AdvancedSprite;
@@ -52024,7 +52141,6 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const image_1 = __webpack_require__(/*! ./image */ "./src/engine/types/image.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/components/button.ts");
-const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 class Button extends index_1.Type {
     constructor(engine, definition) {
@@ -52033,6 +52149,7 @@ class Button extends index_1.Type {
         this.gfxOnClick = null;
         this.gfxOnMove = null;
         this.interactArea = null;
+        this.rect = null;
         this.callbacks.register('ONACTION', definition.ONACTION);
         this.callbacks.register('ONCLICKED', definition.ONCLICKED);
         this.callbacks.register('ONDRAGGING', definition.ONDRAGGING);
@@ -52090,6 +52207,7 @@ class Button extends index_1.Type {
             this.interactArea.visible = this.definition.ENABLE;
             this.engine.app.stage.addChild(this.interactArea);
         }
+        this.rect = rectangle;
         this.interactArea.hitArea = rectangle;
         this.interactArea.zIndex = 9999999 - rectangle.top;
     }
@@ -52191,10 +52309,8 @@ class Button extends index_1.Type {
         const renderObject = object.getRenderObject();
         (0, errors_1.assert)(renderObject !== null);
         this.logic.registerInteractive(renderObject);
-        if (renderObject instanceof rendering_1.AdvancedSprite) {
-            renderObject.checkPixelPerfect = true;
-        }
-        else if (object instanceof image_1.Image) {
+        renderObject.checkPixelPerfect = true;
+        if (object instanceof image_1.Image) {
             renderObject.eventMode = 'dynamic';
         }
     }
@@ -52202,10 +52318,8 @@ class Button extends index_1.Type {
         const renderObject = object.getRenderObject();
         (0, errors_1.assert)(renderObject !== null);
         this.logic.unregisterInteractive(renderObject);
-        if (renderObject instanceof rendering_1.AdvancedSprite) {
-            renderObject.checkPixelPerfect = false;
-        }
-        else if (object instanceof image_1.Image) {
+        renderObject.checkPixelPerfect = true;
+        if (object instanceof image_1.Image) {
             renderObject.eventMode = 'none';
         }
     }
@@ -52216,6 +52330,16 @@ class Button extends index_1.Type {
                 renderObject.alpha = alpha;
             }
         }
+    }
+    getArea() {
+        var _a;
+        if (this.rect !== null) {
+            return this.rect;
+        }
+        else if ((_a = this.gfxStandard) === null || _a === void 0 ? void 0 : _a.getRenderObject()) {
+            return this.gfxStandard.getRenderObject().getBounds();
+        }
+        return null;
     }
 }
 exports.Button = Button;
@@ -52738,6 +52862,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Image = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
 class Image extends index_1.DisplayType {
     constructor(engine, definition) {
@@ -52800,7 +52925,8 @@ class Image extends index_1.DisplayType {
         return this.sprite.y;
     }
     GETALPHA(x, y) {
-        throw new errors_1.NotImplementedError();
+        (0, errors_1.assert)(this.sprite !== null);
+        return this.sprite.getAlphaAt(new pixi_js_1.Point(x, y));
     }
     getRenderObject() {
         return this.sprite;
@@ -53912,6 +54038,9 @@ class Timer extends index_1.Type {
         else {
             this.elapse = newElapse;
         }
+    }
+    SET(value) {
+        this.collectedTime = value;
     }
     RESET() {
         this.collectedTime = 0;
