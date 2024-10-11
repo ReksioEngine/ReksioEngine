@@ -1,12 +1,10 @@
 import {Type} from './index'
 import {Engine} from '../index'
 import {ButtonDefinition} from '../../fileFormats/cnv/types'
-import {drawRectangle} from '../../utils'
 import {Image} from './image'
 import {Graphics, Rectangle} from 'pixi.js'
 import {ButtonLogicComponent, Event, State} from '../components/button'
 import {Animo} from './animo'
-import {AdvancedSprite} from '../rendering'
 import {assert} from '../../errors'
 import {reference} from '../../fileFormats/common'
 
