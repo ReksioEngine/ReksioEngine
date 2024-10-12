@@ -50539,15 +50539,20 @@ class Debugging {
             const currentScene = document.querySelector('#currentScene');
             currentScene.textContent = this.engine.currentScene.definition.NAME;
         }
-        for (const [name, sprite] of this.xrays) {
-            this.engine.app.stage.removeChild(sprite);
+        for (const [name, container] of this.xrays) {
+            container.destroy({
+                children: true
+            });
             this.xrays.delete(name);
         }
     }
     updateXRay() {
+        var _a;
         if (!this.enableXRay) {
-            for (const [name, sprite] of this.xrays) {
-                this.engine.app.stage.removeChild(sprite);
+            for (const [name, container] of this.xrays) {
+                container.destroy({
+                    children: true
+                });
                 this.xrays.delete(name);
             }
             return;
@@ -50584,54 +50589,74 @@ class Debugging {
                 isInteractive = true;
                 position = 'outside';
             }
+            if (!visible) {
+                (_a = this.xrays.get(object.name)) === null || _a === void 0 ? void 0 : _a.destroy({
+                    children: true
+                });
+                this.xrays.delete(object.name);
+                continue;
+            }
             if (this.xrays.has(object.name)) {
                 const oldRectangle = this.xrays.get(object.name);
                 if (oldRectangle.x === rectangle.x && oldRectangle.y === rectangle.y && oldRectangle.width === rectangle.width && oldRectangle.height === rectangle.height) {
                     continue;
                 }
-                this.engine.app.stage.removeChild(this.xrays.get(object.name));
-                this.xrays.delete(object.name);
             }
-            if (!visible) {
-                continue;
+            let container;
+            let graphics;
+            let nameText;
+            let eventText = null;
+            if (this.xrays.has(object.name)) {
+                container = this.xrays.get(object.name);
+                graphics = container.getChildAt(0);
+                graphics.clear();
+                nameText = container.getChildAt(1);
+                nameText.text = object.name;
+                if (object instanceof animo_1.Animo) {
+                    eventText = container.getChildAt(2);
+                    eventText.text = object.GETEVENTNAME();
+                }
+            }
+            else {
+                container = new pixi_js_1.Container();
+                container.eventMode = 'none';
+                this.engine.app.stage.addChild(container);
+                this.xrays.set(object.name, container);
+                graphics = new pixi_js_1.Graphics();
+                container.addChild(graphics);
+                nameText = new pixi_js_1.Text(object.name);
+                container.addChild(nameText);
+                if (object instanceof animo_1.Animo) {
+                    eventText = new pixi_js_1.Text(object.GETEVENTNAME());
+                    container.addChild(eventText);
+                }
             }
             const drawRect = new pixi_js_1.Rectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-            const graphics = new pixi_js_1.Graphics();
             if (isInteractive) {
                 (0, utils_1.drawRectangle)(graphics, drawRect, 0, 0, 1, 0x00ff00);
             }
             else {
                 (0, utils_1.drawRectangle)(graphics, drawRect, 0, 0, 1, 0x0000ff);
             }
-            const container = new pixi_js_1.Container();
-            container.eventMode = 'none';
-            const texture = this.engine.app.renderer.generateTexture(graphics);
-            const sprite = new pixi_js_1.Sprite(texture);
-            sprite.zIndex = 99999999;
-            sprite.x = rectangle.x;
-            sprite.y = rectangle.y;
-            container.addChild(sprite);
-            const nameText = new pixi_js_1.Text(object.name);
-            nameText.style.fontSize = position === 'outside' ? 7 : 11;
-            nameText.style.fontWeight = 'bold';
-            nameText.style.fill = '#ff0000';
-            nameText.style.stroke = '#000000';
-            nameText.style.strokeThickness = 2;
-            nameText.x = (position === 'outside' ? rectangle.x : rectangle.x + 5);
-            nameText.y = (position === 'outside' ? rectangle.y - 16 : rectangle.y) + 5;
-            container.addChild(nameText);
-            if (object instanceof animo_1.Animo) {
-                const eventText = new pixi_js_1.Text(object.GETEVENTNAME());
-                eventText.style.fontSize = 8;
-                eventText.style.fill = '#00ffff';
-                eventText.style.stroke = '#000000';
-                eventText.style.strokeThickness = 2;
+            nameText.style = {
+                fontSize: position === 'outside' ? 7 : 11,
+                fontWeight: 'bold',
+                fill: '#ff0000',
+                stroke: '#000000',
+                strokeThickness: 2,
+            };
+            nameText.x = rectangle.x + (position === 'outside' ? 0 : 5);
+            nameText.y = rectangle.y + (position === 'outside' ? -11 : 5);
+            if (object instanceof animo_1.Animo && eventText !== null) {
+                eventText.style = {
+                    fontSize: 8,
+                    fill: '#00ffff',
+                    stroke: '#000000',
+                    strokeThickness: 2,
+                };
                 eventText.x = position === 'outside' ? rectangle.x : rectangle.x + 5;
                 eventText.y = (position === 'outside' ? rectangle.y - 15 : rectangle.y) + 5 + 12;
-                container.addChild(eventText);
             }
-            this.engine.app.stage.addChild(container);
-            this.xrays.set(object.name, container);
         }
     }
 }
