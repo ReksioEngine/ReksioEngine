@@ -104,16 +104,20 @@ export class Debugging {
             currentScene.textContent = this.engine.currentScene!.definition.NAME
         }
 
-        for (const [name, sprite] of this.xrays) {
-            this.engine.app.stage.removeChild(sprite)
+        for (const [name, container] of this.xrays) {
+            container.destroy({
+                children: true
+            })
             this.xrays.delete(name)
         }
     }
 
     updateXRay() {
         if (!this.enableXRay) {
-            for (const [name, sprite] of this.xrays) {
-                this.engine.app.stage.removeChild(sprite)
+            for (const [name, container] of this.xrays) {
+                container.destroy({
+                    children: true
+                })
                 this.xrays.delete(name)
             }
             return
@@ -134,6 +138,7 @@ export class Debugging {
                 if (renderObject === null) {
                     continue
                 }
+
                 rectangle = renderObject.getBounds()
                 visible = renderObject.visible
 
@@ -156,62 +161,83 @@ export class Debugging {
                 position = 'outside'
             }
 
+            if (!visible) {
+                this.xrays.get(object.name)?.destroy({
+                    children: true
+                })
+                this.xrays.delete(object.name)
+                continue
+            }
+
             if (this.xrays.has(object.name)) {
                 const oldRectangle = this.xrays.get(object.name)!
                 if (oldRectangle.x === rectangle.x && oldRectangle.y === rectangle.y && oldRectangle.width === rectangle.width && oldRectangle.height === rectangle.height) {
                     continue
                 }
-
-                this.engine.app.stage.removeChild(this.xrays.get(object.name)!)
-                this.xrays.delete(object.name)
             }
 
-            if (!visible) {
-                continue
+            let container: Container
+            let graphics: Graphics
+            let nameText: Text
+            let eventText: Text | null = null
+
+            if (this.xrays.has(object.name)) {
+                container = this.xrays.get(object.name)!
+                graphics = container.getChildAt(0) as Graphics
+                graphics.clear()
+
+                nameText = container.getChildAt(1) as Text
+                nameText.text = object.name
+
+                if (object instanceof Animo) {
+                    eventText = container.getChildAt(2) as Text
+                    eventText.text = object.GETEVENTNAME()
+                }
+            } else {
+                container = new Container()
+                container.eventMode = 'none'
+                this.engine.app.stage.addChild(container)
+                this.xrays.set(object.name, container)
+
+                graphics = new Graphics()
+                container.addChild(graphics)
+
+                nameText = new Text(object.name)
+                container.addChild(nameText)
+
+                if (object instanceof Animo) {
+                    eventText = new Text(object.GETEVENTNAME())
+                    container.addChild(eventText)
+                }
             }
 
             const drawRect = new Rectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height)
-            const graphics = new Graphics()
-
             if (isInteractive) {
                 drawRectangle(graphics, drawRect, 0, 0, 1, 0x00ff00)
             } else {
                 drawRectangle(graphics, drawRect, 0, 0, 1, 0x0000ff)
             }
 
-            const container = new Container()
-            container.eventMode = 'none'
+            nameText.style = {
+                fontSize: position === 'outside' ? 7 : 11,
+                fontWeight: 'bold',
+                fill: '#ff0000',
+                stroke: '#000000',
+                strokeThickness: 2,
+            }
+            nameText.x = rectangle.x + (position === 'outside' ? 0 : 5)
+            nameText.y = rectangle.y + (position === 'outside' ? -11 : 5)
 
-            const texture = this.engine.app.renderer.generateTexture(graphics)
-            const sprite = new Sprite(texture)
-            sprite.zIndex = 99999999
-            sprite.x = rectangle.x
-            sprite.y = rectangle.y
-            container.addChild(sprite)
-
-            const nameText = new Text(object.name)
-            nameText.style.fontSize = position === 'outside' ? 7 : 11
-            nameText.style.fontWeight = 'bold'
-            nameText.style.fill = '#ff0000'
-            nameText.style.stroke = '#000000'
-            nameText.style.strokeThickness = 2
-            nameText.x = (position === 'outside' ? rectangle.x : rectangle.x + 5)
-            nameText.y = (position === 'outside' ? rectangle.y - 16 : rectangle.y) + 5
-            container.addChild(nameText)
-
-            if (object instanceof Animo) {
-                const eventText = new Text(object.GETEVENTNAME())
-                eventText.style.fontSize = 8
-                eventText.style.fill = '#00ffff'
-                eventText.style.stroke = '#000000'
-                eventText.style.strokeThickness = 2
+            if (object instanceof Animo && eventText !== null) {
+                eventText.style = {
+                    fontSize: 8,
+                    fill: '#00ffff',
+                    stroke: '#000000',
+                    strokeThickness: 2,
+                }
                 eventText.x = position === 'outside' ? rectangle.x : rectangle.x + 5
                 eventText.y = (position === 'outside' ? rectangle.y - 15 : rectangle.y) + 5 + 12
-                container.addChild(eventText)
             }
-
-            this.engine.app.stage.addChild(container)
-            this.xrays.set(object.name, container)
         }
     }
 }
