@@ -111,11 +111,7 @@ export const loadDefinition = async (engine: Engine, scope: Record<string, any>,
         instance.parent = parent
         scope[key] = instance
 
-        if (instance instanceof Behaviour && instance.name === '__INIT__') {
-            orderedScope.unshift(instance)
-        } else {
-            orderedScope.push(instance)
-        }
+        orderedScope.push(instance)
 
         if (instance instanceof DisplayType) {
             engine.renderingOrder.push(instance)
