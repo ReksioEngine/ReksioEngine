@@ -50266,7 +50266,7 @@ class ButtonLogicComponent {
         sprite.addListener('pointerup', this.onMouseUpCallback);
     }
     unregisterInteractive(sprite) {
-        sprite.eventMode = 'auto';
+        sprite.eventMode = 'none';
         sprite.cursor = 'default';
         sprite.removeListener('pointerover', this.onMouseOverCallback);
         sprite.removeListener('pointerout', this.onMouseOutCallback);
@@ -50791,12 +50791,7 @@ const loadDefinition = (engine, scope, definition, parent) => __awaiter(void 0, 
         const instance = createTypeInstance(engine, value);
         instance.parent = parent;
         scope[key] = instance;
-        if (instance instanceof behaviour_1.Behaviour && instance.name === '__INIT__') {
-            orderedScope.unshift(instance);
-        }
-        else {
-            orderedScope.push(instance);
-        }
+        orderedScope.push(instance);
         if (instance instanceof types_1.DisplayType) {
             engine.renderingOrder.push(instance);
         }
@@ -52250,7 +52245,6 @@ class Button extends index_1.Type {
         if (this.interactArea) {
             // For area button
             this.interactArea.visible = state != button_1.State.DISABLED;
-            this.interactArea.interactive = state != button_1.State.DISABLED;
         }
         if (state == button_1.State.DISABLED) {
             (_a = this.gfxStandard) === null || _a === void 0 ? void 0 : _a.HIDE();
