@@ -82,7 +82,7 @@ export class ButtonLogicComponent {
     }
 
     unregisterInteractive(sprite: DisplayObject) {
-        sprite.eventMode = 'auto'
+        sprite.eventMode = 'none'
         sprite.cursor = 'default'
 
         sprite.removeListener('pointerover', this.onMouseOverCallback)
