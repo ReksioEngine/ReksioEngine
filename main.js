@@ -51409,6 +51409,7 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const errors_2 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
+const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/components/button.ts");
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
@@ -51810,15 +51811,11 @@ class Animo extends index_1.DisplayType {
         (0, errors_2.assert)(this.currentEvent !== null);
         return this.isPlaying && this.currentEvent == animName;
     }
-    ISNEAR(objectName, arg) {
-        const otherObject = this.engine.getObject(objectName);
+    ISNEAR(objectName, distance) {
+        const otherObject = this.engine.getObject(objectName).getRenderObject();
         const thisObject = this.getRenderObject();
-        const thisX = thisObject.x + thisObject.width / 2;
-        const thisY = thisObject.y + thisObject.height / 2;
-        const otherX = otherObject.x + otherObject.width / 2;
-        const otherY = otherObject.y + otherObject.height / 2;
-        // TODO, I don't think that its like in the game
-        return Math.hypot(otherX - thisX, otherY - thisY) < arg;
+        const boundOther = new pixi_js_1.Rectangle(otherObject.x - distance, otherObject.y - distance, otherObject.width + distance * 2, otherObject.height + distance * 2);
+        return boundOther.intersects(thisObject.getBounds());
     }
     ADDBEHAVIOUR(callbackString, behaviourName) {
         this.callbacks.addBehaviour(callbackString, behaviourName);
@@ -53373,6 +53370,12 @@ class Mouse extends index_1.Type {
         this.engine.app.stage.removeListener('pointermove', this.mouseMoveListener);
         this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener);
     }
+    SHOW() {
+        throw new errors_1.NotImplementedError();
+    }
+    HIDE() {
+        throw new errors_1.NotImplementedError();
+    }
     GETPOSX() {
         return this.mousePosition.x;
     }
@@ -53829,6 +53832,9 @@ class Sound extends index_1.Type {
         var _a, _b;
         (_a = this.sound) === null || _a === void 0 ? void 0 : _a.stop();
         (_b = this.sound) === null || _b === void 0 ? void 0 : _b.destroy();
+    }
+    SETFREQ(frequency) {
+        throw new errors_1.NotImplementedError();
     }
     LOAD(filename) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -56846,8 +56852,11 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 return this.visitExpr(ctx.expr());
             }
             const left = this.visitOperation(ctx._left);
-            const right = this.visitOperation(ctx._right);
-            (0, errors_1.assert)(!(typeof left == 'number' && typeof right != 'number'));
+            let right = this.visitOperation(ctx._right);
+            // It was a problem in S71_DROGA (Ufo)
+            if (typeof left === 'number' && typeof right === 'string') {
+                right = (0, types_1.ForceNumber)(right);
+            }
             let result = undefined;
             if (ctx._operator.type == ReksioLangParser_1.default.ADD) {
                 result = left + right;
