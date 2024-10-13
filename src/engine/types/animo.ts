@@ -184,7 +184,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
 
         this.changeFrame(event, this.currentFrame)
-        this.ONFRAMECHANGED() // This is called before ONSTARTED according to my tests
 
         if (this.currentFrame === 0) {
             this.ONSTARTED()
@@ -251,6 +250,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         this.sprite.width = annImage.width
         this.sprite.height = annImage.height
+
+        this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
     }
 
     private ONFINISHED() {
@@ -263,10 +264,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const index = this.currentEvent.toString()
         this.callbacks.run('ONSTARTED', index.toString())
         this.events?.trigger('ONSTARTED', index.toString())
-    }
-
-    private ONFRAMECHANGED() {
-        this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
     }
 
     PLAY(name?: string | number) {
