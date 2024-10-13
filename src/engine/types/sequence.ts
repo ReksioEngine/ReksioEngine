@@ -127,16 +127,14 @@ export class Sequence extends Type<SequenceDefinition> {
             return
         }
 
-        let subEntries = this.subEntries.get(entry.NAME)!
+        const subEntries = this.subEntries.get(entry.NAME)!
         if (entry.MODE === 'RANDOM') {
-            subEntries = subEntries
-                .map(value => ({ value, sort: Math.random() }))
-                .sort((a, b) => a.sort - b.sort)
-                .map(({ value }) => value)
-        }
-
-        for (const subEntry of subEntries) {
+            const subEntry = subEntries[Math.floor(Math.random()*subEntries.length)]
             this.fillQueue(subEntry)
+        } else {
+            for (const subEntry of subEntries) {
+                this.fillQueue(subEntry)
+            }
         }
     }
 
