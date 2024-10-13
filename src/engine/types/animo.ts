@@ -88,7 +88,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.timeSinceLastFrame += elapsedMS * this.engine.speed
 
         const frameLength = 1 / this.fps * 1000
-        while (this.timeSinceLastFrame >= frameLength) {
+        while (this.isPlaying && this.timeSinceLastFrame >= frameLength) {
             this.tickAnimation()
             this.timeSinceLastFrame -= frameLength
         }
@@ -197,6 +197,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
+        // Event might be changed in ONFRAMECHANGED or ONSTARTED
+        if (event.name !== this.currentEvent) {
+            return
+        }
+
         // Random sound out of them?
         const eventFrame = event.frames[this.currentFrame]
         if (eventFrame.sounds) {
@@ -212,11 +217,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         if (this.currentFrame + 1 >= event.framesCount) {
             if (this.currentLoop >= event.loopNumber) {
+                this.currentLoop = 0
                 this.STOP(false)
                 this.ONFINISHED()
+            } else {
+                this.currentLoop++
             }
 
-            this.currentLoop++
             this.currentFrame = 0
         } else {
             this.currentFrame++
