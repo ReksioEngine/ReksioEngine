@@ -4,7 +4,7 @@ import {loadSound} from '../assetsLoader'
 import {SoundDefinition} from '../../fileFormats/cnv/types'
 import {Sound as PIXISound} from '@pixi/sound'
 import {FileNotFoundError} from '../filesLoader'
-import {assert} from '../../errors'
+import {assert, NotImplementedError} from '../../errors'
 
 export class Sound extends Type<SoundDefinition> {
     private sound: PIXISound | null = null
@@ -59,6 +59,10 @@ export class Sound extends Type<SoundDefinition> {
     RELEASE() {
         this.sound?.stop()
         this.sound?.destroy()
+    }
+
+    SETFREQ(frequency: number) {
+        throw new NotImplementedError()
     }
 
     async LOAD(filename: string) {

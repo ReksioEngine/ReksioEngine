@@ -76,6 +76,14 @@ export class Mouse extends Type<MouseDefinition> {
         this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener)
     }
 
+    SHOW() {
+        throw new NotImplementedError()
+    }
+
+    HIDE() {
+        throw new NotImplementedError()
+    }
+
     GETPOSX() {
         return this.mousePosition.x
     }
