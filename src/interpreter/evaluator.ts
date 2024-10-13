@@ -295,10 +295,10 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             return this.visitExpr(ctx.expr())
         }
 
-        const left = this.visitOperation(ctx._left)
-        const right = this.visitOperation(ctx._right)
-
-        assert(!(typeof left == 'number' && typeof right != 'number'))
+        // Should we always convert everything to number?
+        // I forced it because it was a problem in S71_DROGA (Ufo)
+        const left = ForceNumber(this.visitOperation(ctx._left))
+        const right = ForceNumber(this.visitOperation(ctx._right))
 
         let result = undefined
         if (ctx._operator.type == ReksioLangParser.ADD) {
