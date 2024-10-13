@@ -102,21 +102,38 @@ const createTypeInstance = (engine: Engine, definition: any) => {
     }
 }
 
+const initializationPriorities = [
+    ['BEHAVIOUR'],
+    ['INTEGER', 'STRING', 'BOOL', 'DOUBLE'],
+    ['ARRAY', 'CONDITION'],
+    ['ANIMO', 'IMAGE', 'SOUND', 'VECTOR'],
+    ['TIMER', 'SEQUENCE', 'GROUP', 'BUTTON']
+].reduce((acc: Map<string, number>, currentValue, currentIndex) => {
+    currentValue.forEach(entry => acc.set(entry, currentIndex))
+    return acc
+}, new Map())
+
 export const loadDefinition = async (engine: Engine, scope: Record<string, any>, definition: CNV, parent?: Type<any>) => {
     engine.app.ticker.stop()
-    const orderedScope = []
 
+    const entries = []
     for (const [key, value] of Object.entries(definition)) {
         const instance = createTypeInstance(engine, value)
         instance.parent = parent
         scope[key] = instance
 
-        orderedScope.push(instance)
+        entries.push(instance)
 
         if (instance instanceof DisplayType) {
             engine.renderingOrder.push(instance)
         }
     }
+
+    const orderedScope = entries.sort((a: Type<any>, b: Type<any>) => {
+        const aPriority = a.name === '__INIT__' ? 99999 : initializationPriorities.get(a.definition.TYPE) ?? 9999
+        const bPriority = b.name === '__INIT__' ? 99999 : initializationPriorities.get(b.definition.TYPE) ?? 9999
+        return aPriority - bPriority
+    })
 
     const promisesResults = await Promise.allSettled(orderedScope.map(entry => entry.init()))
     for (let i = 0; i < promisesResults.length; i++) {
