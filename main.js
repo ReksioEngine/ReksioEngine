@@ -50784,18 +50784,34 @@ const createTypeInstance = (engine, definition) => {
             throw new Error(`Unknown object type '${definition.TYPE}'`);
     }
 };
+const initializationPriorities = [
+    ['BEHAVIOUR'],
+    ['INTEGER', 'STRING', 'BOOL', 'DOUBLE'],
+    ['ARRAY', 'CONDITION'],
+    ['ANIMO', 'IMAGE', 'SOUND', 'VECTOR'],
+    ['TIMER', 'SEQUENCE', 'GROUP', 'BUTTON']
+].reduce((acc, currentValue, currentIndex) => {
+    currentValue.forEach(entry => acc.set(entry, currentIndex));
+    return acc;
+}, new Map());
 const loadDefinition = (engine, scope, definition, parent) => __awaiter(void 0, void 0, void 0, function* () {
     engine.app.ticker.stop();
-    const orderedScope = [];
+    const entries = [];
     for (const [key, value] of Object.entries(definition)) {
         const instance = createTypeInstance(engine, value);
         instance.parent = parent;
         scope[key] = instance;
-        orderedScope.push(instance);
+        entries.push(instance);
         if (instance instanceof types_1.DisplayType) {
             engine.renderingOrder.push(instance);
         }
     }
+    const orderedScope = entries.sort((a, b) => {
+        var _a, _b;
+        const aPriority = a.name === '__INIT__' ? 99999 : (_a = initializationPriorities.get(a.definition.TYPE)) !== null && _a !== void 0 ? _a : 9999;
+        const bPriority = b.name === '__INIT__' ? 99999 : (_b = initializationPriorities.get(b.definition.TYPE)) !== null && _b !== void 0 ? _b : 9999;
+        return aPriority - bPriority;
+    });
     const promisesResults = yield Promise.allSettled(orderedScope.map(entry => entry.init()));
     for (let i = 0; i < promisesResults.length; i++) {
         const result = promisesResults[i];
@@ -51455,7 +51471,7 @@ class Animo extends index_1.DisplayType {
         }
         this.timeSinceLastFrame += elapsedMS * this.engine.speed;
         const frameLength = 1 / this.fps * 1000;
-        while (this.timeSinceLastFrame >= frameLength) {
+        while (this.isPlaying && this.timeSinceLastFrame >= frameLength) {
             this.tickAnimation();
             this.timeSinceLastFrame -= frameLength;
         }
@@ -51536,7 +51552,6 @@ class Animo extends index_1.DisplayType {
             return;
         }
         this.changeFrame(event, this.currentFrame);
-        this.ONFRAMECHANGED(); // This is called before ONSTARTED according to my tests
         if (this.currentFrame === 0) {
             this.ONSTARTED();
         }
@@ -51544,6 +51559,10 @@ class Animo extends index_1.DisplayType {
         // If we wouldn't return there then if ONFINISHED has PLAY then it will never stop running
         // because PLAY is changing isPlaying back to true
         if (!this.isPlaying) {
+            return;
+        }
+        // Event might be changed in ONFRAMECHANGED or ONSTARTED
+        if (event.name !== this.currentEvent) {
             return;
         }
         // Random sound out of them?
@@ -51559,10 +51578,13 @@ class Animo extends index_1.DisplayType {
         }
         if (this.currentFrame + 1 >= event.framesCount) {
             if (this.currentLoop >= event.loopNumber) {
+                this.currentLoop = 0;
                 this.STOP(false);
                 this.ONFINISHED();
             }
-            this.currentLoop++;
+            else {
+                this.currentLoop++;
+            }
             this.currentFrame = 0;
         }
         else {
@@ -51585,6 +51607,7 @@ class Animo extends index_1.DisplayType {
         this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY;
         this.sprite.width = annImage.width;
         this.sprite.height = annImage.height;
+        this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
     }
     ONFINISHED() {
         var _a;
@@ -51597,9 +51620,6 @@ class Animo extends index_1.DisplayType {
         const index = this.currentEvent.toString();
         this.callbacks.run('ONSTARTED', index.toString());
         (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONSTARTED', index.toString());
-    }
-    ONFRAMECHANGED() {
-        this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
     }
     PLAY(name) {
         if (name === undefined) {
@@ -53572,15 +53592,15 @@ class Sequence extends index_1.Type {
         if (!this.subEntries.has(entry.NAME)) {
             return;
         }
-        let subEntries = this.subEntries.get(entry.NAME);
+        const subEntries = this.subEntries.get(entry.NAME);
         if (entry.MODE === 'RANDOM') {
-            subEntries = subEntries
-                .map(value => ({ value, sort: Math.random() }))
-                .sort((a, b) => a.sort - b.sort)
-                .map(({ value }) => value);
-        }
-        for (const subEntry of subEntries) {
+            const subEntry = subEntries[Math.floor(Math.random() * subEntries.length)];
             this.fillQueue(subEntry);
+        }
+        else {
+            for (const subEntry of subEntries) {
+                this.fillQueue(subEntry);
+            }
         }
     }
     onAnimoEventFinished(eventName) {
@@ -54391,10 +54411,6 @@ const parseCNV = (content) => {
         }
         // eslint-disable-next-line prefer-const
         let [key, value] = splitOnce(line, '=');
-        // Check if value is empty
-        if (value === '""') {
-            value = '';
-        }
         if (key === 'OBJECT') {
             objects[value] = {
                 TYPE: 'unknown',
@@ -54718,6 +54734,9 @@ exports.optional = optional;
 exports.string = {
     name: 'string',
     processor: (object, key, param, value) => {
+        if (value === '""') {
+            return '';
+        }
         return value;
     },
 };
