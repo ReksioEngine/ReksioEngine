@@ -26,11 +26,6 @@ export const parseCNV = (content: string) => {
         // eslint-disable-next-line prefer-const
         let [key, value] = splitOnce(line, '=')
 
-        // Check if value is empty
-        if (value === '""') {
-            value = ''
-        }
-
         if (key === 'OBJECT') {
             objects[value] = {
                 TYPE: 'unknown',

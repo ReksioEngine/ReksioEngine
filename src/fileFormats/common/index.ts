@@ -23,6 +23,10 @@ export const optional = (subType: FieldTypeEntry) => ({
 export const string = {
     name: 'string',
     processor: (object: any, key: string, param: string, value: string) => {
+        if (value === '""') {
+            return ''
+        }
+
         return value
     },
 }
