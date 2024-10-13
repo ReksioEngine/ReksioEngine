@@ -4,7 +4,7 @@ import {Engine} from '../index'
 import {NotImplementedError} from '../../errors'
 import {assert, InvalidObjectError} from '../../errors'
 import * as PIXI from 'pixi.js'
-import {Texture} from 'pixi.js'
+import {Rectangle, Texture} from 'pixi.js'
 import {ANN, Event} from '../../fileFormats/ann'
 import {ButtonLogicComponent, Event as FSMEvent, State} from '../components/button'
 import {loadSound} from '../assetsLoader'
@@ -484,18 +484,18 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return this.isPlaying && this.currentEvent == animName
     }
 
-    ISNEAR(objectName: string, arg: number) {
-        const otherObject = this.engine.getObject(objectName)
-        const thisObject = this.getRenderObject()!
+    ISNEAR(objectName: string, distance: number) {
+        const otherObject: AdvancedSprite = this.engine.getObject(objectName).getRenderObject()
+        const thisObject: AdvancedSprite = this.getRenderObject()!
 
-        const thisX = thisObject.x + thisObject.width/2
-        const thisY = thisObject.y + thisObject.height/2
+        const boundOther = new Rectangle(
+            otherObject.x - distance,
+            otherObject.y - distance,
+            otherObject.width + distance * 2,
+            otherObject.height + distance * 2
+        )
 
-        const otherX = otherObject.x + otherObject.width/2
-        const otherY = otherObject.y + otherObject.height/2
-
-        // TODO, I don't think that its like in the game
-        return Math.hypot(otherX-thisX, otherY-thisY) < arg
+        return boundOther.intersects(thisObject.getBounds())
     }
 
     ADDBEHAVIOUR(callbackString: string, behaviourName: string) {
