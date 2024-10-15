@@ -246,13 +246,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 
     visitObjectName = (ctx: ObjectNameContext): any => {
         this.lastContext = ctx
-        const objectName = ctx.getText()
 
-        if (objectName.startsWith('$') && this.args) {
-            const argIdx = parseInt(objectName.substring(1)) - 1
-            return this.args[argIdx]
-        }
-
+        const objectName = this.replacePlaceholders(ctx.getText())
         const object = this.engine?.getObject(objectName)
         this.methodCallUsedVariables[objectName] = object
         this.scriptUsedVariables[objectName] = object
