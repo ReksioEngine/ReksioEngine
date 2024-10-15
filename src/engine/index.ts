@@ -146,12 +146,8 @@ export class Engine {
             const objectA = this.renderingOrder.find(e => e.getRenderObject() === a)
             const objectB = this.renderingOrder.find(e => e.getRenderObject() === b)
 
-            if (objectA === undefined && objectB === undefined) {
+            if (objectA === undefined || objectB === undefined) {
                 return 0
-            } else if (objectB === undefined) {
-                return 1
-            } else if (objectA === undefined) {
-                return -1
             }
 
             const renderingOrderA = this.renderingOrder.indexOf(objectA)
