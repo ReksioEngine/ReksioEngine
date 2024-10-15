@@ -51116,14 +51116,8 @@ class Engine {
             }
             const objectA = this.renderingOrder.find(e => e.getRenderObject() === a);
             const objectB = this.renderingOrder.find(e => e.getRenderObject() === b);
-            if (objectA === undefined && objectB === undefined) {
+            if (objectA === undefined || objectB === undefined) {
                 return 0;
-            }
-            else if (objectB === undefined) {
-                return 1;
-            }
-            else if (objectA === undefined) {
-                return -1;
             }
             const renderingOrderA = this.renderingOrder.indexOf(objectA);
             const renderingOrderB = this.renderingOrder.indexOf(objectB);
@@ -52271,27 +52265,41 @@ class Button extends index_1.Type {
         else if (state == button_1.State.DISABLED_BUT_VISIBLE) {
             (_d = this.gfxStandard) === null || _d === void 0 ? void 0 : _d.SHOW();
             this.setSpriteAlpha(this.gfxStandard, 1);
-            (_e = this.gfxOnMove) === null || _e === void 0 ? void 0 : _e.HIDE();
-            (_f = this.gfxOnClick) === null || _f === void 0 ? void 0 : _f.HIDE();
+            if (this.gfxStandard !== this.gfxOnMove) {
+                (_e = this.gfxOnMove) === null || _e === void 0 ? void 0 : _e.HIDE();
+            }
+            if (this.gfxStandard !== this.gfxOnClick) {
+                (_f = this.gfxOnClick) === null || _f === void 0 ? void 0 : _f.HIDE();
+            }
         }
         else if (state == button_1.State.HOVERED && this.gfxOnMove) {
             (_g = this.gfxStandard) === null || _g === void 0 ? void 0 : _g.SHOW();
-            // Setting alpha to 0 instead of hiding so that the mouse interactions still work
-            this.setSpriteAlpha(this.gfxStandard, 0);
+            if (this.gfxStandard !== this.gfxOnMove) {
+                // Setting alpha to 0 instead of hiding so that the mouse interactions still work
+                this.setSpriteAlpha(this.gfxStandard, 0);
+            }
             (_h = this.gfxOnMove) === null || _h === void 0 ? void 0 : _h.SHOW();
-            (_j = this.gfxOnClick) === null || _j === void 0 ? void 0 : _j.HIDE();
+            if (this.gfxStandard !== this.gfxOnClick) {
+                (_j = this.gfxOnClick) === null || _j === void 0 ? void 0 : _j.HIDE();
+            }
         }
         else if (state == button_1.State.PRESSED && this.gfxOnClick) {
             (_k = this.gfxStandard) === null || _k === void 0 ? void 0 : _k.SHOW();
-            this.setSpriteAlpha(this.gfxStandard, 0);
-            (_l = this.gfxOnMove) === null || _l === void 0 ? void 0 : _l.HIDE();
+            if (this.gfxStandard !== this.gfxOnMove) {
+                this.setSpriteAlpha(this.gfxStandard, 0);
+                (_l = this.gfxOnMove) === null || _l === void 0 ? void 0 : _l.HIDE();
+            }
             (_m = this.gfxOnClick) === null || _m === void 0 ? void 0 : _m.SHOW();
         }
         else {
             (_o = this.gfxStandard) === null || _o === void 0 ? void 0 : _o.SHOW();
             this.setSpriteAlpha(this.gfxStandard, 1);
-            (_p = this.gfxOnMove) === null || _p === void 0 ? void 0 : _p.HIDE();
-            (_q = this.gfxOnClick) === null || _q === void 0 ? void 0 : _q.HIDE();
+            if (this.gfxStandard !== this.gfxOnMove) {
+                (_p = this.gfxOnMove) === null || _p === void 0 ? void 0 : _p.HIDE();
+            }
+            if (this.gfxStandard !== this.gfxOnClick) {
+                (_q = this.gfxOnClick) === null || _q === void 0 ? void 0 : _q.HIDE();
+            }
         }
         if (event == button_1.Event.ENABLE) {
             if (this.gfxStandard) {
