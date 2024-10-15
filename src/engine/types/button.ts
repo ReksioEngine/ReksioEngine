@@ -116,24 +116,47 @@ export class Button extends Type<ButtonDefinition> {
         } else if (state == State.DISABLED_BUT_VISIBLE) {
             this.gfxStandard?.SHOW()
             this.setSpriteAlpha(this.gfxStandard, 1)
-            this.gfxOnMove?.HIDE()
-            this.gfxOnClick?.HIDE()
+
+            if (this.gfxStandard !== this.gfxOnMove) {
+                this.gfxOnMove?.HIDE()
+            }
+
+            if (this.gfxStandard !== this.gfxOnClick) {
+                this.gfxOnClick?.HIDE()
+            }
         } else if (state == State.HOVERED && this.gfxOnMove) {
             this.gfxStandard?.SHOW()
-            // Setting alpha to 0 instead of hiding so that the mouse interactions still work
-            this.setSpriteAlpha(this.gfxStandard, 0)
+
+            if (this.gfxStandard !== this.gfxOnMove) {
+                // Setting alpha to 0 instead of hiding so that the mouse interactions still work
+                this.setSpriteAlpha(this.gfxStandard, 0)
+            }
+
             this.gfxOnMove?.SHOW()
-            this.gfxOnClick?.HIDE()
+
+            if (this.gfxStandard !== this.gfxOnClick) {
+                this.gfxOnClick?.HIDE()
+            }
         } else if (state == State.PRESSED && this.gfxOnClick) {
             this.gfxStandard?.SHOW()
-            this.setSpriteAlpha(this.gfxStandard, 0)
-            this.gfxOnMove?.HIDE()
+
+            if (this.gfxStandard !== this.gfxOnMove) {
+                this.setSpriteAlpha(this.gfxStandard, 0)
+                this.gfxOnMove?.HIDE()
+            }
+
             this.gfxOnClick?.SHOW()
         } else {
             this.gfxStandard?.SHOW()
             this.setSpriteAlpha(this.gfxStandard, 1)
-            this.gfxOnMove?.HIDE()
-            this.gfxOnClick?.HIDE()
+
+            if (this.gfxStandard !== this.gfxOnMove) {
+                this.gfxOnMove?.HIDE()
+            }
+
+            if (this.gfxStandard !== this.gfxOnClick) {
+                this.gfxOnClick?.HIDE()
+            }
         }
 
         if (event == Event.ENABLE) {
