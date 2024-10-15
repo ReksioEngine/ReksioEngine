@@ -17,7 +17,8 @@ export class Behaviour extends Type<BehaviourDefinition> {
 
     RUN(...args: any[]) {
         try {
-            return this.engine.executeCallback(null, this.definition.CODE, args)
+            const resolvedArgs = this.resolveArgs(args)
+            return this.engine.executeCallback(null, this.definition.CODE, resolvedArgs)
         } catch (err) {
             if (!(err instanceof InterruptScriptExecution)) {
                 throw err
@@ -34,15 +35,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     RUNLOOPED(init: number, len: number, step: number = 1, ...args: any[]) {
-        const resolvedArgs = args.map((arg) => {
-            if (typeof arg !== 'string') {
-                return arg
-            }
-
-            const result = this.engine.runScript(arg.toString(), [], true, false)
-            return result !== null ? result : arg
-        })
-
+        const resolvedArgs = this.resolveArgs(args)
         for (let i = init; i < len; i += step) {
             try {
                 if (!this.shouldRun()) {
@@ -64,7 +57,18 @@ export class Behaviour extends Type<BehaviourDefinition> {
         }
     }
 
-    shouldRun() {
+    private resolveArgs(args: any[]) {
+        return args.map((arg) => {
+            if (typeof arg !== 'string') {
+                return arg
+            }
+
+            const result = this.engine.runScript(arg.toString(), [], true, false)
+            return result !== null ? result : arg
+        })
+    }
+
+    private shouldRun() {
         if (this.definition.CONDITION) {
             const condition: Condition = this.engine.getObject(this.definition.CONDITION.objectName)
             return condition.CHECK(true)
