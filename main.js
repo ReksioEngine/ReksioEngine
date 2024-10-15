@@ -56825,11 +56825,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
         this.visitObjectName = (ctx) => {
             var _a, _b;
             this.lastContext = ctx;
-            const objectName = ctx.getText();
-            if (objectName.startsWith('$') && this.args) {
-                const argIdx = parseInt(objectName.substring(1)) - 1;
-                return this.args[argIdx];
-            }
+            const objectName = this.replacePlaceholders(ctx.getText());
             const object = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject(objectName);
             this.methodCallUsedVariables[objectName] = object;
             this.scriptUsedVariables[objectName] = object;
