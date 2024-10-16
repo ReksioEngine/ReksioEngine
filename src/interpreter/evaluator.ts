@@ -13,6 +13,7 @@ import {RandomLibrary} from './stdlib'
 import {Behaviour} from '../engine/types/behaviour'
 import {assert, NotImplementedError} from '../errors'
 import {Compare, ForceNumber} from '../types'
+import {Type} from '../engine/types'
 
 export class InterruptScriptExecution {
     public one: boolean
@@ -81,7 +82,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         } else if (ctx.negativeNumber() != null) {
             return ForceNumber(ctx.negativeNumber().getText())
         } else if (ctx.STRING() != null) {
-            return this.replacePlaceholders(ctx.STRING().getText().replace(/^"+|"+$/g, ''))
+            return this.replaceParameters(ctx.STRING().getText().replace(/^"+|"+$/g, ''))
         } else if (ctx.IDENTIFIER() != null) {
             const identifier = ctx.IDENTIFIER().getText()
             if (identifier.startsWith('$') && this.args) {
@@ -119,10 +120,20 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         return this.visitChildren(ctx)[0]
     }
 
-    replacePlaceholders(str: string): string {
+    replaceParameters(str: string): string {
         return str.replace(/\$(\d+)/g, (match, index) => {
             const valueIndex = parseInt(index, 10) - 1
-            return valueIndex >= 0 && valueIndex < this.args.length ? this.args[valueIndex] : match
+
+            if (valueIndex >= 0 && valueIndex < this.args.length) {
+                const arg = this.args[valueIndex]
+                if (arg instanceof Type) {
+                    return arg.name
+                } else {
+                    return arg
+                }
+            } else {
+                return match
+            }
         })
     }
 
@@ -247,7 +258,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     visitObjectName = (ctx: ObjectNameContext): any => {
         this.lastContext = ctx
 
-        const objectName = this.replacePlaceholders(ctx.getText())
+        const objectName = this.replaceParameters(ctx.getText())
         const object = this.engine?.getObject(objectName)
         this.methodCallUsedVariables[objectName] = object
         this.scriptUsedVariables[objectName] = object
