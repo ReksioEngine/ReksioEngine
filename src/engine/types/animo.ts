@@ -447,8 +447,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return Math.max(...this.annFile.annImages.map(e => e.width))
     }
 
-    GETNOFINEVENT(): string {
-        throw new NotImplementedError()
+    GETNOFINEVENT(): number {
+        const event = this.getEventByName(this.currentEvent)
+        assert(event !== null)
+
+        return event.framesCount
     }
 
     GETEVENTNAME(): string {
