@@ -197,7 +197,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
 
         // Event might be changed in ONFRAMECHANGED or ONSTARTED
-        if (event.name !== this.currentEvent) {
+        // event.name might be lowercase
+        if (event.name.toUpperCase() !== this.currentEvent.toUpperCase()) {
             return
         }
 
