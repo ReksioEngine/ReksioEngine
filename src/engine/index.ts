@@ -1,5 +1,5 @@
 import {callback, reference} from '../fileFormats/common'
-import {runScript} from '../interpreter/evaluator'
+import {runScript, StackFrame, stackTrace} from '../interpreter/evaluator'
 import {DisplayType, Type} from './types'
 import {loadDefinition} from './definitionLoader'
 import {Application, Rectangle, Sprite} from 'pixi.js'
@@ -100,6 +100,8 @@ export class Engine {
             this.thisQueue.push(caller)
         }
 
+        let stackFrame = null
+
         try {
             if (callback.code) {
                 return runScript(this, callback.code, args, callback.isSingleStatement)
@@ -112,11 +114,23 @@ export class Engine {
                     )
                     return
                 }
+
+                stackFrame = StackFrame.builder()
+                    .type('behaviour')
+                    .behaviour(callback.behaviourReference)
+                    .args(args)
+                    .build()
+
+                stackTrace.push(stackFrame)
                 return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments)
             }
         } finally {
             if (caller !== null) {
                 this.thisQueue.pop()
+            }
+
+            if (stackFrame !== null) {
+                stackTrace.pop()
             }
         }
     }

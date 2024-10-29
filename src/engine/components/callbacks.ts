@@ -2,7 +2,7 @@ import {callback, callbacks} from '../../fileFormats/common'
 import {Engine} from '../index'
 import {Type} from '../types'
 import {assert} from '../../errors'
-import {InterruptScriptExecution} from '../../interpreter/evaluator'
+import {InterruptScriptExecution, StackFrame, stackTrace} from '../../interpreter/evaluator'
 
 export class CallbacksComponent {
     private readonly engine: Engine
@@ -49,6 +49,14 @@ export class CallbacksComponent {
     run(type: string, param?: any, thisOverride?: Type<any> | null) {
         const thisReference = thisOverride !== undefined ? thisOverride : this.object
 
+        const stackFrame = StackFrame.builder()
+            .type('callback')
+            .object(this.object)
+            .callback(type)
+            .args(...(param !== undefined ? [param] : []))
+            .build()
+        stackTrace.push(stackFrame)
+
         try {
             const callbackGroup = this.registry.get(type)
             if (callbackGroup?.nonParametrized) {
@@ -62,6 +70,8 @@ export class CallbacksComponent {
             if (!(err instanceof InterruptScriptExecution)) {
                 throw err
             }
+        } finally {
+            stackTrace.pop()
         }
     }
 
