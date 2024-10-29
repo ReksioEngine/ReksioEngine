@@ -50365,6 +50365,13 @@ class CallbacksComponent {
     }
     run(type, param, thisOverride) {
         const thisReference = thisOverride !== undefined ? thisOverride : this.object;
+        const stackFrame = evaluator_1.StackFrame.builder()
+            .type('callback')
+            .object(this.object)
+            .callback(type)
+            .args(...(param !== undefined ? [param] : []))
+            .build();
+        evaluator_1.stackTrace.push(stackFrame);
         try {
             const callbackGroup = this.registry.get(type);
             if (callbackGroup === null || callbackGroup === void 0 ? void 0 : callbackGroup.nonParametrized) {
@@ -50378,6 +50385,9 @@ class CallbacksComponent {
             if (!(err instanceof evaluator_1.InterruptScriptExecution)) {
                 throw err;
             }
+        }
+        finally {
+            evaluator_1.stackTrace.pop();
         }
     }
     addBehaviour(callbackString, behaviourName) {
@@ -51078,6 +51088,7 @@ class Engine {
         if (caller !== null) {
             this.thisQueue.push(caller);
         }
+        let stackFrame = null;
         try {
             if (callback.code) {
                 return (0, evaluator_1.runScript)(this, callback.code, args, callback.isSingleStatement);
@@ -51087,12 +51098,21 @@ class Engine {
                     console.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`, 'font-weight: bold', 'font-weight: inherit', callback, 'font-weight: bold', 'font-weight: inherit', caller);
                     return;
                 }
+                stackFrame = evaluator_1.StackFrame.builder()
+                    .type('behaviour')
+                    .behaviour(callback.behaviourReference)
+                    .args(args)
+                    .build();
+                evaluator_1.stackTrace.push(stackFrame);
                 return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments);
             }
         }
         finally {
             if (caller !== null) {
                 this.thisQueue.pop();
+            }
+            if (stackFrame !== null) {
+                evaluator_1.stackTrace.pop();
             }
         }
     }
@@ -51401,7 +51421,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Animo = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const errors_2 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/components/button.ts");
@@ -51444,20 +51463,23 @@ class Animo extends index_1.DisplayType {
         return __awaiter(this, void 0, void 0, function* () {
             this.annFile = yield this.loadAnimation();
             this.initSprite();
+        });
+    }
+    ready() {
+        this.callbacks.run('ONINIT');
+        this.tick(0);
+        if (this.currentEvent === '') {
+            (0, errors_1.assert)(this.annFile !== null);
             // Find first event with any frames
             const defaultEvent = this.annFile.events.find(event => event.framesCount > 0);
             if (defaultEvent !== undefined) {
                 this.changeFrame(defaultEvent, 0);
                 this.currentEvent = defaultEvent.name;
             }
-        });
-    }
-    ready() {
-        this.callbacks.run('ONINIT');
-        this.tick(0);
+        }
     }
     destroy() {
-        (0, errors_2.assert)(this.sprite !== null);
+        (0, errors_1.assert)(this.sprite !== null);
         this.engine.removeFromStage(this.sprite);
     }
     tick(elapsedMS) {
@@ -51473,7 +51495,7 @@ class Animo extends index_1.DisplayType {
     }
     loadAnimation() {
         return __awaiter(this, void 0, void 0, function* () {
-            (0, errors_2.assert)(this.engine.currentScene !== undefined);
+            (0, errors_1.assert)(this.engine.currentScene !== undefined);
             try {
                 const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME);
                 const annFile = yield this.engine.fileLoader.getANNFile(relativePath);
@@ -51483,7 +51505,7 @@ class Animo extends index_1.DisplayType {
             }
             catch (err) {
                 if (err instanceof filesLoader_1.FileNotFoundError) {
-                    throw new errors_2.InvalidObjectError('ANN file not found');
+                    throw new errors_1.InvalidObjectError('ANN file not found');
                 }
                 throw err;
             }
@@ -51514,14 +51536,14 @@ class Animo extends index_1.DisplayType {
     }
     initSprite() {
         var _a;
-        (0, errors_2.assert)(this.annFile !== null);
+        (0, errors_1.assert)(this.annFile !== null);
         this.sprite = new rendering_1.AdvancedSprite();
         this.sprite.visible = this.definition.VISIBLE;
         this.SETPRIORITY((_a = this.definition.PRIORITY) !== null && _a !== void 0 ? _a : 0);
         this.engine.addToStage(this.sprite);
     }
     getTexture(imageIndex) {
-        (0, errors_2.assert)(this.annFile != null);
+        (0, errors_1.assert)(this.annFile != null);
         // Check if cached already
         if (this.textures.has(imageIndex)) {
             return this.textures.get(imageIndex);
@@ -51532,7 +51554,7 @@ class Animo extends index_1.DisplayType {
         return texture;
     }
     getHitmap(imageIndex) {
-        (0, errors_2.assert)(this.annFile != null);
+        (0, errors_1.assert)(this.annFile != null);
         if (this.hitmaps.has(imageIndex)) {
             return this.hitmaps.get(imageIndex);
         }
@@ -51541,7 +51563,7 @@ class Animo extends index_1.DisplayType {
         return hitmap;
     }
     tickAnimation() {
-        (0, errors_2.assert)(this.annFile !== null && this.sprite !== null);
+        (0, errors_1.assert)(this.annFile !== null && this.sprite !== null);
         const event = this.getEventByName(this.currentEvent);
         if (!event) {
             return;
@@ -51557,7 +51579,8 @@ class Animo extends index_1.DisplayType {
             return;
         }
         // Event might be changed in ONFRAMECHANGED or ONSTARTED
-        if (event.name !== this.currentEvent) {
+        // event.name might be lowercase
+        if (event.name.toUpperCase() !== this.currentEvent.toUpperCase()) {
             return;
         }
         // Random sound out of them?
@@ -51587,9 +51610,9 @@ class Animo extends index_1.DisplayType {
         }
     }
     changeFrame(event, frameIdx) {
-        (0, errors_2.assert)(this.annFile !== null);
-        (0, errors_2.assert)(this.sprite !== null);
-        (0, errors_2.assert)(event !== null);
+        (0, errors_1.assert)(this.annFile !== null);
+        (0, errors_1.assert)(this.sprite !== null);
+        (0, errors_1.assert)(event !== null);
         const eventFrame = event.frames[frameIdx];
         const imageIndex = event.framesImageMapping[frameIdx];
         const annImage = this.annFile.annImages[imageIndex];
@@ -51629,7 +51652,7 @@ class Animo extends index_1.DisplayType {
             return;
         }
         this.isPlaying = true;
-        (0, errors_2.assert)(this.sprite !== null);
+        (0, errors_1.assert)(this.sprite !== null);
         this.sprite.visible = true;
         this.currentFrame = 0;
         this.currentEvent = name.toString().toUpperCase();
@@ -51662,26 +51685,26 @@ class Animo extends index_1.DisplayType {
         this.fps = fps;
     }
     SHOW() {
-        (0, errors_2.assert)(this.sprite !== null);
+        (0, errors_1.assert)(this.sprite !== null);
         this.sprite.visible = true;
     }
     HIDE() {
-        (0, errors_2.assert)(this.sprite !== null);
+        (0, errors_1.assert)(this.sprite !== null);
         this.sprite.visible = false;
     }
     ISVISIBLE() {
-        (0, errors_2.assert)(this.sprite !== null);
+        (0, errors_1.assert)(this.sprite !== null);
         return this.sprite.visible;
     }
     MOVE(xOffset, yOffset) {
-        (0, errors_2.assert)(this.sprite !== null);
+        (0, errors_1.assert)(this.sprite !== null);
         this.positionX += xOffset;
         this.positionY += yOffset;
         this.sprite.x += xOffset;
         this.sprite.y += yOffset;
     }
     SETPOSITION(x, y) {
-        (0, errors_2.assert)(this.sprite !== null);
+        (0, errors_1.assert)(this.sprite !== null);
         this.positionX = x;
         this.positionY = y;
         this.sprite.x = x + this.positionOffsetX + this.anchorOffsetX;
@@ -51689,7 +51712,7 @@ class Animo extends index_1.DisplayType {
     }
     SETASBUTTON(arg1, arg2) {
         var _a, _b;
-        (0, errors_2.assert)(this.sprite !== null);
+        (0, errors_1.assert)(this.sprite !== null);
         if (arg1 && arg2) {
             this.buttonLogic = new button_1.ButtonLogicComponent(this.onButtonStateChange.bind(this));
             this.buttonLogic.registerInteractive(this.sprite);
@@ -51751,32 +51774,34 @@ class Animo extends index_1.DisplayType {
         }
     }
     GETCENTERX() {
-        (0, errors_2.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
+        (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
         return this.getGlobalPosition().x + (this.sprite.width / 2);
     }
     GETCENTERY() {
-        (0, errors_2.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
+        (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
         return this.getGlobalPosition().y + (this.sprite.height / 2);
     }
     GETPOSITIONX() {
-        (0, errors_2.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
+        (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
         return this.getGlobalPosition().x;
     }
     GETPOSITIONY() {
-        (0, errors_2.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
+        (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
         return this.getGlobalPosition().y;
     }
     GETFRAMENAME() {
         const event = this.getEventByName(this.currentEvent);
-        (0, errors_2.assert)(event !== null);
+        (0, errors_1.assert)(event !== null);
         return event.frames[this.currentFrame].name;
     }
     GETMAXWIDTH() {
-        (0, errors_2.assert)(this.annFile !== null);
+        (0, errors_1.assert)(this.annFile !== null);
         return Math.max(...this.annFile.annImages.map(e => e.width));
     }
     GETNOFINEVENT() {
-        throw new errors_1.NotImplementedError();
+        const event = this.getEventByName(this.currentEvent);
+        (0, errors_1.assert)(event !== null);
+        return event.framesCount;
     }
     GETEVENTNAME() {
         return this.currentEvent;
@@ -51785,24 +51810,24 @@ class Animo extends index_1.DisplayType {
         return this.currentFrame;
     }
     GETNOF() {
-        (0, errors_2.assert)(this.annFile !== null);
+        (0, errors_1.assert)(this.annFile !== null);
         return this.annFile.header.framesCount;
     }
     GETCURRFRAMEPOSX() {
         const event = this.getEventByName(this.currentEvent);
-        (0, errors_2.assert)(event !== null);
+        (0, errors_1.assert)(event !== null);
         return event.frames[this.currentFrame].positionX;
     }
     GETCURRFRAMEPOSY() {
         const event = this.getEventByName(this.currentEvent);
-        (0, errors_2.assert)(event !== null);
+        (0, errors_1.assert)(event !== null);
         return event.frames[this.currentFrame].positionY;
     }
     ISPLAYING(animName) {
         if (animName === undefined) {
             return this.isPlaying;
         }
-        (0, errors_2.assert)(this.currentEvent !== null);
+        (0, errors_1.assert)(this.currentEvent !== null);
         return this.isPlaying && this.currentEvent == animName;
     }
     ISNEAR(objectName, distance) {
@@ -51816,12 +51841,12 @@ class Animo extends index_1.DisplayType {
     }
     forceRender() {
         const event = this.getEventByName(this.currentEvent);
-        (0, errors_2.assert)(event !== null);
+        (0, errors_1.assert)(event !== null);
         this.changeFrame(event, this.currentFrame);
     }
     getEventByName(name) {
         var _a;
-        (0, errors_2.assert)(this.annFile !== undefined);
+        (0, errors_1.assert)(this.annFile !== undefined);
         return (_a = this.annFile.events.find(event => event.name.toUpperCase() === name.toUpperCase())) !== null && _a !== void 0 ? _a : null;
     }
     hasEvent(name) {
@@ -52065,6 +52090,7 @@ class Behaviour extends index_1.Type {
     }
     RUN(...args) {
         try {
+            // Don't resolve args, it will fail in S33_METEORY
             return this.engine.executeCallback(null, this.definition.CODE, args);
         }
         catch (err) {
@@ -52080,13 +52106,7 @@ class Behaviour extends index_1.Type {
         return this.RUN(...args);
     }
     RUNLOOPED(init, len, step = 1, ...args) {
-        const resolvedArgs = args.map((arg) => {
-            if (typeof arg !== 'string') {
-                return arg;
-            }
-            const result = this.engine.runScript(arg.toString(), [], true, false);
-            return result !== null ? result : arg;
-        });
+        const resolvedArgs = this.resolveArgs(args);
         for (let i = init; i < len; i += step) {
             try {
                 if (!this.shouldRun()) {
@@ -52108,6 +52128,15 @@ class Behaviour extends index_1.Type {
                 }
             }
         }
+    }
+    resolveArgs(args) {
+        return args.map((arg) => {
+            if (typeof arg !== 'string') {
+                return arg;
+            }
+            const result = this.engine.runScript(arg.toString(), [], true, false);
+            return result !== null && result !== undefined ? result : arg;
+        });
     }
     shouldRun() {
         if (this.definition.CONDITION) {
@@ -56639,7 +56668,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseArgs = exports.runScript = exports.ScriptEvaluator = exports.InterruptScriptExecution = void 0;
+exports.parseArgs = exports.runScript = exports.ScriptEvaluator = exports.printStackTrace = exports.stackTrace = exports.StackFrame = exports.InterruptScriptExecution = void 0;
 const ReksioLangVisitor_1 = __importDefault(__webpack_require__(/*! ./ReksioLangVisitor */ "./src/interpreter/ReksioLangVisitor.ts"));
 const ReksioLangParser_1 = __importDefault(__webpack_require__(/*! ./ReksioLangParser */ "./src/interpreter/ReksioLangParser.ts"));
 const ReksioLangLexer_1 = __importDefault(__webpack_require__(/*! ./ReksioLangLexer */ "./src/interpreter/ReksioLangLexer.ts"));
@@ -56647,6 +56676,7 @@ const antlr4_1 = __importDefault(__webpack_require__(/*! antlr4 */ "./node_modul
 const stdlib_1 = __webpack_require__(/*! ./stdlib */ "./src/interpreter/stdlib.ts");
 const errors_1 = __webpack_require__(/*! ../errors */ "./src/errors.ts");
 const types_1 = __webpack_require__(/*! ../types */ "./src/types.ts");
+const types_2 = __webpack_require__(/*! ../engine/types */ "./src/engine/types/index.ts");
 class InterruptScriptExecution {
     constructor(one = false) {
         this.one = one;
@@ -56658,6 +56688,73 @@ class AlreadyDisplayedError {
         this.cause = cause;
     }
 }
+class StackFrame {
+    constructor() {
+        this.type = null;
+        this.object = null;
+        this.methodName = null;
+        this.behaviour = null;
+        this.callback = null;
+        this.args = null;
+    }
+    static builder() {
+        return new StackFrameBuilder();
+    }
+}
+exports.StackFrame = StackFrame;
+class StackFrameBuilder {
+    constructor() {
+        this.stackFrame = new StackFrame();
+    }
+    type(type) {
+        this.stackFrame.type = type;
+        return this;
+    }
+    object(object) {
+        this.stackFrame.object = object;
+        return this;
+    }
+    method(name) {
+        this.stackFrame.methodName = name;
+        return this;
+    }
+    behaviour(name) {
+        this.stackFrame.behaviour = name;
+        return this;
+    }
+    callback(name) {
+        this.stackFrame.callback = name;
+        return this;
+    }
+    args(...args) {
+        this.stackFrame.args = args;
+        return this;
+    }
+    build() {
+        return this.stackFrame;
+    }
+}
+exports.stackTrace = [];
+const printStackTrace = () => {
+    var _a;
+    const lines = [];
+    for (const frame of exports.stackTrace) {
+        const argsString = ((_a = frame.args) !== null && _a !== void 0 ? _a : []).map(arg => arg !== undefined ? (0, types_1.valueAsString)(arg) : '<undefined>').join(',');
+        switch (frame.type) {
+            case 'callback':
+                lines.push(`at ${frame.object.name}@${frame.callback}(${argsString})`);
+                break;
+            case 'method':
+                lines.push(`at ${frame.object.name}^${frame.methodName}(${argsString})`);
+                break;
+            case 'behaviour':
+                lines.push(`at ${frame.behaviour}(${argsString})`);
+                break;
+        }
+    }
+    console.error('\t' + lines.join('\n\t'));
+};
+exports.printStackTrace = printStackTrace;
 class ScriptEvaluator extends ReksioLangVisitor_1.default {
     constructor(engine, script, args, printDebug) {
         super();
@@ -56696,7 +56793,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 return (0, types_1.ForceNumber)(ctx.negativeNumber().getText());
             }
             else if (ctx.STRING() != null) {
-                return this.replacePlaceholders(ctx.STRING().getText().replace(/^"+|"+$/g, ''));
+                return this.replaceParameters(ctx.STRING().getText().replace(/^"+|"+$/g, ''));
             }
             else if (ctx.IDENTIFIER() != null) {
                 const identifier = ctx.IDENTIFIER().getText();
@@ -56739,6 +56836,11 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             const argsVariables = this.methodCallUsedVariables;
             this.methodCallUsedVariables = {};
             try {
+                const stackFrame = StackFrame.builder()
+                    .object(object)
+                    .method(methodName)
+                    .build();
+                exports.stackTrace.push(stackFrame);
                 if (method == undefined) {
                     return object.__call(methodName, args);
                 }
@@ -56762,6 +56864,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                         (Object.keys(this.scriptUsedVariables).length > 0 ? '%cVariables used in script:%c %O\n' : '') +
                         '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', object, ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []), ...(this.args.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []), ...(Object.keys(argsVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', argsVariables] : []), ...(Object.keys(this.scriptUsedVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables] : []), 'font-weight: bold', 'font-weight: inherit', (_a = this.engine) === null || _a === void 0 ? void 0 : _a.scope);
                     console.error(err);
+                    (0, exports.printStackTrace)();
                 }
                 if (err instanceof errors_1.NotImplementedError) {
                     return null;
@@ -56769,6 +56872,9 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 // eslint-disable-next-line no-debugger
                 debugger;
                 throw new AlreadyDisplayedError(err);
+            }
+            finally {
+                exports.stackTrace.pop();
             }
         };
         this.visitSpecialCall = (ctx) => {
@@ -56825,7 +56931,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
         this.visitObjectName = (ctx) => {
             var _a, _b;
             this.lastContext = ctx;
-            const objectName = this.replacePlaceholders(ctx.getText());
+            const objectName = this.replaceParameters(ctx.getText());
             const object = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject(objectName);
             this.methodCallUsedVariables[objectName] = object;
             this.scriptUsedVariables[objectName] = object;
@@ -56889,10 +56995,21 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
     loadLibraries() {
         this.libraries.set('RANDOM', new stdlib_1.RandomLibrary(this.engine));
     }
-    replacePlaceholders(str) {
+    replaceParameters(str) {
         return str.replace(/\$(\d+)/g, (match, index) => {
             const valueIndex = parseInt(index, 10) - 1;
-            return valueIndex >= 0 && valueIndex < this.args.length ? this.args[valueIndex] : match;
+            if (valueIndex >= 0 && valueIndex < this.args.length) {
+                const arg = this.args[valueIndex];
+                if (arg instanceof types_2.Type) {
+                    return arg.name;
+                }
+                else {
+                    return arg;
+                }
+            }
+            else {
+                return match;
+            }
         });
     }
     markInCode(ctx) {
