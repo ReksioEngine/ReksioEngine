@@ -51466,8 +51466,6 @@ class Animo extends index_1.DisplayType {
         });
     }
     ready() {
-        this.callbacks.run('ONINIT');
-        this.tick(0);
         if (this.currentEvent === '') {
             (0, errors_1.assert)(this.annFile !== null);
             // Find first event with any frames
@@ -51477,6 +51475,8 @@ class Animo extends index_1.DisplayType {
                 this.currentEvent = defaultEvent.name;
             }
         }
+        this.callbacks.run('ONINIT');
+        this.tick(0);
     }
     destroy() {
         (0, errors_1.assert)(this.sprite !== null);
