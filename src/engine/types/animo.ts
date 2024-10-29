@@ -63,9 +63,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     ready() {
-        this.callbacks.run('ONINIT')
-        this.tick(0)
-
         if (this.currentEvent === ''){
             assert(this.annFile !== null)
             // Find first event with any frames
@@ -75,6 +72,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
                 this.currentEvent = defaultEvent.name
             }
         }
+
+        this.callbacks.run('ONINIT')
+        this.tick(0)
     }
 
     destroy() {
