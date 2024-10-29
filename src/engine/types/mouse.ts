@@ -13,15 +13,22 @@ export class Mouse extends Type<MouseDefinition> {
 
     private clicked = false
     private released = false
+    private moved = false
 
     constructor(engine: Engine, definition: MouseDefinition) {
         super(engine, definition)
+        this.callbacks.register('ONINIT', definition.ONINIT)
         this.callbacks.registerGroup('ONCLICK', definition.ONCLICK)
         this.callbacks.registerGroup('ONRELEASE', definition.ONRELEASE)
+        this.callbacks.register('ONMOVE', definition.ONMOVE)
     }
 
     init() {
         this.ENABLE()
+    }
+
+    ready() {
+        this.callbacks.run('ONINIT')
     }
 
     destroy() {
@@ -37,10 +44,15 @@ export class Mouse extends Type<MouseDefinition> {
             this.callbacks.run('ONRELEASE')
             this.released = false
         }
+        if (this.moved) {
+            this.callbacks.run('ONMOVE')
+            this.moved = false
+        }
     }
 
     onMouseMove(event: FederatedPointerEvent) {
         this.mousePosition = new Point(Math.floor(event.screen.x), Math.floor(event.screen.y))
+        this.moved = true
     }
 
     onMouseClick(event: FederatedPointerEvent) {
