@@ -14,6 +14,7 @@ import {Behaviour} from '../engine/types/behaviour'
 import {assert, NotImplementedError} from '../errors'
 import {Compare, ForceNumber, valueAsString} from '../types'
 import {Type} from '../engine/types'
+import {String} from '../engine/types/string'
 
 export class InterruptScriptExecution {
     public one: boolean
@@ -164,10 +165,19 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             const identifier = ctx.IDENTIFIER().getText()
             if (identifier.startsWith('$') && this.args) {
                 const argIdx = parseInt(identifier.substring(1)) - 1
-                this.methodCallUsedVariables[identifier] = this.args[argIdx]
-                this.scriptUsedVariables[identifier] = this.args[argIdx]
+                const arg = this.args[argIdx]
+
+                this.methodCallUsedVariables[identifier] = arg
+                this.scriptUsedVariables[identifier] = arg
 
                 assert(this.args.length >= argIdx + 1)
+
+                const object = this.engine?.getObject(this.args[argIdx])
+                if (object !== null && object instanceof String) {
+                    console.debug(object)
+                    return object.value
+                }
+
                 return this.args[argIdx]
             }
 
@@ -203,7 +213,9 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 
             if (valueIndex >= 0 && valueIndex < this.args.length) {
                 const arg = this.args[valueIndex]
-                if (arg instanceof Type) {
+                if (arg instanceof String) {
+                    return arg.value
+                } else if (arg instanceof Type) {
                     return arg.name
                 } else {
                     return arg
