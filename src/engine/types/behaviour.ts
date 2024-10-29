@@ -17,8 +17,8 @@ export class Behaviour extends Type<BehaviourDefinition> {
 
     RUN(...args: any[]) {
         try {
-            const resolvedArgs = this.resolveArgs(args)
-            return this.engine.executeCallback(null, this.definition.CODE, resolvedArgs)
+            // Don't resolve args, it will fail in S33_METEORY
+            return this.engine.executeCallback(null, this.definition.CODE, args)
         } catch (err) {
             if (!(err instanceof InterruptScriptExecution)) {
                 throw err
@@ -64,7 +64,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
             }
 
             const result = this.engine.runScript(arg.toString(), [], true, false)
-            return result !== null ? result : arg
+            return result !== null && result !== undefined ? result : arg
         })
     }
 
