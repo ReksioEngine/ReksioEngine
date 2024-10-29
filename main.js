@@ -53364,11 +53364,17 @@ class Mouse extends index_1.Type {
         this.mousePosition = new pixi_js_1.Point(0, 0);
         this.clicked = false;
         this.released = false;
+        this.moved = false;
+        this.callbacks.register('ONINIT', definition.ONINIT);
         this.callbacks.registerGroup('ONCLICK', definition.ONCLICK);
         this.callbacks.registerGroup('ONRELEASE', definition.ONRELEASE);
+        this.callbacks.register('ONMOVE', definition.ONMOVE);
     }
     init() {
         this.ENABLE();
+    }
+    ready() {
+        this.callbacks.run('ONINIT');
     }
     destroy() {
         this.DISABLE();
@@ -53382,9 +53388,14 @@ class Mouse extends index_1.Type {
             this.callbacks.run('ONRELEASE');
             this.released = false;
         }
+        if (this.moved) {
+            this.callbacks.run('ONMOVE');
+            this.moved = false;
+        }
     }
     onMouseMove(event) {
         this.mousePosition = new pixi_js_1.Point(Math.floor(event.screen.x), Math.floor(event.screen.y));
+        this.moved = true;
     }
     onMouseClick(event) {
         this.onMouseMove(event);
@@ -54615,7 +54626,9 @@ const ImageStructure = {
 };
 const MouseStructure = {
     ONCLICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
-    ONRELEASE: (0, common_1.optional)((0, common_1.callbacks)(common_1.string))
+    ONRELEASE: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONINIT: (0, common_1.optional)(common_1.callback),
+    ONMOVE: (0, common_1.optional)(common_1.callback)
 };
 const KeyboardStructure = {
     ONKEYDOWN: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
