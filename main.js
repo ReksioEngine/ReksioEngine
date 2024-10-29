@@ -56683,6 +56683,7 @@ const stdlib_1 = __webpack_require__(/*! ./stdlib */ "./src/interpreter/stdlib.t
 const errors_1 = __webpack_require__(/*! ../errors */ "./src/errors.ts");
 const types_1 = __webpack_require__(/*! ../types */ "./src/types.ts");
 const types_2 = __webpack_require__(/*! ../engine/types */ "./src/engine/types/index.ts");
+const string_1 = __webpack_require__(/*! ../engine/types/string */ "./src/engine/types/string.ts");
 class InterruptScriptExecution {
     constructor(one = false) {
         this.one = one;
@@ -56784,7 +56785,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             return this.visit(ctx.expr());
         };
         this.visitExpr = (ctx) => {
-            var _a;
+            var _a, _b;
             this.lastContext = ctx;
             if (ctx.TRUE() != null) {
                 return true;
@@ -56805,12 +56806,18 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 const identifier = ctx.IDENTIFIER().getText();
                 if (identifier.startsWith('$') && this.args) {
                     const argIdx = parseInt(identifier.substring(1)) - 1;
-                    this.methodCallUsedVariables[identifier] = this.args[argIdx];
-                    this.scriptUsedVariables[identifier] = this.args[argIdx];
+                    const arg = this.args[argIdx];
+                    this.methodCallUsedVariables[identifier] = arg;
+                    this.scriptUsedVariables[identifier] = arg;
                     (0, errors_1.assert)(this.args.length >= argIdx + 1);
+                    const object = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject(this.args[argIdx]);
+                    if (object !== null && object instanceof string_1.String) {
+                        console.debug(object);
+                        return object.value;
+                    }
                     return this.args[argIdx];
                 }
-                const object = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject(ctx.IDENTIFIER().getText());
+                const object = (_b = this.engine) === null || _b === void 0 ? void 0 : _b.getObject(ctx.IDENTIFIER().getText());
                 this.methodCallUsedVariables[identifier] = object;
                 this.scriptUsedVariables[identifier] = object;
                 if (object === null) {
@@ -57006,7 +57013,10 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             const valueIndex = parseInt(index, 10) - 1;
             if (valueIndex >= 0 && valueIndex < this.args.length) {
                 const arg = this.args[valueIndex];
-                if (arg instanceof types_2.Type) {
+                if (arg instanceof string_1.String) {
+                    return arg.value;
+                }
+                else if (arg instanceof types_2.Type) {
                     return arg.name;
                 }
                 else {
