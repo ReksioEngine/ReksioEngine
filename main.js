@@ -51438,6 +51438,7 @@ class Animo extends index_1.DisplayType {
         this.currentLoop = 0;
         this.fps = 16;
         this.timeSinceLastFrame = 0;
+        this.shouldForceRender = false;
         this.positionX = 0;
         this.positionOffsetX = 0;
         this.positionY = 0;
@@ -51476,13 +51477,16 @@ class Animo extends index_1.DisplayType {
             }
         }
         this.callbacks.run('ONINIT');
-        this.tick(0);
     }
     destroy() {
         (0, errors_1.assert)(this.sprite !== null);
         this.engine.removeFromStage(this.sprite);
     }
     tick(elapsedMS) {
+        if (this.shouldForceRender) {
+            this.forceRender();
+            this.shouldForceRender = false;
+        }
         if (!this.isPlaying) {
             return;
         }
@@ -51657,7 +51661,7 @@ class Animo extends index_1.DisplayType {
         this.currentFrame = 0;
         this.currentEvent = name.toString().toUpperCase();
         // Animation could be paused before next tick and it wouldn't render new frame
-        this.forceRender();
+        this.shouldForceRender = true;
     }
     STOP(arg) {
         this.isPlaying = false;
@@ -51683,9 +51687,9 @@ class Animo extends index_1.DisplayType {
         if (this.currentFrame >= event.framesCount) {
             this.currentFrame = 0; // TODO
         }
-        // Don't wait for a tick because some animations might not be playing,
+        // Force render because some animations might not be playing,
         // but they display something (like a keypad screen in S73_0_KOD in UFO)
-        this.forceRender();
+        this.shouldForceRender = true;
     }
     SETFPS(fps) {
         this.fps = fps;
@@ -56819,14 +56823,15 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 const identifier = ctx.IDENTIFIER().getText();
                 if (identifier.startsWith('$') && this.args) {
                     const argIdx = parseInt(identifier.substring(1)) - 1;
+                    (0, errors_1.assert)(this.args.length >= argIdx + 1);
                     const arg = this.args[argIdx];
                     this.methodCallUsedVariables[identifier] = arg;
                     this.scriptUsedVariables[identifier] = arg;
-                    (0, errors_1.assert)(this.args.length >= argIdx + 1);
-                    const object = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject(this.args[argIdx]);
-                    if (object !== null && object instanceof string_1.String) {
-                        console.debug(object);
-                        return object.value;
+                    if (typeof arg === 'string') {
+                        const object = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject(arg);
+                        if (object !== null && object instanceof string_1.String) {
+                            return object.value;
+                        }
                     }
                     return this.args[argIdx];
                 }
