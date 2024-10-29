@@ -21,6 +21,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     private fps: number = 16
     private timeSinceLastFrame: number = 0
+    private shouldForceRender: boolean = false
 
     private positionX: number = 0
     private positionOffsetX: number = 0
@@ -74,7 +75,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
 
         this.callbacks.run('ONINIT')
-        this.tick(0)
     }
 
     destroy() {
@@ -83,6 +83,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     tick(elapsedMS: number) {
+        if (this.shouldForceRender) {
+            this.forceRender()
+            this.shouldForceRender = false
+        }
+
         if (!this.isPlaying) {
             return
         }
@@ -293,7 +298,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.currentEvent = name.toString().toUpperCase()
 
         // Animation could be paused before next tick and it wouldn't render new frame
-        this.forceRender()
+        this.shouldForceRender = true
     }
 
     STOP(arg: boolean) {
@@ -325,9 +330,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.currentFrame = 0 // TODO
         }
 
-        // Don't wait for a tick because some animations might not be playing,
+        // Force render because some animations might not be playing,
         // but they display something (like a keypad screen in S73_0_KOD in UFO)
-        this.forceRender()
+        this.shouldForceRender = true
     }
 
     SETFPS(fps: number) {
