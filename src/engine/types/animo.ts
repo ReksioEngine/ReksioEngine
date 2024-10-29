@@ -1,7 +1,6 @@
 import {DisplayType} from './index'
 import {AnimoDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
-import {NotImplementedError} from '../../errors'
 import {assert, InvalidObjectError} from '../../errors'
 import * as PIXI from 'pixi.js'
 import {Rectangle, Texture} from 'pixi.js'
@@ -61,18 +60,21 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async init() {
         this.annFile = await this.loadAnimation()
         this.initSprite()
-
-        // Find first event with any frames
-        const defaultEvent = this.annFile.events.find(event => event.framesCount > 0)
-        if (defaultEvent !== undefined) {
-            this.changeFrame(defaultEvent, 0)
-            this.currentEvent = defaultEvent.name
-        }
     }
 
     ready() {
         this.callbacks.run('ONINIT')
         this.tick(0)
+
+        if (this.currentEvent === ''){
+            assert(this.annFile !== null)
+            // Find first event with any frames
+            const defaultEvent = this.annFile.events.find(event => event.framesCount > 0)
+            if (defaultEvent !== undefined) {
+                this.changeFrame(defaultEvent, 0)
+                this.currentEvent = defaultEvent.name
+            }
+        }
     }
 
     destroy() {
