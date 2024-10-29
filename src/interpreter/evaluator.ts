@@ -165,17 +165,18 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             const identifier = ctx.IDENTIFIER().getText()
             if (identifier.startsWith('$') && this.args) {
                 const argIdx = parseInt(identifier.substring(1)) - 1
+                assert(this.args.length >= argIdx + 1)
+
                 const arg = this.args[argIdx]
 
                 this.methodCallUsedVariables[identifier] = arg
                 this.scriptUsedVariables[identifier] = arg
 
-                assert(this.args.length >= argIdx + 1)
-
-                const object = this.engine?.getObject(this.args[argIdx])
-                if (object !== null && object instanceof String) {
-                    console.debug(object)
-                    return object.value
+                if (typeof arg === 'string') {
+                    const object = this.engine?.getObject(arg)
+                    if (object !== null && object instanceof String) {
+                        return object.value
+                    }
                 }
 
                 return this.args[argIdx]
