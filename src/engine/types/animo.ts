@@ -317,6 +317,14 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.currentFrame = Number(frameIdx)
         }
 
+        const event = this.getEventByName(this.currentEvent)
+        assert(event !== null)
+
+        // Necessary in S63_OBOZ
+        if (this.currentFrame >= event.framesCount) {
+            this.currentFrame = 0 // TODO
+        }
+
         // Don't wait for a tick because some animations might not be playing,
         // but they display something (like a keypad screen in S73_0_KOD in UFO)
         this.forceRender()
