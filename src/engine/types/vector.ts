@@ -29,28 +29,24 @@ export class Vector extends ValueType<VectorDefinition> {
     }
 
     NORMALIZE() {
-        const magnitude: number = Math.sqrt(this.value.reduce((sum: number, val: number) => sum + val * val, 0))
+        const magnitude = this.LEN()
         assert(magnitude !== 0, 'Cannot normalize a zero vector')
-
         this.value = this.value.map((val: number) => val / magnitude)
     }
 
-    REFLECT(vector: number[], normal: number[]): void {
-        vector = vector.map(e => ForceNumber(e))
+    REFLECT(normal: number[], result: number[]): void {
         normal = normal.map(e => ForceNumber(e))
 
-        assert(
-            this.value.length === normal.length && this.value.length === vector.length,
-            'Vector and normal must have the same dimensionality'
-        )
+        // Calculate the dot product between this.value and the normal vector
+        let dotProduct = 0
+        for (let i = 0; i < this.value.length; i++) {
+            dotProduct += this.value[i] * normal[i]
+        }
 
-        // Calculate the dot product of the vector and the normal vector
-        const dotProduct: number = vector.reduce((sum: number, val: number, idx: number) => sum + val * normal[idx], 0)
-
-        // Calculate the reflection: v - 2 * (v . n) * n
-        this.value = vector.map((val: number, idx: number) =>
-            val - 2 * dotProduct * normal[idx]
-        )
+        // Perform the reflection calculation for each dimension
+        for (let i = 0; i < this.value.length; i++) {
+            result[i] = this.value[i] - 2 * dotProduct * normal[i]
+        }
     }
 
     LEN(): number {
