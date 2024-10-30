@@ -2,6 +2,7 @@ import {ValueType} from './index'
 import {VectorDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {assert} from '../../errors'
+import {ForceNumber} from '../../types'
 
 export class Vector extends ValueType<VectorDefinition> {
     constructor(engine: Engine, definition: VectorDefinition) {
@@ -10,19 +11,21 @@ export class Vector extends ValueType<VectorDefinition> {
     }
 
     ASSIGN(...values: number[]) {
-        this.value = values
+        this.value = values.map(e => ForceNumber(e))
     }
 
     ADD(otherVector: number[]) {
+        otherVector = otherVector.map(e => ForceNumber(e))
         this.value = this.value.map((val: number, idx: number) => val + otherVector[idx])
     }
 
     MUL(scalar: number) {
+        scalar = ForceNumber(scalar)
         this.value = this.value.map((val: number) => val * scalar)
     }
 
     GET(index: number) {
-        return this.value[index]
+        return this.value[ForceNumber(index)]
     }
 
     NORMALIZE() {
@@ -33,6 +36,9 @@ export class Vector extends ValueType<VectorDefinition> {
     }
 
     REFLECT(vector: number[], normal: number[]): void {
+        vector = vector.map(e => ForceNumber(e))
+        normal = normal.map(e => ForceNumber(e))
+
         assert(
             this.value.length === normal.length && this.value.length === vector.length,
             'Vector and normal must have the same dimensionality'
