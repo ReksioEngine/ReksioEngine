@@ -52595,6 +52595,7 @@ exports.Condition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const evaluator_1 = __webpack_require__(/*! ../../interpreter/evaluator */ "./src/interpreter/evaluator.ts");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 class Condition extends index_1.Type {
     constructor(engine, definition) {
         super(engine, definition);
@@ -52619,25 +52620,35 @@ class Condition extends index_1.Type {
         const operand1 = this.engine.executeCallback(null, this.definition.OPERAND1);
         const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2);
         let result;
-        switch (this.definition.OPERATOR) {
-            case 'EQUAL':
-                result = types_1.Compare.Equal(operand1, operand2);
-                break;
-            case 'NOTEQUAL':
-                result = types_1.Compare.NotEqual(operand1, operand2);
-                break;
-            case 'LESS':
-                result = types_1.Compare.Less(operand1, operand2);
-                break;
-            case 'GREATER':
-                result = types_1.Compare.Greater(operand1, operand2);
-                break;
-            case 'LESSEQUAL':
-                result = types_1.Compare.LessOrEqual(operand1, operand2);
-                break;
-            case 'GREATEREQUAL':
-                result = types_1.Compare.GreaterOrEqual(operand1, operand2);
-                break;
+        try {
+            switch (this.definition.OPERATOR) {
+                case 'EQUAL':
+                    result = types_1.Compare.Equal(operand1, operand2);
+                    break;
+                case 'NOTEQUAL':
+                    result = types_1.Compare.NotEqual(operand1, operand2);
+                    break;
+                case 'LESS':
+                    result = types_1.Compare.Less(operand1, operand2);
+                    break;
+                case 'GREATER':
+                    result = types_1.Compare.Greater(operand1, operand2);
+                    break;
+                case 'LESSEQUAL':
+                    result = types_1.Compare.LessOrEqual(operand1, operand2);
+                    break;
+                case 'GREATEREQUAL':
+                    result = types_1.Compare.GreaterOrEqual(operand1, operand2);
+                    break;
+            }
+        }
+        catch (err) {
+            if (err instanceof errors_1.UnexpectedError) {
+                console.error('Condition details\n' +
+                    '\n' +
+                    '%cCondition:%c%O\n%cOperand1:%c%O\n%cOperand2:%c%O\n', 'font-weight: bold', 'font-weight: inherit', this, 'font-weight: bold', 'font-weight: inherit', operand1, 'font-weight: bold', 'font-weight: inherit', operand2);
+            }
+            throw err;
         }
         if (result) {
             this.callbacks.run('ONRUNTIMESUCCESS', null, null);
@@ -54177,34 +54188,42 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Vector = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
 class Vector extends index_1.ValueType {
     constructor(engine, definition) {
         super(engine, definition);
         this.value = this.definition.VALUE;
     }
     ASSIGN(...values) {
-        this.value = values;
+        this.value = values.map(e => (0, types_1.ForceNumber)(e));
     }
     ADD(otherVector) {
+        otherVector = otherVector.map(e => (0, types_1.ForceNumber)(e));
         this.value = this.value.map((val, idx) => val + otherVector[idx]);
     }
     MUL(scalar) {
+        scalar = (0, types_1.ForceNumber)(scalar);
         this.value = this.value.map((val) => val * scalar);
     }
     GET(index) {
-        return this.value[index];
+        return this.value[(0, types_1.ForceNumber)(index)];
     }
     NORMALIZE() {
-        const magnitude = Math.sqrt(this.value.reduce((sum, val) => sum + val * val, 0));
+        const magnitude = this.LEN();
         (0, errors_1.assert)(magnitude !== 0, 'Cannot normalize a zero vector');
         this.value = this.value.map((val) => val / magnitude);
     }
-    REFLECT(vector, normal) {
-        (0, errors_1.assert)(this.value.length === normal.length && this.value.length === vector.length, 'Vector and normal must have the same dimensionality');
-        // Calculate the dot product of the vector and the normal vector
-        const dotProduct = vector.reduce((sum, val, idx) => sum + val * normal[idx], 0);
-        // Calculate the reflection: v - 2 * (v . n) * n
-        this.value = vector.map((val, idx) => val - 2 * dotProduct * normal[idx]);
+    REFLECT(normal, result) {
+        normal = normal.map(e => (0, types_1.ForceNumber)(e));
+        // Calculate the dot product between this.value and the normal vector
+        let dotProduct = 0;
+        for (let i = 0; i < this.value.length; i++) {
+            dotProduct += this.value[i] * normal[i];
+        }
+        // Perform the reflection calculation for each dimension
+        for (let i = 0; i < this.value.length; i++) {
+            result[i] = this.value[i] - 2 * dotProduct * normal[i];
+        }
     }
     LEN() {
         return Math.sqrt(this.value.reduce((sum, val) => sum + val * val, 0));
