@@ -54195,7 +54195,11 @@ class Vector extends index_1.ValueType {
         this.value = this.definition.VALUE;
     }
     ASSIGN(...values) {
-        this.value = values.map(e => (0, types_1.ForceNumber)(e));
+        const newValue = this.value;
+        for (let i = 0; i < values.length; i++) {
+            newValue[i] = (0, types_1.ForceNumber)(values[i]);
+        }
+        this.value = newValue;
     }
     ADD(otherVector) {
         otherVector = otherVector.map(e => (0, types_1.ForceNumber)(e));
