@@ -198,6 +198,17 @@ export class Engine {
         }
 
         this.currentScene = this.getObject(sceneName) as Scene
+
+        // Set background image
+        if (this.currentScene.definition.BACKGROUND) {
+            this.canvasBackground.texture = await loadTexture(
+                this.fileLoader,
+                this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)
+            )
+        } else {
+            this.canvasBackground.texture = this.blackTexture
+        }
+
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'))
         await loadDefinition(this, this.scope, sceneDefinition, this.currentScene)
 
@@ -211,16 +222,6 @@ export class Engine {
                 loop: true
             })
             this.music.play()
-        }
-
-        // Set background image
-        if (this.currentScene.definition.BACKGROUND) {
-            this.canvasBackground.texture = await loadTexture(
-                this.fileLoader,
-                this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)
-            )
-        } else {
-            this.canvasBackground.texture = this.blackTexture
         }
 
         // Wait for assets to load
