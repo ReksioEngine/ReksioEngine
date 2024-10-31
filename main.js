@@ -51168,6 +51168,13 @@ class Engine {
                 this.debug.nextSceneOverwrite = null;
             }
             this.currentScene = this.getObject(sceneName);
+            // Set background image
+            if (this.currentScene.definition.BACKGROUND) {
+                this.canvasBackground.texture = yield (0, assetsLoader_1.loadTexture)(this.fileLoader, this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND));
+            }
+            else {
+                this.canvasBackground.texture = this.blackTexture;
+            }
             const sceneDefinition = yield this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
             yield (0, definitionLoader_1.loadDefinition)(this, this.scope, sceneDefinition, this.currentScene);
             for (const object of objectsToRemove) {
@@ -51179,13 +51186,6 @@ class Engine {
                     loop: true
                 });
                 this.music.play();
-            }
-            // Set background image
-            if (this.currentScene.definition.BACKGROUND) {
-                this.canvasBackground.texture = yield (0, assetsLoader_1.loadTexture)(this.fileLoader, this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND));
-            }
-            else {
-                this.canvasBackground.texture = this.blackTexture;
             }
             // Wait for assets to load
             if (this.fileLoader instanceof filesLoader_1.UrlFileLoader) {
