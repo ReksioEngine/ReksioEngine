@@ -11,7 +11,11 @@ export class Vector extends ValueType<VectorDefinition> {
     }
 
     ASSIGN(...values: number[]) {
-        this.value = values.map(e => ForceNumber(e))
+        const newValue = this.value
+        for (let i = 0; i < values.length; i++) {
+            newValue[i] = ForceNumber(values[i])
+        }
+        this.value = newValue
     }
 
     ADD(otherVector: number[]) {
