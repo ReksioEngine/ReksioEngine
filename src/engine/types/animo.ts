@@ -1,7 +1,7 @@
 import {DisplayType} from './index'
 import {AnimoDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
-import {assert, InvalidObjectError} from '../../errors'
+import {assert, InvalidObjectError, NotImplementedError} from '../../errors'
 import * as PIXI from 'pixi.js'
 import {Rectangle, Texture} from 'pixi.js'
 import {ANN, Event} from '../../fileFormats/ann'
@@ -519,6 +519,14 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     ADDBEHAVIOUR(callbackString: string, behaviourName: string) {
         this.callbacks.addBehaviour(callbackString, behaviourName)
+    }
+
+    MONITORCOLLISION(newState: boolean) {
+        throw new NotImplementedError()
+    }
+
+    REMOVEMONITORCOLLISION() {
+        throw new NotImplementedError()
     }
 
     private forceRender() {
