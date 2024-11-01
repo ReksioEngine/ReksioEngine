@@ -8,7 +8,7 @@ export class Text extends DisplayType<TextDefinition> {
 
     constructor(engine: Engine, definition: TextDefinition) {
         super(engine, definition)
-        this.text = new PIXI.Text('TEST', {fontFamily: 'Arial'})
+        this.text = new PIXI.Text('', {fontFamily: 'Arial'})
     }
 
     ready() {
@@ -16,13 +16,16 @@ export class Text extends DisplayType<TextDefinition> {
 
         this.text.x = x
         this.text.y = y
-        this.text.width = width
-        this.text.height = height
+        this.text.visible = this.engine.debug.isDebug
         this.engine.addToStage(this.text)
     }
 
     destroy() {
         this.engine.removeFromStage(this.text)
+    }
+
+    SETTEXT(content: any) {
+        this.text.text = content.toString()
     }
 
     getRenderObject() {
