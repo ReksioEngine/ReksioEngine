@@ -50329,6 +50329,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CallbacksComponent = void 0;
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const evaluator_1 = __webpack_require__(/*! ../../interpreter/evaluator */ "./src/interpreter/evaluator.ts");
+const stacktrace_1 = __webpack_require__(/*! ../../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
 class CallbacksComponent {
     constructor(engine, object) {
         this.registry = new Map();
@@ -50365,13 +50366,13 @@ class CallbacksComponent {
     }
     run(type, param, thisOverride) {
         const thisReference = thisOverride !== undefined ? thisOverride : this.object;
-        const stackFrame = evaluator_1.StackFrame.builder()
+        const stackFrame = stacktrace_1.StackFrame.builder()
             .type('callback')
             .object(this.object)
             .callback(type)
             .args(...(param !== undefined ? [param] : []))
             .build();
-        evaluator_1.stackTrace.push(stackFrame);
+        stacktrace_1.stackTrace.push(stackFrame);
         try {
             const callbackGroup = this.registry.get(type);
             if (callbackGroup === null || callbackGroup === void 0 ? void 0 : callbackGroup.nonParametrized) {
@@ -50387,7 +50388,7 @@ class CallbacksComponent {
             }
         }
         finally {
-            evaluator_1.stackTrace.pop();
+            stacktrace_1.stackTrace.pop();
         }
     }
     addBehaviour(callbackString, behaviourName) {
@@ -51027,6 +51028,7 @@ const optimizations_1 = __webpack_require__(/*! ./optimizations */ "./src/engine
 const debugging_1 = __webpack_require__(/*! ./debugging */ "./src/engine/debugging.ts");
 const timer_1 = __webpack_require__(/*! ./types/timer */ "./src/engine/types/timer.ts");
 const errors_1 = __webpack_require__(/*! ../errors */ "./src/errors.ts");
+const stacktrace_1 = __webpack_require__(/*! ../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
 class Engine {
     constructor(app) {
         this.speed = 1;
@@ -51098,12 +51100,12 @@ class Engine {
                     console.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`, 'font-weight: bold', 'font-weight: inherit', callback, 'font-weight: bold', 'font-weight: inherit', caller);
                     return;
                 }
-                stackFrame = evaluator_1.StackFrame.builder()
+                stackFrame = stacktrace_1.StackFrame.builder()
                     .type('behaviour')
                     .behaviour(callback.behaviourReference)
                     .args(args)
                     .build();
-                evaluator_1.stackTrace.push(stackFrame);
+                stacktrace_1.stackTrace.push(stackFrame);
                 return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments);
             }
         }
@@ -51112,7 +51114,7 @@ class Engine {
                 this.thisQueue.pop();
             }
             if (stackFrame !== null) {
-                evaluator_1.stackTrace.pop();
+                stacktrace_1.stackTrace.pop();
             }
         }
     }
@@ -51206,13 +51208,6 @@ class Engine {
         else {
             return this.getObject(name.objectName);
         }
-    }
-    cloneObject(object) {
-        const clone = object.clone();
-        object.clones.push(clone);
-        clone.name = `${object.definition.NAME}_${object.clones.length}`;
-        this.scope[clone.name] = clone;
-        return clone;
     }
     resume() {
         sound_1.sound.resumeAll();
@@ -51523,15 +51518,16 @@ class Animo extends index_1.DisplayType {
                         continue;
                     }
                     for (const filename of frame.sounds) {
-                        if (!this.sounds.has(filename)) {
-                            const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '');
-                            try {
-                                const sound = yield (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`);
-                                this.sounds.set(filename, sound);
-                            }
-                            catch (err) {
-                                console.warn(err);
-                            }
+                        if (this.sounds.has(filename)) {
+                            continue;
+                        }
+                        const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '');
+                        try {
+                            const sound = yield (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`);
+                            this.sounds.set(filename, sound);
+                        }
+                        catch (err) {
+                            console.warn(err);
                         }
                     }
                 }
@@ -51631,18 +51627,6 @@ class Animo extends index_1.DisplayType {
         this.sprite.height = annImage.height;
         this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
     }
-    ONFINISHED() {
-        var _a;
-        const index = this.currentEvent.toString();
-        this.callbacks.run('ONFINISHED', index.toString());
-        (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONFINISHED', index.toString());
-    }
-    ONSTARTED() {
-        var _a;
-        const index = this.currentEvent.toString();
-        this.callbacks.run('ONSTARTED', index.toString());
-        (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONSTARTED', index.toString());
-    }
     PLAY(name) {
         if (name === undefined) {
             this.SHOW();
@@ -51660,8 +51644,25 @@ class Animo extends index_1.DisplayType {
         this.sprite.visible = true;
         this.currentFrame = 0;
         this.currentEvent = name.toString().toUpperCase();
-        // Animation could be paused before next tick and it wouldn't render new frame
+        // Animation could be paused before next tick, and it wouldn't render new frame
         this.shouldForceRender = true;
+    }
+    forceRender() {
+        const event = this.getEventByName(this.currentEvent);
+        (0, errors_1.assert)(event !== null);
+        this.changeFrame(event, this.currentFrame);
+    }
+    ONFINISHED() {
+        var _a;
+        const index = this.currentEvent.toString();
+        this.callbacks.run('ONFINISHED', index);
+        (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONFINISHED', index);
+    }
+    ONSTARTED() {
+        var _a;
+        const index = this.currentEvent.toString();
+        this.callbacks.run('ONSTARTED', index);
+        (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONSTARTED', index);
     }
     STOP(arg) {
         this.isPlaying = false;
@@ -51849,10 +51850,11 @@ class Animo extends index_1.DisplayType {
     ADDBEHAVIOUR(callbackString, behaviourName) {
         this.callbacks.addBehaviour(callbackString, behaviourName);
     }
-    forceRender() {
-        const event = this.getEventByName(this.currentEvent);
-        (0, errors_1.assert)(event !== null);
-        this.changeFrame(event, this.currentFrame);
+    MONITORCOLLISION(newState) {
+        throw new errors_1.NotImplementedError();
+    }
+    REMOVEMONITORCOLLISION() {
+        throw new errors_1.NotImplementedError();
     }
     getEventByName(name) {
         var _a;
@@ -52973,6 +52975,13 @@ class Image extends index_1.DisplayType {
             this.SETPRIORITY((_a = this.definition.PRIORITY) !== null && _a !== void 0 ? _a : 0);
         });
     }
+    load() {
+        return __awaiter(this, void 0, void 0, function* () {
+            (0, errors_1.assert)(this.engine.currentScene !== undefined);
+            const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME);
+            return yield (0, assetsLoader_1.loadSprite)(this.engine.fileLoader, relativePath);
+        });
+    }
     ready() {
         (0, errors_1.assert)(this.sprite !== null);
         this.engine.addToStage(this.sprite);
@@ -52981,17 +52990,6 @@ class Image extends index_1.DisplayType {
     destroy() {
         (0, errors_1.assert)(this.sprite !== null);
         this.engine.removeFromStage(this.sprite);
-    }
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            (0, errors_1.assert)(this.engine.currentScene !== undefined);
-            const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME);
-            const sprite = yield (0, assetsLoader_1.loadSprite)(this.engine.fileLoader, relativePath);
-            if (sprite == null) {
-                throw new Error(`Cannot load image '${this.definition.FILENAME}'`);
-            }
-            return sprite;
-        });
     }
     SETOPACITY(opacity) {
         throw new errors_1.NotImplementedError();
@@ -53070,12 +53068,19 @@ class Type {
     CLONE(count) {
         return __awaiter(this, void 0, void 0, function* () {
             for (let i = 0; i < count; i++) {
-                this.engine.cloneObject(this);
+                this.cloneObject(this);
             }
         });
     }
     GETCLONEINDEX() {
         return this.engine.getObject(this.definition.NAME).clones.indexOf(this) + 1;
+    }
+    cloneObject(object) {
+        const clone = object.clone();
+        object.clones.push(clone);
+        clone.name = `${object.definition.NAME}_${object.clones.length}`;
+        this.engine.scope[clone.name] = clone;
+        return clone;
     }
     init() { }
     ready() { }
@@ -53146,7 +53151,10 @@ class ValueType extends Type {
         return this._value;
     }
     set value(newValue) {
-        (0, errors_1.assert)(typeof newValue != 'number' || !isNaN(newValue));
+        (0, errors_1.assert)(typeof newValue != 'number' || !isNaN(newValue), 'Attempted to assign NaN');
+        (0, errors_1.assert)(newValue !== undefined, 'Attempted to assign undefined');
+        (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some(e => Number.isNaN(e)), 'Attempted to assign array with NaN values');
+        (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some(e => e === undefined), 'Attempted to assign array with undefined values');
         const oldValue = this._value;
         this._value = newValue;
         this.valueChanged(oldValue, newValue);
@@ -53334,6 +53342,12 @@ class Keyboard extends index_1.Type {
         }
         this.changeQueue = [];
     }
+    ISKEYDOWN(keyName) {
+        if (this.keysState.has(keyName)) {
+            return this.keysState.get(keyName);
+        }
+        return false;
+    }
     onKeyDown(event) {
         this.setKeyState(event.code, true);
     }
@@ -53347,12 +53361,6 @@ class Keyboard extends index_1.Type {
         }
         this.keysState.set(mapped, value);
         this.changeQueue.push({ name: mapped, state: value });
-    }
-    ISKEYDOWN(keyName) {
-        if (this.keysState.has(keyName)) {
-            return this.keysState.get(keyName);
-        }
-        return false;
     }
 }
 exports.Keyboard = Keyboard;
@@ -53385,10 +53393,8 @@ class Mouse extends index_1.Type {
         this.callbacks.registerGroup('ONRELEASE', definition.ONRELEASE);
         this.callbacks.register('ONMOVE', definition.ONMOVE);
     }
-    init() {
-        this.ENABLE();
-    }
     ready() {
+        this.ENABLE();
         this.callbacks.run('ONINIT');
     }
     destroy() {
@@ -53407,18 +53413,6 @@ class Mouse extends index_1.Type {
             this.callbacks.run('ONMOVE');
             this.moved = false;
         }
-    }
-    onMouseMove(event) {
-        this.mousePosition = new pixi_js_1.Point(Math.floor(event.screen.x), Math.floor(event.screen.y));
-        this.moved = true;
-    }
-    onMouseClick(event) {
-        this.onMouseMove(event);
-        this.clicked = true;
-    }
-    onMouseRelease(event) {
-        this.onMouseMove(event);
-        this.released = true;
     }
     SET(cursorType) {
         throw new errors_1.NotImplementedError();
@@ -53450,6 +53444,18 @@ class Mouse extends index_1.Type {
     }
     GETPOSY() {
         return this.mousePosition.y;
+    }
+    onMouseMove(event) {
+        this.mousePosition = new pixi_js_1.Point(Math.floor(event.screen.x), Math.floor(event.screen.y));
+        this.moved = true;
+    }
+    onMouseClick(event) {
+        this.onMouseMove(event);
+        this.clicked = true;
+    }
+    onMouseRelease(event) {
+        this.onMouseMove(event);
+        this.released = true;
     }
 }
 exports.Mouse = Mouse;
@@ -53516,9 +53522,6 @@ class Scene extends index_1.Type {
     constructor(engine, definition) {
         super(engine, definition);
     }
-    getRelativePath(filename) {
-        return (0, utils_1.pathJoin)('DANE', this.definition.PATH, filename);
-    }
     SETMUSICVOLUME(volume) {
         (0, errors_1.assert)(this.engine.music !== null);
         this.engine.music.volume = volume / 1000;
@@ -53535,6 +53538,9 @@ class Scene extends index_1.Type {
     }
     RUN(objectName, methodName, ...args) {
         return this.engine.getObject(objectName)[methodName](...args);
+    }
+    getRelativePath(filename) {
+        return (0, utils_1.pathJoin)('DANE', this.definition.PATH, filename);
     }
 }
 exports.Scene = Scene;
@@ -53658,6 +53664,29 @@ class Sequence extends index_1.Type {
             this.fillQueue(entry);
             this.progressNext();
         }
+    }
+    ISPLAYING() {
+        return this.sequenceName !== null;
+    }
+    HIDE() {
+        (0, errors_1.assert)(this.sequenceFile !== null);
+        // HIDE() might be called before sequence is playing, so we can't just hide activeAnimo
+        // because activeAnimo would be null at that point, we don't know what sequence is gonna be played
+        for (const filename of this.allAnimoFilenames) {
+            const animo = this.getExistingAnimo(filename);
+            animo === null || animo === void 0 ? void 0 : animo.HIDE();
+        }
+    }
+    STOP(arg) {
+        var _a, _b;
+        this.queue = [];
+        this.sequenceName = null;
+        this.runningSubSequence = null;
+        this.loop = false;
+        this.loopIndex = 0;
+        (_a = this.activeAnimo) === null || _a === void 0 ? void 0 : _a.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+        this.activeAnimo = null;
+        (_b = this.playingSound) === null || _b === void 0 ? void 0 : _b.stop();
     }
     fillQueue(entry) {
         this.queue.push(entry);
@@ -53800,29 +53829,6 @@ class Sequence extends index_1.Type {
             }
         }
         return null;
-    }
-    ISPLAYING() {
-        return this.sequenceName !== null;
-    }
-    HIDE() {
-        (0, errors_1.assert)(this.sequenceFile !== null);
-        // HIDE() might be called before sequence is playing, so we can't just hide activeAnimo
-        // because activeAnimo would be null at that point, we don't know what sequence is gonna be played
-        for (const filename of this.allAnimoFilenames) {
-            const animo = this.getExistingAnimo(filename);
-            animo === null || animo === void 0 ? void 0 : animo.HIDE();
-        }
-    }
-    STOP(arg) {
-        var _a, _b;
-        this.queue = [];
-        this.sequenceName = null;
-        this.runningSubSequence = null;
-        this.loop = false;
-        this.loopIndex = 0;
-        (_a = this.activeAnimo) === null || _a === void 0 ? void 0 : _a.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
-        this.activeAnimo = null;
-        (_b = this.playingSound) === null || _b === void 0 ? void 0 : _b.stop();
     }
 }
 exports.Sequence = Sequence;
@@ -54074,18 +54080,20 @@ const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pix
 class Text extends index_1.DisplayType {
     constructor(engine, definition) {
         super(engine, definition);
-        this.text = new PIXI.Text('TEST', { fontFamily: 'Arial' });
+        this.text = new PIXI.Text('', { fontFamily: 'Arial' });
     }
     ready() {
         const [x, y, width, height] = this.definition.RECT;
         this.text.x = x;
         this.text.y = y;
-        this.text.width = width;
-        this.text.height = height;
+        this.text.visible = this.engine.debug.isDebug;
         this.engine.addToStage(this.text);
     }
     destroy() {
         this.engine.removeFromStage(this.text);
+    }
+    SETTEXT(content) {
+        this.text.text = content.toString();
     }
     getRenderObject() {
         return this.text;
@@ -56714,7 +56722,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseArgs = exports.runScript = exports.ScriptEvaluator = exports.printStackTrace = exports.stackTrace = exports.StackFrame = exports.InterruptScriptExecution = void 0;
+exports.parseArgs = exports.runScript = exports.ScriptEvaluator = exports.InterruptScriptExecution = void 0;
 const ReksioLangVisitor_1 = __importDefault(__webpack_require__(/*! ./ReksioLangVisitor */ "./src/interpreter/ReksioLangVisitor.ts"));
 const ReksioLangParser_1 = __importDefault(__webpack_require__(/*! ./ReksioLangParser */ "./src/interpreter/ReksioLangParser.ts"));
 const ReksioLangLexer_1 = __importDefault(__webpack_require__(/*! ./ReksioLangLexer */ "./src/interpreter/ReksioLangLexer.ts"));
@@ -56724,6 +56732,7 @@ const errors_1 = __webpack_require__(/*! ../errors */ "./src/errors.ts");
 const types_1 = __webpack_require__(/*! ../types */ "./src/types.ts");
 const types_2 = __webpack_require__(/*! ../engine/types */ "./src/engine/types/index.ts");
 const string_1 = __webpack_require__(/*! ../engine/types/string */ "./src/engine/types/string.ts");
+const stacktrace_1 = __webpack_require__(/*! ./stacktrace */ "./src/interpreter/stacktrace.ts");
 class InterruptScriptExecution {
     constructor(one = false) {
         this.one = one;
@@ -56735,73 +56744,6 @@ class AlreadyDisplayedError {
         this.cause = cause;
     }
 }
-class StackFrame {
-    constructor() {
-        this.type = null;
-        this.object = null;
-        this.methodName = null;
-        this.behaviour = null;
-        this.callback = null;
-        this.args = null;
-    }
-    static builder() {
-        return new StackFrameBuilder();
-    }
-}
-exports.StackFrame = StackFrame;
-class StackFrameBuilder {
-    constructor() {
-        this.stackFrame = new StackFrame();
-    }
-    type(type) {
-        this.stackFrame.type = type;
-        return this;
-    }
-    object(object) {
-        this.stackFrame.object = object;
-        return this;
-    }
-    method(name) {
-        this.stackFrame.methodName = name;
-        return this;
-    }
-    behaviour(name) {
-        this.stackFrame.behaviour = name;
-        return this;
-    }
-    callback(name) {
-        this.stackFrame.callback = name;
-        return this;
-    }
-    args(...args) {
-        this.stackFrame.args = args;
-        return this;
-    }
-    build() {
-        return this.stackFrame;
-    }
-}
-exports.stackTrace = [];
-const printStackTrace = () => {
-    var _a;
-    const lines = [];
-    for (const frame of exports.stackTrace) {
-        const argsString = ((_a = frame.args) !== null && _a !== void 0 ? _a : []).map(arg => arg !== undefined ? (0, types_1.valueAsString)(arg) : '<undefined>').join(',');
-        switch (frame.type) {
-            case 'callback':
-                lines.push(`at ${frame.object.name}@${frame.callback}(${argsString})`);
-                break;
-            case 'method':
-                lines.push(`at ${frame.object.name}^${frame.methodName}(${argsString})`);
-                break;
-            case 'behaviour':
-                lines.push(`at ${frame.behaviour}(${argsString})`);
-                break;
-        }
-    }
-    console.error('\t' + lines.join('\n\t'));
-};
-exports.printStackTrace = printStackTrace;
 class ScriptEvaluator extends ReksioLangVisitor_1.default {
     constructor(engine, script, args, printDebug) {
         super();
@@ -56890,11 +56832,11 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             const argsVariables = this.methodCallUsedVariables;
             this.methodCallUsedVariables = {};
             try {
-                const stackFrame = StackFrame.builder()
+                const stackFrame = stacktrace_1.StackFrame.builder()
                     .object(object)
                     .method(methodName)
                     .build();
-                exports.stackTrace.push(stackFrame);
+                stacktrace_1.stackTrace.push(stackFrame);
                 if (method == undefined) {
                     return object.__call(methodName, args);
                 }
@@ -56918,7 +56860,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                         (Object.keys(this.scriptUsedVariables).length > 0 ? '%cVariables used in script:%c %O\n' : '') +
                         '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', object, ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []), ...(this.args.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []), ...(Object.keys(argsVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', argsVariables] : []), ...(Object.keys(this.scriptUsedVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables] : []), 'font-weight: bold', 'font-weight: inherit', (_a = this.engine) === null || _a === void 0 ? void 0 : _a.scope);
                     console.error(err);
-                    (0, exports.printStackTrace)();
+                    (0, stacktrace_1.printStackTrace)();
                 }
                 if (err instanceof errors_1.NotImplementedError) {
                     return null;
@@ -56928,7 +56870,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 throw new AlreadyDisplayedError(err);
             }
             finally {
-                exports.stackTrace.pop();
+                stacktrace_1.stackTrace.pop();
             }
         };
         this.visitSpecialCall = (ctx) => {
@@ -57117,6 +57059,88 @@ const parseArgs = (script) => {
     return tree.accept(new ScriptEvaluator(undefined, script));
 };
 exports.parseArgs = parseArgs;
+
+
+/***/ }),
+
+/***/ "./src/interpreter/stacktrace.ts":
+/*!***************************************!*\
+  !*** ./src/interpreter/stacktrace.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.printStackTrace = exports.stackTrace = exports.StackFrame = void 0;
+const types_1 = __webpack_require__(/*! ../types */ "./src/types.ts");
+class StackFrame {
+    constructor() {
+        this.type = null;
+        this.object = null;
+        this.methodName = null;
+        this.behaviour = null;
+        this.callback = null;
+        this.args = null;
+    }
+    static builder() {
+        return new StackFrameBuilder();
+    }
+}
+exports.StackFrame = StackFrame;
+class StackFrameBuilder {
+    constructor() {
+        this.stackFrame = new StackFrame();
+    }
+    type(type) {
+        this.stackFrame.type = type;
+        return this;
+    }
+    object(object) {
+        this.stackFrame.object = object;
+        return this;
+    }
+    method(name) {
+        this.stackFrame.methodName = name;
+        return this;
+    }
+    behaviour(name) {
+        this.stackFrame.behaviour = name;
+        return this;
+    }
+    callback(name) {
+        this.stackFrame.callback = name;
+        return this;
+    }
+    args(...args) {
+        this.stackFrame.args = args;
+        return this;
+    }
+    build() {
+        return this.stackFrame;
+    }
+}
+exports.stackTrace = [];
+const printStackTrace = () => {
+    var _a;
+    const lines = [];
+    for (const frame of exports.stackTrace) {
+        const argsString = ((_a = frame.args) !== null && _a !== void 0 ? _a : []).map(arg => arg !== undefined ? (0, types_1.valueAsString)(arg) : '<undefined>').join(',');
+        switch (frame.type) {
+            case 'callback':
+                lines.push(`at ${frame.object.name}@${frame.callback}(${argsString})`);
+                break;
+            case 'method':
+                lines.push(`at ${frame.object.name}^${frame.methodName}(${argsString})`);
+                break;
+            case 'behaviour':
+                lines.push(`at ${frame.behaviour}(${argsString})`);
+                break;
+        }
+    }
+    console.error('\t' + lines.join('\n\t'));
+};
+exports.printStackTrace = printStackTrace;
 
 
 /***/ }),
