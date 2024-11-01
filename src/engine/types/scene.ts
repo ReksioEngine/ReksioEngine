@@ -10,10 +10,6 @@ export class Scene extends Type<SceneDefinition> {
         super(engine, definition)
     }
 
-    getRelativePath(filename: string) {
-        return pathJoin('DANE', this.definition.PATH, filename)
-    }
-
     SETMUSICVOLUME(volume: number) {
         assert(this.engine.music !== null)
         this.engine.music.volume = volume / 1000
@@ -33,5 +29,9 @@ export class Scene extends Type<SceneDefinition> {
 
     RUN(objectName: string, methodName: string, ...args: any[]) {
         return this.engine.getObject(objectName)[methodName](...args)
+    }
+
+    public getRelativePath(filename: string) {
+        return pathJoin('DANE', this.definition.PATH, filename)
     }
 }

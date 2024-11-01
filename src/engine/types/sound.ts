@@ -84,12 +84,12 @@ export class Sound extends Type<SoundDefinition> {
         }
     }
 
-    onStart() {
+    private onStart() {
         console.debug(`Playing sound '${this.definition.FILENAME}'`)
         this.callbacks.run('ONSTARTED')
     }
 
-    onEnd() {
+    private onEnd() {
         console.debug(`Finished playing sound '${this.definition.FILENAME}'`)
         this.callbacks.run('ONFINISHED')
     }

@@ -21,6 +21,13 @@ export class Image extends DisplayType<ImageDefinition> {
         this.SETPRIORITY(this.definition.PRIORITY ?? 0)
     }
 
+    private async load() {
+        assert(this.engine.currentScene !== undefined)
+
+        const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME)
+        return await loadSprite(this.engine.fileLoader, relativePath)
+    }
+
     ready() {
         assert(this.sprite !== null)
         this.engine.addToStage(this.sprite)
@@ -30,17 +37,6 @@ export class Image extends DisplayType<ImageDefinition> {
     destroy() {
         assert(this.sprite !== null)
         this.engine.removeFromStage(this.sprite)
-    }
-
-    private async load() {
-        assert(this.engine.currentScene !== undefined)
-        const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME)
-        const sprite = await loadSprite(this.engine.fileLoader, relativePath)
-        if (sprite == null) {
-            throw new Error(`Cannot load image '${this.definition.FILENAME}'`)
-        }
-
-        return sprite
     }
 
     SETOPACITY(opacity: number) {

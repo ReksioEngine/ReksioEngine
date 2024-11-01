@@ -1,7 +1,7 @@
 import {ValueType} from './index'
 import {Engine} from '../index'
 import {ArrayDefinition} from '../../fileFormats/cnv/types'
-import {assert, NotImplementedError} from '../../errors'
+import {assert} from '../../errors'
 
 export class ArrayObject extends ValueType<ArrayDefinition> {
     constructor(engine: Engine, definition: ArrayDefinition) {

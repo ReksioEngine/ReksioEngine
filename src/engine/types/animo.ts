@@ -127,14 +127,16 @@ export class Animo extends DisplayType<AnimoDefinition> {
                 }
 
                 for (const filename of frame.sounds) {
-                    if (!this.sounds.has(filename)) {
-                        const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '')
-                        try {
-                            const sound = await loadSound(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`)
-                            this.sounds.set(filename, sound)
-                        } catch (err) {
-                            console.warn(err)
-                        }
+                    if (this.sounds.has(filename)) {
+                        continue
+                    }
+
+                    const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '')
+                    try {
+                        const sound = await loadSound(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`)
+                        this.sounds.set(filename, sound)
+                    } catch (err) {
+                        console.warn(err)
                     }
                 }
             }
@@ -262,18 +264,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
     }
 
-    private ONFINISHED() {
-        const index = this.currentEvent.toString()
-        this.callbacks.run('ONFINISHED', index.toString())
-        this.events?.trigger('ONFINISHED', index.toString())
-    }
-
-    private ONSTARTED() {
-        const index = this.currentEvent.toString()
-        this.callbacks.run('ONSTARTED', index.toString())
-        this.events?.trigger('ONSTARTED', index.toString())
-    }
-
     PLAY(name?: string | number) {
         if (name === undefined) {
             this.SHOW()
@@ -297,8 +287,26 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.currentFrame = 0
         this.currentEvent = name.toString().toUpperCase()
 
-        // Animation could be paused before next tick and it wouldn't render new frame
+        // Animation could be paused before next tick, and it wouldn't render new frame
         this.shouldForceRender = true
+    }
+
+    private forceRender() {
+        const event = this.getEventByName(this.currentEvent)
+        assert(event !== null)
+        this.changeFrame(event, this.currentFrame)
+    }
+
+    private ONFINISHED() {
+        const index = this.currentEvent.toString()
+        this.callbacks.run('ONFINISHED', index)
+        this.events?.trigger('ONFINISHED', index)
+    }
+
+    private ONSTARTED() {
+        const index = this.currentEvent.toString()
+        this.callbacks.run('ONSTARTED', index)
+        this.events?.trigger('ONSTARTED', index)
     }
 
     STOP(arg: boolean) {
@@ -529,20 +537,14 @@ export class Animo extends DisplayType<AnimoDefinition> {
         throw new NotImplementedError()
     }
 
-    private forceRender() {
-        const event = this.getEventByName(this.currentEvent)
-        assert(event !== null)
-        this.changeFrame(event, this.currentFrame)
-    }
-
-    getEventByName(name: string): Event | null {
+    public getEventByName(name: string): Event | null {
         assert(this.annFile !== undefined)
         return this.annFile!.events.find(
             event => event.name.toUpperCase() === name.toUpperCase()
         ) ?? null
     }
 
-    hasEvent(name: string): boolean {
+    public hasEvent(name: string): boolean {
         return this.getEventByName(name) !== null
     }
 

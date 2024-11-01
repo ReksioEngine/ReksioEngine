@@ -2,7 +2,8 @@ import {callback, callbacks} from '../../fileFormats/common'
 import {Engine} from '../index'
 import {Type} from '../types'
 import {assert} from '../../errors'
-import {InterruptScriptExecution, StackFrame, stackTrace} from '../../interpreter/evaluator'
+import {InterruptScriptExecution} from '../../interpreter/evaluator'
+import {StackFrame, stackTrace} from '../../interpreter/stacktrace'
 
 export class CallbacksComponent {
     private readonly engine: Engine

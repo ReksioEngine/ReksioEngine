@@ -23,11 +23,8 @@ export class Mouse extends Type<MouseDefinition> {
         this.callbacks.register('ONMOVE', definition.ONMOVE)
     }
 
-    init() {
-        this.ENABLE()
-    }
-
     ready() {
+        this.ENABLE()
         this.callbacks.run('ONINIT')
     }
 
@@ -48,21 +45,6 @@ export class Mouse extends Type<MouseDefinition> {
             this.callbacks.run('ONMOVE')
             this.moved = false
         }
-    }
-
-    onMouseMove(event: FederatedPointerEvent) {
-        this.mousePosition = new Point(Math.floor(event.screen.x), Math.floor(event.screen.y))
-        this.moved = true
-    }
-
-    onMouseClick(event: FederatedPointerEvent) {
-        this.onMouseMove(event)
-        this.clicked = true
-    }
-
-    onMouseRelease(event: FederatedPointerEvent) {
-        this.onMouseMove(event)
-        this.released = true
     }
 
     SET(cursorType: 'ACTIVE' | 'ARROW') {
@@ -102,5 +84,20 @@ export class Mouse extends Type<MouseDefinition> {
 
     GETPOSY() {
         return this.mousePosition.y
+    }
+
+    private onMouseMove(event: FederatedPointerEvent) {
+        this.mousePosition = new Point(Math.floor(event.screen.x), Math.floor(event.screen.y))
+        this.moved = true
+    }
+
+    private onMouseClick(event: FederatedPointerEvent) {
+        this.onMouseMove(event)
+        this.clicked = true
+    }
+
+    private onMouseRelease(event: FederatedPointerEvent) {
+        this.onMouseMove(event)
+        this.released = true
     }
 }

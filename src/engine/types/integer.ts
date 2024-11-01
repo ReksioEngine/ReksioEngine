@@ -96,7 +96,7 @@ export class Integer extends ValueType<IntegerDefinition> {
         return this.value
     }
 
-    valueChanged(oldValue: any, newValue: any) {
+    protected valueChanged(oldValue: any, newValue: any) {
         if (oldValue !== newValue) {
             this.callbacks.run('ONCHANGED', newValue)
         }

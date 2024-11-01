@@ -30,12 +30,21 @@ export class Type<DefinitionType extends TypeDefinition> {
 
     async CLONE(count: number) {
         for (let i = 0; i < count; i++) {
-            this.engine.cloneObject(this)
+            this.cloneObject(this)
         }
     }
 
     GETCLONEINDEX() {
         return this.engine.getObject(this.definition.NAME).clones.indexOf(this) + 1
+    }
+
+    private cloneObject(object: Type<any>) {
+        const clone = object.clone()
+        object.clones.push(clone)
+
+        clone.name = `${object.definition.NAME}_${object.clones.length}`
+        this.engine.scope[clone.name] = clone
+        return clone
     }
 
     init() {}
@@ -114,7 +123,10 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
     }
 
     set value(newValue: any) {
-        assert(typeof newValue != 'number' || !isNaN(newValue))
+        assert(typeof newValue != 'number' || !isNaN(newValue), 'Attempted to assign NaN')
+        assert(newValue !== undefined, 'Attempted to assign undefined')
+        assert(!Array.isArray(newValue) || !newValue.some(e => Number.isNaN(e)), 'Attempted to assign array with NaN values')
+        assert(!Array.isArray(newValue) || !newValue.some(e => e === undefined), 'Attempted to assign array with undefined values')
 
         const oldValue = this._value
         this._value = newValue
@@ -125,7 +137,7 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
         }
     }
 
-    valueChanged(oldValue: any, newValue: any) {}
+    protected valueChanged(oldValue: any, newValue: any) {}
 
     protected getFromINI() {
         const loadedValue = this.engine.saveFile.load(this)

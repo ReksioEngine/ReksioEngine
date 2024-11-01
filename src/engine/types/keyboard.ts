@@ -51,27 +51,27 @@ export class Keyboard extends Type<KeyboardDefinition> {
         this.changeQueue = []
     }
 
-    onKeyDown(event: KeyboardEvent) {
+    ISKEYDOWN(keyName: string) {
+        if (this.keysState.has(keyName)) {
+            return this.keysState.get(keyName)!
+        }
+        return false
+    }
+
+    private onKeyDown(event: KeyboardEvent) {
         this.setKeyState(event.code, true)
     }
 
-    onKeyUp(event: KeyboardEvent) {
+    private onKeyUp(event: KeyboardEvent) {
         this.setKeyState(event.code, false)
     }
 
-    setKeyState(keyCode: string, value: boolean) {
+    private setKeyState(keyCode: string, value: boolean) {
         const mapped = keysMapping[keyCode]
         if (!mapped) {
             console.warn(`Unsupported keyboard key code ${keyCode}`)
         }
         this.keysState.set(mapped, value)
         this.changeQueue.push({name: mapped, state: value})
-    }
-
-    ISKEYDOWN(keyName: string) {
-        if (this.keysState.has(keyName)) {
-            return this.keysState.get(keyName)!
-        }
-        return false
     }
 }

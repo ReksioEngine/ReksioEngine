@@ -120,6 +120,32 @@ export class Sequence extends Type<SequenceDefinition> {
         }
     }
 
+    ISPLAYING() {
+        return this.sequenceName !== null
+    }
+
+    HIDE() {
+        assert(this.sequenceFile !== null)
+
+        // HIDE() might be called before sequence is playing, so we can't just hide activeAnimo
+        // because activeAnimo would be null at that point, we don't know what sequence is gonna be played
+        for (const filename of this.allAnimoFilenames) {
+            const animo = this.getExistingAnimo(filename)
+            animo?.HIDE()
+        }
+    }
+
+    STOP(arg: boolean) {
+        this.queue = []
+        this.sequenceName = null
+        this.runningSubSequence = null
+        this.loop = false
+        this.loopIndex = 0
+        this.activeAnimo?.events.unregister(Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback)
+        this.activeAnimo = null
+        this.playingSound?.stop()
+    }
+
     private fillQueue(entry: SequenceFileEntry) {
         this.queue.push(entry)
 
@@ -275,31 +301,5 @@ export class Sequence extends Type<SequenceDefinition> {
         }
 
         return null
-    }
-
-    ISPLAYING() {
-        return this.sequenceName !== null
-    }
-
-    HIDE() {
-        assert(this.sequenceFile !== null)
-
-        // HIDE() might be called before sequence is playing, so we can't just hide activeAnimo
-        // because activeAnimo would be null at that point, we don't know what sequence is gonna be played
-        for (const filename of this.allAnimoFilenames) {
-            const animo = this.getExistingAnimo(filename)
-            animo?.HIDE()
-        }
-    }
-
-    STOP(arg: boolean) {
-        this.queue = []
-        this.sequenceName = null
-        this.runningSubSequence = null
-        this.loop = false
-        this.loopIndex = 0
-        this.activeAnimo?.events.unregister(Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback)
-        this.activeAnimo = null
-        this.playingSound?.stop()
     }
 }

@@ -19,7 +19,7 @@ export class Bool extends ValueType<BoolDefinition> {
         this.value = newValue
     }
 
-    valueChanged(oldValue: any, newValue: any) {
+    protected valueChanged(oldValue: any, newValue: any) {
         if (oldValue !== newValue) {
             this.callbacks.run('ONCHANGED', newValue)
         }
