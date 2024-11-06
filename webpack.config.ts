@@ -1,8 +1,13 @@
-const CopyWebpackPlugin = require('copy-webpack-plugin')
-const HTMLWebpackPlugin = require('html-webpack-plugin')
-const webpack = require('webpack')
+import {
+    Program
+} from 'typescript'
 
-module.exports = (env) => ({
+import CopyWebpackPlugin from 'copy-webpack-plugin'
+import HTMLWebpackPlugin from 'html-webpack-plugin'
+import webpack from 'webpack'
+import {typeGuard} from './transformers'
+
+module.exports = (env: any) => ({
     entry: './src/index.ts',
     mode: 'development',
     devServer: {
@@ -37,8 +42,14 @@ module.exports = (env) => ({
             },
             {
                 test: /\.ts?$/,
-                use: 'ts-loader',
-                exclude: /node_modules/
+                // use: 'ts-loader',
+                loader: 'ts-loader',
+                exclude: /node_modules/,
+                options: {
+                    getCustomTransformers: (program: Program) => ({
+                        before: [typeGuard(program)]
+                    })
+                }
             }
         ],
     },

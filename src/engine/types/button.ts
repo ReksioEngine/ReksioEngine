@@ -7,6 +7,7 @@ import {ButtonLogicComponent, Event, State} from '../components/button'
 import {Animo} from './animo'
 import {assert} from '../../errors'
 import {reference} from '../../fileFormats/common'
+import {method} from '../../types'
 
 export class Button extends Type<ButtonDefinition> {
     private logic: ButtonLogicComponent
@@ -185,24 +186,29 @@ export class Button extends Type<ButtonDefinition> {
         }
     }
 
+    @method()
     ENABLE() {
         this.logic.enable()
     }
 
+    @method()
     DISABLE() {
         this.logic.disable()
     }
 
+    @method()
     DISABLEBUTVISIBLE() {
         this.logic.disableButVisible()
     }
 
+    @method()
     SETPRIORITY(priority: number) {
         this.gfxStandard?.SETPRIORITY(priority)
         this.gfxOnMove?.SETPRIORITY(priority)
         this.gfxOnClick?.SETPRIORITY(priority)
     }
 
+    @method()
     SETRECT(objectName: string) {
         this.setRect({ objectName })
     }

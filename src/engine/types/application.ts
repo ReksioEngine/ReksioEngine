@@ -5,6 +5,7 @@ import {pathJoin} from '../../utils'
 import {loadDefinition} from '../definitionLoader'
 import {NotImplementedError} from '../../errors'
 import {FileNotFoundError} from '../filesLoader'
+import {method} from '../../types'
 
 export class Application extends Type<ApplicationDefinition> {
     private language: string = 'POL'
@@ -26,6 +27,7 @@ export class Application extends Type<ApplicationDefinition> {
         }
     }
 
+    @method()
     SETLANGUAGE(langCode: string) {
         switch (langCode) {
         case '0415':
@@ -43,10 +45,12 @@ export class Application extends Type<ApplicationDefinition> {
         }
     }
 
+    @method()
     GETLANGUAGE() {
         return this.language
     }
 
+    @method()
     RUN(objectName: string, methodName: string, ...args: any[]) {
         const object = this.engine.getObject(objectName)
         if (object === null) {
@@ -60,6 +64,7 @@ export class Application extends Type<ApplicationDefinition> {
         }
     }
 
+    @method()
     EXIT() {
         throw new NotImplementedError()
     }

@@ -2,6 +2,7 @@ import {DisplayType, Type} from './index'
 import {StaticFilterDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {Animo} from './animo'
+import {method} from '../../types'
 
 export class StaticFilter extends Type<StaticFilterDefinition> {
     private properties = new Map<string, any>()
@@ -12,10 +13,12 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
         this.linked = []
     }
 
+    @method()
     SETPROPERTY(name: string, value: any) {
         this.properties.set(name, value)
     }
 
+    @method()
     LINK(arg: any) {
         const object = this.engine.getObject(arg)
         this.linked.push(object)
@@ -43,6 +46,7 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
         }
     }
 
+    @method()
     UNLINK(arg: any) {
         const object = this.engine.getObject(arg)
         this.linked = this.linked.filter(x => x !== object)

@@ -3,6 +3,7 @@ import {Engine} from '../index'
 import {BehaviourDefinition} from '../../fileFormats/cnv/types'
 import {Condition} from './condition'
 import {InterruptScriptExecution} from '../../interpreter/evaluator'
+import {method} from '../../types'
 
 export class Behaviour extends Type<BehaviourDefinition> {
     constructor(engine: Engine, definition: BehaviourDefinition) {
@@ -15,6 +16,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
         }
     }
 
+    @method()
     RUN(...args: any[]) {
         try {
             // Don't resolve args, it will fail in S33_METEORY
@@ -26,6 +28,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
         }
     }
 
+    @method()
     RUNC(...args: any[]) {
         if (!this.shouldRun()) {
             return
@@ -34,6 +37,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
         return this.RUN(...args)
     }
 
+    @method()
     RUNLOOPED(init: number, len: number, step: number = 1, ...args: any[]) {
         const resolvedArgs = this.resolveArgs(args)
         for (let i = init; i < len; i += step) {

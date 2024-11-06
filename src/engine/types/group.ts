@@ -1,6 +1,7 @@
 import {Type} from './index'
 import {Engine} from '../index'
 import {GroupDefinition} from '../../fileFormats/cnv/types'
+import {method} from '../../types'
 
 export class Group extends Type<GroupDefinition> {
     private objects: any[] = []
@@ -14,6 +15,7 @@ export class Group extends Type<GroupDefinition> {
         this.callbacks.run('ONINIT')
     }
 
+    @method()
     ADD(...objectsNames: string[]) {
         this.objects.push(
             ...objectsNames.map(objectName => {
@@ -28,6 +30,7 @@ export class Group extends Type<GroupDefinition> {
         )
     }
 
+    @method()
     REMOVE(...objectsNames: string[]) {
         this.objects = this.objects.filter(object => objectsNames.includes(object.name))
     }

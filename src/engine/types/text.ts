@@ -2,6 +2,7 @@ import {DisplayType} from './index'
 import {TextDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import * as PIXI from 'pixi.js'
+import {method} from '../../types'
 
 export class Text extends DisplayType<TextDefinition> {
     private readonly text: PIXI.Text
@@ -24,8 +25,9 @@ export class Text extends DisplayType<TextDefinition> {
         this.engine.removeFromStage(this.text)
     }
 
-    SETTEXT(content: any) {
-        this.text.text = content.toString()
+    @method()
+    SETTEXT(content: string) {
+        this.text.text = content
     }
 
     getRenderObject() {

@@ -15,6 +15,7 @@ import {Animo} from './animo'
 import {loadSound} from '../assetsLoader'
 import {IMediaInstance, Sound} from '@pixi/sound'
 import {createObject} from '../definitionLoader'
+import {method} from '../../types'
 
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~'
 
@@ -106,9 +107,9 @@ export class Sequence extends Type<SequenceDefinition> {
         }
     }
 
-    PLAY(sequenceName: string | number) {
+    @method()
+    PLAY(sequenceName: string) {
         assert(this.parameterSequence !== null && this.subEntries !== null)
-        sequenceName = sequenceName.toString()
 
         const subEntries = this.subEntries.get(this.parameterSequence.NAME)
         if (subEntries !== undefined && this.parametersMapping.has(sequenceName)) {
@@ -120,10 +121,12 @@ export class Sequence extends Type<SequenceDefinition> {
         }
     }
 
+    @method()
     ISPLAYING() {
         return this.sequenceName !== null
     }
 
+    @method()
     HIDE() {
         assert(this.sequenceFile !== null)
 
@@ -135,7 +138,8 @@ export class Sequence extends Type<SequenceDefinition> {
         }
     }
 
-    STOP(arg: boolean) {
+    @method()
+    STOP(arg?: boolean) {
         this.queue = []
         this.sequenceName = null
         this.runningSubSequence = null

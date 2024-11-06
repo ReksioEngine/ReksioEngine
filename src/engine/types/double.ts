@@ -1,61 +1,65 @@
 import {ValueType} from './index'
 import {Engine} from '../index'
 import {DoubleDefinition} from '../../fileFormats/cnv/types'
+import {method} from '../../types'
 
 export class Double extends ValueType<DoubleDefinition> {
     constructor(engine: Engine, definition: DoubleDefinition) {
         super(engine, definition, 0.0)
     }
 
+    @method()
     MUL(value: number) {
-        this.value *= Number(value)
-        return this.value
+        return this.value *= value
     }
 
+    @method()
     ADD(value: number) {
-        this.value += Number(value)
-        return this.value
+        return this.value += value
     }
 
+    @method()
     SUB(value: number) {
-        this.value -= Number(value)
-        return this.value
+        return this.value -= value
     }
 
+    @method()
     SET(newValue: number) {
-        this.value = Number(newValue)
+        this.value = newValue
     }
 
+    @method()
     MAXA(...values: number[]) {
-        this.value = Math.max(...values)
-        return this.value
+        return this.value = Math.max(...values)
     }
 
+    @method()
     MINA(...values: number[]) {
-        this.value = Math.min(...values)
-        return this.value
+        return this.value = Math.min(...values)
     }
 
-    SINUS(angle: number | string) {
-        this.value = Math.sin(Number(angle))
-        return this.value
+    @method()
+    SINUS(angle: number) {
+        return this.value = Math.sin(angle)
     }
 
-    COSINUS(angle: number | string) {
-        this.value = Math.cos(Number(angle))
-        return this.value
+    @method()
+    COSINUS(angle: number) {
+        return this.value = Math.cos(angle)
     }
 
     // Source: https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=1909841994#gid=1909841994
-    ARCTANEX(y: number | string, x: number | string, summand?: number | string) {
-        let newValue = Math.atan2(Number(y), Number(x))
+    @method()
+    ARCTANEX(y: number, x: number, summand?: number) {
+        let newValue = Math.atan2(y, x)
         if (summand !== undefined) {
-            newValue = Math.floor(newValue) + Number(summand)
+            newValue = Math.floor(newValue) + summand
         }
         this.value = newValue
         return this.value
     }
 
+    @method()
     GET() {
         return this.value
     }

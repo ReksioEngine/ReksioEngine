@@ -2,6 +2,7 @@ import {Type} from './index'
 import {ComplexConditionDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {InterruptScriptExecution} from '../../interpreter/evaluator'
+import {method} from '../../types'
 
 export class ComplexCondition extends Type<ComplexConditionDefinition> {
     constructor(engine: Engine, definition: ComplexConditionDefinition) {
@@ -11,6 +12,7 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
     }
 
     // In loops its like 'break'
+    @method()
     BREAK(arg: boolean) {
         if (this.CHECK(arg)) {
             throw new InterruptScriptExecution(false)
@@ -18,12 +20,14 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
     }
 
     // In loops its like 'continue'
+    @method()
     ONE_BREAK(arg: boolean) {
         if (this.CHECK(arg)) {
             throw new InterruptScriptExecution(true)
         }
     }
 
+    @method()
     CHECK(arg: boolean): boolean {
         const condition1 = this.engine.getObject(this.definition.CONDITION1)
         const condition2 = this.engine.getObject(this.definition.CONDITION2)

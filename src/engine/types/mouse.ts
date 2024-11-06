@@ -3,6 +3,7 @@ import {Engine} from '../index'
 import {MouseDefinition} from '../../fileFormats/cnv/types'
 import {FederatedPointerEvent, Point} from 'pixi.js'
 import {NotImplementedError} from '../../errors'
+import {method} from '../../types'
 
 export class Mouse extends Type<MouseDefinition> {
     private mousePosition: Point = new Point(0, 0)
@@ -47,10 +48,12 @@ export class Mouse extends Type<MouseDefinition> {
         }
     }
 
+    @method()
     SET(cursorType: 'ACTIVE' | 'ARROW') {
         throw new NotImplementedError()
     }
 
+    @method()
     ENABLE() {
         this.mouseMoveListener = this.onMouseMove.bind(this)
         this.mouseClickListener = this.onMouseClick.bind(this)
@@ -65,23 +68,28 @@ export class Mouse extends Type<MouseDefinition> {
         }
     }
 
+    @method()
     DISABLE() {
         this.engine.app.stage.removeListener('pointermove', this.mouseMoveListener)
         this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener)
     }
 
+    @method()
     SHOW() {
         throw new NotImplementedError()
     }
 
+    @method()
     HIDE() {
         throw new NotImplementedError()
     }
 
+    @method()
     GETPOSX() {
         return this.mousePosition.x
     }
 
+    @method()
     GETPOSY() {
         return this.mousePosition.y
     }

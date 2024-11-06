@@ -1,7 +1,7 @@
 import {Type} from './index'
 import {TimerDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
-import {Integer} from './integer'
+import {method} from '../../types'
 
 export class Timer extends Type<TimerDefinition> {
     private currentTick: number = 0
@@ -39,7 +39,7 @@ export class Timer extends Type<TimerDefinition> {
 
         while (this.collectedTime >= this.elapse) {
             this.currentTick++
-            this.ONTICK()
+            this.callbacks.run('ONTICK', this.currentTick)
             this.collectedTime -= this.elapse
 
             const ticksLimit = this.definition.TICKS ?? 0
@@ -50,33 +50,30 @@ export class Timer extends Type<TimerDefinition> {
         }
     }
 
-    SETELAPSE(newElapse: number | Integer) {
-        if (newElapse instanceof Integer) {
-            this.elapse = newElapse.value
-        } else {
-            this.elapse = newElapse
-        }
+    @method()
+    SETELAPSE(newElapse: number) {
+        this.elapse = newElapse
     }
 
+    @method()
     SET(value: number) {
         this.collectedTime = value
     }
 
+    @method()
     RESET() {
         this.collectedTime = 0
         this.currentTick = 0
     }
 
+    @method()
     DISABLE() {
         this.enabled = false
     }
 
+    @method()
     ENABLE() {
         this.enabled = true
         this.collectedTime = 0
-    }
-
-    ONTICK() {
-        this.callbacks.run('ONTICK', this.currentTick)
     }
 }

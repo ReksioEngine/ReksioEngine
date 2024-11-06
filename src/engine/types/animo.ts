@@ -10,6 +10,7 @@ import {loadSound} from '../assetsLoader'
 import {Sound as PIXISound} from '@pixi/sound'
 import {FileNotFoundError} from '../filesLoader'
 import {AdvancedSprite, createHitmapFromImageBytes} from '../rendering'
+import {method} from '../../types'
 
 export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent | null = null
@@ -264,14 +265,15 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
     }
 
-    PLAY(name?: string | number) {
+    @method()
+    PLAY(name?: string) {
         if (name === undefined) {
             this.SHOW()
             this.RESUME()
             return
         }
 
-        this.playEvent(name.toString())
+        this.playEvent(name)
     }
 
     playEvent(name: string) {
@@ -297,31 +299,37 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.changeFrame(event, this.currentFrame)
     }
 
+    @method()
     private ONFINISHED() {
         const index = this.currentEvent.toString()
         this.callbacks.run('ONFINISHED', index)
         this.events?.trigger('ONFINISHED', index)
     }
 
+    @method()
     private ONSTARTED() {
         const index = this.currentEvent.toString()
         this.callbacks.run('ONSTARTED', index)
         this.events?.trigger('ONSTARTED', index)
     }
 
-    STOP(arg: boolean) {
+    @method()
+    STOP(arg?: boolean) {
         this.isPlaying = false
         this.currentFrame = 0
     }
 
+    @method()
     PAUSE() {
         this.isPlaying = false
     }
 
+    @method()
     RESUME() {
         this.isPlaying = true
     }
 
+    @method()
     SETFRAME(eventNameOrFrameIdx: string | number, frameIdx?: number) {
         if (frameIdx === undefined) {
             this.currentFrame = Number(eventNameOrFrameIdx)
@@ -343,25 +351,30 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.shouldForceRender = true
     }
 
+    @method()
     SETFPS(fps: number) {
         this.fps = fps
     }
 
+    @method()
     SHOW() {
         assert(this.sprite !== null)
         this.sprite.visible = true
     }
 
+    @method()
     HIDE() {
         assert(this.sprite !== null)
         this.sprite.visible = false
     }
 
+    @method()
     ISVISIBLE() {
         assert(this.sprite !== null)
         return this.sprite.visible
     }
 
+    @method()
     MOVE(xOffset: number, yOffset: number) {
         assert(this.sprite !== null)
 
@@ -371,6 +384,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.y += yOffset
     }
 
+    @method()
     SETPOSITION(x: number, y: number) {
         assert(this.sprite !== null)
 
@@ -380,6 +394,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.y = y + this.positionOffsetY + this.anchorOffsetY
     }
 
+    @method()
     SETASBUTTON(arg1: boolean, arg2: boolean) {
         assert(this.sprite !== null)
         if (arg1 && arg2) {
@@ -438,26 +453,31 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
     }
 
+    @method()
     GETCENTERX(): number {
         assert(this.sprite !== null && this.getGlobalPosition() !== null)
         return this.getGlobalPosition()!.x + (this.sprite.width / 2)
     }
 
+    @method()
     GETCENTERY(): number {
         assert(this.sprite !== null && this.getGlobalPosition() !== null)
         return this.getGlobalPosition()!.y + (this.sprite.height / 2)
     }
 
+    @method()
     GETPOSITIONX(): number {
         assert(this.sprite !== null && this.getGlobalPosition() !== null)
         return this.getGlobalPosition()!.x
     }
 
+    @method()
     GETPOSITIONY(): number {
         assert(this.sprite !== null && this.getGlobalPosition() !== null)
         return this.getGlobalPosition()!.y
     }
 
+    @method()
     GETFRAMENAME(): string {
         const event = this.getEventByName(this.currentEvent)
         assert(event !== null)
@@ -465,11 +485,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return event.frames[this.currentFrame].name
     }
 
+    @method()
     GETMAXWIDTH(): number {
         assert(this.annFile !== null)
         return Math.max(...this.annFile.annImages.map(e => e.width))
     }
 
+    @method()
     GETNOFINEVENT(): number {
         const event = this.getEventByName(this.currentEvent)
         assert(event !== null)
@@ -477,31 +499,37 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return event.framesCount
     }
 
+    @method()
     GETEVENTNAME(): string {
         return this.currentEvent
     }
 
+    @method()
     GETFRAME(): number {
         return this.currentFrame
     }
 
+    @method()
     GETNOF(): number {
         assert(this.annFile !== null)
         return this.annFile.header.framesCount
     }
 
+    @method()
     GETCURRFRAMEPOSX(): number {
         const event = this.getEventByName(this.currentEvent)
         assert(event !== null)
         return event.frames[this.currentFrame].positionX
     }
 
+    @method()
     GETCURRFRAMEPOSY(): number {
         const event = this.getEventByName(this.currentEvent)
         assert(event !== null)
         return event.frames[this.currentFrame].positionY
     }
 
+    @method()
     ISPLAYING(animName?: string) {
         if (animName === undefined) {
             return this.isPlaying
@@ -511,6 +539,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return this.isPlaying && this.currentEvent == animName
     }
 
+    @method()
     ISNEAR(objectName: string, distance: number) {
         const otherObject: AdvancedSprite = this.engine.getObject(objectName).getRenderObject()
         const thisObject: AdvancedSprite = this.getRenderObject()!
@@ -525,14 +554,17 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return boundOther.intersects(thisObject.getBounds())
     }
 
+    @method()
     ADDBEHAVIOUR(callbackString: string, behaviourName: string) {
         this.callbacks.addBehaviour(callbackString, behaviourName)
     }
 
+    @method()
     MONITORCOLLISION(newState: boolean) {
         throw new NotImplementedError()
     }
 
+    @method()
     REMOVEMONITORCOLLISION() {
         throw new NotImplementedError()
     }

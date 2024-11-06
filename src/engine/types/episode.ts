@@ -6,6 +6,7 @@ import {assert} from '../../errors'
 import {pathJoin} from '../../utils'
 import {loadDefinition} from '../definitionLoader'
 import {FileNotFoundError} from '../filesLoader'
+import {method} from '../../types'
 
 export class Episode extends Type<EpisodeDefinition> {
     private previousScene?: Scene
@@ -31,6 +32,7 @@ export class Episode extends Type<EpisodeDefinition> {
         this.GOTO(this.definition.STARTWITH)
     }
 
+    @method()
     async GOTO(sceneName: string) {
         assert(this.definition.SCENES.includes(sceneName))
 
@@ -38,11 +40,13 @@ export class Episode extends Type<EpisodeDefinition> {
         await this.engine.changeScene(sceneName)
     }
 
+    @method()
     GETLATESTSCENE() {
         // TODO: read from save file
         return this.definition.STARTWITH
     }
 
+    @method()
     async BACK() {
         if (this.previousScene) {
             await this.GOTO(this.previousScene.definition.NAME)

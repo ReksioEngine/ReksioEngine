@@ -1,7 +1,7 @@
 import {ValueType} from './index'
 import {Engine} from '../index'
 import {IntegerDefinition} from '../../fileFormats/cnv/types'
-import {ForceNumber} from '../../types'
+import {ForceNumber, method} from '../../types'
 
 export class Integer extends ValueType<IntegerDefinition> {
     constructor(engine: Engine, definition: IntegerDefinition) {
@@ -15,51 +15,53 @@ export class Integer extends ValueType<IntegerDefinition> {
         this.callbacks.run('ONINIT')
     }
 
+    @method()
     INC() {
-        this.value++
-        return this.value
+        return ++this.value
     }
 
+    @method()
     DEC() {
-        this.value--
-        return this.value
+        return --this.value
     }
 
-    ADD(value: number | string) {
-        this.value += ForceNumber(value)
-        return this.value
+    @method()
+    ADD(value: number) {
+        return this.value += value
     }
 
-    SUB(value: number | string) {
-        this.value -= ForceNumber(value)
-        return this.value
+    @method()
+    SUB(value: number) {
+        return this.value -= value
     }
 
-    MUL(value: number | string) {
-        this.value *= ForceNumber(value)
-        return this.value
+    @method()
+    MUL(value: number) {
+        return this.value *= value
     }
 
-    DIV(value: number | string) {
-        this.value /= ForceNumber(value)
-        return this.value
+    @method()
+    DIV(value: number) {
+        return this.value /= value
     }
 
+    @method()
     MOD(value: number) {
-        this.value %= ForceNumber(value)
-        return this.value
+        return this.value %= value
     }
 
-    CLAMP(min: number | string, max: number | string) {
-        this.value = Math.min(ForceNumber(max), Math.max(this.value, ForceNumber(min)))
-        return this.value
+    @method()
+    CLAMP(min: number, max: number) {
+        return this.value = Math.min(max, Math.max(this.value, min))
     }
 
-    AND(value: number | string) {
-        this.value &= ForceNumber(value)
-        return this.value
+    @method()
+    AND(value: number) {
+        return this.value &= value
     }
 
+    @method()
+    // TODO: Maybe type guard could try to resolve references
     SET(newValue?: number | string) {
         if (typeof newValue == 'string') {
             const possibleInteger = this.engine.getObject(newValue)
@@ -78,22 +80,24 @@ export class Integer extends ValueType<IntegerDefinition> {
         this.value = ForceNumber(newValue)
     }
 
+    @method()
     GET() {
         return this.value
     }
 
-    SWITCH(first: string | number, second: string | number) {
-        if (this.value == ForceNumber(first)) {
-            this.value = ForceNumber(second)
+    @method()
+    SWITCH(first: number, second: number) {
+        if (this.value == first) {
+            this.value = second
         } else {
-            this.value = ForceNumber(first)
+            this.value = first
         }
         return this.value
     }
 
-    ABS(value: number | string) {
-        this.value = Math.abs(ForceNumber(value))
-        return this.value
+    @method()
+    ABS(value: number) {
+        return this.value = Math.abs(value)
     }
 
     protected valueChanged(oldValue: any, newValue: any) {

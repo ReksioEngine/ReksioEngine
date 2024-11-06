@@ -1,6 +1,7 @@
 import {ValueType} from './index'
 import {Engine} from '../index'
 import {StringDefinition} from '../../fileFormats/cnv/types'
+import {method} from '../../types'
 
 export class String extends ValueType<StringDefinition> {
     constructor(engine: Engine, definition: StringDefinition) {
@@ -14,14 +15,17 @@ export class String extends ValueType<StringDefinition> {
         this.callbacks.run('ONINIT')
     }
 
+    @method()
     ADD(text: string) {
         this.value += text
     }
 
+    @method()
     SET(text: string) {
         this.value = text
     }
 
+    @method()
     GET() {
         return this.value
     }

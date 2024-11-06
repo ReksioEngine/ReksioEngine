@@ -3,12 +3,14 @@ import {CanvasObserverDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {loadTexture} from '../assetsLoader'
 import {Point} from 'pixi.js'
+import {method} from '../../types'
 
 export class CanvasObserver extends Type<CanvasObserverDefinition> {
     constructor(engine: Engine, definition: CanvasObserverDefinition) {
         super(engine, definition)
     }
 
+    @method()
     async SETBACKGROUND(filename: string) {
         const relativePath = this.engine.currentScene?.getRelativePath(filename)
         const texture = await loadTexture(this.engine.fileLoader, relativePath!)
@@ -19,8 +21,10 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
         this.engine.canvasBackground.texture = texture
     }
 
+    @method()
     REFRESH() {}
 
+    @method()
     GETGRAPHICSAT(x: number, y: number, someBool1: boolean, minZ: number, maxZ: number, includeAlpha: boolean) {
         const point = new Point(x, y)
 

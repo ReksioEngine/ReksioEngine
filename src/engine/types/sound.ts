@@ -5,6 +5,7 @@ import {SoundDefinition} from '../../fileFormats/cnv/types'
 import {Sound as PIXISound} from '@pixi/sound'
 import {FileNotFoundError} from '../filesLoader'
 import {assert, NotImplementedError} from '../../errors'
+import {method} from '../../types'
 
 export class Sound extends Type<SoundDefinition> {
     private sound: PIXISound | null = null
@@ -33,7 +34,8 @@ export class Sound extends Type<SoundDefinition> {
     }
 
     // This argument is "PLAY" for kurator in intro for some reason
-    async PLAY(arg: any) {
+    @method()
+    async PLAY(arg?: any) {
         assert(this.sound !== null)
 
         const instance = await this.sound.play()
@@ -41,30 +43,36 @@ export class Sound extends Type<SoundDefinition> {
         instance.on('end', this.onEnd.bind(this))
     }
 
-    STOP(arg: boolean) {
+    @method()
+    STOP(arg?: boolean) {
         assert(this.sound !== null)
         this.sound.stop()
     }
 
+    @method()
     RESUME() {
         assert(this.sound !== null)
         this.sound.resume()
     }
 
+    @method()
     PAUSE() {
         assert(this.sound !== null)
         this.sound.pause()
     }
 
+    @method()
     RELEASE() {
         this.sound?.stop()
         this.sound?.destroy()
     }
 
+    @method()
     SETFREQ(frequency: number) {
         throw new NotImplementedError()
     }
 
+    @method()
     async LOAD(filename: string) {
         await this.loadSound(filename.substring(1))
     }

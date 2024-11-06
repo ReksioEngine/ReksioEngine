@@ -2,7 +2,7 @@ import {Type} from './index'
 import {ConditionDefinition} from '../../fileFormats/cnv/types'
 import {Engine} from '../index'
 import {InterruptScriptExecution} from '../../interpreter/evaluator'
-import {Compare} from '../../types'
+import {Compare, method} from '../../types'
 import {UnexpectedError} from '../../errors'
 
 export class Condition extends Type<ConditionDefinition> {
@@ -14,6 +14,7 @@ export class Condition extends Type<ConditionDefinition> {
 
     // arg is always true in ReksioIUfo
     // In loops its like 'break'
+    @method()
     BREAK(arg: boolean) {
         if (this.CHECK(arg)) {
             throw new InterruptScriptExecution(false)
@@ -22,12 +23,14 @@ export class Condition extends Type<ConditionDefinition> {
 
     // arg is always true in ReksioIUfo
     // In loops its like 'continue'
+    @method()
     ONE_BREAK(arg: boolean) {
         if (this.CHECK(arg)) {
             throw new InterruptScriptExecution(true)
         }
     }
 
+    @method()
     CHECK(arg: boolean): boolean {
         const operand1 = this.engine.executeCallback(null, this.definition.OPERAND1)
         const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2)

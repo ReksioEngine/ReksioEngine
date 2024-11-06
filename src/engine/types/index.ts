@@ -4,6 +4,7 @@ import {CallbacksComponent} from '../components/callbacks'
 import {Point, Sprite} from 'pixi.js'
 import {assert, NotImplementedError} from '../../errors'
 import {EventsComponent} from '../components/events'
+import {method} from '../../types'
 
 export class Type<DefinitionType extends TypeDefinition> {
     protected callbacks: CallbacksComponent
@@ -24,16 +25,19 @@ export class Type<DefinitionType extends TypeDefinition> {
         this.callbacks = new CallbacksComponent(engine, this)
     }
 
+    @method()
     GETNAME() {
         return this.name
     }
 
+    @method()
     async CLONE(count: number) {
         for (let i = 0; i < count; i++) {
             this.cloneObject(this)
         }
     }
 
+    @method()
     GETCLONEINDEX() {
         return this.engine.getObject(this.definition.NAME).clones.indexOf(this) + 1
     }
@@ -59,7 +63,7 @@ export class Type<DefinitionType extends TypeDefinition> {
     }
 
     clone(): Type<DefinitionType> {
-        // @ts-ignore
+        // @ts-expect-error Dynamically constructing object
         const instance = new this.constructor(this.engine, this.definition)
         instance.parent = this.parent
         return instance
@@ -69,10 +73,12 @@ export class Type<DefinitionType extends TypeDefinition> {
 export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends Type<DefinitionType> {
     private priority: number = 0
 
+    @method()
     GETPRIORITY() {
         return this.priority
     }
 
+    @method()
     SETPRIORITY(priority: number) {
         assert(this.getRenderObject() !== null)
         this.priority = priority
@@ -111,11 +117,16 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
         }
     }
 
+    @method()
     RESETINI() {
         if (this.definition.TOINI) {
             this.value = this.definition.DEFAULT ?? this.definition.VALUE ?? this.defaultValue
             this.saveToINI()
         }
+    }
+
+    valueOf() {
+        return this._value
     }
 
     get value() {
@@ -151,11 +162,11 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
         this.engine.saveFile.save(this, this.serialize())
     }
 
-    serialize(): string {
+    protected serialize(): string {
         return this.value.toString()
     }
 
-    deserialize(value: string): any {
+    protected deserialize(value: string): any {
         return value
     }
 }
