@@ -50460,9 +50460,6 @@ class ButtonLogicComponent {
         sprite.removeListener('pointerdown', this.onMouseDownCallback);
         sprite.removeListener('pointerup', this.onMouseUpCallback);
     }
-    getState() {
-        return this.stateMachine.getState();
-    }
     disable() {
         if (this.stateMachine.can(Event.DISABLE)) {
             this.stateMachine.dispatch(Event.DISABLE);
@@ -50517,6 +50514,7 @@ exports.CallbacksComponent = void 0;
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const evaluator_1 = __webpack_require__(/*! ../../interpreter/evaluator */ "./src/interpreter/evaluator.ts");
 const stacktrace_1 = __webpack_require__(/*! ../../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
+const types_1 = __webpack_require__(/*! ../../fileFormats/cnv/types */ "./src/fileFormats/cnv/types.ts");
 class CallbacksComponent {
     constructor(engine, object) {
         this.registry = new Map();
@@ -50542,6 +50540,18 @@ class CallbacksComponent {
             nonParametrized: callback ?? null,
             parametrized: new Map()
         });
+    }
+    autoRegister() {
+        const structure = types_1.structureDefinitions[this.object.definition.TYPE];
+        for (const [key, value] of Object.entries(structure)) {
+            const fieldDefinition = value;
+            if (fieldDefinition.name === 'callback') {
+                this.register(key, this.object.definition[key]);
+            }
+            else if (fieldDefinition.name === 'callbacks') {
+                this.registerGroup(key, this.object.definition[key]);
+            }
+        }
     }
     has(type) {
         if (!this.registry.has(type)) {
@@ -51633,14 +51643,6 @@ let Animo = (() => {
                 this.hitmaps = new Map();
                 this.sounds = new Map();
                 this.fps = definition.FPS ?? 16;
-                this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED);
-                this.callbacks.registerGroup('ONSTARTED', definition.ONSTARTED);
-                this.callbacks.registerGroup('ONFRAMECHANGED', definition.ONFRAMECHANGED);
-                this.callbacks.register('ONINIT', definition.ONINIT);
-                this.callbacks.register('ONFOCUSON', definition.ONFOCUSON);
-                this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF);
-                this.callbacks.register('ONCLICK', definition.ONCLICK);
-                this.callbacks.register('ONRELEASE', definition.ONRELEASE);
             }
             async init() {
                 this.annFile = await this.loadAnimation();
@@ -52337,7 +52339,6 @@ let ArrayObject = (() => {
             constructor(engine, definition) {
                 super(engine, definition, []);
                 __runInitializers(this, _instanceExtraInitializers);
-                this.callbacks.register('ONINIT', this.definition.ONINIT);
             }
             ready() {
                 this.callbacks.run('ONINIT');
@@ -52666,8 +52667,6 @@ let Bool = (() => {
             constructor(engine, definition) {
                 super(engine, definition, false);
                 __runInitializers(this, _instanceExtraInitializers);
-                this.callbacks.registerGroup('ONCHANGED', this.definition.ONCHANGED);
-                this.callbacks.registerGroup('ONBRUTALCHANGED', this.definition.ONBRUTALCHANGED);
             }
             SWITCH(arg1, arg2) {
                 this.value = !this.value;
@@ -52765,15 +52764,6 @@ let Button = (() => {
                 this.gfxOnMove = null;
                 this.interactArea = null;
                 this.rect = null;
-                this.callbacks.register('ONACTION', definition.ONACTION);
-                this.callbacks.register('ONCLICKED', definition.ONCLICKED);
-                this.callbacks.register('ONDRAGGING', definition.ONDRAGGING);
-                this.callbacks.register('ONENDDRAGGING', definition.ONENDDRAGGING);
-                this.callbacks.register('ONFOCUSON', definition.ONFOCUSON);
-                this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF);
-                this.callbacks.register('ONRELEASED', definition.ONRELEASED);
-                this.callbacks.register('ONSTARTDRAGGING', definition.ONSTARTDRAGGING);
-                this.callbacks.register('ONINIT', definition.ONINIT);
                 this.logic = new button_1.ButtonLogicComponent(this.onStateChange.bind(this));
             }
             init() {
@@ -53184,13 +53174,6 @@ exports.CNVLoader = CNVLoader;
 
 "use strict";
 
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -53218,6 +53201,13 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ComplexCondition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
@@ -53231,12 +53221,6 @@ let ComplexCondition = (() => {
     let _ONE_BREAK_decorators;
     let _CHECK_decorators;
     return _a = class ComplexCondition extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
-                __runInitializers(this, _instanceExtraInitializers);
-                this.callbacks.register('ONRUNTIMESUCCESS', this.definition.ONRUNTIMESUCCESS);
-                this.callbacks.register('ONRUNTIMEFAILED', this.definition.ONRUNTIMEFAILED);
-            }
             // In loops its like 'break'
             BREAK(arg) {
                 if (this.CHECK(arg)) {
@@ -53269,6 +53253,10 @@ let ComplexCondition = (() => {
                 }
                 return result;
             }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
         },
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
@@ -53295,13 +53283,6 @@ exports.ComplexCondition = ComplexCondition;
 
 "use strict";
 
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -53329,6 +53310,13 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Condition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
@@ -53343,12 +53331,6 @@ let Condition = (() => {
     let _ONE_BREAK_decorators;
     let _CHECK_decorators;
     return _a = class Condition extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
-                __runInitializers(this, _instanceExtraInitializers);
-                this.callbacks.register('ONRUNTIMESUCCESS', this.definition.ONRUNTIMESUCCESS);
-                this.callbacks.register('ONRUNTIMEFAILED', this.definition.ONRUNTIMEFAILED);
-            }
             // arg is always true in ReksioIUfo
             // In loops its like 'break'
             BREAK(arg) {
@@ -53404,6 +53386,10 @@ let Condition = (() => {
                     this.callbacks.run('ONRUNTIMEFAILED', null, null);
                 }
                 return result;
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
             }
         },
         (() => {
@@ -53805,10 +53791,9 @@ let Group = (() => {
     let _ADD_decorators;
     let _REMOVE_decorators;
     return _a = class Group extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor() {
+                super(...arguments);
                 this.objects = (__runInitializers(this, _instanceExtraInitializers), []);
-                this.callbacks.register('ONINIT', this.definition.ONINIT);
             }
             ready() {
                 this.callbacks.run('ONINIT');
@@ -53915,10 +53900,9 @@ let Image = (() => {
     let _GETPOSITIONY_decorators;
     let _GETALPHA_decorators;
     return _a = class Image extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor() {
+                super(...arguments);
                 this.sprite = (__runInitializers(this, _instanceExtraInitializers), null);
-                this.callbacks.register('ONINIT', this.definition.ONINIT);
             }
             async init() {
                 this.sprite = await this.load();
@@ -54063,6 +54047,7 @@ let Type = (() => {
                 this.definition = definition;
                 this.name = definition.NAME;
                 this.callbacks = new callbacks_1.CallbacksComponent(engine, this);
+                this.callbacks.autoRegister();
             }
             GETNAME() {
                 return this.name;
@@ -54294,9 +54279,6 @@ let Integer = (() => {
             constructor(engine, definition) {
                 super(engine, definition, 0);
                 __runInitializers(this, _instanceExtraInitializers);
-                this.callbacks.register('ONINIT', this.definition.ONINIT);
-                this.callbacks.registerGroup('ONCHANGED', this.definition.ONCHANGED);
-                this.callbacks.registerGroup('ONBRUTALCHANGED', this.definition.ONBRUTALCHANGED);
             }
             ready() {
                 this.callbacks.run('ONINIT');
@@ -54476,8 +54458,6 @@ let Keyboard = (() => {
                 this.changeQueue = [];
                 this.onKeyDownCallback = this.onKeyDown.bind(this);
                 this.onKeyUpCallback = this.onKeyUp.bind(this);
-                this.callbacks.registerGroup('ONKEYDOWN', this.definition.ONKEYDOWN);
-                this.callbacks.registerGroup('ONKEYUP', this.definition.ONKEYUP);
             }
             ready() {
                 window.addEventListener('keydown', this.onKeyDownCallback);
@@ -54592,16 +54572,12 @@ let Mouse = (() => {
     let _GETPOSX_decorators;
     let _GETPOSY_decorators;
     return _a = class Mouse extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor() {
+                super(...arguments);
                 this.mousePosition = (__runInitializers(this, _instanceExtraInitializers), new pixi_js_1.Point(0, 0));
                 this.clicked = false;
                 this.released = false;
                 this.moved = false;
-                this.callbacks.register('ONINIT', definition.ONINIT);
-                this.callbacks.registerGroup('ONCLICK', definition.ONCLICK);
-                this.callbacks.registerGroup('ONRELEASE', definition.ONRELEASE);
-                this.callbacks.register('ONMOVE', definition.ONMOVE);
             }
             ready() {
                 this.ENABLE();
@@ -54913,8 +54889,6 @@ let Sequence = (() => {
                 this.runningSubSequence = null;
                 this.loop = false;
                 this.loopIndex = 0;
-                this.callbacks.register('ONINIT', definition.ONINIT);
-                this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED);
                 this.onAnimoEventFinishedCallback = this.onAnimoEventFinished.bind(this);
             }
             async init() {
@@ -55218,12 +55192,9 @@ let Sound = (() => {
     let _SETFREQ_decorators;
     let _LOAD_decorators;
     return _a = class Sound extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor() {
+                super(...arguments);
                 this.sound = (__runInitializers(this, _instanceExtraInitializers), null);
-                this.callbacks.register('ONINIT', definition.ONINIT);
-                this.callbacks.register('ONSTARTED', definition.ONSTARTED);
-                this.callbacks.register('ONFINISHED', definition.ONFINISHED);
             }
             async init() {
                 // We don't respect 'PRELOAD' false on purpose, because network download might be slow
@@ -55480,9 +55451,6 @@ let String = (() => {
             constructor(engine, definition) {
                 super(engine, definition, '');
                 __runInitializers(this, _instanceExtraInitializers);
-                this.callbacks.register('ONINIT', definition.ONINIT);
-                this.callbacks.registerGroup('ONCHANGED', definition.ONCHANGED);
-                this.callbacks.registerGroup('ONBRUTALCHANGED', definition.ONBRUTALCHANGED);
             }
             ready() {
                 this.callbacks.run('ONINIT');
@@ -55693,8 +55661,6 @@ let Timer = (() => {
                 this.collectedTime = 0;
                 this.elapse = definition.ELAPSE;
                 this.enabled = definition.ENABLED ?? true;
-                this.callbacks.registerGroup('ONTICK', definition.ONTICK);
-                this.callbacks.register('ONINIT', definition.ONINIT);
             }
             ready() {
                 if (this.enabled) {
