@@ -18133,22 +18133,13 @@ var bind = __webpack_require__(/*! function-bind */ "./node_modules/function-bin
 var GetIntrinsic = __webpack_require__(/*! get-intrinsic */ "./node_modules/get-intrinsic/index.js");
 var setFunctionLength = __webpack_require__(/*! set-function-length */ "./node_modules/set-function-length/index.js");
 
-var $TypeError = GetIntrinsic('%TypeError%');
+var $TypeError = __webpack_require__(/*! es-errors/type */ "./node_modules/es-errors/type.js");
 var $apply = GetIntrinsic('%Function.prototype.apply%');
 var $call = GetIntrinsic('%Function.prototype.call%');
 var $reflectApply = GetIntrinsic('%Reflect.apply%', true) || bind.call($call, $apply);
 
-var $defineProperty = GetIntrinsic('%Object.defineProperty%', true);
+var $defineProperty = __webpack_require__(/*! es-define-property */ "./node_modules/es-define-property/index.js");
 var $max = GetIntrinsic('%Math.max%');
-
-if ($defineProperty) {
-	try {
-		$defineProperty({}, 'a', { value: 1 });
-	} catch (e) {
-		// IE 8 has a broken defineProperty
-		$defineProperty = null;
-	}
-}
 
 module.exports = function callBind(originalFunction) {
 	if (typeof originalFunction !== 'function') {
@@ -18184,26 +18175,14 @@ if ($defineProperty) {
 "use strict";
 
 
-var hasPropertyDescriptors = __webpack_require__(/*! has-property-descriptors */ "./node_modules/has-property-descriptors/index.js")();
+var $defineProperty = __webpack_require__(/*! es-define-property */ "./node_modules/es-define-property/index.js");
 
-var GetIntrinsic = __webpack_require__(/*! get-intrinsic */ "./node_modules/get-intrinsic/index.js");
-
-var $defineProperty = hasPropertyDescriptors && GetIntrinsic('%Object.defineProperty%', true);
-if ($defineProperty) {
-	try {
-		$defineProperty({}, 'a', { value: 1 });
-	} catch (e) {
-		// IE 8 has a broken defineProperty
-		$defineProperty = false;
-	}
-}
-
-var $SyntaxError = GetIntrinsic('%SyntaxError%');
-var $TypeError = GetIntrinsic('%TypeError%');
+var $SyntaxError = __webpack_require__(/*! es-errors/syntax */ "./node_modules/es-errors/syntax.js");
+var $TypeError = __webpack_require__(/*! es-errors/type */ "./node_modules/es-errors/type.js");
 
 var gopd = __webpack_require__(/*! gopd */ "./node_modules/gopd/index.js");
 
-/** @type {(obj: Record<PropertyKey, unknown>, property: PropertyKey, value: unknown, nonEnumerable?: boolean | null, nonWritable?: boolean | null, nonConfigurable?: boolean | null, loose?: boolean) => void} */
+/** @type {import('.')} */
 module.exports = function defineDataProperty(
 	obj,
 	property,
@@ -18946,6 +18925,138 @@ earcut.flatten = function (data) {
 
 /***/ }),
 
+/***/ "./node_modules/es-define-property/index.js":
+/*!**************************************************!*\
+  !*** ./node_modules/es-define-property/index.js ***!
+  \**************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+
+var GetIntrinsic = __webpack_require__(/*! get-intrinsic */ "./node_modules/get-intrinsic/index.js");
+
+/** @type {import('.')} */
+var $defineProperty = GetIntrinsic('%Object.defineProperty%', true) || false;
+if ($defineProperty) {
+	try {
+		$defineProperty({}, 'a', { value: 1 });
+	} catch (e) {
+		// IE 8 has a broken defineProperty
+		$defineProperty = false;
+	}
+}
+
+module.exports = $defineProperty;
+
+
+/***/ }),
+
+/***/ "./node_modules/es-errors/eval.js":
+/*!****************************************!*\
+  !*** ./node_modules/es-errors/eval.js ***!
+  \****************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./eval')} */
+module.exports = EvalError;
+
+
+/***/ }),
+
+/***/ "./node_modules/es-errors/index.js":
+/*!*****************************************!*\
+  !*** ./node_modules/es-errors/index.js ***!
+  \*****************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('.')} */
+module.exports = Error;
+
+
+/***/ }),
+
+/***/ "./node_modules/es-errors/range.js":
+/*!*****************************************!*\
+  !*** ./node_modules/es-errors/range.js ***!
+  \*****************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./range')} */
+module.exports = RangeError;
+
+
+/***/ }),
+
+/***/ "./node_modules/es-errors/ref.js":
+/*!***************************************!*\
+  !*** ./node_modules/es-errors/ref.js ***!
+  \***************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./ref')} */
+module.exports = ReferenceError;
+
+
+/***/ }),
+
+/***/ "./node_modules/es-errors/syntax.js":
+/*!******************************************!*\
+  !*** ./node_modules/es-errors/syntax.js ***!
+  \******************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./syntax')} */
+module.exports = SyntaxError;
+
+
+/***/ }),
+
+/***/ "./node_modules/es-errors/type.js":
+/*!****************************************!*\
+  !*** ./node_modules/es-errors/type.js ***!
+  \****************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./type')} */
+module.exports = TypeError;
+
+
+/***/ }),
+
+/***/ "./node_modules/es-errors/uri.js":
+/*!***************************************!*\
+  !*** ./node_modules/es-errors/uri.js ***!
+  \***************************************/
+/***/ ((module) => {
+
+"use strict";
+
+
+/** @type {import('./uri')} */
+module.exports = URIError;
+
+
+/***/ }),
+
 /***/ "./node_modules/eventemitter3/index.js":
 /*!*********************************************!*\
   !*** ./node_modules/eventemitter3/index.js ***!
@@ -19415,9 +19526,15 @@ module.exports = Function.prototype.bind || implementation;
 
 var undefined;
 
-var $SyntaxError = SyntaxError;
+var $Error = __webpack_require__(/*! es-errors */ "./node_modules/es-errors/index.js");
+var $EvalError = __webpack_require__(/*! es-errors/eval */ "./node_modules/es-errors/eval.js");
+var $RangeError = __webpack_require__(/*! es-errors/range */ "./node_modules/es-errors/range.js");
+var $ReferenceError = __webpack_require__(/*! es-errors/ref */ "./node_modules/es-errors/ref.js");
+var $SyntaxError = __webpack_require__(/*! es-errors/syntax */ "./node_modules/es-errors/syntax.js");
+var $TypeError = __webpack_require__(/*! es-errors/type */ "./node_modules/es-errors/type.js");
+var $URIError = __webpack_require__(/*! es-errors/uri */ "./node_modules/es-errors/uri.js");
+
 var $Function = Function;
-var $TypeError = TypeError;
 
 // eslint-disable-next-line consistent-return
 var getEvalledConstructor = function (expressionSyntax) {
@@ -19469,6 +19586,7 @@ var needsEval = {};
 var TypedArray = typeof Uint8Array === 'undefined' || !getProto ? undefined : getProto(Uint8Array);
 
 var INTRINSICS = {
+	__proto__: null,
 	'%AggregateError%': typeof AggregateError === 'undefined' ? undefined : AggregateError,
 	'%Array%': Array,
 	'%ArrayBuffer%': typeof ArrayBuffer === 'undefined' ? undefined : ArrayBuffer,
@@ -19489,9 +19607,9 @@ var INTRINSICS = {
 	'%decodeURIComponent%': decodeURIComponent,
 	'%encodeURI%': encodeURI,
 	'%encodeURIComponent%': encodeURIComponent,
-	'%Error%': Error,
+	'%Error%': $Error,
 	'%eval%': eval, // eslint-disable-line no-eval
-	'%EvalError%': EvalError,
+	'%EvalError%': $EvalError,
 	'%Float32Array%': typeof Float32Array === 'undefined' ? undefined : Float32Array,
 	'%Float64Array%': typeof Float64Array === 'undefined' ? undefined : Float64Array,
 	'%FinalizationRegistry%': typeof FinalizationRegistry === 'undefined' ? undefined : FinalizationRegistry,
@@ -19513,8 +19631,8 @@ var INTRINSICS = {
 	'%parseInt%': parseInt,
 	'%Promise%': typeof Promise === 'undefined' ? undefined : Promise,
 	'%Proxy%': typeof Proxy === 'undefined' ? undefined : Proxy,
-	'%RangeError%': RangeError,
-	'%ReferenceError%': ReferenceError,
+	'%RangeError%': $RangeError,
+	'%ReferenceError%': $ReferenceError,
 	'%Reflect%': typeof Reflect === 'undefined' ? undefined : Reflect,
 	'%RegExp%': RegExp,
 	'%Set%': typeof Set === 'undefined' ? undefined : Set,
@@ -19531,7 +19649,7 @@ var INTRINSICS = {
 	'%Uint8ClampedArray%': typeof Uint8ClampedArray === 'undefined' ? undefined : Uint8ClampedArray,
 	'%Uint16Array%': typeof Uint16Array === 'undefined' ? undefined : Uint16Array,
 	'%Uint32Array%': typeof Uint32Array === 'undefined' ? undefined : Uint32Array,
-	'%URIError%': URIError,
+	'%URIError%': $URIError,
 	'%WeakMap%': typeof WeakMap === 'undefined' ? undefined : WeakMap,
 	'%WeakRef%': typeof WeakRef === 'undefined' ? undefined : WeakRef,
 	'%WeakSet%': typeof WeakSet === 'undefined' ? undefined : WeakSet
@@ -19573,6 +19691,7 @@ var doEval = function doEval(name) {
 };
 
 var LEGACY_ALIASES = {
+	__proto__: null,
 	'%ArrayBufferPrototype%': ['ArrayBuffer', 'prototype'],
 	'%ArrayPrototype%': ['Array', 'prototype'],
 	'%ArrayProto_entries%': ['Array', 'prototype', 'entries'],
@@ -19802,26 +19921,15 @@ module.exports = $gOPD;
 "use strict";
 
 
-var GetIntrinsic = __webpack_require__(/*! get-intrinsic */ "./node_modules/get-intrinsic/index.js");
-
-var $defineProperty = GetIntrinsic('%Object.defineProperty%', true);
+var $defineProperty = __webpack_require__(/*! es-define-property */ "./node_modules/es-define-property/index.js");
 
 var hasPropertyDescriptors = function hasPropertyDescriptors() {
-	if ($defineProperty) {
-		try {
-			$defineProperty({}, 'a', { value: 1 });
-			return true;
-		} catch (e) {
-			// IE 8 has a broken defineProperty
-			return false;
-		}
-	}
-	return false;
+	return !!$defineProperty;
 };
 
 hasPropertyDescriptors.hasArrayLengthDefineBug = function hasArrayLengthDefineBug() {
 	// node v0.6 has a bug where array lengths can be Set but not Defined
-	if (!hasPropertyDescriptors()) {
+	if (!$defineProperty) {
 		return null;
 	}
 	try {
@@ -20364,7 +20472,10 @@ module.exports = function inspect_(obj, options, depth, seen) {
     if (typeof window !== 'undefined' && obj === window) {
         return '{ [object Window] }';
     }
-    if (obj === __webpack_require__.g) {
+    if (
+        (typeof globalThis !== 'undefined' && obj === globalThis)
+        || (typeof __webpack_require__.g !== 'undefined' && obj === __webpack_require__.g)
+    ) {
         return '{ [object globalThis] }';
     }
     if (!isDate(obj) && !isRegExp(obj)) {
@@ -49087,20 +49198,24 @@ var isArray = Array.isArray;
 
 var defaults = {
     allowDots: false,
+    allowEmptyArrays: false,
     allowPrototypes: false,
     allowSparse: false,
     arrayLimit: 20,
     charset: 'utf-8',
     charsetSentinel: false,
     comma: false,
+    decodeDotInKeys: false,
     decoder: utils.decode,
     delimiter: '&',
     depth: 5,
+    duplicates: 'combine',
     ignoreQueryPrefix: false,
     interpretNumericEntities: false,
     parameterLimit: 1000,
     parseArrays: true,
     plainObjects: false,
+    strictDepth: false,
     strictNullHandling: false
 };
 
@@ -49132,6 +49247,7 @@ var parseValues = function parseQueryStringValues(str, options) {
     var obj = { __proto__: null };
 
     var cleanStr = options.ignoreQueryPrefix ? str.replace(/^\?/, '') : str;
+    cleanStr = cleanStr.replace(/%5B/gi, '[').replace(/%5D/gi, ']');
     var limit = options.parameterLimit === Infinity ? undefined : options.parameterLimit;
     var parts = cleanStr.split(options.delimiter, limit);
     var skipIndex = -1; // Keep track of where the utf8 sentinel was found
@@ -49183,9 +49299,10 @@ var parseValues = function parseQueryStringValues(str, options) {
             val = isArray(val) ? [val] : val;
         }
 
-        if (has.call(obj, key)) {
+        var existing = has.call(obj, key);
+        if (existing && options.duplicates === 'combine') {
             obj[key] = utils.combine(obj[key], val);
-        } else {
+        } else if (!existing || options.duplicates === 'last') {
             obj[key] = val;
         }
     }
@@ -49201,24 +49318,27 @@ var parseObject = function (chain, val, options, valuesParsed) {
         var root = chain[i];
 
         if (root === '[]' && options.parseArrays) {
-            obj = [].concat(leaf);
+            obj = options.allowEmptyArrays && (leaf === '' || (options.strictNullHandling && leaf === null))
+                ? []
+                : [].concat(leaf);
         } else {
             obj = options.plainObjects ? Object.create(null) : {};
             var cleanRoot = root.charAt(0) === '[' && root.charAt(root.length - 1) === ']' ? root.slice(1, -1) : root;
-            var index = parseInt(cleanRoot, 10);
-            if (!options.parseArrays && cleanRoot === '') {
+            var decodedRoot = options.decodeDotInKeys ? cleanRoot.replace(/%2E/g, '.') : cleanRoot;
+            var index = parseInt(decodedRoot, 10);
+            if (!options.parseArrays && decodedRoot === '') {
                 obj = { 0: leaf };
             } else if (
                 !isNaN(index)
-                && root !== cleanRoot
-                && String(index) === cleanRoot
+                && root !== decodedRoot
+                && String(index) === decodedRoot
                 && index >= 0
                 && (options.parseArrays && index <= options.arrayLimit)
             ) {
                 obj = [];
                 obj[index] = leaf;
-            } else if (cleanRoot !== '__proto__') {
-                obj[cleanRoot] = leaf;
+            } else if (decodedRoot !== '__proto__') {
+                obj[decodedRoot] = leaf;
             }
         }
 
@@ -49273,9 +49393,12 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options, valuesPars
         keys.push(segment[1]);
     }
 
-    // If there's a remainder, just add whatever is left
+    // If there's a remainder, check strictDepth option for throw, else just add whatever is left
 
     if (segment) {
+        if (options.strictDepth === true) {
+            throw new RangeError('Input depth exceeded depth option of ' + options.depth + ' and strictDepth is true');
+        }
         keys.push('[' + key.slice(segment.index) + ']');
     }
 
@@ -49287,7 +49410,15 @@ var normalizeParseOptions = function normalizeParseOptions(opts) {
         return defaults;
     }
 
-    if (opts.decoder !== null && opts.decoder !== undefined && typeof opts.decoder !== 'function') {
+    if (typeof opts.allowEmptyArrays !== 'undefined' && typeof opts.allowEmptyArrays !== 'boolean') {
+        throw new TypeError('`allowEmptyArrays` option can only be `true` or `false`, when provided');
+    }
+
+    if (typeof opts.decodeDotInKeys !== 'undefined' && typeof opts.decodeDotInKeys !== 'boolean') {
+        throw new TypeError('`decodeDotInKeys` option can only be `true` or `false`, when provided');
+    }
+
+    if (opts.decoder !== null && typeof opts.decoder !== 'undefined' && typeof opts.decoder !== 'function') {
         throw new TypeError('Decoder has to be a function.');
     }
 
@@ -49296,23 +49427,35 @@ var normalizeParseOptions = function normalizeParseOptions(opts) {
     }
     var charset = typeof opts.charset === 'undefined' ? defaults.charset : opts.charset;
 
+    var duplicates = typeof opts.duplicates === 'undefined' ? defaults.duplicates : opts.duplicates;
+
+    if (duplicates !== 'combine' && duplicates !== 'first' && duplicates !== 'last') {
+        throw new TypeError('The duplicates option must be either combine, first, or last');
+    }
+
+    var allowDots = typeof opts.allowDots === 'undefined' ? opts.decodeDotInKeys === true ? true : defaults.allowDots : !!opts.allowDots;
+
     return {
-        allowDots: typeof opts.allowDots === 'undefined' ? defaults.allowDots : !!opts.allowDots,
+        allowDots: allowDots,
+        allowEmptyArrays: typeof opts.allowEmptyArrays === 'boolean' ? !!opts.allowEmptyArrays : defaults.allowEmptyArrays,
         allowPrototypes: typeof opts.allowPrototypes === 'boolean' ? opts.allowPrototypes : defaults.allowPrototypes,
         allowSparse: typeof opts.allowSparse === 'boolean' ? opts.allowSparse : defaults.allowSparse,
         arrayLimit: typeof opts.arrayLimit === 'number' ? opts.arrayLimit : defaults.arrayLimit,
         charset: charset,
         charsetSentinel: typeof opts.charsetSentinel === 'boolean' ? opts.charsetSentinel : defaults.charsetSentinel,
         comma: typeof opts.comma === 'boolean' ? opts.comma : defaults.comma,
+        decodeDotInKeys: typeof opts.decodeDotInKeys === 'boolean' ? opts.decodeDotInKeys : defaults.decodeDotInKeys,
         decoder: typeof opts.decoder === 'function' ? opts.decoder : defaults.decoder,
         delimiter: typeof opts.delimiter === 'string' || utils.isRegExp(opts.delimiter) ? opts.delimiter : defaults.delimiter,
         // eslint-disable-next-line no-implicit-coercion, no-extra-parens
         depth: (typeof opts.depth === 'number' || opts.depth === false) ? +opts.depth : defaults.depth,
+        duplicates: duplicates,
         ignoreQueryPrefix: opts.ignoreQueryPrefix === true,
         interpretNumericEntities: typeof opts.interpretNumericEntities === 'boolean' ? opts.interpretNumericEntities : defaults.interpretNumericEntities,
         parameterLimit: typeof opts.parameterLimit === 'number' ? opts.parameterLimit : defaults.parameterLimit,
         parseArrays: opts.parseArrays !== false,
         plainObjects: typeof opts.plainObjects === 'boolean' ? opts.plainObjects : defaults.plainObjects,
+        strictDepth: typeof opts.strictDepth === 'boolean' ? !!opts.strictDepth : defaults.strictDepth,
         strictNullHandling: typeof opts.strictNullHandling === 'boolean' ? opts.strictNullHandling : defaults.strictNullHandling
     };
 };
@@ -49385,10 +49528,13 @@ var defaultFormat = formats['default'];
 var defaults = {
     addQueryPrefix: false,
     allowDots: false,
+    allowEmptyArrays: false,
+    arrayFormat: 'indices',
     charset: 'utf-8',
     charsetSentinel: false,
     delimiter: '&',
     encode: true,
+    encodeDotInKeys: false,
     encoder: utils.encode,
     encodeValuesOnly: false,
     format: defaultFormat,
@@ -49417,8 +49563,10 @@ var stringify = function stringify(
     prefix,
     generateArrayPrefix,
     commaRoundTrip,
+    allowEmptyArrays,
     strictNullHandling,
     skipNulls,
+    encodeDotInKeys,
     encoder,
     filter,
     sort,
@@ -49500,7 +49648,13 @@ var stringify = function stringify(
         objKeys = sort ? keys.sort(sort) : keys;
     }
 
-    var adjustedPrefix = commaRoundTrip && isArray(obj) && obj.length === 1 ? prefix + '[]' : prefix;
+    var encodedPrefix = encodeDotInKeys ? prefix.replace(/\./g, '%2E') : prefix;
+
+    var adjustedPrefix = commaRoundTrip && isArray(obj) && obj.length === 1 ? encodedPrefix + '[]' : encodedPrefix;
+
+    if (allowEmptyArrays && isArray(obj) && obj.length === 0) {
+        return adjustedPrefix + '[]';
+    }
 
     for (var j = 0; j < objKeys.length; ++j) {
         var key = objKeys[j];
@@ -49510,9 +49664,10 @@ var stringify = function stringify(
             continue;
         }
 
+        var encodedKey = allowDots && encodeDotInKeys ? key.replace(/\./g, '%2E') : key;
         var keyPrefix = isArray(obj)
-            ? typeof generateArrayPrefix === 'function' ? generateArrayPrefix(adjustedPrefix, key) : adjustedPrefix
-            : adjustedPrefix + (allowDots ? '.' + key : '[' + key + ']');
+            ? typeof generateArrayPrefix === 'function' ? generateArrayPrefix(adjustedPrefix, encodedKey) : adjustedPrefix
+            : adjustedPrefix + (allowDots ? '.' + encodedKey : '[' + encodedKey + ']');
 
         sideChannel.set(object, step);
         var valueSideChannel = getSideChannel();
@@ -49522,8 +49677,10 @@ var stringify = function stringify(
             keyPrefix,
             generateArrayPrefix,
             commaRoundTrip,
+            allowEmptyArrays,
             strictNullHandling,
             skipNulls,
+            encodeDotInKeys,
             generateArrayPrefix === 'comma' && encodeValuesOnly && isArray(obj) ? null : encoder,
             filter,
             sort,
@@ -49543,6 +49700,14 @@ var stringify = function stringify(
 var normalizeStringifyOptions = function normalizeStringifyOptions(opts) {
     if (!opts) {
         return defaults;
+    }
+
+    if (typeof opts.allowEmptyArrays !== 'undefined' && typeof opts.allowEmptyArrays !== 'boolean') {
+        throw new TypeError('`allowEmptyArrays` option can only be `true` or `false`, when provided');
+    }
+
+    if (typeof opts.encodeDotInKeys !== 'undefined' && typeof opts.encodeDotInKeys !== 'boolean') {
+        throw new TypeError('`encodeDotInKeys` option can only be `true` or `false`, when provided');
     }
 
     if (opts.encoder !== null && typeof opts.encoder !== 'undefined' && typeof opts.encoder !== 'function') {
@@ -49568,13 +49733,32 @@ var normalizeStringifyOptions = function normalizeStringifyOptions(opts) {
         filter = opts.filter;
     }
 
+    var arrayFormat;
+    if (opts.arrayFormat in arrayPrefixGenerators) {
+        arrayFormat = opts.arrayFormat;
+    } else if ('indices' in opts) {
+        arrayFormat = opts.indices ? 'indices' : 'repeat';
+    } else {
+        arrayFormat = defaults.arrayFormat;
+    }
+
+    if ('commaRoundTrip' in opts && typeof opts.commaRoundTrip !== 'boolean') {
+        throw new TypeError('`commaRoundTrip` must be a boolean, or absent');
+    }
+
+    var allowDots = typeof opts.allowDots === 'undefined' ? opts.encodeDotInKeys === true ? true : defaults.allowDots : !!opts.allowDots;
+
     return {
         addQueryPrefix: typeof opts.addQueryPrefix === 'boolean' ? opts.addQueryPrefix : defaults.addQueryPrefix,
-        allowDots: typeof opts.allowDots === 'undefined' ? defaults.allowDots : !!opts.allowDots,
+        allowDots: allowDots,
+        allowEmptyArrays: typeof opts.allowEmptyArrays === 'boolean' ? !!opts.allowEmptyArrays : defaults.allowEmptyArrays,
+        arrayFormat: arrayFormat,
         charset: charset,
         charsetSentinel: typeof opts.charsetSentinel === 'boolean' ? opts.charsetSentinel : defaults.charsetSentinel,
+        commaRoundTrip: opts.commaRoundTrip,
         delimiter: typeof opts.delimiter === 'undefined' ? defaults.delimiter : opts.delimiter,
         encode: typeof opts.encode === 'boolean' ? opts.encode : defaults.encode,
+        encodeDotInKeys: typeof opts.encodeDotInKeys === 'boolean' ? opts.encodeDotInKeys : defaults.encodeDotInKeys,
         encoder: typeof opts.encoder === 'function' ? opts.encoder : defaults.encoder,
         encodeValuesOnly: typeof opts.encodeValuesOnly === 'boolean' ? opts.encodeValuesOnly : defaults.encodeValuesOnly,
         filter: filter,
@@ -49608,20 +49792,8 @@ module.exports = function (object, opts) {
         return '';
     }
 
-    var arrayFormat;
-    if (opts && opts.arrayFormat in arrayPrefixGenerators) {
-        arrayFormat = opts.arrayFormat;
-    } else if (opts && 'indices' in opts) {
-        arrayFormat = opts.indices ? 'indices' : 'repeat';
-    } else {
-        arrayFormat = 'indices';
-    }
-
-    var generateArrayPrefix = arrayPrefixGenerators[arrayFormat];
-    if (opts && 'commaRoundTrip' in opts && typeof opts.commaRoundTrip !== 'boolean') {
-        throw new TypeError('`commaRoundTrip` must be a boolean, or absent');
-    }
-    var commaRoundTrip = generateArrayPrefix === 'comma' && opts && opts.commaRoundTrip;
+    var generateArrayPrefix = arrayPrefixGenerators[options.arrayFormat];
+    var commaRoundTrip = generateArrayPrefix === 'comma' && options.commaRoundTrip;
 
     if (!objKeys) {
         objKeys = Object.keys(obj);
@@ -49643,8 +49815,10 @@ module.exports = function (object, opts) {
             key,
             generateArrayPrefix,
             commaRoundTrip,
+            options.allowEmptyArrays,
             options.strictNullHandling,
             options.skipNulls,
+            options.encodeDotInKeys,
             options.encode ? options.encoder : null,
             options.filter,
             options.sort,
@@ -49808,6 +49982,10 @@ var decode = function (str, decoder, charset) {
     }
 };
 
+var limit = 1024;
+
+/* eslint operator-linebreak: [2, "before"] */
+
 var encode = function encode(str, defaultEncoder, charset, kind, format) {
     // This code was originally written by Brian White (mscdex) for the io.js core querystring library.
     // It has been adapted here for stricter adherence to RFC 3986
@@ -49829,45 +50007,54 @@ var encode = function encode(str, defaultEncoder, charset, kind, format) {
     }
 
     var out = '';
-    for (var i = 0; i < string.length; ++i) {
-        var c = string.charCodeAt(i);
+    for (var j = 0; j < string.length; j += limit) {
+        var segment = string.length >= limit ? string.slice(j, j + limit) : string;
+        var arr = [];
 
-        if (
-            c === 0x2D // -
-            || c === 0x2E // .
-            || c === 0x5F // _
-            || c === 0x7E // ~
-            || (c >= 0x30 && c <= 0x39) // 0-9
-            || (c >= 0x41 && c <= 0x5A) // a-z
-            || (c >= 0x61 && c <= 0x7A) // A-Z
-            || (format === formats.RFC1738 && (c === 0x28 || c === 0x29)) // ( )
-        ) {
-            out += string.charAt(i);
-            continue;
+        for (var i = 0; i < segment.length; ++i) {
+            var c = segment.charCodeAt(i);
+            if (
+                c === 0x2D // -
+                || c === 0x2E // .
+                || c === 0x5F // _
+                || c === 0x7E // ~
+                || (c >= 0x30 && c <= 0x39) // 0-9
+                || (c >= 0x41 && c <= 0x5A) // a-z
+                || (c >= 0x61 && c <= 0x7A) // A-Z
+                || (format === formats.RFC1738 && (c === 0x28 || c === 0x29)) // ( )
+            ) {
+                arr[arr.length] = segment.charAt(i);
+                continue;
+            }
+
+            if (c < 0x80) {
+                arr[arr.length] = hexTable[c];
+                continue;
+            }
+
+            if (c < 0x800) {
+                arr[arr.length] = hexTable[0xC0 | (c >> 6)]
+                    + hexTable[0x80 | (c & 0x3F)];
+                continue;
+            }
+
+            if (c < 0xD800 || c >= 0xE000) {
+                arr[arr.length] = hexTable[0xE0 | (c >> 12)]
+                    + hexTable[0x80 | ((c >> 6) & 0x3F)]
+                    + hexTable[0x80 | (c & 0x3F)];
+                continue;
+            }
+
+            i += 1;
+            c = 0x10000 + (((c & 0x3FF) << 10) | (segment.charCodeAt(i) & 0x3FF));
+
+            arr[arr.length] = hexTable[0xF0 | (c >> 18)]
+                + hexTable[0x80 | ((c >> 12) & 0x3F)]
+                + hexTable[0x80 | ((c >> 6) & 0x3F)]
+                + hexTable[0x80 | (c & 0x3F)];
         }
 
-        if (c < 0x80) {
-            out = out + hexTable[c];
-            continue;
-        }
-
-        if (c < 0x800) {
-            out = out + (hexTable[0xC0 | (c >> 6)] + hexTable[0x80 | (c & 0x3F)]);
-            continue;
-        }
-
-        if (c < 0xD800 || c >= 0xE000) {
-            out = out + (hexTable[0xE0 | (c >> 12)] + hexTable[0x80 | ((c >> 6) & 0x3F)] + hexTable[0x80 | (c & 0x3F)]);
-            continue;
-        }
-
-        i += 1;
-        c = 0x10000 + (((c & 0x3FF) << 10) | (string.charCodeAt(i) & 0x3FF));
-        /* eslint operator-linebreak: [2, "before"] */
-        out += hexTable[0xF0 | (c >> 18)]
-            + hexTable[0x80 | ((c >> 12) & 0x3F)]
-            + hexTable[0x80 | ((c >> 6) & 0x3F)]
-            + hexTable[0x80 | (c & 0x3F)];
+        out += arr.join('');
     }
 
     return out;
@@ -49954,9 +50141,10 @@ var define = __webpack_require__(/*! define-data-property */ "./node_modules/def
 var hasDescriptors = __webpack_require__(/*! has-property-descriptors */ "./node_modules/has-property-descriptors/index.js")();
 var gOPD = __webpack_require__(/*! gopd */ "./node_modules/gopd/index.js");
 
-var $TypeError = GetIntrinsic('%TypeError%');
+var $TypeError = __webpack_require__(/*! es-errors/type */ "./node_modules/es-errors/type.js");
 var $floor = GetIntrinsic('%Math.floor%');
 
+/** @type {import('.')} */
 module.exports = function setFunctionLength(fn, length) {
 	if (typeof fn !== 'function') {
 		throw new $TypeError('`fn` is not a function');
@@ -49981,9 +50169,9 @@ module.exports = function setFunctionLength(fn, length) {
 
 	if (functionLengthIsConfigurable || functionLengthIsWritable || !loose) {
 		if (hasDescriptors) {
-			define(fn, 'length', length, true, true);
+			define(/** @type {Parameters<define>[0]} */ (fn), 'length', length, true, true);
 		} else {
-			define(fn, 'length', length);
+			define(/** @type {Parameters<define>[0]} */ (fn), 'length', length);
 		}
 	}
 	return fn;
@@ -50005,7 +50193,7 @@ var GetIntrinsic = __webpack_require__(/*! get-intrinsic */ "./node_modules/get-
 var callBound = __webpack_require__(/*! call-bind/callBound */ "./node_modules/call-bind/callBound.js");
 var inspect = __webpack_require__(/*! object-inspect */ "./node_modules/object-inspect/index.js");
 
-var $TypeError = GetIntrinsic('%TypeError%');
+var $TypeError = __webpack_require__(/*! es-errors/type */ "./node_modules/es-errors/type.js");
 var $WeakMap = GetIntrinsic('%WeakMap%', true);
 var $Map = GetIntrinsic('%Map%', true);
 
@@ -50017,49 +50205,58 @@ var $mapSet = callBound('Map.prototype.set', true);
 var $mapHas = callBound('Map.prototype.has', true);
 
 /*
- * This function traverses the list returning the node corresponding to the
- * given key.
- *
- * That node is also moved to the head of the list, so that if it's accessed
- * again we don't need to traverse the whole list. By doing so, all the recently
- * used nodes can be accessed relatively quickly.
- */
+* This function traverses the list returning the node corresponding to the given key.
+*
+* That node is also moved to the head of the list, so that if it's accessed again we don't need to traverse the whole list. By doing so, all the recently used nodes can be accessed relatively quickly.
+*/
+/** @type {import('.').listGetNode} */
 var listGetNode = function (list, key) { // eslint-disable-line consistent-return
-	for (var prev = list, curr; (curr = prev.next) !== null; prev = curr) {
+	/** @type {typeof list | NonNullable<(typeof list)['next']>} */
+	var prev = list;
+	/** @type {(typeof list)['next']} */
+	var curr;
+	for (; (curr = prev.next) !== null; prev = curr) {
 		if (curr.key === key) {
 			prev.next = curr.next;
-			curr.next = list.next;
+			// eslint-disable-next-line no-extra-parens
+			curr.next = /** @type {NonNullable<typeof list.next>} */ (list.next);
 			list.next = curr; // eslint-disable-line no-param-reassign
 			return curr;
 		}
 	}
 };
 
+/** @type {import('.').listGet} */
 var listGet = function (objects, key) {
 	var node = listGetNode(objects, key);
 	return node && node.value;
 };
+/** @type {import('.').listSet} */
 var listSet = function (objects, key, value) {
 	var node = listGetNode(objects, key);
 	if (node) {
 		node.value = value;
 	} else {
 		// Prepend the new node to the beginning of the list
-		objects.next = { // eslint-disable-line no-param-reassign
+		objects.next = /** @type {import('.').ListNode<typeof value>} */ ({ // eslint-disable-line no-param-reassign, no-extra-parens
 			key: key,
 			next: objects.next,
 			value: value
-		};
+		});
 	}
 };
+/** @type {import('.').listHas} */
 var listHas = function (objects, key) {
 	return !!listGetNode(objects, key);
 };
 
+/** @type {import('.')} */
 module.exports = function getSideChannel() {
-	var $wm;
-	var $m;
-	var $o;
+	/** @type {WeakMap<object, unknown>} */ var $wm;
+	/** @type {Map<object, unknown>} */ var $m;
+	/** @type {import('.').RootNode<unknown>} */ var $o;
+
+	/** @type {import('.').Channel} */
 	var channel = {
 		assert: function (key) {
 			if (!channel.has(key)) {
@@ -50110,11 +50307,7 @@ module.exports = function getSideChannel() {
 				$mapSet($m, key, value);
 			} else {
 				if (!$o) {
-					/*
-					 * Initialize the linked list as an empty node, so that we don't have
-					 * to special-case handling of the first node: we can always refer to
-					 * it as (previous node).next, instead of something like (list).head
-					 */
+					// Initialize the linked list as an empty node, so that we don't have to special-case handling of the first node: we can always refer to it as (previous node).next, instead of something like (list).head
 					$o = { key: {}, next: null };
 				}
 				listSet($o, key, value);
@@ -50158,26 +50351,20 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.loadTexture = exports.loadSprite = exports.loadSound = void 0;
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
-const loadSound = (fileLoader, filename, options) => __awaiter(void 0, void 0, void 0, function* () {
-    return sound_1.Sound.from(Object.assign({ source: yield fileLoader.getRawFile(filename) }, options));
-});
+const loadSound = async (fileLoader, filename, options) => {
+    return sound_1.Sound.from({
+        source: await fileLoader.getRawFile(filename),
+        ...options
+    });
+};
 exports.loadSound = loadSound;
-const loadSprite = (fileLoader, filename) => __awaiter(void 0, void 0, void 0, function* () {
-    const image = yield fileLoader.getIMGFile(filename);
+const loadSprite = async (fileLoader, filename) => {
+    const image = await fileLoader.getIMGFile(filename);
     const imageBytes = new Uint8Array(image.bytes);
     const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(image.bytes), image.header.width, image.header.height);
     const texture = new PIXI.Texture(baseTexture);
@@ -50186,13 +50373,13 @@ const loadSprite = (fileLoader, filename) => __awaiter(void 0, void 0, void 0, f
     sprite.y = image.header.positionY;
     sprite.hitmap = (0, rendering_1.createHitmapFromImageBytes)(imageBytes);
     return sprite;
-});
+};
 exports.loadSprite = loadSprite;
-const loadTexture = (fileLoader, filename) => __awaiter(void 0, void 0, void 0, function* () {
-    const image = yield fileLoader.getIMGFile(filename);
+const loadTexture = async (fileLoader, filename) => {
+    const image = await fileLoader.getIMGFile(filename);
     const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(image.bytes), image.header.width, image.header.height);
     return new PIXI.Texture(baseTexture);
-});
+};
 exports.loadTexture = loadTexture;
 
 
@@ -50352,7 +50539,7 @@ class CallbacksComponent {
     }
     register(type, callback) {
         this.registry.set(type, {
-            nonParametrized: callback !== null && callback !== void 0 ? callback : null,
+            nonParametrized: callback ?? null,
             parametrized: new Map()
         });
     }
@@ -50375,10 +50562,10 @@ class CallbacksComponent {
         stacktrace_1.stackTrace.push(stackFrame);
         try {
             const callbackGroup = this.registry.get(type);
-            if (callbackGroup === null || callbackGroup === void 0 ? void 0 : callbackGroup.nonParametrized) {
+            if (callbackGroup?.nonParametrized) {
                 this.engine.executeCallback(thisReference, callbackGroup.nonParametrized);
             }
-            if (param !== null && param !== undefined && (callbackGroup === null || callbackGroup === void 0 ? void 0 : callbackGroup.parametrized.has(param))) {
+            if (param !== null && param !== undefined && callbackGroup?.parametrized.has(param)) {
                 this.engine.executeCallback(thisReference, callbackGroup.parametrized.get(param));
             }
         }
@@ -50443,8 +50630,7 @@ class EventsComponent {
         this.listeners.set(eventName, callbacks);
     }
     trigger(eventName, ...args) {
-        var _a;
-        const callbacks = (_a = this.listeners.get(eventName)) !== null && _a !== void 0 ? _a : [];
+        const callbacks = this.listeners.get(eventName) ?? [];
         for (const listener of callbacks) {
             listener(...args);
         }
@@ -50558,7 +50744,6 @@ class Debugging {
         }
     }
     updateXRay() {
-        var _a;
         if (!this.enableXRay) {
             for (const [name, container] of this.xrays) {
                 container.destroy({
@@ -50601,7 +50786,7 @@ class Debugging {
                 position = 'outside';
             }
             if (!visible) {
-                (_a = this.xrays.get(object.name)) === null || _a === void 0 ? void 0 : _a.destroy({
+                this.xrays.get(object.name)?.destroy({
                     children: true
                 });
                 this.xrays.delete(object.name);
@@ -50680,19 +50865,10 @@ exports.Debugging = Debugging;
 /*!****************************************!*\
   !*** ./src/engine/definitionLoader.ts ***!
   \****************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createObject = exports.loadDefinition = void 0;
 const integer_1 = __webpack_require__(/*! ./types/integer */ "./src/engine/types/integer.ts");
@@ -50805,7 +50981,7 @@ const initializationPriorities = [
     currentValue.forEach(entry => acc.set(entry, currentIndex));
     return acc;
 }, new Map());
-const loadDefinition = (engine, scope, definition, parent) => __awaiter(void 0, void 0, void 0, function* () {
+const loadDefinition = async (engine, scope, definition, parent) => {
     engine.app.ticker.stop();
     const entries = [];
     for (const [key, value] of Object.entries(definition)) {
@@ -50818,12 +50994,11 @@ const loadDefinition = (engine, scope, definition, parent) => __awaiter(void 0, 
         }
     }
     const orderedScope = entries.sort((a, b) => {
-        var _a, _b;
-        const aPriority = a.name === '__INIT__' ? 99999 : (_a = initializationPriorities.get(a.definition.TYPE)) !== null && _a !== void 0 ? _a : 9999;
-        const bPriority = b.name === '__INIT__' ? 99999 : (_b = initializationPriorities.get(b.definition.TYPE)) !== null && _b !== void 0 ? _b : 9999;
+        const aPriority = a.name === '__INIT__' ? 99999 : initializationPriorities.get(a.definition.TYPE) ?? 9999;
+        const bPriority = b.name === '__INIT__' ? 99999 : initializationPriorities.get(b.definition.TYPE) ?? 9999;
         return aPriority - bPriority;
     });
-    const promisesResults = yield Promise.allSettled(orderedScope.map(entry => entry.init()));
+    const promisesResults = await Promise.allSettled(orderedScope.map(entry => entry.init()));
     for (let i = 0; i < promisesResults.length; i++) {
         const result = promisesResults[i];
         const object = orderedScope[i];
@@ -50835,9 +51010,9 @@ const loadDefinition = (engine, scope, definition, parent) => __awaiter(void 0, 
     }
     orderedScope.forEach(entry => entry.ready());
     engine.app.ticker.start();
-});
+};
 exports.loadDefinition = loadDefinition;
-const createObject = (engine, definition, parent) => __awaiter(void 0, void 0, void 0, function* () {
+const createObject = async (engine, definition, parent) => {
     engine.app.ticker.stop();
     const instance = createTypeInstance(engine, definition);
     instance.parent = parent;
@@ -50845,11 +51020,11 @@ const createObject = (engine, definition, parent) => __awaiter(void 0, void 0, v
     if (instance instanceof types_1.DisplayType) {
         engine.renderingOrder.push(instance);
     }
-    yield instance.init();
+    await instance.init();
     instance.ready();
     engine.app.ticker.start();
     return instance;
-});
+};
 exports.createObject = createObject;
 
 
@@ -50859,19 +51034,10 @@ exports.createObject = createObject;
 /*!***********************************!*\
   !*** ./src/engine/filesLoader.ts ***!
   \***********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
 const cnv_1 = __webpack_require__(/*! ../fileFormats/cnv */ "./src/fileFormats/cnv/index.ts");
@@ -50899,54 +51065,44 @@ class UrlFileLoader extends FileLoader {
     getHistory() {
         return this.history;
     }
-    getANNFile(filename) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const data = yield this.getRawFile(filename);
-            return (0, ann_1.loadAnn)(data);
-        });
+    async getANNFile(filename) {
+        const data = await this.getRawFile(filename);
+        return (0, ann_1.loadAnn)(data);
     }
-    getCNVFile(filename) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const data = yield this.getRawFile(filename);
-            const text = (0, cnv_1.decryptCNV)(data);
-            console.debug(text);
-            return (0, cnv_1.parseCNV)(text);
-        });
+    async getCNVFile(filename) {
+        const data = await this.getRawFile(filename);
+        const text = (0, cnv_1.decryptCNV)(data);
+        console.debug(text);
+        return (0, cnv_1.parseCNV)(text);
     }
-    getSequenceFile(filename) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const data = yield this.getRawFile(filename);
-            const decoder = new TextDecoder();
-            const text = decoder.decode(data);
-            console.debug(text);
-            return (0, seq_1.parseSequence)(text);
-        });
+    async getSequenceFile(filename) {
+        const data = await this.getRawFile(filename);
+        const decoder = new TextDecoder();
+        const text = decoder.decode(data);
+        console.debug(text);
+        return (0, seq_1.parseSequence)(text);
     }
-    getIMGFile(filename) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!filename.toLowerCase().endsWith('.img')) {
-                filename = filename + '.img';
-            }
-            const data = yield this.getRawFile(filename);
-            return (0, img_1.loadImage)(data);
-        });
+    async getIMGFile(filename) {
+        if (!filename.toLowerCase().endsWith('.img')) {
+            filename = filename + '.img';
+        }
+        const data = await this.getRawFile(filename);
+        return (0, img_1.loadImage)(data);
     }
-    getRawFile(filename) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.listing == null) {
-                console.debug('Fetching files listing...');
-                this.listing = yield this.fetchFilesListing();
-            }
-            const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
-            console.debug(`Fetching '${normalizedFilename}'...`);
-            const fileUrl = this.listing.get(normalizedFilename);
-            if (fileUrl == null) {
-                throw new FileNotFoundError(normalizedFilename);
-            }
-            const response = yield fetch(fileUrl);
-            this.history.add(normalizedFilename);
-            return yield response.arrayBuffer();
-        });
+    async getRawFile(filename) {
+        if (this.listing == null) {
+            console.debug('Fetching files listing...');
+            this.listing = await this.fetchFilesListing();
+        }
+        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
+        console.debug(`Fetching '${normalizedFilename}'...`);
+        const fileUrl = this.listing.get(normalizedFilename);
+        if (fileUrl == null) {
+            throw new FileNotFoundError(normalizedFilename);
+        }
+        const response = await fetch(fileUrl);
+        this.history.add(normalizedFilename);
+        return await response.arrayBuffer();
     }
 }
 exports.UrlFileLoader = UrlFileLoader;
@@ -50957,15 +51113,13 @@ class GithubFileLoader extends UrlFileLoader {
         this.filesBaseUrl = `https://raw.githubusercontent.com/ReksioEngine/GamesFiles/${gameName}/`;
     }
     // Windows case-insensitive filenames moment
-    fetchFilesListing() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(this.filesListUrl);
-            const data = yield response.json();
-            return new Map(data.tree.map((entry) => [
-                entry.path.toLowerCase(),
-                this.filesBaseUrl + entry.path
-            ]));
-        });
+    async fetchFilesListing() {
+        const response = await fetch(this.filesListUrl);
+        const data = await response.json();
+        return new Map(data.tree.map((entry) => [
+            entry.path.toLowerCase(),
+            this.filesBaseUrl + entry.path
+        ]));
     }
 }
 exports.GithubFileLoader = GithubFileLoader;
@@ -50975,21 +51129,19 @@ class ArchiveOrgFileLoader extends UrlFileLoader {
         this.baseUrl = baseUrl;
     }
     // Windows case-insensitive filenames moment
-    fetchFilesListing() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(this.baseUrl);
-            const html = yield response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const table = doc.querySelector('.archext');
-            if (table == null) {
-                throw new Error('Failed to fetch files listing table');
-            }
-            const links = table.querySelectorAll('a');
-            return new Map([...links].map((link) => [
-                link.textContent.toLowerCase(), link.getAttribute('href')
-            ]));
-        });
+    async fetchFilesListing() {
+        const response = await fetch(this.baseUrl);
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const table = doc.querySelector('.archext');
+        if (table == null) {
+            throw new Error('Failed to fetch files listing table');
+        }
+        const links = table.querySelectorAll('a');
+        return new Map([...links].map((link) => [
+            link.textContent.toLowerCase(), link.getAttribute('href')
+        ]));
     }
 }
 exports.ArchiveOrgFileLoader = ArchiveOrgFileLoader;
@@ -51001,19 +51153,10 @@ exports.ArchiveOrgFileLoader = ArchiveOrgFileLoader;
 /*!*****************************!*\
   !*** ./src/engine/index.ts ***!
   \*****************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Engine = void 0;
 const evaluator_1 = __webpack_require__(/*! ../interpreter/evaluator */ "./src/interpreter/evaluator.ts");
@@ -51045,28 +51188,26 @@ class Engine {
         this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
         this.canvasBackground.zIndex = -99999;
     }
-    init() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                this.debug.applyQueryParams();
-                const applicationDef = yield this.fileLoader.getCNVFile('DANE/Application.def');
-                yield (0, definitionLoader_1.loadDefinition)(this, this.globalScope, applicationDef);
-                this.debug.setupSceneSelector();
-                this.app.ticker.maxFPS = 60;
-                this.app.stage.interactive = true;
-                sound_1.sound.disableAutoPause = true;
-                this.app.stage.addChild(this.canvasBackground);
-                this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS));
-                // @ts-expect-error no engine in globalThis
-                globalThis.engine = this;
-                // @ts-expect-error no __PIXI_APP__ in globalThis
-                globalThis.__PIXI_APP__ = this.app;
-            }
-            catch (err) {
-                console.error('Unhandled error occurred during initialization\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
-                console.error(err);
-            }
-        });
+    async init() {
+        try {
+            this.debug.applyQueryParams();
+            const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def');
+            await (0, definitionLoader_1.loadDefinition)(this, this.globalScope, applicationDef);
+            this.debug.setupSceneSelector();
+            this.app.ticker.maxFPS = 60;
+            this.app.stage.interactive = true;
+            sound_1.sound.disableAutoPause = true;
+            this.app.stage.addChild(this.canvasBackground);
+            this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS));
+            // @ts-expect-error no engine in globalThis
+            globalThis.engine = this;
+            // @ts-expect-error no __PIXI_APP__ in globalThis
+            globalThis.__PIXI_APP__ = this.app;
+        }
+        catch (err) {
+            console.error('Unhandled error occurred during initialization\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
+            console.error(err);
+        }
     }
     tick(elapsedMS) {
         for (const object of Object.values(this.scope)) {
@@ -51148,62 +51289,59 @@ class Engine {
             return orderA - orderB;
         });
     }
-    changeScene(sceneName) {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.app.ticker.stop();
-            sound_1.sound.stopAll();
-            if (this.music !== null) {
-                this.music.stop();
-            }
-            // Remove non-global objects from scope
-            // but keep for later destroying
-            // to prevent screen flickering
-            const objectsToRemove = [];
-            for (const [key, object] of Object.entries(this.scope)) {
-                objectsToRemove.push(object);
-                delete this.scope[key];
-            }
-            this.renderingOrder = [];
-            // Load new scene
-            if (this.debug.nextSceneOverwrite) {
-                sceneName = this.debug.nextSceneOverwrite;
-                this.debug.nextSceneOverwrite = null;
-            }
-            this.currentScene = this.getObject(sceneName);
-            // Set background image
-            if (this.currentScene.definition.BACKGROUND) {
-                this.canvasBackground.texture = yield (0, assetsLoader_1.loadTexture)(this.fileLoader, this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND));
-            }
-            else {
-                this.canvasBackground.texture = this.blackTexture;
-            }
-            const sceneDefinition = yield this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
-            yield (0, definitionLoader_1.loadDefinition)(this, this.scope, sceneDefinition, this.currentScene);
-            for (const object of objectsToRemove) {
-                object.destroy();
-            }
-            // Play new scene background music
-            if (this.currentScene.definition.MUSIC) {
-                this.music = yield (0, assetsLoader_1.loadSound)(this.fileLoader, this.currentScene.definition.MUSIC, {
-                    loop: true
-                });
-                this.music.play();
-            }
-            // Wait for assets to load
-            if (this.fileLoader instanceof filesLoader_1.UrlFileLoader) {
-                yield (0, optimizations_1.preloadAssets)(this.fileLoader, this.currentScene);
-            }
-            this.app.ticker.start();
-            this.debug.updateCurrentScene();
-        });
+    async changeScene(sceneName) {
+        this.app.ticker.stop();
+        sound_1.sound.stopAll();
+        if (this.music !== null) {
+            this.music.stop();
+        }
+        // Remove non-global objects from scope
+        // but keep for later destroying
+        // to prevent screen flickering
+        const objectsToRemove = [];
+        for (const [key, object] of Object.entries(this.scope)) {
+            objectsToRemove.push(object);
+            delete this.scope[key];
+        }
+        this.renderingOrder = [];
+        // Load new scene
+        if (this.debug.nextSceneOverwrite) {
+            sceneName = this.debug.nextSceneOverwrite;
+            this.debug.nextSceneOverwrite = null;
+        }
+        this.currentScene = this.getObject(sceneName);
+        // Set background image
+        if (this.currentScene.definition.BACKGROUND) {
+            this.canvasBackground.texture = await (0, assetsLoader_1.loadTexture)(this.fileLoader, this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND));
+        }
+        else {
+            this.canvasBackground.texture = this.blackTexture;
+        }
+        const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
+        await (0, definitionLoader_1.loadDefinition)(this, this.scope, sceneDefinition, this.currentScene);
+        for (const object of objectsToRemove) {
+            object.destroy();
+        }
+        // Play new scene background music
+        if (this.currentScene.definition.MUSIC) {
+            this.music = await (0, assetsLoader_1.loadSound)(this.fileLoader, this.currentScene.definition.MUSIC, {
+                loop: true
+            });
+            this.music.play();
+        }
+        // Wait for assets to load
+        if (this.fileLoader instanceof filesLoader_1.UrlFileLoader) {
+            await (0, optimizations_1.preloadAssets)(this.fileLoader, this.currentScene);
+        }
+        this.app.ticker.start();
+        this.debug.updateCurrentScene();
     }
     getObject(name) {
-        var _a, _b;
         if (typeof name == 'string') {
             if (name === 'THIS') {
                 return this.thisQueue[this.thisQueue.length - 1];
             }
-            return (_b = (_a = this.scope[name]) !== null && _a !== void 0 ? _a : this.globalScope[name]) !== null && _b !== void 0 ? _b : null;
+            return this.scope[name] ?? this.globalScope[name] ?? null;
         }
         else {
             return this.getObject(name.objectName);
@@ -51237,35 +51375,26 @@ exports.Engine = Engine;
 /*!*************************************!*\
   !*** ./src/engine/optimizations.ts ***!
   \*************************************/
-/***/ (function(__unused_webpack_module, exports) {
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.preloadAssets = void 0;
-const preloadAssets = (fileLoader, scene) => __awaiter(void 0, void 0, void 0, function* () {
+const preloadAssets = async (fileLoader, scene) => {
     const scenePath = scene.getRelativePath('').toLowerCase();
     const listing = fileLoader.getFilesListing();
     if (!listing) {
         return;
     }
-    yield Promise.all(listing.map(filename => {
+    await Promise.all(listing.map(filename => {
         if (!filename.startsWith(scenePath) || fileLoader.getHistory().has(filename)) {
             return;
         }
         console.debug(`Preloading '${filename}'`);
         return fileLoader.getRawFile(filename);
     }));
-});
+};
 exports.preloadAssets = preloadAssets;
 
 
@@ -51341,8 +51470,7 @@ class SaveFile {
         this.content = new Map();
     }
     get(group, key) {
-        var _a;
-        if (!this.content.has(group) || !((_a = this.content.get(group)) === null || _a === void 0 ? void 0 : _a.has(key))) {
+        if (!this.content.has(group) || !this.content.get(group)?.has(key)) {
             return undefined;
         }
         return this.content.get(group).get(key);
@@ -51354,11 +51482,10 @@ class SaveFile {
         this.content.get(group).set(key, value);
     }
     load(object) {
-        var _a;
         if (!object.parent) {
             return null;
         }
-        return (_a = this.get(object.parent.name, object.name)) !== null && _a !== void 0 ? _a : null;
+        return this.get(object.parent.name, object.name) ?? null;
     }
     save(object, value) {
         if (!object.parent) {
@@ -51396,21 +51523,46 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
     if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Animo = void 0;
@@ -51422,469 +51574,561 @@ const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/c
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
 const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
-class Animo extends index_1.DisplayType {
-    constructor(engine, definition) {
-        var _a;
-        super(engine, definition);
-        this.buttonLogic = null;
-        this.isPlaying = false;
-        this.currentFrame = 0;
-        this.currentEvent = '';
-        this.currentLoop = 0;
-        this.fps = 16;
-        this.timeSinceLastFrame = 0;
-        this.shouldForceRender = false;
-        this.positionX = 0;
-        this.positionOffsetX = 0;
-        this.positionY = 0;
-        this.positionOffsetY = 0;
-        this.anchorOffsetX = 0;
-        this.anchorOffsetY = 0;
-        this.annFile = null;
-        this.sprite = null;
-        this.textures = new Map();
-        this.hitmaps = new Map();
-        this.sounds = new Map();
-        this.fps = (_a = definition.FPS) !== null && _a !== void 0 ? _a : 16;
-        this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED);
-        this.callbacks.registerGroup('ONSTARTED', definition.ONSTARTED);
-        this.callbacks.registerGroup('ONFRAMECHANGED', definition.ONFRAMECHANGED);
-        this.callbacks.register('ONINIT', definition.ONINIT);
-        this.callbacks.register('ONFOCUSON', definition.ONFOCUSON);
-        this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF);
-        this.callbacks.register('ONCLICK', definition.ONCLICK);
-        this.callbacks.register('ONRELEASE', definition.ONRELEASE);
-    }
-    init() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.annFile = yield this.loadAnimation();
-            this.initSprite();
-        });
-    }
-    ready() {
-        if (this.currentEvent === '') {
-            (0, errors_1.assert)(this.annFile !== null);
-            // Find first event with any frames
-            const defaultEvent = this.annFile.events.find(event => event.framesCount > 0);
-            if (defaultEvent !== undefined) {
-                this.changeFrame(defaultEvent, 0);
-                this.currentEvent = defaultEvent.name;
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Animo = (() => {
+    var _a;
+    let _classSuper = index_1.DisplayType;
+    let _instanceExtraInitializers = [];
+    let _PLAY_decorators;
+    let _ONFINISHED_decorators;
+    let _ONSTARTED_decorators;
+    let _STOP_decorators;
+    let _PAUSE_decorators;
+    let _RESUME_decorators;
+    let _SETFRAME_decorators;
+    let _SETFPS_decorators;
+    let _SHOW_decorators;
+    let _HIDE_decorators;
+    let _ISVISIBLE_decorators;
+    let _MOVE_decorators;
+    let _SETPOSITION_decorators;
+    let _SETASBUTTON_decorators;
+    let _GETCENTERX_decorators;
+    let _GETCENTERY_decorators;
+    let _GETPOSITIONX_decorators;
+    let _GETPOSITIONY_decorators;
+    let _GETFRAMENAME_decorators;
+    let _GETMAXWIDTH_decorators;
+    let _GETNOFINEVENT_decorators;
+    let _GETEVENTNAME_decorators;
+    let _GETFRAME_decorators;
+    let _GETNOF_decorators;
+    let _GETCURRFRAMEPOSX_decorators;
+    let _GETCURRFRAMEPOSY_decorators;
+    let _ISPLAYING_decorators;
+    let _ISNEAR_decorators;
+    let _ADDBEHAVIOUR_decorators;
+    let _MONITORCOLLISION_decorators;
+    let _REMOVEMONITORCOLLISION_decorators;
+    return _a = class Animo extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.buttonLogic = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.isPlaying = false;
+                this.currentFrame = 0;
+                this.currentEvent = '';
+                this.currentLoop = 0;
+                this.fps = 16;
+                this.timeSinceLastFrame = 0;
+                this.shouldForceRender = false;
+                this.positionX = 0;
+                this.positionOffsetX = 0;
+                this.positionY = 0;
+                this.positionOffsetY = 0;
+                this.anchorOffsetX = 0;
+                this.anchorOffsetY = 0;
+                this.annFile = null;
+                this.sprite = null;
+                this.textures = new Map();
+                this.hitmaps = new Map();
+                this.sounds = new Map();
+                this.fps = definition.FPS ?? 16;
+                this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED);
+                this.callbacks.registerGroup('ONSTARTED', definition.ONSTARTED);
+                this.callbacks.registerGroup('ONFRAMECHANGED', definition.ONFRAMECHANGED);
+                this.callbacks.register('ONINIT', definition.ONINIT);
+                this.callbacks.register('ONFOCUSON', definition.ONFOCUSON);
+                this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF);
+                this.callbacks.register('ONCLICK', definition.ONCLICK);
+                this.callbacks.register('ONRELEASE', definition.ONRELEASE);
             }
-        }
-        this.callbacks.run('ONINIT');
-    }
-    destroy() {
-        (0, errors_1.assert)(this.sprite !== null);
-        this.engine.removeFromStage(this.sprite);
-    }
-    tick(elapsedMS) {
-        if (this.shouldForceRender) {
-            this.forceRender();
-            this.shouldForceRender = false;
-        }
-        if (!this.isPlaying) {
-            return;
-        }
-        this.timeSinceLastFrame += elapsedMS * this.engine.speed;
-        const frameLength = 1 / this.fps * 1000;
-        while (this.isPlaying && this.timeSinceLastFrame >= frameLength) {
-            this.tickAnimation();
-            this.timeSinceLastFrame -= frameLength;
-        }
-    }
-    loadAnimation() {
-        return __awaiter(this, void 0, void 0, function* () {
-            (0, errors_1.assert)(this.engine.currentScene !== undefined);
-            try {
-                const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME);
-                const annFile = yield this.engine.fileLoader.getANNFile(relativePath);
-                yield this.loadSfx(annFile);
-                console.debug(`File '${this.definition.FILENAME}' loaded successfully!`);
-                return annFile;
+            async init() {
+                this.annFile = await this.loadAnimation();
+                this.initSprite();
             }
-            catch (err) {
-                if (err instanceof filesLoader_1.FileNotFoundError) {
-                    throw new errors_1.InvalidObjectError('ANN file not found');
-                }
-                throw err;
-            }
-        });
-    }
-    loadSfx(annFile) {
-        return __awaiter(this, void 0, void 0, function* () {
-            for (const event of annFile.events) {
-                for (const frame of event.frames) {
-                    if (!frame.sounds) {
-                        continue;
+            ready() {
+                if (this.currentEvent === '') {
+                    (0, errors_1.assert)(this.annFile !== null);
+                    // Find first event with any frames
+                    const defaultEvent = this.annFile.events.find(event => event.framesCount > 0);
+                    if (defaultEvent !== undefined) {
+                        this.changeFrame(defaultEvent, 0);
+                        this.currentEvent = defaultEvent.name;
                     }
-                    for (const filename of frame.sounds) {
-                        if (this.sounds.has(filename)) {
+                }
+                this.callbacks.run('ONINIT');
+            }
+            destroy() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.engine.removeFromStage(this.sprite);
+            }
+            tick(elapsedMS) {
+                if (this.shouldForceRender) {
+                    this.forceRender();
+                    this.shouldForceRender = false;
+                }
+                if (!this.isPlaying) {
+                    return;
+                }
+                this.timeSinceLastFrame += elapsedMS * this.engine.speed;
+                const frameLength = 1 / this.fps * 1000;
+                while (this.isPlaying && this.timeSinceLastFrame >= frameLength) {
+                    this.tickAnimation();
+                    this.timeSinceLastFrame -= frameLength;
+                }
+            }
+            async loadAnimation() {
+                (0, errors_1.assert)(this.engine.currentScene !== undefined);
+                try {
+                    const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME);
+                    const annFile = await this.engine.fileLoader.getANNFile(relativePath);
+                    await this.loadSfx(annFile);
+                    console.debug(`File '${this.definition.FILENAME}' loaded successfully!`);
+                    return annFile;
+                }
+                catch (err) {
+                    if (err instanceof filesLoader_1.FileNotFoundError) {
+                        throw new errors_1.InvalidObjectError('ANN file not found');
+                    }
+                    throw err;
+                }
+            }
+            async loadSfx(annFile) {
+                for (const event of annFile.events) {
+                    for (const frame of event.frames) {
+                        if (!frame.sounds) {
                             continue;
                         }
-                        const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '');
-                        try {
-                            const sound = yield (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`);
-                            this.sounds.set(filename, sound);
-                        }
-                        catch (err) {
-                            console.warn(err);
+                        for (const filename of frame.sounds) {
+                            if (this.sounds.has(filename)) {
+                                continue;
+                            }
+                            const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '');
+                            try {
+                                const sound = await (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`);
+                                this.sounds.set(filename, sound);
+                            }
+                            catch (err) {
+                                console.warn(err);
+                            }
                         }
                     }
                 }
             }
-        });
-    }
-    initSprite() {
-        var _a;
-        (0, errors_1.assert)(this.annFile !== null);
-        this.sprite = new rendering_1.AdvancedSprite();
-        this.sprite.visible = this.definition.VISIBLE;
-        this.SETPRIORITY((_a = this.definition.PRIORITY) !== null && _a !== void 0 ? _a : 0);
-        this.engine.addToStage(this.sprite);
-    }
-    getTexture(imageIndex) {
-        (0, errors_1.assert)(this.annFile != null);
-        // Check if cached already
-        if (this.textures.has(imageIndex)) {
-            return this.textures.get(imageIndex);
-        }
-        const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(this.annFile.images[imageIndex]), this.annFile.annImages[imageIndex].width, this.annFile.annImages[imageIndex].height);
-        const texture = new PIXI.Texture(baseTexture);
-        this.textures.set(imageIndex, texture);
-        return texture;
-    }
-    getHitmap(imageIndex) {
-        (0, errors_1.assert)(this.annFile != null);
-        if (this.hitmaps.has(imageIndex)) {
-            return this.hitmaps.get(imageIndex);
-        }
-        const hitmap = (0, rendering_1.createHitmapFromImageBytes)(this.annFile.images[imageIndex]);
-        this.hitmaps.set(imageIndex, hitmap);
-        return hitmap;
-    }
-    tickAnimation() {
-        (0, errors_1.assert)(this.annFile !== null && this.sprite !== null);
-        const event = this.getEventByName(this.currentEvent);
-        if (!event) {
-            return;
-        }
-        this.changeFrame(event, this.currentFrame);
-        if (this.currentFrame === 0) {
-            this.ONSTARTED();
-        }
-        // Animation might get stopped in ONFRAMECHANGED callback like in UFO:S65_ZAMEK
-        // If we wouldn't return there then if ONFINISHED has PLAY then it will never stop running
-        // because PLAY is changing isPlaying back to true
-        if (!this.isPlaying) {
-            return;
-        }
-        // Event might be changed in ONFRAMECHANGED or ONSTARTED
-        // event.name might be lowercase
-        if (event.name.toUpperCase() !== this.currentEvent.toUpperCase()) {
-            return;
-        }
-        // Random sound out of them?
-        const eventFrame = event.frames[this.currentFrame];
-        if (eventFrame.sounds) {
-            const filenames = eventFrame.sounds;
-            const randomFilename = filenames[Math.floor((Math.random() * filenames.length))];
-            if (this.sounds.has(randomFilename)) {
-                console.debug(`Playing sound '${randomFilename}'`);
-                const sound = this.sounds.get(randomFilename);
-                sound.play();
+            initSprite() {
+                (0, errors_1.assert)(this.annFile !== null);
+                this.sprite = new rendering_1.AdvancedSprite();
+                this.sprite.visible = this.definition.VISIBLE;
+                this.SETPRIORITY(this.definition.PRIORITY ?? 0);
+                this.engine.addToStage(this.sprite);
             }
-        }
-        if (this.currentFrame + 1 >= event.framesCount) {
-            if (this.currentLoop >= event.loopNumber) {
-                this.currentLoop = 0;
-                this.STOP(false);
-                this.ONFINISHED();
-            }
-            else {
-                this.currentLoop++;
-            }
-            this.currentFrame = 0;
-        }
-        else {
-            this.currentFrame++;
-        }
-    }
-    changeFrame(event, frameIdx) {
-        (0, errors_1.assert)(this.annFile !== null);
-        (0, errors_1.assert)(this.sprite !== null);
-        (0, errors_1.assert)(event !== null);
-        const eventFrame = event.frames[frameIdx];
-        const imageIndex = event.framesImageMapping[frameIdx];
-        const annImage = this.annFile.annImages[imageIndex];
-        // TODO: refactor it so we don't assign texture and hitmap separately?
-        this.sprite.texture = this.getTexture(imageIndex);
-        this.sprite.hitmap = this.getHitmap(imageIndex);
-        this.positionOffsetX = annImage.positionX + eventFrame.positionX;
-        this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX;
-        this.positionOffsetY = annImage.positionY + eventFrame.positionY;
-        this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY;
-        this.sprite.width = annImage.width;
-        this.sprite.height = annImage.height;
-        this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
-    }
-    PLAY(name) {
-        if (name === undefined) {
-            this.SHOW();
-            this.RESUME();
-            return;
-        }
-        this.playEvent(name.toString());
-    }
-    playEvent(name) {
-        if (!this.hasEvent(name.toString())) {
-            return;
-        }
-        this.isPlaying = true;
-        (0, errors_1.assert)(this.sprite !== null);
-        this.sprite.visible = true;
-        this.currentFrame = 0;
-        this.currentEvent = name.toString().toUpperCase();
-        // Animation could be paused before next tick, and it wouldn't render new frame
-        this.shouldForceRender = true;
-    }
-    forceRender() {
-        const event = this.getEventByName(this.currentEvent);
-        (0, errors_1.assert)(event !== null);
-        this.changeFrame(event, this.currentFrame);
-    }
-    ONFINISHED() {
-        var _a;
-        const index = this.currentEvent.toString();
-        this.callbacks.run('ONFINISHED', index);
-        (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONFINISHED', index);
-    }
-    ONSTARTED() {
-        var _a;
-        const index = this.currentEvent.toString();
-        this.callbacks.run('ONSTARTED', index);
-        (_a = this.events) === null || _a === void 0 ? void 0 : _a.trigger('ONSTARTED', index);
-    }
-    STOP(arg) {
-        this.isPlaying = false;
-        this.currentFrame = 0;
-    }
-    PAUSE() {
-        this.isPlaying = false;
-    }
-    RESUME() {
-        this.isPlaying = true;
-    }
-    SETFRAME(eventNameOrFrameIdx, frameIdx) {
-        if (frameIdx === undefined) {
-            this.currentFrame = Number(eventNameOrFrameIdx);
-        }
-        else {
-            this.currentEvent = eventNameOrFrameIdx.toString();
-            this.currentFrame = Number(frameIdx);
-        }
-        const event = this.getEventByName(this.currentEvent);
-        (0, errors_1.assert)(event !== null);
-        // Necessary in S63_OBOZ
-        if (this.currentFrame >= event.framesCount) {
-            this.currentFrame = 0; // TODO
-        }
-        // Force render because some animations might not be playing,
-        // but they display something (like a keypad screen in S73_0_KOD in UFO)
-        this.shouldForceRender = true;
-    }
-    SETFPS(fps) {
-        this.fps = fps;
-    }
-    SHOW() {
-        (0, errors_1.assert)(this.sprite !== null);
-        this.sprite.visible = true;
-    }
-    HIDE() {
-        (0, errors_1.assert)(this.sprite !== null);
-        this.sprite.visible = false;
-    }
-    ISVISIBLE() {
-        (0, errors_1.assert)(this.sprite !== null);
-        return this.sprite.visible;
-    }
-    MOVE(xOffset, yOffset) {
-        (0, errors_1.assert)(this.sprite !== null);
-        this.positionX += xOffset;
-        this.positionY += yOffset;
-        this.sprite.x += xOffset;
-        this.sprite.y += yOffset;
-    }
-    SETPOSITION(x, y) {
-        (0, errors_1.assert)(this.sprite !== null);
-        this.positionX = x;
-        this.positionY = y;
-        this.sprite.x = x + this.positionOffsetX + this.anchorOffsetX;
-        this.sprite.y = y + this.positionOffsetY + this.anchorOffsetY;
-    }
-    SETASBUTTON(arg1, arg2) {
-        var _a, _b;
-        (0, errors_1.assert)(this.sprite !== null);
-        if (arg1 && arg2) {
-            this.buttonLogic = new button_1.ButtonLogicComponent(this.onButtonStateChange.bind(this));
-            this.buttonLogic.registerInteractive(this.sprite);
-            this.buttonLogic.enable();
-            if (this.hasEvent('ONNOEVENT')) {
-                this.playEvent('ONNOEVENT');
-            }
-        }
-        else {
-            (_a = this.buttonLogic) === null || _a === void 0 ? void 0 : _a.unregisterInteractive(this.sprite);
-            (_b = this.buttonLogic) === null || _b === void 0 ? void 0 : _b.disable();
-        }
-    }
-    onButtonStateChange(prevState, event, newState) {
-        switch (newState) {
-            case button_1.State.HOVERED:
-                if (this.hasEvent('ONFOCUSON')) {
-                    this.playEvent('ONFOCUSON');
+            getTexture(imageIndex) {
+                (0, errors_1.assert)(this.annFile != null);
+                // Check if cached already
+                if (this.textures.has(imageIndex)) {
+                    return this.textures.get(imageIndex);
                 }
-                else if (this.hasEvent('PLAY')) {
-                    this.playEvent('PLAY');
+                const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(this.annFile.images[imageIndex]), this.annFile.annImages[imageIndex].width, this.annFile.annImages[imageIndex].height);
+                const texture = new PIXI.Texture(baseTexture);
+                this.textures.set(imageIndex, texture);
+                return texture;
+            }
+            getHitmap(imageIndex) {
+                (0, errors_1.assert)(this.annFile != null);
+                if (this.hitmaps.has(imageIndex)) {
+                    return this.hitmaps.get(imageIndex);
                 }
-                if (event === button_1.Event.UP) {
-                    this.callbacks.run('ONRELEASE');
+                const hitmap = (0, rendering_1.createHitmapFromImageBytes)(this.annFile.images[imageIndex]);
+                this.hitmaps.set(imageIndex, hitmap);
+                return hitmap;
+            }
+            tickAnimation() {
+                (0, errors_1.assert)(this.annFile !== null && this.sprite !== null);
+                const event = this.getEventByName(this.currentEvent);
+                if (!event) {
+                    return;
+                }
+                this.changeFrame(event, this.currentFrame);
+                if (this.currentFrame === 0) {
+                    this.ONSTARTED();
+                }
+                // Animation might get stopped in ONFRAMECHANGED callback like in UFO:S65_ZAMEK
+                // If we wouldn't return there then if ONFINISHED has PLAY then it will never stop running
+                // because PLAY is changing isPlaying back to true
+                if (!this.isPlaying) {
+                    return;
+                }
+                // Event might be changed in ONFRAMECHANGED or ONSTARTED
+                // event.name might be lowercase
+                if (event.name.toUpperCase() !== this.currentEvent.toUpperCase()) {
+                    return;
+                }
+                // Random sound out of them?
+                const eventFrame = event.frames[this.currentFrame];
+                if (eventFrame.sounds) {
+                    const filenames = eventFrame.sounds;
+                    const randomFilename = filenames[Math.floor((Math.random() * filenames.length))];
+                    if (this.sounds.has(randomFilename)) {
+                        console.debug(`Playing sound '${randomFilename}'`);
+                        const sound = this.sounds.get(randomFilename);
+                        sound.play();
+                    }
+                }
+                if (this.currentFrame + 1 >= event.framesCount) {
+                    if (this.currentLoop >= event.loopNumber) {
+                        this.currentLoop = 0;
+                        this.STOP(false);
+                        this.ONFINISHED();
+                    }
+                    else {
+                        this.currentLoop++;
+                    }
+                    this.currentFrame = 0;
                 }
                 else {
-                    this.callbacks.run('ONFOCUSON');
+                    this.currentFrame++;
                 }
-                break;
-            case button_1.State.STANDARD:
-                if (event === button_1.Event.ENABLE) {
+            }
+            changeFrame(event, frameIdx) {
+                (0, errors_1.assert)(this.annFile !== null);
+                (0, errors_1.assert)(this.sprite !== null);
+                (0, errors_1.assert)(event !== null);
+                const eventFrame = event.frames[frameIdx];
+                const imageIndex = event.framesImageMapping[frameIdx];
+                const annImage = this.annFile.annImages[imageIndex];
+                // TODO: refactor it so we don't assign texture and hitmap separately?
+                this.sprite.texture = this.getTexture(imageIndex);
+                this.sprite.hitmap = this.getHitmap(imageIndex);
+                this.positionOffsetX = annImage.positionX + eventFrame.positionX;
+                this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX;
+                this.positionOffsetY = annImage.positionY + eventFrame.positionY;
+                this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY;
+                this.sprite.width = annImage.width;
+                this.sprite.height = annImage.height;
+                this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
+            }
+            PLAY(name) {
+                if (name === undefined) {
+                    this.SHOW();
+                    this.RESUME();
+                    return;
+                }
+                this.playEvent(name);
+            }
+            playEvent(name) {
+                if (!this.hasEvent(name.toString())) {
+                    return;
+                }
+                this.isPlaying = true;
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.visible = true;
+                this.currentFrame = 0;
+                this.currentEvent = name.toString().toUpperCase();
+                // Animation could be paused before next tick, and it wouldn't render new frame
+                this.shouldForceRender = true;
+            }
+            forceRender() {
+                const event = this.getEventByName(this.currentEvent);
+                (0, errors_1.assert)(event !== null);
+                this.changeFrame(event, this.currentFrame);
+            }
+            ONFINISHED() {
+                const index = this.currentEvent.toString();
+                this.callbacks.run('ONFINISHED', index);
+                this.events?.trigger('ONFINISHED', index);
+            }
+            ONSTARTED() {
+                const index = this.currentEvent.toString();
+                this.callbacks.run('ONSTARTED', index);
+                this.events?.trigger('ONSTARTED', index);
+            }
+            STOP(arg) {
+                this.isPlaying = false;
+                this.currentFrame = 0;
+            }
+            PAUSE() {
+                this.isPlaying = false;
+            }
+            RESUME() {
+                this.isPlaying = true;
+            }
+            SETFRAME(eventNameOrFrameIdx, frameIdx) {
+                if (frameIdx === undefined) {
+                    this.currentFrame = Number(eventNameOrFrameIdx);
+                }
+                else {
+                    this.currentEvent = eventNameOrFrameIdx.toString();
+                    this.currentFrame = Number(frameIdx);
+                }
+                const event = this.getEventByName(this.currentEvent);
+                (0, errors_1.assert)(event !== null);
+                // Necessary in S63_OBOZ
+                if (this.currentFrame >= event.framesCount) {
+                    this.currentFrame = 0; // TODO
+                }
+                // Force render because some animations might not be playing,
+                // but they display something (like a keypad screen in S73_0_KOD in UFO)
+                this.shouldForceRender = true;
+            }
+            SETFPS(fps) {
+                this.fps = fps;
+            }
+            SHOW() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.visible = true;
+            }
+            HIDE() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.visible = false;
+            }
+            ISVISIBLE() {
+                (0, errors_1.assert)(this.sprite !== null);
+                return this.sprite.visible;
+            }
+            MOVE(xOffset, yOffset) {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.positionX += xOffset;
+                this.positionY += yOffset;
+                this.sprite.x += xOffset;
+                this.sprite.y += yOffset;
+            }
+            SETPOSITION(x, y) {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.positionX = x;
+                this.positionY = y;
+                this.sprite.x = x + this.positionOffsetX + this.anchorOffsetX;
+                this.sprite.y = y + this.positionOffsetY + this.anchorOffsetY;
+            }
+            SETASBUTTON(arg1, arg2) {
+                (0, errors_1.assert)(this.sprite !== null);
+                if (arg1 && arg2) {
+                    this.buttonLogic = new button_1.ButtonLogicComponent(this.onButtonStateChange.bind(this));
+                    this.buttonLogic.registerInteractive(this.sprite);
+                    this.buttonLogic.enable();
                     if (this.hasEvent('ONNOEVENT')) {
                         this.playEvent('ONNOEVENT');
                     }
-                    else if (this.hasEvent('PLAY')) {
-                        this.playEvent('PLAY');
-                    }
                 }
                 else {
-                    if (this.hasEvent('ONFOCUSOFF')) {
-                        this.playEvent('ONFOCUSOFF');
-                    }
-                    else if (this.hasEvent('PLAY')) {
-                        this.playEvent('PLAY');
-                    }
-                    this.callbacks.run('ONFOCUSOFF');
+                    this.buttonLogic?.unregisterInteractive(this.sprite);
+                    this.buttonLogic?.disable();
                 }
-                break;
-            case button_1.State.PRESSED:
-                if (this.hasEvent('ONCLICK')) {
-                    this.playEvent('ONCLICK');
+            }
+            onButtonStateChange(prevState, event, newState) {
+                switch (newState) {
+                    case button_1.State.HOVERED:
+                        if (this.hasEvent('ONFOCUSON')) {
+                            this.playEvent('ONFOCUSON');
+                        }
+                        else if (this.hasEvent('PLAY')) {
+                            this.playEvent('PLAY');
+                        }
+                        if (event === button_1.Event.UP) {
+                            this.callbacks.run('ONRELEASE');
+                        }
+                        else {
+                            this.callbacks.run('ONFOCUSON');
+                        }
+                        break;
+                    case button_1.State.STANDARD:
+                        if (event === button_1.Event.ENABLE) {
+                            if (this.hasEvent('ONNOEVENT')) {
+                                this.playEvent('ONNOEVENT');
+                            }
+                            else if (this.hasEvent('PLAY')) {
+                                this.playEvent('PLAY');
+                            }
+                        }
+                        else {
+                            if (this.hasEvent('ONFOCUSOFF')) {
+                                this.playEvent('ONFOCUSOFF');
+                            }
+                            else if (this.hasEvent('PLAY')) {
+                                this.playEvent('PLAY');
+                            }
+                            this.callbacks.run('ONFOCUSOFF');
+                        }
+                        break;
+                    case button_1.State.PRESSED:
+                        if (this.hasEvent('ONCLICK')) {
+                            this.playEvent('ONCLICK');
+                        }
+                        else if (this.hasEvent('PLAY')) {
+                            this.playEvent('PLAY');
+                        }
+                        this.callbacks.run('ONCLICKED');
+                        this.callbacks.run('ONCLICK'); // Used in S73_0_KOD in Ufo
+                        break;
                 }
-                else if (this.hasEvent('PLAY')) {
-                    this.playEvent('PLAY');
+            }
+            GETCENTERX() {
+                (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
+                return this.getGlobalPosition().x + (this.sprite.width / 2);
+            }
+            GETCENTERY() {
+                (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
+                return this.getGlobalPosition().y + (this.sprite.height / 2);
+            }
+            GETPOSITIONX() {
+                (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
+                return this.getGlobalPosition().x;
+            }
+            GETPOSITIONY() {
+                (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
+                return this.getGlobalPosition().y;
+            }
+            GETFRAMENAME() {
+                const event = this.getEventByName(this.currentEvent);
+                (0, errors_1.assert)(event !== null);
+                return event.frames[this.currentFrame].name;
+            }
+            GETMAXWIDTH() {
+                (0, errors_1.assert)(this.annFile !== null);
+                return Math.max(...this.annFile.annImages.map(e => e.width));
+            }
+            GETNOFINEVENT() {
+                const event = this.getEventByName(this.currentEvent);
+                (0, errors_1.assert)(event !== null);
+                return event.framesCount;
+            }
+            GETEVENTNAME() {
+                return this.currentEvent;
+            }
+            GETFRAME() {
+                return this.currentFrame;
+            }
+            GETNOF() {
+                (0, errors_1.assert)(this.annFile !== null);
+                return this.annFile.header.framesCount;
+            }
+            GETCURRFRAMEPOSX() {
+                const event = this.getEventByName(this.currentEvent);
+                (0, errors_1.assert)(event !== null);
+                return event.frames[this.currentFrame].positionX;
+            }
+            GETCURRFRAMEPOSY() {
+                const event = this.getEventByName(this.currentEvent);
+                (0, errors_1.assert)(event !== null);
+                return event.frames[this.currentFrame].positionY;
+            }
+            ISPLAYING(animName) {
+                if (animName === undefined) {
+                    return this.isPlaying;
                 }
-                this.callbacks.run('ONCLICKED');
-                this.callbacks.run('ONCLICK'); // Used in S73_0_KOD in Ufo
-                break;
-        }
-    }
-    GETCENTERX() {
-        (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
-        return this.getGlobalPosition().x + (this.sprite.width / 2);
-    }
-    GETCENTERY() {
-        (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
-        return this.getGlobalPosition().y + (this.sprite.height / 2);
-    }
-    GETPOSITIONX() {
-        (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
-        return this.getGlobalPosition().x;
-    }
-    GETPOSITIONY() {
-        (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
-        return this.getGlobalPosition().y;
-    }
-    GETFRAMENAME() {
-        const event = this.getEventByName(this.currentEvent);
-        (0, errors_1.assert)(event !== null);
-        return event.frames[this.currentFrame].name;
-    }
-    GETMAXWIDTH() {
-        (0, errors_1.assert)(this.annFile !== null);
-        return Math.max(...this.annFile.annImages.map(e => e.width));
-    }
-    GETNOFINEVENT() {
-        const event = this.getEventByName(this.currentEvent);
-        (0, errors_1.assert)(event !== null);
-        return event.framesCount;
-    }
-    GETEVENTNAME() {
-        return this.currentEvent;
-    }
-    GETFRAME() {
-        return this.currentFrame;
-    }
-    GETNOF() {
-        (0, errors_1.assert)(this.annFile !== null);
-        return this.annFile.header.framesCount;
-    }
-    GETCURRFRAMEPOSX() {
-        const event = this.getEventByName(this.currentEvent);
-        (0, errors_1.assert)(event !== null);
-        return event.frames[this.currentFrame].positionX;
-    }
-    GETCURRFRAMEPOSY() {
-        const event = this.getEventByName(this.currentEvent);
-        (0, errors_1.assert)(event !== null);
-        return event.frames[this.currentFrame].positionY;
-    }
-    ISPLAYING(animName) {
-        if (animName === undefined) {
-            return this.isPlaying;
-        }
-        (0, errors_1.assert)(this.currentEvent !== null);
-        return this.isPlaying && this.currentEvent == animName;
-    }
-    ISNEAR(objectName, distance) {
-        const otherObject = this.engine.getObject(objectName).getRenderObject();
-        const thisObject = this.getRenderObject();
-        const boundOther = new pixi_js_1.Rectangle(otherObject.x - distance, otherObject.y - distance, otherObject.width + distance * 2, otherObject.height + distance * 2);
-        return boundOther.intersects(thisObject.getBounds());
-    }
-    ADDBEHAVIOUR(callbackString, behaviourName) {
-        this.callbacks.addBehaviour(callbackString, behaviourName);
-    }
-    MONITORCOLLISION(newState) {
-        throw new errors_1.NotImplementedError();
-    }
-    REMOVEMONITORCOLLISION() {
-        throw new errors_1.NotImplementedError();
-    }
-    getEventByName(name) {
-        var _a;
-        (0, errors_1.assert)(this.annFile !== undefined);
-        return (_a = this.annFile.events.find(event => event.name.toUpperCase() === name.toUpperCase())) !== null && _a !== void 0 ? _a : null;
-    }
-    hasEvent(name) {
-        return this.getEventByName(name) !== null;
-    }
-    getRenderObject() {
-        return this.sprite;
-    }
-    clone() {
-        const clone = super.clone();
-        clone.isPlaying = this.isPlaying;
-        clone.currentFrame = this.currentFrame;
-        clone.currentEvent = this.currentEvent;
-        clone.currentLoop = this.currentLoop;
-        clone.annFile = this.annFile;
-        clone.textures = this.textures;
-        clone.sounds = this.sounds;
-        clone.initSprite();
-        return clone;
-    }
-}
+                (0, errors_1.assert)(this.currentEvent !== null);
+                return this.isPlaying && this.currentEvent == animName;
+            }
+            ISNEAR(objectName, distance) {
+                const otherObject = this.engine.getObject(objectName).getRenderObject();
+                const thisObject = this.getRenderObject();
+                const boundOther = new pixi_js_1.Rectangle(otherObject.x - distance, otherObject.y - distance, otherObject.width + distance * 2, otherObject.height + distance * 2);
+                return boundOther.intersects(thisObject.getBounds());
+            }
+            ADDBEHAVIOUR(callbackString, behaviourName) {
+                this.callbacks.addBehaviour(callbackString, behaviourName);
+            }
+            MONITORCOLLISION(newState) {
+                throw new errors_1.NotImplementedError();
+            }
+            REMOVEMONITORCOLLISION() {
+                throw new errors_1.NotImplementedError();
+            }
+            getEventByName(name) {
+                (0, errors_1.assert)(this.annFile !== undefined);
+                return this.annFile.events.find(event => event.name.toUpperCase() === name.toUpperCase()) ?? null;
+            }
+            hasEvent(name) {
+                return this.getEventByName(name) !== null;
+            }
+            getRenderObject() {
+                return this.sprite;
+            }
+            clone() {
+                const clone = super.clone();
+                clone.isPlaying = this.isPlaying;
+                clone.currentFrame = this.currentFrame;
+                clone.currentEvent = this.currentEvent;
+                clone.currentLoop = this.currentLoop;
+                clone.annFile = this.annFile;
+                clone.textures = this.textures;
+                clone.sounds = this.sounds;
+                clone.initSprite();
+                return clone;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _PLAY_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: true, rest: false })];
+            _ONFINISHED_decorators = [(0, types_1.method)()];
+            _ONSTARTED_decorators = [(0, types_1.method)()];
+            _STOP_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            _PAUSE_decorators = [(0, types_1.method)()];
+            _RESUME_decorators = [(0, types_1.method)()];
+            _SETFRAME_decorators = [(0, types_1.method)({ name: "eventNameOrFrameIdx", types: [{ name: "string", literal: null, isArray: false }, { name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "frameIdx", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
+            _SETFPS_decorators = [(0, types_1.method)({ name: "fps", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SHOW_decorators = [(0, types_1.method)()];
+            _HIDE_decorators = [(0, types_1.method)()];
+            _ISVISIBLE_decorators = [(0, types_1.method)()];
+            _MOVE_decorators = [(0, types_1.method)({ name: "xOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "yOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETPOSITION_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETASBUTTON_decorators = [(0, types_1.method)({ name: "arg1", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg2", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETCENTERX_decorators = [(0, types_1.method)()];
+            _GETCENTERY_decorators = [(0, types_1.method)()];
+            _GETPOSITIONX_decorators = [(0, types_1.method)()];
+            _GETPOSITIONY_decorators = [(0, types_1.method)()];
+            _GETFRAMENAME_decorators = [(0, types_1.method)()];
+            _GETMAXWIDTH_decorators = [(0, types_1.method)()];
+            _GETNOFINEVENT_decorators = [(0, types_1.method)()];
+            _GETEVENTNAME_decorators = [(0, types_1.method)()];
+            _GETFRAME_decorators = [(0, types_1.method)()];
+            _GETNOF_decorators = [(0, types_1.method)()];
+            _GETCURRFRAMEPOSX_decorators = [(0, types_1.method)()];
+            _GETCURRFRAMEPOSY_decorators = [(0, types_1.method)()];
+            _ISPLAYING_decorators = [(0, types_1.method)({ name: "animName", types: [{ name: "string", literal: null, isArray: false }], optional: true, rest: false })];
+            _ISNEAR_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "distance", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _ADDBEHAVIOUR_decorators = [(0, types_1.method)({ name: "callbackString", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _MONITORCOLLISION_decorators = [(0, types_1.method)({ name: "newState", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _REMOVEMONITORCOLLISION_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ONFINISHED_decorators, { kind: "method", name: "ONFINISHED", static: false, private: false, access: { has: obj => "ONFINISHED" in obj, get: obj => obj.ONFINISHED }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ONSTARTED_decorators, { kind: "method", name: "ONSTARTED", static: false, private: false, access: { has: obj => "ONSTARTED" in obj, get: obj => obj.ONSTARTED }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _PAUSE_decorators, { kind: "method", name: "PAUSE", static: false, private: false, access: { has: obj => "PAUSE" in obj, get: obj => obj.PAUSE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RESUME_decorators, { kind: "method", name: "RESUME", static: false, private: false, access: { has: obj => "RESUME" in obj, get: obj => obj.RESUME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETFRAME_decorators, { kind: "method", name: "SETFRAME", static: false, private: false, access: { has: obj => "SETFRAME" in obj, get: obj => obj.SETFRAME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETFPS_decorators, { kind: "method", name: "SETFPS", static: false, private: false, access: { has: obj => "SETFPS" in obj, get: obj => obj.SETFPS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISVISIBLE_decorators, { kind: "method", name: "ISVISIBLE", static: false, private: false, access: { has: obj => "ISVISIBLE" in obj, get: obj => obj.ISVISIBLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETASBUTTON_decorators, { kind: "method", name: "SETASBUTTON", static: false, private: false, access: { has: obj => "SETASBUTTON" in obj, get: obj => obj.SETASBUTTON }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCENTERX_decorators, { kind: "method", name: "GETCENTERX", static: false, private: false, access: { has: obj => "GETCENTERX" in obj, get: obj => obj.GETCENTERX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCENTERY_decorators, { kind: "method", name: "GETCENTERY", static: false, private: false, access: { has: obj => "GETCENTERY" in obj, get: obj => obj.GETCENTERY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPOSITIONX_decorators, { kind: "method", name: "GETPOSITIONX", static: false, private: false, access: { has: obj => "GETPOSITIONX" in obj, get: obj => obj.GETPOSITIONX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPOSITIONY_decorators, { kind: "method", name: "GETPOSITIONY", static: false, private: false, access: { has: obj => "GETPOSITIONY" in obj, get: obj => obj.GETPOSITIONY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETFRAMENAME_decorators, { kind: "method", name: "GETFRAMENAME", static: false, private: false, access: { has: obj => "GETFRAMENAME" in obj, get: obj => obj.GETFRAMENAME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETMAXWIDTH_decorators, { kind: "method", name: "GETMAXWIDTH", static: false, private: false, access: { has: obj => "GETMAXWIDTH" in obj, get: obj => obj.GETMAXWIDTH }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETNOFINEVENT_decorators, { kind: "method", name: "GETNOFINEVENT", static: false, private: false, access: { has: obj => "GETNOFINEVENT" in obj, get: obj => obj.GETNOFINEVENT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETEVENTNAME_decorators, { kind: "method", name: "GETEVENTNAME", static: false, private: false, access: { has: obj => "GETEVENTNAME" in obj, get: obj => obj.GETEVENTNAME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETFRAME_decorators, { kind: "method", name: "GETFRAME", static: false, private: false, access: { has: obj => "GETFRAME" in obj, get: obj => obj.GETFRAME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETNOF_decorators, { kind: "method", name: "GETNOF", static: false, private: false, access: { has: obj => "GETNOF" in obj, get: obj => obj.GETNOF }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCURRFRAMEPOSX_decorators, { kind: "method", name: "GETCURRFRAMEPOSX", static: false, private: false, access: { has: obj => "GETCURRFRAMEPOSX" in obj, get: obj => obj.GETCURRFRAMEPOSX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCURRFRAMEPOSY_decorators, { kind: "method", name: "GETCURRFRAMEPOSY", static: false, private: false, access: { has: obj => "GETCURRFRAMEPOSY" in obj, get: obj => obj.GETCURRFRAMEPOSY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISPLAYING_decorators, { kind: "method", name: "ISPLAYING", static: false, private: false, access: { has: obj => "ISPLAYING" in obj, get: obj => obj.ISPLAYING }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISNEAR_decorators, { kind: "method", name: "ISNEAR", static: false, private: false, access: { has: obj => "ISNEAR" in obj, get: obj => obj.ISNEAR }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ADDBEHAVIOUR_decorators, { kind: "method", name: "ADDBEHAVIOUR", static: false, private: false, access: { has: obj => "ADDBEHAVIOUR" in obj, get: obj => obj.ADDBEHAVIOUR }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MONITORCOLLISION_decorators, { kind: "method", name: "MONITORCOLLISION", static: false, private: false, access: { has: obj => "MONITORCOLLISION" in obj, get: obj => obj.MONITORCOLLISION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVEMONITORCOLLISION_decorators, { kind: "method", name: "REMOVEMONITORCOLLISION", static: false, private: false, access: { has: obj => "REMOVEMONITORCOLLISION" in obj, get: obj => obj.REMOVEMONITORCOLLISION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a.Events = {
+            ONFINISHED: 'ONFINISHED',
+            ONSTARTED: 'ONSTARTED'
+        },
+        _a;
+})();
 exports.Animo = Animo;
-Animo.Events = {
-    ONFINISHED: 'ONFINISHED',
-    ONSTARTED: 'ONSTARTED'
-};
 
 
 /***/ }),
@@ -51897,14 +52141,39 @@ Animo.Events = {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Application = void 0;
@@ -51913,61 +52182,82 @@ const utils_1 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
-class Application extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.language = 'POL';
-    }
-    init() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.definition.PATH) {
-                try {
-                    const applicationDefinition = yield this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
-                    yield (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.globalScope, applicationDefinition, this);
-                }
-                catch (err) {
-                    if (err instanceof filesLoader_1.FileNotFoundError) {
-                        throw err;
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Application = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _SETLANGUAGE_decorators;
+    let _GETLANGUAGE_decorators;
+    let _RUN_decorators;
+    let _EXIT_decorators;
+    return _a = class Application extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.language = (__runInitializers(this, _instanceExtraInitializers), 'POL');
+            }
+            async init() {
+                if (this.definition.PATH) {
+                    try {
+                        const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
+                        await (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.globalScope, applicationDefinition, this);
+                    }
+                    catch (err) {
+                        if (err instanceof filesLoader_1.FileNotFoundError) {
+                            throw err;
+                        }
                     }
                 }
             }
-        });
-    }
-    SETLANGUAGE(langCode) {
-        switch (langCode) {
-            case '0415':
-                this.language = 'POL';
-                break;
-            case '040E':
-                this.language = 'HUN';
-                break;
-            case '0405':
-                this.language = 'CZE';
-                break;
-            case '0418':
-                this.language = 'ROU';
-                break;
-        }
-    }
-    GETLANGUAGE() {
-        return this.language;
-    }
-    RUN(objectName, methodName, ...args) {
-        const object = this.engine.getObject(objectName);
-        if (object === null) {
-            return;
-        }
-        if (object[methodName]) {
-            return object[methodName](...args);
-        }
-        else {
-            return object.__call(methodName, args);
-        }
-    }
-    EXIT() {
-        throw new errors_1.NotImplementedError();
-    }
-}
+            SETLANGUAGE(langCode) {
+                switch (langCode) {
+                    case '0415':
+                        this.language = 'POL';
+                        break;
+                    case '040E':
+                        this.language = 'HUN';
+                        break;
+                    case '0405':
+                        this.language = 'CZE';
+                        break;
+                    case '0418':
+                        this.language = 'ROU';
+                        break;
+                }
+            }
+            GETLANGUAGE() {
+                return this.language;
+            }
+            RUN(objectName, methodName, ...args) {
+                const object = this.engine.getObject(objectName);
+                if (object === null) {
+                    return;
+                }
+                if (object[methodName]) {
+                    return object[methodName](...args);
+                }
+                else {
+                    return object.__call(methodName, args);
+                }
+            }
+            EXIT() {
+                throw new errors_1.NotImplementedError();
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _SETLANGUAGE_decorators = [(0, types_1.method)({ name: "langCode", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETLANGUAGE_decorators = [(0, types_1.method)()];
+            _RUN_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "methodName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            _EXIT_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _SETLANGUAGE_decorators, { kind: "method", name: "SETLANGUAGE", static: false, private: false, access: { has: obj => "SETLANGUAGE" in obj, get: obj => obj.SETLANGUAGE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETLANGUAGE_decorators, { kind: "method", name: "GETLANGUAGE", static: false, private: false, access: { has: obj => "GETLANGUAGE" in obj, get: obj => obj.GETLANGUAGE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _EXIT_decorators, { kind: "method", name: "EXIT", static: false, private: false, access: { has: obj => "EXIT" in obj, get: obj => obj.EXIT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Application = Application;
 
 
@@ -51977,103 +52267,205 @@ exports.Application = Application;
 /*!***********************************!*\
   !*** ./src/engine/types/array.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ArrayObject = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-class ArrayObject extends index_1.ValueType {
-    constructor(engine, definition) {
-        super(engine, definition, []);
-        this.callbacks.register('ONINIT', this.definition.ONINIT);
-    }
-    ready() {
-        this.callbacks.run('ONINIT');
-    }
-    ADD(...args) {
-        this.value.push(...args);
-    }
-    ADDAT(position, value) {
-        (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
-        this.value[position] += value;
-    }
-    MODAT(position, value) {
-        (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
-        this.value[position] %= value;
-    }
-    CLAMPAT(position, min, max) {
-        (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
-        this.value[position] = Math.min(Math.max(this.value[position], min), max);
-    }
-    MULAT(position, value) {
-        (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
-        this.value[position] *= value;
-    }
-    CONTAINS(value) {
-        return this.value.includes(value);
-    }
-    SUM(arg) {
-        this.value = this.value.map((value) => value + arg);
-    }
-    SUBAT(position, value) {
-        (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
-        this.value[position] -= value;
-    }
-    GET(position) {
-        (0, errors_1.assert)(position < this.value.length, `Tried to access an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
-        return this.value[position];
-    }
-    GETSIZE() {
-        return this.value.length;
-    }
-    CHANGEAT(position, value) {
-        (0, errors_1.assert)(position < this.value.length, `Tried to set an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
-        this.value[position] = value;
-    }
-    REMOVEAT(position) {
-        (0, errors_1.assert)(position < this.value.length, `Tried to remove an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
-        this.value.splice(position, 1);
-    }
-    INSERTAT(position, value) {
-        (0, errors_1.assert)(position < this.value.length, `Tried to insert an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
-        this.value.splice(position, 0, value);
-    }
-    REMOVEALL() {
-        this.value = [];
-    }
-    FIND(value) {
-        return this.value.indexOf(value);
-    }
-    REVERSEFIND(value) {
-        return this.value.lastIndexOf(value);
-    }
-    SAVEINI() {
-        this.saveToINI();
-    }
-    LOADINI() {
-        var _a;
-        this.value = (_a = this.getFromINI()) !== null && _a !== void 0 ? _a : [];
-    }
-    MSGBOX() {
-    }
-    clone() {
-        const cloned = super.clone();
-        cloned.value = [...this.value];
-        return cloned;
-    }
-    serialize() {
-        return this.value.join(',');
-    }
-    deserialize(value) {
-        if (value === '') {
-            return [];
-        }
-        return value.split(',');
-    }
-}
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let ArrayObject = (() => {
+    var _a;
+    let _classSuper = index_1.ValueType;
+    let _instanceExtraInitializers = [];
+    let _ADD_decorators;
+    let _ADDAT_decorators;
+    let _MODAT_decorators;
+    let _CLAMPAT_decorators;
+    let _MULAT_decorators;
+    let _CONTAINS_decorators;
+    let _SUM_decorators;
+    let _SUBAT_decorators;
+    let _GET_decorators;
+    let _GETSIZE_decorators;
+    let _CHANGEAT_decorators;
+    let _REMOVEAT_decorators;
+    let _INSERTAT_decorators;
+    let _REMOVEALL_decorators;
+    let _FIND_decorators;
+    let _REVERSEFIND_decorators;
+    let _SAVEINI_decorators;
+    let _LOADINI_decorators;
+    let _MSGBOX_decorators;
+    return _a = class ArrayObject extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition, []);
+                __runInitializers(this, _instanceExtraInitializers);
+                this.callbacks.register('ONINIT', this.definition.ONINIT);
+            }
+            ready() {
+                this.callbacks.run('ONINIT');
+            }
+            ADD(...args) {
+                this.value.push(...args);
+            }
+            ADDAT(position, value) {
+                (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                this.value[position] += value;
+            }
+            MODAT(position, value) {
+                (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                this.value[position] %= value;
+            }
+            CLAMPAT(position, min, max) {
+                (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                this.value[position] = Math.min(Math.max(this.value[position], min), max);
+            }
+            MULAT(position, value) {
+                (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                this.value[position] *= value;
+            }
+            CONTAINS(value) {
+                return this.value.includes(value);
+            }
+            SUM(arg) {
+                this.value = this.value.map((value) => value + arg);
+            }
+            SUBAT(position, value) {
+                (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                this.value[position] -= value;
+            }
+            GET(position) {
+                (0, errors_1.assert)(position < this.value.length, `Tried to access an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                return this.value[position];
+            }
+            GETSIZE() {
+                return this.value.length;
+            }
+            CHANGEAT(position, value) {
+                (0, errors_1.assert)(position < this.value.length, `Tried to set an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                this.value[position] = value;
+            }
+            REMOVEAT(position) {
+                (0, errors_1.assert)(position < this.value.length, `Tried to remove an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                this.value.splice(position, 1);
+            }
+            INSERTAT(position, value) {
+                (0, errors_1.assert)(position < this.value.length, `Tried to insert an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                this.value.splice(position, 0, value);
+            }
+            REMOVEALL() {
+                this.value = [];
+            }
+            FIND(value) {
+                return this.value.indexOf(value);
+            }
+            REVERSEFIND(value) {
+                return this.value.lastIndexOf(value);
+            }
+            SAVEINI() {
+                this.saveToINI();
+            }
+            LOADINI() {
+                this.value = this.getFromINI() ?? [];
+            }
+            MSGBOX() {
+            }
+            clone() {
+                const cloned = super.clone();
+                cloned.value = [...this.value];
+                return cloned;
+            }
+            serialize() {
+                return this.value.join(',');
+            }
+            deserialize(value) {
+                if (value === '') {
+                    return [];
+                }
+                return value.split(',');
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _ADD_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            _ADDAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _MODAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _CLAMPAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _MULAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _CONTAINS_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
+            _SUM_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SUBAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _GET_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETSIZE_decorators = [(0, types_1.method)()];
+            _CHANGEAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
+            _REMOVEAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _INSERTAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
+            _REMOVEALL_decorators = [(0, types_1.method)()];
+            _FIND_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
+            _REVERSEFIND_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
+            _SAVEINI_decorators = [(0, types_1.method)()];
+            _LOADINI_decorators = [(0, types_1.method)()];
+            _MSGBOX_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ADDAT_decorators, { kind: "method", name: "ADDAT", static: false, private: false, access: { has: obj => "ADDAT" in obj, get: obj => obj.ADDAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MODAT_decorators, { kind: "method", name: "MODAT", static: false, private: false, access: { has: obj => "MODAT" in obj, get: obj => obj.MODAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CLAMPAT_decorators, { kind: "method", name: "CLAMPAT", static: false, private: false, access: { has: obj => "CLAMPAT" in obj, get: obj => obj.CLAMPAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MULAT_decorators, { kind: "method", name: "MULAT", static: false, private: false, access: { has: obj => "MULAT" in obj, get: obj => obj.MULAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CONTAINS_decorators, { kind: "method", name: "CONTAINS", static: false, private: false, access: { has: obj => "CONTAINS" in obj, get: obj => obj.CONTAINS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SUM_decorators, { kind: "method", name: "SUM", static: false, private: false, access: { has: obj => "SUM" in obj, get: obj => obj.SUM }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SUBAT_decorators, { kind: "method", name: "SUBAT", static: false, private: false, access: { has: obj => "SUBAT" in obj, get: obj => obj.SUBAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETSIZE_decorators, { kind: "method", name: "GETSIZE", static: false, private: false, access: { has: obj => "GETSIZE" in obj, get: obj => obj.GETSIZE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CHANGEAT_decorators, { kind: "method", name: "CHANGEAT", static: false, private: false, access: { has: obj => "CHANGEAT" in obj, get: obj => obj.CHANGEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVEAT_decorators, { kind: "method", name: "REMOVEAT", static: false, private: false, access: { has: obj => "REMOVEAT" in obj, get: obj => obj.REMOVEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _INSERTAT_decorators, { kind: "method", name: "INSERTAT", static: false, private: false, access: { has: obj => "INSERTAT" in obj, get: obj => obj.INSERTAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVEALL_decorators, { kind: "method", name: "REMOVEALL", static: false, private: false, access: { has: obj => "REMOVEALL" in obj, get: obj => obj.REMOVEALL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REVERSEFIND_decorators, { kind: "method", name: "REVERSEFIND", static: false, private: false, access: { has: obj => "REVERSEFIND" in obj, get: obj => obj.REVERSEFIND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SAVEINI_decorators, { kind: "method", name: "SAVEINI", static: false, private: false, access: { has: obj => "SAVEINI" in obj, get: obj => obj.SAVEINI }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LOADINI_decorators, { kind: "method", name: "LOADINI", static: false, private: false, access: { has: obj => "LOADINI" in obj, get: obj => obj.LOADINI }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MSGBOX_decorators, { kind: "method", name: "MSGBOX", static: false, private: false, access: { has: obj => "MSGBOX" in obj, get: obj => obj.MSGBOX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.ArrayObject = ArrayObject;
 
 
@@ -52083,81 +52475,136 @@ exports.ArrayObject = ArrayObject;
 /*!***************************************!*\
   !*** ./src/engine/types/behaviour.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Behaviour = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const evaluator_1 = __webpack_require__(/*! ../../interpreter/evaluator */ "./src/interpreter/evaluator.ts");
-class Behaviour extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-    }
-    ready() {
-        if (this.definition.NAME === '__INIT__') {
-            this.RUN();
-        }
-    }
-    RUN(...args) {
-        try {
-            // Don't resolve args, it will fail in S33_METEORY
-            return this.engine.executeCallback(null, this.definition.CODE, args);
-        }
-        catch (err) {
-            if (!(err instanceof evaluator_1.InterruptScriptExecution)) {
-                throw err;
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Behaviour = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _RUN_decorators;
+    let _RUNC_decorators;
+    let _RUNLOOPED_decorators;
+    return _a = class Behaviour extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                __runInitializers(this, _instanceExtraInitializers);
             }
-        }
-    }
-    RUNC(...args) {
-        if (!this.shouldRun()) {
-            return;
-        }
-        return this.RUN(...args);
-    }
-    RUNLOOPED(init, len, step = 1, ...args) {
-        const resolvedArgs = this.resolveArgs(args);
-        for (let i = init; i < len; i += step) {
-            try {
+            ready() {
+                if (this.definition.NAME === '__INIT__') {
+                    this.RUN();
+                }
+            }
+            RUN(...args) {
+                try {
+                    // Don't resolve args, it will fail in S33_METEORY
+                    return this.engine.executeCallback(null, this.definition.CODE, args);
+                }
+                catch (err) {
+                    if (!(err instanceof evaluator_1.InterruptScriptExecution)) {
+                        throw err;
+                    }
+                }
+            }
+            RUNC(...args) {
                 if (!this.shouldRun()) {
-                    continue;
+                    return;
                 }
-                this.engine.executeCallback(null, this.definition.CODE, [i, step, ...resolvedArgs]);
+                return this.RUN(...args);
             }
-            catch (err) {
-                if (err instanceof evaluator_1.InterruptScriptExecution) {
-                    if (err.one) {
-                        continue;
+            RUNLOOPED(init, len, step = 1, ...args) {
+                const resolvedArgs = this.resolveArgs(args);
+                for (let i = init; i < len; i += step) {
+                    try {
+                        if (!this.shouldRun()) {
+                            continue;
+                        }
+                        this.engine.executeCallback(null, this.definition.CODE, [i, step, ...resolvedArgs]);
                     }
-                    else {
-                        break;
+                    catch (err) {
+                        if (err instanceof evaluator_1.InterruptScriptExecution) {
+                            if (err.one) {
+                                continue;
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                        else {
+                            throw err;
+                        }
                     }
                 }
-                else {
-                    throw err;
+            }
+            resolveArgs(args) {
+                return args.map((arg) => {
+                    if (typeof arg !== 'string') {
+                        return arg;
+                    }
+                    const result = this.engine.runScript(arg.toString(), [], true, false);
+                    return result !== null && result !== undefined ? result : arg;
+                });
+            }
+            shouldRun() {
+                if (this.definition.CONDITION) {
+                    const condition = this.engine.getObject(this.definition.CONDITION.objectName);
+                    return condition.CHECK(true);
                 }
+                return true;
             }
-        }
-    }
-    resolveArgs(args) {
-        return args.map((arg) => {
-            if (typeof arg !== 'string') {
-                return arg;
-            }
-            const result = this.engine.runScript(arg.toString(), [], true, false);
-            return result !== null && result !== undefined ? result : arg;
-        });
-    }
-    shouldRun() {
-        if (this.definition.CONDITION) {
-            const condition = this.engine.getObject(this.definition.CONDITION.objectName);
-            return condition.CHECK(true);
-        }
-        return true;
-    }
-}
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _RUN_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            _RUNC_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            _RUNLOOPED_decorators = [(0, types_1.method)({ name: "init", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "len", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "step", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            __esDecorate(_a, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RUNC_decorators, { kind: "method", name: "RUNC", static: false, private: false, access: { has: obj => "RUNC" in obj, get: obj => obj.RUNC }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RUNLOOPED_decorators, { kind: "method", name: "RUNLOOPED", static: false, private: false, access: { has: obj => "RUNLOOPED" in obj, get: obj => obj.RUNLOOPED }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Behaviour = Behaviour;
 
 
@@ -52167,33 +52614,84 @@ exports.Behaviour = Behaviour;
 /*!**********************************!*\
   !*** ./src/engine/types/bool.ts ***!
   \**********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Bool = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-class Bool extends index_1.ValueType {
-    constructor(engine, definition) {
-        super(engine, definition, false);
-        this.callbacks.registerGroup('ONCHANGED', this.definition.ONCHANGED);
-        this.callbacks.registerGroup('ONBRUTALCHANGED', this.definition.ONBRUTALCHANGED);
-    }
-    // The arguments don't seem to matter
-    SWITCH(arg1, arg2) {
-        this.value = !this.value;
-    }
-    SET(newValue) {
-        this.value = newValue;
-    }
-    valueChanged(oldValue, newValue) {
-        if (oldValue !== newValue) {
-            this.callbacks.run('ONCHANGED', newValue);
-        }
-        this.callbacks.run('ONBRUTALCHANGED', newValue);
-    }
-}
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Bool = (() => {
+    var _a;
+    let _classSuper = index_1.ValueType;
+    let _instanceExtraInitializers = [];
+    let _SWITCH_decorators;
+    let _SET_decorators;
+    return _a = class Bool extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition, false);
+                __runInitializers(this, _instanceExtraInitializers);
+                this.callbacks.registerGroup('ONCHANGED', this.definition.ONCHANGED);
+                this.callbacks.registerGroup('ONBRUTALCHANGED', this.definition.ONBRUTALCHANGED);
+            }
+            SWITCH(arg1, arg2) {
+                this.value = !this.value;
+            }
+            SET(newValue) {
+                this.value = newValue;
+            }
+            valueChanged(oldValue, newValue) {
+                if (oldValue !== newValue) {
+                    this.callbacks.run('ONCHANGED', newValue);
+                }
+                this.callbacks.run('ONBRUTALCHANGED', newValue);
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _SWITCH_decorators = [(0, types_1.method)({ name: "arg1", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg2", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _SET_decorators = [(0, types_1.method)({ name: "newValue", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _SWITCH_decorators, { kind: "method", name: "SWITCH", static: false, private: false, access: { has: obj => "SWITCH" in obj, get: obj => obj.SWITCH }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Bool = Bool;
 
 
@@ -52203,10 +52701,44 @@ exports.Bool = Bool;
 /*!************************************!*\
   !*** ./src/engine/types/button.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Button = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
@@ -52214,219 +52746,243 @@ const image_1 = __webpack_require__(/*! ./image */ "./src/engine/types/image.ts"
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/components/button.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-class Button extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.gfxStandard = null;
-        this.gfxOnClick = null;
-        this.gfxOnMove = null;
-        this.interactArea = null;
-        this.rect = null;
-        this.callbacks.register('ONACTION', definition.ONACTION);
-        this.callbacks.register('ONCLICKED', definition.ONCLICKED);
-        this.callbacks.register('ONDRAGGING', definition.ONDRAGGING);
-        this.callbacks.register('ONENDDRAGGING', definition.ONENDDRAGGING);
-        this.callbacks.register('ONFOCUSON', definition.ONFOCUSON);
-        this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF);
-        this.callbacks.register('ONRELEASED', definition.ONRELEASED);
-        this.callbacks.register('ONSTARTDRAGGING', definition.ONSTARTDRAGGING);
-        this.callbacks.register('ONINIT', definition.ONINIT);
-        this.logic = new button_1.ButtonLogicComponent(this.onStateChange.bind(this));
-    }
-    init() {
-        if (this.definition.GFXSTANDARD) {
-            this.gfxStandard = this.engine.getObject(this.definition.GFXSTANDARD);
-        }
-        if (this.definition.GFXONCLICK) {
-            this.gfxOnClick = this.engine.getObject(this.definition.GFXONCLICK);
-        }
-        if (this.definition.GFXONMOVE) {
-            this.gfxOnMove = this.engine.getObject(this.definition.GFXONMOVE);
-        }
-    }
-    ready() {
-        if (this.definition.RECT) {
-            this.setRect(this.definition.RECT);
-        }
-        if (this.definition.ENABLE) {
-            this.logic.enable();
-        }
-        else {
-            this.logic.disable();
-        }
-        this.callbacks.run('ONINIT');
-    }
-    setRect(rect) {
-        if (this.gfxStandard) {
-            // this won't be registered ever again as the original engine prefers RECT over GFXSTANDARD
-            // and there is no known way of removing the rect (neither SETSTD nor SETRECT with no/empty argument works)
-            this.unregisterInteractive(this.gfxStandard);
-        }
-        let shape;
-        if (Array.isArray(rect)) {
-            shape = rect;
-        }
-        else {
-            const object = this.engine.getObject(rect);
-            (0, errors_1.assert)(object !== null, 'object referred by RECT should exist');
-            const sprite = object.getRenderObject();
-            shape = [sprite.x, sprite.y, sprite.x + sprite.width, sprite.y + sprite.height];
-        }
-        const [x1, y1, x2, y2] = shape;
-        const rectangle = new pixi_js_1.Rectangle(x1, y1, x2 - x1, y2 - y1);
-        if (this.interactArea === null) {
-            this.interactArea = new pixi_js_1.Graphics();
-            this.interactArea.visible = this.definition.ENABLE;
-            this.engine.app.stage.addChild(this.interactArea);
-        }
-        this.rect = rectangle;
-        this.interactArea.hitArea = rectangle;
-        this.interactArea.zIndex = 9999999 - rectangle.top;
-    }
-    destroy() {
-        if (this.interactArea) {
-            this.logic.unregisterInteractive(this.interactArea);
-            this.engine.app.stage.removeChild(this.interactArea);
-        }
-        else if (this.gfxStandard) {
-            this.unregisterInteractive(this.gfxStandard);
-        }
-    }
-    onStateChange(prevState, event, state) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
-        if (this.interactArea) {
-            // For area button
-            this.interactArea.visible = state != button_1.State.DISABLED;
-        }
-        if (state == button_1.State.DISABLED) {
-            (_a = this.gfxStandard) === null || _a === void 0 ? void 0 : _a.HIDE();
-            (_b = this.gfxOnMove) === null || _b === void 0 ? void 0 : _b.HIDE();
-            (_c = this.gfxOnClick) === null || _c === void 0 ? void 0 : _c.HIDE();
-        }
-        else if (state == button_1.State.DISABLED_BUT_VISIBLE) {
-            (_d = this.gfxStandard) === null || _d === void 0 ? void 0 : _d.SHOW();
-            this.setSpriteAlpha(this.gfxStandard, 1);
-            if (this.gfxStandard !== this.gfxOnMove) {
-                (_e = this.gfxOnMove) === null || _e === void 0 ? void 0 : _e.HIDE();
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Button = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _ENABLE_decorators;
+    let _DISABLE_decorators;
+    let _DISABLEBUTVISIBLE_decorators;
+    let _SETPRIORITY_decorators;
+    let _SETRECT_decorators;
+    return _a = class Button extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.logic = (__runInitializers(this, _instanceExtraInitializers), void 0);
+                this.gfxStandard = null;
+                this.gfxOnClick = null;
+                this.gfxOnMove = null;
+                this.interactArea = null;
+                this.rect = null;
+                this.callbacks.register('ONACTION', definition.ONACTION);
+                this.callbacks.register('ONCLICKED', definition.ONCLICKED);
+                this.callbacks.register('ONDRAGGING', definition.ONDRAGGING);
+                this.callbacks.register('ONENDDRAGGING', definition.ONENDDRAGGING);
+                this.callbacks.register('ONFOCUSON', definition.ONFOCUSON);
+                this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF);
+                this.callbacks.register('ONRELEASED', definition.ONRELEASED);
+                this.callbacks.register('ONSTARTDRAGGING', definition.ONSTARTDRAGGING);
+                this.callbacks.register('ONINIT', definition.ONINIT);
+                this.logic = new button_1.ButtonLogicComponent(this.onStateChange.bind(this));
             }
-            if (this.gfxStandard !== this.gfxOnClick) {
-                (_f = this.gfxOnClick) === null || _f === void 0 ? void 0 : _f.HIDE();
+            init() {
+                if (this.definition.GFXSTANDARD) {
+                    this.gfxStandard = this.engine.getObject(this.definition.GFXSTANDARD);
+                }
+                if (this.definition.GFXONCLICK) {
+                    this.gfxOnClick = this.engine.getObject(this.definition.GFXONCLICK);
+                }
+                if (this.definition.GFXONMOVE) {
+                    this.gfxOnMove = this.engine.getObject(this.definition.GFXONMOVE);
+                }
             }
-        }
-        else if (state == button_1.State.HOVERED && this.gfxOnMove) {
-            (_g = this.gfxStandard) === null || _g === void 0 ? void 0 : _g.SHOW();
-            if (this.gfxStandard !== this.gfxOnMove) {
-                // Setting alpha to 0 instead of hiding so that the mouse interactions still work
-                this.setSpriteAlpha(this.gfxStandard, 0);
+            ready() {
+                if (this.definition.RECT) {
+                    this.setRect(this.definition.RECT);
+                }
+                if (this.definition.ENABLE) {
+                    this.logic.enable();
+                }
+                else {
+                    this.logic.disable();
+                }
+                this.callbacks.run('ONINIT');
             }
-            (_h = this.gfxOnMove) === null || _h === void 0 ? void 0 : _h.SHOW();
-            if (this.gfxStandard !== this.gfxOnClick) {
-                (_j = this.gfxOnClick) === null || _j === void 0 ? void 0 : _j.HIDE();
+            setRect(rect) {
+                if (this.gfxStandard) {
+                    // this won't be registered ever again as the original engine prefers RECT over GFXSTANDARD
+                    // and there is no known way of removing the rect (neither SETSTD nor SETRECT with no/empty argument works)
+                    this.unregisterInteractive(this.gfxStandard);
+                }
+                let shape;
+                if (Array.isArray(rect)) {
+                    shape = rect;
+                }
+                else {
+                    const object = this.engine.getObject(rect);
+                    (0, errors_1.assert)(object !== null, 'object referred by RECT should exist');
+                    const sprite = object.getRenderObject();
+                    shape = [sprite.x, sprite.y, sprite.x + sprite.width, sprite.y + sprite.height];
+                }
+                const [x1, y1, x2, y2] = shape;
+                const rectangle = new pixi_js_1.Rectangle(x1, y1, x2 - x1, y2 - y1);
+                if (this.interactArea === null) {
+                    this.interactArea = new pixi_js_1.Graphics();
+                    this.interactArea.visible = this.definition.ENABLE;
+                    this.engine.app.stage.addChild(this.interactArea);
+                }
+                this.rect = rectangle;
+                this.interactArea.hitArea = rectangle;
+                this.interactArea.zIndex = 9999999 - rectangle.top;
             }
-        }
-        else if (state == button_1.State.PRESSED && this.gfxOnClick) {
-            (_k = this.gfxStandard) === null || _k === void 0 ? void 0 : _k.SHOW();
-            if (this.gfxStandard !== this.gfxOnMove) {
-                this.setSpriteAlpha(this.gfxStandard, 0);
-                (_l = this.gfxOnMove) === null || _l === void 0 ? void 0 : _l.HIDE();
+            destroy() {
+                if (this.interactArea) {
+                    this.logic.unregisterInteractive(this.interactArea);
+                    this.engine.app.stage.removeChild(this.interactArea);
+                }
+                else if (this.gfxStandard) {
+                    this.unregisterInteractive(this.gfxStandard);
+                }
             }
-            (_m = this.gfxOnClick) === null || _m === void 0 ? void 0 : _m.SHOW();
-        }
-        else {
-            (_o = this.gfxStandard) === null || _o === void 0 ? void 0 : _o.SHOW();
-            this.setSpriteAlpha(this.gfxStandard, 1);
-            if (this.gfxStandard !== this.gfxOnMove) {
-                (_p = this.gfxOnMove) === null || _p === void 0 ? void 0 : _p.HIDE();
+            onStateChange(prevState, event, state) {
+                if (this.interactArea) {
+                    // For area button
+                    this.interactArea.visible = state != button_1.State.DISABLED;
+                }
+                if (state == button_1.State.DISABLED) {
+                    this.gfxStandard?.HIDE();
+                    this.gfxOnMove?.HIDE();
+                    this.gfxOnClick?.HIDE();
+                }
+                else if (state == button_1.State.DISABLED_BUT_VISIBLE) {
+                    this.gfxStandard?.SHOW();
+                    this.setSpriteAlpha(this.gfxStandard, 1);
+                    if (this.gfxStandard !== this.gfxOnMove) {
+                        this.gfxOnMove?.HIDE();
+                    }
+                    if (this.gfxStandard !== this.gfxOnClick) {
+                        this.gfxOnClick?.HIDE();
+                    }
+                }
+                else if (state == button_1.State.HOVERED && this.gfxOnMove) {
+                    this.gfxStandard?.SHOW();
+                    if (this.gfxStandard !== this.gfxOnMove) {
+                        // Setting alpha to 0 instead of hiding so that the mouse interactions still work
+                        this.setSpriteAlpha(this.gfxStandard, 0);
+                    }
+                    this.gfxOnMove?.SHOW();
+                    if (this.gfxStandard !== this.gfxOnClick) {
+                        this.gfxOnClick?.HIDE();
+                    }
+                }
+                else if (state == button_1.State.PRESSED && this.gfxOnClick) {
+                    this.gfxStandard?.SHOW();
+                    if (this.gfxStandard !== this.gfxOnMove) {
+                        this.setSpriteAlpha(this.gfxStandard, 0);
+                        this.gfxOnMove?.HIDE();
+                    }
+                    this.gfxOnClick?.SHOW();
+                }
+                else {
+                    this.gfxStandard?.SHOW();
+                    this.setSpriteAlpha(this.gfxStandard, 1);
+                    if (this.gfxStandard !== this.gfxOnMove) {
+                        this.gfxOnMove?.HIDE();
+                    }
+                    if (this.gfxStandard !== this.gfxOnClick) {
+                        this.gfxOnClick?.HIDE();
+                    }
+                }
+                if (event == button_1.Event.ENABLE) {
+                    if (this.gfxStandard) {
+                        this.registerInteractive(this.gfxStandard);
+                    }
+                    if (this.interactArea) {
+                        this.logic.registerInteractive(this.interactArea);
+                    }
+                }
+                else if (event == button_1.Event.DISABLE || event == button_1.Event.DISABLE_BUT_VISIBLE) {
+                    if (this.gfxStandard) {
+                        this.unregisterInteractive(this.gfxStandard);
+                    }
+                    if (this.interactArea) {
+                        this.logic.unregisterInteractive(this.interactArea);
+                    }
+                }
+                else if (event == button_1.Event.DOWN) {
+                    this.callbacks.run('ONCLICKED');
+                }
+                else if (event == button_1.Event.UP) {
+                    this.callbacks.run('ONRELEASED');
+                    this.callbacks.run('ONACTION');
+                }
+                else if (event == button_1.Event.OVER) {
+                    this.callbacks.run('ONFOCUSON');
+                }
+                else if (event == button_1.Event.OUT) {
+                    this.callbacks.run('ONFOCUSOFF');
+                }
             }
-            if (this.gfxStandard !== this.gfxOnClick) {
-                (_q = this.gfxOnClick) === null || _q === void 0 ? void 0 : _q.HIDE();
+            ENABLE() {
+                this.logic.enable();
             }
-        }
-        if (event == button_1.Event.ENABLE) {
-            if (this.gfxStandard) {
-                this.registerInteractive(this.gfxStandard);
+            DISABLE() {
+                this.logic.disable();
             }
-            if (this.interactArea) {
-                this.logic.registerInteractive(this.interactArea);
+            DISABLEBUTVISIBLE() {
+                this.logic.disableButVisible();
             }
-        }
-        else if (event == button_1.Event.DISABLE || event == button_1.Event.DISABLE_BUT_VISIBLE) {
-            if (this.gfxStandard) {
-                this.unregisterInteractive(this.gfxStandard);
+            SETPRIORITY(priority) {
+                this.gfxStandard?.SETPRIORITY(priority);
+                this.gfxOnMove?.SETPRIORITY(priority);
+                this.gfxOnClick?.SETPRIORITY(priority);
             }
-            if (this.interactArea) {
-                this.logic.unregisterInteractive(this.interactArea);
+            SETRECT(objectName) {
+                this.setRect({ objectName });
             }
-        }
-        else if (event == button_1.Event.DOWN) {
-            this.callbacks.run('ONCLICKED');
-        }
-        else if (event == button_1.Event.UP) {
-            this.callbacks.run('ONRELEASED');
-            this.callbacks.run('ONACTION');
-        }
-        else if (event == button_1.Event.OVER) {
-            this.callbacks.run('ONFOCUSON');
-        }
-        else if (event == button_1.Event.OUT) {
-            this.callbacks.run('ONFOCUSOFF');
-        }
-    }
-    ENABLE() {
-        this.logic.enable();
-    }
-    DISABLE() {
-        this.logic.disable();
-    }
-    DISABLEBUTVISIBLE() {
-        this.logic.disableButVisible();
-    }
-    SETPRIORITY(priority) {
-        var _a, _b, _c;
-        (_a = this.gfxStandard) === null || _a === void 0 ? void 0 : _a.SETPRIORITY(priority);
-        (_b = this.gfxOnMove) === null || _b === void 0 ? void 0 : _b.SETPRIORITY(priority);
-        (_c = this.gfxOnClick) === null || _c === void 0 ? void 0 : _c.SETPRIORITY(priority);
-    }
-    SETRECT(objectName) {
-        this.setRect({ objectName });
-    }
-    registerInteractive(object) {
-        const renderObject = object.getRenderObject();
-        (0, errors_1.assert)(renderObject !== null);
-        this.logic.registerInteractive(renderObject);
-        renderObject.checkPixelPerfect = true;
-        if (object instanceof image_1.Image) {
-            renderObject.eventMode = 'dynamic';
-        }
-    }
-    unregisterInteractive(object) {
-        const renderObject = object.getRenderObject();
-        (0, errors_1.assert)(renderObject !== null);
-        this.logic.unregisterInteractive(renderObject);
-        renderObject.checkPixelPerfect = true;
-        if (object instanceof image_1.Image) {
-            renderObject.eventMode = 'none';
-        }
-    }
-    setSpriteAlpha(object, alpha) {
-        if (object) {
-            const renderObject = object.getRenderObject();
-            if (renderObject) {
-                renderObject.alpha = alpha;
+            registerInteractive(object) {
+                const renderObject = object.getRenderObject();
+                (0, errors_1.assert)(renderObject !== null);
+                this.logic.registerInteractive(renderObject);
+                renderObject.checkPixelPerfect = true;
+                if (object instanceof image_1.Image) {
+                    renderObject.eventMode = 'dynamic';
+                }
             }
-        }
-    }
-    getArea() {
-        var _a;
-        if (this.rect !== null) {
-            return this.rect;
-        }
-        else if ((_a = this.gfxStandard) === null || _a === void 0 ? void 0 : _a.getRenderObject()) {
-            return this.gfxStandard.getRenderObject().getBounds();
-        }
-        return null;
-    }
-}
+            unregisterInteractive(object) {
+                const renderObject = object.getRenderObject();
+                (0, errors_1.assert)(renderObject !== null);
+                this.logic.unregisterInteractive(renderObject);
+                renderObject.checkPixelPerfect = true;
+                if (object instanceof image_1.Image) {
+                    renderObject.eventMode = 'none';
+                }
+            }
+            setSpriteAlpha(object, alpha) {
+                if (object) {
+                    const renderObject = object.getRenderObject();
+                    if (renderObject) {
+                        renderObject.alpha = alpha;
+                    }
+                }
+            }
+            getArea() {
+                if (this.rect !== null) {
+                    return this.rect;
+                }
+                else if (this.gfxStandard?.getRenderObject()) {
+                    return this.gfxStandard.getRenderObject().getBounds();
+                }
+                return null;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _ENABLE_decorators = [(0, types_1.method)()];
+            _DISABLE_decorators = [(0, types_1.method)()];
+            _DISABLEBUTVISIBLE_decorators = [(0, types_1.method)()];
+            _SETPRIORITY_decorators = [(0, types_1.method)({ name: "priority", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETRECT_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DISABLEBUTVISIBLE_decorators, { kind: "method", name: "DISABLEBUTVISIBLE", static: false, private: false, access: { has: obj => "DISABLEBUTVISIBLE" in obj, get: obj => obj.DISABLEBUTVISIBLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETPRIORITY_decorators, { kind: "method", name: "SETPRIORITY", static: false, private: false, access: { has: obj => "SETPRIORITY" in obj, get: obj => obj.SETPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETRECT_decorators, { kind: "method", name: "SETRECT", static: false, private: false, access: { has: obj => "SETRECT" in obj, get: obj => obj.SETRECT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Button = Button;
 
 
@@ -52440,64 +52996,107 @@ exports.Button = Button;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CanvasObserver = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
-class CanvasObserver extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-    }
-    SETBACKGROUND(filename) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            const relativePath = (_a = this.engine.currentScene) === null || _a === void 0 ? void 0 : _a.getRelativePath(filename);
-            const texture = yield (0, assetsLoader_1.loadTexture)(this.engine.fileLoader, relativePath);
-            if (texture == null) {
-                throw new Error(`Cannot load image '${filename}'`);
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let CanvasObserver = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _SETBACKGROUND_decorators;
+    let _REFRESH_decorators;
+    let _GETGRAPHICSAT_decorators;
+    return _a = class CanvasObserver extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                __runInitializers(this, _instanceExtraInitializers);
             }
-            this.engine.canvasBackground.texture = texture;
-        });
-    }
-    REFRESH() { }
-    GETGRAPHICSAT(x, y, someBool1, minZ, maxZ, includeAlpha) {
-        const point = new pixi_js_1.Point(x, y);
-        for (const object of Object.values(this.engine.scope)) {
-            if (!(object instanceof index_1.DisplayType) || object.getRenderObject() === null) {
-                continue;
+            async SETBACKGROUND(filename) {
+                const relativePath = this.engine.currentScene?.getRelativePath(filename);
+                const texture = await (0, assetsLoader_1.loadTexture)(this.engine.fileLoader, relativePath);
+                if (texture == null) {
+                    throw new Error(`Cannot load image '${filename}'`);
+                }
+                this.engine.canvasBackground.texture = texture;
             }
-            const renderObject = object.getRenderObject();
-            const position = renderObject.getGlobalPosition();
-            if (position === null) {
-                continue;
+            REFRESH() { }
+            GETGRAPHICSAT(x, y, someBool1, minZ, maxZ, includeAlpha) {
+                const point = new pixi_js_1.Point(x, y);
+                for (const object of Object.values(this.engine.scope)) {
+                    if (!(object instanceof index_1.DisplayType) || object.getRenderObject() === null) {
+                        continue;
+                    }
+                    const renderObject = object.getRenderObject();
+                    const position = renderObject.getGlobalPosition();
+                    if (position === null) {
+                        continue;
+                    }
+                    let containsPoint = false;
+                    if (includeAlpha) {
+                        containsPoint = renderObject.containsPoint(point);
+                    }
+                    else {
+                        containsPoint = point.x > position.x &&
+                            point.x < position?.x + renderObject.width &&
+                            point.y > position.y &&
+                            point.y < position.y + renderObject.height;
+                    }
+                    if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
+                        return object.name;
+                    }
+                }
+                return null;
             }
-            let containsPoint = false;
-            if (includeAlpha) {
-                containsPoint = renderObject.containsPoint(point);
-            }
-            else {
-                containsPoint = point.x > position.x &&
-                    point.x < (position === null || position === void 0 ? void 0 : position.x) + renderObject.width &&
-                    point.y > position.y &&
-                    point.y < position.y + renderObject.height;
-            }
-            if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
-                return object.name;
-            }
-        }
-        return null;
-    }
-}
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _SETBACKGROUND_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _REFRESH_decorators = [(0, types_1.method)()];
+            _GETGRAPHICSAT_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "someBool1", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "minZ", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "maxZ", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "includeAlpha", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _SETBACKGROUND_decorators, { kind: "method", name: "SETBACKGROUND", static: false, private: false, access: { has: obj => "SETBACKGROUND" in obj, get: obj => obj.SETBACKGROUND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REFRESH_decorators, { kind: "method", name: "REFRESH", static: false, private: false, access: { has: obj => "REFRESH" in obj, get: obj => obj.REFRESH }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETGRAPHICSAT_decorators, { kind: "method", name: "GETGRAPHICSAT", static: false, private: false, access: { has: obj => "GETGRAPHICSAT" in obj, get: obj => obj.GETGRAPHICSAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.CanvasObserver = CanvasObserver;
 
 
@@ -52507,22 +53106,71 @@ exports.CanvasObserver = CanvasObserver;
 /*!***************************************!*\
   !*** ./src/engine/types/cnvloader.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CNVLoader = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-class CNVLoader extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-    }
-    LOAD(filename) {
-        throw new errors_1.NotImplementedError();
-    }
-}
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let CNVLoader = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _LOAD_decorators;
+    return _a = class CNVLoader extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+            LOAD(filename) {
+                throw new errors_1.NotImplementedError();
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _LOAD_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.CNVLoader = CNVLoader;
 
 
@@ -52532,53 +53180,108 @@ exports.CNVLoader = CNVLoader;
 /*!**********************************************!*\
   !*** ./src/engine/types/complexCondition.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ComplexCondition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const evaluator_1 = __webpack_require__(/*! ../../interpreter/evaluator */ "./src/interpreter/evaluator.ts");
-class ComplexCondition extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.callbacks.register('ONRUNTIMESUCCESS', this.definition.ONRUNTIMESUCCESS);
-        this.callbacks.register('ONRUNTIMEFAILED', this.definition.ONRUNTIMEFAILED);
-    }
-    // In loops its like 'break'
-    BREAK(arg) {
-        if (this.CHECK(arg)) {
-            throw new evaluator_1.InterruptScriptExecution(false);
-        }
-    }
-    // In loops its like 'continue'
-    ONE_BREAK(arg) {
-        if (this.CHECK(arg)) {
-            throw new evaluator_1.InterruptScriptExecution(true);
-        }
-    }
-    CHECK(arg) {
-        const condition1 = this.engine.getObject(this.definition.CONDITION1);
-        const condition2 = this.engine.getObject(this.definition.CONDITION2);
-        let result;
-        switch (this.definition.OPERATOR) {
-            case 'AND':
-                result = condition1.CHECK(arg) && condition2.CHECK(arg);
-                break;
-            case 'OR':
-                result = condition1.CHECK(arg) || condition2.CHECK(arg);
-                break;
-        }
-        if (result) {
-            this.callbacks.run('ONRUNTIMESUCCESS');
-        }
-        else {
-            this.callbacks.run('ONRUNTIMEFAILED');
-        }
-        return result;
-    }
-}
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let ComplexCondition = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _BREAK_decorators;
+    let _ONE_BREAK_decorators;
+    let _CHECK_decorators;
+    return _a = class ComplexCondition extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                __runInitializers(this, _instanceExtraInitializers);
+                this.callbacks.register('ONRUNTIMESUCCESS', this.definition.ONRUNTIMESUCCESS);
+                this.callbacks.register('ONRUNTIMEFAILED', this.definition.ONRUNTIMEFAILED);
+            }
+            // In loops its like 'break'
+            BREAK(arg) {
+                if (this.CHECK(arg)) {
+                    throw new evaluator_1.InterruptScriptExecution(false);
+                }
+            }
+            // In loops its like 'continue'
+            ONE_BREAK(arg) {
+                if (this.CHECK(arg)) {
+                    throw new evaluator_1.InterruptScriptExecution(true);
+                }
+            }
+            CHECK(arg) {
+                const condition1 = this.engine.getObject(this.definition.CONDITION1);
+                const condition2 = this.engine.getObject(this.definition.CONDITION2);
+                let result;
+                switch (this.definition.OPERATOR) {
+                    case 'AND':
+                        result = condition1.CHECK(arg) && condition2.CHECK(arg);
+                        break;
+                    case 'OR':
+                        result = condition1.CHECK(arg) || condition2.CHECK(arg);
+                        break;
+                }
+                if (result) {
+                    this.callbacks.run('ONRUNTIMESUCCESS');
+                }
+                else {
+                    this.callbacks.run('ONRUNTIMEFAILED');
+                }
+                return result;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _ONE_BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _CHECK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _BREAK_decorators, { kind: "method", name: "BREAK", static: false, private: false, access: { has: obj => "BREAK" in obj, get: obj => obj.BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ONE_BREAK_decorators, { kind: "method", name: "ONE_BREAK", static: false, private: false, access: { has: obj => "ONE_BREAK" in obj, get: obj => obj.ONE_BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CHECK_decorators, { kind: "method", name: "CHECK", static: false, private: false, access: { has: obj => "CHECK" in obj, get: obj => obj.CHECK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.ComplexCondition = ComplexCondition;
 
 
@@ -52588,79 +53291,133 @@ exports.ComplexCondition = ComplexCondition;
 /*!***************************************!*\
   !*** ./src/engine/types/condition.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Condition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const evaluator_1 = __webpack_require__(/*! ../../interpreter/evaluator */ "./src/interpreter/evaluator.ts");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-class Condition extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.callbacks.register('ONRUNTIMESUCCESS', this.definition.ONRUNTIMESUCCESS);
-        this.callbacks.register('ONRUNTIMEFAILED', this.definition.ONRUNTIMEFAILED);
-    }
-    // arg is always true in ReksioIUfo
-    // In loops its like 'break'
-    BREAK(arg) {
-        if (this.CHECK(arg)) {
-            throw new evaluator_1.InterruptScriptExecution(false);
-        }
-    }
-    // arg is always true in ReksioIUfo
-    // In loops its like 'continue'
-    ONE_BREAK(arg) {
-        if (this.CHECK(arg)) {
-            throw new evaluator_1.InterruptScriptExecution(true);
-        }
-    }
-    CHECK(arg) {
-        const operand1 = this.engine.executeCallback(null, this.definition.OPERAND1);
-        const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2);
-        let result;
-        try {
-            switch (this.definition.OPERATOR) {
-                case 'EQUAL':
-                    result = types_1.Compare.Equal(operand1, operand2);
-                    break;
-                case 'NOTEQUAL':
-                    result = types_1.Compare.NotEqual(operand1, operand2);
-                    break;
-                case 'LESS':
-                    result = types_1.Compare.Less(operand1, operand2);
-                    break;
-                case 'GREATER':
-                    result = types_1.Compare.Greater(operand1, operand2);
-                    break;
-                case 'LESSEQUAL':
-                    result = types_1.Compare.LessOrEqual(operand1, operand2);
-                    break;
-                case 'GREATEREQUAL':
-                    result = types_1.Compare.GreaterOrEqual(operand1, operand2);
-                    break;
+let Condition = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _BREAK_decorators;
+    let _ONE_BREAK_decorators;
+    let _CHECK_decorators;
+    return _a = class Condition extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                __runInitializers(this, _instanceExtraInitializers);
+                this.callbacks.register('ONRUNTIMESUCCESS', this.definition.ONRUNTIMESUCCESS);
+                this.callbacks.register('ONRUNTIMEFAILED', this.definition.ONRUNTIMEFAILED);
             }
-        }
-        catch (err) {
-            if (err instanceof errors_1.UnexpectedError) {
-                console.error('Condition details\n' +
-                    '\n' +
-                    '%cCondition:%c%O\n%cOperand1:%c%O\n%cOperand2:%c%O\n', 'font-weight: bold', 'font-weight: inherit', this, 'font-weight: bold', 'font-weight: inherit', operand1, 'font-weight: bold', 'font-weight: inherit', operand2);
+            // arg is always true in ReksioIUfo
+            // In loops its like 'break'
+            BREAK(arg) {
+                if (this.CHECK(arg)) {
+                    throw new evaluator_1.InterruptScriptExecution(false);
+                }
             }
-            throw err;
-        }
-        if (result) {
-            this.callbacks.run('ONRUNTIMESUCCESS', null, null);
-        }
-        else {
-            this.callbacks.run('ONRUNTIMEFAILED', null, null);
-        }
-        return result;
-    }
-}
+            // arg is always true in ReksioIUfo
+            // In loops its like 'continue'
+            ONE_BREAK(arg) {
+                if (this.CHECK(arg)) {
+                    throw new evaluator_1.InterruptScriptExecution(true);
+                }
+            }
+            CHECK(arg) {
+                const operand1 = this.engine.executeCallback(null, this.definition.OPERAND1);
+                const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2);
+                let result;
+                try {
+                    switch (this.definition.OPERATOR) {
+                        case 'EQUAL':
+                            result = types_1.Compare.Equal(operand1, operand2);
+                            break;
+                        case 'NOTEQUAL':
+                            result = types_1.Compare.NotEqual(operand1, operand2);
+                            break;
+                        case 'LESS':
+                            result = types_1.Compare.Less(operand1, operand2);
+                            break;
+                        case 'GREATER':
+                            result = types_1.Compare.Greater(operand1, operand2);
+                            break;
+                        case 'LESSEQUAL':
+                            result = types_1.Compare.LessOrEqual(operand1, operand2);
+                            break;
+                        case 'GREATEREQUAL':
+                            result = types_1.Compare.GreaterOrEqual(operand1, operand2);
+                            break;
+                    }
+                }
+                catch (err) {
+                    if (err instanceof errors_1.UnexpectedError) {
+                        console.error('Condition details\n' +
+                            '\n' +
+                            '%cCondition:%c%O\n%cOperand1:%c%O\n%cOperand2:%c%O\n', 'font-weight: bold', 'font-weight: inherit', this, 'font-weight: bold', 'font-weight: inherit', operand1, 'font-weight: bold', 'font-weight: inherit', operand2);
+                    }
+                    throw err;
+                }
+                if (result) {
+                    this.callbacks.run('ONRUNTIMESUCCESS', null, null);
+                }
+                else {
+                    this.callbacks.run('ONRUNTIMEFAILED', null, null);
+                }
+                return result;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _ONE_BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _CHECK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _BREAK_decorators, { kind: "method", name: "BREAK", static: false, private: false, access: { has: obj => "BREAK" in obj, get: obj => obj.BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ONE_BREAK_decorators, { kind: "method", name: "ONE_BREAK", static: false, private: false, access: { has: obj => "ONE_BREAK" in obj, get: obj => obj.ONE_BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CHECK_decorators, { kind: "method", name: "CHECK", static: false, private: false, access: { has: obj => "CHECK" in obj, get: obj => obj.CHECK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Condition = Condition;
 
 
@@ -52670,61 +53427,130 @@ exports.Condition = Condition;
 /*!************************************!*\
   !*** ./src/engine/types/double.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Double = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-class Double extends index_1.ValueType {
-    constructor(engine, definition) {
-        super(engine, definition, 0.0);
-    }
-    MUL(value) {
-        this.value *= Number(value);
-        return this.value;
-    }
-    ADD(value) {
-        this.value += Number(value);
-        return this.value;
-    }
-    SUB(value) {
-        this.value -= Number(value);
-        return this.value;
-    }
-    SET(newValue) {
-        this.value = Number(newValue);
-    }
-    MAXA(...values) {
-        this.value = Math.max(...values);
-        return this.value;
-    }
-    MINA(...values) {
-        this.value = Math.min(...values);
-        return this.value;
-    }
-    SINUS(angle) {
-        this.value = Math.sin(Number(angle));
-        return this.value;
-    }
-    COSINUS(angle) {
-        this.value = Math.cos(Number(angle));
-        return this.value;
-    }
-    // Source: https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=1909841994#gid=1909841994
-    ARCTANEX(y, x, summand) {
-        let newValue = Math.atan2(Number(y), Number(x));
-        if (summand !== undefined) {
-            newValue = Math.floor(newValue) + Number(summand);
-        }
-        this.value = newValue;
-        return this.value;
-    }
-    GET() {
-        return this.value;
-    }
-}
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Double = (() => {
+    var _a;
+    let _classSuper = index_1.ValueType;
+    let _instanceExtraInitializers = [];
+    let _MUL_decorators;
+    let _ADD_decorators;
+    let _SUB_decorators;
+    let _SET_decorators;
+    let _MAXA_decorators;
+    let _MINA_decorators;
+    let _SINUS_decorators;
+    let _COSINUS_decorators;
+    let _ARCTANEX_decorators;
+    let _GET_decorators;
+    return _a = class Double extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition, 0.0);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+            MUL(value) {
+                return this.value *= value;
+            }
+            ADD(value) {
+                return this.value += value;
+            }
+            SUB(value) {
+                return this.value -= value;
+            }
+            SET(newValue) {
+                this.value = newValue;
+            }
+            MAXA(...values) {
+                return this.value = Math.max(...values);
+            }
+            MINA(...values) {
+                return this.value = Math.min(...values);
+            }
+            SINUS(angle) {
+                return this.value = Math.sin(angle);
+            }
+            COSINUS(angle) {
+                return this.value = Math.cos(angle);
+            }
+            // Source: https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=1909841994#gid=1909841994
+            ARCTANEX(y, x, summand) {
+                let newValue = Math.atan2(y, x);
+                if (summand !== undefined) {
+                    newValue = Math.floor(newValue) + summand;
+                }
+                this.value = newValue;
+                return this.value;
+            }
+            GET() {
+                return this.value;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _MUL_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _ADD_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SUB_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SET_decorators = [(0, types_1.method)({ name: "newValue", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _MAXA_decorators = [(0, types_1.method)({ name: "values", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
+            _MINA_decorators = [(0, types_1.method)({ name: "values", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
+            _SINUS_decorators = [(0, types_1.method)({ name: "angle", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _COSINUS_decorators = [(0, types_1.method)({ name: "angle", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _ARCTANEX_decorators = [(0, types_1.method)({ name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "summand", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
+            _GET_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _MUL_decorators, { kind: "method", name: "MUL", static: false, private: false, access: { has: obj => "MUL" in obj, get: obj => obj.MUL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MAXA_decorators, { kind: "method", name: "MAXA", static: false, private: false, access: { has: obj => "MAXA" in obj, get: obj => obj.MAXA }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MINA_decorators, { kind: "method", name: "MINA", static: false, private: false, access: { has: obj => "MINA" in obj, get: obj => obj.MINA }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SINUS_decorators, { kind: "method", name: "SINUS", static: false, private: false, access: { has: obj => "SINUS" in obj, get: obj => obj.SINUS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _COSINUS_decorators, { kind: "method", name: "COSINUS", static: false, private: false, access: { has: obj => "COSINUS" in obj, get: obj => obj.COSINUS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ARCTANEX_decorators, { kind: "method", name: "ARCTANEX", static: false, private: false, access: { has: obj => "ARCTANEX" in obj, get: obj => obj.ARCTANEX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Double = Double;
 
 
@@ -52738,14 +53564,39 @@ exports.Double = Double;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Episode = void 0;
@@ -52754,47 +53605,62 @@ const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const utils_1 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
-class Episode extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-    }
-    init() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.definition.PATH) {
-                try {
-                    const applicationDefinition = yield this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
-                    yield (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.globalScope, applicationDefinition, this);
-                }
-                catch (err) {
-                    if (err instanceof filesLoader_1.FileNotFoundError) {
-                        throw err;
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Episode = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _GOTO_decorators;
+    let _GETLATESTSCENE_decorators;
+    let _BACK_decorators;
+    return _a = class Episode extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.previousScene = (__runInitializers(this, _instanceExtraInitializers), void 0);
+            }
+            async init() {
+                if (this.definition.PATH) {
+                    try {
+                        const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
+                        await (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.globalScope, applicationDefinition, this);
+                    }
+                    catch (err) {
+                        if (err instanceof filesLoader_1.FileNotFoundError) {
+                            throw err;
+                        }
                     }
                 }
             }
-        });
-    }
-    ready() {
-        this.GOTO(this.definition.STARTWITH);
-    }
-    GOTO(sceneName) {
-        return __awaiter(this, void 0, void 0, function* () {
-            (0, errors_1.assert)(this.definition.SCENES.includes(sceneName));
-            this.previousScene = this.engine.currentScene;
-            yield this.engine.changeScene(sceneName);
-        });
-    }
-    GETLATESTSCENE() {
-        // TODO: read from save file
-        return this.definition.STARTWITH;
-    }
-    BACK() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.previousScene) {
-                yield this.GOTO(this.previousScene.definition.NAME);
+            ready() {
+                this.GOTO(this.definition.STARTWITH);
             }
-        });
-    }
-}
+            async GOTO(sceneName) {
+                (0, errors_1.assert)(this.definition.SCENES.includes(sceneName));
+                this.previousScene = this.engine.currentScene;
+                await this.engine.changeScene(sceneName);
+            }
+            GETLATESTSCENE() {
+                // TODO: read from save file
+                return this.definition.STARTWITH;
+            }
+            async BACK() {
+                if (this.previousScene) {
+                    await this.GOTO(this.previousScene.definition.NAME);
+                }
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _GOTO_decorators = [(0, types_1.method)({ name: "sceneName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETLATESTSCENE_decorators = [(0, types_1.method)()];
+            _BACK_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _GOTO_decorators, { kind: "method", name: "GOTO", static: false, private: false, access: { has: obj => "GOTO" in obj, get: obj => obj.GOTO }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETLATESTSCENE_decorators, { kind: "method", name: "GETLATESTSCENE", static: false, private: false, access: { has: obj => "GETLATESTSCENE" in obj, get: obj => obj.GETLATESTSCENE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _BACK_decorators, { kind: "method", name: "BACK", static: false, private: false, access: { has: obj => "BACK" in obj, get: obj => obj.BACK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Episode = Episode;
 
 
@@ -52890,48 +53756,99 @@ exports.Font = Font;
 /*!***********************************!*\
   !*** ./src/engine/types/group.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Group = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-class Group extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.objects = [];
-        this.callbacks.register('ONINIT', this.definition.ONINIT);
-    }
-    ready() {
-        this.callbacks.run('ONINIT');
-    }
-    ADD(...objectsNames) {
-        this.objects.push(...objectsNames.map(objectName => {
-            return this.engine.getObject(objectName);
-        }).filter((x, index) => {
-            if (x == null) {
-                // It happens in original game scripts
-                console.warn(`Script was trying to add non-existing object "${objectsNames[index]}" to a group "${this.name}"`);
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Group = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _ADD_decorators;
+    let _REMOVE_decorators;
+    return _a = class Group extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.objects = (__runInitializers(this, _instanceExtraInitializers), []);
+                this.callbacks.register('ONINIT', this.definition.ONINIT);
             }
-            return x !== null;
-        }));
-    }
-    REMOVE(...objectsNames) {
-        this.objects = this.objects.filter(object => objectsNames.includes(object.name));
-    }
-    __call(methodName, args) {
-        for (const object of this.objects) {
-            if (methodName in object) {
-                object[methodName](...args);
+            ready() {
+                this.callbacks.run('ONINIT');
             }
-            else {
-                const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
-                throw new Error(`Method '${methodName}(${argumentsString})' does not exist in ${object.constructor.name}`);
+            ADD(...objectsNames) {
+                this.objects.push(...objectsNames.map(objectName => {
+                    return this.engine.getObject(objectName);
+                }).filter((x, index) => {
+                    if (x == null) {
+                        // It happens in original game scripts
+                        console.warn(`Script was trying to add non-existing object "${objectsNames[index]}" to a group "${this.name}"`);
+                    }
+                    return x !== null;
+                }));
             }
-        }
-    }
-}
+            REMOVE(...objectsNames) {
+                this.objects = this.objects.filter(object => objectsNames.includes(object.name));
+            }
+            __call(methodName, args) {
+                for (const object of this.objects) {
+                    if (methodName in object) {
+                        object[methodName](...args);
+                    }
+                    else {
+                        const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
+                        throw new Error(`Method '${methodName}(${argumentsString})' does not exist in ${object.constructor.name}`);
+                    }
+                }
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _ADD_decorators = [(0, types_1.method)({ name: "objectsNames", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: true })];
+            _REMOVE_decorators = [(0, types_1.method)({ name: "objectsNames", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: true })];
+            __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVE_decorators, { kind: "method", name: "REMOVE", static: false, private: false, access: { has: obj => "REMOVE" in obj, get: obj => obj.REMOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Group = Group;
 
 
@@ -52945,14 +53862,39 @@ exports.Group = Group;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Image = void 0;
@@ -52960,70 +53902,97 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
-class Image extends index_1.DisplayType {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.sprite = null;
-        this.callbacks.register('ONINIT', this.definition.ONINIT);
-    }
-    init() {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            this.sprite = yield this.load();
-            this.sprite.visible = this.definition.VISIBLE;
-            this.sprite.eventMode = 'none';
-            this.SETPRIORITY((_a = this.definition.PRIORITY) !== null && _a !== void 0 ? _a : 0);
-        });
-    }
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            (0, errors_1.assert)(this.engine.currentScene !== undefined);
-            const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME);
-            return yield (0, assetsLoader_1.loadSprite)(this.engine.fileLoader, relativePath);
-        });
-    }
-    ready() {
-        (0, errors_1.assert)(this.sprite !== null);
-        this.engine.addToStage(this.sprite);
-        this.callbacks.run('ONINIT');
-    }
-    destroy() {
-        (0, errors_1.assert)(this.sprite !== null);
-        this.engine.removeFromStage(this.sprite);
-    }
-    SETOPACITY(opacity) {
-        throw new errors_1.NotImplementedError();
-    }
-    MOVE(xOffset, yOffset) {
-        (0, errors_1.assert)(this.sprite !== null);
-        this.sprite.x += xOffset;
-        this.sprite.y += yOffset;
-    }
-    SETPOSITION(x, y) {
-        (0, errors_1.assert)(this.sprite !== null);
-        this.sprite.x = x;
-        this.sprite.y = y;
-    }
-    SHOW() {
-        (0, errors_1.assert)(this.sprite !== null);
-        this.sprite.visible = true;
-    }
-    HIDE() {
-        (0, errors_1.assert)(this.sprite !== null);
-        this.sprite.visible = false;
-    }
-    GETPOSITIONY() {
-        (0, errors_1.assert)(this.sprite !== null);
-        return this.sprite.y;
-    }
-    GETALPHA(x, y) {
-        (0, errors_1.assert)(this.sprite !== null);
-        return this.sprite.getAlphaAt(new pixi_js_1.Point(x, y));
-    }
-    getRenderObject() {
-        return this.sprite;
-    }
-}
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Image = (() => {
+    var _a;
+    let _classSuper = index_1.DisplayType;
+    let _instanceExtraInitializers = [];
+    let _SETOPACITY_decorators;
+    let _MOVE_decorators;
+    let _SETPOSITION_decorators;
+    let _SHOW_decorators;
+    let _HIDE_decorators;
+    let _GETPOSITIONY_decorators;
+    let _GETALPHA_decorators;
+    return _a = class Image extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.sprite = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.callbacks.register('ONINIT', this.definition.ONINIT);
+            }
+            async init() {
+                this.sprite = await this.load();
+                this.sprite.visible = this.definition.VISIBLE;
+                this.sprite.eventMode = 'none';
+                this.SETPRIORITY(this.definition.PRIORITY ?? 0);
+            }
+            async load() {
+                (0, errors_1.assert)(this.engine.currentScene !== undefined);
+                const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME);
+                return await (0, assetsLoader_1.loadSprite)(this.engine.fileLoader, relativePath);
+            }
+            ready() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.engine.addToStage(this.sprite);
+                this.callbacks.run('ONINIT');
+            }
+            destroy() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.engine.removeFromStage(this.sprite);
+            }
+            SETOPACITY(opacity) {
+                throw new errors_1.NotImplementedError();
+            }
+            MOVE(xOffset, yOffset) {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.x += xOffset;
+                this.sprite.y += yOffset;
+            }
+            SETPOSITION(x, y) {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.x = x;
+                this.sprite.y = y;
+            }
+            SHOW() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.visible = true;
+            }
+            HIDE() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.visible = false;
+            }
+            GETPOSITIONY() {
+                (0, errors_1.assert)(this.sprite !== null);
+                return this.sprite.y;
+            }
+            GETALPHA(x, y) {
+                (0, errors_1.assert)(this.sprite !== null);
+                return this.sprite.getAlphaAt(new pixi_js_1.Point(x, y));
+            }
+            getRenderObject() {
+                return this.sprite;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _SETOPACITY_decorators = [(0, types_1.method)({ name: "opacity", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _MOVE_decorators = [(0, types_1.method)({ name: "xOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "yOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETPOSITION_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SHOW_decorators = [(0, types_1.method)()];
+            _HIDE_decorators = [(0, types_1.method)()];
+            _GETPOSITIONY_decorators = [(0, types_1.method)()];
+            _GETALPHA_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _SETOPACITY_decorators, { kind: "method", name: "SETOPACITY", static: false, private: false, access: { has: obj => "SETOPACITY" in obj, get: obj => obj.SETOPACITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPOSITIONY_decorators, { kind: "method", name: "GETPOSITIONY", static: false, private: false, access: { has: obj => "GETPOSITIONY" in obj, get: obj => obj.GETPOSITIONY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETALPHA_decorators, { kind: "method", name: "GETALPHA", static: false, private: false, access: { has: obj => "GETALPHA" in obj, get: obj => obj.GETALPHA }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Image = Image;
 
 
@@ -53037,14 +54006,39 @@ exports.Image = Image;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ValueType = exports.DisplayType = exports.Type = void 0;
@@ -53052,134 +54046,182 @@ const callbacks_1 = __webpack_require__(/*! ../components/callbacks */ "./src/en
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const events_1 = __webpack_require__(/*! ../components/events */ "./src/engine/components/events.ts");
-class Type {
-    constructor(engine, definition) {
-        this.events = new events_1.EventsComponent();
-        this.name = '';
-        this.clones = [];
-        this.engine = engine;
-        this.definition = definition;
-        this.name = definition.NAME;
-        this.callbacks = new callbacks_1.CallbacksComponent(engine, this);
-    }
-    GETNAME() {
-        return this.name;
-    }
-    CLONE(count) {
-        return __awaiter(this, void 0, void 0, function* () {
-            for (let i = 0; i < count; i++) {
-                this.cloneObject(this);
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Type = (() => {
+    var _a;
+    let _instanceExtraInitializers = [];
+    let _GETNAME_decorators;
+    let _CLONE_decorators;
+    let _GETCLONEINDEX_decorators;
+    return _a = class Type {
+            constructor(engine, definition) {
+                this.callbacks = (__runInitializers(this, _instanceExtraInitializers), void 0);
+                this.events = new events_1.EventsComponent();
+                this.name = '';
+                this.clones = [];
+                this.engine = engine;
+                this.definition = definition;
+                this.name = definition.NAME;
+                this.callbacks = new callbacks_1.CallbacksComponent(engine, this);
             }
-        });
-    }
-    GETCLONEINDEX() {
-        return this.engine.getObject(this.definition.NAME).clones.indexOf(this) + 1;
-    }
-    cloneObject(object) {
-        const clone = object.clone();
-        object.clones.push(clone);
-        clone.name = `${object.definition.NAME}_${object.clones.length}`;
-        this.engine.scope[clone.name] = clone;
-        return clone;
-    }
-    init() { }
-    ready() { }
-    destroy() { }
-    tick(elapsedMS) { }
-    // Called when trying to call a method that is not existing for a type
-    __call(methodName, args) {
-        const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
-        throw new Error(`Method '${methodName}(${argumentsString})' does not exist`);
-    }
-    clone() {
-        // @ts-ignore
-        const instance = new this.constructor(this.engine, this.definition);
-        instance.parent = this.parent;
-        return instance;
-    }
-}
+            GETNAME() {
+                return this.name;
+            }
+            async CLONE(count) {
+                for (let i = 0; i < count; i++) {
+                    this.cloneObject(this);
+                }
+            }
+            GETCLONEINDEX() {
+                return this.engine.getObject(this.definition.NAME).clones.indexOf(this) + 1;
+            }
+            cloneObject(object) {
+                const clone = object.clone();
+                object.clones.push(clone);
+                clone.name = `${object.definition.NAME}_${object.clones.length}`;
+                this.engine.scope[clone.name] = clone;
+                return clone;
+            }
+            init() { }
+            ready() { }
+            destroy() { }
+            tick(elapsedMS) { }
+            // Called when trying to call a method that is not existing for a type
+            __call(methodName, args) {
+                const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
+                throw new Error(`Method '${methodName}(${argumentsString})' does not exist`);
+            }
+            clone() {
+                // @ts-expect-error Dynamically constructing object
+                const instance = new this.constructor(this.engine, this.definition);
+                instance.parent = this.parent;
+                return instance;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
+            _GETNAME_decorators = [(0, types_1.method)()];
+            _CLONE_decorators = [(0, types_1.method)({ name: "count", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETCLONEINDEX_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _GETNAME_decorators, { kind: "method", name: "GETNAME", static: false, private: false, access: { has: obj => "GETNAME" in obj, get: obj => obj.GETNAME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CLONE_decorators, { kind: "method", name: "CLONE", static: false, private: false, access: { has: obj => "CLONE" in obj, get: obj => obj.CLONE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCLONEINDEX_decorators, { kind: "method", name: "GETCLONEINDEX", static: false, private: false, access: { has: obj => "GETCLONEINDEX" in obj, get: obj => obj.GETCLONEINDEX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a.Events = {},
+        _a;
+})();
 exports.Type = Type;
-Type.Events = {};
-class DisplayType extends Type {
-    constructor() {
-        super(...arguments);
-        this.priority = 0;
-    }
-    GETPRIORITY() {
-        return this.priority;
-    }
-    SETPRIORITY(priority) {
-        (0, errors_1.assert)(this.getRenderObject() !== null);
-        this.priority = priority;
-        this.getRenderObject().zIndex = priority;
-        this.engine.sortObjects();
-    }
-    getRenderObject() {
-        throw new errors_1.NotImplementedError();
-    }
-    getGlobalPosition() {
-        var _a;
-        const renderObject = this.getRenderObject();
-        if (renderObject === null) {
-            return null;
-        }
-        return (_a = renderObject.toGlobal(new pixi_js_1.Point(0, 0), undefined, true)) !== null && _a !== void 0 ? _a : null;
-    }
-}
-exports.DisplayType = DisplayType;
-class ValueType extends Type {
-    constructor(engine, definition, defaultValue) {
-        var _a;
-        super(engine, definition);
-        this.defaultValue = defaultValue;
-        if (defaultValue !== undefined) {
-            let initialValue = null;
-            if (this.definition.TOINI) {
-                initialValue = this.getFromINI();
+let DisplayType = (() => {
+    var _a;
+    let _classSuper = Type;
+    let _instanceExtraInitializers = [];
+    let _GETPRIORITY_decorators;
+    let _SETPRIORITY_decorators;
+    return _a = class DisplayType extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.priority = (__runInitializers(this, _instanceExtraInitializers), 0);
             }
-            this.value = (_a = initialValue !== null && initialValue !== void 0 ? initialValue : this.definition.VALUE) !== null && _a !== void 0 ? _a : defaultValue;
-        }
-    }
-    RESETINI() {
-        var _a, _b;
-        if (this.definition.TOINI) {
-            this.value = (_b = (_a = this.definition.DEFAULT) !== null && _a !== void 0 ? _a : this.definition.VALUE) !== null && _b !== void 0 ? _b : this.defaultValue;
-            this.saveToINI();
-        }
-    }
-    get value() {
-        return this._value;
-    }
-    set value(newValue) {
-        (0, errors_1.assert)(typeof newValue != 'number' || !isNaN(newValue), 'Attempted to assign NaN');
-        (0, errors_1.assert)(newValue !== undefined, 'Attempted to assign undefined');
-        (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some(e => Number.isNaN(e)), 'Attempted to assign array with NaN values');
-        (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some(e => e === undefined), 'Attempted to assign array with undefined values');
-        const oldValue = this._value;
-        this._value = newValue;
-        this.valueChanged(oldValue, newValue);
-        if (this.definition.TOINI) {
-            this.saveToINI();
-        }
-    }
-    valueChanged(oldValue, newValue) { }
-    getFromINI() {
-        const loadedValue = this.engine.saveFile.load(this);
-        if (loadedValue !== null) {
-            return this.deserialize(loadedValue);
-        }
-        return null;
-    }
-    saveToINI() {
-        this.engine.saveFile.save(this, this.serialize());
-    }
-    serialize() {
-        return this.value.toString();
-    }
-    deserialize(value) {
-        return value;
-    }
-}
+            GETPRIORITY() {
+                return this.priority;
+            }
+            SETPRIORITY(priority) {
+                (0, errors_1.assert)(this.getRenderObject() !== null);
+                this.priority = priority;
+                this.getRenderObject().zIndex = priority;
+                this.engine.sortObjects();
+            }
+            getRenderObject() {
+                throw new errors_1.NotImplementedError();
+            }
+            getGlobalPosition() {
+                const renderObject = this.getRenderObject();
+                if (renderObject === null) {
+                    return null;
+                }
+                return renderObject.toGlobal(new pixi_js_1.Point(0, 0), undefined, true) ?? null;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _GETPRIORITY_decorators = [(0, types_1.method)()];
+            _SETPRIORITY_decorators = [(0, types_1.method)({ name: "priority", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _GETPRIORITY_decorators, { kind: "method", name: "GETPRIORITY", static: false, private: false, access: { has: obj => "GETPRIORITY" in obj, get: obj => obj.GETPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETPRIORITY_decorators, { kind: "method", name: "SETPRIORITY", static: false, private: false, access: { has: obj => "SETPRIORITY" in obj, get: obj => obj.SETPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
+exports.DisplayType = DisplayType;
+let ValueType = (() => {
+    var _a;
+    let _classSuper = Type;
+    let _instanceExtraInitializers = [];
+    let _RESETINI_decorators;
+    return _a = class ValueType extends _classSuper {
+            constructor(engine, definition, defaultValue) {
+                super(engine, definition);
+                this._value = (__runInitializers(this, _instanceExtraInitializers), void 0);
+                this.defaultValue = defaultValue;
+                if (defaultValue !== undefined) {
+                    let initialValue = null;
+                    if (this.definition.TOINI) {
+                        initialValue = this.getFromINI();
+                    }
+                    this.value = initialValue ?? this.definition.VALUE ?? defaultValue;
+                }
+            }
+            RESETINI() {
+                if (this.definition.TOINI) {
+                    this.value = this.definition.DEFAULT ?? this.definition.VALUE ?? this.defaultValue;
+                    this.saveToINI();
+                }
+            }
+            valueOf() {
+                return this._value;
+            }
+            get value() {
+                return this._value;
+            }
+            set value(newValue) {
+                (0, errors_1.assert)(typeof newValue != 'number' || !isNaN(newValue), 'Attempted to assign NaN');
+                (0, errors_1.assert)(newValue !== undefined, 'Attempted to assign undefined');
+                (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some(e => Number.isNaN(e)), 'Attempted to assign array with NaN values');
+                (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some(e => e === undefined), 'Attempted to assign array with undefined values');
+                const oldValue = this._value;
+                this._value = newValue;
+                this.valueChanged(oldValue, newValue);
+                if (this.definition.TOINI) {
+                    this.saveToINI();
+                }
+            }
+            valueChanged(oldValue, newValue) { }
+            getFromINI() {
+                const loadedValue = this.engine.saveFile.load(this);
+                if (loadedValue !== null) {
+                    return this.deserialize(loadedValue);
+                }
+                return null;
+            }
+            saveToINI() {
+                this.engine.saveFile.save(this, this.serialize());
+            }
+            serialize() {
+                return this.value.toString();
+            }
+            deserialize(value) {
+                return value;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _RESETINI_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _RESETINI_decorators, { kind: "method", name: "RESETINI", static: false, private: false, access: { has: obj => "RESETINI" in obj, get: obj => obj.RESETINI }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.ValueType = ValueType;
 
 
@@ -53189,105 +54231,179 @@ exports.ValueType = ValueType;
 /*!*************************************!*\
   !*** ./src/engine/types/integer.ts ***!
   \*************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Integer = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
-class Integer extends index_1.ValueType {
-    constructor(engine, definition) {
-        super(engine, definition, 0);
-        this.callbacks.register('ONINIT', this.definition.ONINIT);
-        this.callbacks.registerGroup('ONCHANGED', this.definition.ONCHANGED);
-        this.callbacks.registerGroup('ONBRUTALCHANGED', this.definition.ONBRUTALCHANGED);
-    }
-    ready() {
-        this.callbacks.run('ONINIT');
-    }
-    INC() {
-        this.value++;
-        return this.value;
-    }
-    DEC() {
-        this.value--;
-        return this.value;
-    }
-    ADD(value) {
-        this.value += (0, types_1.ForceNumber)(value);
-        return this.value;
-    }
-    SUB(value) {
-        this.value -= (0, types_1.ForceNumber)(value);
-        return this.value;
-    }
-    MUL(value) {
-        this.value *= (0, types_1.ForceNumber)(value);
-        return this.value;
-    }
-    DIV(value) {
-        this.value /= (0, types_1.ForceNumber)(value);
-        return this.value;
-    }
-    MOD(value) {
-        this.value %= (0, types_1.ForceNumber)(value);
-        return this.value;
-    }
-    CLAMP(min, max) {
-        this.value = Math.min((0, types_1.ForceNumber)(max), Math.max(this.value, (0, types_1.ForceNumber)(min)));
-        return this.value;
-    }
-    AND(value) {
-        this.value &= (0, types_1.ForceNumber)(value);
-        return this.value;
-    }
-    SET(newValue) {
-        if (typeof newValue == 'string') {
-            const possibleInteger = this.engine.getObject(newValue);
-            if (possibleInteger instanceof Integer) {
-                this.value = possibleInteger.value;
-                return;
+let Integer = (() => {
+    var _a;
+    let _classSuper = index_1.ValueType;
+    let _instanceExtraInitializers = [];
+    let _INC_decorators;
+    let _DEC_decorators;
+    let _ADD_decorators;
+    let _SUB_decorators;
+    let _MUL_decorators;
+    let _DIV_decorators;
+    let _MOD_decorators;
+    let _CLAMP_decorators;
+    let _AND_decorators;
+    let _SET_decorators;
+    let _GET_decorators;
+    let _SWITCH_decorators;
+    let _ABS_decorators;
+    return _a = class Integer extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition, 0);
+                __runInitializers(this, _instanceExtraInitializers);
+                this.callbacks.register('ONINIT', this.definition.ONINIT);
+                this.callbacks.registerGroup('ONCHANGED', this.definition.ONCHANGED);
+                this.callbacks.registerGroup('ONBRUTALCHANGED', this.definition.ONBRUTALCHANGED);
             }
-        }
-        // That's how the game works
-        if (newValue === undefined) {
-            this.value = 0;
-            return;
-        }
-        this.value = (0, types_1.ForceNumber)(newValue);
-    }
-    GET() {
-        return this.value;
-    }
-    SWITCH(first, second) {
-        if (this.value == (0, types_1.ForceNumber)(first)) {
-            this.value = (0, types_1.ForceNumber)(second);
-        }
-        else {
-            this.value = (0, types_1.ForceNumber)(first);
-        }
-        return this.value;
-    }
-    ABS(value) {
-        this.value = Math.abs((0, types_1.ForceNumber)(value));
-        return this.value;
-    }
-    valueChanged(oldValue, newValue) {
-        if (oldValue !== newValue) {
-            this.callbacks.run('ONCHANGED', newValue);
-        }
-        this.callbacks.run('ONBRUTALCHANGED', newValue);
-    }
-    get value() {
-        return super.value;
-    }
-    // Force always flooring values
-    set value(newValue) {
-        super.value = Math.floor(newValue);
-    }
-}
+            ready() {
+                this.callbacks.run('ONINIT');
+            }
+            INC() {
+                return ++this.value;
+            }
+            DEC() {
+                return --this.value;
+            }
+            ADD(value) {
+                return this.value += value;
+            }
+            SUB(value) {
+                return this.value -= value;
+            }
+            MUL(value) {
+                return this.value *= value;
+            }
+            DIV(value) {
+                return this.value /= value;
+            }
+            MOD(value) {
+                return this.value %= value;
+            }
+            CLAMP(min, max) {
+                return this.value = Math.min(max, Math.max(this.value, min));
+            }
+            AND(value) {
+                return this.value &= value;
+            }
+            SET(newValue) {
+                if (typeof newValue == 'string') {
+                    const possibleInteger = this.engine.getObject(newValue);
+                    if (possibleInteger instanceof _a) {
+                        this.value = possibleInteger.value;
+                        return;
+                    }
+                }
+                // That's how the game works
+                if (newValue === undefined) {
+                    this.value = 0;
+                    return;
+                }
+                this.value = (0, types_1.ForceNumber)(newValue);
+            }
+            GET() {
+                return this.value;
+            }
+            SWITCH(first, second) {
+                if (this.value == first) {
+                    this.value = second;
+                }
+                else {
+                    this.value = first;
+                }
+                return this.value;
+            }
+            ABS(value) {
+                return this.value = Math.abs(value);
+            }
+            valueChanged(oldValue, newValue) {
+                if (oldValue !== newValue) {
+                    this.callbacks.run('ONCHANGED', newValue);
+                }
+                this.callbacks.run('ONBRUTALCHANGED', newValue);
+            }
+            get value() {
+                return super.value;
+            }
+            // Force always flooring values
+            set value(newValue) {
+                super.value = Math.floor(newValue);
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _INC_decorators = [(0, types_1.method)()];
+            _DEC_decorators = [(0, types_1.method)()];
+            _ADD_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SUB_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _MUL_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _DIV_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _MOD_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _CLAMP_decorators = [(0, types_1.method)({ name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _AND_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SET_decorators = [(0, types_1.method)({ name: "newValue", types: [{ name: "number", literal: null, isArray: false }, { name: "string", literal: null, isArray: false }], optional: true, rest: false })];
+            _GET_decorators = [(0, types_1.method)()];
+            _SWITCH_decorators = [(0, types_1.method)({ name: "first", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "second", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _ABS_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _INC_decorators, { kind: "method", name: "INC", static: false, private: false, access: { has: obj => "INC" in obj, get: obj => obj.INC }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DEC_decorators, { kind: "method", name: "DEC", static: false, private: false, access: { has: obj => "DEC" in obj, get: obj => obj.DEC }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MUL_decorators, { kind: "method", name: "MUL", static: false, private: false, access: { has: obj => "MUL" in obj, get: obj => obj.MUL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DIV_decorators, { kind: "method", name: "DIV", static: false, private: false, access: { has: obj => "DIV" in obj, get: obj => obj.DIV }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MOD_decorators, { kind: "method", name: "MOD", static: false, private: false, access: { has: obj => "MOD" in obj, get: obj => obj.MOD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CLAMP_decorators, { kind: "method", name: "CLAMP", static: false, private: false, access: { has: obj => "CLAMP" in obj, get: obj => obj.CLAMP }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _AND_decorators, { kind: "method", name: "AND", static: false, private: false, access: { has: obj => "AND" in obj, get: obj => obj.AND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SWITCH_decorators, { kind: "method", name: "SWITCH", static: false, private: false, access: { has: obj => "SWITCH" in obj, get: obj => obj.SWITCH }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ABS_decorators, { kind: "method", name: "ABS", static: false, private: false, access: { has: obj => "ABS" in obj, get: obj => obj.ABS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Integer = Integer;
 
 
@@ -53297,13 +54413,48 @@ exports.Integer = Integer;
 /*!**************************************!*\
   !*** ./src/engine/types/keyboard.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Keyboard = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
 const keysMapping = {
     ArrowLeft: 'LEFT',
     ArrowRight: 'RIGHT',
@@ -53313,56 +54464,69 @@ const keysMapping = {
     Digit1: '1',
     Digit2: '2'
 };
-class Keyboard extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.keysState = new Map();
-        this.changeQueue = [];
-        this.onKeyDownCallback = this.onKeyDown.bind(this);
-        this.onKeyUpCallback = this.onKeyUp.bind(this);
-        this.callbacks.registerGroup('ONKEYDOWN', this.definition.ONKEYDOWN);
-        this.callbacks.registerGroup('ONKEYUP', this.definition.ONKEYUP);
-    }
-    ready() {
-        window.addEventListener('keydown', this.onKeyDownCallback);
-        window.addEventListener('keyup', this.onKeyUpCallback);
-    }
-    destroy() {
-        window.removeEventListener('keydown', this.onKeyDownCallback);
-        window.removeEventListener('keyup', this.onKeyUpCallback);
-    }
-    tick() {
-        for (const change of this.changeQueue) {
-            if (change.state) {
-                this.callbacks.run('ONKEYDOWN', change.name);
+let Keyboard = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _ISKEYDOWN_decorators;
+    return _a = class Keyboard extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.keysState = (__runInitializers(this, _instanceExtraInitializers), new Map());
+                this.changeQueue = [];
+                this.onKeyDownCallback = this.onKeyDown.bind(this);
+                this.onKeyUpCallback = this.onKeyUp.bind(this);
+                this.callbacks.registerGroup('ONKEYDOWN', this.definition.ONKEYDOWN);
+                this.callbacks.registerGroup('ONKEYUP', this.definition.ONKEYUP);
             }
-            else {
-                this.callbacks.run('ONKEYUP', change.name);
+            ready() {
+                window.addEventListener('keydown', this.onKeyDownCallback);
+                window.addEventListener('keyup', this.onKeyUpCallback);
             }
-        }
-        this.changeQueue = [];
-    }
-    ISKEYDOWN(keyName) {
-        if (this.keysState.has(keyName)) {
-            return this.keysState.get(keyName);
-        }
-        return false;
-    }
-    onKeyDown(event) {
-        this.setKeyState(event.code, true);
-    }
-    onKeyUp(event) {
-        this.setKeyState(event.code, false);
-    }
-    setKeyState(keyCode, value) {
-        const mapped = keysMapping[keyCode];
-        if (!mapped) {
-            console.warn(`Unsupported keyboard key code ${keyCode}`);
-        }
-        this.keysState.set(mapped, value);
-        this.changeQueue.push({ name: mapped, state: value });
-    }
-}
+            destroy() {
+                window.removeEventListener('keydown', this.onKeyDownCallback);
+                window.removeEventListener('keyup', this.onKeyUpCallback);
+            }
+            tick() {
+                for (const change of this.changeQueue) {
+                    if (change.state) {
+                        this.callbacks.run('ONKEYDOWN', change.name);
+                    }
+                    else {
+                        this.callbacks.run('ONKEYUP', change.name);
+                    }
+                }
+                this.changeQueue = [];
+            }
+            ISKEYDOWN(keyName) {
+                if (this.keysState.has(keyName)) {
+                    return this.keysState.get(keyName);
+                }
+                return false;
+            }
+            onKeyDown(event) {
+                this.setKeyState(event.code, true);
+            }
+            onKeyUp(event) {
+                this.setKeyState(event.code, false);
+            }
+            setKeyState(keyCode, value) {
+                const mapped = keysMapping[keyCode];
+                if (!mapped) {
+                    console.warn(`Unsupported keyboard key code ${keyCode}`);
+                }
+                this.keysState.set(mapped, value);
+                this.changeQueue.push({ name: mapped, state: value });
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _ISKEYDOWN_decorators = [(0, types_1.method)({ name: "keyName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _ISKEYDOWN_decorators, { kind: "method", name: "ISKEYDOWN", static: false, private: false, access: { has: obj => "ISKEYDOWN" in obj, get: obj => obj.ISKEYDOWN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Keyboard = Keyboard;
 
 
@@ -53372,92 +54536,158 @@ exports.Keyboard = Keyboard;
 /*!***********************************!*\
   !*** ./src/engine/types/mouse.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Mouse = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-class Mouse extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.mousePosition = new pixi_js_1.Point(0, 0);
-        this.clicked = false;
-        this.released = false;
-        this.moved = false;
-        this.callbacks.register('ONINIT', definition.ONINIT);
-        this.callbacks.registerGroup('ONCLICK', definition.ONCLICK);
-        this.callbacks.registerGroup('ONRELEASE', definition.ONRELEASE);
-        this.callbacks.register('ONMOVE', definition.ONMOVE);
-    }
-    ready() {
-        this.ENABLE();
-        this.callbacks.run('ONINIT');
-    }
-    destroy() {
-        this.DISABLE();
-    }
-    tick(elapsedMS) {
-        if (this.clicked) {
-            this.callbacks.run('ONCLICK');
-            this.clicked = false;
-        }
-        if (this.released) {
-            this.callbacks.run('ONRELEASE');
-            this.released = false;
-        }
-        if (this.moved) {
-            this.callbacks.run('ONMOVE');
-            this.moved = false;
-        }
-    }
-    SET(cursorType) {
-        throw new errors_1.NotImplementedError();
-    }
-    ENABLE() {
-        this.mouseMoveListener = this.onMouseMove.bind(this);
-        this.mouseClickListener = this.onMouseClick.bind(this);
-        this.mouseReleaseListener = this.onMouseRelease.bind(this);
-        this.engine.app.stage.addListener('pointermove', this.mouseMoveListener);
-        if (this.callbacks.has('ONCLICK')) {
-            this.engine.app.stage.addListener('pointerdown', this.mouseClickListener);
-        }
-        if (this.callbacks.has('ONRELEASE')) {
-            this.engine.app.stage.addListener('pointerup', this.mouseReleaseListener);
-        }
-    }
-    DISABLE() {
-        this.engine.app.stage.removeListener('pointermove', this.mouseMoveListener);
-        this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener);
-    }
-    SHOW() {
-        throw new errors_1.NotImplementedError();
-    }
-    HIDE() {
-        throw new errors_1.NotImplementedError();
-    }
-    GETPOSX() {
-        return this.mousePosition.x;
-    }
-    GETPOSY() {
-        return this.mousePosition.y;
-    }
-    onMouseMove(event) {
-        this.mousePosition = new pixi_js_1.Point(Math.floor(event.screen.x), Math.floor(event.screen.y));
-        this.moved = true;
-    }
-    onMouseClick(event) {
-        this.onMouseMove(event);
-        this.clicked = true;
-    }
-    onMouseRelease(event) {
-        this.onMouseMove(event);
-        this.released = true;
-    }
-}
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Mouse = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _SET_decorators;
+    let _ENABLE_decorators;
+    let _DISABLE_decorators;
+    let _SHOW_decorators;
+    let _HIDE_decorators;
+    let _GETPOSX_decorators;
+    let _GETPOSY_decorators;
+    return _a = class Mouse extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.mousePosition = (__runInitializers(this, _instanceExtraInitializers), new pixi_js_1.Point(0, 0));
+                this.clicked = false;
+                this.released = false;
+                this.moved = false;
+                this.callbacks.register('ONINIT', definition.ONINIT);
+                this.callbacks.registerGroup('ONCLICK', definition.ONCLICK);
+                this.callbacks.registerGroup('ONRELEASE', definition.ONRELEASE);
+                this.callbacks.register('ONMOVE', definition.ONMOVE);
+            }
+            ready() {
+                this.ENABLE();
+                this.callbacks.run('ONINIT');
+            }
+            destroy() {
+                this.DISABLE();
+            }
+            tick(elapsedMS) {
+                if (this.clicked) {
+                    this.callbacks.run('ONCLICK');
+                    this.clicked = false;
+                }
+                if (this.released) {
+                    this.callbacks.run('ONRELEASE');
+                    this.released = false;
+                }
+                if (this.moved) {
+                    this.callbacks.run('ONMOVE');
+                    this.moved = false;
+                }
+            }
+            SET(cursorType) {
+                throw new errors_1.NotImplementedError();
+            }
+            ENABLE() {
+                this.mouseMoveListener = this.onMouseMove.bind(this);
+                this.mouseClickListener = this.onMouseClick.bind(this);
+                this.mouseReleaseListener = this.onMouseRelease.bind(this);
+                this.engine.app.stage.addListener('pointermove', this.mouseMoveListener);
+                if (this.callbacks.has('ONCLICK')) {
+                    this.engine.app.stage.addListener('pointerdown', this.mouseClickListener);
+                }
+                if (this.callbacks.has('ONRELEASE')) {
+                    this.engine.app.stage.addListener('pointerup', this.mouseReleaseListener);
+                }
+            }
+            DISABLE() {
+                this.engine.app.stage.removeListener('pointermove', this.mouseMoveListener);
+                this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener);
+            }
+            SHOW() {
+                throw new errors_1.NotImplementedError();
+            }
+            HIDE() {
+                throw new errors_1.NotImplementedError();
+            }
+            GETPOSX() {
+                return this.mousePosition.x;
+            }
+            GETPOSY() {
+                return this.mousePosition.y;
+            }
+            onMouseMove(event) {
+                this.mousePosition = new pixi_js_1.Point(Math.floor(event.screen.x), Math.floor(event.screen.y));
+                this.moved = true;
+            }
+            onMouseClick(event) {
+                this.onMouseMove(event);
+                this.clicked = true;
+            }
+            onMouseRelease(event) {
+                this.onMouseMove(event);
+                this.released = true;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _SET_decorators = [(0, types_1.method)({ name: "cursorType", types: [{ name: "string", literal: "ACTIVE", isArray: false }, { name: "string", literal: "ARROW", isArray: false }], optional: false, rest: false })];
+            _ENABLE_decorators = [(0, types_1.method)()];
+            _DISABLE_decorators = [(0, types_1.method)()];
+            _SHOW_decorators = [(0, types_1.method)()];
+            _HIDE_decorators = [(0, types_1.method)()];
+            _GETPOSX_decorators = [(0, types_1.method)()];
+            _GETPOSY_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPOSX_decorators, { kind: "method", name: "GETPOSX", static: false, private: false, access: { has: obj => "GETPOSX" in obj, get: obj => obj.GETPOSX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPOSY_decorators, { kind: "method", name: "GETPOSY", static: false, private: false, access: { has: obj => "GETPOSY" in obj, get: obj => obj.GETPOSY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Mouse = Mouse;
 
 
@@ -53509,40 +54739,98 @@ exports.Rand = Rand;
 /*!***********************************!*\
   !*** ./src/engine/types/scene.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Scene = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const utils_1 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-class Scene extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-    }
-    SETMUSICVOLUME(volume) {
-        (0, errors_1.assert)(this.engine.music !== null);
-        this.engine.music.volume = volume / 1000;
-    }
-    SETMINHSPRIORITY(arg) {
-        throw new errors_1.NotImplementedError();
-    }
-    RUNCLONES(baseObjectName, arg1, arg2, behaviourName) {
-        const baseObject = this.engine.getObject(baseObjectName);
-        const behaviour = this.engine.getObject(behaviourName);
-        for (const clone of baseObject.clones) {
-            behaviour.RUN(clone);
-        }
-    }
-    RUN(objectName, methodName, ...args) {
-        return this.engine.getObject(objectName)[methodName](...args);
-    }
-    getRelativePath(filename) {
-        return (0, utils_1.pathJoin)('DANE', this.definition.PATH, filename);
-    }
-}
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Scene = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _SETMUSICVOLUME_decorators;
+    let _SETMINHSPRIORITY_decorators;
+    let _RUNCLONES_decorators;
+    let _RUN_decorators;
+    return _a = class Scene extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+            SETMUSICVOLUME(volume) {
+                (0, errors_1.assert)(this.engine.music !== null);
+                this.engine.music.volume = volume / 1000;
+            }
+            SETMINHSPRIORITY(arg) {
+                throw new errors_1.NotImplementedError();
+            }
+            RUNCLONES(baseObjectName, arg1, arg2, behaviourName) {
+                const baseObject = this.engine.getObject(baseObjectName);
+                const behaviour = this.engine.getObject(behaviourName);
+                for (const clone of baseObject.clones) {
+                    behaviour.RUN(clone);
+                }
+            }
+            RUN(objectName, methodName, ...args) {
+                return this.engine.getObject(objectName)[methodName](...args);
+            }
+            getRelativePath(filename) {
+                return (0, utils_1.pathJoin)('DANE', this.definition.PATH, filename);
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _SETMUSICVOLUME_decorators = [(0, types_1.method)({ name: "volume", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETMINHSPRIORITY_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _RUNCLONES_decorators = [(0, types_1.method)({ name: "baseObjectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg1", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg2", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _RUN_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "methodName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            __esDecorate(_a, null, _SETMUSICVOLUME_decorators, { kind: "method", name: "SETMUSICVOLUME", static: false, private: false, access: { has: obj => "SETMUSICVOLUME" in obj, get: obj => obj.SETMUSICVOLUME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETMINHSPRIORITY_decorators, { kind: "method", name: "SETMINHSPRIORITY", static: false, private: false, access: { has: obj => "SETMINHSPRIORITY" in obj, get: obj => obj.SETMINHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RUNCLONES_decorators, { kind: "method", name: "RUNCLONES", static: false, private: false, access: { has: obj => "RUNCLONES" in obj, get: obj => obj.RUNCLONES }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Scene = Scene;
 
 
@@ -53556,14 +54844,39 @@ exports.Scene = Scene;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Sequence = void 0;
@@ -53573,264 +54886,272 @@ const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts");
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~';
-class Sequence extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.sequenceFile = null;
-        this.parametersMapping = new Map();
-        this.subEntries = new Map();
-        this.parameterSequence = null;
-        this.allAnimoFilenames = new Set();
-        this.sounds = new Map();
-        this.queue = [];
-        this.activeAnimo = null;
-        this.playingSound = null;
-        this.currentAnimoEvent = null;
-        this.sequenceName = null;
-        this.runningSubSequence = null;
-        this.loop = false;
-        this.loopIndex = 0;
-        this.callbacks.register('ONINIT', definition.ONINIT);
-        this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED);
-        this.onAnimoEventFinishedCallback = this.onAnimoEventFinished.bind(this);
-    }
-    init() {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            const relativePath = (_a = this.engine.currentScene) === null || _a === void 0 ? void 0 : _a.getRelativePath(this.definition.FILENAME);
-            if (relativePath == undefined) {
-                throw new filesLoader_1.FileNotFoundError('Could not get scene directory path');
-            }
-            this.sequenceFile = yield this.engine.fileLoader.getSequenceFile(relativePath);
-            yield this.load();
-        });
-    }
-    ready() {
-        this.callbacks.run('ONINIT');
-    }
-    destroy() {
-        var _a;
-        (_a = this.playingSound) === null || _a === void 0 ? void 0 : _a.stop();
-    }
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            (0, errors_1.assert)(this.sequenceFile !== null);
-            const soundsNames = [];
-            for (const definition of Object.values(this.sequenceFile)) {
-                if (definition.TYPE === 'SEQUENCE') {
-                    const sequence = definition;
-                    if (sequence.MODE === 'PARAMETER') {
-                        this.parameterSequence = sequence;
-                        (0, errors_1.assert)(this.parameterSequence.SEQEVENT !== undefined);
-                        for (const [name, indexer] of this.parameterSequence.SEQEVENT) {
-                            // It seems that only first letter matters as in S56_0_WIOSKA (Ufo)
-                            // they accidentally added extra character and it still works
-                            this.parametersMapping.set(name, paramsCharacterSet.indexOf(indexer.charAt(0)));
-                        }
-                    }
-                }
-                else if (definition.TYPE === 'SPEAKING') {
-                    const sequence = definition;
-                    soundsNames.push(sequence.WAVFN);
-                    this.allAnimoFilenames.add(definition.ANIMOFN);
-                }
-                else if (definition.TYPE === 'SIMPLE') {
-                    this.allAnimoFilenames.add(definition.FILENAME);
-                }
-                if (definition.ADD) {
-                    let subEntries = [];
-                    if (this.subEntries.has(definition.ADD)) {
-                        subEntries = this.subEntries.get(definition.ADD);
-                    }
-                    subEntries.push(definition);
-                    this.subEntries.set(definition.ADD, subEntries);
-                }
-            }
-            const sounds = yield Promise.all(soundsNames.map(name => (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/${name}`)));
-            for (let i = 0; i < sounds.length; i++) {
-                this.sounds.set(soundsNames[i], sounds[i]);
-            }
-        });
-    }
-    PLAY(sequenceName) {
-        (0, errors_1.assert)(this.parameterSequence !== null && this.subEntries !== null);
-        sequenceName = sequenceName.toString();
-        const subEntries = this.subEntries.get(this.parameterSequence.NAME);
-        if (subEntries !== undefined && this.parametersMapping.has(sequenceName)) {
-            const entryIndex = this.parametersMapping.get(sequenceName);
-            const entry = subEntries[entryIndex];
-            this.sequenceName = sequenceName;
-            this.fillQueue(entry);
-            this.progressNext();
-        }
-    }
-    ISPLAYING() {
-        return this.sequenceName !== null;
-    }
-    HIDE() {
-        (0, errors_1.assert)(this.sequenceFile !== null);
-        // HIDE() might be called before sequence is playing, so we can't just hide activeAnimo
-        // because activeAnimo would be null at that point, we don't know what sequence is gonna be played
-        for (const filename of this.allAnimoFilenames) {
-            const animo = this.getExistingAnimo(filename);
-            animo === null || animo === void 0 ? void 0 : animo.HIDE();
-        }
-    }
-    STOP(arg) {
-        var _a, _b;
-        this.queue = [];
-        this.sequenceName = null;
-        this.runningSubSequence = null;
-        this.loop = false;
-        this.loopIndex = 0;
-        (_a = this.activeAnimo) === null || _a === void 0 ? void 0 : _a.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
-        this.activeAnimo = null;
-        (_b = this.playingSound) === null || _b === void 0 ? void 0 : _b.stop();
-    }
-    fillQueue(entry) {
-        this.queue.push(entry);
-        if (!this.subEntries.has(entry.NAME)) {
-            return;
-        }
-        const subEntries = this.subEntries.get(entry.NAME);
-        if (entry.MODE === 'RANDOM') {
-            const subEntry = subEntries[Math.floor(Math.random() * subEntries.length)];
-            this.fillQueue(subEntry);
-        }
-        else {
-            for (const subEntry of subEntries) {
-                this.fillQueue(subEntry);
-            }
-        }
-    }
-    onAnimoEventFinished(eventName) {
-        return __awaiter(this, void 0, void 0, function* () {
-            (0, errors_1.assert)(this.activeAnimo !== null);
-            if (this.currentAnimoEvent === eventName) {
-                yield this.progressNext();
-            }
-            else if (this.loop && this.runningSubSequence !== null) {
-                let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`;
-                if (!this.activeAnimo.hasEvent(eventName)) {
-                    this.loopIndex = 1;
-                    eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`;
-                }
-                this.activeAnimo.playEvent(eventName);
-            }
-        });
-    }
-    progressNext() {
-        var _a, _b;
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.sequenceName === null) {
-                return;
-            }
-            if (this.queue.length === 0) {
-                const finishedName = this.sequenceName;
+let Sequence = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _PLAY_decorators;
+    let _ISPLAYING_decorators;
+    let _HIDE_decorators;
+    let _STOP_decorators;
+    return _a = class Sequence extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.sequenceFile = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.parametersMapping = new Map();
+                this.subEntries = new Map();
+                this.parameterSequence = null;
+                this.allAnimoFilenames = new Set();
+                this.sounds = new Map();
+                this.queue = [];
+                this.activeAnimo = null;
+                this.playingSound = null;
+                this.currentAnimoEvent = null;
                 this.sequenceName = null;
-                this.callbacks.run('ONFINISHED', finishedName);
-                return;
+                this.runningSubSequence = null;
+                this.loop = false;
+                this.loopIndex = 0;
+                this.callbacks.register('ONINIT', definition.ONINIT);
+                this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED);
+                this.onAnimoEventFinishedCallback = this.onAnimoEventFinished.bind(this);
             }
-            const next = this.queue.shift();
-            if (next.TYPE === 'SEQUENCE') {
-                yield this.progressNext();
-                return;
-            }
-            if (next.TYPE === 'SPEAKING') {
-                const speaking = next;
-                if (((_a = this.activeAnimo) === null || _a === void 0 ? void 0 : _a.definition.FILENAME) !== speaking.ANIMOFN) {
-                    if (this.activeAnimo) {
-                        this.activeAnimo.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
-                    }
-                    this.activeAnimo = yield this.getAnimo(speaking.ANIMOFN);
-                    if (this.activeAnimo) {
-                        this.activeAnimo.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
-                    }
+            async init() {
+                const relativePath = this.engine.currentScene?.getRelativePath(this.definition.FILENAME);
+                if (relativePath == undefined) {
+                    throw new filesLoader_1.FileNotFoundError('Could not get scene directory path');
                 }
-                if (this.activeAnimo) {
-                    const sound = this.sounds.get(speaking.WAVFN);
-                    const instance = yield sound.play();
-                    this.playingSound = instance;
-                    if (speaking.STARTING) {
-                        this.currentAnimoEvent = speaking.PREFIX + '_START';
-                        this.activeAnimo.playEvent(speaking.PREFIX + '_START');
-                    }
-                    instance.on('end', () => __awaiter(this, void 0, void 0, function* () {
-                        if (speaking.ENDING) {
-                            this.currentAnimoEvent = speaking.PREFIX + '_STOP';
-                            this.activeAnimo.playEvent(speaking.PREFIX + '_STOP');
-                            this.loop = false;
+                this.sequenceFile = await this.engine.fileLoader.getSequenceFile(relativePath);
+                await this.load();
+            }
+            ready() {
+                this.callbacks.run('ONINIT');
+            }
+            destroy() {
+                this.playingSound?.stop();
+            }
+            async load() {
+                (0, errors_1.assert)(this.sequenceFile !== null);
+                const soundsNames = [];
+                for (const definition of Object.values(this.sequenceFile)) {
+                    if (definition.TYPE === 'SEQUENCE') {
+                        const sequence = definition;
+                        if (sequence.MODE === 'PARAMETER') {
+                            this.parameterSequence = sequence;
+                            (0, errors_1.assert)(this.parameterSequence.SEQEVENT !== undefined);
+                            for (const [name, indexer] of this.parameterSequence.SEQEVENT) {
+                                // It seems that only first letter matters as in S56_0_WIOSKA (Ufo)
+                                // they accidentally added extra character and it still works
+                                this.parametersMapping.set(name, paramsCharacterSet.indexOf(indexer.charAt(0)));
+                            }
                         }
-                    }));
-                    this.runningSubSequence = speaking;
-                    if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
-                        this.loop = true;
+                    }
+                    else if (definition.TYPE === 'SPEAKING') {
+                        const sequence = definition;
+                        soundsNames.push(sequence.WAVFN);
+                        this.allAnimoFilenames.add(definition.ANIMOFN);
+                    }
+                    else if (definition.TYPE === 'SIMPLE') {
+                        this.allAnimoFilenames.add(definition.FILENAME);
+                    }
+                    if (definition.ADD) {
+                        let subEntries = [];
+                        if (this.subEntries.has(definition.ADD)) {
+                            subEntries = this.subEntries.get(definition.ADD);
+                        }
+                        subEntries.push(definition);
+                        this.subEntries.set(definition.ADD, subEntries);
+                    }
+                }
+                const sounds = await Promise.all(soundsNames.map(name => (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/${name}`)));
+                for (let i = 0; i < sounds.length; i++) {
+                    this.sounds.set(soundsNames[i], sounds[i]);
+                }
+            }
+            PLAY(sequenceName) {
+                (0, errors_1.assert)(this.parameterSequence !== null && this.subEntries !== null);
+                const subEntries = this.subEntries.get(this.parameterSequence.NAME);
+                if (subEntries !== undefined && this.parametersMapping.has(sequenceName)) {
+                    const entryIndex = this.parametersMapping.get(sequenceName);
+                    const entry = subEntries[entryIndex];
+                    this.sequenceName = sequenceName;
+                    this.fillQueue(entry);
+                    this.progressNext();
+                }
+            }
+            ISPLAYING() {
+                return this.sequenceName !== null;
+            }
+            HIDE() {
+                (0, errors_1.assert)(this.sequenceFile !== null);
+                // HIDE() might be called before sequence is playing, so we can't just hide activeAnimo
+                // because activeAnimo would be null at that point, we don't know what sequence is gonna be played
+                for (const filename of this.allAnimoFilenames) {
+                    const animo = this.getExistingAnimo(filename);
+                    animo?.HIDE();
+                }
+            }
+            STOP(arg) {
+                this.queue = [];
+                this.sequenceName = null;
+                this.runningSubSequence = null;
+                this.loop = false;
+                this.loopIndex = 0;
+                this.activeAnimo?.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                this.activeAnimo = null;
+                this.playingSound?.stop();
+            }
+            fillQueue(entry) {
+                this.queue.push(entry);
+                if (!this.subEntries.has(entry.NAME)) {
+                    return;
+                }
+                const subEntries = this.subEntries.get(entry.NAME);
+                if (entry.MODE === 'RANDOM') {
+                    const subEntry = subEntries[Math.floor(Math.random() * subEntries.length)];
+                    this.fillQueue(subEntry);
+                }
+                else {
+                    for (const subEntry of subEntries) {
+                        this.fillQueue(subEntry);
+                    }
+                }
+            }
+            async onAnimoEventFinished(eventName) {
+                (0, errors_1.assert)(this.activeAnimo !== null);
+                if (this.currentAnimoEvent === eventName) {
+                    await this.progressNext();
+                }
+                else if (this.loop && this.runningSubSequence !== null) {
+                    let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`;
+                    if (!this.activeAnimo.hasEvent(eventName)) {
                         this.loopIndex = 1;
-                        this.activeAnimo.playEvent(speaking.PREFIX + '_1');
+                        eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`;
                     }
+                    this.activeAnimo.playEvent(eventName);
                 }
             }
-            else if (next.TYPE === 'SIMPLE') {
-                const simple = next;
-                if (((_b = this.activeAnimo) === null || _b === void 0 ? void 0 : _b.definition.FILENAME) !== simple.FILENAME) {
+            async progressNext() {
+                if (this.sequenceName === null) {
+                    return;
+                }
+                if (this.queue.length === 0) {
+                    const finishedName = this.sequenceName;
+                    this.sequenceName = null;
+                    this.callbacks.run('ONFINISHED', finishedName);
+                    return;
+                }
+                const next = this.queue.shift();
+                if (next.TYPE === 'SEQUENCE') {
+                    await this.progressNext();
+                    return;
+                }
+                if (next.TYPE === 'SPEAKING') {
+                    const speaking = next;
+                    if (this.activeAnimo?.definition.FILENAME !== speaking.ANIMOFN) {
+                        if (this.activeAnimo) {
+                            this.activeAnimo.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                        }
+                        this.activeAnimo = await this.getAnimo(speaking.ANIMOFN);
+                        if (this.activeAnimo) {
+                            this.activeAnimo.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                        }
+                    }
                     if (this.activeAnimo) {
-                        this.activeAnimo.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                        const sound = this.sounds.get(speaking.WAVFN);
+                        const instance = await sound.play();
+                        this.playingSound = instance;
+                        if (speaking.STARTING) {
+                            this.currentAnimoEvent = speaking.PREFIX + '_START';
+                            this.activeAnimo.playEvent(speaking.PREFIX + '_START');
+                        }
+                        instance.on('end', async () => {
+                            if (speaking.ENDING) {
+                                this.currentAnimoEvent = speaking.PREFIX + '_STOP';
+                                this.activeAnimo.playEvent(speaking.PREFIX + '_STOP');
+                                this.loop = false;
+                            }
+                        });
+                        this.runningSubSequence = speaking;
+                        if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
+                            this.loop = true;
+                            this.loopIndex = 1;
+                            this.activeAnimo.playEvent(speaking.PREFIX + '_1');
+                        }
                     }
-                    this.activeAnimo = yield this.getAnimo(simple.FILENAME);
+                }
+                else if (next.TYPE === 'SIMPLE') {
+                    const simple = next;
+                    if (this.activeAnimo?.definition.FILENAME !== simple.FILENAME) {
+                        if (this.activeAnimo) {
+                            this.activeAnimo.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                        }
+                        this.activeAnimo = await this.getAnimo(simple.FILENAME);
+                        if (this.activeAnimo) {
+                            this.activeAnimo.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                        }
+                    }
                     if (this.activeAnimo) {
-                        this.activeAnimo.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                        if (!this.activeAnimo.hasEvent(simple.EVENT)) {
+                            await this.progressNext();
+                            return;
+                        }
+                        this.currentAnimoEvent = simple.EVENT;
+                        this.runningSubSequence = simple;
+                        this.activeAnimo.playEvent(simple.EVENT);
                     }
                 }
-                if (this.activeAnimo) {
-                    if (!this.activeAnimo.hasEvent(simple.EVENT)) {
-                        yield this.progressNext();
-                        return;
-                    }
-                    this.currentAnimoEvent = simple.EVENT;
-                    this.runningSubSequence = simple;
-                    this.activeAnimo.playEvent(simple.EVENT);
-                }
             }
-        });
-    }
-    getAnimo(source) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const object = this.getExistingAnimo(source);
-            if (object !== null) {
-                return object;
-            }
-            return yield (0, definitionLoader_1.createObject)(this.engine, {
-                TYPE: 'ANIMO',
-                NAME: source,
-                FILENAME: source,
-                FPS: 16,
-                MONITORCOLLISION: false,
-                MONITORCOLLISIONALPHA: false,
-                PRELOAD: true,
-                PRIORITY: 0,
-                RELEASE: true,
-                TOCANVAS: true,
-                TOINI: false,
-                VISIBLE: true
-            });
-        });
-    }
-    getExistingAnimo(source) {
-        const object = this.engine.getObject(source);
-        if (object) {
-            return object;
-        }
-        for (const object of Object.values(this.engine.scope)) {
-            if (object instanceof animo_1.Animo) {
-                if (object.definition.FILENAME === source) {
+            async getAnimo(source) {
+                const object = this.getExistingAnimo(source);
+                if (object !== null) {
                     return object;
                 }
+                return await (0, definitionLoader_1.createObject)(this.engine, {
+                    TYPE: 'ANIMO',
+                    NAME: source,
+                    FILENAME: source,
+                    FPS: 16,
+                    MONITORCOLLISION: false,
+                    MONITORCOLLISIONALPHA: false,
+                    PRELOAD: true,
+                    PRIORITY: 0,
+                    RELEASE: true,
+                    TOCANVAS: true,
+                    TOINI: false,
+                    VISIBLE: true
+                });
             }
-        }
-        return null;
-    }
-}
+            getExistingAnimo(source) {
+                const object = this.engine.getObject(source);
+                if (object) {
+                    return object;
+                }
+                for (const object of Object.values(this.engine.scope)) {
+                    if (object instanceof animo_1.Animo) {
+                        if (object.definition.FILENAME === source) {
+                            return object;
+                        }
+                    }
+                }
+                return null;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _PLAY_decorators = [(0, types_1.method)({ name: "sequenceName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _ISPLAYING_decorators = [(0, types_1.method)()];
+            _HIDE_decorators = [(0, types_1.method)()];
+            _STOP_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            __esDecorate(_a, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISPLAYING_decorators, { kind: "method", name: "ISPLAYING", static: false, private: false, access: { has: obj => "ISPLAYING" in obj, get: obj => obj.ISPLAYING }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Sequence = Sequence;
 
 
@@ -53844,14 +55165,39 @@ exports.Sequence = Sequence;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Sound = void 0;
@@ -53859,90 +55205,113 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-class Sound extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.sound = null;
-        this.callbacks.register('ONINIT', definition.ONINIT);
-        this.callbacks.register('ONSTARTED', definition.ONSTARTED);
-        this.callbacks.register('ONFINISHED', definition.ONFINISHED);
-    }
-    init() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // We don't respect 'PRELOAD' false on purpose, because network download might be slow
-            yield this.loadSound(`Wavs/${this.definition.FILENAME}`);
-        });
-    }
-    ready() {
-        this.callbacks.run('ONINIT');
-    }
-    destroy() {
-        // assert(this.sound !== null) // Why does it even happen?
-        if (this.sound !== null) {
-            this.sound.stop();
-        }
-    }
-    // This argument is "PLAY" for kurator in intro for some reason
-    PLAY(arg) {
-        return __awaiter(this, void 0, void 0, function* () {
-            (0, errors_1.assert)(this.sound !== null);
-            const instance = yield this.sound.play();
-            this.onStart();
-            instance.on('end', this.onEnd.bind(this));
-        });
-    }
-    STOP(arg) {
-        (0, errors_1.assert)(this.sound !== null);
-        this.sound.stop();
-    }
-    RESUME() {
-        (0, errors_1.assert)(this.sound !== null);
-        this.sound.resume();
-    }
-    PAUSE() {
-        (0, errors_1.assert)(this.sound !== null);
-        this.sound.pause();
-    }
-    RELEASE() {
-        var _a, _b;
-        (_a = this.sound) === null || _a === void 0 ? void 0 : _a.stop();
-        (_b = this.sound) === null || _b === void 0 ? void 0 : _b.destroy();
-    }
-    SETFREQ(frequency) {
-        throw new errors_1.NotImplementedError();
-    }
-    LOAD(filename) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.loadSound(filename.substring(1));
-        });
-    }
-    loadSound(path) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                this.sound = yield (0, assetsLoader_1.loadSound)(this.engine.fileLoader, path);
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Sound = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _PLAY_decorators;
+    let _STOP_decorators;
+    let _RESUME_decorators;
+    let _PAUSE_decorators;
+    let _RELEASE_decorators;
+    let _SETFREQ_decorators;
+    let _LOAD_decorators;
+    return _a = class Sound extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.sound = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.callbacks.register('ONINIT', definition.ONINIT);
+                this.callbacks.register('ONSTARTED', definition.ONSTARTED);
+                this.callbacks.register('ONFINISHED', definition.ONFINISHED);
             }
-            catch (err) {
-                if (err instanceof filesLoader_1.FileNotFoundError) {
-                    // Ignore sound loading errors
-                    // because there are some sounds for other language versions
-                    // that it tries to load, but they are not there
-                    console.warn(err);
-                }
-                else {
-                    throw err;
+            async init() {
+                // We don't respect 'PRELOAD' false on purpose, because network download might be slow
+                await this.loadSound(`Wavs/${this.definition.FILENAME}`);
+            }
+            ready() {
+                this.callbacks.run('ONINIT');
+            }
+            destroy() {
+                // assert(this.sound !== null) // Why does it even happen?
+                if (this.sound !== null) {
+                    this.sound.stop();
                 }
             }
-        });
-    }
-    onStart() {
-        console.debug(`Playing sound '${this.definition.FILENAME}'`);
-        this.callbacks.run('ONSTARTED');
-    }
-    onEnd() {
-        console.debug(`Finished playing sound '${this.definition.FILENAME}'`);
-        this.callbacks.run('ONFINISHED');
-    }
-}
+            // This argument is "PLAY" for kurator in intro for some reason
+            async PLAY(arg) {
+                (0, errors_1.assert)(this.sound !== null);
+                const instance = await this.sound.play();
+                this.onStart();
+                instance.on('end', this.onEnd.bind(this));
+            }
+            STOP(arg) {
+                (0, errors_1.assert)(this.sound !== null);
+                this.sound.stop();
+            }
+            RESUME() {
+                (0, errors_1.assert)(this.sound !== null);
+                this.sound.resume();
+            }
+            PAUSE() {
+                (0, errors_1.assert)(this.sound !== null);
+                this.sound.pause();
+            }
+            RELEASE() {
+                this.sound?.stop();
+                this.sound?.destroy();
+            }
+            SETFREQ(frequency) {
+                throw new errors_1.NotImplementedError();
+            }
+            async LOAD(filename) {
+                await this.loadSound(filename.substring(1));
+            }
+            async loadSound(path) {
+                try {
+                    this.sound = await (0, assetsLoader_1.loadSound)(this.engine.fileLoader, path);
+                }
+                catch (err) {
+                    if (err instanceof filesLoader_1.FileNotFoundError) {
+                        // Ignore sound loading errors
+                        // because there are some sounds for other language versions
+                        // that it tries to load, but they are not there
+                        console.warn(err);
+                    }
+                    else {
+                        throw err;
+                    }
+                }
+            }
+            onStart() {
+                console.debug(`Playing sound '${this.definition.FILENAME}'`);
+                this.callbacks.run('ONSTARTED');
+            }
+            onEnd() {
+                console.debug(`Finished playing sound '${this.definition.FILENAME}'`);
+                this.callbacks.run('ONFINISHED');
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _PLAY_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "any", literal: null, isArray: false }], optional: true, rest: false })];
+            _STOP_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            _RESUME_decorators = [(0, types_1.method)()];
+            _PAUSE_decorators = [(0, types_1.method)()];
+            _RELEASE_decorators = [(0, types_1.method)()];
+            _SETFREQ_decorators = [(0, types_1.method)({ name: "frequency", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _LOAD_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RESUME_decorators, { kind: "method", name: "RESUME", static: false, private: false, access: { has: obj => "RESUME" in obj, get: obj => obj.RESUME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _PAUSE_decorators, { kind: "method", name: "PAUSE", static: false, private: false, access: { has: obj => "PAUSE" in obj, get: obj => obj.PAUSE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RELEASE_decorators, { kind: "method", name: "RELEASE", static: false, private: false, access: { has: obj => "RELEASE" in obj, get: obj => obj.RELEASE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETFREQ_decorators, { kind: "method", name: "SETFREQ", static: false, private: false, access: { has: obj => "SETFREQ" in obj, get: obj => obj.SETFREQ }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Sound = Sound;
 
 
@@ -53952,49 +55321,103 @@ exports.Sound = Sound;
 /*!******************************************!*\
   !*** ./src/engine/types/staticFilter.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.StaticFilter = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts");
-class StaticFilter extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.properties = new Map();
-        this.linked = [];
-    }
-    SETPROPERTY(name, value) {
-        this.properties.set(name, value);
-    }
-    LINK(arg) {
-        const object = this.engine.getObject(arg);
-        this.linked.push(object);
-        for (const linkedObject of this.linked) {
-            if (!(linkedObject instanceof index_1.DisplayType)) {
-                continue;
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let StaticFilter = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _SETPROPERTY_decorators;
+    let _LINK_decorators;
+    let _UNLINK_decorators;
+    return _a = class StaticFilter extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.properties = (__runInitializers(this, _instanceExtraInitializers), new Map());
+                this.linked = [];
             }
-            const object = linkedObject.getRenderObject();
-            if (object === null) {
-                continue;
+            SETPROPERTY(name, value) {
+                this.properties.set(name, value);
             }
-            if (this.definition.ACTION === 'ROTATE') {
-                object.anchor.set(0.5, 0.5);
-                if (linkedObject instanceof animo_1.Animo) {
-                    linkedObject.anchorOffsetX = object.width / 2;
-                    linkedObject.anchorOffsetY = object.height / 2;
+            LINK(arg) {
+                const object = this.engine.getObject(arg);
+                this.linked.push(object);
+                for (const linkedObject of this.linked) {
+                    if (!(linkedObject instanceof index_1.DisplayType)) {
+                        continue;
+                    }
+                    const object = linkedObject.getRenderObject();
+                    if (object === null) {
+                        continue;
+                    }
+                    if (this.definition.ACTION === 'ROTATE') {
+                        object.anchor.set(0.5, 0.5);
+                        if (linkedObject instanceof animo_1.Animo) {
+                            linkedObject.anchorOffsetX = object.width / 2;
+                            linkedObject.anchorOffsetY = object.height / 2;
+                        }
+                        object.angle = this.properties.get('ANGLE');
+                    }
                 }
-                object.angle = this.properties.get('ANGLE');
             }
-        }
-    }
-    UNLINK(arg) {
-        const object = this.engine.getObject(arg);
-        this.linked = this.linked.filter(x => x !== object);
-    }
-}
+            UNLINK(arg) {
+                const object = this.engine.getObject(arg);
+                this.linked = this.linked.filter(x => x !== object);
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _SETPROPERTY_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
+            _LINK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
+            _UNLINK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _SETPROPERTY_decorators, { kind: "method", name: "SETPROPERTY", static: false, private: false, access: { has: obj => "SETPROPERTY" in obj, get: obj => obj.SETPROPERTY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LINK_decorators, { kind: "method", name: "LINK", static: false, private: false, access: { has: obj => "LINK" in obj, get: obj => obj.LINK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _UNLINK_decorators, { kind: "method", name: "UNLINK", static: false, private: false, access: { has: obj => "UNLINK" in obj, get: obj => obj.UNLINK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.StaticFilter = StaticFilter;
 
 
@@ -54004,39 +55427,94 @@ exports.StaticFilter = StaticFilter;
 /*!************************************!*\
   !*** ./src/engine/types/string.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.String = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-class String extends index_1.ValueType {
-    constructor(engine, definition) {
-        super(engine, definition, '');
-        this.callbacks.register('ONINIT', definition.ONINIT);
-        this.callbacks.registerGroup('ONCHANGED', definition.ONCHANGED);
-        this.callbacks.registerGroup('ONBRUTALCHANGED', definition.ONBRUTALCHANGED);
-    }
-    ready() {
-        this.callbacks.run('ONINIT');
-    }
-    ADD(text) {
-        this.value += text;
-    }
-    SET(text) {
-        this.value = text;
-    }
-    GET() {
-        return this.value;
-    }
-    valueChanged(oldValue, newValue) {
-        if (oldValue !== newValue) {
-            this.callbacks.run('ONCHANGED', newValue);
-        }
-        this.callbacks.run('ONBRUTALCHANGED', newValue);
-    }
-}
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let String = (() => {
+    var _a;
+    let _classSuper = index_1.ValueType;
+    let _instanceExtraInitializers = [];
+    let _ADD_decorators;
+    let _SET_decorators;
+    let _GET_decorators;
+    return _a = class String extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition, '');
+                __runInitializers(this, _instanceExtraInitializers);
+                this.callbacks.register('ONINIT', definition.ONINIT);
+                this.callbacks.registerGroup('ONCHANGED', definition.ONCHANGED);
+                this.callbacks.registerGroup('ONBRUTALCHANGED', definition.ONBRUTALCHANGED);
+            }
+            ready() {
+                this.callbacks.run('ONINIT');
+            }
+            ADD(text) {
+                this.value += text;
+            }
+            SET(text) {
+                this.value = text;
+            }
+            GET() {
+                return this.value;
+            }
+            valueChanged(oldValue, newValue) {
+                if (oldValue !== newValue) {
+                    this.callbacks.run('ONCHANGED', newValue);
+                }
+                this.callbacks.run('ONBRUTALCHANGED', newValue);
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _ADD_decorators = [(0, types_1.method)({ name: "text", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _SET_decorators = [(0, types_1.method)({ name: "text", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _GET_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.String = String;
 
 
@@ -54066,6 +55544,40 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -54077,28 +55589,43 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Text = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
-class Text extends index_1.DisplayType {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.text = new PIXI.Text('', { fontFamily: 'Arial' });
-    }
-    ready() {
-        const [x, y, width, height] = this.definition.RECT;
-        this.text.x = x;
-        this.text.y = y;
-        this.text.visible = this.engine.debug.isDebug;
-        this.engine.addToStage(this.text);
-    }
-    destroy() {
-        this.engine.removeFromStage(this.text);
-    }
-    SETTEXT(content) {
-        this.text.text = content.toString();
-    }
-    getRenderObject() {
-        return this.text;
-    }
-}
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Text = (() => {
+    var _a;
+    let _classSuper = index_1.DisplayType;
+    let _instanceExtraInitializers = [];
+    let _SETTEXT_decorators;
+    return _a = class Text extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.text = (__runInitializers(this, _instanceExtraInitializers), void 0);
+                this.text = new PIXI.Text('', { fontFamily: 'Arial' });
+            }
+            ready() {
+                const [x, y, width, height] = this.definition.RECT;
+                this.text.x = x;
+                this.text.y = y;
+                this.text.visible = this.engine.debug.isDebug;
+                this.engine.addToStage(this.text);
+            }
+            destroy() {
+                this.engine.removeFromStage(this.text);
+            }
+            SETTEXT(content) {
+                this.text.text = content;
+            }
+            getRenderObject() {
+                return this.text;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _SETTEXT_decorators = [(0, types_1.method)({ name: "content", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _SETTEXT_decorators, { kind: "method", name: "SETTEXT", static: false, private: false, access: { has: obj => "SETTEXT" in obj, get: obj => obj.SETTEXT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Text = Text;
 
 
@@ -54108,77 +55635,126 @@ exports.Text = Text;
 /*!***********************************!*\
   !*** ./src/engine/types/timer.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Timer = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const integer_1 = __webpack_require__(/*! ./integer */ "./src/engine/types/integer.ts");
-class Timer extends index_1.Type {
-    constructor(engine, definition) {
-        var _a;
-        super(engine, definition);
-        this.currentTick = 0;
-        this.collectedTime = 0;
-        this.elapse = definition.ELAPSE;
-        this.enabled = (_a = definition.ENABLED) !== null && _a !== void 0 ? _a : true;
-        this.callbacks.registerGroup('ONTICK', definition.ONTICK);
-        this.callbacks.register('ONINIT', definition.ONINIT);
-    }
-    ready() {
-        if (this.enabled) {
-            this.callbacks.run('ONINIT');
-        }
-        this.RESET();
-    }
-    destroy() {
-        this.DISABLE();
-    }
-    tick(elapsedMS) {
-        var _a;
-        if (!this.enabled) {
-            return;
-        }
-        this.collectedTime += elapsedMS * this.engine.speed;
-        while (this.collectedTime >= this.elapse) {
-            this.currentTick++;
-            this.ONTICK();
-            this.collectedTime -= this.elapse;
-            const ticksLimit = (_a = this.definition.TICKS) !== null && _a !== void 0 ? _a : 0;
-            if (ticksLimit > 0 && this.currentTick >= ticksLimit) {
-                this.DISABLE();
-                return;
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Timer = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _SETELAPSE_decorators;
+    let _SET_decorators;
+    let _RESET_decorators;
+    let _DISABLE_decorators;
+    let _ENABLE_decorators;
+    return _a = class Timer extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                this.currentTick = (__runInitializers(this, _instanceExtraInitializers), 0);
+                this.collectedTime = 0;
+                this.elapse = definition.ELAPSE;
+                this.enabled = definition.ENABLED ?? true;
+                this.callbacks.registerGroup('ONTICK', definition.ONTICK);
+                this.callbacks.register('ONINIT', definition.ONINIT);
             }
-        }
-    }
-    SETELAPSE(newElapse) {
-        if (newElapse instanceof integer_1.Integer) {
-            this.elapse = newElapse.value;
-        }
-        else {
-            this.elapse = newElapse;
-        }
-    }
-    SET(value) {
-        this.collectedTime = value;
-    }
-    RESET() {
-        this.collectedTime = 0;
-        this.currentTick = 0;
-    }
-    DISABLE() {
-        this.enabled = false;
-    }
-    ENABLE() {
-        this.enabled = true;
-        this.collectedTime = 0;
-    }
-    ONTICK() {
-        this.callbacks.run('ONTICK', this.currentTick);
-    }
-}
+            ready() {
+                if (this.enabled) {
+                    this.callbacks.run('ONINIT');
+                }
+                this.RESET();
+            }
+            destroy() {
+                this.DISABLE();
+            }
+            tick(elapsedMS) {
+                if (!this.enabled) {
+                    return;
+                }
+                this.collectedTime += elapsedMS * this.engine.speed;
+                while (this.collectedTime >= this.elapse) {
+                    this.currentTick++;
+                    this.callbacks.run('ONTICK', this.currentTick);
+                    this.collectedTime -= this.elapse;
+                    const ticksLimit = this.definition.TICKS ?? 0;
+                    if (ticksLimit > 0 && this.currentTick >= ticksLimit) {
+                        this.DISABLE();
+                        return;
+                    }
+                }
+            }
+            SETELAPSE(newElapse) {
+                this.elapse = newElapse;
+            }
+            SET(value) {
+                this.collectedTime = value;
+            }
+            RESET() {
+                this.collectedTime = 0;
+                this.currentTick = 0;
+            }
+            DISABLE() {
+                this.enabled = false;
+            }
+            ENABLE() {
+                this.enabled = true;
+                this.collectedTime = 0;
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _SETELAPSE_decorators = [(0, types_1.method)({ name: "newElapse", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SET_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _RESET_decorators = [(0, types_1.method)()];
+            _DISABLE_decorators = [(0, types_1.method)()];
+            _ENABLE_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _SETELAPSE_decorators, { kind: "method", name: "SETELAPSE", static: false, private: false, access: { has: obj => "SETELAPSE" in obj, get: obj => obj.SETELAPSE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RESET_decorators, { kind: "method", name: "RESET", static: false, private: false, access: { has: obj => "RESET" in obj, get: obj => obj.RESET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Timer = Timer;
 
 
@@ -54188,59 +55764,124 @@ exports.Timer = Timer;
 /*!************************************!*\
   !*** ./src/engine/types/vector.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Vector = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
-class Vector extends index_1.ValueType {
-    constructor(engine, definition) {
-        super(engine, definition);
-        this.value = this.definition.VALUE;
-    }
-    ASSIGN(...values) {
-        const newValue = this.value;
-        for (let i = 0; i < values.length; i++) {
-            newValue[i] = (0, types_1.ForceNumber)(values[i]);
-        }
-        this.value = newValue;
-    }
-    ADD(otherVector) {
-        otherVector = otherVector.map(e => (0, types_1.ForceNumber)(e));
-        this.value = this.value.map((val, idx) => val + otherVector[idx]);
-    }
-    MUL(scalar) {
-        scalar = (0, types_1.ForceNumber)(scalar);
-        this.value = this.value.map((val) => val * scalar);
-    }
-    GET(index) {
-        return this.value[(0, types_1.ForceNumber)(index)];
-    }
-    NORMALIZE() {
-        const magnitude = this.LEN();
-        (0, errors_1.assert)(magnitude !== 0, 'Cannot normalize a zero vector');
-        this.value = this.value.map((val) => val / magnitude);
-    }
-    REFLECT(normal, result) {
-        normal = normal.map(e => (0, types_1.ForceNumber)(e));
-        // Calculate the dot product between this.value and the normal vector
-        let dotProduct = 0;
-        for (let i = 0; i < this.value.length; i++) {
-            dotProduct += this.value[i] * normal[i];
-        }
-        // Perform the reflection calculation for each dimension
-        for (let i = 0; i < this.value.length; i++) {
-            result[i] = this.value[i] - 2 * dotProduct * normal[i];
-        }
-    }
-    LEN() {
-        return Math.sqrt(this.value.reduce((sum, val) => sum + val * val, 0));
-    }
-}
+let Vector = (() => {
+    var _a;
+    let _classSuper = index_1.ValueType;
+    let _instanceExtraInitializers = [];
+    let _ASSIGN_decorators;
+    let _ADD_decorators;
+    let _MUL_decorators;
+    let _GET_decorators;
+    let _NORMALIZE_decorators;
+    let _REFLECT_decorators;
+    let _LEN_decorators;
+    return _a = class Vector extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition);
+                __runInitializers(this, _instanceExtraInitializers);
+                this.value = this.definition.VALUE;
+            }
+            ASSIGN(...values) {
+                const newValue = this.value;
+                for (let i = 0; i < values.length; i++) {
+                    newValue[i] = values[i];
+                }
+                this.value = newValue;
+            }
+            ADD(otherVector) {
+                this.value = this.value.map((val, idx) => val + otherVector[idx]);
+            }
+            MUL(scalar) {
+                this.value = this.value.map((val) => val * scalar);
+            }
+            GET(index) {
+                return this.value[index];
+            }
+            NORMALIZE() {
+                const magnitude = this.LEN();
+                (0, errors_1.assert)(magnitude !== 0, 'Cannot normalize a zero vector');
+                this.value = this.value.map((val) => val / magnitude);
+            }
+            // any[] to prevent typeGuard creating new array
+            // result param is a reference
+            REFLECT(normal, result) {
+                // Calculate the dot product between this.value and the normal vector
+                let dotProduct = 0;
+                for (let i = 0; i < this.value.length; i++) {
+                    dotProduct += this.value[i] * normal[i];
+                }
+                // Perform the reflection calculation for each dimension
+                for (let i = 0; i < this.value.length; i++) {
+                    result[i] = this.value[i] - 2 * dotProduct * normal[i];
+                }
+            }
+            LEN() {
+                return Math.sqrt(this.value.reduce((sum, val) => sum + val * val, 0));
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _ASSIGN_decorators = [(0, types_1.method)({ name: "values", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
+            _ADD_decorators = [(0, types_1.method)({ name: "otherVector", types: [{ name: "number", literal: null, isArray: true }], optional: false, rest: false })];
+            _MUL_decorators = [(0, types_1.method)({ name: "scalar", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _GET_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _NORMALIZE_decorators = [(0, types_1.method)()];
+            _REFLECT_decorators = [(0, types_1.method)({ name: "normal", types: [{ name: "number", literal: null, isArray: true }], optional: false, rest: false }, { name: "result", types: [{ name: "any", literal: null, isArray: true }], optional: false, rest: false })];
+            _LEN_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _ASSIGN_decorators, { kind: "method", name: "ASSIGN", static: false, private: false, access: { has: obj => "ASSIGN" in obj, get: obj => obj.ASSIGN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MUL_decorators, { kind: "method", name: "MUL", static: false, private: false, access: { has: obj => "MUL" in obj, get: obj => obj.MUL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _NORMALIZE_decorators, { kind: "method", name: "NORMALIZE", static: false, private: false, access: { has: obj => "NORMALIZE" in obj, get: obj => obj.NORMALIZE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REFLECT_decorators, { kind: "method", name: "REFLECT", static: false, private: false, access: { has: obj => "REFLECT" in obj, get: obj => obj.REFLECT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LEN_decorators, { kind: "method", name: "LEN", static: false, private: false, access: { has: obj => "LEN" in obj, get: obj => obj.LEN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Vector = Vector;
 
 
@@ -54496,7 +56137,6 @@ const splitOnce = (text, separator) => {
     return [text.substring(0, index), text.substring(index + 1)];
 };
 const parseCNV = (content) => {
-    var _a;
     const lines = content.split('\n');
     const objects = {};
     for (const line of lines) {
@@ -54546,7 +56186,7 @@ const parseCNV = (content) => {
         const typeDefinition = types_1.structureDefinitions[object.TYPE];
         for (const field in typeDefinition) {
             const typeInfo = typeDefinition[field];
-            if (!(field in object) && !((_a = typeInfo === null || typeInfo === void 0 ? void 0 : typeInfo.flags) === null || _a === void 0 ? void 0 : _a.optional)) {
+            if (!(field in object) && !typeInfo?.flags?.optional) {
                 console.warn(`Field '${field}' in type ${object.TYPE} is missing but is not optional`);
             }
         }
@@ -54823,10 +56463,13 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.callbacks = exports.map = exports.array = exports.reference = exports.code = exports.callback = exports.boolean = exports.number = exports.string = exports.optional = void 0;
 const evaluator_1 = __webpack_require__(/*! ../../interpreter/evaluator */ "./src/interpreter/evaluator.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const optional = (subType) => {
-    var _a;
-    return (Object.assign(Object.assign({}, subType), { flags: Object.assign(Object.assign({}, ((_a = subType.flags) !== null && _a !== void 0 ? _a : {})), { optional: true }) }));
-};
+const optional = (subType) => ({
+    ...subType,
+    flags: {
+        ...(subType.flags ?? {}),
+        optional: true,
+    },
+});
 exports.optional = optional;
 exports.string = {
     name: 'string',
@@ -54928,7 +56571,7 @@ const createCallback = (value) => {
     else {
         const pattern = /(?<name>[a-zA-Z0-9_]+)(?:\((?<args>.*)\))?/g;
         const argParsed = pattern.exec(value);
-        const groups = argParsed === null || argParsed === void 0 ? void 0 : argParsed.groups;
+        const groups = argParsed?.groups;
         if (groups) {
             const name = groups['name'];
             const args = groups['args'] ? (0, evaluator_1.parseArgs)(groups['args']) : [];
@@ -55521,24 +57164,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const engine_1 = __webpack_require__(/*! ./engine */ "./src/engine/index.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
-const main = () => __awaiter(void 0, void 0, void 0, function* () {
+const main = async () => {
     const app = new PIXI.Application();
     document.body.prepend(app.view);
     const engine = new engine_1.Engine(app);
-    yield engine.init();
-});
+    await engine.init();
+};
 main();
 
 
@@ -56767,7 +58401,6 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             return this.visit(ctx.expr());
         };
         this.visitExpr = (ctx) => {
-            var _a, _b;
             this.lastContext = ctx;
             if (ctx.TRUE() != null) {
                 return true;
@@ -56793,14 +58426,14 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                     this.methodCallUsedVariables[identifier] = arg;
                     this.scriptUsedVariables[identifier] = arg;
                     if (typeof arg === 'string') {
-                        const object = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject(arg);
+                        const object = this.engine?.getObject(arg);
                         if (object !== null && object instanceof string_1.String) {
                             return object.value;
                         }
                     }
                     return this.args[argIdx];
                 }
-                const object = (_b = this.engine) === null || _b === void 0 ? void 0 : _b.getObject(ctx.IDENTIFIER().getText());
+                const object = this.engine?.getObject(ctx.IDENTIFIER().getText());
                 this.methodCallUsedVariables[identifier] = object;
                 this.scriptUsedVariables[identifier] = object;
                 if (object === null) {
@@ -56819,7 +58452,6 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             return this.visitChildren(ctx)[0];
         };
         this.visitMethodCall = (ctx) => {
-            var _a;
             this.lastContext = ctx;
             const object = this.visitObjectName(ctx.objectName());
             if (object == null) {
@@ -56858,7 +58490,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                         (this.args.length ? '%cBehaviour Arguments:%c %O\n' : '') +
                         (Object.keys(argsVariables).length > 0 ? '%cVariables used in call:%c %O\n' : '') +
                         (Object.keys(this.scriptUsedVariables).length > 0 ? '%cVariables used in script:%c %O\n' : '') +
-                        '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', object, ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []), ...(this.args.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []), ...(Object.keys(argsVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', argsVariables] : []), ...(Object.keys(this.scriptUsedVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables] : []), 'font-weight: bold', 'font-weight: inherit', (_a = this.engine) === null || _a === void 0 ? void 0 : _a.scope);
+                        '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', object, ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []), ...(this.args.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []), ...(Object.keys(argsVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', argsVariables] : []), ...(Object.keys(this.scriptUsedVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables] : []), 'font-weight: bold', 'font-weight: inherit', this.engine?.scope);
                     console.error(err);
                     (0, stacktrace_1.printStackTrace)();
                 }
@@ -56874,15 +58506,14 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             }
         };
         this.visitSpecialCall = (ctx) => {
-            var _a, _b, _c, _d, _e, _f, _g, _h;
             this.lastContext = ctx;
             const methodName = ctx.methodName().getText();
             const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : [];
             if (methodName === 'IF') {
                 const operator = args[1];
                 // valueAsString() in order to achieve loose equality
-                const left = (_c = (_b = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject(args[0])) === null || _b === void 0 ? void 0 : _b.value) !== null && _c !== void 0 ? _c : args[0];
-                const right = (_f = (_e = (_d = this.engine) === null || _d === void 0 ? void 0 : _d.getObject(args[2])) === null || _e === void 0 ? void 0 : _e.value) !== null && _f !== void 0 ? _f : args[2];
+                const left = this.engine?.getObject(args[0])?.value ?? args[0];
+                const right = this.engine?.getObject(args[2])?.value ?? args[2];
                 let result = false;
                 if (operator == '_') {
                     result = types_1.Compare.Equal(left, right);
@@ -56902,8 +58533,8 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 else if (operator == '<_') {
                     result = types_1.Compare.LessOrEqual(left, right);
                 }
-                const onTrue = (_g = this.engine) === null || _g === void 0 ? void 0 : _g.getObject(args[3]);
-                const onFalse = (_h = this.engine) === null || _h === void 0 ? void 0 : _h.getObject(args[4]);
+                const onTrue = this.engine?.getObject(args[3]);
+                const onFalse = this.engine?.getObject(args[4]);
                 if (result && onTrue !== null) {
                     onTrue.RUNC();
                 }
@@ -56925,10 +58556,9 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             return ctx.expr_list().map(expr => this.visitExpr(expr));
         };
         this.visitObjectName = (ctx) => {
-            var _a, _b;
             this.lastContext = ctx;
             const objectName = this.replaceParameters(ctx.getText());
-            const object = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject(objectName);
+            const object = this.engine?.getObject(objectName);
             this.methodCallUsedVariables[objectName] = object;
             this.scriptUsedVariables[objectName] = object;
             if (object === null) {
@@ -56941,7 +58571,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                         '\n' +
                         `%cCode:%c\n${code}\n\n` +
                         '%cUsed variables:%c %O\n' +
-                        '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables, 'font-weight: bold', 'font-weight: inherit', (_b = this.engine) === null || _b === void 0 ? void 0 : _b.scope);
+                        '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables, 'font-weight: bold', 'font-weight: inherit', this.engine?.scope);
                 }
                 // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
                 return null;
@@ -56984,8 +58614,8 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
         };
         this.engine = engine;
         this.script = script;
-        this.args = args !== null && args !== void 0 ? args : [];
-        this.printDebug = printDebug !== null && printDebug !== void 0 ? printDebug : true;
+        this.args = args ?? [];
+        this.printDebug = printDebug ?? true;
         this.loadLibraries();
     }
     loadLibraries() {
@@ -57012,12 +58642,11 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
         });
     }
     markInCode(ctx) {
-        var _a, _b, _c;
-        const code = ((_a = this.script) === null || _a === void 0 ? void 0 : _a.substring(0, ctx.start.column)) +
+        const code = this.script?.substring(0, ctx.start.column) +
             '%c' +
-            ((_b = this.script) === null || _b === void 0 ? void 0 : _b.substring(ctx.start.column, ctx.stop.column + 1)) +
+            this.script?.substring(ctx.start.column, ctx.stop.column + 1) +
             '%c' +
-            ((_c = this.script) === null || _c === void 0 ? void 0 : _c.substring(ctx.stop.column + 1));
+            this.script?.substring(ctx.stop.column + 1);
         return code.trimEnd().split(';').join(';\n');
     }
 }
@@ -57122,10 +58751,9 @@ class StackFrameBuilder {
 }
 exports.stackTrace = [];
 const printStackTrace = () => {
-    var _a;
     const lines = [];
     for (const frame of exports.stackTrace) {
-        const argsString = ((_a = frame.args) !== null && _a !== void 0 ? _a : []).map(arg => arg !== undefined ? (0, types_1.valueAsString)(arg) : '<undefined>').join(',');
+        const argsString = (frame.args ?? []).map(arg => arg !== undefined ? (0, types_1.valueAsString)(arg) : '<undefined>').join(',');
         switch (frame.type) {
             case 'callback':
                 lines.push(`at ${frame.object.name}@${frame.callback}(${argsString})`);
@@ -57149,10 +58777,44 @@ exports.printStackTrace = printStackTrace;
 /*!***********************************!*\
   !*** ./src/interpreter/stdlib.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RandomLibrary = void 0;
 const types_1 = __webpack_require__(/*! ../types */ "./src/types.ts");
@@ -57161,30 +58823,43 @@ class Library {
         this.engine = engine;
     }
 }
-class RandomLibrary extends Library {
-    GET(min, max) {
-        // Min and Max can be a string containing a number.
-        // Probably behaviour's constant arguments can only be a string
-        min = (0, types_1.ForceNumber)(min);
-        if (max === undefined) {
-            return this.GET(0, min);
-        }
-        max = min + (0, types_1.ForceNumber)(max);
-        return Math.floor(Math.random() * (max - min)) + min;
-    }
-    GETPLENTY(objectTarget, count, min, max, arg5) {
-        var _a;
-        count = (0, types_1.ForceNumber)(count);
-        min = (0, types_1.ForceNumber)(min);
-        max = (0, types_1.ForceNumber)(max);
-        const object = (_a = this.engine) === null || _a === void 0 ? void 0 : _a.getObject(objectTarget);
-        const values = [];
-        for (let i = 0; i < count; i++) {
-            values.push(this.GET(min, max));
-        }
-        object.ADD(...values);
-    }
-}
+let RandomLibrary = (() => {
+    var _a;
+    let _classSuper = Library;
+    let _instanceExtraInitializers = [];
+    let _GET_decorators;
+    let _GETPLENTY_decorators;
+    return _a = class RandomLibrary extends _classSuper {
+            GET(min, max) {
+                if (max === undefined) {
+                    return this.GET(0, min);
+                }
+                max = min + max;
+                return Math.floor(Math.random() * (max - min)) + min;
+            }
+            GETPLENTY(objectTarget, count, min, max, arg5) {
+                const object = this.engine?.getObject(objectTarget);
+                const values = [];
+                for (let i = 0; i < count; i++) {
+                    values.push(this.GET(min, max));
+                }
+                object.ADD(...values);
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _GET_decorators = [(0, types_1.method)({ name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
+            _GETPLENTY_decorators = [(0, types_1.method)({ name: "objectTarget", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "count", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg5", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPLENTY_decorators, { kind: "method", name: "GETPLENTY", static: false, private: false, access: { has: obj => "GETPLENTY" in obj, get: obj => obj.GETPLENTY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.RandomLibrary = RandomLibrary;
 
 
@@ -57244,18 +58919,47 @@ exports.t = t;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Compare = exports.ForceNumber = exports.valueAsString = void 0;
+exports.method = exports.InvalidMethodParameter = exports.compareType = exports.isDirectlyConvertible = exports.Compare = exports.ForceNumber = exports.valueAsInteger = exports.valueAsDouble = exports.valueAsBool = exports.valueAsString = void 0;
 const errors_1 = __webpack_require__(/*! ./errors */ "./src/errors.ts");
 const valueAsString = (value) => {
+    if (typeof value === 'string') {
+        return value;
+    }
     if (typeof value === 'boolean') {
         return value ? 'TRUE' : 'FALSE';
     }
     if (value === null) {
         return 'NULL';
     }
+    (0, errors_1.assert)(value !== undefined);
+    (0, errors_1.assert)(typeof value !== 'object');
     return value.toString();
 };
 exports.valueAsString = valueAsString;
+const valueAsBool = (value) => {
+    if (typeof value === 'boolean') {
+        return value;
+    }
+    (0, errors_1.assert)(value.toUpperCase() === 'TRUE' || value.toUpperCase() === 'FALSE');
+    return value.toUpperCase() === 'TRUE';
+};
+exports.valueAsBool = valueAsBool;
+const valueAsDouble = (value) => {
+    if (typeof value === 'number') {
+        return value;
+    }
+    const number = Number(value);
+    (0, errors_1.assert)(!Number.isNaN(number), 'Value is not a number');
+    return number;
+};
+exports.valueAsDouble = valueAsDouble;
+const valueAsInteger = (value) => {
+    if (typeof value === 'number' && Number.isInteger(value)) {
+        return value;
+    }
+    return Math.floor((0, exports.valueAsDouble)(value));
+};
+exports.valueAsInteger = valueAsInteger;
 const ForceNumber = (value) => {
     const numberValue = Number(value);
     (0, errors_1.assert)(!isNaN(numberValue), `${value} is not a number`);
@@ -57282,6 +58986,125 @@ exports.Compare = {
         return (0, exports.ForceNumber)(a) >= (0, exports.ForceNumber)(b);
     }
 };
+const convertValue = (value, targetType) => {
+    if (Array.isArray(value)) {
+        const newArray = new Array(value.length);
+        for (let i = 0; i < value.length; i++) {
+            newArray[i] = convertValue(value[i], targetType);
+        }
+        return newArray;
+    }
+    switch (targetType) {
+        case 'string':
+            return (0, exports.valueAsString)(value);
+        case 'boolean':
+            return (0, exports.valueAsBool)(value);
+        case 'number':
+            return (0, exports.valueAsDouble)(value);
+        default:
+            return value;
+    }
+};
+const isDirectlyConvertible = (value, type) => {
+    if (type.isArray !== Array.isArray(value)) {
+        return false;
+    }
+    if (type.isArray) {
+        return value.every((entry) => (0, exports.isDirectlyConvertible)(entry, { name: type.name, literal: type.literal, isArray: false }));
+    }
+    if (type.literal !== null) {
+        return type.literal === convertValue(value, type.name);
+    }
+    switch (type.name) {
+        case 'string':
+            return true;
+        case 'boolean':
+            return typeof value === 'boolean' || value.toString().toUpperCase() === 'TRUE' || value.toString().toUpperCase() === 'FALSE';
+        case 'number':
+            return typeof value === 'number' || !Number.isNaN(Number(value));
+        default:
+            return false;
+    }
+};
+exports.isDirectlyConvertible = isDirectlyConvertible;
+const compareType = (value, expectedType) => {
+    if (expectedType.name === 'any') {
+        return true;
+    }
+    if (expectedType.literal !== null) {
+        return value === expectedType.literal;
+    }
+    const type = typeof value;
+    const isArray = Array.isArray(value);
+    return type === expectedType.name && isArray === expectedType.isArray;
+};
+exports.compareType = compareType;
+class InvalidMethodParameter extends errors_1.UnexpectedError {
+}
+exports.InvalidMethodParameter = InvalidMethodParameter;
+function method(...types) {
+    return (originalMethod, context) => {
+        function replacementMethod(...args) {
+            const newArgs = [...args];
+            for (let i = 0; i < types.length; i++) {
+                const argExpectedTypeInfo = types[i];
+                const subArgsCount = argExpectedTypeInfo.rest ? args.length - i : 1;
+                for (let subArgIdx = i; subArgIdx < i + subArgsCount; subArgIdx++) {
+                    const arg = args[subArgIdx];
+                    const argRealType = typeof arg;
+                    if (arg === undefined) {
+                        if (!argExpectedTypeInfo.optional) {
+                            throw new InvalidMethodParameter(`Non-optional argument "${argExpectedTypeInfo.name}" is undefined`);
+                        }
+                        else {
+                            continue;
+                        }
+                    }
+                    const isExpectedType = argExpectedTypeInfo.types.some(type => (0, exports.compareType)(arg, type));
+                    const isAnyAllowed = argExpectedTypeInfo.types.some(type => type.name === 'any');
+                    if (isExpectedType || isAnyAllowed) {
+                        continue;
+                    }
+                    const typesDisplayStrings = argExpectedTypeInfo.types.map(type => `${type.name}${type.isArray ? '[]' : ''}`);
+                    // We only try to convert when the parameter accepts only one type
+                    if (argExpectedTypeInfo.types.length === 1) {
+                        const firstArgType = argExpectedTypeInfo.types[0];
+                        if (!(0, exports.isDirectlyConvertible)(arg, firstArgType)) {
+                            throw new InvalidMethodParameter([
+                                `Function: ${originalMethod.name}`,
+                                `Type of argument "${argExpectedTypeInfo.name}" does not match the expected type`,
+                                `Expected: ${typesDisplayStrings[0]}`,
+                                `Received: ${argRealType}`,
+                            ].join('\n'));
+                        }
+                        const convertedValue = convertValue(args[subArgIdx], firstArgType.name);
+                        if (firstArgType.literal !== null && firstArgType.literal !== convertedValue) {
+                            throw new InvalidMethodParameter([
+                                `Function: ${originalMethod.name}`,
+                                `Argument "${arg}" does not match literal "${firstArgType.literal}"`
+                            ].join('\n'));
+                        }
+                        newArgs[subArgIdx] = convertedValue;
+                        continue;
+                    }
+                    // Otherwise we just check if it could be converted to any of the accepted types
+                    const anyTypeMatches = argExpectedTypeInfo.types.some(type => (0, exports.isDirectlyConvertible)(arg, type));
+                    if (!anyTypeMatches) {
+                        throw new InvalidMethodParameter([
+                            `Function: ${originalMethod.name}`,
+                            `Type of argument "${argExpectedTypeInfo.name}" does not match any of the possible types`,
+                            `Expected: ${typesDisplayStrings.join(' or ')}`,
+                            `Received: ${argRealType}`
+                        ].join('\n'));
+                    }
+                }
+            }
+            return originalMethod.call(this, ...newArgs);
+        }
+        return replacementMethod;
+    };
+}
+exports.method = method;
 
 
 /***/ }),
@@ -57309,7 +59132,7 @@ exports.stringUntilNull = stringUntilNull;
 const drawRectangle = (graphics, dimensions, color, alpha, borderWidth, borderColor) => {
     graphics.beginFill(color, alpha);
     if (borderWidth !== undefined && borderWidth > 0) {
-        graphics.lineStyle(borderWidth, borderColor !== null && borderColor !== void 0 ? borderColor : 0xffa500);
+        graphics.lineStyle(borderWidth, borderColor ?? 0xffa500);
     }
     graphics.drawRect(dimensions.x, dimensions.y, dimensions.width, dimensions.height);
 };
