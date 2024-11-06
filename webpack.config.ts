@@ -33,16 +33,7 @@ module.exports = (env: any) => ({
     module: {
         rules: [
             {
-                test: /\.(def)$/i,
-                use: [
-                    {
-                        loader: 'raw-loader',
-                    },
-                ]
-            },
-            {
                 test: /\.ts?$/,
-                // use: 'ts-loader',
                 loader: 'ts-loader',
                 exclude: /node_modules/,
                 options: {
