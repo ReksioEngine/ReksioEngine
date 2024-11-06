@@ -1,15 +1,9 @@
 import {Type} from './index'
-import {Engine} from '../index'
 import {GroupDefinition} from '../../fileFormats/cnv/types'
 import {method} from '../../types'
 
 export class Group extends Type<GroupDefinition> {
     private objects: any[] = []
-
-    constructor(engine: Engine, definition: GroupDefinition) {
-        super(engine, definition)
-        this.callbacks.register('ONINIT', this.definition.ONINIT)
-    }
 
     ready() {
         this.callbacks.run('ONINIT')

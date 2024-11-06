@@ -6,9 +6,6 @@ import {method} from '../../types'
 export class String extends ValueType<StringDefinition> {
     constructor(engine: Engine, definition: StringDefinition) {
         super(engine, definition, '')
-        this.callbacks.register('ONINIT', definition.ONINIT)
-        this.callbacks.registerGroup('ONCHANGED', definition.ONCHANGED)
-        this.callbacks.registerGroup('ONBRUTALCHANGED', definition.ONBRUTALCHANGED)
     }
 
     ready() {

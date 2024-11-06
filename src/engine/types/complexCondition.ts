@@ -1,16 +1,9 @@
 import {Type} from './index'
 import {ComplexConditionDefinition} from '../../fileFormats/cnv/types'
-import {Engine} from '../index'
 import {InterruptScriptExecution} from '../../interpreter/evaluator'
 import {method} from '../../types'
 
 export class ComplexCondition extends Type<ComplexConditionDefinition> {
-    constructor(engine: Engine, definition: ComplexConditionDefinition) {
-        super(engine, definition)
-        this.callbacks.register('ONRUNTIMESUCCESS', this.definition.ONRUNTIMESUCCESS)
-        this.callbacks.register('ONRUNTIMEFAILED', this.definition.ONRUNTIMEFAILED)
-    }
-
     // In loops its like 'break'
     @method()
     BREAK(arg: boolean) {

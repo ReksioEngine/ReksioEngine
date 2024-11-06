@@ -22,7 +22,9 @@ export class Type<DefinitionType extends TypeDefinition> {
         this.engine = engine
         this.definition = definition
         this.name = definition.NAME
+
         this.callbacks = new CallbacksComponent(engine, this)
+        this.callbacks.autoRegister()
     }
 
     @method()

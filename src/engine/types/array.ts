@@ -7,7 +7,6 @@ import {method} from '../../types'
 export class ArrayObject extends ValueType<ArrayDefinition> {
     constructor(engine: Engine, definition: ArrayDefinition) {
         super(engine, definition, [])
-        this.callbacks.register('ONINIT', this.definition.ONINIT)
     }
 
     ready() {

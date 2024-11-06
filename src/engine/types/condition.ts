@@ -1,17 +1,10 @@
 import {Type} from './index'
 import {ConditionDefinition} from '../../fileFormats/cnv/types'
-import {Engine} from '../index'
 import {InterruptScriptExecution} from '../../interpreter/evaluator'
 import {Compare, method} from '../../types'
 import {UnexpectedError} from '../../errors'
 
 export class Condition extends Type<ConditionDefinition> {
-    constructor(engine: Engine, definition: ConditionDefinition) {
-        super(engine, definition)
-        this.callbacks.register('ONRUNTIMESUCCESS', this.definition.ONRUNTIMESUCCESS)
-        this.callbacks.register('ONRUNTIMEFAILED', this.definition.ONRUNTIMEFAILED)
-    }
-
     // arg is always true in ReksioIUfo
     // In loops its like 'break'
     @method()

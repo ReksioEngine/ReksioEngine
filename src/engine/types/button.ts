@@ -21,17 +21,6 @@ export class Button extends Type<ButtonDefinition> {
 
     constructor(engine: Engine, definition: ButtonDefinition) {
         super(engine, definition)
-
-        this.callbacks.register('ONACTION', definition.ONACTION)
-        this.callbacks.register('ONCLICKED', definition.ONCLICKED)
-        this.callbacks.register('ONDRAGGING', definition.ONDRAGGING)
-        this.callbacks.register('ONENDDRAGGING', definition.ONENDDRAGGING)
-        this.callbacks.register('ONFOCUSON', definition.ONFOCUSON)
-        this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF)
-        this.callbacks.register('ONRELEASED', definition.ONRELEASED)
-        this.callbacks.register('ONSTARTDRAGGING', definition.ONSTARTDRAGGING)
-        this.callbacks.register('ONINIT', definition.ONINIT)
-
         this.logic = new ButtonLogicComponent(
             this.onStateChange.bind(this)
         )

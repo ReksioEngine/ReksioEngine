@@ -42,8 +42,6 @@ export class Sequence extends Type<SequenceDefinition> {
 
     constructor(engine: Engine, definition: SequenceDefinition) {
         super(engine, definition)
-        this.callbacks.register('ONINIT', definition.ONINIT)
-        this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED)
         this.onAnimoEventFinishedCallback = this.onAnimoEventFinished.bind(this)
     }
 

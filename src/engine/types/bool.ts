@@ -6,9 +6,6 @@ import {method} from '../../types'
 export class Bool extends ValueType<BoolDefinition> {
     constructor(engine: Engine, definition: BoolDefinition) {
         super(engine, definition, false)
-
-        this.callbacks.registerGroup('ONCHANGED', this.definition.ONCHANGED)
-        this.callbacks.registerGroup('ONBRUTALCHANGED', this.definition.ONBRUTALCHANGED)
     }
 
     @method()

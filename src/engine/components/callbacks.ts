@@ -1,9 +1,10 @@
-import {callback, callbacks} from '../../fileFormats/common'
+import {callback, callbacks, FieldTypeEntry} from '../../fileFormats/common'
 import {Engine} from '../index'
 import {Type} from '../types'
 import {assert} from '../../errors'
 import {InterruptScriptExecution} from '../../interpreter/evaluator'
 import {StackFrame, stackTrace} from '../../interpreter/stacktrace'
+import {structureDefinitions} from '../../fileFormats/cnv/types'
 
 export class CallbacksComponent {
     private readonly engine: Engine
@@ -16,7 +17,7 @@ export class CallbacksComponent {
         this.object = object
     }
 
-    registerGroup(type: string, callbacks?: callbacks<any>) {
+    private registerGroup(type: string, callbacks?: callbacks<any>) {
         if (callbacks) {
             this.registry.set(type, {
                 nonParametrized: callbacks.nonParametrized,
@@ -30,11 +31,23 @@ export class CallbacksComponent {
         }
     }
 
-    register(type: string, callback?: callback) {
+    private register(type: string, callback?: callback) {
         this.registry.set(type, {
             nonParametrized: callback ?? null,
             parametrized: new Map<any, callback>()
         })
+    }
+
+    autoRegister() {
+        const structure = structureDefinitions[this.object.definition.TYPE]
+        for (const [key, value] of Object.entries(structure)) {
+            const fieldDefinition = value as FieldTypeEntry
+            if (fieldDefinition.name === 'callback') {
+                this.register(key, this.object.definition[key])
+            } else if (fieldDefinition.name === 'callbacks') {
+                this.registerGroup(key, this.object.definition[key])
+            }
+        }
     }
 
     has(type: string): boolean {

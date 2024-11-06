@@ -1,5 +1,4 @@
 import {Type} from './index'
-import {Engine} from '../index'
 import {loadSound} from '../assetsLoader'
 import {SoundDefinition} from '../../fileFormats/cnv/types'
 import {Sound as PIXISound} from '@pixi/sound'
@@ -9,13 +8,6 @@ import {method} from '../../types'
 
 export class Sound extends Type<SoundDefinition> {
     private sound: PIXISound | null = null
-
-    constructor(engine: Engine, definition: SoundDefinition) {
-        super(engine, definition)
-        this.callbacks.register('ONINIT', definition.ONINIT)
-        this.callbacks.register('ONSTARTED', definition.ONSTARTED)
-        this.callbacks.register('ONFINISHED', definition.ONFINISHED)
-    }
 
     async init() {
         // We don't respect 'PRELOAD' false on purpose, because network download might be slow

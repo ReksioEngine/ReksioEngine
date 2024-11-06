@@ -14,9 +14,6 @@ export class Timer extends Type<TimerDefinition> {
         super(engine, definition)
         this.elapse = definition.ELAPSE
         this.enabled = definition.ENABLED ?? true
-
-        this.callbacks.registerGroup('ONTICK', definition.ONTICK)
-        this.callbacks.register('ONINIT', definition.ONINIT)
     }
 
     ready() {

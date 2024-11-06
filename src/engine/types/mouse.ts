@@ -1,5 +1,4 @@
 import {Type} from './index'
-import {Engine} from '../index'
 import {MouseDefinition} from '../../fileFormats/cnv/types'
 import {FederatedPointerEvent, Point} from 'pixi.js'
 import {NotImplementedError} from '../../errors'
@@ -15,14 +14,6 @@ export class Mouse extends Type<MouseDefinition> {
     private clicked = false
     private released = false
     private moved = false
-
-    constructor(engine: Engine, definition: MouseDefinition) {
-        super(engine, definition)
-        this.callbacks.register('ONINIT', definition.ONINIT)
-        this.callbacks.registerGroup('ONCLICK', definition.ONCLICK)
-        this.callbacks.registerGroup('ONRELEASE', definition.ONRELEASE)
-        this.callbacks.register('ONMOVE', definition.ONMOVE)
-    }
 
     ready() {
         this.ENABLE()

@@ -47,16 +47,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
     constructor(engine: Engine, definition: AnimoDefinition) {
         super(engine, definition)
         this.fps = definition.FPS ?? 16
-
-        this.callbacks.registerGroup('ONFINISHED', definition.ONFINISHED)
-        this.callbacks.registerGroup('ONSTARTED', definition.ONSTARTED)
-        this.callbacks.registerGroup('ONFRAMECHANGED', definition.ONFRAMECHANGED)
-        this.callbacks.register('ONINIT', definition.ONINIT)
-
-        this.callbacks.register('ONFOCUSON', definition.ONFOCUSON)
-        this.callbacks.register('ONFOCUSOFF', definition.ONFOCUSOFF)
-        this.callbacks.register('ONCLICK', definition.ONCLICK)
-        this.callbacks.register('ONRELEASE', definition.ONRELEASE)
     }
 
     async init() {

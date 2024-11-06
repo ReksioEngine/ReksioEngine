@@ -26,9 +26,6 @@ export class Keyboard extends Type<KeyboardDefinition> {
         super(engine, definition)
         this.onKeyDownCallback = this.onKeyDown.bind(this)
         this.onKeyUpCallback = this.onKeyUp.bind(this)
-
-        this.callbacks.registerGroup('ONKEYDOWN', this.definition.ONKEYDOWN)
-        this.callbacks.registerGroup('ONKEYUP', this.definition.ONKEYUP)
     }
 
     ready() {

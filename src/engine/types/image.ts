@@ -1,5 +1,4 @@
 import {DisplayType} from './index'
-import {Engine} from '../index'
 import {ImageDefinition} from '../../fileFormats/cnv/types'
 import {assert, NotImplementedError} from '../../errors'
 import {Point} from 'pixi.js'
@@ -9,11 +8,6 @@ import {method} from '../../types'
 
 export class Image extends DisplayType<ImageDefinition> {
     public sprite: AdvancedSprite | null = null
-
-    constructor(engine: Engine, definition: ImageDefinition) {
-        super(engine, definition)
-        this.callbacks.register('ONINIT', this.definition.ONINIT)
-    }
 
     async init() {
         this.sprite = await this.load()
