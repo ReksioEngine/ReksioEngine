@@ -91,10 +91,6 @@ export class ButtonLogicComponent {
         sprite.removeListener('pointerup', this.onMouseUpCallback)
     }
 
-    getState() {
-        return this.stateMachine.getState()
-    }
-
     disable() {
         if (this.stateMachine.can(Event.DISABLE)) {
             this.stateMachine.dispatch(Event.DISABLE)
@@ -113,25 +109,25 @@ export class ButtonLogicComponent {
         }
     }
 
-    onMouseOver() {
+    private onMouseOver() {
         if (this.stateMachine.can(Event.OVER)) {
             this.stateMachine.dispatch(Event.OVER)
         }
     }
 
-    onMouseUp() {
+    private onMouseUp() {
         if (this.stateMachine.can(Event.UP)) {
             this.stateMachine.dispatch(Event.UP)
         }
     }
 
-    onMouseOut() {
+    private onMouseOut() {
         if (this.stateMachine.can(Event.OUT)) {
             this.stateMachine.dispatch(Event.OUT)
         }
     }
 
-    onMouseDown() {
+    private onMouseDown() {
         if (this.stateMachine.can(Event.DOWN)) {
             this.stateMachine.dispatch(Event.DOWN)
         }
