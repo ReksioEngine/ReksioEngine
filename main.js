@@ -52312,6 +52312,9 @@ exports.ArrayObject = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const generateMessage = (action, position, value) => {
+    return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`;
+};
 let ArrayObject = (() => {
     var _a;
     let _classSuper = index_1.ValueType;
@@ -52347,19 +52350,19 @@ let ArrayObject = (() => {
                 this.value.push(...args);
             }
             ADDAT(position, value) {
-                (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
                 this.value[position] += value;
             }
             MODAT(position, value) {
-                (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
                 this.value[position] %= value;
             }
             CLAMPAT(position, min, max) {
-                (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
                 this.value[position] = Math.min(Math.max(this.value[position], min), max);
             }
             MULAT(position, value) {
-                (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
                 this.value[position] *= value;
             }
             CONTAINS(value) {
@@ -52369,26 +52372,26 @@ let ArrayObject = (() => {
                 this.value = this.value.map((value) => value + arg);
             }
             SUBAT(position, value) {
-                (0, errors_1.assert)(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
                 this.value[position] -= value;
             }
             GET(position) {
-                (0, errors_1.assert)(position < this.value.length, `Tried to access an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                (0, errors_1.assert)(position < this.value.length, generateMessage('access', position, this.value));
                 return this.value[position];
             }
             GETSIZE() {
                 return this.value.length;
             }
             CHANGEAT(position, value) {
-                (0, errors_1.assert)(position < this.value.length, `Tried to set an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                (0, errors_1.assert)(position < this.value.length, generateMessage('set', position, this.value));
                 this.value[position] = value;
             }
             REMOVEAT(position) {
-                (0, errors_1.assert)(position < this.value.length, `Tried to remove an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                (0, errors_1.assert)(position < this.value.length, generateMessage('remove', position, this.value));
                 this.value.splice(position, 1);
             }
             INSERTAT(position, value) {
-                (0, errors_1.assert)(position < this.value.length, `Tried to insert an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`);
+                (0, errors_1.assert)(position < this.value.length, generateMessage('insert', position, this.value));
                 this.value.splice(position, 0, value);
             }
             REMOVEALL() {
