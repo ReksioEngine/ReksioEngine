@@ -51965,11 +51965,11 @@ let Animo = (() => {
             }
             GETCENTERX() {
                 (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
-                return this.getGlobalPosition().x + (this.sprite.width / 2);
+                return Math.round(this.getGlobalPosition().x + (this.sprite.width / 2));
             }
             GETCENTERY() {
                 (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
-                return this.getGlobalPosition().y + (this.sprite.height / 2);
+                return Math.round(this.getGlobalPosition().y + (this.sprite.height / 2));
             }
             GETPOSITIONX() {
                 (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
@@ -54329,13 +54329,7 @@ let Integer = (() => {
                 return this.value;
             }
             SWITCH(first, second) {
-                if (this.value == first) {
-                    this.value = second;
-                }
-                else {
-                    this.value = first;
-                }
-                return this.value;
+                return this.value = this.value == first ? second : first;
             }
             ABS(value) {
                 return this.value = Math.abs(value);
