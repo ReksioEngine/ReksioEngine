@@ -93,7 +93,7 @@ export class Button extends Type<ButtonDefinition> {
         }
     }
 
-    onStateChange(prevState: State, event: Event, state: State) {
+    private onStateChange(prevState: State, event: Event, state: State) {
         if (this.interactArea) {
             // For area button
             this.interactArea.visible = state != State.DISABLED
@@ -202,7 +202,7 @@ export class Button extends Type<ButtonDefinition> {
         this.setRect({ objectName })
     }
 
-    registerInteractive(object: Image | Animo) {
+    private registerInteractive(object: Image | Animo) {
         const renderObject = object.getRenderObject()
         assert(renderObject !== null)
 
@@ -214,7 +214,7 @@ export class Button extends Type<ButtonDefinition> {
         }
     }
 
-    unregisterInteractive(object: Image | Animo) {
+    private unregisterInteractive(object: Image | Animo) {
         const renderObject = object.getRenderObject()
         assert(renderObject !== null)
 

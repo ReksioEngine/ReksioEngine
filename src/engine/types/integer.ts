@@ -84,12 +84,7 @@ export class Integer extends ValueType<IntegerDefinition> {
 
     @method()
     SWITCH(first: number, second: number) {
-        if (this.value == first) {
-            this.value = second
-        } else {
-            this.value = first
-        }
-        return this.value
+        return this.value = this.value == first ? second : first
     }
 
     @method()

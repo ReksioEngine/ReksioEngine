@@ -446,13 +446,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
     @method()
     GETCENTERX(): number {
         assert(this.sprite !== null && this.getGlobalPosition() !== null)
-        return this.getGlobalPosition()!.x + (this.sprite.width / 2)
+        return Math.round(this.getGlobalPosition()!.x + (this.sprite.width / 2))
     }
 
     @method()
     GETCENTERY(): number {
         assert(this.sprite !== null && this.getGlobalPosition() !== null)
-        return this.getGlobalPosition()!.y + (this.sprite.height / 2)
+        return Math.round(this.getGlobalPosition()!.y + (this.sprite.height / 2))
     }
 
     @method()

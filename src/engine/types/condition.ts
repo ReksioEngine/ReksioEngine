@@ -29,7 +29,6 @@ export class Condition extends Type<ConditionDefinition> {
         const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2)
 
         let result
-
         try {
             switch (this.definition.OPERATOR) {
             case 'EQUAL':
