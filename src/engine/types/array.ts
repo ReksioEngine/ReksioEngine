@@ -4,6 +4,10 @@ import {ArrayDefinition} from '../../fileFormats/cnv/types'
 import {assert} from '../../errors'
 import {method} from '../../types'
 
+const generateMessage = (action: string, position: number, value: any[]) => {
+    return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`
+}
+
 export class ArrayObject extends ValueType<ArrayDefinition> {
     constructor(engine: Engine, definition: ArrayDefinition) {
         super(engine, definition, [])
@@ -20,25 +24,25 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
 
     @method()
     ADDAT(position: number, value: number) {
-        assert(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
+        assert(position < this.value.length, generateMessage('modify', position, this.value))
         this.value[position] += value
     }
 
     @method()
     MODAT(position: number, value: number) {
-        assert(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
+        assert(position < this.value.length, generateMessage('modify', position, this.value))
         this.value[position] %= value
     }
 
     @method()
     CLAMPAT(position: number, min: number, max: number) {
-        assert(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
+        assert(position < this.value.length, generateMessage('modify', position, this.value))
         this.value[position] = Math.min(Math.max(this.value[position], min), max)
     }
 
     @method()
     MULAT(position: number, value: number) {
-        assert(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
+        assert(position < this.value.length, generateMessage('modify', position, this.value))
         this.value[position] *= value
     }
 
@@ -54,13 +58,13 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
 
     @method()
     SUBAT(position: number, value: number) {
-        assert(position < this.value.length, `Tried to modify an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
+        assert(position < this.value.length, generateMessage('modify', position, this.value))
         this.value[position] -= value
     }
 
     @method()
     GET(position: number) {
-        assert(position < this.value.length, `Tried to access an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
+        assert(position < this.value.length, generateMessage('access', position, this.value))
         return this.value[position]
     }
 
@@ -71,19 +75,19 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
 
     @method()
     CHANGEAT(position: number, value: any) {
-        assert(position < this.value.length, `Tried to set an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
+        assert(position < this.value.length, generateMessage('set', position, this.value))
         this.value[position] = value
     }
 
     @method()
     REMOVEAT(position: number) {
-        assert(position < this.value.length, `Tried to remove an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
+        assert(position < this.value.length, generateMessage('remove', position, this.value))
         this.value.splice(position, 1)
     }
 
     @method()
     INSERTAT(position: number, value: any) {
-        assert(position < this.value.length, `Tried to insert an element at an index (${position}) that is outside the bounds of the array (length ${this.value.length})`)
+        assert(position < this.value.length, generateMessage('insert', position, this.value))
         this.value.splice(position, 0, value)
     }
 
