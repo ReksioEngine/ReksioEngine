@@ -1,7 +1,7 @@
 import {Engine} from '../index'
 import {DisplayTypeDefinition, TypeDefinition, ValueTypeDefinition} from '../../fileFormats/common'
 import {CallbacksComponent} from '../components/callbacks'
-import {Point, Sprite} from 'pixi.js'
+import {Sprite} from 'pixi.js'
 import {assert, NotImplementedError} from '../../errors'
 import {EventsComponent} from '../components/events'
 import {method} from '../../types'
@@ -91,14 +91,6 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
 
     getRenderObject(): Sprite | null {
         throw new NotImplementedError()
-    }
-
-    getGlobalPosition(): Point | null {
-        const renderObject = this.getRenderObject()
-        if (renderObject === null) {
-            return null
-        }
-        return renderObject.toGlobal(new Point(0, 0), undefined, true) as Point ?? null
     }
 }
 
