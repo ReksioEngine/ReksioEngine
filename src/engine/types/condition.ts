@@ -28,6 +28,10 @@ export class Condition extends Type<ConditionDefinition> {
         const operand1 = this.engine.executeCallback(null, this.definition.OPERAND1)
         const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2)
 
+        if (operand1 === undefined || operand2 === undefined) {
+            return false
+        }
+
         let result
         try {
             switch (this.definition.OPERATOR) {
