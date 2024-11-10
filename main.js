@@ -51964,20 +51964,20 @@ let Animo = (() => {
                 }
             }
             GETCENTERX() {
-                (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
-                return Math.round(this.getGlobalPosition().x + (this.sprite.width / 2));
+                (0, errors_1.assert)(this.sprite !== null);
+                return Math.round(this.sprite.getGlobalPosition().x + (this.sprite.width / 2));
             }
             GETCENTERY() {
-                (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
-                return Math.round(this.getGlobalPosition().y + (this.sprite.height / 2));
+                (0, errors_1.assert)(this.sprite !== null);
+                return Math.round(this.sprite.getGlobalPosition().y + (this.sprite.height / 2));
             }
             GETPOSITIONX() {
-                (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
-                return this.getGlobalPosition().x;
+                (0, errors_1.assert)(this.sprite !== null);
+                return this.sprite.getGlobalPosition().x;
             }
             GETPOSITIONY() {
-                (0, errors_1.assert)(this.sprite !== null && this.getGlobalPosition() !== null);
-                return this.getGlobalPosition().y;
+                (0, errors_1.assert)(this.sprite !== null);
+                return this.sprite.getGlobalPosition().y;
             }
             GETFRAMENAME() {
                 const event = this.getEventByName(this.currentEvent);
@@ -53351,6 +53351,9 @@ let Condition = (() => {
             CHECK(arg) {
                 const operand1 = this.engine.executeCallback(null, this.definition.OPERAND1);
                 const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2);
+                if (operand1 === undefined || operand2 === undefined) {
+                    return false;
+                }
                 let result;
                 try {
                     switch (this.definition.OPERATOR) {
@@ -54030,7 +54033,6 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ValueType = exports.DisplayType = exports.Type = void 0;
 const callbacks_1 = __webpack_require__(/*! ../components/callbacks */ "./src/engine/components/callbacks.ts");
-const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const events_1 = __webpack_require__(/*! ../components/events */ "./src/engine/components/events.ts");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
@@ -54077,7 +54079,7 @@ let Type = (() => {
             // Called when trying to call a method that is not existing for a type
             __call(methodName, args) {
                 const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
-                throw new Error(`Method '${methodName}(${argumentsString})' does not exist`);
+                console.error(`Method '${methodName}(${argumentsString})' does not exist. It might be a script fault.`);
             }
             clone() {
                 // @ts-expect-error Dynamically constructing object
@@ -54122,13 +54124,6 @@ let DisplayType = (() => {
             }
             getRenderObject() {
                 throw new errors_1.NotImplementedError();
-            }
-            getGlobalPosition() {
-                const renderObject = this.getRenderObject();
-                if (renderObject === null) {
-                    return null;
-                }
-                return renderObject.toGlobal(new pixi_js_1.Point(0, 0), undefined, true) ?? null;
             }
         },
         (() => {
