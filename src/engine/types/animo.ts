@@ -400,44 +400,31 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     private onButtonStateChange(prevState: State, event: FSMEvent, newState: State) {
-        switch (newState) {
-        case State.HOVERED:
-            if (this.hasEvent('ONFOCUSON')) {
-                this.playEvent('ONFOCUSON')
+        const playEventIfExists = (eventName: string) => {
+            if (this.hasEvent(eventName)) {
+                this.playEvent(eventName)
             } else if (this.hasEvent('PLAY')) {
                 this.playEvent('PLAY')
             }
+        }
 
-            if (event === FSMEvent.UP) {
-                this.callbacks.run('ONRELEASE')
-            } else {
-                this.callbacks.run('ONFOCUSON')
-            }
+        switch (newState) {
+        case State.HOVERED:
+            playEventIfExists('ONFOCUSON')
+            this.callbacks.run(event === FSMEvent.UP ? 'ONRELEASE' : 'ONFOCUSON')
             break
         case State.STANDARD:
             if (event === FSMEvent.ENABLE) {
-                if (this.hasEvent('ONNOEVENT')) {
-                    this.playEvent('ONNOEVENT')
-                } else if (this.hasEvent('PLAY')) {
-                    this.playEvent('PLAY')
-                }
+                playEventIfExists('ONNOEVENT')
             } else {
-                if (this.hasEvent('ONFOCUSOFF')) {
-                    this.playEvent('ONFOCUSOFF')
-                } else if (this.hasEvent('PLAY')) {
-                    this.playEvent('PLAY')
-                }
+                playEventIfExists('ONFOCUSOFF')
                 this.callbacks.run('ONFOCUSOFF')
             }
             break
         case State.PRESSED:
-            if (this.hasEvent('ONCLICK')) {
-                this.playEvent('ONCLICK')
-            } else if (this.hasEvent('PLAY')) {
-                this.playEvent('PLAY')
-            }
+            playEventIfExists('ONCLICK')
             this.callbacks.run('ONCLICKED')
-            this.callbacks.run('ONCLICK') // Used in S73_0_KOD in Ufo
+            this.callbacks.run('ONCLICK')
             break
         }
     }
