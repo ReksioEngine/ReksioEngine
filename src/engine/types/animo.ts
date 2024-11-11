@@ -111,27 +111,26 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     private async loadSfx(annFile: ANN) {
+        const loadSoundIfNotExists = async (filename: string) => {
+            const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '')
+            try {
+                const sound = await loadSound(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`)
+                this.sounds.set(filename, sound)
+            } catch (err) {
+                console.warn(err)
+            }
+        }
+
+        const soundsNames = new Set<string>()
         for (const event of annFile.events) {
             for (const frame of event.frames) {
-                if (!frame.sounds) {
-                    continue
-                }
-
-                for (const filename of frame.sounds) {
-                    if (this.sounds.has(filename)) {
-                        continue
-                    }
-
-                    const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '')
-                    try {
-                        const sound = await loadSound(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`)
-                        this.sounds.set(filename, sound)
-                    } catch (err) {
-                        console.warn(err)
-                    }
+                if (frame.sounds) {
+                    frame.sounds.forEach(name => soundsNames.add(name))
                 }
             }
         }
+
+        await Promise.all([...soundsNames].map(loadSoundIfNotExists))
     }
 
     private initSprite() {
