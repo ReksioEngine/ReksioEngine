@@ -51696,26 +51696,25 @@ let Animo = (() => {
                 }
             }
             async loadSfx(annFile) {
+                const loadSoundIfNotExists = async (filename) => {
+                    const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '');
+                    try {
+                        const sound = await (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`);
+                        this.sounds.set(filename, sound);
+                    }
+                    catch (err) {
+                        console.warn(err);
+                    }
+                };
+                const soundsNames = new Set();
                 for (const event of annFile.events) {
                     for (const frame of event.frames) {
-                        if (!frame.sounds) {
-                            continue;
-                        }
-                        for (const filename of frame.sounds) {
-                            if (this.sounds.has(filename)) {
-                                continue;
-                            }
-                            const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '');
-                            try {
-                                const sound = await (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`);
-                                this.sounds.set(filename, sound);
-                            }
-                            catch (err) {
-                                console.warn(err);
-                            }
+                        if (frame.sounds) {
+                            frame.sounds.forEach(name => soundsNames.add(name));
                         }
                     }
                 }
+                await Promise.all([...soundsNames].map(loadSoundIfNotExists));
             }
             initSprite() {
                 (0, errors_1.assert)(this.annFile !== null);
@@ -51917,49 +51916,32 @@ let Animo = (() => {
                 }
             }
             onButtonStateChange(prevState, event, newState) {
+                const playEventIfExists = (eventName) => {
+                    if (this.hasEvent(eventName)) {
+                        this.playEvent(eventName);
+                    }
+                    else if (this.hasEvent('PLAY')) {
+                        this.playEvent('PLAY');
+                    }
+                };
                 switch (newState) {
                     case button_1.State.HOVERED:
-                        if (this.hasEvent('ONFOCUSON')) {
-                            this.playEvent('ONFOCUSON');
-                        }
-                        else if (this.hasEvent('PLAY')) {
-                            this.playEvent('PLAY');
-                        }
-                        if (event === button_1.Event.UP) {
-                            this.callbacks.run('ONRELEASE');
-                        }
-                        else {
-                            this.callbacks.run('ONFOCUSON');
-                        }
+                        playEventIfExists('ONFOCUSON');
+                        this.callbacks.run(event === button_1.Event.UP ? 'ONRELEASE' : 'ONFOCUSON');
                         break;
                     case button_1.State.STANDARD:
                         if (event === button_1.Event.ENABLE) {
-                            if (this.hasEvent('ONNOEVENT')) {
-                                this.playEvent('ONNOEVENT');
-                            }
-                            else if (this.hasEvent('PLAY')) {
-                                this.playEvent('PLAY');
-                            }
+                            playEventIfExists('ONNOEVENT');
                         }
                         else {
-                            if (this.hasEvent('ONFOCUSOFF')) {
-                                this.playEvent('ONFOCUSOFF');
-                            }
-                            else if (this.hasEvent('PLAY')) {
-                                this.playEvent('PLAY');
-                            }
+                            playEventIfExists('ONFOCUSOFF');
                             this.callbacks.run('ONFOCUSOFF');
                         }
                         break;
                     case button_1.State.PRESSED:
-                        if (this.hasEvent('ONCLICK')) {
-                            this.playEvent('ONCLICK');
-                        }
-                        else if (this.hasEvent('PLAY')) {
-                            this.playEvent('PLAY');
-                        }
+                        playEventIfExists('ONCLICK');
                         this.callbacks.run('ONCLICKED');
-                        this.callbacks.run('ONCLICK'); // Used in S73_0_KOD in Ufo
+                        this.callbacks.run('ONCLICK');
                         break;
                 }
             }
