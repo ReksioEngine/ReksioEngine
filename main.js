@@ -54658,25 +54658,77 @@ exports.Mouse = Mouse;
 /*!****************************************!*\
   !*** ./src/engine/types/multiArray.ts ***!
   \****************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MultiArray = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-class MultiArray extends index_1.ValueType {
-    constructor(engine, definition) {
-        super(engine, definition, []);
-    }
-    SET(arg1, arg2, arg3) {
-        throw new errors_1.NotImplementedError();
-    }
-    GET(arg1, arg2) {
-        throw new errors_1.NotImplementedError();
-    }
-}
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let MultiArray = (() => {
+    var _a;
+    let _classSuper = index_1.ValueType;
+    let _instanceExtraInitializers = [];
+    let _SET_decorators;
+    let _GET_decorators;
+    return _a = class MultiArray extends _classSuper {
+            constructor(engine, definition) {
+                super(engine, definition, []);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+            SET(arg1, arg2, arg3) {
+                throw new errors_1.NotImplementedError();
+            }
+            GET(arg1, arg2) {
+                throw new errors_1.NotImplementedError();
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _SET_decorators = [(0, types_1.method)({ name: "arg1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg2", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg3", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
+            _GET_decorators = [(0, types_1.method)({ name: "arg1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg2", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.MultiArray = MultiArray;
 
 
