@@ -51650,13 +51650,7 @@ let Animo = (() => {
             }
             ready() {
                 if (this.currentEvent === '') {
-                    (0, errors_1.assert)(this.annFile !== null);
-                    // Find first event with any frames
-                    const defaultEvent = this.annFile.events.find(event => event.framesCount > 0);
-                    if (defaultEvent !== undefined) {
-                        this.changeFrame(defaultEvent, 0);
-                        this.currentEvent = defaultEvent.name;
-                    }
+                    this.loadDefaultEvent();
                 }
                 this.callbacks.run('ONINIT');
             }
@@ -51678,6 +51672,17 @@ let Animo = (() => {
                     this.tickAnimation();
                     this.timeSinceLastFrame -= frameLength;
                 }
+            }
+            loadDefaultEvent() {
+                (0, errors_1.assert)(this.annFile !== null);
+                // Find first event with any frames
+                const defaultEvent = this.annFile.events.find(event => event.framesCount > 0);
+                if (defaultEvent !== undefined) {
+                    this.changeFrame(defaultEvent, 0);
+                    this.currentEvent = defaultEvent.name;
+                    return defaultEvent;
+                }
+                return null;
             }
             async loadAnimation() {
                 (0, errors_1.assert)(this.engine.currentScene !== undefined);
@@ -51861,7 +51866,10 @@ let Animo = (() => {
                     this.currentEvent = eventNameOrFrameIdx.toString();
                     this.currentFrame = Number(frameIdx);
                 }
-                const event = this.getEventByName(this.currentEvent);
+                let event = this.getEventByName(this.currentEvent);
+                if (event === null) {
+                    event = this.loadDefaultEvent();
+                }
                 (0, errors_1.assert)(event !== null);
                 // Necessary in S63_OBOZ
                 if (this.currentFrame >= event.framesCount) {
