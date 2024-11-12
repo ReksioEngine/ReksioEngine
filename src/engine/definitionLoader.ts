@@ -31,6 +31,7 @@ import {Expression} from './types/expression'
 import {Vector} from './types/vector'
 import {StaticFilter} from './types/staticFilter'
 import {Filter} from './types/filter'
+import {MultiArray} from './types/multiArray'
 
 const createTypeInstance = (engine: Engine, definition: any) => {
     switch (definition.TYPE) {
@@ -76,6 +77,8 @@ const createTypeInstance = (engine: Engine, definition: any) => {
         return new Keyboard(engine, definition)
     case 'MOUSE':
         return new Mouse(engine, definition)
+    case 'MULTIARRAY':
+        return new MultiArray(engine, definition)
     case 'MUSIC':
         return new Music(engine, definition)
     case 'RAND':

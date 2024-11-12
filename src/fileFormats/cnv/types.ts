@@ -300,6 +300,14 @@ const ArrayDefinitionStructure = {
     ONINIT: optional(callback)
 }
 
+export type MultiArrayDefinition = TypeDefinition & {
+    DIMENSIONS: number
+}
+
+const MultiArrayDefinitionStructure = {
+    DIMENSIONS: number
+}
+
 export type ButtonDefinition = TypeDefinition & {
     DRAGGABLE?: boolean
     ENABLE: boolean
@@ -501,5 +509,6 @@ export const structureDefinitions = {
     EXPRESSION: ExpressionDefinitionStructure,
     VECTOR: VectorDefinitionStructure,
     STATICFILTER: StaticFilterDefinitionStructure,
-    FILTER: FilterDefinitionStructure
+    FILTER: FilterDefinitionStructure,
+    MULTIARRAY: MultiArrayDefinitionStructure
 } as any
