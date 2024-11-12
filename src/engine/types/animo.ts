@@ -17,7 +17,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     private isPlaying: boolean = false
     private currentFrame: number = 0
-    private currentEvent: string = ''
+    private currentEvent: Event | null = null
     private currentLoop: number = 0
 
     private fps: number = 16
@@ -54,7 +54,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     ready() {
-        if (this.currentEvent === '') {
+        if (this.currentEvent === null) {
             this.loadDefaultEvent()
         }
         this.callbacks.run('ONINIT')
@@ -85,7 +85,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const defaultEvent = this.annFile.events.find((event) => event.framesCount > 0)
         if (defaultEvent !== undefined) {
             this.changeFrame(defaultEvent, 0)
-            this.currentEvent = defaultEvent.name
+            this.currentEvent = defaultEvent
             return defaultEvent
         }
         return null
@@ -176,7 +176,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private tickAnimation() {
         assert(this.annFile !== null && this.sprite !== null)
 
-        const event = this.getEventByName(this.currentEvent)
+        const event = this.currentEvent
         if (!event) {
             return
         }
@@ -208,7 +208,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         // Event might be changed in ONFRAMECHANGED or ONSTARTED
         // event.name might be lowercase
-        if (event.name.toUpperCase() !== this.currentEvent.toUpperCase()) {
+        if (this.currentEvent === null || event.name.toUpperCase() !== this.currentEvent.name.toUpperCase()) {
             return
         }
 
@@ -275,26 +275,26 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.visible = true
 
         this.currentFrame = 0
-        this.currentEvent = name.toString().toUpperCase()
+        this.currentEvent = this.getEventByName(name.toString())
 
         // Animation could be paused before next tick, and it wouldn't render new frame
         this.forceRender()
     }
 
     private forceRender() {
-        const event = this.getEventByName(this.currentEvent)
+        const event = this.currentEvent
         assert(event !== null)
         this.changeFrame(event, this.currentFrame)
     }
 
     private ONFINISHED() {
-        const index = this.currentEvent.toString()
+        const index = this.currentEvent?.name
         this.callbacks.run('ONFINISHED', index)
         this.events?.trigger('ONFINISHED', index)
     }
 
     private ONSTARTED() {
-        const index = this.currentEvent.toString()
+        const index = this.currentEvent?.name
         this.callbacks.run('ONSTARTED', index)
         this.events?.trigger('ONSTARTED', index)
     }
@@ -321,16 +321,15 @@ export class Animo extends DisplayType<AnimoDefinition> {
     @method()
     SETFRAME(eventNameOrFrameIdx: string | number, frameIdx?: number) {
         let newFrame: number
-        let newEvent = this.currentEvent
+        let event = this.currentEvent
 
         if (frameIdx === undefined) {
             newFrame = Number(eventNameOrFrameIdx)
         } else {
-            newEvent = eventNameOrFrameIdx.toString()
+            event = this.getEventByName(eventNameOrFrameIdx.toString())
             newFrame = Number(frameIdx)
         }
 
-        let event = this.getEventByName(newEvent)
         if (event === null) {
             event = this.loadDefaultEvent()
         }
@@ -338,7 +337,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         // Necessary in S63_OBOZ
         if (newFrame < event.framesCount) {
-            this.currentEvent = newEvent
+            this.currentEvent = event
             this.currentFrame = newFrame
 
             // Force render because some animations might not be playing,
@@ -462,7 +461,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     @method()
     GETFRAMENAME(): string {
-        const event = this.getEventByName(this.currentEvent)
+        const event = this.currentEvent
         assert(event !== null)
 
         return event.frames[this.currentFrame].name
@@ -476,7 +475,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     @method()
     GETNOFINEVENT(): number {
-        const event = this.getEventByName(this.currentEvent)
+        const event = this.currentEvent
         assert(event !== null)
 
         return event.framesCount
@@ -484,7 +483,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     @method()
     GETEVENTNAME(): string {
-        return this.currentEvent
+        assert(this.currentEvent !== null)
+        return this.currentEvent.name
     }
 
     @method()
@@ -500,14 +500,14 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     @method()
     GETCURRFRAMEPOSX(): number {
-        const event = this.getEventByName(this.currentEvent)
+        const event = this.currentEvent
         assert(event !== null)
         return event.frames[this.currentFrame].positionX
     }
 
     @method()
     GETCURRFRAMEPOSY(): number {
-        const event = this.getEventByName(this.currentEvent)
+        const event = this.currentEvent
         assert(event !== null)
         return event.frames[this.currentFrame].positionY
     }
@@ -519,7 +519,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
 
         assert(this.currentEvent !== null)
-        return this.isPlaying && this.currentEvent == animName
+        return this.isPlaying && this.currentEvent.name == animName
     }
 
     @method()
