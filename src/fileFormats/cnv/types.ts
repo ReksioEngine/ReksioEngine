@@ -79,6 +79,7 @@ const SceneStructure = {
 
 export type IntegerDefinition = TypeDefinition & {
     VALUE?: number
+    VARTYPE?: string
     DEFAULT?: number
     TOINI?: boolean
     ONINIT?: callback,
@@ -88,6 +89,7 @@ export type IntegerDefinition = TypeDefinition & {
 
 const IntegerStructure = {
     VALUE: optional(number),
+    VARTYPE: optional(string),
     DEFAULT: optional(number),
     TOINI: optional(boolean),
     ONINIT: optional(callback),
@@ -149,6 +151,7 @@ const MusicStructure = {
 export type SoundDefinition = TypeDefinition & {
     FILENAME: string
     PRELOAD?: boolean
+    RELEASE?: boolean
     FLUSHAFTERPLAYED?: boolean
     ONINIT?: callback
     ONFINISHED?: callback
@@ -158,6 +161,7 @@ export type SoundDefinition = TypeDefinition & {
 const SoundStructure = {
     FILENAME: string,
     PRELOAD: optional(boolean),
+    RELEASE: optional(boolean),
     FLUSHAFTERPLAYED: optional(boolean),
     ONINIT: optional(callback),
     ONFINISHED: optional(callback),
@@ -382,7 +386,7 @@ const GroupDefinitionStructure = {
 
 export type TextDefinition = TypeDefinition & {
     VISIBLE: boolean
-    VJUSTIFY: boolean
+    VJUSTIFY?: boolean
     TOCANVAS: boolean
     RECT: Array<number>
     PRIORITY?: number
@@ -393,7 +397,7 @@ export type TextDefinition = TypeDefinition & {
 
 const TextDefinitionStructure = {
     VISIBLE: boolean,
-    VJUSTIFY: boolean,
+    VJUSTIFY: optional(boolean),
     TOCANVAS: boolean,
     RECT: array(number),
     PRIORITY: number,
