@@ -51593,8 +51593,6 @@ let Animo = (() => {
     let _classSuper = index_1.DisplayType;
     let _instanceExtraInitializers = [];
     let _PLAY_decorators;
-    let _ONFINISHED_decorators;
-    let _ONSTARTED_decorators;
     let _STOP_decorators;
     let _PAUSE_decorators;
     let _RESUME_decorators;
@@ -52054,8 +52052,6 @@ let Animo = (() => {
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _PLAY_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: true, rest: false })];
-            _ONFINISHED_decorators = [(0, types_1.method)()];
-            _ONSTARTED_decorators = [(0, types_1.method)()];
             _STOP_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
             _PAUSE_decorators = [(0, types_1.method)()];
             _RESUME_decorators = [(0, types_1.method)()];
@@ -52085,8 +52081,6 @@ let Animo = (() => {
             _MONITORCOLLISION_decorators = [(0, types_1.method)({ name: "newState", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             _REMOVEMONITORCOLLISION_decorators = [(0, types_1.method)()];
             __esDecorate(_a, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(_a, null, _ONFINISHED_decorators, { kind: "method", name: "ONFINISHED", static: false, private: false, access: { has: obj => "ONFINISHED" in obj, get: obj => obj.ONFINISHED }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(_a, null, _ONSTARTED_decorators, { kind: "method", name: "ONSTARTED", static: false, private: false, access: { has: obj => "ONSTARTED" in obj, get: obj => obj.ONSTARTED }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _PAUSE_decorators, { kind: "method", name: "PAUSE", static: false, private: false, access: { has: obj => "PAUSE" in obj, get: obj => obj.PAUSE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _RESUME_decorators, { kind: "method", name: "RESUME", static: false, private: false, access: { has: obj => "RESUME" in obj, get: obj => obj.RESUME }, metadata: _metadata }, null, _instanceExtraInitializers);
