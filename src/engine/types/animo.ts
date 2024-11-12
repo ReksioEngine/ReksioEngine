@@ -56,15 +56,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     ready() {
         if (this.currentEvent === ''){
-            assert(this.annFile !== null)
-            // Find first event with any frames
-            const defaultEvent = this.annFile.events.find(event => event.framesCount > 0)
-            if (defaultEvent !== undefined) {
-                this.changeFrame(defaultEvent, 0)
-                this.currentEvent = defaultEvent.name
-            }
+            this.loadDefaultEvent()
         }
-
         this.callbacks.run('ONINIT')
     }
 
@@ -90,6 +83,18 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.tickAnimation()
             this.timeSinceLastFrame -= frameLength
         }
+    }
+
+    private loadDefaultEvent() {
+        assert(this.annFile !== null)
+        // Find first event with any frames
+        const defaultEvent = this.annFile.events.find(event => event.framesCount > 0)
+        if (defaultEvent !== undefined) {
+            this.changeFrame(defaultEvent, 0)
+            this.currentEvent = defaultEvent.name
+            return defaultEvent
+        }
+        return null
     }
 
     private async loadAnimation() {
@@ -327,7 +332,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.currentFrame = Number(frameIdx)
         }
 
-        const event = this.getEventByName(this.currentEvent)
+        let event = this.getEventByName(this.currentEvent)
+        if (event === null) {
+            event = this.loadDefaultEvent()
+        }
         assert(event !== null)
 
         // Necessary in S63_OBOZ
