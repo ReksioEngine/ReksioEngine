@@ -293,14 +293,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.changeFrame(event, this.currentFrame)
     }
 
-    @method()
     private ONFINISHED() {
         const index = this.currentEvent.toString()
         this.callbacks.run('ONFINISHED', index)
         this.events?.trigger('ONFINISHED', index)
     }
 
-    @method()
     private ONSTARTED() {
         const index = this.currentEvent.toString()
         this.callbacks.run('ONSTARTED', index)
