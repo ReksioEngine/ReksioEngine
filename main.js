@@ -50912,6 +50912,7 @@ const expression_1 = __webpack_require__(/*! ./types/expression */ "./src/engine
 const vector_1 = __webpack_require__(/*! ./types/vector */ "./src/engine/types/vector.ts");
 const staticFilter_1 = __webpack_require__(/*! ./types/staticFilter */ "./src/engine/types/staticFilter.ts");
 const filter_1 = __webpack_require__(/*! ./types/filter */ "./src/engine/types/filter.ts");
+const multiArray_1 = __webpack_require__(/*! ./types/multiArray */ "./src/engine/types/multiArray.ts");
 const createTypeInstance = (engine, definition) => {
     switch (definition.TYPE) {
         case 'ANIMO':
@@ -50956,6 +50957,8 @@ const createTypeInstance = (engine, definition) => {
             return new keyboard_1.Keyboard(engine, definition);
         case 'MOUSE':
             return new mouse_1.Mouse(engine, definition);
+        case 'MULTIARRAY':
+            return new multiArray_1.MultiArray(engine, definition);
         case 'MUSIC':
             return new music_1.Music(engine, definition);
         case 'RAND':
@@ -54651,6 +54654,34 @@ exports.Mouse = Mouse;
 
 /***/ }),
 
+/***/ "./src/engine/types/multiArray.ts":
+/*!****************************************!*\
+  !*** ./src/engine/types/multiArray.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.MultiArray = void 0;
+const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
+const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+class MultiArray extends index_1.ValueType {
+    constructor(engine, definition) {
+        super(engine, definition, []);
+    }
+    SET(arg1, arg2, arg3) {
+        throw new errors_1.NotImplementedError();
+    }
+    GET(arg1, arg2) {
+        throw new errors_1.NotImplementedError();
+    }
+}
+exports.MultiArray = MultiArray;
+
+
+/***/ }),
+
 /***/ "./src/engine/types/music.ts":
 /*!***********************************!*\
   !*** ./src/engine/types/music.ts ***!
@@ -56189,6 +56220,7 @@ const SceneStructure = {
 };
 const IntegerStructure = {
     VALUE: (0, common_1.optional)(common_1.number),
+    VARTYPE: (0, common_1.optional)(common_1.string),
     DEFAULT: (0, common_1.optional)(common_1.number),
     TOINI: (0, common_1.optional)(common_1.boolean),
     ONINIT: (0, common_1.optional)(common_1.callback),
@@ -56220,6 +56252,7 @@ const MusicStructure = {
 const SoundStructure = {
     FILENAME: common_1.string,
     PRELOAD: (0, common_1.optional)(common_1.boolean),
+    RELEASE: (0, common_1.optional)(common_1.boolean),
     FLUSHAFTERPLAYED: (0, common_1.optional)(common_1.boolean),
     ONINIT: (0, common_1.optional)(common_1.callback),
     ONFINISHED: (0, common_1.optional)(common_1.callback),
@@ -56283,6 +56316,9 @@ const BoolDefinitionStructure = {
 const ArrayDefinitionStructure = {
     ONINIT: (0, common_1.optional)(common_1.callback)
 };
+const MultiArrayDefinitionStructure = {
+    DIMENSIONS: common_1.number
+};
 const ButtonDefinitionStructure = {
     DRAGGABLE: (0, common_1.optional)(common_1.boolean),
     ENABLE: common_1.boolean,
@@ -56324,7 +56360,7 @@ const GroupDefinitionStructure = {
 };
 const TextDefinitionStructure = {
     VISIBLE: common_1.boolean,
-    VJUSTIFY: common_1.boolean,
+    VJUSTIFY: (0, common_1.optional)(common_1.boolean),
     TOCANVAS: common_1.boolean,
     RECT: (0, common_1.array)(common_1.number),
     PRIORITY: common_1.number,
@@ -56393,7 +56429,8 @@ exports.structureDefinitions = {
     EXPRESSION: ExpressionDefinitionStructure,
     VECTOR: VectorDefinitionStructure,
     STATICFILTER: StaticFilterDefinitionStructure,
-    FILTER: FilterDefinitionStructure
+    FILTER: FilterDefinitionStructure,
+    MULTIARRAY: MultiArrayDefinitionStructure
 };
 
 
