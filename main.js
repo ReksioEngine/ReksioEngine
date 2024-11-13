@@ -50709,30 +50709,47 @@ class Debugging {
         }
         const debug = document.querySelector('#debug');
         debug.style.display = 'block';
-        debug.querySelector('#speed').addEventListener('input', (e) => {
+        const speedSlider = debug.querySelector('#speed');
+        const speedReset = debug.querySelector('#speedReset');
+        const speedDisplay = debug.querySelector('#speedDisplay');
+        const spaceVelocity = debug.querySelector('#spaceVelocity');
+        const xray = debug.querySelector('#xray');
+        const sceneSelector = document.querySelector('#sceneSelector');
+        const sceneChangeButton = document.querySelector('#changeScene');
+        const setSpeed = (speed) => {
+            this.engine.speed = speed;
+            sound_1.sound.speedAll = speed;
+            speedDisplay.textContent = `(${speed}x)`;
+            this.engine.app.ticker.maxFPS = speed > 1 ? 0 : 60;
+        };
+        speedSlider.addEventListener('input', (e) => {
             const target = e.target;
             let sliderValue = target.value;
             if (sliderValue > 1) {
                 sliderValue = Math.round(1 + (sliderValue - 1) * 10);
             }
-            this.engine.speed = sliderValue;
-            this.engine.app.ticker.speed = sliderValue;
-            sound_1.sound.speedAll = sliderValue;
-            debug.querySelector('#speedDisplay').textContent = `(${sliderValue}x)`;
+            setSpeed(sliderValue);
         });
-        debug.querySelector('#speedReset').addEventListener('click', (e) => {
-            debug.querySelector('#speed').value = 1;
-            this.engine.speed = 1;
-            this.engine.app.ticker.speed = 1;
-            sound_1.sound.speedAll = 1;
-            debug.querySelector('#speedDisplay').textContent = '(1x)';
+        speedReset.addEventListener('click', () => {
+            speedSlider.value = 1;
+            setSpeed(1);
         });
-        debug.querySelector('#xray').addEventListener('change', (e) => {
+        spaceVelocity.addEventListener('change', (e) => {
+            const target = e.target;
+            if (target.checked) {
+                speedSlider.max = 9.9;
+            }
+            else {
+                speedSlider.max = 1.9;
+                speedSlider.value = 1;
+                setSpeed(1);
+            }
+        });
+        xray.addEventListener('change', (e) => {
             const target = e.target;
             this.enableXRay = target.checked;
         });
         const episode = Object.values(this.engine.globalScope).find((object) => object.definition.TYPE === 'EPISODE');
-        const container = document.querySelector('#sceneSelector');
         for (const sceneName of episode.definition.SCENES) {
             const scene = Object.values(this.engine.globalScope).find((object) => {
                 return object.definition.TYPE === 'SCENE' && object.definition.NAME === sceneName;
@@ -50743,11 +50760,10 @@ class Debugging {
             option.value = sceneName;
             option.text = sceneName;
             option.disabled = !canGoTo;
-            container.appendChild(option);
+            sceneSelector.appendChild(option);
         }
-        const button = document.querySelector('#changeScene');
-        button.addEventListener('click', () => {
-            this.engine.changeScene(container.value);
+        sceneChangeButton.addEventListener('click', () => {
+            this.engine.changeScene(sceneSelector.value);
         });
     }
     updateCurrentScene() {
