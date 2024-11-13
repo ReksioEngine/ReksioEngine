@@ -50668,6 +50668,8 @@ const utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/animo.ts");
 const button_1 = __webpack_require__(/*! ./types/button */ "./src/engine/types/button.ts");
+const parser_1 = __webpack_require__(/*! ../fileFormats/cnv/parser */ "./src/fileFormats/cnv/parser.ts");
+const definitionLoader_1 = __webpack_require__(/*! ./definitionLoader */ "./src/engine/definitionLoader.ts");
 class Debugging {
     constructor(engine, isDebug) {
         this.isDebug = false;
@@ -50676,6 +50678,13 @@ class Debugging {
         this.enableXRay = false;
         this.engine = engine;
         this.isDebug = isDebug;
+    }
+    async createObject(definition) {
+        return await (0, definitionLoader_1.createObject)(this.engine, definition);
+    }
+    async loadCNV(definition, scope = this.engine.scope) {
+        await (0, definitionLoader_1.loadDefinition)(this.engine, scope, (0, parser_1.parseCNV)(definition));
+        return scope;
     }
     applyQueryParams() {
         if (!this.isDebug) {
