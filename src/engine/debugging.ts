@@ -7,6 +7,8 @@ import {drawRectangle} from '../utils'
 import {Container, Graphics, Rectangle, Sprite, Text} from 'pixi.js'
 import {Animo} from './types/animo'
 import {Button} from './types/button'
+import {CNVObject, parseCNV} from '../fileFormats/cnv/parser'
+import {createObject, loadDefinition} from './definitionLoader'
 
 export class Debugging {
     private engine: Engine
@@ -19,6 +21,15 @@ export class Debugging {
     constructor(engine: Engine, isDebug: boolean) {
         this.engine = engine
         this.isDebug = isDebug
+    }
+
+    async createObject(definition: CNVObject) {
+        return await createObject(this.engine, definition)
+    }
+
+    async loadCNV(definition: string, scope: Record<string, any> = this.engine.scope) {
+        await loadDefinition(this.engine, scope, parseCNV(definition))
+        return scope
     }
 
     applyQueryParams() {
