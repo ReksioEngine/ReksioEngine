@@ -149,7 +149,7 @@ export class InvalidMethodParameter extends UnexpectedError {}
 
 export function method(...types: parameter[]) {
     return (originalMethod: any, context: any) => {
-        function replacementMethod(this: any, ...args: any[]) {
+        function typeGuardWrapper(this: any, ...args: any[]) {
             const newArgs = [...args]
 
             for (let i = 0; i < types.length; i++) {
@@ -219,6 +219,6 @@ export function method(...types: parameter[]) {
             return originalMethod.call(this, ...newArgs)
         }
 
-        return replacementMethod
+        return typeGuardWrapper
     }
 }
