@@ -60,7 +60,24 @@ export class Debugging {
         const debug: any = document.querySelector('#debug')!
         debug.style.display = 'block'
 
-        debug.querySelector('#speed').addEventListener('input', (e: InputEvent) => {
+        const speedSlider = debug.querySelector('#speed')
+        const speedReset = debug.querySelector('#speedReset')
+        const speedDisplay = debug.querySelector('#speedDisplay')
+        const spaceVelocity = debug.querySelector('#spaceVelocity')
+        const xray = debug.querySelector('#xray')
+
+        const sceneSelector: any = document.querySelector('#sceneSelector')!
+        const sceneChangeButton = document.querySelector('#changeScene')!
+
+        const setSpeed = (speed: number) => {
+            this.engine.speed = speed
+            sound.speedAll = speed
+            speedDisplay.textContent = `(${speed}x)`
+
+            this.engine.app.ticker.maxFPS = speed > 1 ? 0 : 60
+        }
+
+        speedSlider.addEventListener('input', (e: InputEvent) => {
             const target = e.target as HTMLInputElement
 
             let sliderValue = target.value as unknown as number
@@ -68,27 +85,32 @@ export class Debugging {
                 sliderValue = Math.round(1 + (sliderValue - 1) * 10)
             }
 
-            this.engine.speed = sliderValue
-            this.engine.app.ticker.speed = sliderValue
-            sound.speedAll = sliderValue
-            debug.querySelector('#speedDisplay').textContent = `(${sliderValue}x)`
+            setSpeed(sliderValue)
         })
 
-        debug.querySelector('#speedReset').addEventListener('click', (e: InputEvent) => {
-            debug.querySelector('#speed').value = 1
-            this.engine.speed = 1
-            this.engine.app.ticker.speed = 1
-            sound.speedAll = 1
-            debug.querySelector('#speedDisplay').textContent = '(1x)'
+        speedReset.addEventListener('click', () => {
+            speedSlider.value = 1
+            setSpeed(1)
         })
 
-        debug.querySelector('#xray').addEventListener('change', (e: InputEvent) => {
+        spaceVelocity.addEventListener('change', (e: InputEvent) => {
+            const target = e.target as HTMLInputElement
+
+            if (target.checked) {
+                speedSlider.max = 9.9
+            } else {
+                speedSlider.max = 1.9
+                speedSlider.value = 1
+                setSpeed(1)
+            }
+        })
+
+        xray.addEventListener('change', (e: InputEvent) => {
             const target = e.target as HTMLInputElement
             this.enableXRay = target.checked
         })
 
         const episode: Episode = Object.values(this.engine.globalScope).find((object: Type<any>) => object.definition.TYPE === 'EPISODE')
-        const container: any = document.querySelector('#sceneSelector')!
         for (const sceneName of episode.definition.SCENES) {
             const scene = Object.values(this.engine.globalScope).find((object: Type<any>) => {
                 return object.definition.TYPE === 'SCENE' && object.definition.NAME === sceneName
@@ -101,11 +123,11 @@ export class Debugging {
             option.value = sceneName
             option.text = sceneName
             option.disabled = !canGoTo
-            container.appendChild(option)
+            sceneSelector.appendChild(option)
         }
-        const button = document.querySelector('#changeScene')!
-        button.addEventListener('click', () => {
-            this.engine.changeScene(container.value)
+
+        sceneChangeButton.addEventListener('click', () => {
+            this.engine.changeScene(sceneSelector.value)
         })
     }
 
