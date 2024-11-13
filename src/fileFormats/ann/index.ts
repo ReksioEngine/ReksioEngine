@@ -26,10 +26,9 @@ export interface Event {
 }
 
 export interface Frame {
-    check: string
     positionX: number
     positionY: number
-    sfxSwitch: number
+    hasSounds: number
     transparency: number
     name: string
     sounds: string[]
@@ -40,7 +39,7 @@ export interface AnnImage {
     height: number
     positionX: number
     positionY: number
-    compression: number
+    compressionType: number
     imageLen: number
     alphaLen: number
     name: string
@@ -80,12 +79,12 @@ const parseHeader = (view: BinaryBuffer) => {
 
 const parseFrame = (view: BinaryBuffer) => {
     const frame = {} as Frame
-    frame.check = decoder.decode(view.read(4))
+    view.skip(4)
     view.skip(4)
     frame.positionX = view.getInt16()
     frame.positionY = view.getInt16()
     view.skip(4)
-    frame.sfxSwitch = view.getUint32()
+    frame.hasSounds = view.getUint32()
     view.skip(4)
     frame.transparency = view.getUint8()
     view.skip(5)
@@ -93,7 +92,7 @@ const parseFrame = (view: BinaryBuffer) => {
     const nameSize = view.getUint32()
     frame.name = stringUntilNull(decoder.decode(view.read(nameSize)))
 
-    if (frame.sfxSwitch != 0) {
+    if (frame.hasSounds != 0) {
         const soundsLen = view.getUint32()
         frame.sounds = stringUntilNull(decoder.decode(view.read(soundsLen))).split(';').filter(x => x.trim() !== '')
     }
@@ -130,7 +129,7 @@ const parseAnnImage = (view: BinaryBuffer) => {
     img.height = view.getUint16()
     img.positionX = view.getInt16()
     img.positionY = view.getInt16()
-    img.compression = view.getUint16()
+    img.compressionType = view.getUint16()
     img.imageLen = view.getUint32()
     view.skip(4 + 0xA)
     img.alphaLen = view.getUint32()
@@ -159,7 +158,7 @@ export const loadAnn = (data: ArrayBuffer) => {
         const decompressedImageLen = img.width * img.height * 2
         const decompressedAlphaLen = img.alphaLen ? img.width * img.height : 0
 
-        images.push(loadImageWithoutHeader(buffer, img.compression, img.imageLen, decompressedImageLen, img.alphaLen, decompressedAlphaLen))
+        images.push(loadImageWithoutHeader(buffer, img.compressionType, img.imageLen, decompressedImageLen, img.alphaLen, decompressedAlphaLen))
     }
 
     return {
