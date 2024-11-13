@@ -59084,7 +59084,7 @@ class InvalidMethodParameter extends errors_1.UnexpectedError {
 exports.InvalidMethodParameter = InvalidMethodParameter;
 function method(...types) {
     return (originalMethod, context) => {
-        function replacementMethod(...args) {
+        function typeGuardWrapper(...args) {
             const newArgs = [...args];
             for (let i = 0; i < types.length; i++) {
                 const argExpectedTypeInfo = types[i];
@@ -59141,7 +59141,7 @@ function method(...types) {
             }
             return originalMethod.call(this, ...newArgs);
         }
-        return replacementMethod;
+        return typeGuardWrapper;
     };
 }
 exports.method = method;
