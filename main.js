@@ -55998,18 +55998,18 @@ const parseHeader = (view) => {
 };
 const parseFrame = (view) => {
     const frame = {};
-    frame.check = decoder.decode(view.read(4));
+    view.skip(4);
     view.skip(4);
     frame.positionX = view.getInt16();
     frame.positionY = view.getInt16();
     view.skip(4);
-    frame.sfxSwitch = view.getUint32();
+    frame.hasSounds = view.getUint32();
     view.skip(4);
     frame.transparency = view.getUint8();
     view.skip(5);
     const nameSize = view.getUint32();
     frame.name = (0, utils_2.stringUntilNull)(decoder.decode(view.read(nameSize)));
-    if (frame.sfxSwitch != 0) {
+    if (frame.hasSounds != 0) {
         const soundsLen = view.getUint32();
         frame.sounds = (0, utils_2.stringUntilNull)(decoder.decode(view.read(soundsLen))).split(';').filter(x => x.trim() !== '');
     }
@@ -56040,7 +56040,7 @@ const parseAnnImage = (view) => {
     img.height = view.getUint16();
     img.positionX = view.getInt16();
     img.positionY = view.getInt16();
-    img.compression = view.getUint16();
+    img.compressionType = view.getUint16();
     img.imageLen = view.getUint32();
     view.skip(4 + 0xA);
     img.alphaLen = view.getUint32();
@@ -56063,7 +56063,7 @@ const loadAnn = (data) => {
         const img = annImages[i];
         const decompressedImageLen = img.width * img.height * 2;
         const decompressedAlphaLen = img.alphaLen ? img.width * img.height : 0;
-        images.push((0, img_1.loadImageWithoutHeader)(buffer, img.compression, img.imageLen, decompressedImageLen, img.alphaLen, decompressedAlphaLen));
+        images.push((0, img_1.loadImageWithoutHeader)(buffer, img.compressionType, img.imageLen, decompressedImageLen, img.alphaLen, decompressedAlphaLen));
     }
     return {
         header,
