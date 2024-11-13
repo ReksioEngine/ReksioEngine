@@ -51872,25 +51872,28 @@ let Animo = (() => {
                 this.isPlaying = true;
             }
             SETFRAME(eventNameOrFrameIdx, frameIdx) {
+                let newFrame;
+                let newEvent = this.currentEvent;
                 if (frameIdx === undefined) {
-                    this.currentFrame = Number(eventNameOrFrameIdx);
+                    newFrame = Number(eventNameOrFrameIdx);
                 }
                 else {
-                    this.currentEvent = eventNameOrFrameIdx.toString();
-                    this.currentFrame = Number(frameIdx);
+                    newEvent = eventNameOrFrameIdx.toString();
+                    newFrame = Number(frameIdx);
                 }
-                let event = this.getEventByName(this.currentEvent);
+                let event = this.getEventByName(newEvent);
                 if (event === null) {
                     event = this.loadDefaultEvent();
                 }
                 (0, errors_1.assert)(event !== null);
                 // Necessary in S63_OBOZ
-                if (this.currentFrame >= event.framesCount) {
-                    this.currentFrame = 0; // TODO
+                if (newFrame < event.framesCount) {
+                    this.currentEvent = newEvent;
+                    this.currentFrame = newFrame;
+                    // Force render because some animations might not be playing,
+                    // but they display something (like a keypad screen in S73_0_KOD in UFO)
+                    this.shouldForceRender = true;
                 }
-                // Force render because some animations might not be playing,
-                // but they display something (like a keypad screen in S73_0_KOD in UFO)
-                this.shouldForceRender = true;
             }
             SETFPS(fps) {
                 this.fps = fps;
