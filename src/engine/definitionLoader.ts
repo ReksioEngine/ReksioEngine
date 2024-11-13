@@ -139,18 +139,22 @@ export const loadDefinition = async (engine: Engine, scope: Record<string, any>,
     })
 
     const promisesResults = await Promise.allSettled(orderedScope.map(entry => entry.init()))
+    const failedObjects: Type<any>[] = []
     for (let i = 0; i < promisesResults.length; i++) {
         const result = promisesResults[i]
         const object = orderedScope[i]
+
         if (result.status === 'rejected') {
             delete scope[object.name]
-            orderedScope.splice(i, 1)
+            failedObjects.push(object)
 
             console.error(`Failed to initialize object ${object.name}`, result.reason)
         }
     }
 
-    orderedScope.forEach(entry => entry.ready())
+    orderedScope
+        .filter(entry => !failedObjects.includes(entry))
+        .forEach(entry => entry.ready())
 
     engine.app.ticker.start()
 }
