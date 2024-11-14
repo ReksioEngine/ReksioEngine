@@ -10,30 +10,20 @@ export class CallbacksComponent {
     private readonly engine: Engine
     private readonly object: Type<any>
 
-    public registry: Map<string, callbacks<any>> = new Map<string, callbacks<any>>()
+    private registry: Map<string, callbacks<any>> = new Map<string, callbacks<any>>()
 
     constructor(engine: Engine, object: Type<any>) {
         this.engine = engine
         this.object = object
     }
 
-    private registerGroup(type: string, callbacks?: callbacks<any>) {
-        if (callbacks) {
-            this.registry.set(type, {
-                nonParametrized: callbacks.nonParametrized,
-                parametrized: callbacks.parametrized && new Map(callbacks.parametrized)
-            })
-        } else {
-            this.registry.set(type, {
-                nonParametrized: null,
-                parametrized: new Map()
-            })
-        }
+    private registerGroup(type: string, callbacks: callbacks<any>) {
+        this.registry.set(type, callbacks)
     }
 
-    private register(type: string, callback?: callback) {
+    private register(type: string, callback: callback) {
         this.registry.set(type, {
-            nonParametrized: callback ?? null,
+            nonParametrized: callback,
             parametrized: new Map<any, callback>()
         })
     }
@@ -42,10 +32,16 @@ export class CallbacksComponent {
         const structure = structureDefinitions[this.object.definition.TYPE]
         for (const [key, value] of Object.entries(structure)) {
             const fieldDefinition = value as FieldTypeEntry
+
+            const callback = this.object.definition[key]
+            if (callback === undefined) {
+                continue
+            }
+
             if (fieldDefinition.name === 'callback') {
-                this.register(key, this.object.definition[key])
+                this.register(key, callback)
             } else if (fieldDefinition.name === 'callbacks') {
-                this.registerGroup(key, this.object.definition[key])
+                this.registerGroup(key, callback)
             }
         }
     }
@@ -61,7 +57,9 @@ export class CallbacksComponent {
     }
 
     run(type: string, param?: any, thisOverride?: Type<any> | null) {
-        const thisReference = thisOverride !== undefined ? thisOverride : this.object
+        if (!this.has(type)) {
+            return
+        }
 
         const stackFrame = StackFrame.builder()
             .type('callback')
@@ -71,14 +69,20 @@ export class CallbacksComponent {
             .build()
         stackTrace.push(stackFrame)
 
+        const thisReference = thisOverride !== undefined ? thisOverride : this.object
+
         try {
             const callbackGroup = this.registry.get(type)
-            if (callbackGroup?.nonParametrized) {
+            assert(callbackGroup !== undefined)
+
+            if (callbackGroup.nonParametrized) {
                 this.engine.executeCallback(thisReference, callbackGroup.nonParametrized)
             }
 
-            if (param !== null && param !== undefined && callbackGroup?.parametrized.has(param)) {
-                this.engine.executeCallback(thisReference, callbackGroup.parametrized.get(param)!)
+            if (param !== null && param !== undefined && callbackGroup.parametrized.has(param)) {
+                const callback = callbackGroup.parametrized.get(param)
+                assert(callback !== undefined, 'Callbacks should not happen to be undefined values')
+                this.engine.executeCallback(thisReference, callback)
             }
         } catch (err) {
             if (!(err instanceof InterruptScriptExecution)) {
@@ -91,7 +95,16 @@ export class CallbacksComponent {
 
     addBehaviour(callbackString: string, behaviourName: string) {
         const [callbackName, callbackParam] = callbackString.split('$')
-        const callbackGroup = this.registry.get(callbackName)!
+
+        let newEntry: callbacks<any>
+        if (!this.registry.has(callbackName)) {
+            newEntry = {
+                nonParametrized: null,
+                parametrized: new Map(),
+            }
+        } else {
+            newEntry = this.registry.get(callbackName)!
+        }
 
         const newCallback = {
             isSingleStatement: false,
@@ -99,10 +112,12 @@ export class CallbacksComponent {
             constantArguments: []
         }
 
-        if (callbackParam) {
-            callbackGroup.parametrized.set(callbackParam, newCallback)
+        if (callbackParam == undefined) {
+            newEntry.nonParametrized = newCallback
         } else {
-            callbackGroup.nonParametrized = newCallback
+            newEntry.parametrized.set(callbackParam, newCallback)
         }
+
+        this.registry.set(callbackName, newEntry)
     }
 }

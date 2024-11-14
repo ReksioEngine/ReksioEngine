@@ -111,7 +111,7 @@ export const callbacks = <K>(subType: FieldTypeEntry) => ({
         const callbackInstance = createCallback(value)
         if (param == undefined) {
             result.nonParametrized = callbackInstance
-        } else {
+        } else if (callbackInstance !== undefined) {
             result.parametrized.set(subType.processor(object, key, param, param), callbackInstance)
         }
 
