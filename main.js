@@ -56220,7 +56220,18 @@ const parseCNV = (content) => {
             const definition = types_1.structureDefinitions[object.TYPE];
             if (definition && variableName in definition) {
                 const fieldTypeDefinition = definition[variableName];
-                object[variableName] = fieldTypeDefinition.processor(object, variableName, param, value);
+                try {
+                    object[variableName] = fieldTypeDefinition.processor(object, variableName, param, value);
+                }
+                catch (err) {
+                    console.error('Failed to process CNV field\n' +
+                        `%cObject name:%c ${objectName}\n` +
+                        `%cObject type:%c ${object.TYPE}\n` +
+                        `%cField name:%c ${variableName}\n` +
+                        `%cParam:%c ${param}\n` +
+                        '%cValue:%c %O', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', value);
+                    throw err;
+                }
             }
             else {
                 if (variableName.startsWith('ON')) {
@@ -56546,7 +56557,7 @@ exports.number = {
     name: 'number',
     processor: (object, key, param, value) => {
         const result = Number(value.startsWith('"') ? value.slice(1, -1) : value);
-        (0, errors_1.assert)(!isNaN(result));
+        (0, errors_1.assert)(!isNaN(result), 'Value is not a number');
         return result;
     }
 };
