@@ -75,14 +75,12 @@ export class CallbacksComponent {
             const callbackGroup = this.registry.get(type)
             assert(callbackGroup !== undefined)
 
-            if (callbackGroup.nonParametrized) {
-                this.engine.executeCallback(thisReference, callbackGroup.nonParametrized)
-            }
-
             if (param !== null && param !== undefined && callbackGroup.parametrized.has(param)) {
                 const callback = callbackGroup.parametrized.get(param)
                 assert(callback !== undefined, 'Callbacks should not happen to be undefined values')
                 this.engine.executeCallback(thisReference, callback)
+            } else if (callbackGroup.nonParametrized) {
+                this.engine.executeCallback(thisReference, callbackGroup.nonParametrized)
             }
         } catch (err) {
             if (!(err instanceof InterruptScriptExecution)) {
