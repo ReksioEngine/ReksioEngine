@@ -50589,16 +50589,10 @@ class CallbacksComponent {
     }
     addBehaviour(callbackString, behaviourName) {
         const [callbackName, callbackParam] = callbackString.split('$');
-        let newEntry;
-        if (!this.registry.has(callbackName)) {
-            newEntry = {
-                nonParametrized: null,
-                parametrized: new Map(),
-            };
-        }
-        else {
-            newEntry = this.registry.get(callbackName);
-        }
+        const newEntry = this.registry.get(callbackName) ?? {
+            nonParametrized: null,
+            parametrized: new Map(),
+        };
         const newCallback = {
             isSingleStatement: false,
             behaviourReference: behaviourName,
