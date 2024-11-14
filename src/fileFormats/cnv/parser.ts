@@ -46,7 +46,25 @@ export const parseCNV = (content: string) => {
 
             if (definition && variableName in definition) {
                 const fieldTypeDefinition: FieldTypeEntry = definition[variableName]
-                object[variableName] = fieldTypeDefinition.processor(object, variableName, param, value)
+                try {
+                    object[variableName] = fieldTypeDefinition.processor(object, variableName, param, value)
+                } catch (err) {
+                    console.error(
+                        'Failed to process CNV field\n' +
+                        `%cObject name:%c ${objectName}\n` +
+                        `%cObject type:%c ${object.TYPE}\n` +
+                        `%cField name:%c ${variableName}\n` +
+                        `%cParam:%c ${param}\n` +
+                        '%cValue:%c %O',
+                        'font-weight: bold', 'font-weight: inherit',
+                        'font-weight: bold', 'font-weight: inherit',
+                        'font-weight: bold', 'font-weight: inherit',
+                        'font-weight: bold', 'font-weight: inherit',
+                        'font-weight: bold', 'font-weight: inherit',
+                        value
+                    )
+                    throw err
+                }
             } else {
                 if (variableName.startsWith('ON')) {
                     if (param) {

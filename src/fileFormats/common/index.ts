@@ -35,7 +35,7 @@ export const number = {
     name: 'number',
     processor: (object: any, key: string, param: string, value: string) => {
         const result = Number(value.startsWith('"') ? value.slice(1,-1) : value)
-        assert(!isNaN(result))
+        assert(!isNaN(result), 'Value is not a number')
         return result
     }
 }
