@@ -25,7 +25,7 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
     REFRESH() {}
 
     @method()
-    GETGRAPHICSAT(x: number, y: number, someBool1: boolean, minZ: number, maxZ: number, includeAlpha: boolean) {
+    GETGRAPHICSAT(x: number, y: number, someBool1: boolean, minZ: number, maxZ: number, includeAlpha?: boolean) {
         const point = new Point(x, y)
 
         for (const object of Object.values(this.engine.scope)) {
