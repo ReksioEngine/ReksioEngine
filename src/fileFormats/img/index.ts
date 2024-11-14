@@ -88,7 +88,9 @@ export const loadImage = (data: ArrayBuffer): Image => {
 
     const decompressedImageLen = header.width * header.height * 2
     const decompressedAlphaLen = header.alphaLen ? header.width * header.height : 0
-    const imgBytes = loadImageWithoutHeader(buffer, header.compressionType, header.imageLen, decompressedImageLen, header.alphaLen, decompressedAlphaLen)
+    // The set of compression type identifiers do not match fully between IMG and ANN formats - in IMG 4 means no compression
+    const compressionType = (header.compressionType == 4) ? CompressionType.NONE : header.compressionType
+    const imgBytes = loadImageWithoutHeader(buffer, compressionType, header.imageLen, decompressedImageLen, header.alphaLen, decompressedAlphaLen)
     return {
         header,
         bytes: imgBytes
