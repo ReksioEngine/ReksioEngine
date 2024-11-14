@@ -50522,22 +50522,11 @@ class CallbacksComponent {
         this.object = object;
     }
     registerGroup(type, callbacks) {
-        if (callbacks) {
-            this.registry.set(type, {
-                nonParametrized: callbacks.nonParametrized,
-                parametrized: callbacks.parametrized && new Map(callbacks.parametrized)
-            });
-        }
-        else {
-            this.registry.set(type, {
-                nonParametrized: null,
-                parametrized: new Map()
-            });
-        }
+        this.registry.set(type, callbacks);
     }
     register(type, callback) {
         this.registry.set(type, {
-            nonParametrized: callback ?? null,
+            nonParametrized: callback,
             parametrized: new Map()
         });
     }
@@ -50545,11 +50534,15 @@ class CallbacksComponent {
         const structure = types_1.structureDefinitions[this.object.definition.TYPE];
         for (const [key, value] of Object.entries(structure)) {
             const fieldDefinition = value;
+            const callback = this.object.definition[key];
+            if (callback === undefined) {
+                continue;
+            }
             if (fieldDefinition.name === 'callback') {
-                this.register(key, this.object.definition[key]);
+                this.register(key, callback);
             }
             else if (fieldDefinition.name === 'callbacks') {
-                this.registerGroup(key, this.object.definition[key]);
+                this.registerGroup(key, callback);
             }
         }
     }
@@ -50562,7 +50555,9 @@ class CallbacksComponent {
         return callbacks.nonParametrized !== null || callbacks.parametrized.size > 0;
     }
     run(type, param, thisOverride) {
-        const thisReference = thisOverride !== undefined ? thisOverride : this.object;
+        if (!this.has(type)) {
+            return;
+        }
         const stackFrame = stacktrace_1.StackFrame.builder()
             .type('callback')
             .object(this.object)
@@ -50570,13 +50565,17 @@ class CallbacksComponent {
             .args(...(param !== undefined ? [param] : []))
             .build();
         stacktrace_1.stackTrace.push(stackFrame);
+        const thisReference = thisOverride !== undefined ? thisOverride : this.object;
         try {
             const callbackGroup = this.registry.get(type);
-            if (callbackGroup?.nonParametrized) {
+            (0, errors_1.assert)(callbackGroup !== undefined);
+            if (callbackGroup.nonParametrized) {
                 this.engine.executeCallback(thisReference, callbackGroup.nonParametrized);
             }
-            if (param !== null && param !== undefined && callbackGroup?.parametrized.has(param)) {
-                this.engine.executeCallback(thisReference, callbackGroup.parametrized.get(param));
+            if (param !== null && param !== undefined && callbackGroup.parametrized.has(param)) {
+                const callback = callbackGroup.parametrized.get(param);
+                (0, errors_1.assert)(callback !== undefined, 'Callbacks should not happen to be undefined values');
+                this.engine.executeCallback(thisReference, callback);
             }
         }
         catch (err) {
@@ -50590,18 +50589,28 @@ class CallbacksComponent {
     }
     addBehaviour(callbackString, behaviourName) {
         const [callbackName, callbackParam] = callbackString.split('$');
-        const callbackGroup = this.registry.get(callbackName);
+        let newEntry;
+        if (!this.registry.has(callbackName)) {
+            newEntry = {
+                nonParametrized: null,
+                parametrized: new Map(),
+            };
+        }
+        else {
+            newEntry = this.registry.get(callbackName);
+        }
         const newCallback = {
             isSingleStatement: false,
             behaviourReference: behaviourName,
             constantArguments: []
         };
-        if (callbackParam) {
-            callbackGroup.parametrized.set(callbackParam, newCallback);
+        if (callbackParam == undefined) {
+            newEntry.nonParametrized = newCallback;
         }
         else {
-            callbackGroup.nonParametrized = newCallback;
+            newEntry.parametrized.set(callbackParam, newCallback);
         }
+        this.registry.set(callbackName, newEntry);
     }
 }
 exports.CallbacksComponent = CallbacksComponent;
@@ -56221,7 +56230,10 @@ const parseCNV = (content) => {
             if (definition && variableName in definition) {
                 const fieldTypeDefinition = definition[variableName];
                 try {
-                    object[variableName] = fieldTypeDefinition.processor(object, variableName, param, value);
+                    const processedValue = fieldTypeDefinition.processor(object, variableName, param, value);
+                    if (processedValue !== undefined) {
+                        object[variableName] = processedValue;
+                    }
                 }
                 catch (err) {
                     console.error('Failed to process CNV field\n' +
@@ -56627,7 +56639,7 @@ const callbacks = (subType) => ({
         if (param == undefined) {
             result.nonParametrized = callbackInstance;
         }
-        else {
+        else if (callbackInstance !== undefined) {
             result.parametrized.set(subType.processor(object, key, param, param), callbackInstance);
         }
         return result;
