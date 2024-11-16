@@ -30,7 +30,7 @@ const parseHeader = (view: BinaryBuffer) => {
     image.height = view.getUint32()
     image.bpp = view.getUint32()
     image.imageLen = view.getUint32()
-    view.skip(4)
+    view.skip(4) // not read, padding?
     image.compressionType = view.getUint32()
     image.alphaLen = view.getUint32()
     image.positionX = view.getUint32()
@@ -85,6 +85,14 @@ const addAlpha = (imgBytes: Uint8Array, alphaBytes: Uint8Array | undefined) => {
 export const loadImage = (data: ArrayBuffer): Image => {
     const buffer = new BinaryBuffer(new DataView(data))
     const header = parseHeader(buffer)
+
+    if (header.bpp === 2) {
+        header.bpp = 15
+    } else if (header.bpp === 4) {
+        header.bpp = 16
+    } else if (header.bpp === 8) {
+        header.bpp = 24
+    }
 
     const decompressedImageLen = header.width * header.height * 2
     const decompressedAlphaLen = header.alphaLen ? header.width * header.height : 0
