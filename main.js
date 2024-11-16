@@ -53482,6 +53482,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Double = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const radianMultiplier = Math.PI / 180;
 let Double = (() => {
     var _a;
     let _classSuper = index_1.ValueType;
@@ -53520,10 +53521,10 @@ let Double = (() => {
                 return this.value = Math.min(...values);
             }
             SINUS(angle) {
-                return this.value = Math.sin(angle);
+                return this.value = Math.sin(angle * radianMultiplier);
             }
             COSINUS(angle) {
-                return this.value = Math.cos(angle);
+                return this.value = Math.cos(angle * radianMultiplier);
             }
             // Source: https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=1909841994#gid=1909841994
             ARCTANEX(y, x, summand) {
