@@ -50689,6 +50689,18 @@ class Debugging {
         await (0, definitionLoader_1.loadDefinition)(this.engine, scope, (0, parser_1.parseCNV)(definition));
         return scope;
     }
+    clearScope() {
+        this.engine.app.ticker.stop();
+        sound_1.sound.stopAll();
+        if (this.engine.music !== null) {
+            this.engine.music.stop();
+        }
+        for (const [key, object] of Object.entries(this.engine.scope)) {
+            object.destroy();
+            delete this.engine.scope[key];
+        }
+        this.engine.app.ticker.start();
+    }
     applyQueryParams() {
         if (!this.isDebug) {
             return;
