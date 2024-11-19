@@ -12,6 +12,7 @@ interface AnnHeader {
     fps: number
     flags: number
     transparency: number
+    randomFramesNumber: number
     author: string
     description: string
 }
@@ -62,7 +63,8 @@ const parseHeader = (view: BinaryBuffer) => {
     ann.fps = view.getUint32()
     ann.flags = view.getUint32()
     ann.transparency = view.getUint8()
-    view.skip(0xC)
+    ann.randomFramesNumber = view.getUint16()
+    view.skip(0xA)
 
     const authorLen = view.getUint32()
     ann.author = decoder.decode(view.read(authorLen))
@@ -127,7 +129,11 @@ const parseAnnImage = (view: BinaryBuffer) => {
     img.positionY = view.getInt16()
     img.compressionType = view.getUint16()
     img.imageLen = view.getUint32()
-    view.skip(4 + 0xA)
+
+    const someDataLen = view.getUint16() // some size, happens to be 4
+    view.read(someDataLen) // some data, the size is for data here
+    view.skip(12 - someDataLen)
+
     img.alphaLen = view.getUint32()
     img.name = stringUntilNull(decoder.decode(view.read(0x14)))
 
