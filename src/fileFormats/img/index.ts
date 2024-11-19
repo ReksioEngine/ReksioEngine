@@ -12,12 +12,7 @@ export interface CompressedImageHeader {
 }
 
 interface ImageHeader extends CompressedImageHeader {
-    width: number
-    height: number
     bpp: number
-    imageLen: number
-    compressionType: number
-    alphaLen: number
     positionX: number
     positionY: number
 }
@@ -117,8 +112,10 @@ export const createDescriptors = (header: CompressedImageHeader, mapping: { [com
     if (!(header.compressionType in mapping)) {
         throw new Error(`Unsupported compression type: ${header.compressionType}`)
     }
+
     const [colorCompressionType, alphaCompressionType] = mapping[header.compressionType]
     const [colorPixelLen, alphaPixelLen] = [2, 1]
+
     const colorDescriptor: CompressionDescriptor = {
         compressionType: colorCompressionType,
         compressedLen: header.imageLen,
@@ -131,6 +128,7 @@ export const createDescriptors = (header: CompressedImageHeader, mapping: { [com
         decompressedLen: header.width * header.height * alphaPixelLen,
         pixelLen: alphaPixelLen,
     } : undefined
+
     return { colorDescriptor, alphaDescriptor }
 }
 

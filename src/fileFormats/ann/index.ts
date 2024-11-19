@@ -36,13 +36,8 @@ export interface Frame {
 }
 
 export interface AnnImage extends CompressedImageHeader {
-    width: number
-    height: number
     positionX: number
     positionY: number
-    compressionType: number
-    imageLen: number
-    alphaLen: number
     name: string
 }
 
