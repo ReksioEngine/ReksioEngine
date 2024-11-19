@@ -1,5 +1,6 @@
 import {BinaryBuffer} from '../utils'
-import {loadImageWithoutHeader} from '../img'
+import {CompressedImageHeader, createDescriptors, loadImageWithoutHeader} from '../img'
+import {CompressionType} from '../compression'
 import {stringUntilNull} from '../../utils'
 
 const decoder = new TextDecoder()
@@ -34,14 +35,9 @@ export interface Frame {
     sounds: string[]
 }
 
-export interface AnnImage {
-    width: number
-    height: number
+export interface AnnImage extends CompressedImageHeader {
     positionX: number
     positionY: number
-    compressionType: number
-    imageLen: number
-    alphaLen: number
     name: string
 }
 
@@ -155,10 +151,13 @@ export const loadAnn = (data: ArrayBuffer) => {
     const images = []
     for (let i = 0; i < header.framesCount; i++) {
         const img = annImages[i]
-        const decompressedImageLen = img.width * img.height * 2
-        const decompressedAlphaLen = img.alphaLen ? img.width * img.height : 0
-
-        images.push(loadImageWithoutHeader(buffer, img.compressionType, img.imageLen, decompressedImageLen, img.alphaLen, decompressedAlphaLen))
+        const { colorDescriptor, alphaDescriptor } = createDescriptors(img, {
+            0: [CompressionType.NONE, CompressionType.NONE],
+            2: [CompressionType.CLZW, CompressionType.CLZW],
+            3: [CompressionType.CLZW_IN_CRLE, CompressionType.CLZW_IN_CRLE],
+            4: [CompressionType.CRLE, CompressionType.CRLE],
+        })
+        images.push(loadImageWithoutHeader(buffer, colorDescriptor, alphaDescriptor))
     }
 
     return {
