@@ -56009,6 +56009,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.loadAnn = void 0;
 const utils_1 = __webpack_require__(/*! ../utils */ "./src/fileFormats/utils.ts");
 const img_1 = __webpack_require__(/*! ../img */ "./src/fileFormats/img/index.ts");
+const compression_1 = __webpack_require__(/*! ../compression */ "./src/fileFormats/compression/index.ts");
 const utils_2 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
 const decoder = new TextDecoder();
 const parseHeader = (view) => {
@@ -56096,9 +56097,13 @@ const loadAnn = (data) => {
     const images = [];
     for (let i = 0; i < header.framesCount; i++) {
         const img = annImages[i];
-        const decompressedImageLen = img.width * img.height * 2;
-        const decompressedAlphaLen = img.alphaLen ? img.width * img.height : 0;
-        images.push((0, img_1.loadImageWithoutHeader)(buffer, img.compressionType, img.imageLen, decompressedImageLen, img.alphaLen, decompressedAlphaLen));
+        const { colorDescriptor, alphaDescriptor } = (0, img_1.createDescriptors)(img, {
+            0: [compression_1.CompressionType.NONE, compression_1.CompressionType.NONE],
+            2: [compression_1.CompressionType.CLZW, compression_1.CompressionType.CLZW],
+            3: [compression_1.CompressionType.CLZW_IN_CRLE, compression_1.CompressionType.CLZW_IN_CRLE],
+            4: [compression_1.CompressionType.CRLE, compression_1.CompressionType.CRLE],
+        });
+        images.push((0, img_1.loadImageWithoutHeader)(buffer, colorDescriptor, alphaDescriptor));
     }
     return {
         header,
@@ -56849,9 +56854,10 @@ exports.CompressionType = void 0;
 var CompressionType;
 (function (CompressionType) {
     CompressionType[CompressionType["NONE"] = 0] = "NONE";
-    CompressionType[CompressionType["CLZW"] = 2] = "CLZW";
-    CompressionType[CompressionType["CLZW_CRLE"] = 3] = "CLZW_CRLE";
-    CompressionType[CompressionType["CRLE"] = 4] = "CRLE";
+    CompressionType[CompressionType["CLZW"] = 1] = "CLZW";
+    CompressionType[CompressionType["CLZW_IN_CRLE"] = 2] = "CLZW_IN_CRLE";
+    CompressionType[CompressionType["CRLE"] = 3] = "CRLE";
+    CompressionType[CompressionType["JPEG"] = 4] = "JPEG";
 })(CompressionType || (exports.CompressionType = CompressionType = {}));
 
 
@@ -56866,7 +56872,7 @@ var CompressionType;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.loadImageWithoutHeader = exports.loadImage = void 0;
+exports.loadImageWithoutHeader = exports.createDescriptors = exports.loadImage = void 0;
 const utils_1 = __webpack_require__(/*! ../utils */ "./src/fileFormats/utils.ts");
 const clzw_1 = __webpack_require__(/*! ../compression/clzw */ "./src/fileFormats/compression/clzw.ts");
 const crle_1 = __webpack_require__(/*! ../compression/crle */ "./src/fileFormats/compression/crle.ts");
@@ -56935,56 +56941,64 @@ const loadImage = (data) => {
     else if (header.bpp === 8) {
         header.bpp = 24;
     }
-    const decompressedImageLen = header.width * header.height * 2;
-    const decompressedAlphaLen = header.alphaLen ? header.width * header.height : 0;
-    const imgBytes = (0, exports.loadImageWithoutHeader)(buffer, header.compressionType, header.imageLen, decompressedImageLen, header.alphaLen, decompressedAlphaLen);
+    const { colorDescriptor, alphaDescriptor } = (0, exports.createDescriptors)(header, {
+        0: [compression_1.CompressionType.NONE, compression_1.CompressionType.NONE],
+        2: [compression_1.CompressionType.CLZW, compression_1.CompressionType.CLZW],
+        4: [compression_1.CompressionType.NONE, compression_1.CompressionType.NONE],
+        5: [compression_1.CompressionType.JPEG, compression_1.CompressionType.CLZW],
+    });
+    const imgBytes = (0, exports.loadImageWithoutHeader)(buffer, colorDescriptor, alphaDescriptor);
     return {
         header,
         bytes: imgBytes
     };
 };
 exports.loadImage = loadImage;
-const loadImageWithoutHeader = (buffer, compressionType, imageLen, decompressedImageLen, alphaLen, decompressedAlphaLen) => {
-    let imgBytes;
-    let alphaBytes;
-    if (compressionType == compression_1.CompressionType.CLZW) {
-        imgBytes = new Uint8Array((0, clzw_1.decompress)(buffer));
-        if (alphaLen !== 0) {
-            alphaBytes = new Uint8Array((0, clzw_1.decompress)(buffer));
-        }
+const createDescriptors = (header, mapping) => {
+    if (!(header.compressionType in mapping)) {
+        throw new Error(`Unsupported compression type: ${header.compressionType}`);
     }
-    else if (compressionType == compression_1.CompressionType.CRLE) {
-        const imgBuffer = new utils_1.BinaryBuffer(new DataView(buffer.read(imageLen)));
-        imgBytes = new Uint8Array((0, crle_1.decompress)(imgBuffer, decompressedImageLen, 2));
-        if (alphaLen !== 0) {
-            const alphaBuffer = new utils_1.BinaryBuffer(new DataView(buffer.read(alphaLen)));
-            alphaBytes = new Uint8Array((0, crle_1.decompress)(alphaBuffer, decompressedAlphaLen, 1));
-        }
-    }
-    else if (compressionType == compression_1.CompressionType.CLZW_CRLE) {
-        imgBytes = (0, clzw_1.decompress)(buffer);
-        const imgBuffer = new utils_1.BinaryBuffer(new DataView(imgBytes));
-        imgBytes = new Uint8Array((0, crle_1.decompress)(imgBuffer, decompressedImageLen, 2));
-        if (alphaLen !== 0) {
-            alphaBytes = (0, clzw_1.decompress)(buffer);
-            const alphaBuffer = new utils_1.BinaryBuffer(new DataView(alphaBytes));
-            alphaBytes = new Uint8Array((0, crle_1.decompress)(alphaBuffer, decompressedAlphaLen, 1));
-        }
-    }
-    else if (compressionType == compression_1.CompressionType.NONE) {
-        imgBytes = new Uint8Array(buffer.read(imageLen));
-        if (alphaLen !== 0) {
-            alphaBytes = new Uint8Array(buffer.read(alphaLen));
-        }
-    }
-    else {
-        throw new Error(`Unknown compression type ${compressionType}`);
-    }
-    imgBytes = convertToRgba32(imgBytes);
-    imgBytes = addAlpha(imgBytes, alphaBytes);
-    return imgBytes;
+    const [colorCompressionType, alphaCompressionType] = mapping[header.compressionType];
+    const [colorPixelLen, alphaPixelLen] = [2, 1];
+    const colorDescriptor = {
+        compressionType: colorCompressionType,
+        compressedLen: header.imageLen,
+        decompressedLen: header.width * header.height * colorPixelLen,
+        pixelLen: colorPixelLen,
+    };
+    const alphaDescriptor = (header.alphaLen > 0) ? {
+        compressionType: alphaCompressionType,
+        compressedLen: header.alphaLen,
+        decompressedLen: header.width * header.height * alphaPixelLen,
+        pixelLen: alphaPixelLen,
+    } : undefined;
+    return { colorDescriptor, alphaDescriptor };
+};
+exports.createDescriptors = createDescriptors;
+const loadImageWithoutHeader = (buffer, colorCompression, alphaCompression) => {
+    const colorBytes = decompressImageData(buffer, colorCompression);
+    const alphaBytes = (alphaCompression !== undefined) ? decompressImageData(buffer, alphaCompression) : undefined;
+    let imageBytes = convertToRgba32(colorBytes);
+    imageBytes = addAlpha(imageBytes, alphaBytes);
+    return imageBytes;
 };
 exports.loadImageWithoutHeader = loadImageWithoutHeader;
+const decompressImageData = (buffer, descriptor) => {
+    switch (descriptor.compressionType) {
+        case compression_1.CompressionType.NONE:
+            return new Uint8Array(buffer.read(descriptor.compressedLen));
+        case compression_1.CompressionType.CLZW:
+            return new Uint8Array((0, clzw_1.decompress)(buffer));
+        case compression_1.CompressionType.CRLE:
+            return new Uint8Array((0, crle_1.decompress)(new utils_1.BinaryBuffer(new DataView(buffer.read(descriptor.compressedLen))), descriptor.decompressedLen, descriptor.pixelLen));
+        case compression_1.CompressionType.CLZW_IN_CRLE:
+            return new Uint8Array((0, crle_1.decompress)(new utils_1.BinaryBuffer(new DataView((0, clzw_1.decompress)(buffer))), descriptor.decompressedLen, descriptor.pixelLen));
+        case compression_1.CompressionType.JPEG:
+            throw new Error(`Unsupported compression type: ${descriptor.compressionType}`);
+        default:
+            throw new Error(`Unknown compression type: ${descriptor.compressionType}`);
+    }
+};
 
 
 /***/ }),
