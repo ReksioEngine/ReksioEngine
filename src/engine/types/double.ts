@@ -3,6 +3,8 @@ import {Engine} from '../index'
 import {DoubleDefinition} from '../../fileFormats/cnv/types'
 import {method} from '../../types'
 
+const radianMultiplier = Math.PI / 180
+
 export class Double extends ValueType<DoubleDefinition> {
     constructor(engine: Engine, definition: DoubleDefinition) {
         super(engine, definition, 0.0)
@@ -40,12 +42,12 @@ export class Double extends ValueType<DoubleDefinition> {
 
     @method()
     SINUS(angle: number) {
-        return this.value = Math.sin(angle)
+        return this.value = Math.sin(angle * radianMultiplier)
     }
 
     @method()
     COSINUS(angle: number) {
-        return this.value = Math.cos(angle)
+        return this.value = Math.cos(angle * radianMultiplier)
     }
 
     // Source: https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=1909841994#gid=1909841994
