@@ -1,4 +1,4 @@
-import {ValueType} from './types'
+import { ValueType } from './types'
 
 export class SaveFile {
     private content: Map<string, Map<string, any>> = new Map()

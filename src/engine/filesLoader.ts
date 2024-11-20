@@ -1,9 +1,9 @@
-import {decryptCNV, parseCNV} from '../fileFormats/cnv'
-import {loadImage} from '../fileFormats/img'
-import {ANN, loadAnn} from '../fileFormats/ann'
-import {CNV} from '../fileFormats/cnv/parser'
-import {Image} from '../fileFormats/img'
-import {parseSequence, SequenceFile} from '../fileFormats/seq'
+import { decryptCNV, parseCNV } from '../fileFormats/cnv'
+import { loadImage } from '../fileFormats/img'
+import { ANN, loadAnn } from '../fileFormats/ann'
+import { CNV } from '../fileFormats/cnv/parser'
+import { Image } from '../fileFormats/img'
+import { parseSequence, SequenceFile } from '../fileFormats/seq'
 
 export class FileNotFoundError extends Error {
     constructor(filename: string) {
@@ -97,10 +97,9 @@ export class GithubFileLoader extends UrlFileLoader {
     protected async fetchFilesListing() {
         const response = await fetch(this.filesListUrl)
         const data = await response.json()
-        return new Map<string, string>(data.tree.map((entry: any) => [
-            entry.path.toLowerCase(),
-            this.filesBaseUrl + entry.path
-        ]))
+        return new Map<string, string>(
+            data.tree.map((entry: any) => [entry.path.toLowerCase(), this.filesBaseUrl + entry.path])
+        )
     }
 }
 
@@ -126,8 +125,8 @@ export class ArchiveOrgFileLoader extends UrlFileLoader {
         }
 
         const links = table.querySelectorAll('a')
-        return new Map<string, string>([...links].map((link) => [
-            link.textContent!.toLowerCase(), link.getAttribute('href')!
-        ]))
+        return new Map<string, string>(
+            [...links].map((link) => [link.textContent!.toLowerCase(), link.getAttribute('href')!])
+        )
     }
 }

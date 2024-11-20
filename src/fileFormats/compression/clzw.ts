@@ -1,4 +1,4 @@
-import {BinaryBuffer} from '../utils'
+import { BinaryBuffer } from '../utils'
 
 export const decompress = (buffer: BinaryBuffer) => {
     const uncompressedSize = buffer.getUint32()

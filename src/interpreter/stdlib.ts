@@ -1,6 +1,6 @@
-import {Engine} from '../engine'
-import {ArrayObject} from '../engine/types/array'
-import {method} from '../types'
+import { Engine } from '../engine'
+import { ArrayObject } from '../engine/types/array'
+import { method } from '../types'
 
 class Library {
     protected readonly engine?: Engine
@@ -9,7 +9,7 @@ class Library {
     }
 }
 
-export class RandomLibrary extends Library{
+export class RandomLibrary extends Library {
     @method()
     GET(min: number, max?: number): number {
         if (max === undefined) {

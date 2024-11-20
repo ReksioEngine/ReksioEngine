@@ -1,8 +1,8 @@
-import {Type} from './index'
-import {MouseDefinition} from '../../fileFormats/cnv/types'
-import {FederatedPointerEvent, Point} from 'pixi.js'
-import {NotImplementedError} from '../../errors'
-import {method} from '../../types'
+import { Type } from './index'
+import { MouseDefinition } from '../../fileFormats/cnv/types'
+import { FederatedPointerEvent, Point } from 'pixi.js'
+import { NotImplementedError } from '../../errors'
+import { method } from '../../types'
 
 export class Mouse extends Type<MouseDefinition> {
     private mousePosition: Point = new Point(0, 0)

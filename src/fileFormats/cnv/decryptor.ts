@@ -7,11 +7,11 @@ const parseHeader = (content: ArrayBuffer) => {
         throw new Error('Failed to parse encrypted file header')
     }
 
-    const {direction, movement} = match.groups
+    const { direction, movement } = match.groups
     return {
         length: match[0].length,
         direction,
-        movement: parseInt(movement, 10)
+        movement: parseInt(movement, 10),
     }
 }
 
@@ -20,23 +20,20 @@ const calcShift = (step: number, movement: number) => {
     if (step > movement) {
         step = 1
     }
-    let shift = (Math.floor(step / 2) + step % 2)
+    let shift = Math.floor(step / 2) + (step % 2)
     if (step % 2) {
         shift *= -1
     }
     return {
-        step, shift
+        step,
+        shift,
     }
 }
 
 export const decryptCNV = (content: ArrayBuffer): string => {
-    const {
-        length,
-        direction,
-        movement
-    } = parseHeader(content)
+    const { length, direction, movement } = parseHeader(content)
 
-    const directionMultiplier = (direction.toLowerCase() === 'd') ? -1 : 1
+    const directionMultiplier = direction.toLowerCase() === 'd' ? -1 : 1
     const payload = new Uint8Array(content.slice(length))
 
     let output = ''
@@ -44,7 +41,11 @@ export const decryptCNV = (content: ArrayBuffer): string => {
     let shift = 0
 
     for (let pos = 0; pos < payload.byteLength; pos++) {
-        if (payload[pos] === '<'.charCodeAt(0) && payload[pos + 1] === 'E'.charCodeAt(0) && payload[pos + 2] === '>'.charCodeAt(0)) {
+        if (
+            payload[pos] === '<'.charCodeAt(0) &&
+            payload[pos + 1] === 'E'.charCodeAt(0) &&
+            payload[pos + 2] === '>'.charCodeAt(0)
+        ) {
             output += '\n'
             pos += 2
         } else if (payload[pos] !== '\r'.charCodeAt(0) && payload[pos] !== '\n'.charCodeAt(0)) {
@@ -52,7 +53,7 @@ export const decryptCNV = (content: ArrayBuffer): string => {
             step = newShift.step
             shift = newShift.shift
 
-            output += String.fromCharCode(payload[pos] + (shift * directionMultiplier) % 256)
+            output += String.fromCharCode(payload[pos] + ((shift * directionMultiplier) % 256))
         }
     }
 

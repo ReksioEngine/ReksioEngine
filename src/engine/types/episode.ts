@@ -1,12 +1,12 @@
-import {Type} from './index'
-import {EpisodeDefinition} from '../../fileFormats/cnv/types'
-import {Engine} from '../index'
-import {Scene} from './scene'
-import {assert} from '../../errors'
-import {pathJoin} from '../../utils'
-import {loadDefinition} from '../definitionLoader'
-import {FileNotFoundError} from '../filesLoader'
-import {method} from '../../types'
+import { Type } from './index'
+import { EpisodeDefinition } from '../../fileFormats/cnv/types'
+import { Engine } from '../index'
+import { Scene } from './scene'
+import { assert } from '../../errors'
+import { pathJoin } from '../../utils'
+import { loadDefinition } from '../definitionLoader'
+import { FileNotFoundError } from '../filesLoader'
+import { method } from '../../types'
 
 export class Episode extends Type<EpisodeDefinition> {
     private previousScene?: Scene
@@ -18,10 +18,12 @@ export class Episode extends Type<EpisodeDefinition> {
     async init() {
         if (this.definition.PATH) {
             try {
-                const applicationDefinition = await this.engine.fileLoader.getCNVFile(pathJoin('DANE', this.definition.PATH, this.name + '.cnv'))
+                const applicationDefinition = await this.engine.fileLoader.getCNVFile(
+                    pathJoin('DANE', this.definition.PATH, this.name + '.cnv')
+                )
                 await loadDefinition(this.engine, this.engine.globalScope, applicationDefinition, this)
             } catch (err) {
-                if (err !instanceof FileNotFoundError) {
+                if (err! instanceof FileNotFoundError) {
                     throw err
                 }
             }

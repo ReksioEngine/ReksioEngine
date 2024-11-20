@@ -1,7 +1,7 @@
-import {Type} from './index'
-import {ComplexConditionDefinition} from '../../fileFormats/cnv/types'
-import {InterruptScriptExecution} from '../../interpreter/evaluator'
-import {method} from '../../types'
+import { Type } from './index'
+import { ComplexConditionDefinition } from '../../fileFormats/cnv/types'
+import { InterruptScriptExecution } from '../../interpreter/evaluator'
+import { method } from '../../types'
 
 export class ComplexCondition extends Type<ComplexConditionDefinition> {
     // In loops its like 'break'
@@ -27,12 +27,12 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
 
         let result
         switch (this.definition.OPERATOR) {
-        case 'AND':
-            result = condition1.CHECK(arg) && condition2.CHECK(arg)
-            break
-        case 'OR':
-            result = condition1.CHECK(arg) || condition2.CHECK(arg)
-            break
+            case 'AND':
+                result = condition1.CHECK(arg) && condition2.CHECK(arg)
+                break
+            case 'OR':
+                result = condition1.CHECK(arg) || condition2.CHECK(arg)
+                break
         }
 
         if (result) {

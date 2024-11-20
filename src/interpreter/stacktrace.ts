@@ -1,5 +1,5 @@
-import {Type} from '../engine/types'
-import {valueAsString} from '../types'
+import { Type } from '../engine/types'
+import { valueAsString } from '../types'
 
 type StackFrameTypes = 'method' | 'behaviour' | 'callback'
 
@@ -60,18 +60,20 @@ export const printStackTrace = () => {
     const lines: string[] = []
 
     for (const frame of stackTrace) {
-        const argsString = (frame.args ?? []).map(arg => arg !== undefined ? valueAsString(arg) : '<undefined>').join(',')
+        const argsString = (frame.args ?? [])
+            .map((arg) => (arg !== undefined ? valueAsString(arg) : '<undefined>'))
+            .join(',')
 
         switch (frame.type) {
-        case 'callback':
-            lines.push(`at ${frame.object!.name}@${frame.callback}(${argsString})`)
-            break
-        case 'method':
-            lines.push(`at ${frame.object!.name}^${frame.methodName}(${argsString})`)
-            break
-        case 'behaviour':
-            lines.push(`at ${frame.behaviour}(${argsString})`)
-            break
+            case 'callback':
+                lines.push(`at ${frame.object!.name}@${frame.callback}(${argsString})`)
+                break
+            case 'method':
+                lines.push(`at ${frame.object!.name}^${frame.methodName}(${argsString})`)
+                break
+            case 'behaviour':
+                lines.push(`at ${frame.behaviour}(${argsString})`)
+                break
         }
     }
 

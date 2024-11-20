@@ -1,4 +1,4 @@
-import {boolean, map, string} from '../common'
+import { boolean, map, string } from '../common'
 
 export interface SequenceFileEntry {
     TYPE: string
@@ -21,7 +21,7 @@ export const parseSequence = (content: string) => {
         if (key === 'NAME') {
             objects[value] = {
                 NAME: value,
-                TYPE: 'unknown'
+                TYPE: 'unknown',
             }
         } else {
             const [objectName, variableName, subKey] = key.split(':')
@@ -55,7 +55,7 @@ export type NormalSequence = SequenceSequence & {
 const SequenceSequenceStructure = {
     MODE: string,
     SEQEVENT: map(string),
-    ADD: string
+    ADD: string,
 }
 
 export type Simple = SequenceFileEntry & {
@@ -66,7 +66,7 @@ export type Simple = SequenceFileEntry & {
 const SimpleStructure = {
     FILENAME: string,
     EVENT: string,
-    ADD: string
+    ADD: string,
 }
 
 export type Speaking = SequenceFileEntry & {
@@ -83,11 +83,11 @@ const SpeakingStructure = {
     WAVFN: string,
     STARTING: boolean,
     ENDING: boolean,
-    ADD: string
+    ADD: string,
 }
 
 export const structureDefinitions = {
     SEQUENCE: SequenceSequenceStructure,
     SIMPLE: SimpleStructure,
-    SPEAKING: SpeakingStructure
+    SPEAKING: SpeakingStructure,
 } as any

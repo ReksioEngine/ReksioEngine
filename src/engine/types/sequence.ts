@@ -1,21 +1,21 @@
-import {Type} from './index'
-import {Engine} from '../index'
-import {SequenceDefinition} from '../../fileFormats/cnv/types'
-import {FileNotFoundError} from '../filesLoader'
+import { Type } from './index'
+import { Engine } from '../index'
+import { SequenceDefinition } from '../../fileFormats/cnv/types'
+import { FileNotFoundError } from '../filesLoader'
 import {
     ParameterSequence,
     SequenceFile,
     SequenceFileEntry,
     SequenceSequence,
     Simple,
-    Speaking
+    Speaking,
 } from '../../fileFormats/seq'
-import {assert} from '../../errors'
-import {Animo} from './animo'
-import {loadSound} from '../assetsLoader'
-import {IMediaInstance, Sound} from '@pixi/sound'
-import {createObject} from '../definitionLoader'
-import {method} from '../../types'
+import { assert } from '../../errors'
+import { Animo } from './animo'
+import { loadSound } from '../assetsLoader'
+import { IMediaInstance, Sound } from '@pixi/sound'
+import { createObject } from '../definitionLoader'
+import { method } from '../../types'
 
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~'
 
@@ -99,7 +99,7 @@ export class Sequence extends Type<SequenceDefinition> {
             }
         }
 
-        const sounds = await Promise.all(soundsNames.map(name => loadSound(this.engine.fileLoader, `Wavs/${name}`)))
+        const sounds = await Promise.all(soundsNames.map((name) => loadSound(this.engine.fileLoader, `Wavs/${name}`)))
         for (let i = 0; i < sounds.length; i++) {
             this.sounds.set(soundsNames[i], sounds[i])
         }
@@ -157,7 +157,7 @@ export class Sequence extends Type<SequenceDefinition> {
 
         const subEntries = this.subEntries.get(entry.NAME)!
         if (entry.MODE === 'RANDOM') {
-            const subEntry = subEntries[Math.floor(Math.random()*subEntries.length)]
+            const subEntry = subEntries[Math.floor(Math.random() * subEntries.length)]
             this.fillQueue(subEntry)
         } else {
             for (const subEntry of subEntries) {
@@ -272,7 +272,7 @@ export class Sequence extends Type<SequenceDefinition> {
             return object
         }
 
-        return await createObject(this.engine, {
+        return (await createObject(this.engine, {
             TYPE: 'ANIMO',
             NAME: source,
             FILENAME: source,
@@ -284,8 +284,8 @@ export class Sequence extends Type<SequenceDefinition> {
             RELEASE: true,
             TOCANVAS: true,
             TOINI: false,
-            VISIBLE: true
-        }) as Animo
+            VISIBLE: true,
+        })) as Animo
     }
 
     private getExistingAnimo(source: string): Animo | null {

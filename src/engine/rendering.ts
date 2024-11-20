@@ -1,5 +1,5 @@
-import {IPointData, Sprite} from 'pixi.js'
-import {assert} from '../errors'
+import { IPointData, Sprite } from 'pixi.js'
+import { assert } from '../errors'
 
 export class AdvancedSprite extends Sprite {
     public hitmap?: Uint8Array
@@ -8,7 +8,7 @@ export class AdvancedSprite extends Sprite {
     getAlphaAt(point: IPointData) {
         assert(this.hitmap !== undefined)
 
-        const tempPoint = {x : 0, y : 0}
+        const tempPoint = { x: 0, y: 0 }
         this.worldTransform.applyInverse(point, tempPoint)
 
         const width = this._texture.orig.width
@@ -20,7 +20,7 @@ export class AdvancedSprite extends Sprite {
             return 0 // unsure
         }
 
-        const pixelOffset = (y * width + x)
+        const pixelOffset = y * width + x
         if (pixelOffset > this.hitmap.length - 1) {
             return 0 // unsure
         }

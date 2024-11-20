@@ -2,14 +2,14 @@ import {
     array,
     boolean,
     callback,
-    callbacks, code,
+    callbacks,
+    code,
     number,
     optional,
     reference,
     string,
-    TypeDefinition
+    TypeDefinition,
 } from '../common'
-
 
 export type ApplicationDefinition = TypeDefinition & {
     DESCRIPTION: string
@@ -30,7 +30,7 @@ const ApplicationStructure = {
     VERSION: string,
     PATH: string,
     EPISODES: array(string),
-    STARTWITH: string
+    STARTWITH: string,
 }
 
 export type EpisodeDefinition = TypeDefinition & {
@@ -52,7 +52,7 @@ const EpisodeStructure = {
     VERSION: string,
     PATH: optional(string),
     SCENES: array(string),
-    STARTWITH: string
+    STARTWITH: string,
 }
 
 export type SceneDefinition = TypeDefinition & {
@@ -74,7 +74,7 @@ const SceneStructure = {
     PATH: string,
     BACKGROUND: optional(string),
     MUSIC: optional(string),
-    DLLS: optional(array(string))
+    DLLS: optional(array(string)),
 }
 
 export type IntegerDefinition = TypeDefinition & {
@@ -82,7 +82,7 @@ export type IntegerDefinition = TypeDefinition & {
     VARTYPE?: string
     DEFAULT?: number
     TOINI?: boolean
-    ONINIT?: callback,
+    ONINIT?: callback
     ONCHANGED?: callbacks<number>
     ONBRUTALCHANGED?: callbacks<number>
 }
@@ -94,7 +94,7 @@ const IntegerStructure = {
     TOINI: optional(boolean),
     ONINIT: optional(callback),
     ONCHANGED: optional(callbacks(number)),
-    ONBRUTALCHANGED: optional(callbacks(number))
+    ONBRUTALCHANGED: optional(callbacks(number)),
 }
 
 export type AnimoDefinition = TypeDefinition & {
@@ -137,7 +137,7 @@ const AnimoStructure = {
     ONFOCUSON: optional(callback),
     ONFOCUSOFF: optional(callback),
     ONCLICK: optional(callback),
-    ONRELEASE: optional(callback)
+    ONRELEASE: optional(callback),
 }
 
 export type MusicDefinition = TypeDefinition & {
@@ -145,7 +145,7 @@ export type MusicDefinition = TypeDefinition & {
 }
 
 const MusicStructure = {
-    FILENAME: string
+    FILENAME: string,
 }
 
 export type SoundDefinition = TypeDefinition & {
@@ -165,7 +165,7 @@ const SoundStructure = {
     FLUSHAFTERPLAYED: optional(boolean),
     ONINIT: optional(callback),
     ONFINISHED: optional(callback),
-    ONSTARTED: optional(callback)
+    ONSTARTED: optional(callback),
 }
 
 export type TimerDefinition = TypeDefinition & {
@@ -181,7 +181,7 @@ const TimerStructure = {
     ELAPSE: number,
     TICKS: optional(number),
     ONINIT: optional(callback),
-    ONTICK: optional(callbacks(number))
+    ONTICK: optional(callbacks(number)),
 }
 
 export type BehaviourDefinition = TypeDefinition & {
@@ -191,7 +191,7 @@ export type BehaviourDefinition = TypeDefinition & {
 
 const BehaviourStructure = {
     CODE: callback,
-    CONDITION: optional(reference)
+    CONDITION: optional(reference),
 }
 
 export type ImageDefinition = TypeDefinition & {
@@ -202,7 +202,7 @@ export type ImageDefinition = TypeDefinition & {
     PRELOAD?: boolean
     RELEASE?: boolean
     MONITORCOLLISION?: boolean
-    MONITORCOLLISIONALPHA?: boolean,
+    MONITORCOLLISIONALPHA?: boolean
     ONINIT?: callback
 }
 
@@ -215,7 +215,7 @@ const ImageStructure = {
     RELEASE: optional(boolean),
     MONITORCOLLISION: optional(boolean),
     MONITORCOLLISIONALPHA: optional(boolean),
-    ONINIT: optional(callback)
+    ONINIT: optional(callback),
 }
 
 export type MouseDefinition = TypeDefinition & {
@@ -229,7 +229,7 @@ const MouseStructure = {
     ONCLICK: optional(callbacks(string)),
     ONRELEASE: optional(callbacks(string)),
     ONINIT: optional(callback),
-    ONMOVE: optional(callback)
+    ONMOVE: optional(callback),
 }
 
 export type KeyboardDefinition = TypeDefinition & {
@@ -261,7 +261,7 @@ const ConditionDefinitionStructure = {
     OPERATOR: string,
     OPERAND2: code,
     ONRUNTIMESUCCESS: optional(callback),
-    ONRUNTIMEFAILED: optional(callback)
+    ONRUNTIMEFAILED: optional(callback),
 }
 
 export type StringDefinition = TypeDefinition & {
@@ -279,7 +279,7 @@ const StringDefinitionStructure = {
     DEFAULT: optional(string),
     ONINIT: optional(callback),
     ONCHANGED: optional(callbacks(string)),
-    ONBRUTALCHANGED: optional(callbacks(string))
+    ONBRUTALCHANGED: optional(callbacks(string)),
 }
 
 export type BoolDefinition = TypeDefinition & {
@@ -293,7 +293,7 @@ const BoolDefinitionStructure = {
     VALUE: optional(boolean),
     DEFAULT: optional(boolean),
     ONCHANGED: optional(callbacks(boolean)),
-    ONBRUTALCHANGED: optional(callbacks(boolean))
+    ONBRUTALCHANGED: optional(callbacks(boolean)),
 }
 
 export type ArrayDefinition = TypeDefinition & {
@@ -301,7 +301,7 @@ export type ArrayDefinition = TypeDefinition & {
 }
 
 const ArrayDefinitionStructure = {
-    ONINIT: optional(callback)
+    ONINIT: optional(callback),
 }
 
 export type MultiArrayDefinition = TypeDefinition & {
@@ -309,7 +309,7 @@ export type MultiArrayDefinition = TypeDefinition & {
 }
 
 const MultiArrayDefinitionStructure = {
-    DIMENSIONS: number
+    DIMENSIONS: number,
 }
 
 export type ButtonDefinition = TypeDefinition & {
@@ -349,7 +349,7 @@ const ButtonDefinitionStructure = {
             } else {
                 return reference.processor(object, key, param, value)
             }
-        }
+        },
     }),
     ONACTION: optional(callback),
     ONCLICKED: optional(callback),
@@ -359,7 +359,7 @@ const ButtonDefinitionStructure = {
     ONFOCUSOFF: optional(callback),
     ONRELEASED: optional(callback),
     ONSTARTDRAGGING: optional(callback),
-    ONINIT: optional(callback)
+    ONINIT: optional(callback),
 }
 
 export type SequenceDefinition = TypeDefinition & {
@@ -373,7 +373,7 @@ const SequenceDefinitionStructure = {
     FILENAME: string,
     ONFINISHED: optional(callbacks(string)),
     ONSTARTED: optional(callbacks(string)),
-    ONINIT: optional(callback)
+    ONINIT: optional(callback),
 }
 
 export type GroupDefinition = TypeDefinition & {
@@ -381,7 +381,7 @@ export type GroupDefinition = TypeDefinition & {
 }
 
 const GroupDefinitionStructure = {
-    ONINIT: optional(callback)
+    ONINIT: optional(callback),
 }
 
 export type TextDefinition = TypeDefinition & {
@@ -403,7 +403,7 @@ const TextDefinitionStructure = {
     PRIORITY: number,
     MONITORCOLLISIONALPHA: boolean,
     MONITORCOLLISION: boolean,
-    FONT: string
+    FONT: string,
 }
 
 export type FontDefinition = TypeDefinition & {
@@ -411,15 +411,15 @@ export type FontDefinition = TypeDefinition & {
 }
 
 const FontDefinitionStructure = {
-    DEF_ARIAL_STANDARD_14: string // wtf
+    DEF_ARIAL_STANDARD_14: string, // wtf
 }
 
 export type ComplexConditionDefinition = TypeDefinition & {
-    CONDITION1: reference,
-    CONDITION2: reference,
-    ONRUNTIMEFAILED?: callback,
-    ONRUNTIMESUCCESS?: callback,
-    OPERATOR: 'AND' | 'OR',
+    CONDITION1: reference
+    CONDITION2: reference
+    ONRUNTIMEFAILED?: callback
+    ONRUNTIMESUCCESS?: callback
+    OPERATOR: 'AND' | 'OR'
 }
 
 const ComplexConditionDefinitionStructure = {
@@ -427,7 +427,7 @@ const ComplexConditionDefinitionStructure = {
     CONDITION2: reference,
     ONRUNTIMEFAILED: optional(callback),
     ONRUNTIMESUCCESS: optional(callback),
-    OPERATOR: string
+    OPERATOR: string,
 }
 
 export type RandDefinition = TypeDefinition
@@ -441,7 +441,7 @@ export type DoubleDefinition = TypeDefinition & {
 
 const DoubleStructure = {
     VALUE: optional(number),
-    DEFAULT: optional(number)
+    DEFAULT: optional(number),
 }
 
 export type ExpressionDefinition = TypeDefinition & {
@@ -453,17 +453,17 @@ export type ExpressionDefinition = TypeDefinition & {
 const ExpressionDefinitionStructure = {
     OPERAND1: code,
     OPERATOR: string,
-    OPERAND2: code
+    OPERAND2: code,
 }
 
 export type VectorDefinition = TypeDefinition & {
-    SIZE: number,
+    SIZE: number
     VALUE: Array<number>
 }
 
 const VectorDefinitionStructure = {
     SIZE: number,
-    VALUE: array(number)
+    VALUE: array(number),
 }
 
 export type StaticFilterDefinition = TypeDefinition & {
@@ -471,7 +471,7 @@ export type StaticFilterDefinition = TypeDefinition & {
 }
 
 const StaticFilterDefinitionStructure = {
-    ACTION: string
+    ACTION: string,
 }
 
 export type FilterDefinition = TypeDefinition & {
@@ -479,7 +479,7 @@ export type FilterDefinition = TypeDefinition & {
 }
 
 const FilterDefinitionStructure = {
-    ACTION: string
+    ACTION: string,
 }
 
 export const structureDefinitions = {
@@ -514,5 +514,5 @@ export const structureDefinitions = {
     VECTOR: VectorDefinitionStructure,
     STATICFILTER: StaticFilterDefinitionStructure,
     FILTER: FilterDefinitionStructure,
-    MULTIARRAY: MultiArrayDefinitionStructure
+    MULTIARRAY: MultiArrayDefinitionStructure,
 } as any

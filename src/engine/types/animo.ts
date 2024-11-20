@@ -1,16 +1,16 @@
-import {DisplayType} from './index'
-import {AnimoDefinition} from '../../fileFormats/cnv/types'
-import {Engine} from '../index'
-import {assert, InvalidObjectError, NotImplementedError} from '../../errors'
+import { DisplayType } from './index'
+import { AnimoDefinition } from '../../fileFormats/cnv/types'
+import { Engine } from '../index'
+import { assert, InvalidObjectError, NotImplementedError } from '../../errors'
 import * as PIXI from 'pixi.js'
-import {Rectangle, Texture} from 'pixi.js'
-import {ANN, Event} from '../../fileFormats/ann'
-import {ButtonLogicComponent, Event as FSMEvent, State} from '../components/button'
-import {loadSound} from '../assetsLoader'
-import {Sound as PIXISound} from '@pixi/sound'
-import {FileNotFoundError} from '../filesLoader'
-import {AdvancedSprite, createHitmapFromImageBytes} from '../rendering'
-import {method} from '../../types'
+import { Rectangle, Texture } from 'pixi.js'
+import { ANN, Event } from '../../fileFormats/ann'
+import { ButtonLogicComponent, Event as FSMEvent, State } from '../components/button'
+import { loadSound } from '../assetsLoader'
+import { Sound as PIXISound } from '@pixi/sound'
+import { FileNotFoundError } from '../filesLoader'
+import { AdvancedSprite, createHitmapFromImageBytes } from '../rendering'
+import { method } from '../../types'
 
 export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent | null = null
@@ -41,7 +41,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     public static Events = {
         ONFINISHED: 'ONFINISHED',
-        ONSTARTED: 'ONSTARTED'
+        ONSTARTED: 'ONSTARTED',
     }
 
     constructor(engine: Engine, definition: AnimoDefinition) {
@@ -55,7 +55,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     ready() {
-        if (this.currentEvent === ''){
+        if (this.currentEvent === '') {
             this.loadDefaultEvent()
         }
         this.callbacks.run('ONINIT')
@@ -78,7 +78,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         this.timeSinceLastFrame += elapsedMS * this.engine.speed
 
-        const frameLength = 1 / this.fps * 1000
+        const frameLength = (1 / this.fps) * 1000
         while (this.isPlaying && this.timeSinceLastFrame >= frameLength) {
             this.tickAnimation()
             this.timeSinceLastFrame -= frameLength
@@ -88,7 +88,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private loadDefaultEvent() {
         assert(this.annFile !== null)
         // Find first event with any frames
-        const defaultEvent = this.annFile.events.find(event => event.framesCount > 0)
+        const defaultEvent = this.annFile.events.find((event) => event.framesCount > 0)
         if (defaultEvent !== undefined) {
             this.changeFrame(defaultEvent, 0)
             this.currentEvent = defaultEvent.name
@@ -130,7 +130,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         for (const event of annFile.events) {
             for (const frame of event.frames) {
                 if (frame.sounds) {
-                    frame.sounds.forEach(name => soundsNames.add(name))
+                    frame.sounds.forEach((name) => soundsNames.add(name))
                 }
             }
         }
@@ -210,7 +210,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const eventFrame = event.frames[this.currentFrame]
         if (eventFrame.sounds) {
             const filenames = eventFrame.sounds
-            const randomFilename = filenames[Math.floor((Math.random()*filenames.length))]
+            const randomFilename = filenames[Math.floor(Math.random() * filenames.length)]
 
             if (this.sounds.has(randomFilename)) {
                 console.debug(`Playing sound '${randomFilename}'`)
@@ -419,36 +419,36 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
 
         switch (newState) {
-        case State.HOVERED:
-            playEventIfExists('ONFOCUSON')
-            this.callbacks.run(event === FSMEvent.UP ? 'ONRELEASE' : 'ONFOCUSON')
-            break
-        case State.STANDARD:
-            if (event === FSMEvent.ENABLE) {
-                playEventIfExists('ONNOEVENT')
-            } else {
-                playEventIfExists('ONFOCUSOFF')
-                this.callbacks.run('ONFOCUSOFF')
-            }
-            break
-        case State.PRESSED:
-            playEventIfExists('ONCLICK')
-            this.callbacks.run('ONCLICKED')
-            this.callbacks.run('ONCLICK')
-            break
+            case State.HOVERED:
+                playEventIfExists('ONFOCUSON')
+                this.callbacks.run(event === FSMEvent.UP ? 'ONRELEASE' : 'ONFOCUSON')
+                break
+            case State.STANDARD:
+                if (event === FSMEvent.ENABLE) {
+                    playEventIfExists('ONNOEVENT')
+                } else {
+                    playEventIfExists('ONFOCUSOFF')
+                    this.callbacks.run('ONFOCUSOFF')
+                }
+                break
+            case State.PRESSED:
+                playEventIfExists('ONCLICK')
+                this.callbacks.run('ONCLICKED')
+                this.callbacks.run('ONCLICK')
+                break
         }
     }
 
     @method()
     GETCENTERX(): number {
         assert(this.sprite !== null)
-        return Math.round(this.sprite.getGlobalPosition().x + (this.sprite.width / 2))
+        return Math.round(this.sprite.getGlobalPosition().x + this.sprite.width / 2)
     }
 
     @method()
     GETCENTERY(): number {
         assert(this.sprite !== null)
-        return Math.round(this.sprite.getGlobalPosition().y + (this.sprite.height / 2))
+        return Math.round(this.sprite.getGlobalPosition().y + this.sprite.height / 2)
     }
 
     @method()
@@ -474,7 +474,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     @method()
     GETMAXWIDTH(): number {
         assert(this.annFile !== null)
-        return Math.max(...this.annFile.annImages.map(e => e.width))
+        return Math.max(...this.annFile.annImages.map((e) => e.width))
     }
 
     @method()
@@ -557,9 +557,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     public getEventByName(name: string): Event | null {
         assert(this.annFile !== undefined)
-        return this.annFile!.events.find(
-            event => event.name.toUpperCase() === name.toUpperCase()
-        ) ?? null
+        return this.annFile!.events.find((event) => event.name.toUpperCase() === name.toUpperCase()) ?? null
     }
 
     public hasEvent(name: string): boolean {

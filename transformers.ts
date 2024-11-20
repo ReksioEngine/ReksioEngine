@@ -1,5 +1,5 @@
 import * as ts from 'typescript'
-import {parameter, parameterType} from './src/types'
+import { parameter, parameterType } from './src/types'
 
 const getLiteralType = (literal: ts.LiteralTypeNode) => {
     if (ts.isStringLiteral(literal)) {
@@ -37,7 +37,7 @@ export const typeGuard = (program: ts.Program) => (context: any) => {
                         if (ts.isUnionTypeNode(type)) {
                             const argSubTypes: parameterType[] = []
                             // GetChildren seems to get something else
-                            type.forEachChild(c => {
+                            type.forEachChild((c) => {
                                 const isLiteral = ts.isLiteralTypeNode(c)
 
                                 // @ts-expect-error We are accessing internal text field that doesn't have quotes
@@ -46,14 +46,14 @@ export const typeGuard = (program: ts.Program) => (context: any) => {
                                 argSubTypes.push({
                                     name: isLiteral ? getLiteralType(c) : c.getText().replace(/\[]$/, ''),
                                     literal: literalValue,
-                                    isArray: ts.isArrayTypeNode(c) && !isRest
+                                    isArray: ts.isArrayTypeNode(c) && !isRest,
                                 })
                             })
                             paramTypes.push({
                                 name: param.name.getText(),
                                 types: argSubTypes,
                                 optional: isOptional,
-                                rest: isRest
+                                rest: isRest,
                             })
                         } else {
                             const isLiteral = ts.isLiteralTypeNode(type)
@@ -63,27 +63,26 @@ export const typeGuard = (program: ts.Program) => (context: any) => {
 
                             paramTypes.push({
                                 name: param.name.getText(),
-                                types: [{
-                                    name: isLiteral ? getLiteralType(type) : type.getText().replace(/\[]$/, ''),
-                                    literal: literalValue,
-                                    isArray: ts.isArrayTypeNode(type) && !isRest
-                                }],
+                                types: [
+                                    {
+                                        name: isLiteral ? getLiteralType(type) : type.getText().replace(/\[]$/, ''),
+                                        literal: literalValue,
+                                        isArray: ts.isArrayTypeNode(type) && !isRest,
+                                    },
+                                ],
                                 optional: isOptional,
-                                rest: isRest
+                                rest: isRest,
                             })
                         }
                     }
 
                     const createTypeEntry = (info: parameter) => {
                         return ts.factory.createObjectLiteralExpression([
-                            ts.factory.createPropertyAssignment(
-                                'name',
-                                ts.factory.createStringLiteral(info.name),
-                            ),
+                            ts.factory.createPropertyAssignment('name', ts.factory.createStringLiteral(info.name)),
                             ts.factory.createPropertyAssignment(
                                 'types',
                                 ts.factory.createArrayLiteralExpression(
-                                    info.types.map(param => {
+                                    info.types.map((param) => {
                                         let literal: ts.Expression = ts.factory.createNull()
                                         if (param.literal !== null) {
                                             if (typeof param.literal === 'string') {
@@ -98,17 +97,14 @@ export const typeGuard = (program: ts.Program) => (context: any) => {
                                                 'name',
                                                 ts.factory.createStringLiteral(param.name)
                                             ),
-                                            ts.factory.createPropertyAssignment(
-                                                'literal',
-                                                literal
-                                            ),
+                                            ts.factory.createPropertyAssignment('literal', literal),
                                             ts.factory.createPropertyAssignment(
                                                 'isArray',
                                                 param.isArray ? ts.factory.createTrue() : ts.factory.createFalse()
-                                            )
+                                            ),
                                         ])
                                     })
-                                ),
+                                )
                             ),
                             ts.factory.createPropertyAssignment(
                                 'optional',
@@ -122,12 +118,15 @@ export const typeGuard = (program: ts.Program) => (context: any) => {
                     }
 
                     const callExpression = decorator.expression as ts.CallExpression
-                    return ts.factory.updateDecorator(decorator, ts.factory.updateCallExpression(
-                        callExpression,
-                        callExpression.expression,
-                        undefined,
-                        paramTypes.map(type => createTypeEntry(type))
-                    ))
+                    return ts.factory.updateDecorator(
+                        decorator,
+                        ts.factory.updateCallExpression(
+                            callExpression,
+                            callExpression.expression,
+                            undefined,
+                            paramTypes.map((type) => createTypeEntry(type))
+                        )
+                    )
                 }
             }
 

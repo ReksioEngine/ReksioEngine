@@ -1,7 +1,7 @@
-import {ValueType} from './index'
-import {Engine} from '../index'
-import {IntegerDefinition} from '../../fileFormats/cnv/types'
-import {ForceNumber, method} from '../../types'
+import { ValueType } from './index'
+import { Engine } from '../index'
+import { IntegerDefinition } from '../../fileFormats/cnv/types'
+import { ForceNumber, method } from '../../types'
 
 export class Integer extends ValueType<IntegerDefinition> {
     constructor(engine: Engine, definition: IntegerDefinition) {
@@ -24,37 +24,37 @@ export class Integer extends ValueType<IntegerDefinition> {
 
     @method()
     ADD(value: number) {
-        return this.value += value
+        return (this.value += value)
     }
 
     @method()
     SUB(value: number) {
-        return this.value -= value
+        return (this.value -= value)
     }
 
     @method()
     MUL(value: number) {
-        return this.value *= value
+        return (this.value *= value)
     }
 
     @method()
     DIV(value: number) {
-        return this.value /= value
+        return (this.value /= value)
     }
 
     @method()
     MOD(value: number) {
-        return this.value %= value
+        return (this.value %= value)
     }
 
     @method()
     CLAMP(min: number, max: number) {
-        return this.value = Math.min(max, Math.max(this.value, min))
+        return (this.value = Math.min(max, Math.max(this.value, min)))
     }
 
     @method()
     AND(value: number) {
-        return this.value &= value
+        return (this.value &= value)
     }
 
     @method()
@@ -84,12 +84,12 @@ export class Integer extends ValueType<IntegerDefinition> {
 
     @method()
     SWITCH(first: number, second: number) {
-        return this.value = this.value == first ? second : first
+        return (this.value = this.value == first ? second : first)
     }
 
     @method()
     ABS(value: number) {
-        return this.value = Math.abs(value)
+        return (this.value = Math.abs(value))
     }
 
     protected valueChanged(oldValue: any, newValue: any) {

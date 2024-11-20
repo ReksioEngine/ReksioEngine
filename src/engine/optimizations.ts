@@ -1,5 +1,5 @@
-import {Scene} from './types/scene'
-import {UrlFileLoader} from './filesLoader'
+import { Scene } from './types/scene'
+import { UrlFileLoader } from './filesLoader'
 
 export const preloadAssets = async (fileLoader: UrlFileLoader, scene: Scene) => {
     const scenePath = scene.getRelativePath('').toLowerCase()
@@ -9,12 +9,14 @@ export const preloadAssets = async (fileLoader: UrlFileLoader, scene: Scene) => 
         return
     }
 
-    await Promise.all(listing.map(filename => {
-        if (!filename.startsWith(scenePath) || fileLoader.getHistory().has(filename)) {
-            return
-        }
+    await Promise.all(
+        listing.map((filename) => {
+            if (!filename.startsWith(scenePath) || fileLoader.getHistory().has(filename)) {
+                return
+            }
 
-        console.debug(`Preloading '${filename}'`)
-        return fileLoader.getRawFile(filename)
-    }))
+            console.debug(`Preloading '${filename}'`)
+            return fileLoader.getRawFile(filename)
+        })
+    )
 }

@@ -1,9 +1,9 @@
-import {DisplayType, Type} from './index'
-import {CanvasObserverDefinition} from '../../fileFormats/cnv/types'
-import {Engine} from '../index'
-import {loadTexture} from '../assetsLoader'
-import {Point} from 'pixi.js'
-import {method} from '../../types'
+import { DisplayType, Type } from './index'
+import { CanvasObserverDefinition } from '../../fileFormats/cnv/types'
+import { Engine } from '../index'
+import { loadTexture } from '../assetsLoader'
+import { Point } from 'pixi.js'
+import { method } from '../../types'
 
 export class CanvasObserver extends Type<CanvasObserverDefinition> {
     constructor(engine: Engine, definition: CanvasObserverDefinition) {
@@ -25,7 +25,7 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
     REFRESH() {}
 
     @method()
-    GETGRAPHICSAT(x: number, y: number, someBool1: boolean, minZ: number, maxZ: number, includeAlpha: boolean) {
+    GETGRAPHICSAT(x: number, y: number, someBool1: boolean, minZ: number, maxZ: number, includeAlpha?: boolean) {
         const point = new Point(x, y)
 
         for (const object of Object.values(this.engine.scope)) {
@@ -43,7 +43,8 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
             if (includeAlpha) {
                 containsPoint = renderObject.containsPoint(point)
             } else {
-                containsPoint = point.x > position.x &&
+                containsPoint =
+                    point.x > position.x &&
                     point.x < position?.x + renderObject.width &&
                     point.y > position.y &&
                     point.y < position.y + renderObject.height
