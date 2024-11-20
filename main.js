@@ -50359,7 +50359,7 @@ const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/renderi
 const loadSound = async (fileLoader, filename, options) => {
     return sound_1.Sound.from({
         source: await fileLoader.getRawFile(filename),
-        ...options
+        ...options,
     });
 };
 exports.loadSound = loadSound;
@@ -50527,7 +50527,7 @@ class CallbacksComponent {
     register(type, callback) {
         this.registry.set(type, {
             nonParametrized: callback,
-            parametrized: new Map()
+            parametrized: new Map(),
         });
     }
     autoRegister() {
@@ -50596,7 +50596,7 @@ class CallbacksComponent {
         const newCallback = {
             isSingleStatement: false,
             behaviourReference: behaviourName,
-            constantArguments: []
+            constantArguments: [],
         };
         if (callbackParam == undefined) {
             newEntry.nonParametrized = newCallback;
@@ -50639,7 +50639,7 @@ class EventsComponent {
         if (callbacks === undefined) {
             return;
         }
-        callbacks = callbacks.filter(cb => cb !== callback);
+        callbacks = callbacks.filter((cb) => cb !== callback);
         this.listeners.set(eventName, callbacks);
     }
     trigger(eventName, ...args) {
@@ -50788,7 +50788,7 @@ class Debugging {
         }
         for (const [name, container] of this.xrays) {
             container.destroy({
-                children: true
+                children: true,
             });
             this.xrays.delete(name);
         }
@@ -50797,7 +50797,7 @@ class Debugging {
         if (!this.enableXRay) {
             for (const [name, container] of this.xrays) {
                 container.destroy({
-                    children: true
+                    children: true,
                 });
                 this.xrays.delete(name);
             }
@@ -50818,10 +50818,10 @@ class Debugging {
                 }
                 rectangle = renderObject.getBounds();
                 visible = renderObject.visible;
-                const listenersCount = renderObject.listenerCount('pointerover')
-                    + renderObject.listenerCount('pointerout')
-                    + renderObject.listenerCount('pointerdown')
-                    + renderObject.listenerCount('pointerup');
+                const listenersCount = renderObject.listenerCount('pointerover') +
+                    renderObject.listenerCount('pointerout') +
+                    renderObject.listenerCount('pointerdown') +
+                    renderObject.listenerCount('pointerup');
                 isInteractive = listenersCount > 0;
                 position = 'inside';
             }
@@ -50837,14 +50837,17 @@ class Debugging {
             }
             if (!visible) {
                 this.xrays.get(object.name)?.destroy({
-                    children: true
+                    children: true,
                 });
                 this.xrays.delete(object.name);
                 continue;
             }
             if (this.xrays.has(object.name)) {
                 const oldRectangle = this.xrays.get(object.name);
-                if (oldRectangle.x === rectangle.x && oldRectangle.y === rectangle.y && oldRectangle.width === rectangle.width && oldRectangle.height === rectangle.height) {
+                if (oldRectangle.x === rectangle.x &&
+                    oldRectangle.y === rectangle.y &&
+                    oldRectangle.width === rectangle.width &&
+                    oldRectangle.height === rectangle.height) {
                     continue;
                 }
             }
@@ -51029,9 +51032,9 @@ const initializationPriorities = [
     ['INTEGER', 'STRING', 'BOOL', 'DOUBLE'],
     ['ARRAY', 'CONDITION'],
     ['ANIMO', 'IMAGE', 'SOUND', 'VECTOR'],
-    ['TIMER', 'SEQUENCE', 'GROUP', 'BUTTON']
+    ['TIMER', 'SEQUENCE', 'GROUP', 'BUTTON'],
 ].reduce((acc, currentValue, currentIndex) => {
-    currentValue.forEach(entry => acc.set(entry, currentIndex));
+    currentValue.forEach((entry) => acc.set(entry, currentIndex));
     return acc;
 }, new Map());
 const loadDefinition = async (engine, scope, definition, parent) => {
@@ -51047,11 +51050,11 @@ const loadDefinition = async (engine, scope, definition, parent) => {
         }
     }
     const orderedScope = entries.sort((a, b) => {
-        const aPriority = a.name === '__INIT__' ? 99999 : initializationPriorities.get(a.definition.TYPE) ?? 9999;
-        const bPriority = b.name === '__INIT__' ? 99999 : initializationPriorities.get(b.definition.TYPE) ?? 9999;
+        const aPriority = a.name === '__INIT__' ? 99999 : (initializationPriorities.get(a.definition.TYPE) ?? 9999);
+        const bPriority = b.name === '__INIT__' ? 99999 : (initializationPriorities.get(b.definition.TYPE) ?? 9999);
         return aPriority - bPriority;
     });
-    const promisesResults = await Promise.allSettled(orderedScope.map(entry => entry.init()));
+    const promisesResults = await Promise.allSettled(orderedScope.map((entry) => entry.init()));
     const failedObjects = [];
     for (let i = 0; i < promisesResults.length; i++) {
         const result = promisesResults[i];
@@ -51062,9 +51065,7 @@ const loadDefinition = async (engine, scope, definition, parent) => {
             console.error(`Failed to initialize object ${object.name}`, result.reason);
         }
     }
-    orderedScope
-        .filter(entry => !failedObjects.includes(entry))
-        .forEach(entry => entry.ready());
+    orderedScope.filter((entry) => !failedObjects.includes(entry)).forEach((entry) => entry.ready());
     engine.app.ticker.start();
 };
 exports.loadDefinition = loadDefinition;
@@ -51172,10 +51173,7 @@ class GithubFileLoader extends UrlFileLoader {
     async fetchFilesListing() {
         const response = await fetch(this.filesListUrl);
         const data = await response.json();
-        return new Map(data.tree.map((entry) => [
-            entry.path.toLowerCase(),
-            this.filesBaseUrl + entry.path
-        ]));
+        return new Map(data.tree.map((entry) => [entry.path.toLowerCase(), this.filesBaseUrl + entry.path]));
     }
 }
 exports.GithubFileLoader = GithubFileLoader;
@@ -51195,9 +51193,7 @@ class ArchiveOrgFileLoader extends UrlFileLoader {
             throw new Error('Failed to fetch files listing table');
         }
         const links = table.querySelectorAll('a');
-        return new Map([...links].map((link) => [
-            link.textContent.toLowerCase(), link.getAttribute('href')
-        ]));
+        return new Map([...links].map((link) => [link.textContent.toLowerCase(), link.getAttribute('href')]));
     }
 }
 exports.ArchiveOrgFileLoader = ArchiveOrgFileLoader;
@@ -51333,8 +51329,8 @@ class Engine {
             if (a.zIndex !== b.zIndex) {
                 return a.zIndex - b.zIndex;
             }
-            const objectA = this.renderingOrder.find(e => e.getRenderObject() === a);
-            const objectB = this.renderingOrder.find(e => e.getRenderObject() === b);
+            const objectA = this.renderingOrder.find((e) => e.getRenderObject() === a);
+            const objectB = this.renderingOrder.find((e) => e.getRenderObject() === b);
             if (objectA === undefined || objectB === undefined) {
                 return 0;
             }
@@ -51381,7 +51377,7 @@ class Engine {
         // Play new scene background music
         if (this.currentScene.definition.MUSIC) {
             this.music = await (0, assetsLoader_1.loadSound)(this.fileLoader, this.currentScene.definition.MUSIC, {
-                loop: true
+                loop: true,
             });
             this.music.play();
         }
@@ -51443,7 +51439,7 @@ const preloadAssets = async (fileLoader, scene) => {
     if (!listing) {
         return;
     }
-    await Promise.all(listing.map(filename => {
+    await Promise.all(listing.map((filename) => {
         if (!filename.startsWith(scenePath) || fileLoader.getHistory().has(filename)) {
             return;
         }
@@ -51484,7 +51480,7 @@ class AdvancedSprite extends pixi_js_1.Sprite {
         if (x < 0 || x > width || y < 0 || y > height) {
             return 0; // unsure
         }
-        const pixelOffset = (y * width + x);
+        const pixelOffset = y * width + x;
         if (pixelOffset > this.hitmap.length - 1) {
             return 0; // unsure
         }
@@ -51711,7 +51707,7 @@ let Animo = (() => {
                     return;
                 }
                 this.timeSinceLastFrame += elapsedMS * this.engine.speed;
-                const frameLength = 1 / this.fps * 1000;
+                const frameLength = (1 / this.fps) * 1000;
                 while (this.isPlaying && this.timeSinceLastFrame >= frameLength) {
                     this.tickAnimation();
                     this.timeSinceLastFrame -= frameLength;
@@ -51720,7 +51716,7 @@ let Animo = (() => {
             loadDefaultEvent() {
                 (0, errors_1.assert)(this.annFile !== null);
                 // Find first event with any frames
-                const defaultEvent = this.annFile.events.find(event => event.framesCount > 0);
+                const defaultEvent = this.annFile.events.find((event) => event.framesCount > 0);
                 if (defaultEvent !== undefined) {
                     this.changeFrame(defaultEvent, 0);
                     this.currentEvent = defaultEvent.name;
@@ -51759,7 +51755,7 @@ let Animo = (() => {
                 for (const event of annFile.events) {
                     for (const frame of event.frames) {
                         if (frame.sounds) {
-                            frame.sounds.forEach(name => soundsNames.add(name));
+                            frame.sounds.forEach((name) => soundsNames.add(name));
                         }
                     }
                 }
@@ -51817,7 +51813,7 @@ let Animo = (() => {
                 const eventFrame = event.frames[this.currentFrame];
                 if (eventFrame.sounds) {
                     const filenames = eventFrame.sounds;
-                    const randomFilename = filenames[Math.floor((Math.random() * filenames.length))];
+                    const randomFilename = filenames[Math.floor(Math.random() * filenames.length)];
                     if (this.sounds.has(randomFilename)) {
                         console.debug(`Playing sound '${randomFilename}'`);
                         const sound = this.sounds.get(randomFilename);
@@ -52002,11 +51998,11 @@ let Animo = (() => {
             }
             GETCENTERX() {
                 (0, errors_1.assert)(this.sprite !== null);
-                return Math.round(this.sprite.getGlobalPosition().x + (this.sprite.width / 2));
+                return Math.round(this.sprite.getGlobalPosition().x + this.sprite.width / 2);
             }
             GETCENTERY() {
                 (0, errors_1.assert)(this.sprite !== null);
-                return Math.round(this.sprite.getGlobalPosition().y + (this.sprite.height / 2));
+                return Math.round(this.sprite.getGlobalPosition().y + this.sprite.height / 2);
             }
             GETPOSITIONX() {
                 (0, errors_1.assert)(this.sprite !== null);
@@ -52023,7 +52019,7 @@ let Animo = (() => {
             }
             GETMAXWIDTH() {
                 (0, errors_1.assert)(this.annFile !== null);
-                return Math.max(...this.annFile.annImages.map(e => e.width));
+                return Math.max(...this.annFile.annImages.map((e) => e.width));
             }
             GETNOFINEVENT() {
                 const event = this.getEventByName(this.currentEvent);
@@ -52074,7 +52070,7 @@ let Animo = (() => {
             }
             getEventByName(name) {
                 (0, errors_1.assert)(this.annFile !== undefined);
-                return this.annFile.events.find(event => event.name.toUpperCase() === name.toUpperCase()) ?? null;
+                return this.annFile.events.find((event) => event.name.toUpperCase() === name.toUpperCase()) ?? null;
             }
             hasEvent(name) {
                 return this.getEventByName(name) !== null;
@@ -52159,7 +52155,7 @@ let Animo = (() => {
         })(),
         _a.Events = {
             ONFINISHED: 'ONFINISHED',
-            ONSTARTED: 'ONSTARTED'
+            ONSTARTED: 'ONSTARTED',
         },
         _a;
 })();
@@ -52442,8 +52438,7 @@ let ArrayObject = (() => {
             LOADINI() {
                 this.value = this.getFromINI() ?? [];
             }
-            MSGBOX() {
-            }
+            MSGBOX() { }
             clone() {
                 const cloned = super.clone();
                 cloned.value = [...this.value];
@@ -53099,10 +53094,11 @@ let CanvasObserver = (() => {
                         containsPoint = renderObject.containsPoint(point);
                     }
                     else {
-                        containsPoint = point.x > position.x &&
-                            point.x < position?.x + renderObject.width &&
-                            point.y > position.y &&
-                            point.y < position.y + renderObject.height;
+                        containsPoint =
+                            point.x > position.x &&
+                                point.x < position?.x + renderObject.width &&
+                                point.y > position.y &&
+                                point.y < position.y + renderObject.height;
                     }
                     if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
                         return object.name;
@@ -53412,9 +53408,7 @@ let Condition = (() => {
                 }
                 catch (err) {
                     if (err instanceof errors_1.UnexpectedError) {
-                        console.error('Condition details\n' +
-                            '\n' +
-                            '%cCondition:%c%O\n%cOperand1:%c%O\n%cOperand2:%c%O\n', 'font-weight: bold', 'font-weight: inherit', this, 'font-weight: bold', 'font-weight: inherit', operand1, 'font-weight: bold', 'font-weight: inherit', operand2);
+                        console.error('Condition details\n' + '\n' + '%cCondition:%c%O\n%cOperand1:%c%O\n%cOperand2:%c%O\n', 'font-weight: bold', 'font-weight: inherit', this, 'font-weight: bold', 'font-weight: inherit', operand1, 'font-weight: bold', 'font-weight: inherit', operand2);
                     }
                     throw err;
                 }
@@ -53515,28 +53509,28 @@ let Double = (() => {
                 __runInitializers(this, _instanceExtraInitializers);
             }
             MUL(value) {
-                return this.value *= value;
+                return (this.value *= value);
             }
             ADD(value) {
-                return this.value += value;
+                return (this.value += value);
             }
             SUB(value) {
-                return this.value -= value;
+                return (this.value -= value);
             }
             SET(newValue) {
                 this.value = newValue;
             }
             MAXA(...values) {
-                return this.value = Math.max(...values);
+                return (this.value = Math.max(...values));
             }
             MINA(...values) {
-                return this.value = Math.min(...values);
+                return (this.value = Math.min(...values));
             }
             SINUS(angle) {
-                return this.value = Math.sin(angle * radianMultiplier);
+                return (this.value = Math.sin(angle * radianMultiplier));
             }
             COSINUS(angle) {
-                return this.value = Math.cos(angle * radianMultiplier);
+                return (this.value = Math.cos(angle * radianMultiplier));
             }
             // Source: https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=1909841994#gid=1909841994
             ARCTANEX(y, x, summand) {
@@ -53839,9 +53833,11 @@ let Group = (() => {
                 this.callbacks.run('ONINIT');
             }
             ADD(...objectsNames) {
-                this.objects.push(...objectsNames.map(objectName => {
+                this.objects.push(...objectsNames
+                    .map((objectName) => {
                     return this.engine.getObject(objectName);
-                }).filter((x, index) => {
+                })
+                    .filter((x, index) => {
                     if (x == null) {
                         // It happens in original game scripts
                         console.warn(`Script was trying to add non-existing object "${objectsNames[index]}" to a group "${this.name}"`);
@@ -53850,7 +53846,7 @@ let Group = (() => {
                 }));
             }
             REMOVE(...objectsNames) {
-                this.objects = this.objects.filter(object => objectsNames.includes(object.name));
+                this.objects = this.objects.filter((object) => objectsNames.includes(object.name));
             }
             __call(methodName, args) {
                 for (const object of this.objects) {
@@ -54204,8 +54200,8 @@ let ValueType = (() => {
             set value(newValue) {
                 (0, errors_1.assert)(typeof newValue != 'number' || !isNaN(newValue), 'Attempted to assign NaN');
                 (0, errors_1.assert)(newValue !== undefined, 'Attempted to assign undefined');
-                (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some(e => Number.isNaN(e)), 'Attempted to assign array with NaN values');
-                (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some(e => e === undefined), 'Attempted to assign array with undefined values');
+                (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some((e) => Number.isNaN(e)), 'Attempted to assign array with NaN values');
+                (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some((e) => e === undefined), 'Attempted to assign array with undefined values');
                 const oldValue = this._value;
                 this._value = newValue;
                 this.valueChanged(oldValue, newValue);
@@ -54322,25 +54318,25 @@ let Integer = (() => {
                 return --this.value;
             }
             ADD(value) {
-                return this.value += value;
+                return (this.value += value);
             }
             SUB(value) {
-                return this.value -= value;
+                return (this.value -= value);
             }
             MUL(value) {
-                return this.value *= value;
+                return (this.value *= value);
             }
             DIV(value) {
-                return this.value /= value;
+                return (this.value /= value);
             }
             MOD(value) {
-                return this.value %= value;
+                return (this.value %= value);
             }
             CLAMP(min, max) {
-                return this.value = Math.min(max, Math.max(this.value, min));
+                return (this.value = Math.min(max, Math.max(this.value, min)));
             }
             AND(value) {
-                return this.value &= value;
+                return (this.value &= value);
             }
             SET(newValue) {
                 if (typeof newValue == 'string') {
@@ -54361,10 +54357,10 @@ let Integer = (() => {
                 return this.value;
             }
             SWITCH(first, second) {
-                return this.value = this.value == first ? second : first;
+                return (this.value = this.value == first ? second : first);
             }
             ABS(value) {
-                return this.value = Math.abs(value);
+                return (this.value = Math.abs(value));
             }
             valueChanged(oldValue, newValue) {
                 if (oldValue !== newValue) {
@@ -54470,7 +54466,7 @@ const keysMapping = {
     ArrowDown: 'DOWN',
     Space: 'SPACE',
     Digit1: '1',
-    Digit2: '2'
+    Digit2: '2',
 };
 let Keyboard = (() => {
     var _a;
@@ -55044,7 +55040,7 @@ let Sequence = (() => {
                         this.subEntries.set(definition.ADD, subEntries);
                     }
                 }
-                const sounds = await Promise.all(soundsNames.map(name => (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/${name}`)));
+                const sounds = await Promise.all(soundsNames.map((name) => (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/${name}`)));
                 for (let i = 0; i < sounds.length; i++) {
                     this.sounds.set(soundsNames[i], sounds[i]);
                 }
@@ -55188,7 +55184,7 @@ let Sequence = (() => {
                 if (object !== null) {
                     return object;
                 }
-                return await (0, definitionLoader_1.createObject)(this.engine, {
+                return (await (0, definitionLoader_1.createObject)(this.engine, {
                     TYPE: 'ANIMO',
                     NAME: source,
                     FILENAME: source,
@@ -55200,8 +55196,8 @@ let Sequence = (() => {
                     RELEASE: true,
                     TOCANVAS: true,
                     TOINI: false,
-                    VISIBLE: true
-                });
+                    VISIBLE: true,
+                }));
             }
             getExistingAnimo(source) {
                 const object = this.engine.getObject(source);
@@ -55480,7 +55476,7 @@ let StaticFilter = (() => {
             }
             UNLINK(arg) {
                 const object = this.engine.getObject(arg);
-                this.linked = this.linked.filter(x => x !== object);
+                this.linked = this.linked.filter((x) => x !== object);
             }
         },
         (() => {
@@ -56021,12 +56017,12 @@ const parseHeader = (view) => {
     ann.framesCount = view.getUint16();
     ann.bpp = view.getUint16();
     ann.eventsCount = view.getUint16();
-    view.skip(0xD);
+    view.skip(0xd);
     ann.fps = view.getUint32();
     ann.flags = view.getUint32();
     ann.transparency = view.getUint8();
     ann.randomFramesNumber = view.getUint16();
-    view.skip(0xA);
+    view.skip(0xa);
     const authorLen = view.getUint32();
     ann.author = decoder.decode(view.read(authorLen));
     const descriptionLen = view.getUint32();
@@ -56048,7 +56044,9 @@ const parseFrame = (view) => {
     frame.name = (0, utils_2.stringUntilNull)(decoder.decode(view.read(nameSize)));
     if (frame.hasSounds != 0) {
         const soundsLen = view.getUint32();
-        frame.sounds = (0, utils_2.stringUntilNull)(decoder.decode(view.read(soundsLen))).split(';').filter(x => x.trim() !== '');
+        frame.sounds = (0, utils_2.stringUntilNull)(decoder.decode(view.read(soundsLen)))
+            .split(';')
+            .filter((x) => x.trim() !== '');
     }
     return frame;
 };
@@ -56060,7 +56058,7 @@ const parseEvent = (view) => {
     event.loopNumber = view.getUint32();
     view.skip(0x4 + 0x6);
     event.transparency = view.getUint8();
-    view.skip(0xC);
+    view.skip(0xc);
     event.framesImageMapping = [];
     for (let i = 0; i < event.framesCount; i++) {
         event.framesImageMapping.push(view.getUint16());
@@ -56112,7 +56110,7 @@ const loadAnn = (data) => {
         header,
         events,
         images,
-        annImages
+        annImages,
     };
 };
 exports.loadAnn = loadAnn;
@@ -56141,7 +56139,7 @@ const parseHeader = (content) => {
     return {
         length: match[0].length,
         direction,
-        movement: parseInt(movement, 10)
+        movement: parseInt(movement, 10),
     };
 };
 const calcShift = (step, movement) => {
@@ -56149,23 +56147,26 @@ const calcShift = (step, movement) => {
     if (step > movement) {
         step = 1;
     }
-    let shift = (Math.floor(step / 2) + step % 2);
+    let shift = Math.floor(step / 2) + (step % 2);
     if (step % 2) {
         shift *= -1;
     }
     return {
-        step, shift
+        step,
+        shift,
     };
 };
 const decryptCNV = (content) => {
     const { length, direction, movement } = parseHeader(content);
-    const directionMultiplier = (direction.toLowerCase() === 'd') ? -1 : 1;
+    const directionMultiplier = direction.toLowerCase() === 'd' ? -1 : 1;
     const payload = new Uint8Array(content.slice(length));
     let output = '';
     let step = 0;
     let shift = 0;
     for (let pos = 0; pos < payload.byteLength; pos++) {
-        if (payload[pos] === '<'.charCodeAt(0) && payload[pos + 1] === 'E'.charCodeAt(0) && payload[pos + 2] === '>'.charCodeAt(0)) {
+        if (payload[pos] === '<'.charCodeAt(0) &&
+            payload[pos + 1] === 'E'.charCodeAt(0) &&
+            payload[pos + 2] === '>'.charCodeAt(0)) {
             output += '\n';
             pos += 2;
         }
@@ -56173,7 +56174,7 @@ const decryptCNV = (content) => {
             const newShift = calcShift(step, movement);
             step = newShift.step;
             shift = newShift.shift;
-            output += String.fromCharCode(payload[pos] + (shift * directionMultiplier) % 256);
+            output += String.fromCharCode(payload[pos] + ((shift * directionMultiplier) % 256));
         }
     }
     return output;
@@ -56229,7 +56230,7 @@ const parseCNV = (content) => {
         if (key === 'OBJECT') {
             objects[value] = {
                 TYPE: 'unknown',
-                NAME: value
+                NAME: value,
             };
         }
         else {
@@ -56311,7 +56312,7 @@ const ApplicationStructure = {
     VERSION: common_1.string,
     PATH: common_1.string,
     EPISODES: (0, common_1.array)(common_1.string),
-    STARTWITH: common_1.string
+    STARTWITH: common_1.string,
 };
 const EpisodeStructure = {
     DESCRIPTION: common_1.string,
@@ -56321,7 +56322,7 @@ const EpisodeStructure = {
     VERSION: common_1.string,
     PATH: (0, common_1.optional)(common_1.string),
     SCENES: (0, common_1.array)(common_1.string),
-    STARTWITH: common_1.string
+    STARTWITH: common_1.string,
 };
 const SceneStructure = {
     DESCRIPTION: (0, common_1.optional)(common_1.string),
@@ -56331,7 +56332,7 @@ const SceneStructure = {
     PATH: common_1.string,
     BACKGROUND: (0, common_1.optional)(common_1.string),
     MUSIC: (0, common_1.optional)(common_1.string),
-    DLLS: (0, common_1.optional)((0, common_1.array)(common_1.string))
+    DLLS: (0, common_1.optional)((0, common_1.array)(common_1.string)),
 };
 const IntegerStructure = {
     VALUE: (0, common_1.optional)(common_1.number),
@@ -56340,7 +56341,7 @@ const IntegerStructure = {
     TOINI: (0, common_1.optional)(common_1.boolean),
     ONINIT: (0, common_1.optional)(common_1.callback),
     ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.number)),
-    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.number))
+    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.number)),
 };
 const AnimoStructure = {
     VISIBLE: common_1.boolean,
@@ -56359,10 +56360,10 @@ const AnimoStructure = {
     ONFOCUSON: (0, common_1.optional)(common_1.callback),
     ONFOCUSOFF: (0, common_1.optional)(common_1.callback),
     ONCLICK: (0, common_1.optional)(common_1.callback),
-    ONRELEASE: (0, common_1.optional)(common_1.callback)
+    ONRELEASE: (0, common_1.optional)(common_1.callback),
 };
 const MusicStructure = {
-    FILENAME: common_1.string
+    FILENAME: common_1.string,
 };
 const SoundStructure = {
     FILENAME: common_1.string,
@@ -56371,18 +56372,18 @@ const SoundStructure = {
     FLUSHAFTERPLAYED: (0, common_1.optional)(common_1.boolean),
     ONINIT: (0, common_1.optional)(common_1.callback),
     ONFINISHED: (0, common_1.optional)(common_1.callback),
-    ONSTARTED: (0, common_1.optional)(common_1.callback)
+    ONSTARTED: (0, common_1.optional)(common_1.callback),
 };
 const TimerStructure = {
     ENABLED: (0, common_1.optional)(common_1.boolean),
     ELAPSE: common_1.number,
     TICKS: (0, common_1.optional)(common_1.number),
     ONINIT: (0, common_1.optional)(common_1.callback),
-    ONTICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.number))
+    ONTICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.number)),
 };
 const BehaviourStructure = {
     CODE: common_1.callback,
-    CONDITION: (0, common_1.optional)(common_1.reference)
+    CONDITION: (0, common_1.optional)(common_1.reference),
 };
 const ImageStructure = {
     VISIBLE: common_1.boolean,
@@ -56393,13 +56394,13 @@ const ImageStructure = {
     RELEASE: (0, common_1.optional)(common_1.boolean),
     MONITORCOLLISION: (0, common_1.optional)(common_1.boolean),
     MONITORCOLLISIONALPHA: (0, common_1.optional)(common_1.boolean),
-    ONINIT: (0, common_1.optional)(common_1.callback)
+    ONINIT: (0, common_1.optional)(common_1.callback),
 };
 const MouseStructure = {
     ONCLICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONRELEASE: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONINIT: (0, common_1.optional)(common_1.callback),
-    ONMOVE: (0, common_1.optional)(common_1.callback)
+    ONMOVE: (0, common_1.optional)(common_1.callback),
 };
 const KeyboardStructure = {
     ONKEYDOWN: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
@@ -56412,7 +56413,7 @@ const ConditionDefinitionStructure = {
     OPERATOR: common_1.string,
     OPERAND2: common_1.code,
     ONRUNTIMESUCCESS: (0, common_1.optional)(common_1.callback),
-    ONRUNTIMEFAILED: (0, common_1.optional)(common_1.callback)
+    ONRUNTIMEFAILED: (0, common_1.optional)(common_1.callback),
 };
 const StringDefinitionStructure = {
     TOINI: (0, common_1.optional)(common_1.boolean),
@@ -56420,19 +56421,19 @@ const StringDefinitionStructure = {
     DEFAULT: (0, common_1.optional)(common_1.string),
     ONINIT: (0, common_1.optional)(common_1.callback),
     ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
-    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string))
+    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
 };
 const BoolDefinitionStructure = {
     VALUE: (0, common_1.optional)(common_1.boolean),
     DEFAULT: (0, common_1.optional)(common_1.boolean),
     ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.boolean)),
-    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.boolean))
+    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.boolean)),
 };
 const ArrayDefinitionStructure = {
-    ONINIT: (0, common_1.optional)(common_1.callback)
+    ONINIT: (0, common_1.optional)(common_1.callback),
 };
 const MultiArrayDefinitionStructure = {
-    DIMENSIONS: common_1.number
+    DIMENSIONS: common_1.number,
 };
 const ButtonDefinitionStructure = {
     DRAGGABLE: (0, common_1.optional)(common_1.boolean),
@@ -56452,7 +56453,7 @@ const ButtonDefinitionStructure = {
             else {
                 return common_1.reference.processor(object, key, param, value);
             }
-        }
+        },
     }),
     ONACTION: (0, common_1.optional)(common_1.callback),
     ONCLICKED: (0, common_1.optional)(common_1.callback),
@@ -56462,16 +56463,16 @@ const ButtonDefinitionStructure = {
     ONFOCUSOFF: (0, common_1.optional)(common_1.callback),
     ONRELEASED: (0, common_1.optional)(common_1.callback),
     ONSTARTDRAGGING: (0, common_1.optional)(common_1.callback),
-    ONINIT: (0, common_1.optional)(common_1.callback)
+    ONINIT: (0, common_1.optional)(common_1.callback),
 };
 const SequenceDefinitionStructure = {
     FILENAME: common_1.string,
     ONFINISHED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONSTARTED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
-    ONINIT: (0, common_1.optional)(common_1.callback)
+    ONINIT: (0, common_1.optional)(common_1.callback),
 };
 const GroupDefinitionStructure = {
-    ONINIT: (0, common_1.optional)(common_1.callback)
+    ONINIT: (0, common_1.optional)(common_1.callback),
 };
 const TextDefinitionStructure = {
     VISIBLE: common_1.boolean,
@@ -56481,37 +56482,37 @@ const TextDefinitionStructure = {
     PRIORITY: common_1.number,
     MONITORCOLLISIONALPHA: common_1.boolean,
     MONITORCOLLISION: common_1.boolean,
-    FONT: common_1.string
+    FONT: common_1.string,
 };
 const FontDefinitionStructure = {
-    DEF_ARIAL_STANDARD_14: common_1.string // wtf
+    DEF_ARIAL_STANDARD_14: common_1.string, // wtf
 };
 const ComplexConditionDefinitionStructure = {
     CONDITION1: common_1.reference,
     CONDITION2: common_1.reference,
     ONRUNTIMEFAILED: (0, common_1.optional)(common_1.callback),
     ONRUNTIMESUCCESS: (0, common_1.optional)(common_1.callback),
-    OPERATOR: common_1.string
+    OPERATOR: common_1.string,
 };
 const RandDefinitionStructure = {};
 const DoubleStructure = {
     VALUE: (0, common_1.optional)(common_1.number),
-    DEFAULT: (0, common_1.optional)(common_1.number)
+    DEFAULT: (0, common_1.optional)(common_1.number),
 };
 const ExpressionDefinitionStructure = {
     OPERAND1: common_1.code,
     OPERATOR: common_1.string,
-    OPERAND2: common_1.code
+    OPERAND2: common_1.code,
 };
 const VectorDefinitionStructure = {
     SIZE: common_1.number,
-    VALUE: (0, common_1.array)(common_1.number)
+    VALUE: (0, common_1.array)(common_1.number),
 };
 const StaticFilterDefinitionStructure = {
-    ACTION: common_1.string
+    ACTION: common_1.string,
 };
 const FilterDefinitionStructure = {
-    ACTION: common_1.string
+    ACTION: common_1.string,
 };
 exports.structureDefinitions = {
     APPLICATION: ApplicationStructure,
@@ -56545,7 +56546,7 @@ exports.structureDefinitions = {
     VECTOR: VectorDefinitionStructure,
     STATICFILTER: StaticFilterDefinitionStructure,
     FILTER: FilterDefinitionStructure,
-    MULTIARRAY: MultiArrayDefinitionStructure
+    MULTIARRAY: MultiArrayDefinitionStructure,
 };
 
 
@@ -56586,44 +56587,44 @@ exports.number = {
         const result = Number(value.startsWith('"') ? value.slice(1, -1) : value);
         (0, errors_1.assert)(!isNaN(result), 'Value is not a number');
         return result;
-    }
+    },
 };
 exports.boolean = {
     name: 'boolean',
     processor: (object, key, param, value) => {
         (0, errors_1.assert)(value === 'TRUE' || value === 'FALSE', 'Expected TRUE or FALSE');
         return value === 'TRUE';
-    }
+    },
 };
 exports.callback = {
     name: 'callback',
     processor: (object, key, param, value) => {
         return createCallback(value);
-    }
+    },
 };
 exports.code = {
     name: 'code',
     processor: (object, key, param, value) => {
         return {
             code: value,
-            isSingleStatement: true
+            isSingleStatement: true,
         };
-    }
+    },
 };
 exports.reference = {
     name: 'reference',
     processor: (object, key, param, value) => {
         return {
-            objectName: value
+            objectName: value,
         };
-    }
+    },
 };
 const array = (subType) => ({
     subType,
     name: 'array',
     processor: (object, key, param, value) => {
-        return value.split(',').map(part => subType.processor(object, key, param, part));
-    }
+        return value.split(',').map((part) => subType.processor(object, key, param, part));
+    },
 });
 exports.array = array;
 const map = (subType) => ({
@@ -56636,7 +56637,7 @@ const map = (subType) => ({
         }
         result.set(param, subType.processor(object, key, param, value));
         return result;
-    }
+    },
 });
 exports.map = map;
 const callbacks = (subType) => ({
@@ -56647,7 +56648,7 @@ const callbacks = (subType) => ({
         if (result === undefined) {
             result = {
                 nonParametrized: null,
-                parametrized: new Map()
+                parametrized: new Map(),
             };
         }
         const callbackInstance = createCallback(value);
@@ -56658,14 +56659,14 @@ const callbacks = (subType) => ({
             result.parametrized.set(subType.processor(object, key, param, param), callbackInstance);
         }
         return result;
-    }
+    },
 });
 exports.callbacks = callbacks;
 const createCallback = (value) => {
     if (value.startsWith('{')) {
         return {
             code: value.substring(1, value.length - 1),
-            isSingleStatement: false
+            isSingleStatement: false,
         };
     }
     else {
@@ -56678,7 +56679,7 @@ const createCallback = (value) => {
             return {
                 behaviourReference: name,
                 constantArguments: args,
-                isSingleStatement: false
+                isSingleStatement: false,
             };
         }
     }
@@ -56899,7 +56900,7 @@ const parseHeader = (view) => {
 };
 // Based on https://github.com/mysliwy112/AM-transcoder/blob/master/src/image.cpp
 const convertToRgba32 = (bytes) => {
-    const rgb = new Uint8Array(bytes.byteLength / 2 * 3);
+    const rgb = new Uint8Array((bytes.byteLength / 2) * 3);
     let counter = 0;
     for (let i = 0; i < bytes.byteLength; i += 2) {
         let temp = bytes[i] + bytes[i + 1] * 256;
@@ -56953,7 +56954,7 @@ const loadImage = (data) => {
     const imgBytes = (0, exports.loadImageWithoutHeader)(buffer, colorDescriptor, alphaDescriptor);
     return {
         header,
-        bytes: imgBytes
+        bytes: imgBytes,
     };
 };
 exports.loadImage = loadImage;
@@ -56969,18 +56970,20 @@ const createDescriptors = (header, mapping) => {
         decompressedLen: header.width * header.height * colorPixelLen,
         pixelLen: colorPixelLen,
     };
-    const alphaDescriptor = (header.alphaLen > 0) ? {
-        compressionType: alphaCompressionType,
-        compressedLen: header.alphaLen,
-        decompressedLen: header.width * header.height * alphaPixelLen,
-        pixelLen: alphaPixelLen,
-    } : undefined;
+    const alphaDescriptor = header.alphaLen > 0
+        ? {
+            compressionType: alphaCompressionType,
+            compressedLen: header.alphaLen,
+            decompressedLen: header.width * header.height * alphaPixelLen,
+            pixelLen: alphaPixelLen,
+        }
+        : undefined;
     return { colorDescriptor, alphaDescriptor };
 };
 exports.createDescriptors = createDescriptors;
 const loadImageWithoutHeader = (buffer, colorCompression, alphaCompression) => {
     const colorBytes = decompressImageData(buffer, colorCompression);
-    const alphaBytes = (alphaCompression !== undefined) ? decompressImageData(buffer, alphaCompression) : undefined;
+    const alphaBytes = alphaCompression !== undefined ? decompressImageData(buffer, alphaCompression) : undefined;
     let imageBytes = convertToRgba32(colorBytes);
     imageBytes = addAlpha(imageBytes, alphaBytes);
     return imageBytes;
@@ -57028,7 +57031,7 @@ const parseSequence = (content) => {
         if (key === 'NAME') {
             objects[value] = {
                 NAME: value,
-                TYPE: 'unknown'
+                TYPE: 'unknown',
             };
         }
         else {
@@ -57050,12 +57053,12 @@ exports.parseSequence = parseSequence;
 const SequenceSequenceStructure = {
     MODE: common_1.string,
     SEQEVENT: (0, common_1.map)(common_1.string),
-    ADD: common_1.string
+    ADD: common_1.string,
 };
 const SimpleStructure = {
     FILENAME: common_1.string,
     EVENT: common_1.string,
-    ADD: common_1.string
+    ADD: common_1.string,
 };
 const SpeakingStructure = {
     ANIMOFX: common_1.string,
@@ -57063,12 +57066,12 @@ const SpeakingStructure = {
     WAVFN: common_1.string,
     STARTING: common_1.boolean,
     ENDING: common_1.boolean,
-    ADD: common_1.string
+    ADD: common_1.string,
 };
 exports.structureDefinitions = {
     SEQUENCE: SequenceSequenceStructure,
     SIMPLE: SimpleStructure,
-    SPEAKING: SpeakingStructure
+    SPEAKING: SpeakingStructure,
 };
 
 
@@ -58506,7 +58509,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
         this.visitStatementList = (ctx) => {
             this.lastContext = ctx;
             let result = null;
-            ctx.statement_list().forEach(statement => {
+            ctx.statement_list().forEach((statement) => {
                 result = this.visitStatement(statement);
             });
             return result;
@@ -58533,7 +58536,10 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 return (0, types_1.ForceNumber)(ctx.negativeNumber().getText());
             }
             else if (ctx.STRING() != null) {
-                return this.replaceParameters(ctx.STRING().getText().replace(/^"+|"+$/g, ''));
+                return this.replaceParameters(ctx
+                    .STRING()
+                    .getText()
+                    .replace(/^"+|"+$/g, ''));
             }
             else if (ctx.IDENTIFIER() != null) {
                 const identifier = ctx.IDENTIFIER().getText();
@@ -58557,10 +58563,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 if (object === null) {
                     if (this.printDebug) {
                         const code = this.markInCode(ctx);
-                        console.error('Unknown identifier\n' +
-                            '\n' +
-                            `%cCode:%c\n${code}\n\n` +
-                            '%cUsed variables:%c%O', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables);
+                        console.error('Unknown identifier\n' + '\n' + `%cCode:%c\n${code}\n\n` + '%cUsed variables:%c%O', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables);
                     }
                     // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
                     return null;
@@ -58582,10 +58585,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             const argsVariables = this.methodCallUsedVariables;
             this.methodCallUsedVariables = {};
             try {
-                const stackFrame = stacktrace_1.StackFrame.builder()
-                    .object(object)
-                    .method(methodName)
-                    .build();
+                const stackFrame = stacktrace_1.StackFrame.builder().object(object).method(methodName).build();
                 stacktrace_1.stackTrace.push(stackFrame);
                 if (method == undefined) {
                     return object.__call(methodName, args);
@@ -58608,7 +58608,11 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                         (this.args.length ? '%cBehaviour Arguments:%c %O\n' : '') +
                         (Object.keys(argsVariables).length > 0 ? '%cVariables used in call:%c %O\n' : '') +
                         (Object.keys(this.scriptUsedVariables).length > 0 ? '%cVariables used in script:%c %O\n' : '') +
-                        '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', object, ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []), ...(this.args.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []), ...(Object.keys(argsVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', argsVariables] : []), ...(Object.keys(this.scriptUsedVariables).length > 0 ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables] : []), 'font-weight: bold', 'font-weight: inherit', this.engine?.scope);
+                        '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', object, ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []), ...(this.args.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []), ...(Object.keys(argsVariables).length > 0
+                        ? ['font-weight: bold', 'font-weight: inherit', argsVariables]
+                        : []), ...(Object.keys(this.scriptUsedVariables).length > 0
+                        ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables]
+                        : []), 'font-weight: bold', 'font-weight: inherit', this.engine?.scope);
                     console.error(err);
                     (0, stacktrace_1.printStackTrace)();
                 }
@@ -58662,16 +58666,13 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             }
             else if (this.printDebug) {
                 const code = this.markInCode(ctx);
-                console.error(`Unknown special call ${methodName}` +
-                    '\n' +
-                    `%cCode:%c\n${code}\n\n` +
-                    '%cUsed variables:%c%O', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables);
+                console.error(`Unknown special call ${methodName}` + '\n' + `%cCode:%c\n${code}\n\n` + '%cUsed variables:%c%O', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables);
                 // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
             }
         };
         this.visitMethodCallArguments = (ctx) => {
             this.lastContext = ctx;
-            return ctx.expr_list().map(expr => this.visitExpr(expr));
+            return ctx.expr_list().map((expr) => this.visitExpr(expr));
         };
         this.visitObjectName = (ctx) => {
             this.lastContext = ctx;
@@ -58786,8 +58787,7 @@ const runScript = (engine, script, args, singleStatement = false, printDebug = t
             if (evaluator.lastContext) {
                 const code = evaluator.markInCode(evaluator.lastContext);
                 if (printDebug) {
-                    console.error('Execution stopped due to irrecoverable error\n\n' +
-                        `%cCode:%c\n${code}`, 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit');
+                    console.error('Execution stopped due to irrecoverable error\n\n' + `%cCode:%c\n${code}`, 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit');
                 }
             }
             if (printDebug) {
@@ -58871,7 +58871,9 @@ exports.stackTrace = [];
 const printStackTrace = () => {
     const lines = [];
     for (const frame of exports.stackTrace) {
-        const argsString = (frame.args ?? []).map(arg => arg !== undefined ? (0, types_1.valueAsString)(arg) : '<undefined>').join(',');
+        const argsString = (frame.args ?? [])
+            .map((arg) => (arg !== undefined ? (0, types_1.valueAsString)(arg) : '<undefined>'))
+            .join(',');
         switch (frame.type) {
             case 'callback':
                 lines.push(`at ${frame.object.name}@${frame.callback}(${argsString})`);
@@ -59003,10 +59005,10 @@ class StateMachine {
         return this.currentState;
     }
     can(event) {
-        return this.transitions.some(transition => transition.from === this.currentState && transition.event === event);
+        return this.transitions.some((transition) => transition.from === this.currentState && transition.event === event);
     }
     dispatch(event) {
-        const transition = this.transitions.find(transition => transition.from === this.currentState && transition.event === event);
+        const transition = this.transitions.find((transition) => transition.from === this.currentState && transition.event === event);
         if (transition === undefined) {
             throw new Error('No transition found for event from current state');
         }
@@ -59102,7 +59104,7 @@ exports.Compare = {
     },
     GreaterOrEqual: (a, b) => {
         return (0, exports.ForceNumber)(a) >= (0, exports.ForceNumber)(b);
-    }
+    },
 };
 const convertValue = (value, targetType) => {
     if (Array.isArray(value)) {
@@ -59128,7 +59130,11 @@ const isDirectlyConvertible = (value, type) => {
         return false;
     }
     if (type.isArray) {
-        return value.every((entry) => (0, exports.isDirectlyConvertible)(entry, { name: type.name, literal: type.literal, isArray: false }));
+        return value.every((entry) => (0, exports.isDirectlyConvertible)(entry, {
+            name: type.name,
+            literal: type.literal,
+            isArray: false,
+        }));
     }
     if (type.literal !== null) {
         return type.literal === convertValue(value, type.name);
@@ -59137,7 +59143,9 @@ const isDirectlyConvertible = (value, type) => {
         case 'string':
             return true;
         case 'boolean':
-            return typeof value === 'boolean' || value.toString().toUpperCase() === 'TRUE' || value.toString().toUpperCase() === 'FALSE';
+            return (typeof value === 'boolean' ||
+                value.toString().toUpperCase() === 'TRUE' ||
+                value.toString().toUpperCase() === 'FALSE');
         case 'number':
             return typeof value === 'number' || !Number.isNaN(Number(value));
         default:
@@ -59178,12 +59186,12 @@ function method(...types) {
                             continue;
                         }
                     }
-                    const isExpectedType = argExpectedTypeInfo.types.some(type => (0, exports.compareType)(arg, type));
-                    const isAnyAllowed = argExpectedTypeInfo.types.some(type => type.name === 'any');
+                    const isExpectedType = argExpectedTypeInfo.types.some((type) => (0, exports.compareType)(arg, type));
+                    const isAnyAllowed = argExpectedTypeInfo.types.some((type) => type.name === 'any');
                     if (isExpectedType || isAnyAllowed) {
                         continue;
                     }
-                    const typesDisplayStrings = argExpectedTypeInfo.types.map(type => `${type.name}${type.isArray ? '[]' : ''}`);
+                    const typesDisplayStrings = argExpectedTypeInfo.types.map((type) => `${type.name}${type.isArray ? '[]' : ''}`);
                     // We only try to convert when the parameter accepts only one type
                     if (argExpectedTypeInfo.types.length === 1) {
                         const firstArgType = argExpectedTypeInfo.types[0];
@@ -59199,20 +59207,20 @@ function method(...types) {
                         if (firstArgType.literal !== null && firstArgType.literal !== convertedValue) {
                             throw new InvalidMethodParameter([
                                 `Function: ${originalMethod.name}`,
-                                `Argument "${arg}" does not match literal "${firstArgType.literal}"`
+                                `Argument "${arg}" does not match literal "${firstArgType.literal}"`,
                             ].join('\n'));
                         }
                         newArgs[subArgIdx] = convertedValue;
                         continue;
                     }
                     // Otherwise we just check if it could be converted to any of the accepted types
-                    const anyTypeMatches = argExpectedTypeInfo.types.some(type => (0, exports.isDirectlyConvertible)(arg, type));
+                    const anyTypeMatches = argExpectedTypeInfo.types.some((type) => (0, exports.isDirectlyConvertible)(arg, type));
                     if (!anyTypeMatches) {
                         throw new InvalidMethodParameter([
                             `Function: ${originalMethod.name}`,
                             `Type of argument "${argExpectedTypeInfo.name}" does not match any of the possible types`,
                             `Expected: ${typesDisplayStrings.join(' or ')}`,
-                            `Received: ${argRealType}`
+                            `Received: ${argRealType}`,
                         ].join('\n'));
                     }
                 }
@@ -59239,7 +59247,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createColorTexture = exports.drawRectangle = exports.stringUntilNull = exports.pathJoin = void 0;
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const pathJoin = (...parts) => {
-    const fixedParts = parts.map(part => part.replace(/\\/g, '/'));
+    const fixedParts = parts.map((part) => part.replace(/\\/g, '/'));
     return fixedParts.join('/');
 };
 exports.pathJoin = pathJoin;
