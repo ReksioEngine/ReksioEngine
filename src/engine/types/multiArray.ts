@@ -15,7 +15,7 @@ export class MultiArray extends ValueType<MultiArrayDefinition> {
 
     @method()
     SET(...args: any[]) {
-        //We take only first 2 arguments (position in array) 
+        //We take only first 2 arguments (position in array)
         //and last one (value we will put) as the original engine ignores any dimensions above 2
         const y: number = args[0]
         const x: number = args[1]
@@ -31,10 +31,10 @@ export class MultiArray extends ValueType<MultiArrayDefinition> {
 
     @method()
     GET(...args: number[]) {
-        //We take only first 2 arguments as original engine ignores rest of coordinates 
+        //We take only first 2 arguments as original engine ignores rest of coordinates
         const y: number = args[0]
         const x: number = args[1]
-        assert((y <= this.value.length && x <= this.value[y].length), outOfBoundsMessage('get', y, x))
+        assert(y <= this.value.length && x <= this.value[y].length, outOfBoundsMessage('get', y, x))
         return this.value[y][x]
     }
 }
