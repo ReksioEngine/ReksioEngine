@@ -1,7 +1,7 @@
-import {ValueType} from './index'
-import {Engine} from '../index'
-import {StringDefinition} from '../../fileFormats/cnv/types'
-import {method} from '../../types'
+import { ValueType } from './index'
+import { Engine } from '../index'
+import { StringDefinition } from '../../fileFormats/cnv/types'
+import { method } from '../../types'
 
 export class String extends ValueType<StringDefinition> {
     constructor(engine: Engine, definition: StringDefinition) {

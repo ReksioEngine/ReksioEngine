@@ -1,8 +1,8 @@
-import {ValueType} from './index'
-import {Engine} from '../index'
-import {ArrayDefinition} from '../../fileFormats/cnv/types'
-import {assert} from '../../errors'
-import {method} from '../../types'
+import { ValueType } from './index'
+import { Engine } from '../index'
+import { ArrayDefinition } from '../../fileFormats/cnv/types'
+import { assert } from '../../errors'
+import { method } from '../../types'
 
 const generateMessage = (action: string, position: number, value: any[]) => {
     return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`
@@ -117,8 +117,7 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     @method()
-    MSGBOX() {
-    }
+    MSGBOX() {}
 
     clone() {
         const cloned = super.clone() as ArrayObject

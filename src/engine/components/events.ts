@@ -19,7 +19,7 @@ export class EventsComponent {
             return
         }
 
-        callbacks = callbacks.filter(cb => cb !== callback)
+        callbacks = callbacks.filter((cb) => cb !== callback)
         this.listeners.set(eventName, callbacks)
     }
 

@@ -1,14 +1,14 @@
-import {Episode} from './types/episode'
-import {DisplayType, Type} from './types'
-import {Engine} from './index'
-import {sound} from '@pixi/sound'
-import {ArchiveOrgFileLoader, GithubFileLoader} from './filesLoader'
-import {drawRectangle} from '../utils'
-import {Container, Graphics, Rectangle, Sprite, Text} from 'pixi.js'
-import {Animo} from './types/animo'
-import {Button} from './types/button'
-import {CNVObject, parseCNV} from '../fileFormats/cnv/parser'
-import {createObject, loadDefinition} from './definitionLoader'
+import { Episode } from './types/episode'
+import { DisplayType, Type } from './types'
+import { Engine } from './index'
+import { sound } from '@pixi/sound'
+import { ArchiveOrgFileLoader, GithubFileLoader } from './filesLoader'
+import { drawRectangle } from '../utils'
+import { Container, Graphics, Rectangle, Sprite, Text } from 'pixi.js'
+import { Animo } from './types/animo'
+import { Button } from './types/button'
+import { CNVObject, parseCNV } from '../fileFormats/cnv/parser'
+import { createObject, loadDefinition } from './definitionLoader'
 
 export class Debugging {
     private engine: Engine
@@ -32,7 +32,7 @@ export class Debugging {
         return scope
     }
 
-    clearScope(){
+    clearScope() {
         this.engine.app.ticker.stop()
 
         sound.stopAll()
@@ -126,7 +126,9 @@ export class Debugging {
             this.enableXRay = target.checked
         })
 
-        const episode: Episode = Object.values(this.engine.globalScope).find((object: Type<any>) => object.definition.TYPE === 'EPISODE')
+        const episode: Episode = Object.values(this.engine.globalScope).find(
+            (object: Type<any>) => object.definition.TYPE === 'EPISODE'
+        )
         for (const sceneName of episode.definition.SCENES) {
             const scene = Object.values(this.engine.globalScope).find((object: Type<any>) => {
                 return object.definition.TYPE === 'SCENE' && object.definition.NAME === sceneName
@@ -147,7 +149,7 @@ export class Debugging {
         })
     }
 
-    updateCurrentScene (){
+    updateCurrentScene() {
         if (this.isDebug) {
             const currentScene = document.querySelector('#currentScene')!
             currentScene.textContent = this.engine.currentScene!.definition.NAME
@@ -155,7 +157,7 @@ export class Debugging {
 
         for (const [name, container] of this.xrays) {
             container.destroy({
-                children: true
+                children: true,
             })
             this.xrays.delete(name)
         }
@@ -165,7 +167,7 @@ export class Debugging {
         if (!this.enableXRay) {
             for (const [name, container] of this.xrays) {
                 container.destroy({
-                    children: true
+                    children: true,
                 })
                 this.xrays.delete(name)
             }
@@ -191,10 +193,11 @@ export class Debugging {
                 rectangle = renderObject.getBounds()
                 visible = renderObject.visible
 
-                const listenersCount = renderObject.listenerCount('pointerover')
-                    + renderObject.listenerCount('pointerout')
-                    + renderObject.listenerCount('pointerdown')
-                    + renderObject.listenerCount('pointerup')
+                const listenersCount =
+                    renderObject.listenerCount('pointerover') +
+                    renderObject.listenerCount('pointerout') +
+                    renderObject.listenerCount('pointerdown') +
+                    renderObject.listenerCount('pointerup')
 
                 isInteractive = listenersCount > 0
                 position = 'inside'
@@ -212,7 +215,7 @@ export class Debugging {
 
             if (!visible) {
                 this.xrays.get(object.name)?.destroy({
-                    children: true
+                    children: true,
                 })
                 this.xrays.delete(object.name)
                 continue
@@ -220,7 +223,12 @@ export class Debugging {
 
             if (this.xrays.has(object.name)) {
                 const oldRectangle = this.xrays.get(object.name)!
-                if (oldRectangle.x === rectangle.x && oldRectangle.y === rectangle.y && oldRectangle.width === rectangle.width && oldRectangle.height === rectangle.height) {
+                if (
+                    oldRectangle.x === rectangle.x &&
+                    oldRectangle.y === rectangle.y &&
+                    oldRectangle.width === rectangle.width &&
+                    oldRectangle.height === rectangle.height
+                ) {
                     continue
                 }
             }

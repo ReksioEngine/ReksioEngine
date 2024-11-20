@@ -1,4 +1,4 @@
-import {assert, UnexpectedError} from './errors'
+import { assert, UnexpectedError } from './errors'
 
 export const valueAsString = (value: any) => {
     if (typeof value === 'string') {
@@ -69,7 +69,7 @@ export const Compare = {
     },
     GreaterOrEqual: (a: any, b: any) => {
         return ForceNumber(a) >= ForceNumber(b)
-    }
+    },
 }
 
 const convertValue = (value: any, targetType: string) => {
@@ -82,14 +82,14 @@ const convertValue = (value: any, targetType: string) => {
     }
 
     switch (targetType) {
-    case 'string':
-        return valueAsString(value)
-    case 'boolean':
-        return valueAsBool(value)
-    case 'number':
-        return valueAsDouble(value)
-    default:
-        return value
+        case 'string':
+            return valueAsString(value)
+        case 'boolean':
+            return valueAsBool(value)
+        case 'number':
+            return valueAsDouble(value)
+        default:
+            return value
     }
 }
 
@@ -99,7 +99,13 @@ export const isDirectlyConvertible = (value: any, type: parameterType) => {
     }
 
     if (type.isArray) {
-        return value.every((entry: any) => isDirectlyConvertible(entry, {name: type.name, literal: type.literal, isArray: false}))
+        return value.every((entry: any) =>
+            isDirectlyConvertible(entry, {
+                name: type.name,
+                literal: type.literal,
+                isArray: false,
+            })
+        )
     }
 
     if (type.literal !== null) {
@@ -107,14 +113,18 @@ export const isDirectlyConvertible = (value: any, type: parameterType) => {
     }
 
     switch (type.name) {
-    case 'string':
-        return true
-    case 'boolean':
-        return typeof value === 'boolean' || value.toString().toUpperCase() === 'TRUE' || value.toString().toUpperCase() === 'FALSE'
-    case 'number':
-        return typeof value === 'number' || !Number.isNaN(Number(value))
-    default:
-        return false
+        case 'string':
+            return true
+        case 'boolean':
+            return (
+                typeof value === 'boolean' ||
+                value.toString().toUpperCase() === 'TRUE' ||
+                value.toString().toUpperCase() === 'FALSE'
+            )
+        case 'number':
+            return typeof value === 'number' || !Number.isNaN(Number(value))
+        default:
+            return false
     }
 }
 
@@ -162,20 +172,22 @@ export function method(...types: parameter[]) {
 
                     if (arg === undefined) {
                         if (!argExpectedTypeInfo.optional) {
-                            throw new InvalidMethodParameter(`Non-optional argument "${argExpectedTypeInfo.name}" is undefined`)
+                            throw new InvalidMethodParameter(
+                                `Non-optional argument "${argExpectedTypeInfo.name}" is undefined`
+                            )
                         } else {
                             continue
                         }
                     }
 
-                    const isExpectedType = argExpectedTypeInfo.types.some(type => compareType(arg, type))
-                    const isAnyAllowed = argExpectedTypeInfo.types.some(type => type.name === 'any')
+                    const isExpectedType = argExpectedTypeInfo.types.some((type) => compareType(arg, type))
+                    const isAnyAllowed = argExpectedTypeInfo.types.some((type) => type.name === 'any')
                     if (isExpectedType || isAnyAllowed) {
                         continue
                     }
 
                     const typesDisplayStrings = argExpectedTypeInfo.types.map(
-                        type => `${type.name}${type.isArray ? '[]' : ''}`
+                        (type) => `${type.name}${type.isArray ? '[]' : ''}`
                     )
 
                     // We only try to convert when the parameter accepts only one type
@@ -183,20 +195,24 @@ export function method(...types: parameter[]) {
                         const firstArgType = argExpectedTypeInfo.types[0]
 
                         if (!isDirectlyConvertible(arg, firstArgType)) {
-                            throw new InvalidMethodParameter([
-                                `Function: ${originalMethod.name}`,
-                                `Type of argument "${argExpectedTypeInfo.name}" does not match the expected type`,
-                                `Expected: ${typesDisplayStrings[0]}`,
-                                `Received: ${argRealType}`,
-                            ].join('\n'))
+                            throw new InvalidMethodParameter(
+                                [
+                                    `Function: ${originalMethod.name}`,
+                                    `Type of argument "${argExpectedTypeInfo.name}" does not match the expected type`,
+                                    `Expected: ${typesDisplayStrings[0]}`,
+                                    `Received: ${argRealType}`,
+                                ].join('\n')
+                            )
                         }
 
                         const convertedValue = convertValue(args[subArgIdx], firstArgType.name)
                         if (firstArgType.literal !== null && firstArgType.literal !== convertedValue) {
-                            throw new InvalidMethodParameter([
-                                `Function: ${originalMethod.name}`,
-                                `Argument "${arg}" does not match literal "${firstArgType.literal}"`
-                            ].join('\n'))
+                            throw new InvalidMethodParameter(
+                                [
+                                    `Function: ${originalMethod.name}`,
+                                    `Argument "${arg}" does not match literal "${firstArgType.literal}"`,
+                                ].join('\n')
+                            )
                         }
 
                         newArgs[subArgIdx] = convertedValue
@@ -204,14 +220,16 @@ export function method(...types: parameter[]) {
                     }
 
                     // Otherwise we just check if it could be converted to any of the accepted types
-                    const anyTypeMatches = argExpectedTypeInfo.types.some(type => isDirectlyConvertible(arg, type))
+                    const anyTypeMatches = argExpectedTypeInfo.types.some((type) => isDirectlyConvertible(arg, type))
                     if (!anyTypeMatches) {
-                        throw new InvalidMethodParameter([
-                            `Function: ${originalMethod.name}`,
-                            `Type of argument "${argExpectedTypeInfo.name}" does not match any of the possible types`,
-                            `Expected: ${typesDisplayStrings.join(' or ')}`,
-                            `Received: ${argRealType}`
-                        ].join('\n'))
+                        throw new InvalidMethodParameter(
+                            [
+                                `Function: ${originalMethod.name}`,
+                                `Type of argument "${argExpectedTypeInfo.name}" does not match any of the possible types`,
+                                `Expected: ${typesDisplayStrings.join(' or ')}`,
+                                `Received: ${argRealType}`,
+                            ].join('\n')
+                        )
                     }
                 }
             }

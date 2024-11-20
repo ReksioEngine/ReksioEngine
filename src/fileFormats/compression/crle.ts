@@ -1,4 +1,4 @@
-import {BinaryBuffer} from '../utils'
+import { BinaryBuffer } from '../utils'
 
 export const decompress = (input: BinaryBuffer, decompressedSize: number, bulk: number = 1): Uint8Array => {
     const output = new Uint8Array(decompressedSize)

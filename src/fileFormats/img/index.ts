@@ -1,7 +1,7 @@
-import {BinaryBuffer} from '../utils'
-import {decompress as CLZWDecompress} from '../compression/clzw'
-import {decompress as CRLEDecompress} from '../compression/crle'
-import {CompressionType} from '../compression'
+import { BinaryBuffer } from '../utils'
+import { decompress as CLZWDecompress } from '../compression/clzw'
+import { decompress as CRLEDecompress } from '../compression/crle'
+import { CompressionType } from '../compression'
 
 export interface CompressedImageHeader {
     compressionType: number
@@ -51,7 +51,7 @@ const parseHeader = (view: BinaryBuffer) => {
 
 // Based on https://github.com/mysliwy112/AM-transcoder/blob/master/src/image.cpp
 const convertToRgba32 = (bytes: Uint8Array) => {
-    const rgb = new Uint8Array(bytes.byteLength / 2 * 3)
+    const rgb = new Uint8Array((bytes.byteLength / 2) * 3)
 
     let counter = 0
     for (let i = 0; i < bytes.byteLength; i += 2) {
@@ -78,12 +78,12 @@ const addAlpha = (imgBytes: Uint8Array, alphaBytes: Uint8Array | undefined) => {
 
     for (let i = 0; i < output.byteLength; i += 4) {
         output[i] = imgBytes[colorPosition]
-        output[i+1] = imgBytes[colorPosition + 1]
-        output[i+2] = imgBytes[colorPosition + 2]
+        output[i + 1] = imgBytes[colorPosition + 1]
+        output[i + 2] = imgBytes[colorPosition + 2]
         if (alphaBytes == undefined || alphaBytes.byteLength == 0) {
-            output[i+3] = 255
+            output[i + 3] = 255
         } else {
-            output[i+3] = alphaBytes[alphaPosition]
+            output[i + 3] = alphaBytes[alphaPosition]
         }
         colorPosition += 3
         alphaPosition++
@@ -95,7 +95,7 @@ const addAlpha = (imgBytes: Uint8Array, alphaBytes: Uint8Array | undefined) => {
 export const loadImage = (data: ArrayBuffer): Image => {
     const buffer = new BinaryBuffer(new DataView(data))
     const header = parseHeader(buffer)
-    
+
     if (header.bpp === 2) {
         header.bpp = 15
     } else if (header.bpp === 4) {
@@ -113,11 +113,14 @@ export const loadImage = (data: ArrayBuffer): Image => {
     const imgBytes = loadImageWithoutHeader(buffer, colorDescriptor, alphaDescriptor)
     return {
         header,
-        bytes: imgBytes
+        bytes: imgBytes,
     }
 }
 
-export const createDescriptors = (header: CompressedImageHeader, mapping: { [compressionType: number]: [CompressionType, CompressionType] }) => {
+export const createDescriptors = (
+    header: CompressedImageHeader,
+    mapping: { [compressionType: number]: [CompressionType, CompressionType] }
+) => {
     if (!(header.compressionType in mapping)) {
         throw new Error(`Unsupported compression type: ${header.compressionType}`)
     }
@@ -131,19 +134,26 @@ export const createDescriptors = (header: CompressedImageHeader, mapping: { [com
         decompressedLen: header.width * header.height * colorPixelLen,
         pixelLen: colorPixelLen,
     }
-    const alphaDescriptor: CompressionDescriptor | undefined = (header.alphaLen > 0) ? {
-        compressionType: alphaCompressionType,
-        compressedLen: header.alphaLen,
-        decompressedLen: header.width * header.height * alphaPixelLen,
-        pixelLen: alphaPixelLen,
-    } : undefined
+    const alphaDescriptor: CompressionDescriptor | undefined =
+        header.alphaLen > 0
+            ? {
+                  compressionType: alphaCompressionType,
+                  compressedLen: header.alphaLen,
+                  decompressedLen: header.width * header.height * alphaPixelLen,
+                  pixelLen: alphaPixelLen,
+              }
+            : undefined
 
     return { colorDescriptor, alphaDescriptor }
 }
 
-export const loadImageWithoutHeader = (buffer: BinaryBuffer, colorCompression: CompressionDescriptor, alphaCompression?: CompressionDescriptor) => {
+export const loadImageWithoutHeader = (
+    buffer: BinaryBuffer,
+    colorCompression: CompressionDescriptor,
+    alphaCompression?: CompressionDescriptor
+) => {
     const colorBytes = decompressImageData(buffer, colorCompression)
-    const alphaBytes = (alphaCompression !== undefined) ? decompressImageData(buffer, alphaCompression) : undefined
+    const alphaBytes = alphaCompression !== undefined ? decompressImageData(buffer, alphaCompression) : undefined
 
     let imageBytes = convertToRgba32(colorBytes)
     imageBytes = addAlpha(imageBytes, alphaBytes)
@@ -152,17 +162,29 @@ export const loadImageWithoutHeader = (buffer: BinaryBuffer, colorCompression: C
 
 const decompressImageData = (buffer: BinaryBuffer, descriptor: CompressionDescriptor) => {
     switch (descriptor.compressionType) {
-    case CompressionType.NONE:
-        return new Uint8Array(buffer.read(descriptor.compressedLen))
-    case CompressionType.CLZW:
-        return new Uint8Array(CLZWDecompress(buffer))
-    case CompressionType.CRLE:
-        return new Uint8Array(CRLEDecompress(new BinaryBuffer(new DataView(buffer.read(descriptor.compressedLen))), descriptor.decompressedLen, descriptor.pixelLen))
-    case CompressionType.CLZW_IN_CRLE:
-        return new Uint8Array(CRLEDecompress(new BinaryBuffer(new DataView(CLZWDecompress(buffer))), descriptor.decompressedLen, descriptor.pixelLen))
-    case CompressionType.JPEG:
-        throw new Error(`Unsupported compression type: ${descriptor.compressionType}`)
-    default:
-        throw new Error(`Unknown compression type: ${descriptor.compressionType}`)
+        case CompressionType.NONE:
+            return new Uint8Array(buffer.read(descriptor.compressedLen))
+        case CompressionType.CLZW:
+            return new Uint8Array(CLZWDecompress(buffer))
+        case CompressionType.CRLE:
+            return new Uint8Array(
+                CRLEDecompress(
+                    new BinaryBuffer(new DataView(buffer.read(descriptor.compressedLen))),
+                    descriptor.decompressedLen,
+                    descriptor.pixelLen
+                )
+            )
+        case CompressionType.CLZW_IN_CRLE:
+            return new Uint8Array(
+                CRLEDecompress(
+                    new BinaryBuffer(new DataView(CLZWDecompress(buffer))),
+                    descriptor.decompressedLen,
+                    descriptor.pixelLen
+                )
+            )
+        case CompressionType.JPEG:
+            throw new Error(`Unsupported compression type: ${descriptor.compressionType}`)
+        default:
+            throw new Error(`Unknown compression type: ${descriptor.compressionType}`)
     }
 }

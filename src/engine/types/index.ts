@@ -1,10 +1,10 @@
-import {Engine} from '../index'
-import {DisplayTypeDefinition, TypeDefinition, ValueTypeDefinition} from '../../fileFormats/common'
-import {CallbacksComponent} from '../components/callbacks'
-import {Sprite} from 'pixi.js'
-import {assert, NotImplementedError} from '../../errors'
-import {EventsComponent} from '../components/events'
-import {method} from '../../types'
+import { Engine } from '../index'
+import { DisplayTypeDefinition, TypeDefinition, ValueTypeDefinition } from '../../fileFormats/common'
+import { CallbacksComponent } from '../components/callbacks'
+import { Sprite } from 'pixi.js'
+import { assert, NotImplementedError } from '../../errors'
+import { EventsComponent } from '../components/events'
+import { method } from '../../types'
 
 export class Type<DefinitionType extends TypeDefinition> {
     protected callbacks: CallbacksComponent
@@ -130,8 +130,14 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
     set value(newValue: any) {
         assert(typeof newValue != 'number' || !isNaN(newValue), 'Attempted to assign NaN')
         assert(newValue !== undefined, 'Attempted to assign undefined')
-        assert(!Array.isArray(newValue) || !newValue.some(e => Number.isNaN(e)), 'Attempted to assign array with NaN values')
-        assert(!Array.isArray(newValue) || !newValue.some(e => e === undefined), 'Attempted to assign array with undefined values')
+        assert(
+            !Array.isArray(newValue) || !newValue.some((e) => Number.isNaN(e)),
+            'Attempted to assign array with NaN values'
+        )
+        assert(
+            !Array.isArray(newValue) || !newValue.some((e) => e === undefined),
+            'Attempted to assign array with undefined values'
+        )
 
         const oldValue = this._value
         this._value = newValue

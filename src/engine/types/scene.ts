@@ -1,10 +1,10 @@
-import {Type} from './index'
-import {SceneDefinition} from '../../fileFormats/cnv/types'
-import {Engine} from '../index'
-import {pathJoin} from '../../utils'
-import {Behaviour} from './behaviour'
-import {assert, NotImplementedError} from '../../errors'
-import {method} from '../../types'
+import { Type } from './index'
+import { SceneDefinition } from '../../fileFormats/cnv/types'
+import { Engine } from '../index'
+import { pathJoin } from '../../utils'
+import { Behaviour } from './behaviour'
+import { assert, NotImplementedError } from '../../errors'
+import { method } from '../../types'
 
 export class Scene extends Type<SceneDefinition> {
     constructor(engine: Engine, definition: SceneDefinition) {

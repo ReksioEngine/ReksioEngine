@@ -1,19 +1,19 @@
-import {callback, reference} from '../fileFormats/common'
-import {runScript} from '../interpreter/evaluator'
-import {DisplayType, Type} from './types'
-import {loadDefinition} from './definitionLoader'
-import {Application, Rectangle, Sprite} from 'pixi.js'
-import {Scene} from './types/scene'
-import {FileLoader, GithubFileLoader, UrlFileLoader} from './filesLoader'
-import {sound, Sound} from '@pixi/sound'
-import {loadSound, loadTexture} from './assetsLoader'
-import {SaveFile} from './saveFile'
-import {createColorTexture} from '../utils'
-import {preloadAssets} from './optimizations'
-import {Debugging} from './debugging'
-import {Timer} from './types/timer'
-import {IrrecoverableError} from '../errors'
-import {StackFrame, stackTrace} from '../interpreter/stacktrace'
+import { callback, reference } from '../fileFormats/common'
+import { runScript } from '../interpreter/evaluator'
+import { DisplayType, Type } from './types'
+import { loadDefinition } from './definitionLoader'
+import { Application, Rectangle, Sprite } from 'pixi.js'
+import { Scene } from './types/scene'
+import { FileLoader, GithubFileLoader, UrlFileLoader } from './filesLoader'
+import { sound, Sound } from '@pixi/sound'
+import { loadSound, loadTexture } from './assetsLoader'
+import { SaveFile } from './saveFile'
+import { createColorTexture } from '../utils'
+import { preloadAssets } from './optimizations'
+import { Debugging } from './debugging'
+import { Timer } from './types/timer'
+import { IrrecoverableError } from '../errors'
+import { StackFrame, stackTrace } from '../interpreter/stacktrace'
 
 export class Engine {
     readonly app: Application
@@ -38,7 +38,11 @@ export class Engine {
         this.app = app
         this.debug = new Debugging(this, process.env.debug as unknown as boolean)
 
-        this.blackTexture = createColorTexture(this.app, new Rectangle(0, 0, this.app.view.width, this.app.view.height), 0)
+        this.blackTexture = createColorTexture(
+            this.app,
+            new Rectangle(0, 0, this.app.view.width, this.app.view.height),
+            0
+        )
         this.canvasBackground = new Sprite(this.blackTexture)
         this.canvasBackground.zIndex = -99999
     }
@@ -66,7 +70,9 @@ export class Engine {
         } catch (err) {
             console.error(
                 'Unhandled error occurred during initialization\n%cScope:%c%O',
-                'font-weight: bold', 'font-weight: inherit', this.scope
+                'font-weight: bold',
+                'font-weight: inherit',
+                this.scope
             )
             console.error(err)
         }
@@ -80,12 +86,16 @@ export class Engine {
                 if (err instanceof IrrecoverableError) {
                     console.error(
                         'Irrecoverable error occurred. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O',
-                        'font-weight: bold', 'font-weight: inherit', this.scope
+                        'font-weight: bold',
+                        'font-weight: inherit',
+                        this.scope
                     )
                 } else {
                     console.error(
                         'Unhandled error occurred during tick. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O',
-                        'font-weight: bold', 'font-weight: inherit', this.scope
+                        'font-weight: bold',
+                        'font-weight: inherit',
+                        this.scope
                     )
                     console.error(err)
                 }
@@ -110,8 +120,12 @@ export class Engine {
                 if (!this.scope[callback.behaviourReference]) {
                     console.error(
                         `Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`,
-                        'font-weight: bold', 'font-weight: inherit', callback,
-                        'font-weight: bold', 'font-weight: inherit', caller
+                        'font-weight: bold',
+                        'font-weight: inherit',
+                        callback,
+                        'font-weight: bold',
+                        'font-weight: inherit',
+                        caller
                     )
                     return
                 }
@@ -158,8 +172,8 @@ export class Engine {
                 return a.zIndex - b.zIndex
             }
 
-            const objectA = this.renderingOrder.find(e => e.getRenderObject() === a)
-            const objectB = this.renderingOrder.find(e => e.getRenderObject() === b)
+            const objectA = this.renderingOrder.find((e) => e.getRenderObject() === a)
+            const objectB = this.renderingOrder.find((e) => e.getRenderObject() === b)
 
             if (objectA === undefined || objectB === undefined) {
                 return 0
@@ -220,7 +234,7 @@ export class Engine {
         // Play new scene background music
         if (this.currentScene.definition.MUSIC) {
             this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
-                loop: true
+                loop: true,
             })
             this.music.play()
         }

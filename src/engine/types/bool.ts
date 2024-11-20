@@ -1,7 +1,7 @@
-import {ValueType} from './index'
-import {Engine} from '../index'
-import {BoolDefinition} from '../../fileFormats/cnv/types'
-import {method} from '../../types'
+import { ValueType } from './index'
+import { Engine } from '../index'
+import { BoolDefinition } from '../../fileFormats/cnv/types'
+import { method } from '../../types'
 
 export class Bool extends ValueType<BoolDefinition> {
     constructor(engine: Engine, definition: BoolDefinition) {
@@ -10,7 +10,7 @@ export class Bool extends ValueType<BoolDefinition> {
 
     @method()
     // The arguments don't seem to matter
-    SWITCH(arg1: boolean, arg2:  boolean) {
+    SWITCH(arg1: boolean, arg2: boolean) {
         this.value = !this.value
     }
 

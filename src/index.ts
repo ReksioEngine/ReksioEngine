@@ -1,4 +1,4 @@
-import {Engine} from './engine'
+import { Engine } from './engine'
 import * as PIXI from 'pixi.js'
 
 const main = async () => {

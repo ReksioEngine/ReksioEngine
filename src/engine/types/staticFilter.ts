@@ -1,8 +1,8 @@
-import {DisplayType, Type} from './index'
-import {StaticFilterDefinition} from '../../fileFormats/cnv/types'
-import {Engine} from '../index'
-import {Animo} from './animo'
-import {method} from '../../types'
+import { DisplayType, Type } from './index'
+import { StaticFilterDefinition } from '../../fileFormats/cnv/types'
+import { Engine } from '../index'
+import { Animo } from './animo'
+import { method } from '../../types'
 
 export class StaticFilter extends Type<StaticFilterDefinition> {
     private properties = new Map<string, any>()
@@ -37,8 +37,8 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
                 object.anchor.set(0.5, 0.5)
 
                 if (linkedObject instanceof Animo) {
-                    linkedObject.anchorOffsetX = object.width/2
-                    linkedObject.anchorOffsetY = object.height/2
+                    linkedObject.anchorOffsetX = object.width / 2
+                    linkedObject.anchorOffsetY = object.height / 2
                 }
 
                 object.angle = this.properties.get('ANGLE')
@@ -49,6 +49,6 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
     @method()
     UNLINK(arg: any) {
         const object = this.engine.getObject(arg)
-        this.linked = this.linked.filter(x => x !== object)
+        this.linked = this.linked.filter((x) => x !== object)
     }
 }

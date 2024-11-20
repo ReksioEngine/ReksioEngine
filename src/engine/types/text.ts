@@ -1,15 +1,15 @@
-import {DisplayType} from './index'
-import {TextDefinition} from '../../fileFormats/cnv/types'
-import {Engine} from '../index'
+import { DisplayType } from './index'
+import { TextDefinition } from '../../fileFormats/cnv/types'
+import { Engine } from '../index'
 import * as PIXI from 'pixi.js'
-import {method} from '../../types'
+import { method } from '../../types'
 
 export class Text extends DisplayType<TextDefinition> {
     private readonly text: PIXI.Text
 
     constructor(engine: Engine, definition: TextDefinition) {
         super(engine, definition)
-        this.text = new PIXI.Text('', {fontFamily: 'Arial'})
+        this.text = new PIXI.Text('', { fontFamily: 'Arial' })
     }
 
     ready() {

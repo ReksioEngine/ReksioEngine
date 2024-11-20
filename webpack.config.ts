@@ -1,27 +1,25 @@
-import {
-    Program
-} from 'typescript'
+import { Program } from 'typescript'
 
 import HTMLWebpackPlugin from 'html-webpack-plugin'
 import webpack from 'webpack'
-import {typeGuard} from './transformers'
+import { typeGuard } from './transformers'
 
 module.exports = (env: any) => ({
     entry: './src/index.ts',
     mode: 'development',
     devServer: {
         contentBase: 'dist',
-        port: 3000
+        port: 3000,
     },
     devtool: 'source-map',
     plugins: [
         new HTMLWebpackPlugin({
             template: 'static/index.html',
-            filename: 'index.html'
+            filename: 'index.html',
         }),
         new webpack.DefinePlugin({
             'process.env.debug': env.debug === true,
-        })
+        }),
     ],
     module: {
         rules: [
@@ -31,10 +29,10 @@ module.exports = (env: any) => ({
                 exclude: /node_modules/,
                 options: {
                     getCustomTransformers: (program: Program) => ({
-                        before: [typeGuard(program)]
-                    })
-                }
-            }
+                        before: [typeGuard(program)],
+                    }),
+                },
+            },
         ],
     },
     resolve: {

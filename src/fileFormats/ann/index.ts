@@ -1,7 +1,7 @@
-import {BinaryBuffer} from '../utils'
-import {CompressedImageHeader, createDescriptors, loadImageWithoutHeader} from '../img'
-import {CompressionType} from '../compression'
-import {stringUntilNull} from '../../utils'
+import { BinaryBuffer } from '../utils'
+import { CompressedImageHeader, createDescriptors, loadImageWithoutHeader } from '../img'
+import { CompressionType } from '../compression'
+import { stringUntilNull } from '../../utils'
 
 const decoder = new TextDecoder()
 
@@ -59,12 +59,12 @@ const parseHeader = (view: BinaryBuffer) => {
     ann.framesCount = view.getUint16()
     ann.bpp = view.getUint16()
     ann.eventsCount = view.getUint16()
-    view.skip(0xD)
+    view.skip(0xd)
     ann.fps = view.getUint32()
     ann.flags = view.getUint32()
     ann.transparency = view.getUint8()
     ann.randomFramesNumber = view.getUint16()
-    view.skip(0xA)
+    view.skip(0xa)
 
     const authorLen = view.getUint32()
     ann.author = decoder.decode(view.read(authorLen))
@@ -92,7 +92,9 @@ const parseFrame = (view: BinaryBuffer) => {
 
     if (frame.hasSounds != 0) {
         const soundsLen = view.getUint32()
-        frame.sounds = stringUntilNull(decoder.decode(view.read(soundsLen))).split(';').filter(x => x.trim() !== '')
+        frame.sounds = stringUntilNull(decoder.decode(view.read(soundsLen)))
+            .split(';')
+            .filter((x) => x.trim() !== '')
     }
 
     return frame
@@ -106,7 +108,7 @@ const parseEvent = (view: BinaryBuffer) => {
     event.loopNumber = view.getUint32()
     view.skip(0x4 + 0x6)
     event.transparency = view.getUint8()
-    view.skip(0xC)
+    view.skip(0xc)
 
     event.framesImageMapping = []
     for (let i = 0; i < event.framesCount; i++) {
@@ -170,6 +172,6 @@ export const loadAnn = (data: ArrayBuffer) => {
         header,
         events,
         images,
-        annImages
+        annImages,
     } as ANN
 }

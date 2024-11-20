@@ -1,10 +1,10 @@
-import {Type} from './index'
-import {loadSound} from '../assetsLoader'
-import {SoundDefinition} from '../../fileFormats/cnv/types'
-import {Sound as PIXISound} from '@pixi/sound'
-import {FileNotFoundError} from '../filesLoader'
-import {assert, NotImplementedError} from '../../errors'
-import {method} from '../../types'
+import { Type } from './index'
+import { loadSound } from '../assetsLoader'
+import { SoundDefinition } from '../../fileFormats/cnv/types'
+import { Sound as PIXISound } from '@pixi/sound'
+import { FileNotFoundError } from '../filesLoader'
+import { assert, NotImplementedError } from '../../errors'
+import { method } from '../../types'
 
 export class Sound extends Type<SoundDefinition> {
     private sound: PIXISound | null = null

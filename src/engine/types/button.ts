@@ -1,13 +1,13 @@
-import {Type} from './index'
-import {Engine} from '../index'
-import {ButtonDefinition} from '../../fileFormats/cnv/types'
-import {Image} from './image'
-import {Graphics, Rectangle} from 'pixi.js'
-import {ButtonLogicComponent, Event, State} from '../components/button'
-import {Animo} from './animo'
-import {assert} from '../../errors'
-import {reference} from '../../fileFormats/common'
-import {method} from '../../types'
+import { Type } from './index'
+import { Engine } from '../index'
+import { ButtonDefinition } from '../../fileFormats/cnv/types'
+import { Image } from './image'
+import { Graphics, Rectangle } from 'pixi.js'
+import { ButtonLogicComponent, Event, State } from '../components/button'
+import { Animo } from './animo'
+import { assert } from '../../errors'
+import { reference } from '../../fileFormats/common'
+import { method } from '../../types'
 
 export class Button extends Type<ButtonDefinition> {
     private logic: ButtonLogicComponent
@@ -21,9 +21,7 @@ export class Button extends Type<ButtonDefinition> {
 
     constructor(engine: Engine, definition: ButtonDefinition) {
         super(engine, definition)
-        this.logic = new ButtonLogicComponent(
-            this.onStateChange.bind(this)
-        )
+        this.logic = new ButtonLogicComponent(this.onStateChange.bind(this))
     }
 
     init() {
@@ -71,7 +69,7 @@ export class Button extends Type<ButtonDefinition> {
         }
 
         const [x1, y1, x2, y2] = shape
-        const rectangle = new Rectangle(x1, y1, x2-x1, y2-y1)
+        const rectangle = new Rectangle(x1, y1, x2 - x1, y2 - y1)
 
         if (this.interactArea === null) {
             this.interactArea = new Graphics()

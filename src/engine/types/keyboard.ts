@@ -1,7 +1,7 @@
-import {Type} from './index'
-import {KeyboardDefinition, MusicDefinition} from '../../fileFormats/cnv/types'
-import {Engine} from '../index'
-import {method} from '../../types'
+import { Type } from './index'
+import { KeyboardDefinition, MusicDefinition } from '../../fileFormats/cnv/types'
+import { Engine } from '../index'
+import { method } from '../../types'
 
 const keysMapping = {
     ArrowLeft: 'LEFT',
@@ -10,10 +10,10 @@ const keysMapping = {
     ArrowDown: 'DOWN',
     Space: 'SPACE',
     Digit1: '1',
-    Digit2: '2'
+    Digit2: '2',
 } as any
 
-type KeyState = {name: string, state: boolean}
+type KeyState = { name: string; state: boolean }
 
 export class Keyboard extends Type<KeyboardDefinition> {
     private keysState = new Map<string, boolean>()
@@ -71,6 +71,6 @@ export class Keyboard extends Type<KeyboardDefinition> {
             console.warn(`Unsupported keyboard key code ${keyCode}`)
         }
         this.keysState.set(mapped, value)
-        this.changeQueue.push({name: mapped, state: value})
+        this.changeQueue.push({ name: mapped, state: value })
     }
 }

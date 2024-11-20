@@ -1,5 +1,5 @@
-import {InvalidMethodParameter, parameter, method, valueAsString} from './types'
-import {UnexpectedError} from './errors'
+import { InvalidMethodParameter, parameter, method, valueAsString } from './types'
+import { UnexpectedError } from './errors'
 
 const wasCalled = (result: string) => {
     expect(result).toBe('called')
@@ -30,7 +30,7 @@ describe('valueAsString', () => {
     })
 
     test('array as string', () => {
-        expect(() => valueAsString([1,2,3,4])).toThrow(UnexpectedError)
+        expect(() => valueAsString([1, 2, 3, 4])).toThrow(UnexpectedError)
     })
 
     test('object as string', () => {
@@ -39,12 +39,14 @@ describe('valueAsString', () => {
 })
 
 describe('test validator and conversion', () => {
-    const simpleMethod = (type: string, expectedValue?: any, optional=false) => {
-        const parameters: parameter[] = [{
-            name: 'arg1',
-            optional: optional,
-            types: [{name: type, literal: null, isArray: false}]
-        }]
+    const simpleMethod = (type: string, expectedValue?: any, optional = false) => {
+        const parameters: parameter[] = [
+            {
+                name: 'arg1',
+                optional: optional,
+                types: [{ name: type, literal: null, isArray: false }],
+            },
+        ]
 
         function testMethod(this: any, arg1: any) {
             expect(typeof arg1 === type || (optional && arg1 === undefined)).toBeTruthy()
@@ -76,7 +78,7 @@ describe('test validator and conversion', () => {
     })
 
     test('number array as string', () => {
-        expect(() => simpleMethod('string')([1,2,3,4])).toThrow(InvalidMethodParameter)
+        expect(() => simpleMethod('string')([1, 2, 3, 4])).toThrow(InvalidMethodParameter)
     })
 
     test('optional parameter', () => {
@@ -89,10 +91,12 @@ describe('test validator and conversion', () => {
     })
 
     const simpleArrayMethod = (type: string, expectedValue?: any) => {
-        const parameters: parameter[] = [{
-            name: 'arg1',
-            types: [{name: type, literal: null, isArray: true}]
-        }]
+        const parameters: parameter[] = [
+            {
+                name: 'arg1',
+                types: [{ name: type, literal: null, isArray: true }],
+            },
+        ]
 
         function testMethod(this: any, arg1: any) {
             expect(arg1).toStrictEqual(expectedValue)
@@ -104,44 +108,44 @@ describe('test validator and conversion', () => {
     }
 
     test('string array as number array', () => {
-        wasCalled(simpleArrayMethod('number', [1,2,3,4])(['1','2','3','4']))
+        wasCalled(simpleArrayMethod('number', [1, 2, 3, 4])(['1', '2', '3', '4']))
     })
 
     test('number array as string array', () => {
-        wasCalled(simpleArrayMethod('string', ['1','2','3','4'])([1,2,3,4]))
+        wasCalled(simpleArrayMethod('string', ['1', '2', '3', '4'])([1, 2, 3, 4]))
     })
 
     test('array with any', () => {
-        wasCalled(simpleArrayMethod('any', [1,'2',true,'4'])([1,'2',true,'4']))
+        wasCalled(simpleArrayMethod('any', [1, '2', true, '4'])([1, '2', true, '4']))
     })
 
     test('number array with partially messed types', () => {
-        wasCalled(simpleArrayMethod('number', [1,2,3,4])([1,2,'3',4]))
+        wasCalled(simpleArrayMethod('number', [1, 2, 3, 4])([1, 2, '3', 4]))
     })
 
     test('string array as boolean array', () => {
-        wasCalled(simpleArrayMethod('boolean', [true,false,true,false])(['TRUE','FALSE','TRUE','FALSE']))
+        wasCalled(simpleArrayMethod('boolean', [true, false, true, false])(['TRUE', 'FALSE', 'TRUE', 'FALSE']))
     })
 
     test('boolean array as string array', () => {
-        wasCalled(simpleArrayMethod('string', ['TRUE','FALSE','TRUE','FALSE'])([true,false,true,false]))
+        wasCalled(simpleArrayMethod('string', ['TRUE', 'FALSE', 'TRUE', 'FALSE'])([true, false, true, false]))
     })
 
     const simpleVariadicMethod = (type: string, variadicType: string, expectedValues: any[]) => {
         const parameters: parameter[] = [
             {
                 name: 'arg1',
-                types: [{name: type, literal: null, isArray: false}]
+                types: [{ name: type, literal: null, isArray: false }],
             },
             {
                 name: 'arg2',
-                types: [{name: type, literal: null, isArray: false}]
+                types: [{ name: type, literal: null, isArray: false }],
             },
             {
                 name: 'arg3',
                 rest: true,
-                types: [{name: variadicType, literal: null, isArray: false}]
-            }
+                types: [{ name: variadicType, literal: null, isArray: false }],
+            },
         ]
 
         function testMethod(this: any, arg1: string, arg2: string, ...args: any[]) {
@@ -156,23 +160,69 @@ describe('test validator and conversion', () => {
     }
 
     test('variadic function', () => {
-        wasCalled(simpleVariadicMethod('string', 'number', ['a','b',[1,2,3,4,5,6,7,8,9]])('a','b',1,2,3,4,5,6,7,8,9))
+        wasCalled(
+            simpleVariadicMethod('string', 'number', ['a', 'b', [1, 2, 3, 4, 5, 6, 7, 8, 9]])(
+                'a',
+                'b',
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+            )
+        )
     })
 
     test('variadic parameter for numbers but strings passed', () => {
-        wasCalled(simpleVariadicMethod('string', 'number', ['a','b',[1,2,3,4,5,6,7,8,9]])('a','b','1','2','3','4','5','6','7','8','9'))
+        wasCalled(
+            simpleVariadicMethod('string', 'number', ['a', 'b', [1, 2, 3, 4, 5, 6, 7, 8, 9]])(
+                'a',
+                'b',
+                '1',
+                '2',
+                '3',
+                '4',
+                '5',
+                '6',
+                '7',
+                '8',
+                '9'
+            )
+        )
     })
 
     test('variadic parameter for numbers with partially messed types', () => {
-        wasCalled(simpleVariadicMethod('string', 'number', ['a','b',[1,2,3,4,5,6,7,8,9]])('a','b',1,2,3,4,'5','6',7,8,9))
+        wasCalled(
+            simpleVariadicMethod('string', 'number', ['a', 'b', [1, 2, 3, 4, 5, 6, 7, 8, 9]])(
+                'a',
+                'b',
+                1,
+                2,
+                3,
+                4,
+                '5',
+                '6',
+                7,
+                8,
+                9
+            )
+        )
     })
 
     const simpleLiteralMethod = (literals: string[]) => {
         const parameters: parameter[] = [
             {
                 name: 'arg1',
-                types: literals.map(literal => ({name: 'string', literal: literal, isArray: false}))
-            }
+                types: literals.map((literal) => ({
+                    name: 'string',
+                    literal: literal,
+                    isArray: false,
+                })),
+            },
         ]
 
         function testMethod(this: any, arg1: string) {

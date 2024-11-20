@@ -1,13 +1,13 @@
-import {parseArgs} from '../../interpreter/evaluator'
-import {assert} from '../../errors'
+import { parseArgs } from '../../interpreter/evaluator'
+import { assert } from '../../errors'
 
 type FieldTypeProcessor = (object: any, key: string, param: string, value: string) => any
 
 export type FieldTypeEntry = {
-    subType?: FieldTypeEntry,
+    subType?: FieldTypeEntry
     flags?: {
-      optional?: boolean,
-    },
+        optional?: boolean
+    }
     name: string
     processor: FieldTypeProcessor
 }
@@ -34,10 +34,10 @@ export const string = {
 export const number = {
     name: 'number',
     processor: (object: any, key: string, param: string, value: string) => {
-        const result = Number(value.startsWith('"') ? value.slice(1,-1) : value)
+        const result = Number(value.startsWith('"') ? value.slice(1, -1) : value)
         assert(!isNaN(result), 'Value is not a number')
         return result
-    }
+    },
 }
 
 export const boolean = {
@@ -45,14 +45,14 @@ export const boolean = {
     processor: (object: any, key: string, param: string, value: string) => {
         assert(value === 'TRUE' || value === 'FALSE', 'Expected TRUE or FALSE')
         return value === 'TRUE'
-    }
+    },
 }
 
 export const callback = {
     name: 'callback',
     processor: (object: any, key: string, param: string, value: string) => {
         return createCallback(value)
-    }
+    },
 }
 
 export const code = {
@@ -60,26 +60,26 @@ export const code = {
     processor: (object: any, key: string, param: string, value: string) => {
         return {
             code: value,
-            isSingleStatement: true
+            isSingleStatement: true,
         }
-    }
+    },
 }
 
 export const reference = {
     name: 'reference',
     processor: (object: any, key: string, param: string, value: string) => {
         return {
-            objectName: value
+            objectName: value,
         }
-    }
+    },
 }
 
 export const array = (subType: FieldTypeEntry) => ({
     subType,
     name: 'array',
     processor: (object: any, key: string, param: string, value: string) => {
-        return value.split(',').map(part => subType.processor(object, key, param, part))
-    }
+        return value.split(',').map((part) => subType.processor(object, key, param, part))
+    },
 })
 
 export const map = (subType: FieldTypeEntry) => ({
@@ -93,7 +93,7 @@ export const map = (subType: FieldTypeEntry) => ({
 
         result.set(param, subType.processor(object, key, param, value))
         return result
-    }
+    },
 })
 
 export const callbacks = <K>(subType: FieldTypeEntry) => ({
@@ -104,7 +104,7 @@ export const callbacks = <K>(subType: FieldTypeEntry) => ({
         if (result === undefined) {
             result = {
                 nonParametrized: null,
-                parametrized: new Map<K, callback>()
+                parametrized: new Map<K, callback>(),
             } as callbacks<K>
         }
 
@@ -116,14 +116,14 @@ export const callbacks = <K>(subType: FieldTypeEntry) => ({
         }
 
         return result
-    }
+    },
 })
 
 const createCallback = (value: string) => {
     if (value.startsWith('{')) {
         return {
             code: value.substring(1, value.length - 1),
-            isSingleStatement: false
+            isSingleStatement: false,
         }
     } else {
         const pattern = /(?<name>[a-zA-Z0-9_]+)(?:\((?<args>.*)\))?/g
@@ -136,7 +136,7 @@ const createCallback = (value: string) => {
             return {
                 behaviourReference: name,
                 constantArguments: args,
-                isSingleStatement: false
+                isSingleStatement: false,
             }
         }
     }

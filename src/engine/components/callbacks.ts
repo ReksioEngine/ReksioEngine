@@ -1,10 +1,10 @@
-import {callback, callbacks, FieldTypeEntry} from '../../fileFormats/common'
-import {Engine} from '../index'
-import {Type} from '../types'
-import {assert} from '../../errors'
-import {InterruptScriptExecution} from '../../interpreter/evaluator'
-import {StackFrame, stackTrace} from '../../interpreter/stacktrace'
-import {structureDefinitions} from '../../fileFormats/cnv/types'
+import { callback, callbacks, FieldTypeEntry } from '../../fileFormats/common'
+import { Engine } from '../index'
+import { Type } from '../types'
+import { assert } from '../../errors'
+import { InterruptScriptExecution } from '../../interpreter/evaluator'
+import { StackFrame, stackTrace } from '../../interpreter/stacktrace'
+import { structureDefinitions } from '../../fileFormats/cnv/types'
 
 export class CallbacksComponent {
     private readonly engine: Engine
@@ -24,7 +24,7 @@ export class CallbacksComponent {
     private register(type: string, callback: callback) {
         this.registry.set(type, {
             nonParametrized: callback,
-            parametrized: new Map<any, callback>()
+            parametrized: new Map<any, callback>(),
         })
     }
 
@@ -102,7 +102,7 @@ export class CallbacksComponent {
         const newCallback = {
             isSingleStatement: false,
             behaviourReference: behaviourName,
-            constantArguments: []
+            constantArguments: [],
         }
 
         if (callbackParam == undefined) {

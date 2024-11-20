@@ -1,2 +1,2 @@
-export {decryptCNV} from './decryptor'
-export {parseCNV} from './parser'
+export { decryptCNV } from './decryptor'
+export { parseCNV } from './parser'

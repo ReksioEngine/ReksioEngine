@@ -1,5 +1,5 @@
-import {structureDefinitions} from './types'
-import {FieldTypeEntry} from '../common'
+import { structureDefinitions } from './types'
+import { FieldTypeEntry } from '../common'
 
 export interface CNVObject {
     TYPE: string
@@ -29,7 +29,7 @@ export const parseCNV = (content: string) => {
         if (key === 'OBJECT') {
             objects[value] = {
                 TYPE: 'unknown',
-                NAME: value
+                NAME: value,
             }
         } else {
             // eslint-disable-next-line prefer-const
@@ -54,16 +54,21 @@ export const parseCNV = (content: string) => {
                 } catch (err) {
                     console.error(
                         'Failed to process CNV field\n' +
-                        `%cObject name:%c ${objectName}\n` +
-                        `%cObject type:%c ${object.TYPE}\n` +
-                        `%cField name:%c ${variableName}\n` +
-                        `%cParam:%c ${param}\n` +
-                        '%cValue:%c %O',
-                        'font-weight: bold', 'font-weight: inherit',
-                        'font-weight: bold', 'font-weight: inherit',
-                        'font-weight: bold', 'font-weight: inherit',
-                        'font-weight: bold', 'font-weight: inherit',
-                        'font-weight: bold', 'font-weight: inherit',
+                            `%cObject name:%c ${objectName}\n` +
+                            `%cObject type:%c ${object.TYPE}\n` +
+                            `%cField name:%c ${variableName}\n` +
+                            `%cParam:%c ${param}\n` +
+                            '%cValue:%c %O',
+                        'font-weight: bold',
+                        'font-weight: inherit',
+                        'font-weight: bold',
+                        'font-weight: inherit',
+                        'font-weight: bold',
+                        'font-weight: inherit',
+                        'font-weight: bold',
+                        'font-weight: inherit',
+                        'font-weight: bold',
+                        'font-weight: inherit',
                         value
                     )
                     throw err
@@ -71,9 +76,13 @@ export const parseCNV = (content: string) => {
             } else {
                 if (variableName.startsWith('ON')) {
                     if (param) {
-                        console.warn(`Unsupported parametrized event callback "${variableName}" with param "${param}" in type ${object.TYPE}`)
+                        console.warn(
+                            `Unsupported parametrized event callback "${variableName}" with param "${param}" in type ${object.TYPE}`
+                        )
                     } else {
-                        console.warn(`Unsupported non-parametrized event callback "${variableName}" in type ${object.TYPE}`)
+                        console.warn(
+                            `Unsupported non-parametrized event callback "${variableName}" in type ${object.TYPE}`
+                        )
                     }
                 } else if (variableName !== 'TYPE') {
                     console.warn(`Unsupported field ${variableName} in type ${object.TYPE}`)

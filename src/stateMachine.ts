@@ -4,13 +4,21 @@ export interface Transition<STATE, EVENT> {
     to: STATE
 }
 
-export type Callback<STATE extends number | string, EVENT extends number | string> = (previousState: STATE, event: EVENT, newState: STATE) => void;
+export type Callback<STATE extends number | string, EVENT extends number | string> = (
+    previousState: STATE,
+    event: EVENT,
+    newState: STATE
+) => void
 
 export class StateMachine<STATE extends number | string, EVENT extends number | string> {
     private currentState: STATE
     private readonly onStateChange: Callback<STATE, EVENT>
 
-    constructor(initialState: STATE, protected transitions: Transition<STATE, EVENT>[] = [], onStateChange: Callback<STATE, EVENT>) {
+    constructor(
+        initialState: STATE,
+        protected transitions: Transition<STATE, EVENT>[] = [],
+        onStateChange: Callback<STATE, EVENT>
+    ) {
         this.currentState = initialState
         this.onStateChange = onStateChange
     }
@@ -21,13 +29,13 @@ export class StateMachine<STATE extends number | string, EVENT extends number | 
 
     can(event: EVENT): boolean {
         return this.transitions.some(
-            transition => transition.from === this.currentState && transition.event === event
+            (transition) => transition.from === this.currentState && transition.event === event
         )
     }
 
     dispatch(event: EVENT) {
         const transition = this.transitions.find(
-            transition => transition.from === this.currentState && transition.event === event
+            (transition) => transition.from === this.currentState && transition.event === event
         )
 
         if (transition === undefined) {
@@ -41,7 +49,11 @@ export class StateMachine<STATE extends number | string, EVENT extends number | 
     }
 }
 
-export function t<STATE extends number | string, EVENT extends number | string>(from: STATE, event: EVENT, to: STATE): Transition<STATE, EVENT> {
+export function t<STATE extends number | string, EVENT extends number | string>(
+    from: STATE,
+    event: EVENT,
+    to: STATE
+): Transition<STATE, EVENT> {
     return {
         from,
         event,

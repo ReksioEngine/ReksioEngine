@@ -1,5 +1,5 @@
-import {DisplayObject} from 'pixi.js'
-import {StateMachine, t} from '../../stateMachine'
+import { DisplayObject } from 'pixi.js'
+import { StateMachine, t } from '../../stateMachine'
 
 export enum State {
     INIT = 'INIT',
@@ -64,11 +64,7 @@ export class ButtonLogicComponent {
             t(State.DISABLED_BUT_VISIBLE, Event.ENABLE, State.STANDARD),
             t(State.DISABLED_BUT_VISIBLE, Event.DISABLE, State.DISABLED),
         ]
-        this.stateMachine = new StateMachine<State, Event>(
-            State.INIT,
-            transitions,
-            this.onStateChangeCallback,
-        )
+        this.stateMachine = new StateMachine<State, Event>(State.INIT, transitions, this.onStateChangeCallback)
     }
 
     registerInteractive(sprite: DisplayObject) {
