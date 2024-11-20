@@ -1,13 +1,11 @@
-import {ValueType} from './index'
-import {MultiArrayDefinition} from '../../fileFormats/cnv/types'
-import {Engine} from '../index'
-import {NotImplementedError} from '../../errors'
-import {assert} from '../../errors'
-import {method} from '../../types'
+import { ValueType } from './index'
+import { MultiArrayDefinition } from '../../fileFormats/cnv/types'
+import { Engine } from '../index'
+import { assert } from '../../errors'
+import { method } from '../../types'
 
-const outOfBoundsMessage = (action: string, value: any[]) => {
-    
-    return `Number of dimensions in ${action} didn't match object definition`
+const outOfBoundsMessage = (action: string, y: number, x: number) => {
+    return `Trying to ${action} at position y: ${y}, x: ${x} that is out of bounds`
 }
 
 export class MultiArray extends ValueType<MultiArrayDefinition> {
@@ -16,36 +14,27 @@ export class MultiArray extends ValueType<MultiArrayDefinition> {
     }
 
     @method()
-    SET(...args:any[]) {
-        assert(args.length-1===this.definition.DIMENSIONS,outOfBoundsMessage('set',this.value))
-        console.log(this.value)
-        this.recursiveSet(this.value, ...args)
+    SET(...args: any[]) {
+        //We take only first 2 arguments (position in array) 
+        //and last one (value we will put) as the original engine ignores any dimensions above 2
+        const y: number = args[0]
+        const x: number = args[1]
+        const value: any = args[args.length - 1]
+        while (y >= this.value.length) {
+            this.value.push([])
+        }
+        while (x >= this.value[y].length) {
+            this.value[y].push(null)
+        }
+        this.value[y][x] = value
     }
 
     @method()
-    GET(...args:number[]) {
-        assert(args.length===this.definition.DIMENSIONS,outOfBoundsMessage('get',this.value))
-        return this.recursiveGet(this.value, ...args)
-    }
-
-    private recursiveSet(arr:any[], ...args:any[]){
-        if(args.length>2){
-            while(args[0]>=arr.length){
-                arr.push([])        
-            }
-            this.recursiveSet(arr[args[0]], ...args.slice(1))
-            return
-        }
-        while(args[0]>=arr.length){
-            arr.push('')
-        }
-        arr[args[0]]=args[1]
-    }
-
-    private recursiveGet(arr:any[], ...args:number[]): any{
-        if(args.length>1){
-            return this.recursiveGet(arr[args[0]], ...args.slice(1))
-        }
-        return arr[args[0]]
+    GET(...args: number[]) {
+        //We take only first 2 arguments as original engine ignores rest of coordinates 
+        const y: number = args[0]
+        const x: number = args[1]
+        assert((y <= this.value.length && x <= this.value[y].length), outOfBoundsMessage('get', y, x))
+        return this.value[y][x]
     }
 }
