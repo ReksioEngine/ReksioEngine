@@ -1,19 +1,20 @@
-// Generated from ./src/interpreter/ReksioLang.g4 by ANTLR 4.13.1
+// Generated from ./src/interpreter/ReksioLang.g4 by ANTLR 4.13.2
 
 import {ParseTreeVisitor} from 'antlr4';
 
 
-import { ExprContext } from "./ReksioLangParser";
-import { StatementContext } from "./ReksioLangParser";
-import { StatementListContext } from "./ReksioLangParser";
-import { MethodCallContext } from "./ReksioLangParser";
-import { ObjectNameContext } from "./ReksioLangParser";
-import { MethodNameContext } from "./ReksioLangParser";
-import { MethodCallArgumentsContext } from "./ReksioLangParser";
-import { SpecialCallContext } from "./ReksioLangParser";
-import { OperationGroupingContext } from "./ReksioLangParser";
-import { OperationContext } from "./ReksioLangParser";
-import { NegativeNumberContext } from "./ReksioLangParser";
+import { ExprContext } from "./ReksioLangParser.js";
+import { StatementContext } from "./ReksioLangParser.js";
+import { StatementListContext } from "./ReksioLangParser.js";
+import { MethodCallContext } from "./ReksioLangParser.js";
+import { ObjectNameContext } from "./ReksioLangParser.js";
+import { MethodNameContext } from "./ReksioLangParser.js";
+import { MethodCallArgumentsContext } from "./ReksioLangParser.js";
+import { SpecialCallContext } from "./ReksioLangParser.js";
+import { OperationGroupingContext } from "./ReksioLangParser.js";
+import { OperationContext } from "./ReksioLangParser.js";
+import { CommentContext } from "./ReksioLangParser.js";
+import { NegativeNumberContext } from "./ReksioLangParser.js";
 
 
 /**
@@ -84,6 +85,12 @@ export default class ReksioLangVisitor<Result> extends ParseTreeVisitor<Result> 
 	 * @return the visitor result
 	 */
 	visitOperation?: (ctx: OperationContext) => Result;
+	/**
+	 * Visit a parse tree produced by `ReksioLangParser.comment`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitComment?: (ctx: CommentContext) => Result;
 	/**
 	 * Visit a parse tree produced by `ReksioLangParser.negativeNumber`.
 	 * @param ctx the parse tree

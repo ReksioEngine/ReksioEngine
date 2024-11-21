@@ -79,6 +79,11 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 
     visitExpr = (ctx: ExprContext): any => {
         this.lastContext = ctx
+
+        if (ctx.comment() != null) {
+            return
+        }
+
         if (ctx.TRUE() != null) {
             return true
         } else if (ctx.FALSE() != null) {

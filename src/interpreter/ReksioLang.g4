@@ -5,14 +5,16 @@ TRUE : 'TRUE';
 FALSE: 'FALSE';
 
 expr :
-    STRING
-    | negativeNumber
-    | NUMBER
-    | TRUE | FALSE
-    | IDENTIFIER
-    | specialCall
-    | methodCall
-    | operationGrouping;
+    comment? (
+        STRING
+        | negativeNumber
+        | NUMBER
+        | TRUE | FALSE
+        | IDENTIFIER
+        | specialCall
+        | methodCall
+        | operationGrouping
+    );
 
 statement: | expr;
 statementList: (statement STATEMENT_END)* EOF;
@@ -34,6 +36,8 @@ operation
   | expr
   ;
 
+comment: COMMENT_START;
+
 // Separate from NUMBER because of a problem with detecting negative number vs subtraction
 negativeNumber: '-' NUMBER;
 
@@ -41,6 +45,7 @@ negativeNumber: '-' NUMBER;
 IDENTIFIER: [a-zA-Z0-9_$]*[a-zA-Z_?$]+[a-zA-Z0-9_$]*;
 NUMBER: [0-9]+ ('.' [0-9]+)? ;
 STRING: ('""' ~["]* '""' | '"' ~[",]* '"'?);
+COMMENT_START: '!'+;
 
 ADD: '+';
 SUB: '-';
