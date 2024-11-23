@@ -1,7 +1,7 @@
 import { ValueType } from './index'
 import { MultiArrayDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
-import { NotImplementedError } from '../../errors'
+import { assert } from '../../errors'
 import { method } from '../../types'
 
 export class MultiArray extends ValueType<MultiArrayDefinition> {
@@ -9,13 +9,29 @@ export class MultiArray extends ValueType<MultiArrayDefinition> {
         super(engine, definition, [])
     }
 
-    @method()
-    SET(arg1: number, arg2: number, arg3: any) {
-        throw new NotImplementedError()
+    init() {
+        assert(
+            this.definition.DIMENSIONS === 2,
+            'Piklib supports only 2 dimensions. Other number of dimensions causes unexpected behavior'
+        )
     }
 
     @method()
-    GET(arg1: number, arg2: number) {
-        throw new NotImplementedError()
+    SET(y: number, x: number, value: any) {
+        while (y >= this.value.length) {
+            this.value.push([])
+        }
+        while (x >= this.value[y].length) {
+            this.value[y].push(null)
+        }
+        this.value[y][x] = value
+    }
+
+    @method()
+    GET(y: number, x: number) {
+        if (y < this.value.length && x < this.value[y].length) {
+            return this.value[y][x]
+        }
+        return null
     }
 }
