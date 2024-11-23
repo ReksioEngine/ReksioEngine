@@ -4,8 +4,8 @@ import { Engine } from '../index'
 import { assert } from '../../errors'
 import { method } from '../../types'
 
-const outOfBoundsMessage = (action: string, y: number, x: number) => {
-    return `Trying to ${action} at position y: ${y}, x: ${x} that is out of bounds`
+const dimensionsMessage = () => {
+    return 'Engine supports only 2 dimensions. Other number of dimensions causes unexpected behavior otherwise'
 }
 
 export class MultiArray extends ValueType<MultiArrayDefinition> {
@@ -13,13 +13,12 @@ export class MultiArray extends ValueType<MultiArrayDefinition> {
         super(engine, definition, [])
     }
 
+    init() {
+        assert(this.definition.DIMENSIONS === 2, dimensionsMessage())
+    }
+
     @method()
-    SET(...args: any[]) {
-        //We take only first 2 arguments (position in array)
-        //and last one (value we will put) as the original engine ignores any dimensions above 2
-        const y: number = args[0]
-        const x: number = args[1]
-        const value: any = args[args.length - 1]
+    SET(x: number, y: number, value: any) {
         while (y >= this.value.length) {
             this.value.push([])
         }
@@ -30,11 +29,10 @@ export class MultiArray extends ValueType<MultiArrayDefinition> {
     }
 
     @method()
-    GET(...args: number[]) {
-        //We take only first 2 arguments as original engine ignores rest of coordinates
-        const y: number = args[0]
-        const x: number = args[1]
-        assert(y <= this.value.length && x <= this.value[y].length, outOfBoundsMessage('get', y, x))
-        return this.value[y][x]
+    GET(x: number, y: number) {
+        if (y < this.value.length && x < this.value[y].length) {
+            return this.value[y][x]
+        }
+        return null
     }
 }
