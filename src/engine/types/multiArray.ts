@@ -4,21 +4,20 @@ import { Engine } from '../index'
 import { assert } from '../../errors'
 import { method } from '../../types'
 
-const dimensionsMessage = () => {
-    return 'Engine supports only 2 dimensions. Other number of dimensions causes unexpected behavior otherwise'
-}
-
 export class MultiArray extends ValueType<MultiArrayDefinition> {
     constructor(engine: Engine, definition: MultiArrayDefinition) {
         super(engine, definition, [])
     }
 
     init() {
-        assert(this.definition.DIMENSIONS === 2, dimensionsMessage())
+        assert(
+            this.definition.DIMENSIONS === 2,
+            'Piklib supports only 2 dimensions. Other number of dimensions causes unexpected behavior'
+        )
     }
 
     @method()
-    SET(x: number, y: number, value: any) {
+    SET(y: number, x: number, value: any) {
         while (y >= this.value.length) {
             this.value.push([])
         }
@@ -29,7 +28,7 @@ export class MultiArray extends ValueType<MultiArrayDefinition> {
     }
 
     @method()
-    GET(x: number, y: number) {
+    GET(y: number, x: number) {
         if (y < this.value.length && x < this.value[y].length) {
             return this.value[y][x]
         }
