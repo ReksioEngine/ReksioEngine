@@ -54749,17 +54749,29 @@ let MultiArray = (() => {
                 super(engine, definition, []);
                 __runInitializers(this, _instanceExtraInitializers);
             }
-            SET(arg1, arg2, arg3) {
-                throw new errors_1.NotImplementedError();
+            init() {
+                (0, errors_1.assert)(this.definition.DIMENSIONS === 2, 'Piklib supports only 2 dimensions. Other number of dimensions causes unexpected behavior');
             }
-            GET(arg1, arg2) {
-                throw new errors_1.NotImplementedError();
+            SET(y, x, value) {
+                while (y >= this.value.length) {
+                    this.value.push([]);
+                }
+                while (x >= this.value[y].length) {
+                    this.value[y].push(null);
+                }
+                this.value[y][x] = value;
+            }
+            GET(y, x) {
+                if (y < this.value.length && x < this.value[y].length) {
+                    return this.value[y][x];
+                }
+                return null;
             }
         },
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _SET_decorators = [(0, types_1.method)({ name: "arg1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg2", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg3", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
-            _GET_decorators = [(0, types_1.method)({ name: "arg1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg2", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SET_decorators = [(0, types_1.method)({ name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
+            _GET_decorators = [(0, types_1.method)({ name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
