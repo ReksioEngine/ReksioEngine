@@ -44,7 +44,7 @@ negativeNumber: '-' NUMBER;
 // Literals
 IDENTIFIER: [a-zA-Z0-9_$]*[a-zA-Z_?$]+[a-zA-Z0-9_$]*;
 NUMBER: [0-9]+ ('.' [0-9]+)? ;
-STRING: ('""' ~["]* '""' | '"' ~[",]* '"'?);
+STRING: '"' ~[,)]* '"';
 COMMENT_START: '!'+;
 
 ADD: '+';

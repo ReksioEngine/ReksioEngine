@@ -97,7 +97,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                 ctx
                     .STRING()
                     .getText()
-                    .replace(/^"+|"+$/g, '')
+                    .replace(/^"|"$/g, '')
             )
         } else if (ctx.IDENTIFIER() != null) {
             const identifier = ctx.IDENTIFIER().getText()
