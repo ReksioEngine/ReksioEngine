@@ -54109,7 +54109,7 @@ let Type = (() => {
             // Called when trying to call a method that is not existing for a type
             __call(methodName, args) {
                 const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
-                console.error(`Method '${methodName}(${argumentsString})' does not exist. It might be a script fault.`);
+                console.error(`Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.\nArguments: %O`, args);
             }
             clone() {
                 // @ts-expect-error Dynamically constructing object
