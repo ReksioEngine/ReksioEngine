@@ -160,6 +160,7 @@ export type reference = {
 
 export type TypeDefinition = {
     NAME: string
+    TYPE: string
     TOINI: boolean
 }
 
