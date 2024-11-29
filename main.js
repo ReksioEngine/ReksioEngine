@@ -56237,8 +56237,11 @@ const parseCNV = (content) => {
         if (line.startsWith('#') || line.trim() === '') {
             continue;
         }
-        // eslint-disable-next-line prefer-const
-        let [key, value] = splitOnce(line, '=');
+        const parts = splitOnce(line, '=');
+        if (parts.length < 2) {
+            continue;
+        }
+        const [key, value] = parts;
         if (key === 'OBJECT') {
             objects[value] = {
                 TYPE: 'unknown',
@@ -56254,6 +56257,9 @@ const parseCNV = (content) => {
             objectName = objectName.replace('/?/g', '_');
             const [variableName, param] = variablePart.split('^');
             const object = objects[objectName];
+            if (object === undefined) {
+                continue;
+            }
             const definition = types_1.structureDefinitions[object.TYPE];
             if (definition && variableName in definition) {
                 const fieldTypeDefinition = definition[variableName];
