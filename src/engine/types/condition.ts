@@ -24,7 +24,7 @@ export class Condition extends Type<ConditionDefinition> {
     }
 
     @method()
-    CHECK(arg: boolean): boolean {
+    CHECK(shouldSignal: boolean): boolean {
         const operand1 = this.engine.executeCallback(null, this.definition.OPERAND1)
         const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2)
 
@@ -72,10 +72,12 @@ export class Condition extends Type<ConditionDefinition> {
             throw err
         }
 
-        if (result) {
-            this.callbacks.run('ONRUNTIMESUCCESS', null, null)
-        } else {
-            this.callbacks.run('ONRUNTIMEFAILED', null, null)
+        if (shouldSignal) {
+            if (result) {
+                this.callbacks.run('ONRUNTIMESUCCESS', null, null)
+            } else {
+                this.callbacks.run('ONRUNTIMEFAILED', null, null)
+            }
         }
 
         return result

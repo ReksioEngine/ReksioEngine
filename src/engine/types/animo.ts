@@ -222,8 +222,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         if (this.currentFrame + 1 >= event.framesCount) {
             if (this.currentLoop >= event.loopNumber) {
                 this.currentLoop = 0
-                this.STOP(false)
-                this.ONFINISHED()
+                this.STOP(true)
             } else {
                 this.currentLoop++
             }
@@ -306,9 +305,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    STOP(arg?: boolean) {
+    STOP(shouldSignal?: boolean) {
         this.isPlaying = false
         this.currentFrame = 0
+        if (shouldSignal !== false) {
+            this.ONFINISHED()
+        }
     }
 
     @method()
