@@ -23,9 +23,12 @@ export const parseCNV = (content: string) => {
             continue
         }
 
-        // eslint-disable-next-line prefer-const
-        let [key, value] = splitOnce(line, '=')
+        const parts = splitOnce(line, '=')
+        if (parts.length < 2) {
+            continue
+        }
 
+        const [key, value] = parts
         if (key === 'OBJECT') {
             objects[value] = {
                 TYPE: 'unknown',
@@ -42,8 +45,11 @@ export const parseCNV = (content: string) => {
 
             const [variableName, param] = variablePart.split('^')
             const object = objects[objectName]
-            const definition = structureDefinitions[object.TYPE]
+            if (object === undefined) {
+                continue
+            }
 
+            const definition = structureDefinitions[object.TYPE]
             if (definition && variableName in definition) {
                 const fieldTypeDefinition: FieldTypeEntry = definition[variableName]
                 try {
