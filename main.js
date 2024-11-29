@@ -51823,8 +51823,7 @@ let Animo = (() => {
                 if (this.currentFrame + 1 >= event.framesCount) {
                     if (this.currentLoop >= event.loopNumber) {
                         this.currentLoop = 0;
-                        this.STOP(false);
-                        this.ONFINISHED();
+                        this.STOP(true);
                     }
                     else {
                         this.currentLoop++;
@@ -51888,9 +51887,12 @@ let Animo = (() => {
                 this.callbacks.run('ONSTARTED', index);
                 this.events?.trigger('ONSTARTED', index);
             }
-            STOP(arg) {
+            STOP(shouldSignal) {
                 this.isPlaying = false;
                 this.currentFrame = 0;
+                if (shouldSignal !== false) {
+                    this.ONFINISHED();
+                }
             }
             PAUSE() {
                 this.isPlaying = false;
@@ -52094,7 +52096,7 @@ let Animo = (() => {
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _PLAY_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: true, rest: false })];
-            _STOP_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            _STOP_decorators = [(0, types_1.method)({ name: "shouldSignal", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
             _PAUSE_decorators = [(0, types_1.method)()];
             _RESUME_decorators = [(0, types_1.method)()];
             _SETFRAME_decorators = [(0, types_1.method)({ name: "eventNameOrFrameIdx", types: [{ name: "string", literal: null, isArray: false }, { name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "frameIdx", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
@@ -53377,7 +53379,7 @@ let Condition = (() => {
                     throw new evaluator_1.InterruptScriptExecution(true);
                 }
             }
-            CHECK(arg) {
+            CHECK(shouldSignal) {
                 const operand1 = this.engine.executeCallback(null, this.definition.OPERAND1);
                 const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2);
                 if (operand1 === undefined || operand2 === undefined) {
@@ -53412,11 +53414,13 @@ let Condition = (() => {
                     }
                     throw err;
                 }
-                if (result) {
-                    this.callbacks.run('ONRUNTIMESUCCESS', null, null);
-                }
-                else {
-                    this.callbacks.run('ONRUNTIMEFAILED', null, null);
+                if (shouldSignal) {
+                    if (result) {
+                        this.callbacks.run('ONRUNTIMESUCCESS', null, null);
+                    }
+                    else {
+                        this.callbacks.run('ONRUNTIMEFAILED', null, null);
+                    }
                 }
                 return result;
             }
@@ -53429,7 +53433,7 @@ let Condition = (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             _ONE_BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            _CHECK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _CHECK_decorators = [(0, types_1.method)({ name: "shouldSignal", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _BREAK_decorators, { kind: "method", name: "BREAK", static: false, private: false, access: { has: obj => "BREAK" in obj, get: obj => obj.BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _ONE_BREAK_decorators, { kind: "method", name: "ONE_BREAK", static: false, private: false, access: { has: obj => "ONE_BREAK" in obj, get: obj => obj.ONE_BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _CHECK_decorators, { kind: "method", name: "CHECK", static: false, private: false, access: { has: obj => "CHECK" in obj, get: obj => obj.CHECK }, metadata: _metadata }, null, _instanceExtraInitializers);
