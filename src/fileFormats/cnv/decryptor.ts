@@ -1,8 +1,9 @@
 const textDecoder = new TextDecoder('utf-8')
 
-const parseHeader = (content: ArrayBuffer) => {
-    const contentText = textDecoder.decode(content)
-    const match = /{<(?<direction>[cCdD]):(?<movement>\d+)>}/.exec(contentText)
+const headerPattern = /{<(?<direction>[cCdD]):(?<movement>\d+)>}/
+
+const parseHeader = (content: string) => {
+    const match = headerPattern.exec(content)
     if (match == null || match.groups === undefined) {
         throw new Error('Failed to parse encrypted file header')
     }
@@ -13,6 +14,10 @@ const parseHeader = (content: ArrayBuffer) => {
         direction,
         movement: parseInt(movement, 10),
     }
+}
+
+const isEncryped = (content: string) => {
+    return headerPattern.exec(content) !== null
 }
 
 const calcShift = (step: number, movement: number) => {
@@ -31,8 +36,13 @@ const calcShift = (step: number, movement: number) => {
 }
 
 export const decryptCNV = (content: ArrayBuffer): string => {
-    const { length, direction, movement } = parseHeader(content)
+    const contentText = textDecoder.decode(content)
+    if (!isEncryped(contentText)) {
+        return contentText.replaceAll('\r\n', '\n')
+    }
 
+    const header = parseHeader(contentText)
+    const { length, direction, movement } = header
     const directionMultiplier = direction.toLowerCase() === 'd' ? -1 : 1
     const payload = new Uint8Array(content.slice(length))
 
