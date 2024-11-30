@@ -56145,9 +56145,9 @@ exports.loadAnn = loadAnn;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.decryptCNV = void 0;
 const textDecoder = new TextDecoder('utf-8');
+const headerPattern = /{<(?<direction>[cCdD]):(?<movement>\d+)>}/;
 const parseHeader = (content) => {
-    const contentText = textDecoder.decode(content);
-    const match = /{<(?<direction>[cCdD]):(?<movement>\d+)>}/.exec(contentText);
+    const match = headerPattern.exec(content);
     if (match == null || match.groups === undefined) {
         throw new Error('Failed to parse encrypted file header');
     }
@@ -56157,6 +56157,9 @@ const parseHeader = (content) => {
         direction,
         movement: parseInt(movement, 10),
     };
+};
+const isEncryped = (content) => {
+    return headerPattern.exec(content) !== null;
 };
 const calcShift = (step, movement) => {
     step += 1;
@@ -56173,7 +56176,12 @@ const calcShift = (step, movement) => {
     };
 };
 const decryptCNV = (content) => {
-    const { length, direction, movement } = parseHeader(content);
+    const contentText = textDecoder.decode(content);
+    if (!isEncryped(contentText)) {
+        return contentText.replaceAll('\r\n', '\n');
+    }
+    const header = parseHeader(contentText);
+    const { length, direction, movement } = header;
     const directionMultiplier = direction.toLowerCase() === 'd' ? -1 : 1;
     const payload = new Uint8Array(content.slice(length));
     let output = '';
