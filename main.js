@@ -53080,13 +53080,16 @@ let CanvasObserver = (() => {
                 this.engine.canvasBackground.texture = texture;
             }
             REFRESH() { }
-            GETGRAPHICSAT(x, y, someBool1, minZ, maxZ, includeAlpha) {
+            GETGRAPHICSAT(x, y, onlyVisible, minZ, maxZ, includeAlpha) {
                 const point = new pixi_js_1.Point(x, y);
                 for (const object of Object.values(this.engine.scope)) {
                     if (!(object instanceof index_1.DisplayType) || object.getRenderObject() === null) {
                         continue;
                     }
                     const renderObject = object.getRenderObject();
+                    if (onlyVisible && !renderObject.visible) {
+                        continue;
+                    }
                     const position = renderObject.getGlobalPosition();
                     if (position === null) {
                         continue;
@@ -53113,7 +53116,7 @@ let CanvasObserver = (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SETBACKGROUND_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _REFRESH_decorators = [(0, types_1.method)()];
-            _GETGRAPHICSAT_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "someBool1", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "minZ", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "maxZ", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "includeAlpha", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            _GETGRAPHICSAT_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "onlyVisible", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "minZ", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "maxZ", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "includeAlpha", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
             __esDecorate(_a, null, _SETBACKGROUND_decorators, { kind: "method", name: "SETBACKGROUND", static: false, private: false, access: { has: obj => "SETBACKGROUND" in obj, get: obj => obj.SETBACKGROUND }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _REFRESH_decorators, { kind: "method", name: "REFRESH", static: false, private: false, access: { has: obj => "REFRESH" in obj, get: obj => obj.REFRESH }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETGRAPHICSAT_decorators, { kind: "method", name: "GETGRAPHICSAT", static: false, private: false, access: { has: obj => "GETGRAPHICSAT" in obj, get: obj => obj.GETGRAPHICSAT }, metadata: _metadata }, null, _instanceExtraInitializers);
