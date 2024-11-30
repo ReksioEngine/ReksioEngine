@@ -1,9 +1,11 @@
-import { DisplayType, Type } from './index'
+import { Type } from './index'
 import { CanvasObserverDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { loadTexture } from '../assetsLoader'
 import { Point } from 'pixi.js'
 import { method } from '../../types'
+import { AdvancedSprite } from '../rendering'
+import { assert } from '../../errors'
 
 export class CanvasObserver extends Type<CanvasObserverDefinition> {
     constructor(engine: Engine, definition: CanvasObserverDefinition) {
@@ -25,15 +27,15 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
     REFRESH() {}
 
     @method()
-    GETGRAPHICSAT(x: number, y: number, onlyVisible: boolean, minZ: number, maxZ: number, includeAlpha?: boolean) {
+    GETGRAPHICSAT(x: number, y: number, onlyVisible: boolean = false, minZ: number = Number.MIN_SAFE_INTEGER, maxZ: number = Number.MAX_SAFE_INTEGER, includeAlpha: boolean = false) {
         const point = new Point(x, y)
 
-        for (const object of Object.values(this.engine.scope)) {
-            if (!(object instanceof DisplayType) || object.getRenderObject() === null) {
+        for (let i = this.engine.app.stage.children.length - 1; i >= 0; i--) {
+            const renderObject = this.engine.app.stage.children[i]
+            if (!(renderObject instanceof AdvancedSprite)) {
                 continue
             }
 
-            const renderObject = object.getRenderObject()!
             if (onlyVisible && !renderObject.visible) {
                 continue
             }
@@ -55,6 +57,10 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
             }
 
             if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
+                const object = this.engine.displayObjectsInDefinitionOrder.find(
+                    obj => obj.getRenderObject() === renderObject
+                )
+                assert(object !== undefined)
                 return object.name
             }
         }

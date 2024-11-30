@@ -133,7 +133,7 @@ export const loadDefinition = async (
         entries.push(instance)
 
         if (instance instanceof DisplayType) {
-            engine.renderingOrder.push(instance)
+            engine.displayObjectsInDefinitionOrder.push(instance)
         }
     }
 
@@ -170,7 +170,7 @@ export const createObject = async (engine: Engine, definition: CNVObject, parent
     engine.scope[definition.NAME] = instance
 
     if (instance instanceof DisplayType) {
-        engine.renderingOrder.push(instance)
+        engine.displayObjectsInDefinitionOrder.push(instance)
     }
 
     await instance.init()

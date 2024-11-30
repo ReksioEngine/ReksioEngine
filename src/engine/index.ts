@@ -23,7 +23,7 @@ export class Engine {
     private thisQueue: Type<any>[] = []
     public globalScope: Record<string, any> = {}
     public scope: Record<string, any> = {}
-    public renderingOrder: DisplayType<any>[] = []
+    public displayObjectsInDefinitionOrder: DisplayType<any>[] = []
 
     public currentScene?: Scene
     public saveFile: SaveFile = new SaveFile()
@@ -172,15 +172,15 @@ export class Engine {
                 return a.zIndex - b.zIndex
             }
 
-            const objectA = this.renderingOrder.find((e) => e.getRenderObject() === a)
-            const objectB = this.renderingOrder.find((e) => e.getRenderObject() === b)
+            const objectA = this.displayObjectsInDefinitionOrder.find((e) => e.getRenderObject() === a)
+            const objectB = this.displayObjectsInDefinitionOrder.find((e) => e.getRenderObject() === b)
 
             if (objectA === undefined || objectB === undefined) {
                 return 0
             }
 
-            const renderingOrderA = this.renderingOrder.indexOf(objectA)
-            const renderingOrderB = this.renderingOrder.indexOf(objectB)
+            const renderingOrderA = this.displayObjectsInDefinitionOrder.indexOf(objectA)
+            const renderingOrderB = this.displayObjectsInDefinitionOrder.indexOf(objectB)
 
             const orderA = a.zIndex + renderingOrderA
             const orderB = b.zIndex + renderingOrderB
@@ -204,7 +204,7 @@ export class Engine {
             objectsToRemove.push(object)
             delete this.scope[key]
         }
-        this.renderingOrder = []
+        this.displayObjectsInDefinitionOrder = []
 
         // Load new scene
         if (this.debug.nextSceneOverwrite) {
