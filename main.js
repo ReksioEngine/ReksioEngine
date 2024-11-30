@@ -51046,7 +51046,7 @@ const loadDefinition = async (engine, scope, definition, parent) => {
         scope[key] = instance;
         entries.push(instance);
         if (instance instanceof types_1.DisplayType) {
-            engine.renderingOrder.push(instance);
+            engine.displayObjectsInDefinitionOrder.push(instance);
         }
     }
     const orderedScope = entries.sort((a, b) => {
@@ -51075,7 +51075,7 @@ const createObject = async (engine, definition, parent) => {
     instance.parent = parent;
     engine.scope[definition.NAME] = instance;
     if (instance instanceof types_1.DisplayType) {
-        engine.renderingOrder.push(instance);
+        engine.displayObjectsInDefinitionOrder.push(instance);
     }
     await instance.init();
     instance.ready();
@@ -51230,7 +51230,7 @@ class Engine {
         this.thisQueue = [];
         this.globalScope = {};
         this.scope = {};
-        this.renderingOrder = [];
+        this.displayObjectsInDefinitionOrder = [];
         this.saveFile = new saveFile_1.SaveFile();
         this.fileLoader = new filesLoader_1.GithubFileLoader('reksioiufo');
         this.music = null;
@@ -51329,13 +51329,13 @@ class Engine {
             if (a.zIndex !== b.zIndex) {
                 return a.zIndex - b.zIndex;
             }
-            const objectA = this.renderingOrder.find((e) => e.getRenderObject() === a);
-            const objectB = this.renderingOrder.find((e) => e.getRenderObject() === b);
+            const objectA = this.displayObjectsInDefinitionOrder.find((e) => e.getRenderObject() === a);
+            const objectB = this.displayObjectsInDefinitionOrder.find((e) => e.getRenderObject() === b);
             if (objectA === undefined || objectB === undefined) {
                 return 0;
             }
-            const renderingOrderA = this.renderingOrder.indexOf(objectA);
-            const renderingOrderB = this.renderingOrder.indexOf(objectB);
+            const renderingOrderA = this.displayObjectsInDefinitionOrder.indexOf(objectA);
+            const renderingOrderB = this.displayObjectsInDefinitionOrder.indexOf(objectB);
             const orderA = a.zIndex + renderingOrderA;
             const orderB = b.zIndex + renderingOrderB;
             return orderA - orderB;
@@ -51355,7 +51355,7 @@ class Engine {
             objectsToRemove.push(object);
             delete this.scope[key];
         }
-        this.renderingOrder = [];
+        this.displayObjectsInDefinitionOrder = [];
         // Load new scene
         if (this.debug.nextSceneOverwrite) {
             sceneName = this.debug.nextSceneOverwrite;
@@ -53059,6 +53059,8 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
+const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 let CanvasObserver = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -53080,13 +53082,13 @@ let CanvasObserver = (() => {
                 this.engine.canvasBackground.texture = texture;
             }
             REFRESH() { }
-            GETGRAPHICSAT(x, y, onlyVisible, minZ, maxZ, includeAlpha) {
+            GETGRAPHICSAT(x, y, onlyVisible = false, minZ = Number.MIN_SAFE_INTEGER, maxZ = Number.MAX_SAFE_INTEGER, includeAlpha = false) {
                 const point = new pixi_js_1.Point(x, y);
-                for (const object of Object.values(this.engine.scope)) {
-                    if (!(object instanceof index_1.DisplayType) || object.getRenderObject() === null) {
+                for (let i = this.engine.app.stage.children.length - 1; i >= 0; i--) {
+                    const renderObject = this.engine.app.stage.children[i];
+                    if (!(renderObject instanceof rendering_1.AdvancedSprite)) {
                         continue;
                     }
-                    const renderObject = object.getRenderObject();
                     if (onlyVisible && !renderObject.visible) {
                         continue;
                     }
@@ -53106,6 +53108,8 @@ let CanvasObserver = (() => {
                                 point.y < position.y + renderObject.height;
                     }
                     if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
+                        const object = this.engine.displayObjectsInDefinitionOrder.find(obj => obj.getRenderObject() === renderObject);
+                        (0, errors_1.assert)(object !== undefined);
                         return object.name;
                     }
                 }
@@ -53116,7 +53120,7 @@ let CanvasObserver = (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SETBACKGROUND_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _REFRESH_decorators = [(0, types_1.method)()];
-            _GETGRAPHICSAT_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "onlyVisible", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "minZ", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "maxZ", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "includeAlpha", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            _GETGRAPHICSAT_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "onlyVisible", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false }, { name: "minZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "maxZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "includeAlpha", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
             __esDecorate(_a, null, _SETBACKGROUND_decorators, { kind: "method", name: "SETBACKGROUND", static: false, private: false, access: { has: obj => "SETBACKGROUND" in obj, get: obj => obj.SETBACKGROUND }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _REFRESH_decorators, { kind: "method", name: "REFRESH", static: false, private: false, access: { has: obj => "REFRESH" in obj, get: obj => obj.REFRESH }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETGRAPHICSAT_decorators, { kind: "method", name: "GETGRAPHICSAT", static: false, private: false, access: { has: obj => "GETGRAPHICSAT" in obj, get: obj => obj.GETGRAPHICSAT }, metadata: _metadata }, null, _instanceExtraInitializers);
