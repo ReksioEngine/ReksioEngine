@@ -48,11 +48,11 @@ export class Scene extends Type<SceneDefinition> {
         }
 
         const method = object[methodName]
-        if (method === undefined) {
-            return
+        if (method !== undefined) {
+            return method.bind(object)(...args)
+        } else {
+            return object.__call(methodName, args)
         }
-
-        return method.bind(object)(...args)
     }
 
     public getRelativePath(filename: string) {
