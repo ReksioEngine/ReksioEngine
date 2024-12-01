@@ -53108,7 +53108,7 @@ let CanvasObserver = (() => {
                                 point.y < position.y + renderObject.height;
                     }
                     if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
-                        const object = Object.values(this.engine.scope).find(obj => obj instanceof index_1.DisplayType && obj.getRenderObject() === renderObject);
+                        const object = Object.values(this.engine.scope).find((obj) => obj instanceof index_1.DisplayType && obj.getRenderObject() === renderObject);
                         (0, errors_1.assert)(object !== undefined);
                         return object.name;
                     }
@@ -58655,10 +58655,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
                 return (0, types_1.ForceNumber)(ctx.negativeNumber().getText());
             }
             else if (ctx.STRING() != null) {
-                return this.replaceParameters(ctx
-                    .STRING()
-                    .getText()
-                    .replace(/^"|"$/g, ''));
+                return this.replaceParameters(ctx.STRING().getText().replace(/^"|"$/g, ''));
             }
             else if (ctx.IDENTIFIER() != null) {
                 const identifier = ctx.IDENTIFIER().getText();
