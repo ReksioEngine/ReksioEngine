@@ -23,10 +23,19 @@ export class Scene extends Type<SceneDefinition> {
     }
 
     @method()
-    RUNCLONES(baseObjectName: string, arg1: any, arg2: any, behaviourName: string) {
+    RUNCLONES(baseObjectName: string, startingIdx: number, endingIdx: number, behaviourName: string) {
         const baseObject: Type<any> = this.engine.getObject(baseObjectName)
         const behaviour: Behaviour = this.engine.getObject(behaviourName)
-        for (const clone of baseObject.clones) {
+
+        if (startingIdx < 1) {
+            startingIdx = 1
+        }
+        if (endingIdx <= 0) {
+            endingIdx = baseObject.clones.length
+        }
+
+        for (let i = startingIdx - 1; i <= endingIdx - 1; i++) {
+            const clone = baseObject.clones[i]
             behaviour.RUN(clone)
         }
     }
