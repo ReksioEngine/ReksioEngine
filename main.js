@@ -54924,10 +54924,12 @@ let Scene = (() => {
                     return;
                 }
                 const method = object[methodName];
-                if (method === undefined) {
-                    return;
+                if (method !== undefined) {
+                    return method.bind(object)(...args);
                 }
-                return method.bind(object)(...args);
+                else {
+                    return object.__call(methodName, args);
+                }
             }
             getRelativePath(filename) {
                 return (0, utils_1.pathJoin)('DANE', this.definition.PATH, filename);
