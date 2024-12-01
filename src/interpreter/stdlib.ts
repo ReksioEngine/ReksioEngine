@@ -21,13 +21,17 @@ export class RandomLibrary extends Library {
     }
 
     @method()
-    GETPLENTY(objectTarget: string, count: number, min: number, max: number, arg5?: boolean) {
+    GETPLENTY(objectTarget: string, count: number, min: number, max: number, unique: boolean) {
         const object = this.engine?.getObject(objectTarget) as ArrayObject
 
-        const values = []
-        for (let i = 0; i < count; i++) {
-            values.push(this.GET(min, max))
+        const values: number[] = []
+        while (values.length < count) {
+            const randomValue = this.GET(min, max)
+            if (!unique || !values.includes(randomValue)) {
+                values.push(randomValue);
+            }
         }
+
         object.ADD(...values)
     }
 }
