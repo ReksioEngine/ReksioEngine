@@ -33,7 +33,17 @@ export class Scene extends Type<SceneDefinition> {
 
     @method()
     RUN(objectName: string, methodName: string, ...args: any[]) {
-        return this.engine.getObject(objectName)[methodName](...args)
+        const object = this.engine.getObject(objectName)
+        if (object === null) {
+            return
+        }
+
+        const method = object[methodName]
+        if (method === undefined) {
+            return
+        }
+
+        return method.bind(object)(...args)
     }
 
     public getRelativePath(filename: string) {
