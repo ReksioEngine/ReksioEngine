@@ -1,4 +1,4 @@
-import { Type } from './index'
+import { DisplayType, Type } from './index'
 import { CanvasObserverDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { loadTexture } from '../assetsLoader'
@@ -57,8 +57,8 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
             }
 
             if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
-                const object = this.engine.displayObjectsInDefinitionOrder.find(
-                    obj => obj.getRenderObject() === renderObject
+                const object = Object.values(this.engine.scope).find(
+                    obj => obj instanceof DisplayType && obj.getRenderObject() === renderObject
                 )
                 assert(object !== undefined)
                 return object.name
