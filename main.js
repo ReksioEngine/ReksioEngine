@@ -59076,11 +59076,14 @@ let RandomLibrary = (() => {
                 max = min + max;
                 return Math.floor(Math.random() * (max - min)) + min;
             }
-            GETPLENTY(objectTarget, count, min, max, arg5) {
+            GETPLENTY(objectTarget, count, min, max, unique) {
                 const object = this.engine?.getObject(objectTarget);
                 const values = [];
-                for (let i = 0; i < count; i++) {
-                    values.push(this.GET(min, max));
+                while (values.length < count) {
+                    const randomValue = this.GET(min, max);
+                    if (!unique || !values.includes(randomValue)) {
+                        values.push(randomValue);
+                    }
                 }
                 object.ADD(...values);
             }
@@ -59092,7 +59095,7 @@ let RandomLibrary = (() => {
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _GET_decorators = [(0, types_1.method)({ name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
-            _GETPLENTY_decorators = [(0, types_1.method)({ name: "objectTarget", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "count", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg5", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            _GETPLENTY_decorators = [(0, types_1.method)({ name: "objectTarget", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "count", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "unique", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETPLENTY_decorators, { kind: "method", name: "GETPLENTY", static: false, private: false, access: { has: obj => "GETPLENTY" in obj, get: obj => obj.GETPLENTY }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
