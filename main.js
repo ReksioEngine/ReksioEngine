@@ -53108,7 +53108,7 @@ let CanvasObserver = (() => {
                                 point.y < position.y + renderObject.height;
                     }
                     if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
-                        const object = this.engine.displayObjectsInDefinitionOrder.find(obj => obj.getRenderObject() === renderObject);
+                        const object = Object.values(this.engine.scope).find(obj => obj instanceof index_1.DisplayType && obj.getRenderObject() === renderObject);
                         (0, errors_1.assert)(object !== undefined);
                         return object.name;
                     }
