@@ -54912,7 +54912,15 @@ let Scene = (() => {
                 }
             }
             RUN(objectName, methodName, ...args) {
-                return this.engine.getObject(objectName)[methodName](...args);
+                const object = this.engine.getObject(objectName);
+                if (object === null) {
+                    return;
+                }
+                const method = object[methodName];
+                if (method === undefined) {
+                    return;
+                }
+                return method.bind(object)(...args);
             }
             getRelativePath(filename) {
                 return (0, utils_1.pathJoin)('DANE', this.definition.PATH, filename);
