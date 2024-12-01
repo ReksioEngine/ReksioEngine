@@ -54904,10 +54904,17 @@ let Scene = (() => {
             SETMINHSPRIORITY(arg) {
                 throw new errors_1.NotImplementedError();
             }
-            RUNCLONES(baseObjectName, arg1, arg2, behaviourName) {
+            RUNCLONES(baseObjectName, startingIdx, endingIdx, behaviourName) {
                 const baseObject = this.engine.getObject(baseObjectName);
                 const behaviour = this.engine.getObject(behaviourName);
-                for (const clone of baseObject.clones) {
+                if (startingIdx < 1) {
+                    startingIdx = 1;
+                }
+                if (endingIdx <= 0) {
+                    endingIdx = baseObject.clones.length;
+                }
+                for (let i = startingIdx - 1; i <= endingIdx - 1; i++) {
+                    const clone = baseObject.clones[i];
                     behaviour.RUN(clone);
                 }
             }
@@ -54930,7 +54937,7 @@ let Scene = (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SETMUSICVOLUME_decorators = [(0, types_1.method)({ name: "volume", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SETMINHSPRIORITY_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _RUNCLONES_decorators = [(0, types_1.method)({ name: "baseObjectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg1", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg2", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _RUNCLONES_decorators = [(0, types_1.method)({ name: "baseObjectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "startingIdx", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "endingIdx", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _RUN_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "methodName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
             __esDecorate(_a, null, _SETMUSICVOLUME_decorators, { kind: "method", name: "SETMUSICVOLUME", static: false, private: false, access: { has: obj => "SETMUSICVOLUME" in obj, get: obj => obj.SETMUSICVOLUME }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SETMINHSPRIORITY_decorators, { kind: "method", name: "SETMINHSPRIORITY", static: false, private: false, access: { has: obj => "SETMINHSPRIORITY" in obj, get: obj => obj.SETMINHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
