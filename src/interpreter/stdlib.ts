@@ -28,7 +28,7 @@ export class RandomLibrary extends Library {
         while (values.length < count) {
             const randomValue = this.GET(min, max)
             if (!unique || !values.includes(randomValue)) {
-                values.push(randomValue);
+                values.push(randomValue)
             }
         }
 

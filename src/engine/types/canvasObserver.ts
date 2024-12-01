@@ -27,7 +27,14 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
     REFRESH() {}
 
     @method()
-    GETGRAPHICSAT(x: number, y: number, onlyVisible: boolean = false, minZ: number = Number.MIN_SAFE_INTEGER, maxZ: number = Number.MAX_SAFE_INTEGER, includeAlpha: boolean = false) {
+    GETGRAPHICSAT(
+        x: number,
+        y: number,
+        onlyVisible: boolean = false,
+        minZ: number = Number.MIN_SAFE_INTEGER,
+        maxZ: number = Number.MAX_SAFE_INTEGER,
+        includeAlpha: boolean = false
+    ) {
         const point = new Point(x, y)
 
         for (let i = this.engine.app.stage.children.length - 1; i >= 0; i--) {
@@ -58,7 +65,7 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
 
             if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
                 const object = Object.values(this.engine.scope).find(
-                    obj => obj instanceof DisplayType && obj.getRenderObject() === renderObject
+                    (obj) => obj instanceof DisplayType && obj.getRenderObject() === renderObject
                 )
                 assert(object !== undefined)
                 return object.name

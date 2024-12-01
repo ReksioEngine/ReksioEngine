@@ -93,12 +93,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         } else if (ctx.negativeNumber() != null) {
             return ForceNumber(ctx.negativeNumber().getText())
         } else if (ctx.STRING() != null) {
-            return this.replaceParameters(
-                ctx
-                    .STRING()
-                    .getText()
-                    .replace(/^"|"$/g, '')
-            )
+            return this.replaceParameters(ctx.STRING().getText().replace(/^"|"$/g, ''))
         } else if (ctx.IDENTIFIER() != null) {
             const identifier = ctx.IDENTIFIER().getText()
             if (identifier.startsWith('$') && this.args) {
