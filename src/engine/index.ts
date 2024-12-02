@@ -133,7 +133,7 @@ export class Engine {
                 stackFrame = StackFrame.builder()
                     .type('behaviour')
                     .behaviour(callback.behaviourReference)
-                    .args(args)
+                    .args(...(args !== undefined ? args : []))
                     .build()
 
                 stackTrace.push(stackFrame)
