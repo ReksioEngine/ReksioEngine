@@ -61,15 +61,24 @@ export const printStackTrace = () => {
 
     for (const frame of stackTrace) {
         const argsString = (frame.args ?? [])
-            .map((arg) => (arg !== undefined ? valueAsString(arg) : '<undefined>'))
+            .map((arg) => {
+                if ((typeof arg !== 'object' || arg === null) && arg !== undefined) {
+                    const asString = valueAsString(arg)
+                    return typeof arg === 'string' ? `"${asString}"` : asString
+                } else if (arg === undefined) {
+                    return '<undefined>'
+                } else {
+                    return arg.toString()
+                }
+            })
             .join(',')
 
         switch (frame.type) {
             case 'callback':
-                lines.push(`at ${frame.object!.name}@${frame.callback}(${argsString})`)
+                lines.push(`at ${frame.object?.name ?? '<unknown>'}@${frame.callback}(${argsString})`)
                 break
             case 'method':
-                lines.push(`at ${frame.object!.name}^${frame.methodName}(${argsString})`)
+                lines.push(`at ${frame.object?.name ?? '<unknown>'}^${frame.methodName}(${argsString})`)
                 break
             case 'behaviour':
                 lines.push(`at ${frame.behaviour}(${argsString})`)

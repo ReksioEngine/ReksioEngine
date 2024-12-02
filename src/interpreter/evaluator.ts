@@ -177,8 +177,12 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         this.methodCallUsedVariables = {}
 
         try {
-            const stackFrame = StackFrame.builder().object(object).method(methodName).build()
-
+            const stackFrame = StackFrame.builder()
+                .type('method')
+                .object(object)
+                .method(methodName)
+                .args(...args)
+                .build()
             stackTrace.push(stackFrame)
 
             if (method == undefined) {
