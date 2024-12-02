@@ -65,7 +65,7 @@ export class CallbacksComponent {
             .type('callback')
             .object(this.object)
             .callback(type)
-            .args(...(param !== undefined ? [param] : []))
+            .args(...(param !== undefined && param !== null ? [param] : []))
             .build()
         stackTrace.push(stackFrame)
 
