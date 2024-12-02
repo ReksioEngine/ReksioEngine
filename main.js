@@ -50562,7 +50562,7 @@ class CallbacksComponent {
             .type('callback')
             .object(this.object)
             .callback(type)
-            .args(...(param !== undefined ? [param] : []))
+            .args(...(param !== undefined && param !== null ? [param] : []))
             .build();
         stacktrace_1.stackTrace.push(stackFrame);
         const thisReference = thisOverride !== undefined ? thisOverride : this.object;
@@ -51296,7 +51296,7 @@ class Engine {
                 stackFrame = stacktrace_1.StackFrame.builder()
                     .type('behaviour')
                     .behaviour(callback.behaviourReference)
-                    .args(args)
+                    .args(...(args !== undefined ? args : []))
                     .build();
                 stacktrace_1.stackTrace.push(stackFrame);
                 return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments);
@@ -58703,7 +58703,12 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             const argsVariables = this.methodCallUsedVariables;
             this.methodCallUsedVariables = {};
             try {
-                const stackFrame = stacktrace_1.StackFrame.builder().object(object).method(methodName).build();
+                const stackFrame = stacktrace_1.StackFrame.builder()
+                    .type('method')
+                    .object(object)
+                    .method(methodName)
+                    .args(...args)
+                    .build();
                 stacktrace_1.stackTrace.push(stackFrame);
                 if (method == undefined) {
                     return object.__call(methodName, args);
@@ -58990,14 +58995,25 @@ const printStackTrace = () => {
     const lines = [];
     for (const frame of exports.stackTrace) {
         const argsString = (frame.args ?? [])
-            .map((arg) => (arg !== undefined ? (0, types_1.valueAsString)(arg) : '<undefined>'))
+            .map((arg) => {
+            if ((typeof arg !== 'object' || arg === null) && arg !== undefined) {
+                const asString = (0, types_1.valueAsString)(arg);
+                return typeof arg === 'string' ? `"${asString}"` : asString;
+            }
+            else if (arg === undefined) {
+                return '<undefined>';
+            }
+            else {
+                return arg.toString();
+            }
+        })
             .join(',');
         switch (frame.type) {
             case 'callback':
-                lines.push(`at ${frame.object.name}@${frame.callback}(${argsString})`);
+                lines.push(`at ${frame.object?.name ?? '<unknown>'}@${frame.callback}(${argsString})`);
                 break;
             case 'method':
-                lines.push(`at ${frame.object.name}^${frame.methodName}(${argsString})`);
+                lines.push(`at ${frame.object?.name ?? '<unknown>'}^${frame.methodName}(${argsString})`);
                 break;
             case 'behaviour':
                 lines.push(`at ${frame.behaviour}(${argsString})`);
