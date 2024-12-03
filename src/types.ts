@@ -53,10 +53,10 @@ export const ForceNumber = (value: any) => {
 
 export const Compare = {
     Equal: (a: any, b: any) => {
-        return valueAsString(a) == valueAsString(b)
+        return valueAsString(a).toLowerCase() == valueAsString(b).toLowerCase()
     },
     NotEqual: (a: any, b: any) => {
-        return valueAsString(a) != valueAsString(b)
+        return valueAsString(a).toLowerCase() != valueAsString(b).toLowerCase()
     },
     Less: (a: any, b: any) => {
         return ForceNumber(a) < ForceNumber(b)
