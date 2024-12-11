@@ -51670,7 +51670,6 @@ let Animo = (() => {
                 this.currentLoop = 0;
                 this.fps = 16;
                 this.timeSinceLastFrame = 0;
-                this.shouldForceRender = false;
                 this.positionX = 0;
                 this.positionOffsetX = 0;
                 this.positionY = 0;
@@ -51699,10 +51698,6 @@ let Animo = (() => {
                 this.engine.removeFromStage(this.sprite);
             }
             tick(elapsedMS) {
-                if (this.shouldForceRender) {
-                    this.forceRender();
-                    this.shouldForceRender = false;
-                }
                 if (!this.isPlaying) {
                     return;
                 }
@@ -51870,7 +51865,7 @@ let Animo = (() => {
                 this.currentFrame = 0;
                 this.currentEvent = name.toString().toUpperCase();
                 // Animation could be paused before next tick, and it wouldn't render new frame
-                this.shouldForceRender = true;
+                this.forceRender();
             }
             forceRender() {
                 const event = this.getEventByName(this.currentEvent);
@@ -51921,7 +51916,7 @@ let Animo = (() => {
                     this.currentFrame = newFrame;
                     // Force render because some animations might not be playing,
                     // but they display something (like a keypad screen in S73_0_KOD in UFO)
-                    this.shouldForceRender = true;
+                    this.forceRender();
                 }
             }
             SETFPS(fps) {
@@ -59225,10 +59220,10 @@ const ForceNumber = (value) => {
 exports.ForceNumber = ForceNumber;
 exports.Compare = {
     Equal: (a, b) => {
-        return (0, exports.valueAsString)(a) == (0, exports.valueAsString)(b);
+        return (0, exports.valueAsString)(a).toLowerCase() == (0, exports.valueAsString)(b).toLowerCase();
     },
     NotEqual: (a, b) => {
-        return (0, exports.valueAsString)(a) != (0, exports.valueAsString)(b);
+        return (0, exports.valueAsString)(a).toLowerCase() != (0, exports.valueAsString)(b).toLowerCase();
     },
     Less: (a, b) => {
         return (0, exports.ForceNumber)(a) < (0, exports.ForceNumber)(b);
