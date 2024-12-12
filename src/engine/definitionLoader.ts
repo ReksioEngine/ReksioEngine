@@ -33,72 +33,72 @@ import { StaticFilter } from './types/staticFilter'
 import { Filter } from './types/filter'
 import { MultiArray } from './types/multiArray'
 
-const createTypeInstance = (engine: Engine, definition: any) => {
+const createTypeInstance = (engine: Engine, parent: Type<any> | null, definition: any) => {
     switch (definition.TYPE) {
         case 'ANIMO':
-            return new Animo(engine, definition)
+            return new Animo(engine, parent, definition)
         case 'APPLICATION':
-            return new Application(engine, definition)
+            return new Application(engine, parent, definition)
         case 'ARRAY':
-            return new ArrayObject(engine, definition)
+            return new ArrayObject(engine, parent, definition)
         case 'BEHAVIOUR':
-            return new Behaviour(engine, definition)
+            return new Behaviour(engine, parent, definition)
         case 'BOOL':
-            return new Bool(engine, definition)
+            return new Bool(engine, parent, definition)
         case 'BUTTON':
-            return new Button(engine, definition)
+            return new Button(engine, parent, definition)
         case 'CANVAS_OBSERVER':
-            return new CanvasObserver(engine, definition)
+            return new CanvasObserver(engine, parent, definition)
         case 'CANVASOBSERVER':
-            return new CanvasObserver(engine, definition)
+            return new CanvasObserver(engine, parent, definition)
         case 'CNVLOADER':
-            return new CNVLoader(engine, definition)
+            return new CNVLoader(engine, parent, definition)
         case 'CONDITION':
-            return new Condition(engine, definition)
+            return new Condition(engine, parent, definition)
         case 'COMPLEXCONDITION':
-            return new ComplexCondition(engine, definition)
+            return new ComplexCondition(engine, parent, definition)
         case 'DOUBLE':
-            return new Double(engine, definition)
+            return new Double(engine, parent, definition)
         case 'EPISODE':
-            return new Episode(engine, definition)
+            return new Episode(engine, parent, definition)
         case 'EXPRESSION':
-            return new Expression(engine, definition)
+            return new Expression(engine, parent, definition)
         case 'FILTER':
-            return new Filter(engine, definition)
+            return new Filter(engine, parent, definition)
         case 'FONT':
-            return new Font(engine, definition)
+            return new Font(engine, parent, definition)
         case 'GROUP':
-            return new Group(engine, definition)
+            return new Group(engine, parent, definition)
         case 'IMAGE':
-            return new Image(engine, definition)
+            return new Image(engine, parent, definition)
         case 'INTEGER':
-            return new Integer(engine, definition)
+            return new Integer(engine, parent, definition)
         case 'KEYBOARD':
-            return new Keyboard(engine, definition)
+            return new Keyboard(engine, parent, definition)
         case 'MOUSE':
-            return new Mouse(engine, definition)
+            return new Mouse(engine, parent, definition)
         case 'MULTIARRAY':
-            return new MultiArray(engine, definition)
+            return new MultiArray(engine, parent, definition)
         case 'MUSIC':
-            return new Music(engine, definition)
+            return new Music(engine, parent, definition)
         case 'RAND':
-            return new Rand(engine, definition)
+            return new Rand(engine, parent, definition)
         case 'SCENE':
-            return new Scene(engine, definition)
+            return new Scene(engine, parent, definition)
         case 'SEQUENCE':
-            return new Sequence(engine, definition)
+            return new Sequence(engine, parent, definition)
         case 'SOUND':
-            return new Sound(engine, definition)
+            return new Sound(engine, parent, definition)
         case 'STATICFILTER':
-            return new StaticFilter(engine, definition)
+            return new StaticFilter(engine, parent, definition)
         case 'STRING':
-            return new StringType(engine, definition)
+            return new StringType(engine, parent, definition)
         case 'TEXT':
-            return new Text(engine, definition)
+            return new Text(engine, parent, definition)
         case 'TIMER':
-            return new Timer(engine, definition)
+            return new Timer(engine, parent, definition)
         case 'VECTOR':
-            return new Vector(engine, definition)
+            return new Vector(engine, parent, definition)
         default:
             console.error(definition)
             throw new Error(`Unknown object type '${definition.TYPE}'`)
@@ -120,14 +120,13 @@ export const loadDefinition = async (
     engine: Engine,
     scope: Record<string, any>,
     definition: CNV,
-    parent?: Type<any>
+    parent: Type<any> | null
 ) => {
     engine.app.ticker.stop()
 
     const entries = []
     for (const [key, value] of Object.entries(definition)) {
-        const instance = createTypeInstance(engine, value)
-        instance.parent = parent
+        const instance = createTypeInstance(engine, parent, value)
         scope[key] = instance
 
         entries.push(instance)
@@ -162,11 +161,10 @@ export const loadDefinition = async (
     engine.app.ticker.start()
 }
 
-export const createObject = async (engine: Engine, definition: CNVObject, parent?: Type<any>) => {
+export const createObject = async (engine: Engine, definition: CNVObject, parent: Type<any> | null) => {
     engine.app.ticker.stop()
 
-    const instance = createTypeInstance(engine, definition)
-    instance.parent = parent
+    const instance = createTypeInstance(engine, parent, definition)
     engine.scope[definition.NAME] = instance
 
     if (instance instanceof DisplayType) {

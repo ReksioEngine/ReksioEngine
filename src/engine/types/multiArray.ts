@@ -1,12 +1,12 @@
-import { ValueType } from './index'
+import { Type, ValueType } from './index'
 import { MultiArrayDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { assert } from '../../errors'
 import { method } from '../../types'
 
 export class MultiArray extends ValueType<MultiArrayDefinition> {
-    constructor(engine: Engine, definition: MultiArrayDefinition) {
-        super(engine, definition, [])
+    constructor(engine: Engine, parent: Type<any> | null, definition: MultiArrayDefinition) {
+        super(engine, parent, definition, [])
     }
 
     init() {

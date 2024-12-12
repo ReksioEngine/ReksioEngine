@@ -15,13 +15,14 @@ export class Type<DefinitionType extends TypeDefinition> {
     public readonly definition: DefinitionType
 
     public name: string = ''
-    public parent?: Type<any>
+    public parent: Type<any> | null
     public clones: Array<Type<DefinitionType>> = []
 
-    constructor(engine: Engine, definition: DefinitionType) {
+    constructor(engine: Engine, parent: Type<any> | null, definition: DefinitionType) {
         this.engine = engine
         this.definition = definition
         this.name = definition.NAME
+        this.parent = parent
 
         this.callbacks = new CallbacksComponent(engine, this)
         this.callbacks.autoRegister()
@@ -101,17 +102,15 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
     protected _value?: any
     private readonly defaultValue?: number | string | boolean | any[]
 
-    constructor(engine: Engine, definition: DefinitionType, defaultValue?: number | string | boolean | any[]) {
-        super(engine, definition)
+    constructor(
+        engine: Engine,
+        parent: Type<any> | null,
+        definition: DefinitionType,
+        defaultValue?: number | string | boolean | any[]
+    ) {
+        super(engine, parent, definition)
         this.defaultValue = defaultValue
-
-        if (defaultValue !== undefined) {
-            let initialValue = null
-            if (this.definition.TOINI) {
-                initialValue = this.getFromINI()
-            }
-            this.value = initialValue ?? this.definition.VALUE ?? defaultValue
-        }
+        this._value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue
     }
 
     @method()

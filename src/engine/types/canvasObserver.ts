@@ -1,6 +1,5 @@
 import { DisplayType, Type } from './index'
 import { CanvasObserverDefinition } from '../../fileFormats/cnv/types'
-import { Engine } from '../index'
 import { loadTexture } from '../assetsLoader'
 import { Point } from 'pixi.js'
 import { method } from '../../types'
@@ -8,10 +7,6 @@ import { AdvancedSprite } from '../rendering'
 import { assert } from '../../errors'
 
 export class CanvasObserver extends Type<CanvasObserverDefinition> {
-    constructor(engine: Engine, definition: CanvasObserverDefinition) {
-        super(engine, definition)
-    }
-
     @method()
     async SETBACKGROUND(filename: string) {
         const relativePath = this.engine.currentScene?.getRelativePath(filename)

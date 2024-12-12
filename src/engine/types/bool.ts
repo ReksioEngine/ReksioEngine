@@ -1,11 +1,11 @@
-import { ValueType } from './index'
+import { Type, ValueType } from './index'
 import { Engine } from '../index'
 import { BoolDefinition } from '../../fileFormats/cnv/types'
 import { method } from '../../types'
 
 export class Bool extends ValueType<BoolDefinition> {
-    constructor(engine: Engine, definition: BoolDefinition) {
-        super(engine, definition, false)
+    constructor(engine: Engine, parent: Type<any> | null, definition: BoolDefinition) {
+        super(engine, parent, definition, false)
     }
 
     @method()

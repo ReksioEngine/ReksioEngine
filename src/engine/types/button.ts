@@ -19,8 +19,8 @@ export class Button extends Type<ButtonDefinition> {
     private interactArea: Graphics | null = null
     private rect: Rectangle | null = null
 
-    constructor(engine: Engine, definition: ButtonDefinition) {
-        super(engine, definition)
+    constructor(engine: Engine, parent: Type<any> | null, definition: ButtonDefinition) {
+        super(engine, parent, definition)
         this.logic = new ButtonLogicComponent(this.onStateChange.bind(this))
     }
 

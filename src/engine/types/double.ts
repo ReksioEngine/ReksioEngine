@@ -1,4 +1,4 @@
-import { ValueType } from './index'
+import { Type, ValueType } from './index'
 import { Engine } from '../index'
 import { DoubleDefinition } from '../../fileFormats/cnv/types'
 import { method } from '../../types'
@@ -6,8 +6,8 @@ import { method } from '../../types'
 const radianMultiplier = Math.PI / 180
 
 export class Double extends ValueType<DoubleDefinition> {
-    constructor(engine: Engine, definition: DoubleDefinition) {
-        super(engine, definition, 0.0)
+    constructor(engine: Engine, parent: Type<any> | null, definition: DoubleDefinition) {
+        super(engine, parent, definition, 0.0)
     }
 
     @method()

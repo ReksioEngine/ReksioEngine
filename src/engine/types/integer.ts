@@ -1,11 +1,11 @@
-import { ValueType } from './index'
+import { Type, ValueType } from './index'
 import { Engine } from '../index'
 import { IntegerDefinition } from '../../fileFormats/cnv/types'
 import { ForceNumber, method } from '../../types'
 
 export class Integer extends ValueType<IntegerDefinition> {
-    constructor(engine: Engine, definition: IntegerDefinition) {
-        super(engine, definition, 0)
+    constructor(engine: Engine, parent: Type<any> | null, definition: IntegerDefinition) {
+        super(engine, parent, definition, 0)
     }
 
     ready() {

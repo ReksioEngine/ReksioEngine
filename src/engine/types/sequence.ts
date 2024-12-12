@@ -40,8 +40,8 @@ export class Sequence extends Type<SequenceDefinition> {
 
     private readonly onAnimoEventFinishedCallback: (eventName: string) => Promise<void>
 
-    constructor(engine: Engine, definition: SequenceDefinition) {
-        super(engine, definition)
+    constructor(engine: Engine, parent: Type<any> | null, definition: SequenceDefinition) {
+        super(engine, parent, definition)
         this.onAnimoEventFinishedCallback = this.onAnimoEventFinished.bind(this)
     }
 
@@ -272,20 +272,24 @@ export class Sequence extends Type<SequenceDefinition> {
             return object
         }
 
-        return (await createObject(this.engine, {
-            TYPE: 'ANIMO',
-            NAME: source,
-            FILENAME: source,
-            FPS: 16,
-            MONITORCOLLISION: false,
-            MONITORCOLLISIONALPHA: false,
-            PRELOAD: true,
-            PRIORITY: 0,
-            RELEASE: true,
-            TOCANVAS: true,
-            TOINI: false,
-            VISIBLE: true,
-        })) as Animo
+        return (await createObject(
+            this.engine,
+            {
+                TYPE: 'ANIMO',
+                NAME: source,
+                FILENAME: source,
+                FPS: 16,
+                MONITORCOLLISION: false,
+                MONITORCOLLISIONALPHA: false,
+                PRELOAD: true,
+                PRIORITY: 0,
+                RELEASE: true,
+                TOCANVAS: true,
+                TOINI: false,
+                VISIBLE: true,
+            },
+            null
+        )) as Animo
     }
 
     private getExistingAnimo(source: string): Animo | null {

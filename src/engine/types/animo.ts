@@ -1,4 +1,4 @@
-import { DisplayType } from './index'
+import { DisplayType, Type } from './index'
 import { AnimoDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { assert, InvalidObjectError, NotImplementedError } from '../../errors'
@@ -43,8 +43,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         ONSTARTED: 'ONSTARTED',
     }
 
-    constructor(engine: Engine, definition: AnimoDefinition) {
-        super(engine, definition)
+    constructor(engine: Engine, parent: Type<any> | null, definition: AnimoDefinition) {
+        super(engine, parent, definition)
         this.fps = definition.FPS ?? 16
     }
 

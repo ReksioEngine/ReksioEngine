@@ -8,8 +8,8 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
     private properties = new Map<string, any>()
     private linked: Type<any>[]
 
-    constructor(engine: Engine, definition: StaticFilterDefinition) {
-        super(engine, definition)
+    constructor(engine: Engine, parent: Type<any> | null, definition: StaticFilterDefinition) {
+        super(engine, parent, definition)
         this.linked = []
     }
 

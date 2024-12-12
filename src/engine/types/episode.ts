@@ -1,6 +1,5 @@
 import { Type } from './index'
 import { EpisodeDefinition } from '../../fileFormats/cnv/types'
-import { Engine } from '../index'
 import { Scene } from './scene'
 import { assert } from '../../errors'
 import { pathJoin } from '../../utils'
@@ -10,10 +9,6 @@ import { method } from '../../types'
 
 export class Episode extends Type<EpisodeDefinition> {
     private previousScene?: Scene
-
-    constructor(engine: Engine, definition: EpisodeDefinition) {
-        super(engine, definition)
-    }
 
     async init() {
         if (this.definition.PATH) {

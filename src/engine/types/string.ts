@@ -1,11 +1,11 @@
-import { ValueType } from './index'
+import { Type, ValueType } from './index'
 import { Engine } from '../index'
 import { StringDefinition } from '../../fileFormats/cnv/types'
 import { method } from '../../types'
 
 export class String extends ValueType<StringDefinition> {
-    constructor(engine: Engine, definition: StringDefinition) {
-        super(engine, definition, '')
+    constructor(engine: Engine, parent: Type<any> | null, definition: StringDefinition) {
+        super(engine, parent, definition, '')
     }
 
     ready() {

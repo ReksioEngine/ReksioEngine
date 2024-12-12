@@ -1,4 +1,4 @@
-import { ValueType } from './index'
+import { Type, ValueType } from './index'
 import { Engine } from '../index'
 import { ArrayDefinition } from '../../fileFormats/cnv/types'
 import { assert } from '../../errors'
@@ -9,8 +9,8 @@ const generateMessage = (action: string, position: number, value: any[]) => {
 }
 
 export class ArrayObject extends ValueType<ArrayDefinition> {
-    constructor(engine: Engine, definition: ArrayDefinition) {
-        super(engine, definition, [])
+    constructor(engine: Engine, parent: Type<any> | null, definition: ArrayDefinition) {
+        super(engine, parent, definition, [])
     }
 
     ready() {

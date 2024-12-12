@@ -10,8 +10,8 @@ export class Timer extends Type<TimerDefinition> {
     private elapse: number
     private enabled: boolean
 
-    constructor(engine: Engine, definition: TimerDefinition) {
-        super(engine, definition)
+    constructor(engine: Engine, parent: Type<any> | null, definition: TimerDefinition) {
+        super(engine, parent, definition)
         this.elapse = definition.ELAPSE
         this.enabled = definition.ENABLED ?? true
     }

@@ -51,8 +51,9 @@ export class Engine {
         try {
             this.debug.applyQueryParams()
 
+            this.saveFile.loadFromLocalStorage()
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
-            await loadDefinition(this, this.globalScope, applicationDef)
+            await loadDefinition(this, this.globalScope, applicationDef, null)
 
             this.debug.setupSceneSelector()
 

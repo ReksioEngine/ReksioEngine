@@ -10,8 +10,8 @@ import { method } from '../../types'
 export class Application extends Type<ApplicationDefinition> {
     private language: string = 'POL'
 
-    constructor(engine: Engine, definition: ApplicationDefinition) {
-        super(engine, definition)
+    constructor(engine: Engine, parent: Type<any> | null, definition: ApplicationDefinition) {
+        super(engine, parent, definition)
     }
 
     async init() {

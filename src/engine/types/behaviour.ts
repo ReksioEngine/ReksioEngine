@@ -1,15 +1,10 @@
 import { Type } from './index'
-import { Engine } from '../index'
 import { BehaviourDefinition } from '../../fileFormats/cnv/types'
 import { Condition } from './condition'
 import { InterruptScriptExecution } from '../../interpreter/evaluator'
 import { method } from '../../types'
 
 export class Behaviour extends Type<BehaviourDefinition> {
-    constructor(engine: Engine, definition: BehaviourDefinition) {
-        super(engine, definition)
-    }
-
     ready() {
         if (this.definition.NAME === '__INIT__') {
             this.RUN()

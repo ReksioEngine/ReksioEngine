@@ -24,11 +24,11 @@ export class Debugging {
     }
 
     async createObject(definition: CNVObject) {
-        return await createObject(this.engine, definition)
+        return await createObject(this.engine, definition, null)
     }
 
     async loadCNV(definition: string, scope: Record<string, any> = this.engine.scope) {
-        await loadDefinition(this.engine, scope, parseCNV(definition))
+        await loadDefinition(this.engine, scope, parseCNV(definition), null)
         return scope
     }
 
@@ -74,7 +74,7 @@ export class Debugging {
         }
 
         const debug: any = document.querySelector('#debug')!
-        debug.style.display = 'block'
+        debug.style.display = 'inline-block'
 
         const speedSlider = debug.querySelector('#speed')
         const speedReset = debug.querySelector('#speedReset')
@@ -83,7 +83,10 @@ export class Debugging {
         const xray = debug.querySelector('#xray')
 
         const sceneSelector: any = document.querySelector('#sceneSelector')!
-        const sceneChangeButton = document.querySelector('#changeScene')!
+        const resetSave: any = document.querySelector('#resetSave')!
+        const resetSaveAndRestart: any = document.querySelector('#resetSaveAndRestart')!
+        const importSave: any = document.querySelector('#importSave')!
+        const exportSave: any = document.querySelector('#exportSave')!
 
         const setSpeed = (speed: number) => {
             this.engine.speed = speed
@@ -144,15 +147,59 @@ export class Debugging {
             sceneSelector.appendChild(option)
         }
 
-        sceneChangeButton.addEventListener('click', () => {
+        sceneSelector.addEventListener('change', () => {
             this.engine.changeScene(sceneSelector.value)
+        })
+
+        resetSave.addEventListener('click', () => {
+            this.engine.pause()
+            this.engine.saveFile.reset()
+            this.engine.resume()
+        })
+
+        resetSaveAndRestart.addEventListener('click', () => {
+            this.engine.pause()
+            this.engine.saveFile.reset()
+            window.location.reload()
+        })
+
+        importSave.addEventListener('click', () => {
+            const input = document.createElement('input')
+            input.type = 'file'
+
+            input.onchange = (e: any) => {
+                const file = e.target.files[0]
+                const reader = new FileReader()
+                reader.readAsText(file, 'UTF-8')
+                reader.onload = (readerEvent) => {
+                    const content: any = readerEvent.target?.result
+
+                    this.engine.pause()
+                    this.engine.saveFile.importFromINI(content)
+                    this.engine.saveFile.saveToLocalStorage()
+                    window.location.reload()
+                }
+            }
+
+            input.click()
+        })
+
+        exportSave.addEventListener('click', () => {
+            const data = this.engine.saveFile.exportToINI()
+            const blob = new Blob([data], { type: 'text/plain' })
+            const fileURL = URL.createObjectURL(blob)
+            const downloadLink = document.createElement('a')
+            downloadLink.href = fileURL
+            downloadLink.download = `${this.engine.currentScene?.name}_${new Date().toISOString()}.ini`
+            downloadLink.click()
+            URL.revokeObjectURL(fileURL)
         })
     }
 
     updateCurrentScene() {
         if (this.isDebug) {
-            const currentScene = document.querySelector('#currentScene')!
-            currentScene.textContent = this.engine.currentScene!.definition.NAME
+            const currentScene = document.querySelector('#sceneSelector')! as HTMLInputElement
+            currentScene.value = this.engine.currentScene!.definition.NAME
         }
 
         for (const [name, container] of this.xrays) {
