@@ -1,0 +1,41 @@
+.debug {
+    background: #212121;
+    color: #eaeaea;
+    border: 3px solid #2b2b2b;
+    padding: 10px;
+    font-family: sans-serif;
+    border-radius: 5px;
+}
+
+.debug-panel {
+    margin-bottom: 5px;
+}
+
+.debug-panel-title {
+    display: block;
+    padding: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    background: #303030;
+}
+
+.debug-panel-body {
+    padding: 10px;
+    background: #161616;
+    color: #eaeaea;
+    border: 1px solid #2b2b2b;
+    font-family: sans-serif;
+}
+
+.option-name {
+    font-weight: bold;
+}
+
+button,
+select {
+    background: #2d2d2d;
+    border: 1px solid #3b3b3b;
+    color: #fff;
+    padding: 7px;
+    border-radius: 3px;
+}

@@ -3,24 +3,47 @@
     <head>
         <meta charset="UTF-8" />
         <title>Reksio Engine</title>
+        <link href="assets/debug.css" rel="stylesheet" />
     <script defer src="main.js"></script></head>
     <body>
-        <div id="debug" style="display: none">
-            <div>Current scene: <span id="currentScene"></span></div>
-            <select id="sceneSelector"></select>
-            <button id="changeScene">Change</button>
+    <br/>
+        <div class="debug" id="debug" style="display: none">
+            <div class="debug-panel">
+                <div class="debug-panel-title">Gameplay</div>
+                <div class="debug-panel-body">
+                    <div>
+                        <span class="option-name">Current scene:</span>
+                        <select id="sceneSelector"></select>
+                    </div>
 
-            <div>
-                <label for="speed">Speed</label>
-                <span id="speedDisplay">(1x)</span>
-                <input type="range" id="speed" name="speed" min="0" max="1.9" value="1" step="0.1" />
-                <button id="speedReset">Reset</button>
-                <label for="spaceVelocity">Unlock space velocity</label>
-                <input type="checkbox" id="spaceVelocity" name="spaceVelocity" />
+                    <div>
+                        <label class="option-name" for="speed">Speed: </label>
+                        <span id="speedDisplay">(1x)</span>
+                        <input type="range" id="speed" name="speed" min="0" max="1.9" value="1" step="0.1" />
+                        <button id="speedReset">Reset</button>
+                    </div>
+
+                    <div>
+                        <label for="spaceVelocity">Unlock space velocity</label>
+                        <input type="checkbox" id="spaceVelocity" name="spaceVelocity" />
+                    </div>
+                </div>
             </div>
-            <div>
-                <label for="xray">X-Ray</label>
-                <input type="checkbox" id="xray" name="xray" />
+            <div class="debug-panel">
+                <span class="debug-panel-title">Rendering</span>
+                <div class="debug-panel-body">
+                    <label for="xray">X-Ray</label>
+                    <input type="checkbox" id="xray" name="xray" />
+                </div>
+            </div>
+            <div class="debug-panel">
+                <span class="debug-panel-title">Save files</span>
+                <div class="debug-panel-body">
+                    <button id="resetSave">Reset</button>
+                    <button id="resetSaveAndRestart">Reset and reload</button>
+                    <button id="importSave">Import</button>
+                    <button id="exportSave">Export</button>
+                </div>
             </div>
         </div>
     </body>

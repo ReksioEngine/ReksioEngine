@@ -20063,6 +20063,296 @@ module.exports = bind.call(call, $hasOwn);
 
 /***/ }),
 
+/***/ "./node_modules/ini/lib/ini.js":
+/*!*************************************!*\
+  !*** ./node_modules/ini/lib/ini.js ***!
+  \*************************************/
+/***/ ((module) => {
+
+const { hasOwnProperty } = Object.prototype
+
+const encode = (obj, opt = {}) => {
+  if (typeof opt === 'string') {
+    opt = { section: opt }
+  }
+  opt.align = opt.align === true
+  opt.newline = opt.newline === true
+  opt.sort = opt.sort === true
+  opt.whitespace = opt.whitespace === true || opt.align === true
+  // The `typeof` check is required because accessing the `process` directly fails on browsers.
+  /* istanbul ignore next */
+  opt.platform = opt.platform || (typeof process !== 'undefined' && process.platform)
+  opt.bracketedArray = opt.bracketedArray !== false
+
+  /* istanbul ignore next */
+  const eol = opt.platform === 'win32' ? '\r\n' : '\n'
+  const separator = opt.whitespace ? ' = ' : '='
+  const children = []
+
+  const keys = opt.sort ? Object.keys(obj).sort() : Object.keys(obj)
+
+  let padToChars = 0
+  // If aligning on the separator, then padToChars is determined as follows:
+  // 1. Get the keys
+  // 2. Exclude keys pointing to objects unless the value is null or an array
+  // 3. Add `[]` to array keys
+  // 4. Ensure non empty set of keys
+  // 5. Reduce the set to the longest `safe` key
+  // 6. Get the `safe` length
+  if (opt.align) {
+    padToChars = safe(
+      (
+        keys
+          .filter(k => obj[k] === null || Array.isArray(obj[k]) || typeof obj[k] !== 'object')
+          .map(k => Array.isArray(obj[k]) ? `${k}[]` : k)
+      )
+        .concat([''])
+        .reduce((a, b) => safe(a).length >= safe(b).length ? a : b)
+    ).length
+  }
+
+  let out = ''
+  const arraySuffix = opt.bracketedArray ? '[]' : ''
+
+  for (const k of keys) {
+    const val = obj[k]
+    if (val && Array.isArray(val)) {
+      for (const item of val) {
+        out += safe(`${k}${arraySuffix}`).padEnd(padToChars, ' ') + separator + safe(item) + eol
+      }
+    } else if (val && typeof val === 'object') {
+      children.push(k)
+    } else {
+      out += safe(k).padEnd(padToChars, ' ') + separator + safe(val) + eol
+    }
+  }
+
+  if (opt.section && out.length) {
+    out = '[' + safe(opt.section) + ']' + (opt.newline ? eol + eol : eol) + out
+  }
+
+  for (const k of children) {
+    const nk = splitSections(k, '.').join('\\.')
+    const section = (opt.section ? opt.section + '.' : '') + nk
+    const child = encode(obj[k], {
+      ...opt,
+      section,
+    })
+    if (out.length && child.length) {
+      out += eol
+    }
+
+    out += child
+  }
+
+  return out
+}
+
+function splitSections (str, separator) {
+  var lastMatchIndex = 0
+  var lastSeparatorIndex = 0
+  var nextIndex = 0
+  var sections = []
+
+  do {
+    nextIndex = str.indexOf(separator, lastMatchIndex)
+
+    if (nextIndex !== -1) {
+      lastMatchIndex = nextIndex + separator.length
+
+      if (nextIndex > 0 && str[nextIndex - 1] === '\\') {
+        continue
+      }
+
+      sections.push(str.slice(lastSeparatorIndex, nextIndex))
+      lastSeparatorIndex = nextIndex + separator.length
+    }
+  } while (nextIndex !== -1)
+
+  sections.push(str.slice(lastSeparatorIndex))
+
+  return sections
+}
+
+const decode = (str, opt = {}) => {
+  opt.bracketedArray = opt.bracketedArray !== false
+  const out = Object.create(null)
+  let p = out
+  let section = null
+  //          section          |key      = value
+  const re = /^\[([^\]]*)\]\s*$|^([^=]+)(=(.*))?$/i
+  const lines = str.split(/[\r\n]+/g)
+  const duplicates = {}
+
+  for (const line of lines) {
+    if (!line || line.match(/^\s*[;#]/) || line.match(/^\s*$/)) {
+      continue
+    }
+    const match = line.match(re)
+    if (!match) {
+      continue
+    }
+    if (match[1] !== undefined) {
+      section = unsafe(match[1])
+      if (section === '__proto__') {
+        // not allowed
+        // keep parsing the section, but don't attach it.
+        p = Object.create(null)
+        continue
+      }
+      p = out[section] = out[section] || Object.create(null)
+      continue
+    }
+    const keyRaw = unsafe(match[2])
+    let isArray
+    if (opt.bracketedArray) {
+      isArray = keyRaw.length > 2 && keyRaw.slice(-2) === '[]'
+    } else {
+      duplicates[keyRaw] = (duplicates?.[keyRaw] || 0) + 1
+      isArray = duplicates[keyRaw] > 1
+    }
+    const key = isArray && keyRaw.endsWith('[]')
+      ? keyRaw.slice(0, -2) : keyRaw
+
+    if (key === '__proto__') {
+      continue
+    }
+    const valueRaw = match[3] ? unsafe(match[4]) : true
+    const value = valueRaw === 'true' ||
+      valueRaw === 'false' ||
+      valueRaw === 'null' ? JSON.parse(valueRaw)
+      : valueRaw
+
+    // Convert keys with '[]' suffix to an array
+    if (isArray) {
+      if (!hasOwnProperty.call(p, key)) {
+        p[key] = []
+      } else if (!Array.isArray(p[key])) {
+        p[key] = [p[key]]
+      }
+    }
+
+    // safeguard against resetting a previously defined
+    // array by accidentally forgetting the brackets
+    if (Array.isArray(p[key])) {
+      p[key].push(value)
+    } else {
+      p[key] = value
+    }
+  }
+
+  // {a:{y:1},"a.b":{x:2}} --> {a:{y:1,b:{x:2}}}
+  // use a filter to return the keys that have to be deleted.
+  const remove = []
+  for (const k of Object.keys(out)) {
+    if (!hasOwnProperty.call(out, k) ||
+      typeof out[k] !== 'object' ||
+      Array.isArray(out[k])) {
+      continue
+    }
+
+    // see if the parent section is also an object.
+    // if so, add it to that, and mark this one for deletion
+    const parts = splitSections(k, '.')
+    p = out
+    const l = parts.pop()
+    const nl = l.replace(/\\\./g, '.')
+    for (const part of parts) {
+      if (part === '__proto__') {
+        continue
+      }
+      if (!hasOwnProperty.call(p, part) || typeof p[part] !== 'object') {
+        p[part] = Object.create(null)
+      }
+      p = p[part]
+    }
+    if (p === out && nl === l) {
+      continue
+    }
+
+    p[nl] = out[k]
+    remove.push(k)
+  }
+  for (const del of remove) {
+    delete out[del]
+  }
+
+  return out
+}
+
+const isQuoted = val => {
+  return (val.startsWith('"') && val.endsWith('"')) ||
+    (val.startsWith("'") && val.endsWith("'"))
+}
+
+const safe = val => {
+  if (
+    typeof val !== 'string' ||
+    val.match(/[=\r\n]/) ||
+    val.match(/^\[/) ||
+    (val.length > 1 && isQuoted(val)) ||
+    val !== val.trim()
+  ) {
+    return JSON.stringify(val)
+  }
+  return val.split(';').join('\\;').split('#').join('\\#')
+}
+
+const unsafe = val => {
+  val = (val || '').trim()
+  if (isQuoted(val)) {
+    // remove the single quotes before calling JSON.parse
+    if (val.charAt(0) === "'") {
+      val = val.slice(1, -1)
+    }
+    try {
+      val = JSON.parse(val)
+    } catch {
+      // ignore errors
+    }
+  } else {
+    // walk the val to find the first not-escaped ; character
+    let esc = false
+    let unesc = ''
+    for (let i = 0, l = val.length; i < l; i++) {
+      const c = val.charAt(i)
+      if (esc) {
+        if ('\\;#'.indexOf(c) !== -1) {
+          unesc += c
+        } else {
+          unesc += '\\' + c
+        }
+
+        esc = false
+      } else if (';#'.indexOf(c) !== -1) {
+        break
+      } else if (c === '\\') {
+        esc = true
+      } else {
+        unesc += c
+      }
+    }
+    if (esc) {
+      unesc += '\\'
+    }
+
+    return unesc.trim()
+  }
+  return val
+}
+
+module.exports = {
+  parse: decode,
+  decode,
+  stringify: encode,
+  encode,
+  safe,
+  unsafe,
+}
+
+
+/***/ }),
+
 /***/ "./node_modules/ismobilejs/esm/index.js":
 /*!**********************************************!*\
   !*** ./node_modules/ismobilejs/esm/index.js ***!
@@ -50683,10 +50973,10 @@ class Debugging {
         this.isDebug = isDebug;
     }
     async createObject(definition) {
-        return await (0, definitionLoader_1.createObject)(this.engine, definition);
+        return await (0, definitionLoader_1.createObject)(this.engine, definition, null);
     }
     async loadCNV(definition, scope = this.engine.scope) {
-        await (0, definitionLoader_1.loadDefinition)(this.engine, scope, (0, parser_1.parseCNV)(definition));
+        await (0, definitionLoader_1.loadDefinition)(this.engine, scope, (0, parser_1.parseCNV)(definition), null);
         return scope;
     }
     clearScope() {
@@ -50723,14 +51013,17 @@ class Debugging {
             return;
         }
         const debug = document.querySelector('#debug');
-        debug.style.display = 'block';
+        debug.style.display = 'inline-block';
         const speedSlider = debug.querySelector('#speed');
         const speedReset = debug.querySelector('#speedReset');
         const speedDisplay = debug.querySelector('#speedDisplay');
         const spaceVelocity = debug.querySelector('#spaceVelocity');
         const xray = debug.querySelector('#xray');
         const sceneSelector = document.querySelector('#sceneSelector');
-        const sceneChangeButton = document.querySelector('#changeScene');
+        const resetSave = document.querySelector('#resetSave');
+        const resetSaveAndRestart = document.querySelector('#resetSaveAndRestart');
+        const importSave = document.querySelector('#importSave');
+        const exportSave = document.querySelector('#exportSave');
         const setSpeed = (speed) => {
             this.engine.speed = speed;
             sound_1.sound.speedAll = speed;
@@ -50777,14 +51070,51 @@ class Debugging {
             option.disabled = !canGoTo;
             sceneSelector.appendChild(option);
         }
-        sceneChangeButton.addEventListener('click', () => {
+        sceneSelector.addEventListener('change', () => {
             this.engine.changeScene(sceneSelector.value);
+        });
+        resetSave.addEventListener('click', () => {
+            this.engine.pause();
+            this.engine.saveFile.reset();
+            this.engine.resume();
+        });
+        resetSaveAndRestart.addEventListener('click', () => {
+            this.engine.pause();
+            this.engine.saveFile.reset();
+            window.location.reload();
+        });
+        importSave.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.readAsText(file, 'UTF-8');
+                reader.onload = (readerEvent) => {
+                    const content = readerEvent.target?.result;
+                    this.engine.pause();
+                    this.engine.saveFile.importFromINI(content);
+                    this.engine.saveFile.saveToLocalStorage();
+                    window.location.reload();
+                };
+            };
+            input.click();
+        });
+        exportSave.addEventListener('click', () => {
+            const data = this.engine.saveFile.exportToINI();
+            const blob = new Blob([data], { type: 'text/plain' });
+            const fileURL = URL.createObjectURL(blob);
+            const downloadLink = document.createElement('a');
+            downloadLink.href = fileURL;
+            downloadLink.download = `${this.engine.currentScene?.name}_${new Date().toISOString()}.ini`;
+            downloadLink.click();
+            URL.revokeObjectURL(fileURL);
         });
     }
     updateCurrentScene() {
         if (this.isDebug) {
-            const currentScene = document.querySelector('#currentScene');
-            currentScene.textContent = this.engine.currentScene.definition.NAME;
+            const currentScene = document.querySelector('#sceneSelector');
+            currentScene.value = this.engine.currentScene.definition.NAME;
         }
         for (const [name, container] of this.xrays) {
             container.destroy({
@@ -50956,72 +51286,72 @@ const vector_1 = __webpack_require__(/*! ./types/vector */ "./src/engine/types/v
 const staticFilter_1 = __webpack_require__(/*! ./types/staticFilter */ "./src/engine/types/staticFilter.ts");
 const filter_1 = __webpack_require__(/*! ./types/filter */ "./src/engine/types/filter.ts");
 const multiArray_1 = __webpack_require__(/*! ./types/multiArray */ "./src/engine/types/multiArray.ts");
-const createTypeInstance = (engine, definition) => {
+const createTypeInstance = (engine, parent, definition) => {
     switch (definition.TYPE) {
         case 'ANIMO':
-            return new animo_1.Animo(engine, definition);
+            return new animo_1.Animo(engine, parent, definition);
         case 'APPLICATION':
-            return new application_1.Application(engine, definition);
+            return new application_1.Application(engine, parent, definition);
         case 'ARRAY':
-            return new array_1.ArrayObject(engine, definition);
+            return new array_1.ArrayObject(engine, parent, definition);
         case 'BEHAVIOUR':
-            return new behaviour_1.Behaviour(engine, definition);
+            return new behaviour_1.Behaviour(engine, parent, definition);
         case 'BOOL':
-            return new bool_1.Bool(engine, definition);
+            return new bool_1.Bool(engine, parent, definition);
         case 'BUTTON':
-            return new button_1.Button(engine, definition);
+            return new button_1.Button(engine, parent, definition);
         case 'CANVAS_OBSERVER':
-            return new canvasObserver_1.CanvasObserver(engine, definition);
+            return new canvasObserver_1.CanvasObserver(engine, parent, definition);
         case 'CANVASOBSERVER':
-            return new canvasObserver_1.CanvasObserver(engine, definition);
+            return new canvasObserver_1.CanvasObserver(engine, parent, definition);
         case 'CNVLOADER':
-            return new cnvloader_1.CNVLoader(engine, definition);
+            return new cnvloader_1.CNVLoader(engine, parent, definition);
         case 'CONDITION':
-            return new condition_1.Condition(engine, definition);
+            return new condition_1.Condition(engine, parent, definition);
         case 'COMPLEXCONDITION':
-            return new complexCondition_1.ComplexCondition(engine, definition);
+            return new complexCondition_1.ComplexCondition(engine, parent, definition);
         case 'DOUBLE':
-            return new double_1.Double(engine, definition);
+            return new double_1.Double(engine, parent, definition);
         case 'EPISODE':
-            return new episode_1.Episode(engine, definition);
+            return new episode_1.Episode(engine, parent, definition);
         case 'EXPRESSION':
-            return new expression_1.Expression(engine, definition);
+            return new expression_1.Expression(engine, parent, definition);
         case 'FILTER':
-            return new filter_1.Filter(engine, definition);
+            return new filter_1.Filter(engine, parent, definition);
         case 'FONT':
-            return new font_1.Font(engine, definition);
+            return new font_1.Font(engine, parent, definition);
         case 'GROUP':
-            return new group_1.Group(engine, definition);
+            return new group_1.Group(engine, parent, definition);
         case 'IMAGE':
-            return new image_1.Image(engine, definition);
+            return new image_1.Image(engine, parent, definition);
         case 'INTEGER':
-            return new integer_1.Integer(engine, definition);
+            return new integer_1.Integer(engine, parent, definition);
         case 'KEYBOARD':
-            return new keyboard_1.Keyboard(engine, definition);
+            return new keyboard_1.Keyboard(engine, parent, definition);
         case 'MOUSE':
-            return new mouse_1.Mouse(engine, definition);
+            return new mouse_1.Mouse(engine, parent, definition);
         case 'MULTIARRAY':
-            return new multiArray_1.MultiArray(engine, definition);
+            return new multiArray_1.MultiArray(engine, parent, definition);
         case 'MUSIC':
-            return new music_1.Music(engine, definition);
+            return new music_1.Music(engine, parent, definition);
         case 'RAND':
-            return new rand_1.Rand(engine, definition);
+            return new rand_1.Rand(engine, parent, definition);
         case 'SCENE':
-            return new scene_1.Scene(engine, definition);
+            return new scene_1.Scene(engine, parent, definition);
         case 'SEQUENCE':
-            return new sequence_1.Sequence(engine, definition);
+            return new sequence_1.Sequence(engine, parent, definition);
         case 'SOUND':
-            return new sound_1.Sound(engine, definition);
+            return new sound_1.Sound(engine, parent, definition);
         case 'STATICFILTER':
-            return new staticFilter_1.StaticFilter(engine, definition);
+            return new staticFilter_1.StaticFilter(engine, parent, definition);
         case 'STRING':
-            return new string_1.String(engine, definition);
+            return new string_1.String(engine, parent, definition);
         case 'TEXT':
-            return new text_1.Text(engine, definition);
+            return new text_1.Text(engine, parent, definition);
         case 'TIMER':
-            return new timer_1.Timer(engine, definition);
+            return new timer_1.Timer(engine, parent, definition);
         case 'VECTOR':
-            return new vector_1.Vector(engine, definition);
+            return new vector_1.Vector(engine, parent, definition);
         default:
             console.error(definition);
             throw new Error(`Unknown object type '${definition.TYPE}'`);
@@ -51041,8 +51371,7 @@ const loadDefinition = async (engine, scope, definition, parent) => {
     engine.app.ticker.stop();
     const entries = [];
     for (const [key, value] of Object.entries(definition)) {
-        const instance = createTypeInstance(engine, value);
-        instance.parent = parent;
+        const instance = createTypeInstance(engine, parent, value);
         scope[key] = instance;
         entries.push(instance);
         if (instance instanceof types_1.DisplayType) {
@@ -51071,8 +51400,7 @@ const loadDefinition = async (engine, scope, definition, parent) => {
 exports.loadDefinition = loadDefinition;
 const createObject = async (engine, definition, parent) => {
     engine.app.ticker.stop();
-    const instance = createTypeInstance(engine, definition);
-    instance.parent = parent;
+    const instance = createTypeInstance(engine, parent, definition);
     engine.scope[definition.NAME] = instance;
     if (instance instanceof types_1.DisplayType) {
         engine.displayObjectsInDefinitionOrder.push(instance);
@@ -51243,8 +51571,9 @@ class Engine {
     async init() {
         try {
             this.debug.applyQueryParams();
+            this.saveFile.loadFromLocalStorage();
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def');
-            await (0, definitionLoader_1.loadDefinition)(this, this.globalScope, applicationDef);
+            await (0, definitionLoader_1.loadDefinition)(this, this.globalScope, applicationDef, null);
             this.debug.setupSceneSelector();
             this.app.ticker.maxFPS = 60;
             this.app.stage.interactive = true;
@@ -51511,12 +51840,16 @@ exports.createHitmapFromImageBytes = createHitmapFromImageBytes;
 /*!********************************!*\
   !*** ./src/engine/saveFile.ts ***!
   \********************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SaveFile = void 0;
+const ini_1 = __importDefault(__webpack_require__(/*! ini */ "./node_modules/ini/lib/ini.js"));
 class SaveFile {
     constructor() {
         this.content = new Map();
@@ -51532,6 +51865,7 @@ class SaveFile {
             this.content.set(group, new Map());
         }
         this.content.get(group).set(key, value);
+        this.saveToLocalStorage();
     }
     load(object) {
         if (!object.parent) {
@@ -51544,6 +51878,36 @@ class SaveFile {
             return;
         }
         this.set(object.parent.name, object.name, value);
+    }
+    reset(removeFromStorage = true) {
+        this.content.clear();
+        if (removeFromStorage) {
+            localStorage.removeItem('saveFile');
+        }
+    }
+    importFromINI(content) {
+        this.content = this.fromObject(ini_1.default.parse(content));
+    }
+    exportToINI() {
+        return ini_1.default.stringify(this.toObject());
+    }
+    saveToLocalStorage() {
+        localStorage.setItem('saveFile', JSON.stringify(this.toObject()));
+    }
+    loadFromLocalStorage() {
+        const storedContent = localStorage.getItem('saveFile');
+        if (storedContent) {
+            this.content = this.fromObject(JSON.parse(storedContent));
+        }
+    }
+    toObject() {
+        return Object.fromEntries(Array.from(this.content.entries()).map(([key, innerMap]) => [key, Object.fromEntries(innerMap)]));
+    }
+    fromObject(obj) {
+        return new Map(Object.entries(obj).map(([key, innerObj]) => [
+            key,
+            new Map(Object.entries(innerObj)),
+        ]));
     }
 }
 exports.SaveFile = SaveFile;
@@ -51661,8 +52025,8 @@ let Animo = (() => {
     let _MONITORCOLLISION_decorators;
     let _REMOVEMONITORCOLLISION_decorators;
     return _a = class Animo extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
                 this.buttonLogic = (__runInitializers(this, _instanceExtraInitializers), null);
                 this.isPlaying = false;
                 this.currentFrame = 0;
@@ -52220,8 +52584,8 @@ let Application = (() => {
     let _RUN_decorators;
     let _EXIT_decorators;
     return _a = class Application extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
                 this.language = (__runInitializers(this, _instanceExtraInitializers), 'POL');
             }
             async init() {
@@ -52365,8 +52729,8 @@ let ArrayObject = (() => {
     let _LOADINI_decorators;
     let _MSGBOX_decorators;
     return _a = class ArrayObject extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition, []);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, []);
                 __runInitializers(this, _instanceExtraInitializers);
             }
             ready() {
@@ -52508,13 +52872,6 @@ exports.ArrayObject = ArrayObject;
 
 "use strict";
 
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -52542,6 +52899,13 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Behaviour = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
@@ -52555,10 +52919,6 @@ let Behaviour = (() => {
     let _RUNC_decorators;
     let _RUNLOOPED_decorators;
     return _a = class Behaviour extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
-                __runInitializers(this, _instanceExtraInitializers);
-            }
             ready() {
                 if (this.definition.NAME === '__INIT__') {
                     this.RUN();
@@ -52620,6 +52980,10 @@ let Behaviour = (() => {
                     return condition.CHECK(true);
                 }
                 return true;
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
             }
         },
         (() => {
@@ -52692,8 +53056,8 @@ let Bool = (() => {
     let _SWITCH_decorators;
     let _SET_decorators;
     return _a = class Bool extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition, false);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, false);
                 __runInitializers(this, _instanceExtraInitializers);
             }
             SWITCH(arg1, arg2) {
@@ -52784,8 +53148,8 @@ let Button = (() => {
     let _SETPRIORITY_decorators;
     let _SETRECT_decorators;
     return _a = class Button extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
                 this.logic = (__runInitializers(this, _instanceExtraInitializers), void 0);
                 this.gfxStandard = null;
                 this.gfxOnClick = null;
@@ -53014,13 +53378,6 @@ exports.Button = Button;
 
 "use strict";
 
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -53048,6 +53405,13 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CanvasObserver = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
@@ -53064,10 +53428,6 @@ let CanvasObserver = (() => {
     let _REFRESH_decorators;
     let _GETGRAPHICSAT_decorators;
     return _a = class CanvasObserver extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
-                __runInitializers(this, _instanceExtraInitializers);
-            }
             async SETBACKGROUND(filename) {
                 const relativePath = this.engine.currentScene?.getRelativePath(filename);
                 const texture = await (0, assetsLoader_1.loadTexture)(this.engine.fileLoader, relativePath);
@@ -53110,6 +53470,10 @@ let CanvasObserver = (() => {
                 }
                 return null;
             }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
         },
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
@@ -53136,13 +53500,6 @@ exports.CanvasObserver = CanvasObserver;
 
 "use strict";
 
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -53170,6 +53527,13 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CNVLoader = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
@@ -53181,12 +53545,12 @@ let CNVLoader = (() => {
     let _instanceExtraInitializers = [];
     let _LOAD_decorators;
     return _a = class CNVLoader extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
-                __runInitializers(this, _instanceExtraInitializers);
-            }
             LOAD(filename) {
                 throw new errors_1.NotImplementedError();
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
             }
         },
         (() => {
@@ -53510,8 +53874,8 @@ let Double = (() => {
     let _ARCTANEX_decorators;
     let _GET_decorators;
     return _a = class Double extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition, 0.0);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, 0.0);
                 __runInitializers(this, _instanceExtraInitializers);
             }
             MUL(value) {
@@ -53640,8 +54004,8 @@ let Episode = (() => {
     let _GETLATESTSCENE_decorators;
     let _BACK_decorators;
     return _a = class Episode extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor() {
+                super(...arguments);
                 this.previousScene = (__runInitializers(this, _instanceExtraInitializers), void 0);
             }
             async init() {
@@ -53666,8 +54030,7 @@ let Episode = (() => {
                 await this.engine.changeScene(sceneName);
             }
             GETLATESTSCENE() {
-                // TODO: read from save file
-                return this.definition.STARTWITH;
+                return this.previousScene?.definition.NAME ?? null;
             }
             async BACK() {
                 if (this.previousScene) {
@@ -53705,9 +54068,6 @@ exports.Expression = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 class Expression extends index_1.ValueType {
-    constructor(engine, definition) {
-        super(engine, definition);
-    }
     get value() {
         const operand1 = this.engine.executeCallback(this, this.definition.OPERAND1);
         const operand2 = this.engine.executeCallback(this, this.definition.OPERAND2);
@@ -53769,9 +54129,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Font = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 class Font extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-    }
 }
 exports.Font = Font;
 
@@ -54079,7 +54436,7 @@ let Type = (() => {
     let _CLONE_decorators;
     let _GETCLONEINDEX_decorators;
     return _a = class Type {
-            constructor(engine, definition) {
+            constructor(engine, parent, definition) {
                 this.callbacks = (__runInitializers(this, _instanceExtraInitializers), void 0);
                 this.events = new events_1.EventsComponent();
                 this.name = '';
@@ -54087,6 +54444,7 @@ let Type = (() => {
                 this.engine = engine;
                 this.definition = definition;
                 this.name = definition.NAME;
+                this.parent = parent;
                 this.callbacks = new callbacks_1.CallbacksComponent(engine, this);
                 this.callbacks.autoRegister();
             }
@@ -54179,17 +54537,11 @@ let ValueType = (() => {
     let _instanceExtraInitializers = [];
     let _RESETINI_decorators;
     return _a = class ValueType extends _classSuper {
-            constructor(engine, definition, defaultValue) {
-                super(engine, definition);
+            constructor(engine, parent, definition, defaultValue) {
+                super(engine, parent, definition);
                 this._value = (__runInitializers(this, _instanceExtraInitializers), void 0);
                 this.defaultValue = defaultValue;
-                if (defaultValue !== undefined) {
-                    let initialValue = null;
-                    if (this.definition.TOINI) {
-                        initialValue = this.getFromINI();
-                    }
-                    this.value = initialValue ?? this.definition.VALUE ?? defaultValue;
-                }
+                this._value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue;
             }
             RESETINI() {
                 if (this.definition.TOINI) {
@@ -54310,8 +54662,8 @@ let Integer = (() => {
     let _SWITCH_decorators;
     let _ABS_decorators;
     return _a = class Integer extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition, 0);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, 0);
                 __runInitializers(this, _instanceExtraInitializers);
             }
             ready() {
@@ -54480,8 +54832,8 @@ let Keyboard = (() => {
     let _instanceExtraInitializers = [];
     let _ISKEYDOWN_decorators;
     return _a = class Keyboard extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
                 this.keysState = (__runInitializers(this, _instanceExtraInitializers), new Map());
                 this.changeQueue = [];
                 this.onKeyDownCallback = this.onKeyDown.bind(this);
@@ -54751,8 +55103,8 @@ let MultiArray = (() => {
     let _SET_decorators;
     let _GET_decorators;
     return _a = class MultiArray extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition, []);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, []);
                 __runInitializers(this, _instanceExtraInitializers);
             }
             init() {
@@ -54801,9 +55153,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Music = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 class Music extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-    }
 }
 exports.Music = Music;
 
@@ -54822,9 +55171,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Rand = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 class Rand extends index_1.Type {
-    constructor(engine, definition) {
-        super(engine, definition);
-    }
 }
 exports.Rand = Rand;
 
@@ -54839,13 +55185,6 @@ exports.Rand = Rand;
 
 "use strict";
 
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -54873,6 +55212,13 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Scene = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
@@ -54888,10 +55234,6 @@ let Scene = (() => {
     let _RUNCLONES_decorators;
     let _RUN_decorators;
     return _a = class Scene extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
-                __runInitializers(this, _instanceExtraInitializers);
-            }
             SETMUSICVOLUME(volume) {
                 (0, errors_1.assert)(this.engine.music !== null);
                 this.engine.music.volume = volume / 1000;
@@ -54928,6 +55270,10 @@ let Scene = (() => {
             }
             getRelativePath(filename) {
                 return (0, utils_1.pathJoin)('DANE', this.definition.PATH, filename);
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
             }
         },
         (() => {
@@ -55010,8 +55356,8 @@ let Sequence = (() => {
     let _HIDE_decorators;
     let _STOP_decorators;
     return _a = class Sequence extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
                 this.sequenceFile = (__runInitializers(this, _instanceExtraInitializers), null);
                 this.parametersMapping = new Map();
                 this.subEntries = new Map();
@@ -55232,7 +55578,7 @@ let Sequence = (() => {
                     TOCANVAS: true,
                     TOINI: false,
                     VISIBLE: true,
-                }));
+                }, null));
             }
             getExistingAnimo(source) {
                 const object = this.engine.getObject(source);
@@ -55480,8 +55826,8 @@ let StaticFilter = (() => {
     let _LINK_decorators;
     let _UNLINK_decorators;
     return _a = class StaticFilter extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
                 this.properties = (__runInitializers(this, _instanceExtraInitializers), new Map());
                 this.linked = [];
             }
@@ -55585,8 +55931,8 @@ let String = (() => {
     let _SET_decorators;
     let _GET_decorators;
     return _a = class String extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition, '');
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, '');
                 __runInitializers(this, _instanceExtraInitializers);
             }
             ready() {
@@ -55701,8 +56047,8 @@ let Text = (() => {
     let _instanceExtraInitializers = [];
     let _SETTEXT_decorators;
     return _a = class Text extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
                 this.text = (__runInitializers(this, _instanceExtraInitializers), void 0);
                 this.text = new PIXI.Text('', { fontFamily: 'Arial' });
             }
@@ -55792,8 +56138,8 @@ let Timer = (() => {
     let _DISABLE_decorators;
     let _ENABLE_decorators;
     return _a = class Timer extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
                 this.currentTick = (__runInitializers(this, _instanceExtraInitializers), 0);
                 this.collectedTime = 0;
                 this.elapse = definition.ELAPSE;
@@ -55922,8 +56268,8 @@ let Vector = (() => {
     let _REFLECT_decorators;
     let _LEN_decorators;
     return _a = class Vector extends _classSuper {
-            constructor(engine, definition) {
-                super(engine, definition);
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
                 __runInitializers(this, _instanceExtraInitializers);
                 this.value = this.definition.VALUE;
             }
