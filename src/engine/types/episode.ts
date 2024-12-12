@@ -39,8 +39,7 @@ export class Episode extends Type<EpisodeDefinition> {
 
     @method()
     GETLATESTSCENE() {
-        // TODO: read from save file
-        return this.definition.STARTWITH
+        return this.previousScene?.definition.NAME ?? null
     }
 
     @method()
