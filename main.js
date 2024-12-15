@@ -50963,6 +50963,7 @@ const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/ani
 const button_1 = __webpack_require__(/*! ./types/button */ "./src/engine/types/button.ts");
 const parser_1 = __webpack_require__(/*! ../fileFormats/cnv/parser */ "./src/fileFormats/cnv/parser.ts");
 const definitionLoader_1 = __webpack_require__(/*! ./definitionLoader */ "./src/engine/definitionLoader.ts");
+const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
 class Debugging {
     constructor(engine, isDebug) {
         this.isDebug = false;
@@ -51024,6 +51025,7 @@ class Debugging {
         const resetSaveAndRestart = document.querySelector('#resetSaveAndRestart');
         const importSave = document.querySelector('#importSave');
         const exportSave = document.querySelector('#exportSave');
+        const enableSaveFiles = document.querySelector('#enableSaveFiles');
         const setSpeed = (speed) => {
             this.engine.speed = speed;
             sound_1.sound.speedAll = speed;
@@ -51093,15 +51095,14 @@ class Debugging {
                 reader.onload = (readerEvent) => {
                     const content = readerEvent.target?.result;
                     this.engine.pause();
-                    this.engine.saveFile.importFromINI(content);
-                    this.engine.saveFile.saveToLocalStorage();
+                    this.engine.saveFile = saveFile_1.SaveFileManager.fromINI(content, true);
                     window.location.reload();
                 };
             };
             input.click();
         });
         exportSave.addEventListener('click', () => {
-            const data = this.engine.saveFile.exportToINI();
+            const data = saveFile_1.SaveFileManager.toINI(this.engine.saveFile);
             const blob = new Blob([data], { type: 'text/plain' });
             const fileURL = URL.createObjectURL(blob);
             const downloadLink = document.createElement('a');
@@ -51109,6 +51110,16 @@ class Debugging {
             downloadLink.download = `${this.engine.currentScene?.name}_${new Date().toISOString()}.ini`;
             downloadLink.click();
             URL.revokeObjectURL(fileURL);
+        });
+        enableSaveFiles.checked = saveFile_1.SaveFileManager.areSavesEnabled();
+        enableSaveFiles.addEventListener('change', () => {
+            localStorage.setItem('savesEnabled', JSON.stringify(enableSaveFiles.checked));
+            if (!enableSaveFiles.checked) {
+                this.engine.saveFile = saveFile_1.SaveFileManager.empty(false);
+            }
+            else {
+                this.engine.saveFile = saveFile_1.SaveFileManager.fromLocalStorage();
+            }
         });
     }
     updateCurrentScene() {
@@ -51559,7 +51570,7 @@ class Engine {
         this.globalScope = {};
         this.scope = {};
         this.displayObjectsInDefinitionOrder = [];
-        this.saveFile = new saveFile_1.SaveFile();
+        this.saveFile = saveFile_1.SaveFileManager.empty(false);
         this.fileLoader = new filesLoader_1.GithubFileLoader('reksioiufo');
         this.music = null;
         this.app = app;
@@ -51571,7 +51582,9 @@ class Engine {
     async init() {
         try {
             this.debug.applyQueryParams();
-            this.saveFile.loadFromLocalStorage();
+            if (saveFile_1.SaveFileManager.areSavesEnabled()) {
+                this.saveFile = saveFile_1.SaveFileManager.fromLocalStorage();
+            }
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def');
             await (0, definitionLoader_1.loadDefinition)(this, this.globalScope, applicationDef, null);
             this.debug.setupSceneSelector();
@@ -51848,11 +51861,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.SaveFile = void 0;
+exports.SaveFileManager = exports.SaveFile = void 0;
 const ini_1 = __importDefault(__webpack_require__(/*! ini */ "./node_modules/ini/lib/ini.js"));
 class SaveFile {
-    constructor() {
+    constructor(initialContent, onChange) {
         this.content = new Map();
+        if (initialContent !== null) {
+            this.content = this.fromObject(initialContent);
+        }
+        if (this.onChange) {
+            this.onChange(this.toObject());
+        }
+        this.onChange = onChange;
     }
     get(group, key) {
         if (!this.content.has(group) || !this.content.get(group)?.has(key)) {
@@ -51865,39 +51885,26 @@ class SaveFile {
             this.content.set(group, new Map());
         }
         this.content.get(group).set(key, value);
-        this.saveToLocalStorage();
+        if (this.onChange) {
+            this.onChange(this.toObject());
+        }
     }
-    load(object) {
+    loadValue(object) {
         if (!object.parent) {
             return null;
         }
         return this.get(object.parent.name, object.name) ?? null;
     }
-    save(object, value) {
+    saveValue(object, value) {
         if (!object.parent) {
             return;
         }
         this.set(object.parent.name, object.name, value);
     }
-    reset(removeFromStorage = true) {
+    reset() {
         this.content.clear();
-        if (removeFromStorage) {
-            localStorage.removeItem('saveFile');
-        }
-    }
-    importFromINI(content) {
-        this.content = this.fromObject(ini_1.default.parse(content));
-    }
-    exportToINI() {
-        return ini_1.default.stringify(this.toObject());
-    }
-    saveToLocalStorage() {
-        localStorage.setItem('saveFile', JSON.stringify(this.toObject()));
-    }
-    loadFromLocalStorage() {
-        const storedContent = localStorage.getItem('saveFile');
-        if (storedContent) {
-            this.content = this.fromObject(JSON.parse(storedContent));
+        if (this.onChange) {
+            this.onChange(null);
         }
     }
     toObject() {
@@ -51911,6 +51918,33 @@ class SaveFile {
     }
 }
 exports.SaveFile = SaveFile;
+class SaveFileManager {
+    static empty(syncWithLocalStorage = false) {
+        return new SaveFile(null, syncWithLocalStorage ? this.syncWithLocalStorageHandler : undefined);
+    }
+    static fromLocalStorage() {
+        const content = localStorage.getItem('saveFile');
+        return new SaveFile(content ? JSON.parse(content) : null, this.syncWithLocalStorageHandler);
+    }
+    static fromINI(content, syncWithLocalStorage = false) {
+        return new SaveFile(ini_1.default.parse(content), syncWithLocalStorage ? this.syncWithLocalStorageHandler : undefined);
+    }
+    static toINI(saveFile) {
+        return ini_1.default.stringify(saveFile.toObject());
+    }
+    static areSavesEnabled() {
+        return localStorage.getItem('savesEnabled') == 'true';
+    }
+    static syncWithLocalStorageHandler(object) {
+        if (object == null) {
+            localStorage.removeItem('saveFile');
+        }
+        else {
+            localStorage.setItem('saveFile', JSON.stringify(object));
+        }
+    }
+}
+exports.SaveFileManager = SaveFileManager;
 
 
 /***/ }),
@@ -54569,14 +54603,14 @@ let ValueType = (() => {
             }
             valueChanged(oldValue, newValue) { }
             getFromINI() {
-                const loadedValue = this.engine.saveFile.load(this);
+                const loadedValue = this.engine.saveFile.loadValue(this);
                 if (loadedValue !== null) {
                     return this.deserialize(loadedValue);
                 }
                 return null;
             }
             saveToINI() {
-                this.engine.saveFile.save(this, this.serialize());
+                this.engine.saveFile.saveValue(this, this.serialize());
             }
             serialize() {
                 return this.value.toString();
