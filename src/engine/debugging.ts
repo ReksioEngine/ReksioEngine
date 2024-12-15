@@ -9,6 +9,7 @@ import { Animo } from './types/animo'
 import { Button } from './types/button'
 import { CNVObject, parseCNV } from '../fileFormats/cnv/parser'
 import { createObject, loadDefinition } from './definitionLoader'
+import { SaveFileManager } from './saveFile'
 
 export class Debugging {
     private engine: Engine
@@ -87,6 +88,7 @@ export class Debugging {
         const resetSaveAndRestart: any = document.querySelector('#resetSaveAndRestart')!
         const importSave: any = document.querySelector('#importSave')!
         const exportSave: any = document.querySelector('#exportSave')!
+        const enableSaveFiles: any = document.querySelector('#enableSaveFiles')!
 
         const setSpeed = (speed: number) => {
             this.engine.speed = speed
@@ -175,8 +177,7 @@ export class Debugging {
                     const content: any = readerEvent.target?.result
 
                     this.engine.pause()
-                    this.engine.saveFile.importFromINI(content)
-                    this.engine.saveFile.saveToLocalStorage()
+                    this.engine.saveFile = SaveFileManager.fromINI(content, true)
                     window.location.reload()
                 }
             }
@@ -185,7 +186,7 @@ export class Debugging {
         })
 
         exportSave.addEventListener('click', () => {
-            const data = this.engine.saveFile.exportToINI()
+            const data = SaveFileManager.toINI(this.engine.saveFile)
             const blob = new Blob([data], { type: 'text/plain' })
             const fileURL = URL.createObjectURL(blob)
             const downloadLink = document.createElement('a')
@@ -193,6 +194,17 @@ export class Debugging {
             downloadLink.download = `${this.engine.currentScene?.name}_${new Date().toISOString()}.ini`
             downloadLink.click()
             URL.revokeObjectURL(fileURL)
+        })
+
+        enableSaveFiles.checked = SaveFileManager.areSavesEnabled()
+        enableSaveFiles.addEventListener('change', () => {
+            localStorage.setItem('savesEnabled', JSON.stringify(enableSaveFiles.checked))
+
+            if (!enableSaveFiles.checked) {
+                this.engine.saveFile = SaveFileManager.empty(false)
+            } else {
+                this.engine.saveFile = SaveFileManager.fromLocalStorage()
+            }
         })
     }
 

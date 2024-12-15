@@ -153,7 +153,7 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
     protected valueChanged(oldValue: any, newValue: any) {}
 
     protected getFromINI() {
-        const loadedValue = this.engine.saveFile.load(this)
+        const loadedValue = this.engine.saveFile.loadValue(this)
         if (loadedValue !== null) {
             return this.deserialize(loadedValue)
         }
@@ -161,7 +161,7 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
     }
 
     protected saveToINI() {
-        this.engine.saveFile.save(this, this.serialize())
+        this.engine.saveFile.saveValue(this, this.serialize())
     }
 
     protected serialize(): string {

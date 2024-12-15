@@ -7,7 +7,7 @@ import { Scene } from './types/scene'
 import { FileLoader, GithubFileLoader, UrlFileLoader } from './filesLoader'
 import { sound, Sound } from '@pixi/sound'
 import { loadSound, loadTexture } from './assetsLoader'
-import { SaveFile } from './saveFile'
+import { SaveFile, SaveFileManager } from './saveFile'
 import { createColorTexture } from '../utils'
 import { preloadAssets } from './optimizations'
 import { Debugging } from './debugging'
@@ -26,7 +26,7 @@ export class Engine {
     public displayObjectsInDefinitionOrder: DisplayType<any>[] = []
 
     public currentScene?: Scene
-    public saveFile: SaveFile = new SaveFile()
+    public saveFile: SaveFile = SaveFileManager.empty(false)
 
     public fileLoader: FileLoader = new GithubFileLoader('reksioiufo')
     public music: Sound | null = null
@@ -51,7 +51,10 @@ export class Engine {
         try {
             this.debug.applyQueryParams()
 
-            this.saveFile.loadFromLocalStorage()
+            if (SaveFileManager.areSavesEnabled()) {
+                this.saveFile = SaveFileManager.fromLocalStorage()
+            }
+
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
             await loadDefinition(this, this.globalScope, applicationDef, null)
 
