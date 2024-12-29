@@ -169,16 +169,25 @@ export class Sequence extends Type<SequenceDefinition> {
     private async onAnimoEventFinished(eventName: string) {
         assert(this.activeAnimo !== null)
 
-        if (this.currentAnimoEvent === eventName) {
-            await this.progressNext()
-        } else if (this.loop && this.runningSubSequence !== null) {
-            let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`
-            if (!this.activeAnimo.hasEvent(eventName)) {
-                this.loopIndex = 1
-                eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`
+        if (this.runningSubSequence?.TYPE === 'SPEAKING') {
+            if (this.runningSubSequence.STARTING && eventName === this.runningSubSequence.PREFIX + '_START') {
+                if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
+                    this.loop = true
+                    this.loopIndex = 1
+                    this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1')
+                }
+            } else if (this.runningSubSequence.ENDING && eventName === this.runningSubSequence.PREFIX + '_STOP') {
+                await this.progressNext()
+            } else if (this.loop) {
+                let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`
+                if (!this.activeAnimo.hasEvent(eventName)) {
+                    this.loopIndex = 1
+                    eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`
+                }
+                this.playAnimoEvent(eventName)
             }
-
-            this.activeAnimo!.playEvent(eventName)
+        } else if (this.currentAnimoEvent == eventName) {
+            await this.progressNext()
         }
     }
 
@@ -219,25 +228,27 @@ export class Sequence extends Type<SequenceDefinition> {
                 const instance = await sound.play()
                 this.playingSound = instance
 
-                if (speaking.STARTING) {
-                    this.currentAnimoEvent = speaking.PREFIX + '_START'
-                    this.activeAnimo!.playEvent(speaking.PREFIX + '_START')
+                const startEvent = speaking.PREFIX + '_START'
+                if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
+                    this.playAnimoEvent(startEvent)
+                } else if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
+                    this.loop = true
+                    this.loopIndex = 1
+                    this.playAnimoEvent(speaking.PREFIX + '_1')
                 }
+
                 instance.on('end', async () => {
-                    if (speaking.ENDING) {
-                        this.currentAnimoEvent = speaking.PREFIX + '_STOP'
-                        this.activeAnimo!.playEvent(speaking.PREFIX + '_STOP')
-                        this.loop = false
+                    this.loop = false
+
+                    const stopEvent = speaking.PREFIX + '_STOP';
+                    if (speaking.ENDING && this.activeAnimo?.hasEvent(stopEvent)) {
+                        this.playAnimoEvent(stopEvent)
+                    } else {
+                        await this.progressNext()
                     }
                 })
 
                 this.runningSubSequence = speaking
-
-                if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
-                    this.loop = true
-                    this.loopIndex = 1
-                    this.activeAnimo!.playEvent(speaking.PREFIX + '_1')
-                }
             }
         } else if (next.TYPE === 'SIMPLE') {
             const simple = next as Simple
@@ -259,11 +270,15 @@ export class Sequence extends Type<SequenceDefinition> {
                     return
                 }
 
-                this.currentAnimoEvent = simple.EVENT
                 this.runningSubSequence = simple
-                this.activeAnimo.playEvent(simple.EVENT)
+                this.playAnimoEvent(simple.EVENT)
             }
         }
+    }
+
+    private playAnimoEvent(eventName: string) {
+        this.currentAnimoEvent = eventName
+        this.activeAnimo?.playEvent(eventName)
     }
 
     private async getAnimo(source: string): Promise<Animo> {

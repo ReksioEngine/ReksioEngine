@@ -46,6 +46,8 @@ export class Episode extends Type<EpisodeDefinition> {
     async BACK() {
         if (this.previousScene) {
             await this.GOTO(this.previousScene.definition.NAME)
+        } else {
+            console.warn('Attempted EPISODE^BACK() but there is no previous scene')
         }
     }
 }
