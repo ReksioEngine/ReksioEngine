@@ -181,6 +181,18 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
+        if (this.currentFrame >= event.framesCount) {
+            if (this.currentLoop >= event.loopNumber) {
+                this.currentLoop = 0
+                this.STOP(true)
+                return
+            } else {
+                this.currentLoop++
+            }
+
+            this.currentFrame = 0
+        }
+
         this.changeFrame(event, this.currentFrame)
 
         if (this.currentFrame === 0) {
@@ -213,18 +225,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             }
         }
 
-        if (this.currentFrame + 1 >= event.framesCount) {
-            if (this.currentLoop >= event.loopNumber) {
-                this.currentLoop = 0
-                this.STOP(true)
-            } else {
-                this.currentLoop++
-            }
-
-            this.currentFrame = 0
-        } else {
-            this.currentFrame++
-        }
+        this.currentFrame++
     }
 
     private changeFrame(event: Event, frameIdx: number) {
