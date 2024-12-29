@@ -52187,6 +52187,17 @@ let Animo = (() => {
                 if (!event) {
                     return;
                 }
+                if (this.currentFrame >= event.framesCount) {
+                    if (this.currentLoop >= event.loopNumber) {
+                        this.currentLoop = 0;
+                        this.STOP(true);
+                        return;
+                    }
+                    else {
+                        this.currentLoop++;
+                    }
+                    this.currentFrame = 0;
+                }
                 this.changeFrame(event, this.currentFrame);
                 if (this.currentFrame === 0) {
                     this.ONSTARTED();
@@ -52213,19 +52224,7 @@ let Animo = (() => {
                         sound.play();
                     }
                 }
-                if (this.currentFrame + 1 >= event.framesCount) {
-                    if (this.currentLoop >= event.loopNumber) {
-                        this.currentLoop = 0;
-                        this.STOP(true);
-                    }
-                    else {
-                        this.currentLoop++;
-                    }
-                    this.currentFrame = 0;
-                }
-                else {
-                    this.currentFrame++;
-                }
+                this.currentFrame++;
             }
             changeFrame(event, frameIdx) {
                 (0, errors_1.assert)(this.annFile !== null);
@@ -54070,6 +54069,9 @@ let Episode = (() => {
                 if (this.previousScene) {
                     await this.GOTO(this.previousScene.definition.NAME);
                 }
+                else {
+                    console.warn('Attempted EPISODE^BACK() but there is no previous scene');
+                }
             }
         },
         (() => {
@@ -55511,16 +55513,28 @@ let Sequence = (() => {
             }
             async onAnimoEventFinished(eventName) {
                 (0, errors_1.assert)(this.activeAnimo !== null);
-                if (this.currentAnimoEvent === eventName) {
-                    await this.progressNext();
-                }
-                else if (this.loop && this.runningSubSequence !== null) {
-                    let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`;
-                    if (!this.activeAnimo.hasEvent(eventName)) {
-                        this.loopIndex = 1;
-                        eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`;
+                if (this.runningSubSequence?.TYPE === 'SPEAKING') {
+                    if (this.runningSubSequence.STARTING && eventName === this.runningSubSequence.PREFIX + '_START') {
+                        if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
+                            this.loop = true;
+                            this.loopIndex = 1;
+                            this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1');
+                        }
                     }
-                    this.activeAnimo.playEvent(eventName);
+                    else if (this.runningSubSequence.ENDING && eventName === this.runningSubSequence.PREFIX + '_STOP') {
+                        await this.progressNext();
+                    }
+                    else if (this.loop) {
+                        let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`;
+                        if (!this.activeAnimo.hasEvent(eventName)) {
+                            this.loopIndex = 1;
+                            eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`;
+                        }
+                        this.playAnimoEvent(eventName);
+                    }
+                }
+                else if (this.currentAnimoEvent == eventName) {
+                    await this.progressNext();
                 }
             }
             async progressNext() {
@@ -55553,23 +55567,26 @@ let Sequence = (() => {
                         const sound = this.sounds.get(speaking.WAVFN);
                         const instance = await sound.play();
                         this.playingSound = instance;
-                        if (speaking.STARTING) {
-                            this.currentAnimoEvent = speaking.PREFIX + '_START';
-                            this.activeAnimo.playEvent(speaking.PREFIX + '_START');
+                        const startEvent = speaking.PREFIX + '_START';
+                        if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
+                            this.playAnimoEvent(startEvent);
+                        }
+                        else if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
+                            this.loop = true;
+                            this.loopIndex = 1;
+                            this.playAnimoEvent(speaking.PREFIX + '_1');
                         }
                         instance.on('end', async () => {
-                            if (speaking.ENDING) {
-                                this.currentAnimoEvent = speaking.PREFIX + '_STOP';
-                                this.activeAnimo.playEvent(speaking.PREFIX + '_STOP');
-                                this.loop = false;
+                            this.loop = false;
+                            const stopEvent = speaking.PREFIX + '_STOP';
+                            if (speaking.ENDING && this.activeAnimo?.hasEvent(stopEvent)) {
+                                this.playAnimoEvent(stopEvent);
+                            }
+                            else {
+                                await this.progressNext();
                             }
                         });
                         this.runningSubSequence = speaking;
-                        if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
-                            this.loop = true;
-                            this.loopIndex = 1;
-                            this.activeAnimo.playEvent(speaking.PREFIX + '_1');
-                        }
                     }
                 }
                 else if (next.TYPE === 'SIMPLE') {
@@ -55588,11 +55605,14 @@ let Sequence = (() => {
                             await this.progressNext();
                             return;
                         }
-                        this.currentAnimoEvent = simple.EVENT;
                         this.runningSubSequence = simple;
-                        this.activeAnimo.playEvent(simple.EVENT);
+                        this.playAnimoEvent(simple.EVENT);
                     }
                 }
+            }
+            playAnimoEvent(eventName) {
+                this.currentAnimoEvent = eventName;
+                this.activeAnimo?.playEvent(eventName);
             }
             async getAnimo(source) {
                 const object = this.getExistingAnimo(source);
