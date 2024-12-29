@@ -70,9 +70,7 @@ export class Type<DefinitionType extends TypeDefinition> {
 
     clone(): Type<DefinitionType> {
         // @ts-expect-error Dynamically constructing object
-        const instance = new this.constructor(this.engine, this.definition)
-        instance.parent = this.parent
-        return instance
+        return new this.constructor(this.engine, this.parent, this.definition)
     }
 }
 
