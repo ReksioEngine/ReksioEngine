@@ -25,12 +25,12 @@ export class Mouse extends Type<MouseDefinition> {
     private moved = false
 
     ready() {
-        this.ENABLE()
+        this.registerCallbacks()
         this.callbacks.run('ONINIT')
     }
 
     destroy() {
-        this.DISABLE()
+        this.unregisterCallbacks()
     }
 
     tick(elapsedMS: number) {
@@ -59,6 +59,11 @@ export class Mouse extends Type<MouseDefinition> {
 
     @method()
     ENABLE() {
+        this.registerCallbacks()
+        this.engine.app.stage.eventMode = 'passive'
+    }
+
+    private registerCallbacks() {
         this.mouseMoveListener = this.onMouseMove.bind(this)
         this.mouseClickListener = this.onMouseClick.bind(this)
         this.mouseReleaseListener = this.onMouseRelease.bind(this)
@@ -74,6 +79,11 @@ export class Mouse extends Type<MouseDefinition> {
 
     @method()
     DISABLE() {
+        this.unregisterCallbacks()
+        this.engine.app.stage.eventMode = 'none'
+    }
+
+    private unregisterCallbacks() {
         this.engine.app.stage.removeListener('pointermove', this.mouseMoveListener)
         this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener)
     }
