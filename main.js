@@ -54974,6 +54974,11 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const keysMapping = new Map([
+    [0, 'LEFT'],
+    [1, 'MIDDLE'],
+    [2, 'RIGHT'],
+]);
 let Mouse = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -54988,9 +54993,9 @@ let Mouse = (() => {
     return _a = class Mouse extends _classSuper {
             constructor() {
                 super(...arguments);
-                this.mousePosition = (__runInitializers(this, _instanceExtraInitializers), new pixi_js_1.Point(0, 0));
-                this.clicked = false;
-                this.released = false;
+                this.mouseMoveListener = (__runInitializers(this, _instanceExtraInitializers), void 0);
+                this.clicksQueue = [];
+                this.mousePosition = new pixi_js_1.Point(0, 0);
                 this.moved = false;
             }
             ready() {
@@ -55001,13 +55006,16 @@ let Mouse = (() => {
                 this.DISABLE();
             }
             tick(elapsedMS) {
-                if (this.clicked) {
-                    this.callbacks.run('ONCLICK');
-                    this.clicked = false;
-                }
-                if (this.released) {
-                    this.callbacks.run('ONRELEASE');
-                    this.released = false;
+                while (this.clicksQueue.length > 0) {
+                    const event = this.clicksQueue.shift();
+                    switch (event.type) {
+                        case 'click':
+                            this.callbacks.run('ONCLICK', event.key);
+                            break;
+                        case 'release':
+                            this.callbacks.run('ONRELEASE', event.key);
+                            break;
+                    }
                 }
                 if (this.moved) {
                     this.callbacks.run('ONMOVE');
@@ -55046,16 +55054,27 @@ let Mouse = (() => {
                 return this.mousePosition.y;
             }
             onMouseMove(event) {
-                this.mousePosition = new pixi_js_1.Point(Math.floor(event.screen.x), Math.floor(event.screen.y));
                 this.moved = true;
+                this.mousePosition = this.getMousePosition(event);
             }
             onMouseClick(event) {
-                this.onMouseMove(event);
-                this.clicked = true;
+                this.handleClickEvent(event, 'click');
             }
             onMouseRelease(event) {
+                this.handleClickEvent(event, 'release');
+            }
+            handleClickEvent(event, type) {
+                if (!keysMapping.has(event.button)) {
+                    return;
+                }
+                this.clicksQueue.push({
+                    type,
+                    key: keysMapping.get(event.button),
+                });
                 this.onMouseMove(event);
-                this.released = true;
+            }
+            getMousePosition(event) {
+                return new pixi_js_1.Point(Math.floor(event.screen.x), Math.floor(event.screen.y));
             }
         },
         (() => {
