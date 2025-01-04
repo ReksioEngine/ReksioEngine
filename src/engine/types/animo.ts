@@ -15,6 +15,9 @@ import { method } from '../../types'
 export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent | null = null
 
+    private isFirstTick: boolean = true
+    private isAnyFrameSet: boolean = false
+
     private isPlaying: boolean = false
     private currentFrame: number = 0
     private currentEvent: string = ''
@@ -51,12 +54,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async init() {
         this.annFile = await this.loadAnimation()
         this.initSprite()
+        this.currentEvent = this.getDefaultEvent() ?? ''
     }
 
     ready() {
-        if (this.currentEvent === '') {
-            this.loadDefaultEvent()
-        }
         this.callbacks.run('ONINIT')
     }
 
@@ -66,6 +67,16 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     tick(elapsedMS: number) {
+        if (this.isFirstTick) {
+            if (!this.isAnyFrameSet) {
+                const event = this.getEventByName(this.currentEvent)
+                if (event) {
+                    this.changeFrame(event, 0)
+                }
+            }
+            this.isFirstTick = false
+        }
+
         if (!this.isPlaying) {
             return
         }
@@ -79,14 +90,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
     }
 
-    private loadDefaultEvent() {
+    private getDefaultEvent() {
         assert(this.annFile !== null)
         // Find first event with any frames
         const defaultEvent = this.annFile.events.find((event) => event.framesCount > 0)
         if (defaultEvent !== undefined) {
-            this.changeFrame(defaultEvent, 0)
-            this.currentEvent = defaultEvent.name
-            return defaultEvent
+            return defaultEvent.name
         }
         return null
     }
@@ -251,6 +260,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.height = annImage.height
 
         this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
+        this.isAnyFrameSet = true
     }
 
     @method()
@@ -330,10 +340,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             newFrame = Number(frameIdx)
         }
 
-        let event = this.getEventByName(newEvent)
-        if (event === null) {
-            event = this.loadDefaultEvent()
-        }
+        const event = this.getEventByName(newEvent)
         assert(event !== null)
 
         // Necessary in S63_OBOZ

@@ -83,7 +83,7 @@ export class Engine {
     }
 
     tick(elapsedMS: number) {
-        for (const object of Object.values(this.scope)) {
+        for (const object of Object.values(this.scope).filter(object => object.isReady)) {
             try {
                 object.tick(elapsedMS)
             } catch (err) {

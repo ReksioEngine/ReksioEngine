@@ -156,7 +156,10 @@ export const loadDefinition = async (
         }
     }
 
-    orderedScope.filter((entry) => !failedObjects.includes(entry)).forEach((entry) => entry.ready())
+    orderedScope.filter((entry) => !failedObjects.includes(entry)).forEach((entry) => {
+        entry.isReady = true
+        entry.ready()
+    })
 
     engine.app.ticker.start()
 }

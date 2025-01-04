@@ -18,6 +18,8 @@ export class Type<DefinitionType extends TypeDefinition> {
     public parent: Type<any> | null
     public clones: Array<Type<DefinitionType>> = []
 
+    public isReady: boolean = false
+
     constructor(engine: Engine, parent: Type<any> | null, definition: DefinitionType) {
         this.engine = engine
         this.definition = definition
