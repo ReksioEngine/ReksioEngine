@@ -240,7 +240,7 @@ export class Sequence extends Type<SequenceDefinition> {
                 instance.on('end', async () => {
                     this.loop = false
 
-                    const stopEvent = speaking.PREFIX + '_STOP';
+                    const stopEvent = speaking.PREFIX + '_STOP'
                     if (speaking.ENDING && this.activeAnimo?.hasEvent(stopEvent)) {
                         this.playAnimoEvent(stopEvent)
                     } else {

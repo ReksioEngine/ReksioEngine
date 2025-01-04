@@ -4,15 +4,24 @@ import { FederatedPointerEvent, Point } from 'pixi.js'
 import { NotImplementedError } from '../../errors'
 import { method } from '../../types'
 
-export class Mouse extends Type<MouseDefinition> {
-    private mousePosition: Point = new Point(0, 0)
+type MouseEvent = {
+    type: string
+    key: string
+}
 
+const keysMapping = new Map([
+    [0, 'LEFT'],
+    [1, 'MIDDLE'],
+    [2, 'RIGHT'],
+])
+
+export class Mouse extends Type<MouseDefinition> {
     private mouseMoveListener: any
     private mouseClickListener: any
     private mouseReleaseListener: any
 
-    private clicked = false
-    private released = false
+    private clicksQueue: MouseEvent[] = []
+    private mousePosition: Point = new Point(0, 0)
     private moved = false
 
     ready() {
@@ -25,14 +34,18 @@ export class Mouse extends Type<MouseDefinition> {
     }
 
     tick(elapsedMS: number) {
-        if (this.clicked) {
-            this.callbacks.run('ONCLICK')
-            this.clicked = false
+        while (this.clicksQueue.length > 0) {
+            const event = this.clicksQueue.shift()!
+            switch (event.type) {
+                case 'click':
+                    this.callbacks.run('ONCLICK', event.key)
+                    break
+                case 'release':
+                    this.callbacks.run('ONRELEASE', event.key)
+                    break
+            }
         }
-        if (this.released) {
-            this.callbacks.run('ONRELEASE')
-            this.released = false
-        }
+
         if (this.moved) {
             this.callbacks.run('ONMOVE')
             this.moved = false
@@ -86,17 +99,32 @@ export class Mouse extends Type<MouseDefinition> {
     }
 
     private onMouseMove(event: FederatedPointerEvent) {
-        this.mousePosition = new Point(Math.floor(event.screen.x), Math.floor(event.screen.y))
         this.moved = true
+        this.mousePosition = this.getMousePosition(event)
     }
 
     private onMouseClick(event: FederatedPointerEvent) {
-        this.onMouseMove(event)
-        this.clicked = true
+        this.handleClickEvent(event, 'click')
     }
 
     private onMouseRelease(event: FederatedPointerEvent) {
+        this.handleClickEvent(event, 'release')
+    }
+
+    private handleClickEvent(event: FederatedPointerEvent, type: string) {
+        if (!keysMapping.has(event.button)) {
+            return
+        }
+
+        this.clicksQueue.push({
+            type,
+            key: keysMapping.get(event.button)!,
+        })
+
         this.onMouseMove(event)
-        this.released = true
+    }
+
+    private getMousePosition(event: FederatedPointerEvent) {
+        return new Point(Math.floor(event.screen.x), Math.floor(event.screen.y))
     }
 }
