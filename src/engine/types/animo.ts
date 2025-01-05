@@ -309,8 +309,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.events?.trigger('ONSTARTED', index)
     }
 
+    // For some reason there is sometimes a string passed
     @method()
-    STOP(shouldSignal?: boolean) {
+    STOP(shouldSignal?: boolean | string) {
         this.isPlaying = false
         this.currentFrame = 0
         if (shouldSignal !== false) {
