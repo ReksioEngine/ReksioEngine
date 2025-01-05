@@ -51405,7 +51405,10 @@ const loadDefinition = async (engine, scope, definition, parent) => {
             console.error(`Failed to initialize object ${object.name}`, result.reason);
         }
     }
-    orderedScope.filter((entry) => !failedObjects.includes(entry)).forEach((entry) => entry.ready());
+    orderedScope.filter((entry) => !failedObjects.includes(entry)).forEach((entry) => {
+        entry.isReady = true;
+        entry.ready();
+    });
     engine.app.ticker.start();
 };
 exports.loadDefinition = loadDefinition;
@@ -51417,6 +51420,7 @@ const createObject = async (engine, definition, parent) => {
         engine.displayObjectsInDefinitionOrder.push(instance);
     }
     await instance.init();
+    instance.isReady = true;
     instance.ready();
     engine.app.ticker.start();
     return instance;
@@ -51604,7 +51608,7 @@ class Engine {
         }
     }
     tick(elapsedMS) {
-        for (const object of Object.values(this.scope)) {
+        for (const object of Object.values(this.scope).filter(object => object.isReady)) {
             try {
                 object.tick(elapsedMS);
             }
@@ -52062,6 +52066,8 @@ let Animo = (() => {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition);
                 this.buttonLogic = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.isFirstTick = true;
+                this.isAnyFrameSet = false;
                 this.isPlaying = false;
                 this.currentFrame = 0;
                 this.currentEvent = '';
@@ -52084,11 +52090,9 @@ let Animo = (() => {
             async init() {
                 this.annFile = await this.loadAnimation();
                 this.initSprite();
+                this.currentEvent = this.getDefaultEvent() ?? '';
             }
             ready() {
-                if (this.currentEvent === '') {
-                    this.loadDefaultEvent();
-                }
                 this.callbacks.run('ONINIT');
             }
             destroy() {
@@ -52096,6 +52100,15 @@ let Animo = (() => {
                 this.engine.removeFromStage(this.sprite);
             }
             tick(elapsedMS) {
+                if (this.isFirstTick) {
+                    if (!this.isAnyFrameSet) {
+                        const event = this.getEventByName(this.currentEvent);
+                        if (event) {
+                            this.changeFrame(event, 0);
+                        }
+                    }
+                    this.isFirstTick = false;
+                }
                 if (!this.isPlaying) {
                     return;
                 }
@@ -52106,14 +52119,12 @@ let Animo = (() => {
                     this.timeSinceLastFrame -= frameLength;
                 }
             }
-            loadDefaultEvent() {
+            getDefaultEvent() {
                 (0, errors_1.assert)(this.annFile !== null);
                 // Find first event with any frames
                 const defaultEvent = this.annFile.events.find((event) => event.framesCount > 0);
                 if (defaultEvent !== undefined) {
-                    this.changeFrame(defaultEvent, 0);
-                    this.currentEvent = defaultEvent.name;
-                    return defaultEvent;
+                    return defaultEvent.name;
                 }
                 return null;
             }
@@ -52243,6 +52254,7 @@ let Animo = (() => {
                 this.sprite.width = annImage.width;
                 this.sprite.height = annImage.height;
                 this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
+                this.isAnyFrameSet = true;
             }
             PLAY(name) {
                 if (name === undefined) {
@@ -52279,6 +52291,7 @@ let Animo = (() => {
                 this.callbacks.run('ONSTARTED', index);
                 this.events?.trigger('ONSTARTED', index);
             }
+            // For some reason there is sometimes a string passed
             STOP(shouldSignal) {
                 this.isPlaying = false;
                 this.currentFrame = 0;
@@ -52302,10 +52315,7 @@ let Animo = (() => {
                     newEvent = eventNameOrFrameIdx.toString();
                     newFrame = Number(frameIdx);
                 }
-                let event = this.getEventByName(newEvent);
-                if (event === null) {
-                    event = this.loadDefaultEvent();
-                }
+                const event = this.getEventByName(newEvent);
                 (0, errors_1.assert)(event !== null);
                 // Necessary in S63_OBOZ
                 if (newFrame < event.framesCount) {
@@ -52488,7 +52498,7 @@ let Animo = (() => {
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _PLAY_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: true, rest: false })];
-            _STOP_decorators = [(0, types_1.method)({ name: "shouldSignal", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            _STOP_decorators = [(0, types_1.method)({ name: "shouldSignal", types: [{ name: "boolean", literal: null, isArray: false }, { name: "string", literal: null, isArray: false }], optional: true, rest: false })];
             _PAUSE_decorators = [(0, types_1.method)()];
             _RESUME_decorators = [(0, types_1.method)()];
             _SETFRAME_decorators = [(0, types_1.method)({ name: "eventNameOrFrameIdx", types: [{ name: "string", literal: null, isArray: false }, { name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "frameIdx", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
@@ -54477,6 +54487,7 @@ let Type = (() => {
                 this.events = new events_1.EventsComponent();
                 this.name = '';
                 this.clones = [];
+                this.isReady = false;
                 this.engine = engine;
                 this.definition = definition;
                 this.name = definition.NAME;
