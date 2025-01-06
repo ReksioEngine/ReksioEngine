@@ -50902,6 +50902,59 @@ exports.CallbacksComponent = CallbacksComponent;
 
 /***/ }),
 
+/***/ "./src/engine/components/collisions.ts":
+/*!*********************************************!*\
+  !*** ./src/engine/components/collisions.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CollisionsComponent = void 0;
+const testAABB = (a, b) => {
+    const renderA = a.getRenderObject();
+    const renderB = b.getRenderObject();
+    if (renderA === null || renderB === null) {
+        return false;
+    }
+    const boundsA = renderA.getBounds();
+    const boundsB = renderB.getBounds();
+    return (boundsA.x < boundsB.x + boundsB.width
+        && boundsA.x + boundsA.width > boundsB.x
+        && boundsA.y < boundsB.y + boundsB.height
+        && boundsA.y + boundsA.height > boundsB.y);
+};
+class CollisionsComponent {
+    constructor(engine, object) {
+        this.enabled = false;
+        this.engine = engine;
+        this.object = object;
+        this.enabled = object.definition.MONITORCOLLISION ?? false;
+    }
+    handle(callback) {
+        if (!this.enabled) {
+            return;
+        }
+        for (const object of this.findCollisions()) {
+            callback(object);
+        }
+    }
+    findCollisions() {
+        return this.engine.displayObjectsInDefinitionOrder
+            .filter(obj => obj !== this.object && obj.definition.TYPE == 'ANIMO')
+            .filter(obj => this.hasCollisionWith(obj))
+            .map(obj => obj);
+    }
+    hasCollisionWith(other) {
+        return this.enabled && other.collisions.enabled && testAABB(this.object, other);
+    }
+}
+exports.CollisionsComponent = CollisionsComponent;
+
+
+/***/ }),
+
 /***/ "./src/engine/components/events.ts":
 /*!*****************************************!*\
   !*** ./src/engine/components/events.ts ***!
@@ -52029,6 +52082,7 @@ const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
 const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const collisions_1 = __webpack_require__(/*! ../components/collisions */ "./src/engine/components/collisions.ts");
 let Animo = (() => {
     var _a;
     let _classSuper = index_1.DisplayType;
@@ -52086,6 +52140,7 @@ let Animo = (() => {
                 this.hitmaps = new Map();
                 this.sounds = new Map();
                 this.fps = definition.FPS ?? 16;
+                this.collisions = new collisions_1.CollisionsComponent(engine, this);
             }
             async init() {
                 this.annFile = await this.loadAnimation();
@@ -52109,6 +52164,9 @@ let Animo = (() => {
                     }
                     this.isFirstTick = false;
                 }
+                this.collisions.handle((object) => {
+                    this.callbacks.run('ONCOLLISION', object.name);
+                });
                 if (!this.isPlaying) {
                     return;
                 }
@@ -52242,6 +52300,10 @@ let Animo = (() => {
                 (0, errors_1.assert)(this.sprite !== null);
                 (0, errors_1.assert)(event !== null);
                 const eventFrame = event.frames[frameIdx];
+                if (eventFrame === undefined) {
+                    console.warn(`Attempted to change to non-existent frame ${frameIdx}`);
+                    return;
+                }
                 const imageIndex = event.framesImageMapping[frameIdx];
                 const annImage = this.annFile.annImages[imageIndex];
                 // TODO: refactor it so we don't assign texture and hitmap separately?
@@ -52467,10 +52529,10 @@ let Animo = (() => {
                 this.callbacks.addBehaviour(callbackString, behaviourName);
             }
             MONITORCOLLISION(newState) {
-                throw new errors_1.NotImplementedError();
+                this.collisions.enabled = true;
             }
             REMOVEMONITORCOLLISION() {
-                throw new errors_1.NotImplementedError();
+                this.collisions.enabled = false;
             }
             getEventByName(name) {
                 (0, errors_1.assert)(this.annFile !== undefined);
@@ -56842,6 +56904,7 @@ const AnimoStructure = {
     ONFINISHED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONSTARTED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONFRAMECHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONCOLLISION: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONFOCUSON: (0, common_1.optional)(common_1.callback),
     ONFOCUSOFF: (0, common_1.optional)(common_1.callback),
     ONCLICK: (0, common_1.optional)(common_1.callback),
