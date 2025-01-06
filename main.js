@@ -50920,10 +50920,10 @@ const testAABB = (a, b) => {
     }
     const boundsA = renderA.getBounds();
     const boundsB = renderB.getBounds();
-    return (boundsA.x < boundsB.x + boundsB.width
-        && boundsA.x + boundsA.width > boundsB.x
-        && boundsA.y < boundsB.y + boundsB.height
-        && boundsA.y + boundsA.height > boundsB.y);
+    return (boundsA.x < boundsB.x + boundsB.width &&
+        boundsA.x + boundsA.width > boundsB.x &&
+        boundsA.y < boundsB.y + boundsB.height &&
+        boundsA.y + boundsA.height > boundsB.y);
 };
 class CollisionsComponent {
     constructor(engine, object) {
@@ -50942,9 +50942,9 @@ class CollisionsComponent {
     }
     findCollisions() {
         return this.engine.displayObjectsInDefinitionOrder
-            .filter(obj => obj !== this.object && obj.definition.TYPE == 'ANIMO')
-            .filter(obj => this.hasCollisionWith(obj))
-            .map(obj => obj);
+            .filter((obj) => obj !== this.object && obj.definition.TYPE == 'ANIMO')
+            .filter((obj) => this.hasCollisionWith(obj))
+            .map((obj) => obj);
     }
     hasCollisionWith(other) {
         return this.enabled && other.collisions.enabled && testAABB(this.object, other);
@@ -51458,7 +51458,9 @@ const loadDefinition = async (engine, scope, definition, parent) => {
             console.error(`Failed to initialize object ${object.name}`, result.reason);
         }
     }
-    orderedScope.filter((entry) => !failedObjects.includes(entry)).forEach((entry) => {
+    const goodObjects = orderedScope.filter((entry) => !failedObjects.includes(entry));
+    goodObjects.forEach((entry) => entry.applyDefaults());
+    goodObjects.forEach((entry) => {
         entry.isReady = true;
         entry.ready();
     });
@@ -51661,7 +51663,7 @@ class Engine {
         }
     }
     tick(elapsedMS) {
-        for (const object of Object.values(this.scope).filter(object => object.isReady)) {
+        for (const object of Object.values(this.scope).filter((object) => object.isReady)) {
             try {
                 object.tick(elapsedMS);
             }
@@ -52145,6 +52147,8 @@ let Animo = (() => {
             async init() {
                 this.annFile = await this.loadAnimation();
                 this.initSprite();
+            }
+            applyDefaults() {
                 this.currentEvent = this.getDefaultEvent() ?? '';
             }
             ready() {
@@ -53274,7 +53278,7 @@ let Button = (() => {
                     this.gfxOnMove = this.engine.getObject(this.definition.GFXONMOVE);
                 }
             }
-            ready() {
+            applyDefaults() {
                 if (this.definition.RECT) {
                     this.setRect(this.definition.RECT);
                 }
@@ -53284,6 +53288,8 @@ let Button = (() => {
                 else {
                     this.logic.disable();
                 }
+            }
+            ready() {
                 this.callbacks.run('ONINIT');
             }
             setRect(rect) {
@@ -54415,6 +54421,8 @@ let Image = (() => {
                 this.sprite = await this.load();
                 this.sprite.visible = this.definition.VISIBLE;
                 this.sprite.eventMode = 'none';
+            }
+            applyDefaults() {
                 this.SETPRIORITY(this.definition.PRIORITY ?? 0);
             }
             async load() {
@@ -54576,6 +54584,7 @@ let Type = (() => {
                 return clone;
             }
             init() { }
+            applyDefaults() { }
             ready() { }
             destroy() { }
             tick(elapsedMS) { }
