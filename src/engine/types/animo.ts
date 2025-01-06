@@ -1,7 +1,7 @@
 import { DisplayType, Type } from './index'
 import { AnimoDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
-import { assert, InvalidObjectError, NotImplementedError } from '../../errors'
+import { assert, InvalidObjectError } from '../../errors'
 import * as PIXI from 'pixi.js'
 import { Rectangle, Texture } from 'pixi.js'
 import { ANN, Event } from '../../fileFormats/ann'
@@ -11,9 +11,11 @@ import { Sound as PIXISound } from '@pixi/sound'
 import { FileNotFoundError } from '../filesLoader'
 import { AdvancedSprite, createHitmapFromImageBytes } from '../rendering'
 import { method } from '../../types'
+import { CollisionsComponent } from '../components/collisions'
 
 export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent | null = null
+    readonly collisions: CollisionsComponent
 
     private isFirstTick: boolean = true
     private isAnyFrameSet: boolean = false
@@ -49,6 +51,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     constructor(engine: Engine, parent: Type<any> | null, definition: AnimoDefinition) {
         super(engine, parent, definition)
         this.fps = definition.FPS ?? 16
+        this.collisions = new CollisionsComponent(engine, this)
     }
 
     async init() {
@@ -76,6 +79,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
             }
             this.isFirstTick = false
         }
+
+        this.collisions.handle((object: Animo) => {
+            this.callbacks.run('ONCOLLISION', object.name)
+        })
 
         if (!this.isPlaying) {
             return
@@ -243,6 +250,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
         assert(event !== null)
 
         const eventFrame = event.frames[frameIdx]
+        if (eventFrame === undefined) {
+            console.warn(`Attempted to change to non-existent frame ${frameIdx}`)
+            return
+        }
+
         const imageIndex = event.framesImageMapping[frameIdx]
         const annImage = this.annFile.annImages[imageIndex]
 
@@ -552,12 +564,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     @method()
     MONITORCOLLISION(newState: boolean) {
-        throw new NotImplementedError()
+        this.collisions.enabled = true
     }
 
     @method()
     REMOVEMONITORCOLLISION() {
-        throw new NotImplementedError()
+        this.collisions.enabled = false
     }
 
     public getEventByName(name: string): Event | null {

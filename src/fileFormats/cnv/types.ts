@@ -111,6 +111,7 @@ export type AnimoDefinition = TypeDefinition & {
     ONFINISHED?: callbacks<string>
     ONSTARTED?: callbacks<string>
     ONFRAMECHANGED?: callbacks<string>
+    ONCOLLISION?: callbacks<string>
 
     // When in button mode
     ONFOCUSON?: callback
@@ -133,6 +134,7 @@ const AnimoStructure = {
     ONFINISHED: optional(callbacks(string)),
     ONSTARTED: optional(callbacks(string)),
     ONFRAMECHANGED: optional(callbacks(string)),
+    ONCOLLISION: optional(callbacks(string)),
 
     ONFOCUSON: optional(callback),
     ONFOCUSOFF: optional(callback),
