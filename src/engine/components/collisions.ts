@@ -9,15 +9,15 @@ const testAABB = (a: DisplayType<any>, b: DisplayType<any>) => {
         return false
     }
 
-    const boundsA = renderA.getBounds();
-    const boundsB = renderB.getBounds();
+    const boundsA = renderA.getBounds()
+    const boundsB = renderB.getBounds()
 
     return (
-        boundsA.x < boundsB.x + boundsB.width
-        && boundsA.x + boundsA.width > boundsB.x
-        && boundsA.y < boundsB.y + boundsB.height
-        && boundsA.y + boundsA.height > boundsB.y
-    );
+        boundsA.x < boundsB.x + boundsB.width &&
+        boundsA.x + boundsA.width > boundsB.x &&
+        boundsA.y < boundsB.y + boundsB.height &&
+        boundsA.y + boundsA.height > boundsB.y
+    )
 }
 
 export type CollisionCallback = (object: Animo) => void
@@ -45,9 +45,9 @@ export class CollisionsComponent {
 
     findCollisions() {
         return this.engine.displayObjectsInDefinitionOrder
-            .filter(obj => obj !== this.object && obj.definition.TYPE == 'ANIMO')
-            .filter(obj => this.hasCollisionWith(obj as Animo))
-            .map(obj => obj as Animo)
+            .filter((obj) => obj !== this.object && obj.definition.TYPE == 'ANIMO')
+            .filter((obj) => this.hasCollisionWith(obj as Animo))
+            .map((obj) => obj as Animo)
     }
 
     hasCollisionWith(other: Animo): boolean {

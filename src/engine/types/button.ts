@@ -36,7 +36,7 @@ export class Button extends Type<ButtonDefinition> {
         }
     }
 
-    ready() {
+    applyDefaults() {
         if (this.definition.RECT) {
             this.setRect(this.definition.RECT)
         }
@@ -46,7 +46,9 @@ export class Button extends Type<ButtonDefinition> {
         } else {
             this.logic.disable()
         }
+    }
 
+    ready() {
         this.callbacks.run('ONINIT')
     }
 

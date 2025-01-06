@@ -156,7 +156,9 @@ export const loadDefinition = async (
         }
     }
 
-    orderedScope.filter((entry) => !failedObjects.includes(entry)).forEach((entry) => {
+    const goodObjects = orderedScope.filter((entry) => !failedObjects.includes(entry))
+    goodObjects.forEach((entry) => entry.applyDefaults())
+    goodObjects.forEach((entry) => {
         entry.isReady = true
         entry.ready()
     })

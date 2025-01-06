@@ -57,6 +57,7 @@ export class Type<DefinitionType extends TypeDefinition> {
     }
 
     init() {}
+    applyDefaults() {}
     ready() {}
     destroy() {}
     tick(elapsedMS: number) {}

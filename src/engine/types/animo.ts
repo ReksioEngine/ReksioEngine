@@ -57,6 +57,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async init() {
         this.annFile = await this.loadAnimation()
         this.initSprite()
+    }
+
+    applyDefaults() {
         this.currentEvent = this.getDefaultEvent() ?? ''
     }
 
