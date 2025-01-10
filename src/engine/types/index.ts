@@ -52,6 +52,8 @@ export class Type<DefinitionType extends TypeDefinition> {
         object.clones.push(clone)
 
         clone.name = `${object.definition.NAME}_${object.clones.length}`
+        clone.isReady = object.isReady
+
         this.engine.scope[clone.name] = clone
         return clone
     }
