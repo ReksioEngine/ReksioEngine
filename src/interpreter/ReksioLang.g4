@@ -6,11 +6,10 @@ FALSE: 'FALSE';
 
 expr :
     comment? (
-        STRING
-        | negativeNumber
-        | NUMBER
-        | TRUE | FALSE
-        | IDENTIFIER
+        string
+        | number
+        | bool
+        | identifier
         | specialCall
         | methodCall
         | operationGrouping
@@ -37,9 +36,10 @@ operation
   ;
 
 comment: COMMENT_START;
-
-// Separate from NUMBER because of a problem with detecting negative number vs subtraction
-negativeNumber: '-' NUMBER;
+number: '-' NUMBER | NUMBER;
+bool: TRUE | FALSE;
+string: STRING;
+identifier: IDENTIFIER;
 
 // Literals
 IDENTIFIER: [a-zA-Z0-9_$]*[a-zA-Z_?$]+[a-zA-Z0-9_$]*;

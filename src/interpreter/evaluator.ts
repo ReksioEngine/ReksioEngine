@@ -1,14 +1,18 @@
 import ReksioLangVisitor from './ReksioLangVisitor'
 import ReksioLangParser, {
+    BoolContext,
     ExprContext,
+    IdentifierContext,
     MethodCallArgumentsContext,
     MethodCallContext,
+    NumberContext,
     ObjectNameContext,
     OperationContext,
     OperationGroupingContext,
     SpecialCallContext,
     StatementContext,
     StatementListContext,
+    StringContext,
 } from './ReksioLangParser'
 import ReksioLangLexer from './ReksioLangLexer'
 import antlr4, { ParserRuleContext } from 'antlr4'
@@ -84,62 +88,68 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             return
         }
 
+        return this.visitChildren(ctx)[0]
+    }
+
+    visitIdentifier = (ctx: IdentifierContext): any => {
+        const identifier = ctx.IDENTIFIER().getText()
+        if (identifier.startsWith('$') && this.args) {
+            const argIdx = parseInt(identifier.substring(1)) - 1
+            assert(this.args.length >= argIdx + 1)
+
+            const arg = this.args[argIdx]
+
+            this.methodCallUsedVariables[identifier] = arg
+            this.scriptUsedVariables[identifier] = arg
+
+            if (typeof arg === 'string') {
+                const object = this.engine?.getObject(arg)
+                if (object !== null && object instanceof String) {
+                    return object.value
+                }
+            }
+
+            return this.args[argIdx]
+        }
+
+        const object = this.engine?.getObject(identifier)
+        this.methodCallUsedVariables[identifier] = object
+        this.scriptUsedVariables[identifier] = object
+        if (object === null) {
+            if (this.printDebug) {
+                const code = this.markInCode(ctx)
+                console.error(
+                    'Unknown identifier\n' + '\n' + `%cCode:%c\n${code}\n\n` + '%cUsed variables:%c%O',
+                    'font-weight: bold',
+                    'font-weight: inherit',
+                    'color: red',
+                    'color: inherit',
+                    'font-weight: bold',
+                    'font-weight: inherit',
+                    this.scriptUsedVariables
+                )
+            }
+
+            // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
+            return null
+        }
+        return object.value
+    }
+
+    visitBool = (ctx: BoolContext): any => {
         if (ctx.TRUE() != null) {
             return true
         } else if (ctx.FALSE() != null) {
             return false
-        } else if (ctx.NUMBER() != null) {
-            return ForceNumber(ctx.NUMBER().getText())
-        } else if (ctx.negativeNumber() != null) {
-            return ForceNumber(ctx.negativeNumber().getText())
-        } else if (ctx.STRING() != null) {
-            return this.replaceParameters(ctx.STRING().getText().replace(/^"|"$/g, ''))
-        } else if (ctx.IDENTIFIER() != null) {
-            const identifier = ctx.IDENTIFIER().getText()
-            if (identifier.startsWith('$') && this.args) {
-                const argIdx = parseInt(identifier.substring(1)) - 1
-                assert(this.args.length >= argIdx + 1)
-
-                const arg = this.args[argIdx]
-
-                this.methodCallUsedVariables[identifier] = arg
-                this.scriptUsedVariables[identifier] = arg
-
-                if (typeof arg === 'string') {
-                    const object = this.engine?.getObject(arg)
-                    if (object !== null && object instanceof String) {
-                        return object.value
-                    }
-                }
-
-                return this.args[argIdx]
-            }
-
-            const object = this.engine?.getObject(ctx.IDENTIFIER().getText())
-            this.methodCallUsedVariables[identifier] = object
-            this.scriptUsedVariables[identifier] = object
-            if (object === null) {
-                if (this.printDebug) {
-                    const code = this.markInCode(ctx)
-                    console.error(
-                        'Unknown identifier\n' + '\n' + `%cCode:%c\n${code}\n\n` + '%cUsed variables:%c%O',
-                        'font-weight: bold',
-                        'font-weight: inherit',
-                        'color: red',
-                        'color: inherit',
-                        'font-weight: bold',
-                        'font-weight: inherit',
-                        this.scriptUsedVariables
-                    )
-                }
-
-                // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
-                return null
-            }
-            return object.value
         }
+    }
 
-        return this.visitChildren(ctx)[0]
+    visitNumber = (ctx: NumberContext): any => {
+        return ForceNumber(ctx.getText())
+    }
+
+    visitString = (ctx: StringContext): any => {
+        return this.replaceParameters(ctx.STRING().getText().replace(/^"|"$/g, ''))
     }
 
     replaceParameters(str: string): string {
