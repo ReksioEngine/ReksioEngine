@@ -42,10 +42,7 @@ comment: COMMENT_START;
 negativeNumber: '-' NUMBER;
 
 // Literals
-
-// Examples: BEHZANURZENIEZOLWIA7-1
-IDENTIFIER: [a-zA-Z0-9_$]+[a-zA-Z_?$-]+[a-zA-Z0-9_$]*;
-
+IDENTIFIER: [a-zA-Z0-9_$]*[a-zA-Z_?$]+[a-zA-Z0-9_$]*;
 NUMBER: [0-9]+ ('.' [0-9]+)? ;
 STRING: '"' ~[,)]* '"';
 COMMENT_START: '!'+;
