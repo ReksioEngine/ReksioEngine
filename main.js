@@ -56100,6 +56100,7 @@ let String = (() => {
     let _ADD_decorators;
     let _SET_decorators;
     let _GET_decorators;
+    let _FIND_decorators;
     return _a = class String extends _classSuper {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition, '');
@@ -56117,6 +56118,9 @@ let String = (() => {
             GET() {
                 return this.value;
             }
+            FIND(needle, start) {
+                return this.value.indexOf(needle, start);
+            }
             valueChanged(oldValue, newValue) {
                 if (oldValue !== newValue) {
                     this.callbacks.run('ONCHANGED', newValue);
@@ -56129,9 +56133,11 @@ let String = (() => {
             _ADD_decorators = [(0, types_1.method)({ name: "text", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _SET_decorators = [(0, types_1.method)({ name: "text", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _GET_decorators = [(0, types_1.method)()];
+            _FIND_decorators = [(0, types_1.method)({ name: "needle", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "start", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
