@@ -52692,6 +52692,12 @@ const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const langCodeMapping = {
+    '0415': 'POL',
+    '040E': 'HUN',
+    '0405': 'CZE',
+    '0418': 'ROU',
+};
 let Application = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -52719,20 +52725,7 @@ let Application = (() => {
                 }
             }
             SETLANGUAGE(langCode) {
-                switch (langCode) {
-                    case '0415':
-                        this.language = 'POL';
-                        break;
-                    case '040E':
-                        this.language = 'HUN';
-                        break;
-                    case '0405':
-                        this.language = 'CZE';
-                        break;
-                    case '0418':
-                        this.language = 'ROU';
-                        break;
-                }
+                this.language = langCodeMapping[langCode];
             }
             GETLANGUAGE() {
                 return this.language;
