@@ -301,6 +301,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                     onFalse.RUNC()
                 }
             }
+        } else if (methodName === 'BREAK') {
+            throw new InterruptScriptExecution(false)
         } else if (this.printDebug) {
             const code = this.markInCode(ctx)
             console.error(
