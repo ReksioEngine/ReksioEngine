@@ -1,6 +1,6 @@
 import { Type } from './index'
 import { ConditionDefinition } from '../../fileFormats/cnv/types'
-import { InterruptScriptExecution } from '../../interpreter/evaluator'
+import { InterruptScriptExecution } from '../../interpreter/script/evaluator'
 import { Compare, method } from '../../types'
 import { UnexpectedError } from '../../errors'
 

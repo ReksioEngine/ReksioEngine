@@ -1,4 +1,4 @@
-import { parseArgs } from '../../interpreter/evaluator'
+import { parseArgs } from '../../interpreter/script/evaluator'
 import { assert } from '../../errors'
 
 type FieldTypeProcessor = (object: any, key: string, param: string, value: string) => any

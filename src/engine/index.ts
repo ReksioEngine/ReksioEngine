@@ -1,5 +1,5 @@
 import { callback, reference } from '../fileFormats/common'
-import { runScript } from '../interpreter/evaluator'
+import { runScript } from '../interpreter/script/evaluator'
 import { DisplayType, Type } from './types'
 import { loadDefinition } from './definitionLoader'
 import { Application, Rectangle, Sprite } from 'pixi.js'
@@ -13,7 +13,7 @@ import { preloadAssets } from './optimizations'
 import { Debugging } from './debugging'
 import { Timer } from './types/timer'
 import { IrrecoverableError } from '../errors'
-import { StackFrame, stackTrace } from '../interpreter/stacktrace'
+import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
 
 export class Engine {
     readonly app: Application

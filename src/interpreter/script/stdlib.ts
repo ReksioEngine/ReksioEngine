@@ -1,6 +1,6 @@
-import { Engine } from '../engine'
-import { ArrayObject } from '../engine/types/array'
-import { method } from '../types'
+import { Engine } from '../../engine'
+import { ArrayObject } from '../../engine/types/array'
+import { method } from '../../types'
 
 class Library {
     protected readonly engine?: Engine

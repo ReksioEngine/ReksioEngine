@@ -1,7 +1,7 @@
 import { Type } from './index'
 import { BehaviourDefinition } from '../../fileFormats/cnv/types'
 import { Condition } from './condition'
-import { InterruptScriptExecution } from '../../interpreter/evaluator'
+import { InterruptScriptExecution } from '../../interpreter/script/evaluator'
 import { method } from '../../types'
 
 export class Behaviour extends Type<BehaviourDefinition> {

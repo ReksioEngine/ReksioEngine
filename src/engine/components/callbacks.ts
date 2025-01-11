@@ -2,8 +2,8 @@ import { callback, callbacks, FieldTypeEntry } from '../../fileFormats/common'
 import { Engine } from '../index'
 import { Type } from '../types'
 import { assert } from '../../errors'
-import { InterruptScriptExecution } from '../../interpreter/evaluator'
-import { StackFrame, stackTrace } from '../../interpreter/stacktrace'
+import { InterruptScriptExecution } from '../../interpreter/script/evaluator'
+import { StackFrame, stackTrace } from '../../interpreter/script/stacktrace'
 import { structureDefinitions } from '../../fileFormats/cnv/types'
 
 export class CallbacksComponent {

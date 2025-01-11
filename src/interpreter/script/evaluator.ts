@@ -16,15 +16,15 @@ import ReksioLangParser, {
 } from './ReksioLangParser'
 import ReksioLangLexer from './ReksioLangLexer'
 import antlr4, { ParserRuleContext } from 'antlr4'
-import { Engine } from '../engine'
+import { Engine } from '../../engine'
 import { RandomLibrary } from './stdlib'
-import { Behaviour } from '../engine/types/behaviour'
-import { assert, NotImplementedError } from '../errors'
-import { Compare, ForceNumber } from '../types'
-import { Type } from '../engine/types'
-import { String } from '../engine/types/string'
+import { Behaviour } from '../../engine/types/behaviour'
+import { assert, NotImplementedError } from '../../errors'
+import { Compare, ForceNumber } from '../../types'
+import { Type } from '../../engine/types'
+import { String } from '../../engine/types/string'
 import { printStackTrace, StackFrame, stackTrace } from './stacktrace'
-import { evaluateExpression } from './ifExpression/evaluator'
+import { evaluateExpression } from '../ifExpression/evaluator'
 
 export class InterruptScriptExecution {
     public one: boolean

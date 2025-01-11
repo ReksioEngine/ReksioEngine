@@ -1,5 +1,5 @@
-import { Type } from '../engine/types'
-import { valueAsString } from '../types'
+import { Type } from '../../engine/types'
+import { valueAsString } from '../../types'
 
 type StackFrameTypes = 'method' | 'behaviour' | 'callback'
 
