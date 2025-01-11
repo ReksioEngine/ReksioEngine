@@ -7,6 +7,13 @@ import { NotImplementedError } from '../../errors'
 import { FileNotFoundError } from '../filesLoader'
 import { method } from '../../types'
 
+const langCodeMapping: Record<string, string> = {
+    '0415': 'POL',
+    '040E': 'HUN',
+    '0405': 'CZE',
+    '0418': 'ROU',
+}
+
 export class Application extends Type<ApplicationDefinition> {
     private language: string = 'POL'
 
@@ -31,20 +38,7 @@ export class Application extends Type<ApplicationDefinition> {
 
     @method()
     SETLANGUAGE(langCode: string) {
-        switch (langCode) {
-            case '0415':
-                this.language = 'POL'
-                break
-            case '040E':
-                this.language = 'HUN'
-                break
-            case '0405':
-                this.language = 'CZE'
-                break
-            case '0418':
-                this.language = 'ROU'
-                break
-        }
+        this.language = langCodeMapping[langCode]
     }
 
     @method()
