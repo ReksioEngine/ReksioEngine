@@ -24,6 +24,7 @@ import { Compare, ForceNumber } from '../types'
 import { Type } from '../engine/types'
 import { String } from '../engine/types/string'
 import { printStackTrace, StackFrame, stackTrace } from './stacktrace'
+import { evaluateExpression } from './ifExpression/evaluator'
 
 export class InterruptScriptExecution {
     public one: boolean
@@ -261,34 +262,44 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : []
 
         if (methodName === 'IF') {
-            const operator = args[1]
+            if (args.length == 5) {
+                const operator = args[1]
+                const left = this.engine?.getObject(args[0].toString())?.value ?? args[0]
+                const right = this.engine?.getObject(args[2].toString())?.value ?? args[2]
 
-            // valueAsString() in order to achieve loose equality
-            const left = this.engine?.getObject(args[0])?.value ?? args[0]
-            const right = this.engine?.getObject(args[2])?.value ?? args[2]
+                let result = false
+                if (operator == '_') {
+                    result = Compare.Equal(left, right)
+                } else if (operator == '!_') {
+                    result = Compare.NotEqual(left, right)
+                } else if (operator == '>') {
+                    result = Compare.Greater(left, right)
+                } else if (operator == '<') {
+                    result = Compare.Less(left, right)
+                } else if (operator == '>_') {
+                    result = Compare.GreaterOrEqual(left, right)
+                } else if (operator == '<_') {
+                    result = Compare.LessOrEqual(left, right)
+                }
 
-            let result = false
-            if (operator == '_') {
-                result = Compare.Equal(left, right)
-            } else if (operator == '!_') {
-                result = Compare.NotEqual(left, right)
-            } else if (operator == '>') {
-                result = Compare.Greater(left, right)
-            } else if (operator == '<') {
-                result = Compare.Less(left, right)
-            } else if (operator == '>_') {
-                result = Compare.GreaterOrEqual(left, right)
-            } else if (operator == '<_') {
-                result = Compare.LessOrEqual(left, right)
-            }
+                const onTrue: Behaviour | null = this.engine?.getObject(args[3])
+                const onFalse: Behaviour | null = this.engine?.getObject(args[4])
 
-            const onTrue: Behaviour | null = this.engine?.getObject(args[3])
-            const onFalse: Behaviour | null = this.engine?.getObject(args[4])
+                if (result && onTrue !== null) {
+                    onTrue.RUNC()
+                } else if (!result && onFalse !== null) {
+                    onFalse.RUNC()
+                }
+            } else if (args.length == 3) {
+                const result = evaluateExpression(this.engine!, args[0])
+                const onTrue: Behaviour | null = this.engine?.getObject(args[1])
+                const onFalse: Behaviour | null = this.engine?.getObject(args[2])
 
-            if (result && onTrue !== null) {
-                onTrue.RUNC()
-            } else if (!result && onFalse !== null) {
-                onFalse.RUNC()
+                if (result && onTrue !== null) {
+                    onTrue.RUNC()
+                } else if (!result && onFalse !== null) {
+                    onFalse.RUNC()
+                }
             }
         } else if (this.printDebug) {
             const code = this.markInCode(ctx)
