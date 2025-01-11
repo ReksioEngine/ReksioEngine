@@ -512,6 +512,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     @method()
     GETFRAME(): number {
+        const event = this.getEventByName(this.currentEvent)
+        assert(event !== null)
+        return event.framesImageMapping[this.currentFrame]
+    }
+
+    @method()
+    GETCFRAMEINEVENT(): number {
         return this.currentFrame
     }
 
