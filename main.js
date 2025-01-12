@@ -52129,6 +52129,7 @@ let Animo = (() => {
                 this.currentFrame = 0;
                 this.currentEvent = '';
                 this.currentLoop = 0;
+                this.animationEndedLastTick = false;
                 this.fps = 16;
                 this.timeSinceLastFrame = 0;
                 this.positionX = 0;
@@ -52261,7 +52262,8 @@ let Animo = (() => {
                 if (!event) {
                     return;
                 }
-                if (this.currentFrame >= event.framesCount) {
+                if (this.animationEndedLastTick) {
+                    this.animationEndedLastTick = false;
                     if (this.currentLoop >= event.loopNumber) {
                         this.currentLoop = 0;
                         this.STOP(true);
@@ -52270,7 +52272,6 @@ let Animo = (() => {
                     else {
                         this.currentLoop++;
                     }
-                    this.currentFrame = 0;
                 }
                 this.changeFrame(event, this.currentFrame);
                 if (this.currentFrame === 0) {
@@ -52298,7 +52299,13 @@ let Animo = (() => {
                         sound.play();
                     }
                 }
-                this.currentFrame++;
+                if (this.currentFrame + 1 >= event.framesCount) {
+                    this.currentFrame = 0;
+                    this.animationEndedLastTick = true;
+                }
+                else {
+                    this.currentFrame++;
+                }
             }
             changeFrame(event, frameIdx) {
                 (0, errors_1.assert)(this.annFile !== null);
