@@ -25,6 +25,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private currentEvent: string = ''
     private currentLoop: number = 0
 
+    private animationEndedLastTick: boolean = false
+
     private fps: number = 16
     private timeSinceLastFrame: number = 0
 
@@ -200,7 +202,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
-        if (this.currentFrame >= event.framesCount) {
+        if (this.animationEndedLastTick) {
+            this.animationEndedLastTick = false
             if (this.currentLoop >= event.loopNumber) {
                 this.currentLoop = 0
                 this.STOP(true)
@@ -208,8 +211,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
             } else {
                 this.currentLoop++
             }
-
-            this.currentFrame = 0
         }
 
         this.changeFrame(event, this.currentFrame)
@@ -244,7 +245,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
             }
         }
 
-        this.currentFrame++
+        if (this.currentFrame + 1 >= event.framesCount) {
+            this.currentFrame = 0
+            this.animationEndedLastTick = true
+        } else {
+            this.currentFrame++
+        }
     }
 
     private changeFrame(event: Event, frameIdx: number) {
