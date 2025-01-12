@@ -52432,9 +52432,9 @@ let Animo = (() => {
                 this.sprite.x = x + this.positionOffsetX + this.anchorOffsetX;
                 this.sprite.y = y + this.positionOffsetY + this.anchorOffsetY;
             }
-            SETASBUTTON(arg1, arg2) {
+            SETASBUTTON(enabled, show_pointer) {
                 (0, errors_1.assert)(this.sprite !== null);
-                if (arg1 && arg2) {
+                if (enabled) {
                     this.buttonLogic = new button_1.ButtonLogicComponent(this.onButtonStateChange.bind(this));
                     this.buttonLogic.registerInteractive(this.sprite);
                     this.buttonLogic.enable();
@@ -52590,7 +52590,7 @@ let Animo = (() => {
             _ISVISIBLE_decorators = [(0, types_1.method)()];
             _MOVE_decorators = [(0, types_1.method)({ name: "xOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "yOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SETPOSITION_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETASBUTTON_decorators = [(0, types_1.method)({ name: "arg1", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg2", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETASBUTTON_decorators = [(0, types_1.method)({ name: "enabled", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "show_pointer", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             _GETCENTERX_decorators = [(0, types_1.method)()];
             _GETCENTERY_decorators = [(0, types_1.method)()];
             _GETPOSITIONX_decorators = [(0, types_1.method)()];
