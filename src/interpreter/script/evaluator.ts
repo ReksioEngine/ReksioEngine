@@ -25,6 +25,7 @@ import { String } from '../../engine/types/string'
 import { printStackTrace, StackFrame, stackTrace } from './stacktrace'
 import { evaluateExpression } from '../ifExpression/evaluator'
 import { Rand } from '../../engine/types/rand'
+import { System } from '../../engine/types/system'
 
 export class InterruptScriptExecution {
     public one: boolean
@@ -66,11 +67,22 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             return
         }
 
-        this.globalInstances.set('RANDOM', new Rand(this.engine, null, {
-            TYPE: 'RAND',
-            NAME: 'RANDOM',
-            TOINI: false
-        }))
+        this.globalInstances.set(
+            'RANDOM',
+            new Rand(this.engine, null, {
+                TYPE: 'RAND',
+                NAME: 'RANDOM',
+                TOINI: false,
+            })
+        )
+        this.globalInstances.set(
+            'SYSTEM',
+            new System(this.engine, null, {
+                TYPE: 'SYSTEM',
+                NAME: 'SYSTEM',
+                TOINI: false,
+            })
+        )
     }
 
     visitStatementList = (ctx: StatementListContext): any => {

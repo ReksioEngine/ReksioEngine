@@ -32,6 +32,7 @@ import { Vector } from './types/vector'
 import { StaticFilter } from './types/staticFilter'
 import { Filter } from './types/filter'
 import { MultiArray } from './types/multiArray'
+import { System } from './types/system'
 
 const createTypeInstance = (engine: Engine, parent: Type<any> | null, definition: any) => {
     switch (definition.TYPE) {
@@ -93,6 +94,8 @@ const createTypeInstance = (engine: Engine, parent: Type<any> | null, definition
             return new StaticFilter(engine, parent, definition)
         case 'STRING':
             return new StringType(engine, parent, definition)
+        case 'SYSTEM':
+            return new System(engine, parent, definition)
         case 'TEXT':
             return new Text(engine, parent, definition)
         case 'TIMER':
