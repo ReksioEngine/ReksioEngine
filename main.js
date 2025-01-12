@@ -51350,6 +51350,7 @@ const vector_1 = __webpack_require__(/*! ./types/vector */ "./src/engine/types/v
 const staticFilter_1 = __webpack_require__(/*! ./types/staticFilter */ "./src/engine/types/staticFilter.ts");
 const filter_1 = __webpack_require__(/*! ./types/filter */ "./src/engine/types/filter.ts");
 const multiArray_1 = __webpack_require__(/*! ./types/multiArray */ "./src/engine/types/multiArray.ts");
+const system_1 = __webpack_require__(/*! ./types/system */ "./src/engine/types/system.ts");
 const createTypeInstance = (engine, parent, definition) => {
     switch (definition.TYPE) {
         case 'ANIMO':
@@ -51410,6 +51411,8 @@ const createTypeInstance = (engine, parent, definition) => {
             return new staticFilter_1.StaticFilter(engine, parent, definition);
         case 'STRING':
             return new string_1.String(engine, parent, definition);
+        case 'SYSTEM':
+            return new system_1.System(engine, parent, definition);
         case 'TEXT':
             return new text_1.Text(engine, parent, definition);
         case 'TIMER':
@@ -55315,15 +55318,88 @@ exports.Music = Music;
 /*!**********************************!*\
   !*** ./src/engine/types/rand.ts ***!
   \**********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Rand = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-class Rand extends index_1.Type {
-}
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let Rand = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _GET_decorators;
+    let _GETPLENTY_decorators;
+    return _a = class Rand extends _classSuper {
+            GET(min, max) {
+                if (max === undefined) {
+                    return this.GET(0, min);
+                }
+                max = min + max;
+                return Math.floor(Math.random() * (max - min)) + min;
+            }
+            GETPLENTY(objectTarget, count, min, max, unique) {
+                const object = this.engine?.getObject(objectTarget);
+                const values = [];
+                while (values.length < count) {
+                    const randomValue = this.GET(min, max);
+                    if (!unique || !values.includes(randomValue)) {
+                        values.push(randomValue);
+                    }
+                }
+                object.ADD(...values);
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _GET_decorators = [(0, types_1.method)({ name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
+            _GETPLENTY_decorators = [(0, types_1.method)({ name: "objectTarget", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "count", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "unique", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPLENTY_decorators, { kind: "method", name: "GETPLENTY", static: false, private: false, access: { has: obj => "GETPLENTY" in obj, get: obj => obj.GETPLENTY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
 exports.Rand = Rand;
 
 
@@ -56143,6 +56219,80 @@ let String = (() => {
         _a;
 })();
 exports.String = String;
+
+
+/***/ }),
+
+/***/ "./src/engine/types/system.ts":
+/*!************************************!*\
+  !*** ./src/engine/types/system.ts ***!
+  \************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.System = void 0;
+const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+let System = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _GETDATE_decorators;
+    return _a = class System extends _classSuper {
+            GETDATE() {
+                const date = new Date();
+                return date.getDate() - 0xf41db + (date.getMonth() + (date.getFullYear() - 1900) * 100) * 100;
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _GETDATE_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _GETDATE_decorators, { kind: "method", name: "GETDATE", static: false, private: false, access: { has: obj => "GETDATE" in obj, get: obj => obj.GETDATE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
+exports.System = System;
 
 
 /***/ }),
@@ -57086,6 +57236,7 @@ const StaticFilterDefinitionStructure = {
 const FilterDefinitionStructure = {
     ACTION: common_1.string,
 };
+const SystemDefinitionStructure = {};
 exports.structureDefinitions = {
     APPLICATION: ApplicationStructure,
     EPISODE: EpisodeStructure,
@@ -57119,6 +57270,7 @@ exports.structureDefinitions = {
     STATICFILTER: StaticFilterDefinitionStructure,
     FILTER: FilterDefinitionStructure,
     MULTIARRAY: MultiArrayDefinitionStructure,
+    SYSTEM: SystemDefinitionStructure,
 };
 
 
@@ -60254,13 +60406,14 @@ const ReksioLangVisitor_1 = __importDefault(__webpack_require__(/*! ./ReksioLang
 const ReksioLangParser_1 = __importDefault(__webpack_require__(/*! ./ReksioLangParser */ "./src/interpreter/script/ReksioLangParser.ts"));
 const ReksioLangLexer_1 = __importDefault(__webpack_require__(/*! ./ReksioLangLexer */ "./src/interpreter/script/ReksioLangLexer.ts"));
 const antlr4_1 = __importDefault(__webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs"));
-const stdlib_1 = __webpack_require__(/*! ./stdlib */ "./src/interpreter/script/stdlib.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
 const types_2 = __webpack_require__(/*! ../../engine/types */ "./src/engine/types/index.ts");
 const string_1 = __webpack_require__(/*! ../../engine/types/string */ "./src/engine/types/string.ts");
 const stacktrace_1 = __webpack_require__(/*! ./stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const evaluator_1 = __webpack_require__(/*! ../ifExpression/evaluator */ "./src/interpreter/ifExpression/evaluator.ts");
+const rand_1 = __webpack_require__(/*! ../../engine/types/rand */ "./src/engine/types/rand.ts");
+const system_1 = __webpack_require__(/*! ../../engine/types/system */ "./src/engine/types/system.ts");
 class InterruptScriptExecution {
     constructor(one = false) {
         this.one = one;
@@ -60278,7 +60431,7 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
         this.lastContext = null;
         this.methodCallUsedVariables = {};
         this.scriptUsedVariables = {};
-        this.libraries = new Map();
+        this.globalInstances = new Map();
         this.visitStatementList = (ctx) => {
             this.lastContext = ctx;
             let result = null;
@@ -60473,8 +60626,8 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
             this.methodCallUsedVariables[objectName] = object;
             this.scriptUsedVariables[objectName] = object;
             if (object === null) {
-                if (this.libraries.has(objectName)) {
-                    return this.libraries.get(objectName);
+                if (this.globalInstances.has(objectName)) {
+                    return this.globalInstances.get(objectName);
                 }
                 if (this.printDebug) {
                     const code = this.markInCode(ctx);
@@ -60530,7 +60683,19 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
         this.loadLibraries();
     }
     loadLibraries() {
-        this.libraries.set('RANDOM', new stdlib_1.RandomLibrary(this.engine));
+        if (this.engine === undefined) {
+            return;
+        }
+        this.globalInstances.set('RANDOM', new rand_1.Rand(this.engine, null, {
+            TYPE: 'RAND',
+            NAME: 'RANDOM',
+            TOINI: false,
+        }));
+        this.globalInstances.set('SYSTEM', new system_1.System(this.engine, null, {
+            TYPE: 'SYSTEM',
+            NAME: 'SYSTEM',
+            TOINI: false,
+        }));
     }
     replaceParameters(str) {
         return str.replace(/\$(\d+)/g, (match, index) => {
@@ -60692,101 +60857,6 @@ const printStackTrace = () => {
     console.error('\t' + lines.join('\n\t'));
 };
 exports.printStackTrace = printStackTrace;
-
-
-/***/ }),
-
-/***/ "./src/interpreter/script/stdlib.ts":
-/*!******************************************!*\
-  !*** ./src/interpreter/script/stdlib.ts ***!
-  \******************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
-    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-    var _, done = false;
-    for (var i = decorators.length - 1; i >= 0; i--) {
-        var context = {};
-        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
-        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
-        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
-        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
-        if (kind === "accessor") {
-            if (result === void 0) continue;
-            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-            if (_ = accept(result.get)) descriptor.get = _;
-            if (_ = accept(result.set)) descriptor.set = _;
-            if (_ = accept(result.init)) initializers.unshift(_);
-        }
-        else if (_ = accept(result)) {
-            if (kind === "field") initializers.unshift(_);
-            else descriptor[key] = _;
-        }
-    }
-    if (target) Object.defineProperty(target, contextIn.name, descriptor);
-    done = true;
-};
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RandomLibrary = void 0;
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
-class Library {
-    constructor(engine) {
-        this.engine = engine;
-    }
-}
-let RandomLibrary = (() => {
-    var _a;
-    let _classSuper = Library;
-    let _instanceExtraInitializers = [];
-    let _GET_decorators;
-    let _GETPLENTY_decorators;
-    return _a = class RandomLibrary extends _classSuper {
-            GET(min, max) {
-                if (max === undefined) {
-                    return this.GET(0, min);
-                }
-                max = min + max;
-                return Math.floor(Math.random() * (max - min)) + min;
-            }
-            GETPLENTY(objectTarget, count, min, max, unique) {
-                const object = this.engine?.getObject(objectTarget);
-                const values = [];
-                while (values.length < count) {
-                    const randomValue = this.GET(min, max);
-                    if (!unique || !values.includes(randomValue)) {
-                        values.push(randomValue);
-                    }
-                }
-                object.ADD(...values);
-            }
-            constructor() {
-                super(...arguments);
-                __runInitializers(this, _instanceExtraInitializers);
-            }
-        },
-        (() => {
-            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _GET_decorators = [(0, types_1.method)({ name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
-            _GETPLENTY_decorators = [(0, types_1.method)({ name: "objectTarget", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "count", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "unique", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(_a, null, _GETPLENTY_decorators, { kind: "method", name: "GETPLENTY", static: false, private: false, access: { has: obj => "GETPLENTY" in obj, get: obj => obj.GETPLENTY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        })(),
-        _a;
-})();
-exports.RandomLibrary = RandomLibrary;
 
 
 /***/ }),
