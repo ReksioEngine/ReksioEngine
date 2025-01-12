@@ -17,7 +17,6 @@ import ReksioLangParser, {
 import ReksioLangLexer from './ReksioLangLexer'
 import antlr4, { ParserRuleContext } from 'antlr4'
 import { Engine } from '../../engine'
-import { RandomLibrary } from './stdlib'
 import { Behaviour } from '../../engine/types/behaviour'
 import { assert, NotImplementedError } from '../../errors'
 import { Compare, ForceNumber } from '../../types'
@@ -25,6 +24,7 @@ import { Type } from '../../engine/types'
 import { String } from '../../engine/types/string'
 import { printStackTrace, StackFrame, stackTrace } from './stacktrace'
 import { evaluateExpression } from '../ifExpression/evaluator'
+import { Rand } from '../../engine/types/rand'
 
 export class InterruptScriptExecution {
     public one: boolean
@@ -50,7 +50,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     public methodCallUsedVariables: any = {}
     public scriptUsedVariables: any = {}
 
-    private libraries = new Map<string, any>()
+    private globalInstances = new Map<string, any>()
 
     constructor(engine?: Engine, script?: string, args?: any[], printDebug?: boolean) {
         super()
@@ -62,7 +62,15 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 
     private loadLibraries() {
-        this.libraries.set('RANDOM', new RandomLibrary(this.engine))
+        if (this.engine === undefined) {
+            return
+        }
+
+        this.globalInstances.set('RANDOM', new Rand(this.engine, null, {
+            TYPE: 'RAND',
+            NAME: 'RANDOM',
+            TOINI: false
+        }))
     }
 
     visitStatementList = (ctx: StatementListContext): any => {
@@ -333,8 +341,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         this.scriptUsedVariables[objectName] = object
 
         if (object === null) {
-            if (this.libraries.has(objectName)) {
-                return this.libraries.get(objectName)
+            if (this.globalInstances.has(objectName)) {
+                return this.globalInstances.get(objectName)
             }
 
             if (this.printDebug) {
