@@ -420,9 +420,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    SETASBUTTON(arg1: boolean, arg2: boolean) {
+    SETASBUTTON(enabled: boolean, show_pointer: boolean) {
         assert(this.sprite !== null)
-        if (arg1 && arg2) {
+        if (enabled) {
             this.buttonLogic = new ButtonLogicComponent(this.onButtonStateChange.bind(this))
             this.buttonLogic.registerInteractive(this.sprite)
             this.buttonLogic.enable()
