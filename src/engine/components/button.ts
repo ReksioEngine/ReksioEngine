@@ -67,9 +67,9 @@ export class ButtonLogicComponent {
         this.stateMachine = new StateMachine<State, Event>(State.INIT, transitions, this.onStateChangeCallback)
     }
 
-    registerInteractive(sprite: DisplayObject) {
+    registerInteractive(sprite: DisplayObject, showPointer = true) {
         sprite.eventMode = 'dynamic'
-        sprite.cursor = 'pointer'
+        sprite.cursor = showPointer ? 'pointer' : 'default'
 
         sprite.addListener('pointerover', this.onMouseOverCallback)
         sprite.addListener('pointerout', this.onMouseOutCallback)

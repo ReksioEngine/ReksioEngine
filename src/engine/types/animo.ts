@@ -3,7 +3,7 @@ import { AnimoDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { assert, InvalidObjectError } from '../../errors'
 import * as PIXI from 'pixi.js'
-import { Rectangle, Texture } from 'pixi.js'
+import { Graphics, Rectangle, Texture } from 'pixi.js'
 import { ANN, Event } from '../../fileFormats/ann'
 import { ButtonLogicComponent, Event as FSMEvent, State } from '../components/button'
 import { loadSound } from '../assetsLoader'
@@ -14,7 +14,7 @@ import { method } from '../../types'
 import { CollisionsComponent } from '../components/collisions'
 
 export class Animo extends DisplayType<AnimoDefinition> {
-    private buttonLogic: ButtonLogicComponent | null = null
+    private buttonLogic: ButtonLogicComponent
     readonly collisions: CollisionsComponent
 
     private isFirstTick: boolean = true
@@ -26,6 +26,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private currentLoop: number = 0
 
     private animationEndedLastTick: boolean = false
+    private buttonInteractArea: Graphics | null = null
 
     private fps: number = 16
     private timeSinceLastFrame: number = 0
@@ -54,6 +55,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         super(engine, parent, definition)
         this.fps = definition.FPS ?? 16
         this.collisions = new CollisionsComponent(engine, this)
+        this.buttonLogic = new ButtonLogicComponent(this.onButtonStateChange.bind(this))
     }
 
     async init() {
@@ -157,6 +159,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         assert(this.annFile !== null)
 
         this.sprite = new AdvancedSprite()
+        this.sprite.eventMode = 'none'
         this.sprite.visible = this.definition.VISIBLE
         this.SETPRIORITY(this.definition.PRIORITY ?? 0)
 
@@ -420,17 +423,23 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    SETASBUTTON(enabled: boolean, show_pointer: boolean) {
+    SETASBUTTON(enabled: boolean, showPointer: boolean) {
         assert(this.sprite !== null)
         if (enabled) {
-            this.buttonLogic = new ButtonLogicComponent(this.onButtonStateChange.bind(this))
-            this.buttonLogic.registerInteractive(this.sprite)
+            this.buttonInteractArea = new Graphics()
+            this.buttonInteractArea.hitArea = this.sprite.getBounds()
+            this.buttonInteractArea.zIndex = this.sprite.zIndex
+            this.engine.app.stage.addChild(this.buttonInteractArea)
+
+            this.buttonLogic.registerInteractive(this.buttonInteractArea, showPointer)
             this.buttonLogic.enable()
-            if (this.hasEvent('ONNOEVENT')) {
-                this.playEvent('ONNOEVENT')
-            }
+            this.playEvent('ONNOEVENT')
         } else {
-            this.buttonLogic?.unregisterInteractive(this.sprite)
+            if (this.buttonInteractArea) {
+                this.buttonLogic.unregisterInteractive(this.buttonInteractArea)
+                this.engine.app.stage.removeChild(this.buttonInteractArea)
+                this.buttonInteractArea = null
+            }
             this.buttonLogic?.disable()
         }
     }
