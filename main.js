@@ -50734,9 +50734,9 @@ class ButtonLogicComponent {
         ];
         this.stateMachine = new stateMachine_1.StateMachine(State.INIT, transitions, this.onStateChangeCallback);
     }
-    registerInteractive(sprite) {
+    registerInteractive(sprite, showPointer = true) {
         sprite.eventMode = 'dynamic';
-        sprite.cursor = 'pointer';
+        sprite.cursor = showPointer ? 'pointer' : 'default';
         sprite.addListener('pointerover', this.onMouseOverCallback);
         sprite.addListener('pointerout', this.onMouseOutCallback);
         sprite.addListener('pointerdown', this.onMouseDownCallback);
@@ -52125,7 +52125,7 @@ let Animo = (() => {
     return _a = class Animo extends _classSuper {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition);
-                this.buttonLogic = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.buttonLogic = (__runInitializers(this, _instanceExtraInitializers), void 0);
                 this.isFirstTick = true;
                 this.isAnyFrameSet = false;
                 this.isPlaying = false;
@@ -52133,6 +52133,7 @@ let Animo = (() => {
                 this.currentEvent = '';
                 this.currentLoop = 0;
                 this.animationEndedLastTick = false;
+                this.buttonInteractArea = null;
                 this.fps = 16;
                 this.timeSinceLastFrame = 0;
                 this.positionX = 0;
@@ -52148,6 +52149,7 @@ let Animo = (() => {
                 this.sounds = new Map();
                 this.fps = definition.FPS ?? 16;
                 this.collisions = new collisions_1.CollisionsComponent(engine, this);
+                this.buttonLogic = new button_1.ButtonLogicComponent(this.onButtonStateChange.bind(this));
             }
             async init() {
                 this.annFile = await this.loadAnimation();
@@ -52235,6 +52237,7 @@ let Animo = (() => {
             initSprite() {
                 (0, errors_1.assert)(this.annFile !== null);
                 this.sprite = new rendering_1.AdvancedSprite();
+                this.sprite.eventMode = 'none';
                 this.sprite.visible = this.definition.VISIBLE;
                 this.SETPRIORITY(this.definition.PRIORITY ?? 0);
                 this.engine.addToStage(this.sprite);
@@ -52432,18 +52435,23 @@ let Animo = (() => {
                 this.sprite.x = x + this.positionOffsetX + this.anchorOffsetX;
                 this.sprite.y = y + this.positionOffsetY + this.anchorOffsetY;
             }
-            SETASBUTTON(enabled, show_pointer) {
+            SETASBUTTON(enabled, showPointer) {
                 (0, errors_1.assert)(this.sprite !== null);
                 if (enabled) {
-                    this.buttonLogic = new button_1.ButtonLogicComponent(this.onButtonStateChange.bind(this));
-                    this.buttonLogic.registerInteractive(this.sprite);
+                    this.buttonInteractArea = new pixi_js_1.Graphics();
+                    this.buttonInteractArea.hitArea = this.sprite.getBounds();
+                    this.buttonInteractArea.zIndex = this.sprite.zIndex;
+                    this.engine.app.stage.addChild(this.buttonInteractArea);
+                    this.buttonLogic.registerInteractive(this.buttonInteractArea, showPointer);
                     this.buttonLogic.enable();
-                    if (this.hasEvent('ONNOEVENT')) {
-                        this.playEvent('ONNOEVENT');
-                    }
+                    this.playEvent('ONNOEVENT');
                 }
                 else {
-                    this.buttonLogic?.unregisterInteractive(this.sprite);
+                    if (this.buttonInteractArea) {
+                        this.buttonLogic.unregisterInteractive(this.buttonInteractArea);
+                        this.engine.app.stage.removeChild(this.buttonInteractArea);
+                        this.buttonInteractArea = null;
+                    }
                     this.buttonLogic?.disable();
                 }
             }
@@ -52590,7 +52598,7 @@ let Animo = (() => {
             _ISVISIBLE_decorators = [(0, types_1.method)()];
             _MOVE_decorators = [(0, types_1.method)({ name: "xOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "yOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SETPOSITION_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETASBUTTON_decorators = [(0, types_1.method)({ name: "enabled", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "show_pointer", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETASBUTTON_decorators = [(0, types_1.method)({ name: "enabled", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "showPointer", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             _GETCENTERX_decorators = [(0, types_1.method)()];
             _GETCENTERY_decorators = [(0, types_1.method)()];
             _GETPOSITIONX_decorators = [(0, types_1.method)()];
