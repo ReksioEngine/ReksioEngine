@@ -30,7 +30,7 @@ export class Group extends Type<GroupDefinition> {
 
     @method()
     REMOVE(...objectsNames: string[]) {
-        this.objects = this.objects.filter((object) => objectsNames.includes(object.name))
+        this.objects = this.objects.filter((object) => !objectsNames.includes(object.name))
     }
 
     __call(methodName: string, args: any[]) {
