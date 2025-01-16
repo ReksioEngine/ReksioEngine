@@ -54342,7 +54342,7 @@ let Group = (() => {
                 }));
             }
             REMOVE(...objectsNames) {
-                this.objects = this.objects.filter((object) => objectsNames.includes(object.name));
+                this.objects = this.objects.filter((object) => !objectsNames.includes(object.name));
             }
             __call(methodName, args) {
                 for (const object of this.objects) {
