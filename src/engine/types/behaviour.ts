@@ -33,15 +33,17 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     @method()
-    RUNLOOPED(init: number, len: number, step: number = 1, ...args: any[]) {
+    RUNLOOPED(start: number, len: number, step: number = 1, ...args: any[]) {
         const resolvedArgs = this.resolveArgs(args)
-        for (let i = init; i < len; i += step) {
+
+        let value = start
+        for (let i = 0; i < len; i++) {
             try {
                 if (!this.shouldRun()) {
                     continue
                 }
 
-                this.engine.executeCallback(null, this.definition.CODE, [i, step, ...resolvedArgs])
+                this.engine.executeCallback(null, this.definition.CODE, [value, step, ...resolvedArgs])
             } catch (err) {
                 if (err instanceof InterruptScriptExecution) {
                     if (err.one) {
@@ -52,6 +54,8 @@ export class Behaviour extends Type<BehaviourDefinition> {
                 } else {
                     throw err
                 }
+            } finally {
+                value += step
             }
         }
     }
