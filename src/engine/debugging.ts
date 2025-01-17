@@ -84,6 +84,7 @@ export class Debugging {
         const xray = debug.querySelector('#xray')
 
         const sceneSelector: any = document.querySelector('#sceneSelector')!
+        const sceneRestart: any = document.querySelector('#restartButton')!
         const resetSave: any = document.querySelector('#resetSave')!
         const resetSaveAndRestart: any = document.querySelector('#resetSaveAndRestart')!
         const importSave: any = document.querySelector('#importSave')!
@@ -151,6 +152,10 @@ export class Debugging {
 
         sceneSelector.addEventListener('change', () => {
             this.engine.changeScene(sceneSelector.value)
+        })
+
+        sceneRestart.addEventListener('click', () => {
+            this.engine.changeScene(this.engine.currentScene!.name)
         })
 
         resetSave.addEventListener('click', () => {
