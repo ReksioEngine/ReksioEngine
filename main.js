@@ -50765,6 +50765,13 @@ class ButtonLogicComponent {
             this.stateMachine.dispatch(Event.ENABLE);
         }
     }
+    get state() {
+        return this.stateMachine.getState();
+    }
+    get enabled() {
+        const state = this.stateMachine.getState();
+        return state != State.DISABLED && state != State.DISABLED_BUT_VISIBLE;
+    }
     onMouseOver() {
         if (this.stateMachine.can(Event.OVER)) {
             this.stateMachine.dispatch(Event.OVER);
@@ -51007,13 +51014,11 @@ exports.EventsComponent = EventsComponent;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Debugging = void 0;
-const types_1 = __webpack_require__(/*! ./types */ "./src/engine/types/index.ts");
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const filesLoader_1 = __webpack_require__(/*! ./filesLoader */ "./src/engine/filesLoader.ts");
 const utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/animo.ts");
-const button_1 = __webpack_require__(/*! ./types/button */ "./src/engine/types/button.ts");
 const parser_1 = __webpack_require__(/*! ../fileFormats/cnv/parser */ "./src/fileFormats/cnv/parser.ts");
 const definitionLoader_1 = __webpack_require__(/*! ./definitionLoader */ "./src/engine/definitionLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
@@ -51202,38 +51207,8 @@ class Debugging {
             return;
         }
         for (const object of Object.values(this.engine.scope)) {
-            if (!(object instanceof types_1.DisplayType) && !(object instanceof button_1.Button)) {
-                continue;
-            }
-            let rectangle;
-            let visible;
-            let isInteractive;
-            let position = 'inside';
-            if (object instanceof types_1.DisplayType) {
-                const renderObject = object.getRenderObject();
-                if (renderObject === null) {
-                    continue;
-                }
-                rectangle = renderObject.getBounds();
-                visible = renderObject.visible;
-                const listenersCount = renderObject.listenerCount('pointerover') +
-                    renderObject.listenerCount('pointerout') +
-                    renderObject.listenerCount('pointerdown') +
-                    renderObject.listenerCount('pointerup');
-                isInteractive = listenersCount > 0;
-                position = 'inside';
-            }
-            else {
-                const area = object.getArea();
-                if (area === null) {
-                    continue;
-                }
-                rectangle = area;
-                visible = true;
-                isInteractive = true;
-                position = 'outside';
-            }
-            if (!visible) {
+            const info = object.__getXRayInfo();
+            if (info == null) {
                 this.xrays.get(object.name)?.destroy({
                     children: true,
                 });
@@ -51242,10 +51217,10 @@ class Debugging {
             }
             if (this.xrays.has(object.name)) {
                 const oldRectangle = this.xrays.get(object.name);
-                if (oldRectangle.x === rectangle.x &&
-                    oldRectangle.y === rectangle.y &&
-                    oldRectangle.width === rectangle.width &&
-                    oldRectangle.height === rectangle.height) {
+                if (oldRectangle.x === info.bounds.x &&
+                    oldRectangle.y === info.bounds.y &&
+                    oldRectangle.width === info.bounds.width &&
+                    oldRectangle.height === info.bounds.height) {
                     continue;
                 }
             }
@@ -51278,22 +51253,17 @@ class Debugging {
                     container.addChild(eventText);
                 }
             }
-            const drawRect = new pixi_js_1.Rectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-            if (isInteractive) {
-                (0, utils_1.drawRectangle)(graphics, drawRect, 0, 0, 1, 0x00ff00);
-            }
-            else {
-                (0, utils_1.drawRectangle)(graphics, drawRect, 0, 0, 1, 0x0000ff);
-            }
+            const drawRect = new pixi_js_1.Rectangle(info.bounds.x, info.bounds.y, info.bounds.width, info.bounds.height);
+            (0, utils_1.drawRectangle)(graphics, drawRect, 0, 0, 1, info.color ?? 0x808080);
             nameText.style = {
-                fontSize: position === 'outside' ? 7 : 11,
+                fontSize: info.position === 'outside' ? 7 : 11,
                 fontWeight: 'bold',
                 fill: '#ff0000',
                 stroke: '#000000',
                 strokeThickness: 2,
             };
-            nameText.x = rectangle.x + (position === 'outside' ? 0 : 5);
-            nameText.y = rectangle.y + (position === 'outside' ? -11 : 5);
+            nameText.x = info.bounds.x + (info.position === 'outside' ? 0 : 5);
+            nameText.y = info.bounds.y + (info.position === 'outside' ? -11 : 5);
             if (object instanceof animo_1.Animo && eventText !== null) {
                 eventText.style = {
                     fontSize: 8,
@@ -51301,8 +51271,8 @@ class Debugging {
                     stroke: '#000000',
                     strokeThickness: 2,
                 };
-                eventText.x = position === 'outside' ? rectangle.x : rectangle.x + 5;
-                eventText.y = (position === 'outside' ? rectangle.y - 15 : rectangle.y) + 5 + 12;
+                eventText.x = info.position === 'outside' ? info.bounds.x : info.bounds.x + 5;
+                eventText.y = (info.position === 'outside' ? info.bounds.y - 15 : info.bounds.y) + 5 + 12;
             }
         }
     }
@@ -52588,6 +52558,24 @@ let Animo = (() => {
                 clone.initSprite();
                 return clone;
             }
+            __getXRayInfo() {
+                if (this.buttonInteractArea) {
+                    return {
+                        type: 'button',
+                        bounds: this.buttonInteractArea.hitArea,
+                        color: this.buttonLogic.enabled ? 0x00ff00 : 0x0000ff,
+                        position: 'outside'
+                    };
+                }
+                else if (this.sprite?.visible) {
+                    return {
+                        type: 'sprite',
+                        bounds: this.sprite.getBounds(),
+                        position: 'inside'
+                    };
+                }
+                return null;
+            }
         },
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
@@ -53477,12 +53465,22 @@ let Button = (() => {
                     }
                 }
             }
-            getArea() {
+            __getXRayInfo() {
                 if (this.rect !== null) {
-                    return this.rect;
+                    return {
+                        type: 'button',
+                        bounds: this.rect,
+                        color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
+                        position: 'outside'
+                    };
                 }
-                else if (this.gfxStandard?.getRenderObject()) {
-                    return this.gfxStandard.getRenderObject().getBounds();
+                else if (this.gfxStandard?.getRenderObject()?.visible) {
+                    return {
+                        type: 'button',
+                        bounds: this.gfxStandard.getRenderObject().getBounds(),
+                        color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
+                        position: 'outside'
+                    };
                 }
                 return null;
             }
@@ -54616,6 +54614,9 @@ let Type = (() => {
             ready() { }
             destroy() { }
             tick(elapsedMS) { }
+            __getXRayInfo() {
+                return null;
+            }
             // Called when trying to call a method that is not existing for a type
             __call(methodName, args) {
                 const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
@@ -54662,6 +54663,17 @@ let DisplayType = (() => {
             }
             getRenderObject() {
                 throw new errors_1.NotImplementedError();
+            }
+            __getXRayInfo() {
+                const renderObject = this.getRenderObject();
+                if (renderObject === null || !renderObject.visible) {
+                    return null;
+                }
+                return {
+                    type: 'sprite',
+                    bounds: renderObject.getBounds(),
+                    position: 'outside'
+                };
             }
         },
         (() => {
