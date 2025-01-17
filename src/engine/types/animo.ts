@@ -1,4 +1,4 @@
-import { DisplayType, Type } from './index'
+import { DisplayType, Type, XRayInfo } from './index'
 import { AnimoDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { assert, InvalidObjectError } from '../../errors'
@@ -621,5 +621,23 @@ export class Animo extends DisplayType<AnimoDefinition> {
         clone.sounds = this.sounds
         clone.initSprite()
         return clone
+    }
+
+    __getXRayInfo(): XRayInfo | null {
+        if (this.buttonInteractArea) {
+            return {
+                type: 'button',
+                bounds: this.buttonInteractArea.hitArea as Rectangle,
+                color: this.buttonLogic.enabled ? 0x00ff00 : 0x0000ff,
+                position: 'outside'
+            }
+        } else if (this.sprite?.visible) {
+            return {
+                type: 'sprite',
+                bounds: this.sprite.getBounds(),
+                position: 'inside'
+            }
+        }
+        return null
     }
 }

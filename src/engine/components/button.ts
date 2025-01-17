@@ -105,6 +105,15 @@ export class ButtonLogicComponent {
         }
     }
 
+    get state() {
+        return this.stateMachine.getState()
+    }
+
+    get enabled() {
+        const state = this.stateMachine.getState()
+        return state != State.DISABLED && state != State.DISABLED_BUT_VISIBLE
+    }
+
     private onMouseOver() {
         if (this.stateMachine.can(Event.OVER)) {
             this.stateMachine.dispatch(Event.OVER)

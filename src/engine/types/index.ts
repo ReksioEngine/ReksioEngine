@@ -1,10 +1,17 @@
 import { Engine } from '../index'
 import { DisplayTypeDefinition, TypeDefinition, ValueTypeDefinition } from '../../fileFormats/common'
 import { CallbacksComponent } from '../components/callbacks'
-import { Sprite } from 'pixi.js'
+import { Rectangle, Sprite } from 'pixi.js'
 import { assert, NotImplementedError } from '../../errors'
 import { EventsComponent } from '../components/events'
 import { method } from '../../types'
+
+export type XRayInfo = {
+    type: string
+    bounds: Rectangle
+    color?: number
+    position: 'inside' | 'outside'
+}
 
 export class Type<DefinitionType extends TypeDefinition> {
     protected callbacks: CallbacksComponent
@@ -64,6 +71,10 @@ export class Type<DefinitionType extends TypeDefinition> {
     destroy() {}
     tick(elapsedMS: number) {}
 
+    __getXRayInfo(): XRayInfo | null {
+        return null
+    }
+
     // Called when trying to call a method that is not existing for a type
     __call(methodName: string, args: any[]) {
         const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : ''
@@ -98,6 +109,19 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
 
     getRenderObject(): Sprite | null {
         throw new NotImplementedError()
+    }
+
+    __getXRayInfo(): XRayInfo | null {
+        const renderObject = this.getRenderObject()
+        if (renderObject === null || !renderObject.visible) {
+            return null
+        }
+
+        return {
+            type: 'sprite',
+            bounds: renderObject.getBounds(),
+            position: 'outside'
+        }
     }
 }
 

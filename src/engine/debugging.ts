@@ -239,45 +239,8 @@ export class Debugging {
         }
 
         for (const object of Object.values(this.engine.scope)) {
-            if (!(object instanceof DisplayType) && !(object instanceof Button)) {
-                continue
-            }
-
-            let rectangle: Rectangle
-            let visible: boolean
-            let isInteractive: boolean
-            let position: string = 'inside'
-
-            if (object instanceof DisplayType) {
-                const renderObject: Sprite | null = object.getRenderObject()
-                if (renderObject === null) {
-                    continue
-                }
-
-                rectangle = renderObject.getBounds()
-                visible = renderObject.visible
-
-                const listenersCount =
-                    renderObject.listenerCount('pointerover') +
-                    renderObject.listenerCount('pointerout') +
-                    renderObject.listenerCount('pointerdown') +
-                    renderObject.listenerCount('pointerup')
-
-                isInteractive = listenersCount > 0
-                position = 'inside'
-            } else {
-                const area = object.getArea()
-                if (area === null) {
-                    continue
-                }
-
-                rectangle = area
-                visible = true
-                isInteractive = true
-                position = 'outside'
-            }
-
-            if (!visible) {
+            const info = object.__getXRayInfo()
+            if (info == null) {
                 this.xrays.get(object.name)?.destroy({
                     children: true,
                 })
@@ -288,10 +251,10 @@ export class Debugging {
             if (this.xrays.has(object.name)) {
                 const oldRectangle = this.xrays.get(object.name)!
                 if (
-                    oldRectangle.x === rectangle.x &&
-                    oldRectangle.y === rectangle.y &&
-                    oldRectangle.width === rectangle.width &&
-                    oldRectangle.height === rectangle.height
+                    oldRectangle.x === info.bounds.x &&
+                    oldRectangle.y === info.bounds.y &&
+                    oldRectangle.width === info.bounds.width &&
+                    oldRectangle.height === info.bounds.height
                 ) {
                     continue
                 }
@@ -332,22 +295,18 @@ export class Debugging {
                 }
             }
 
-            const drawRect = new Rectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height)
-            if (isInteractive) {
-                drawRectangle(graphics, drawRect, 0, 0, 1, 0x00ff00)
-            } else {
-                drawRectangle(graphics, drawRect, 0, 0, 1, 0x0000ff)
-            }
+            const drawRect = new Rectangle(info.bounds.x, info.bounds.y, info.bounds.width, info.bounds.height)
+            drawRectangle(graphics, drawRect, 0, 0, 1, info.color ?? 0x808080)
 
             nameText.style = {
-                fontSize: position === 'outside' ? 7 : 11,
+                fontSize: info.position === 'outside' ? 7 : 11,
                 fontWeight: 'bold',
                 fill: '#ff0000',
                 stroke: '#000000',
                 strokeThickness: 2,
             }
-            nameText.x = rectangle.x + (position === 'outside' ? 0 : 5)
-            nameText.y = rectangle.y + (position === 'outside' ? -11 : 5)
+            nameText.x = info.bounds.x + (info.position === 'outside' ? 0 : 5)
+            nameText.y = info.bounds.y + (info.position === 'outside' ? -11 : 5)
 
             if (object instanceof Animo && eventText !== null) {
                 eventText.style = {
@@ -356,8 +315,8 @@ export class Debugging {
                     stroke: '#000000',
                     strokeThickness: 2,
                 }
-                eventText.x = position === 'outside' ? rectangle.x : rectangle.x + 5
-                eventText.y = (position === 'outside' ? rectangle.y - 15 : rectangle.y) + 5 + 12
+                eventText.x = info.position === 'outside' ? info.bounds.x : info.bounds.x + 5
+                eventText.y = (info.position === 'outside' ? info.bounds.y - 15 : info.bounds.y) + 5 + 12
             }
         }
     }

@@ -1,4 +1,4 @@
-import { Type } from './index'
+import { Type, XRayInfo } from './index'
 import { Engine } from '../index'
 import { ButtonDefinition } from '../../fileFormats/cnv/types'
 import { Image } from './image'
@@ -235,11 +235,21 @@ export class Button extends Type<ButtonDefinition> {
         }
     }
 
-    public getArea() {
+    __getXRayInfo(): XRayInfo | null {
         if (this.rect !== null) {
-            return this.rect
-        } else if (this.gfxStandard?.getRenderObject()) {
-            return this.gfxStandard.getRenderObject()!.getBounds()
+            return {
+                type: 'button',
+                bounds: this.rect,
+                color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
+                position: 'outside'
+            }
+        } else if (this.gfxStandard?.getRenderObject()?.visible) {
+            return {
+                type: 'button',
+                bounds: this.gfxStandard.getRenderObject()!.getBounds(),
+                color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
+                position: 'outside'
+            }
         }
         return null
     }
