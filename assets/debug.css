@@ -33,9 +33,20 @@
 
 button,
 select {
-    background: #2d2d2d;
+    background-color: #2d2d2d;
     border: 1px solid #3b3b3b;
     color: #fff;
     padding: 7px;
     border-radius: 3px;
+    transition: background-color 0.1s;
+}
+
+button:hover,
+select:hover {
+    background-color: #414141;
+}
+
+button:active,
+select:active {
+    background-color: #5b5b5b;
 }

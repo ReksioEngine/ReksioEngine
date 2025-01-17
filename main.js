@@ -51074,6 +51074,7 @@ class Debugging {
         const spaceVelocity = debug.querySelector('#spaceVelocity');
         const xray = debug.querySelector('#xray');
         const sceneSelector = document.querySelector('#sceneSelector');
+        const sceneRestart = document.querySelector('#restartButton');
         const resetSave = document.querySelector('#resetSave');
         const resetSaveAndRestart = document.querySelector('#resetSaveAndRestart');
         const importSave = document.querySelector('#importSave');
@@ -51127,6 +51128,9 @@ class Debugging {
         }
         sceneSelector.addEventListener('change', () => {
             this.engine.changeScene(sceneSelector.value);
+        });
+        sceneRestart.addEventListener('click', () => {
+            this.engine.changeScene(this.engine.currentScene.name);
         });
         resetSave.addEventListener('click', () => {
             this.engine.pause();
@@ -53069,14 +53073,15 @@ let Behaviour = (() => {
                 }
                 return this.RUN(...args);
             }
-            RUNLOOPED(init, len, step = 1, ...args) {
+            RUNLOOPED(start, len, step = 1, ...args) {
                 const resolvedArgs = this.resolveArgs(args);
-                for (let i = init; i < len; i += step) {
+                let value = start;
+                for (let i = 0; i < len; i++) {
                     try {
                         if (!this.shouldRun()) {
                             continue;
                         }
-                        this.engine.executeCallback(null, this.definition.CODE, [i, step, ...resolvedArgs]);
+                        this.engine.executeCallback(null, this.definition.CODE, [value, step, ...resolvedArgs]);
                     }
                     catch (err) {
                         if (err instanceof evaluator_1.InterruptScriptExecution) {
@@ -53090,6 +53095,9 @@ let Behaviour = (() => {
                         else {
                             throw err;
                         }
+                    }
+                    finally {
+                        value += step;
                     }
                 }
             }
@@ -53118,7 +53126,7 @@ let Behaviour = (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _RUN_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
             _RUNC_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
-            _RUNLOOPED_decorators = [(0, types_1.method)({ name: "init", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "len", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "step", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            _RUNLOOPED_decorators = [(0, types_1.method)({ name: "start", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "len", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "step", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
             __esDecorate(_a, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _RUNC_decorators, { kind: "method", name: "RUNC", static: false, private: false, access: { has: obj => "RUNC" in obj, get: obj => obj.RUNC }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _RUNLOOPED_decorators, { kind: "method", name: "RUNLOOPED", static: false, private: false, access: { has: obj => "RUNLOOPED" in obj, get: obj => obj.RUNLOOPED }, metadata: _metadata }, null, _instanceExtraInitializers);
