@@ -81,7 +81,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             if (!this.isAnyFrameSet) {
                 const event = this.getEventByName(this.currentEvent)
                 if (event) {
-                    this.changeFrame(event, 0)
+                    this.changeFrame(event, 0, false)
                 }
             }
             this.isFirstTick = false
@@ -256,7 +256,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
     }
 
-    private changeFrame(event: Event, frameIdx: number) {
+    private changeFrame(event: Event, frameIdx: number, signal = true) {
         assert(this.annFile !== null)
         assert(this.sprite !== null)
         assert(event !== null)
@@ -283,7 +283,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.width = annImage.width
         this.sprite.height = annImage.height
 
-        this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
+        if (signal) {
+            this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
+        }
         this.isAnyFrameSet = true
     }
 
