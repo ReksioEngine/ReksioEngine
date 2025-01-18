@@ -629,13 +629,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
                 type: 'button',
                 bounds: this.buttonInteractArea.hitArea as Rectangle,
                 color: this.buttonLogic.enabled ? 0x00ff00 : 0x0000ff,
-                position: 'outside'
+                position: 'outside',
             }
         } else if (this.sprite?.visible) {
             return {
                 type: 'sprite',
                 bounds: this.sprite.getBounds(),
-                position: 'inside'
+                position: 'inside',
             }
         }
         return null

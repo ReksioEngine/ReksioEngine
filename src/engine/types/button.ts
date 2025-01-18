@@ -241,14 +241,14 @@ export class Button extends Type<ButtonDefinition> {
                 type: 'button',
                 bounds: this.rect,
                 color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
-                position: 'outside'
+                position: 'outside',
             }
         } else if (this.gfxStandard?.getRenderObject()?.visible) {
             return {
                 type: 'button',
                 bounds: this.gfxStandard.getRenderObject()!.getBounds(),
                 color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
-                position: 'outside'
+                position: 'outside',
             }
         }
         return null

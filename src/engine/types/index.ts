@@ -120,7 +120,7 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
         return {
             type: 'sprite',
             bounds: renderObject.getBounds(),
-            position: 'outside'
+            position: 'outside',
         }
     }
 }
