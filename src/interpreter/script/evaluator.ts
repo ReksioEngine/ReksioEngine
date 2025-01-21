@@ -472,11 +472,3 @@ export const runScript = (
         }
     }
 }
-
-export const parseArgs = (script: string) => {
-    const lexer = new ReksioLangLexer(new antlr4.CharStream(script))
-    const tokens = new antlr4.CommonTokenStream(lexer)
-    const parser = new ReksioLangParser(tokens)
-    const tree = parser.methodCallArguments()
-    return tree.accept(new ScriptEvaluator(undefined, script))
-}

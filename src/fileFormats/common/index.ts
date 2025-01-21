@@ -1,5 +1,5 @@
-import { parseArgs } from '../../interpreter/script/evaluator'
 import { assert } from '../../errors'
+import { parseConstantArgs } from '../../interpreter/constArgs/evaluator'
 
 type FieldTypeProcessor = (object: any, key: string, param: string, value: string) => any
 
@@ -132,7 +132,7 @@ const createCallback = (value: string) => {
         const groups = argParsed?.groups
         if (groups) {
             const name = groups['name']
-            const args = groups['args'] ? parseArgs(groups['args']) : []
+            const args = groups['args'] ? parseConstantArgs(groups['args']) : []
             return {
                 behaviourReference: name,
                 constantArguments: args,
