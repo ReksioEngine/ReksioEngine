@@ -54439,6 +54439,7 @@ let Image = (() => {
     let _HIDE_decorators;
     let _GETPOSITIONY_decorators;
     let _GETALPHA_decorators;
+    let _MERGEALPHA_decorators;
     return _a = class Image extends _classSuper {
             constructor() {
                 super(...arguments);
@@ -54495,6 +54496,9 @@ let Image = (() => {
                 (0, errors_1.assert)(this.sprite !== null);
                 return this.sprite.getAlphaAt(new pixi_js_1.Point(x, y));
             }
+            MERGEALPHA(x, y, name) {
+                throw new errors_1.NotImplementedError();
+            }
             getRenderObject() {
                 return this.sprite;
             }
@@ -54508,6 +54512,7 @@ let Image = (() => {
             _HIDE_decorators = [(0, types_1.method)()];
             _GETPOSITIONY_decorators = [(0, types_1.method)()];
             _GETALPHA_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _MERGEALPHA_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _SETOPACITY_decorators, { kind: "method", name: "SETOPACITY", static: false, private: false, access: { has: obj => "SETOPACITY" in obj, get: obj => obj.SETOPACITY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -54515,6 +54520,7 @@ let Image = (() => {
             __esDecorate(_a, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETPOSITIONY_decorators, { kind: "method", name: "GETPOSITIONY", static: false, private: false, access: { has: obj => "GETPOSITIONY" in obj, get: obj => obj.GETPOSITIONY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETALPHA_decorators, { kind: "method", name: "GETALPHA", static: false, private: false, access: { has: obj => "GETALPHA" in obj, get: obj => obj.GETALPHA }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MERGEALPHA_decorators, { kind: "method", name: "MERGEALPHA", static: false, private: false, access: { has: obj => "MERGEALPHA" in obj, get: obj => obj.MERGEALPHA }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
@@ -57316,8 +57322,8 @@ exports.structureDefinitions = {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.callbacks = exports.map = exports.array = exports.reference = exports.code = exports.callback = exports.boolean = exports.number = exports.string = exports.optional = void 0;
-const evaluator_1 = __webpack_require__(/*! ../../interpreter/script/evaluator */ "./src/interpreter/script/evaluator.ts");
 const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const evaluator_1 = __webpack_require__(/*! ../../interpreter/constArgs/evaluator */ "./src/interpreter/constArgs/evaluator.ts");
 const optional = (subType) => ({
     ...subType,
     flags: {
@@ -57429,7 +57435,7 @@ const createCallback = (value) => {
         const groups = argParsed?.groups;
         if (groups) {
             const name = groups['name'];
-            const args = groups['args'] ? (0, evaluator_1.parseArgs)(groups['args']) : [];
+            const args = groups['args'] ? (0, evaluator_1.parseConstantArgs)(groups['args']) : [];
             return {
                 behaviourReference: name,
                 constantArguments: args,
@@ -58049,6 +58055,57 @@ const main = async () => {
     await engine.init();
 };
 main();
+
+
+/***/ }),
+
+/***/ "./src/interpreter/constArgs/evaluator.ts":
+/*!************************************************!*\
+  !*** ./src/interpreter/constArgs/evaluator.ts ***!
+  \************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseConstantArgs = exports.ConstantArgsEvaluator = void 0;
+const ReksioLangParser_1 = __importDefault(__webpack_require__(/*! ../script/ReksioLangParser */ "./src/interpreter/script/ReksioLangParser.ts"));
+const ReksioLangLexer_1 = __importDefault(__webpack_require__(/*! ../script/ReksioLangLexer */ "./src/interpreter/script/ReksioLangLexer.ts"));
+const antlr4_1 = __importDefault(__webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs"));
+const ReksioLangVisitor_1 = __importDefault(__webpack_require__(/*! ../script/ReksioLangVisitor */ "./src/interpreter/script/ReksioLangVisitor.ts"));
+const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+class ConstantArgsEvaluator extends ReksioLangVisitor_1.default {
+    constructor() {
+        super(...arguments);
+        this.visitIdentifier = (ctx) => {
+            return ctx.IDENTIFIER().getText();
+        };
+        this.visitMethodCallArguments = (ctx) => {
+            return this.visitChildren(ctx);
+        };
+        this.visitBool = (ctx) => {
+            return ctx.TRUE() !== null;
+        };
+        this.visitNumber = (ctx) => {
+            return (0, types_1.ForceNumber)(ctx.getText());
+        };
+        this.visitString = (ctx) => {
+            return ctx.STRING().getText().replace(/^"|"$/g, '');
+        };
+    }
+}
+exports.ConstantArgsEvaluator = ConstantArgsEvaluator;
+const parseConstantArgs = (argsString) => {
+    const lexer = new ReksioLangLexer_1.default(new antlr4_1.default.CharStream(argsString));
+    const tokens = new antlr4_1.default.CommonTokenStream(lexer);
+    const parser = new ReksioLangParser_1.default(tokens);
+    const tree = parser.methodCallArguments();
+    return tree.accept(new ConstantArgsEvaluator());
+};
+exports.parseConstantArgs = parseConstantArgs;
 
 
 /***/ }),
@@ -60432,7 +60489,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseArgs = exports.runScript = exports.ScriptEvaluator = exports.InterruptScriptExecution = void 0;
+exports.runScript = exports.ScriptEvaluator = exports.InterruptScriptExecution = void 0;
 const ReksioLangVisitor_1 = __importDefault(__webpack_require__(/*! ./ReksioLangVisitor */ "./src/interpreter/script/ReksioLangVisitor.ts"));
 const ReksioLangParser_1 = __importDefault(__webpack_require__(/*! ./ReksioLangParser */ "./src/interpreter/script/ReksioLangParser.ts"));
 const ReksioLangLexer_1 = __importDefault(__webpack_require__(/*! ./ReksioLangLexer */ "./src/interpreter/script/ReksioLangLexer.ts"));
@@ -60786,14 +60843,6 @@ const runScript = (engine, script, args, singleStatement = false, printDebug = t
     }
 };
 exports.runScript = runScript;
-const parseArgs = (script) => {
-    const lexer = new ReksioLangLexer_1.default(new antlr4_1.default.CharStream(script));
-    const tokens = new antlr4_1.default.CommonTokenStream(lexer);
-    const parser = new ReksioLangParser_1.default(tokens);
-    const tree = parser.methodCallArguments();
-    return tree.accept(new ScriptEvaluator(undefined, script));
-};
-exports.parseArgs = parseArgs;
 
 
 /***/ }),
