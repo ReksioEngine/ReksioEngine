@@ -58084,7 +58084,7 @@ class ConstantArgsEvaluator extends ReksioLangVisitor_1.default {
             return ctx.IDENTIFIER().getText();
         };
         this.visitMethodCallArguments = (ctx) => {
-            return this.visitChildren(ctx);
+            return ctx.expr_list().map((expr) => this.visitChildren(expr)[0]);
         };
         this.visitBool = (ctx) => {
             return ctx.TRUE() !== null;
