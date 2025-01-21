@@ -10,7 +10,7 @@ export class ConstantArgsEvaluator extends ReksioLangVisitor<any> {
     }
 
     visitMethodCallArguments = (ctx: MethodCallArgumentsContext): any => {
-        return this.visitChildren(ctx)
+        return ctx.expr_list().map((expr) => this.visitChildren(expr)[0])
     }
 
     visitBool = (ctx: BoolContext): any => {
