@@ -52307,6 +52307,9 @@ let Animo = (() => {
                 this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY;
                 this.sprite.width = annImage.width;
                 this.sprite.height = annImage.height;
+                if (this.buttonInteractArea !== null) {
+                    this.buttonInteractArea.hitArea = this.sprite.getBounds();
+                }
                 if (signal) {
                     this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
                 }
