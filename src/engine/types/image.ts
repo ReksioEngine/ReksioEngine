@@ -80,6 +80,11 @@ export class Image extends DisplayType<ImageDefinition> {
         return this.sprite.getAlphaAt(new Point(x, y))
     }
 
+    @method()
+    MERGEALPHA(x: number, y: number, name: string) {
+        throw new NotImplementedError()
+    }
+
     getRenderObject() {
         return this.sprite
     }
