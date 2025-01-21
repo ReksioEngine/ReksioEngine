@@ -283,6 +283,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.width = annImage.width
         this.sprite.height = annImage.height
 
+        if (this.buttonInteractArea !== null) {
+            this.buttonInteractArea.hitArea = this.sprite.getBounds()
+        }
+
         if (signal) {
             this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
         }
