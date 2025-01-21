@@ -42,7 +42,7 @@ string: STRING;
 identifier: IDENTIFIER;
 
 // Literals
-IDENTIFIER: [a-zA-Z0-9_$]*[a-zA-Z_?$][a-zA-Z0-9_$?-]*[a-zA-Z0-9_$]*;
+IDENTIFIER: [a-zA-Z0-9_$]*[a-zA-Z_?$]+[a-zA-Z0-9_$]*;
 NUMBER: [0-9]+ ('.' [0-9]+)? ;
 STRING: '"' ~[,)]* '"';
 COMMENT_START: '!'+;

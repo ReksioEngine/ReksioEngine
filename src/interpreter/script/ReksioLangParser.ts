@@ -1,4 +1,4 @@
-// Generated from ./src/interpreter/script/ReksioLang.g4 by ANTLR 4.13.2
+// Generated from ./src/interpreter/ReksioLang.g4 by ANTLR 4.13.2
 // noinspection ES6UnusedImports,JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 
 import {
@@ -23,7 +23,7 @@ import {
     Interval,
     IntervalSet,
 } from 'antlr4'
-import ReksioLangVisitor from './ReksioLangVisitor.js'
+import ReksioLangVisitor from './ReksioLangVisitor'
 
 // for running tests with parameters, TODO: discuss strategy for typed parameters in CI
 // eslint-disable-next-line no-unused-vars

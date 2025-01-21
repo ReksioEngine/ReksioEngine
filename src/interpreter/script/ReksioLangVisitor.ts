@@ -1,22 +1,22 @@
-// Generated from ./src/interpreter/script/ReksioLang.g4 by ANTLR 4.13.2
+// Generated from ./src/interpreter/ReksioLang.g4 by ANTLR 4.13.2
 
 import { ParseTreeVisitor } from 'antlr4'
 
-import { ExprContext } from './ReksioLangParser.js'
-import { StatementContext } from './ReksioLangParser.js'
-import { StatementListContext } from './ReksioLangParser.js'
-import { MethodCallContext } from './ReksioLangParser.js'
-import { ObjectNameContext } from './ReksioLangParser.js'
-import { MethodNameContext } from './ReksioLangParser.js'
-import { MethodCallArgumentsContext } from './ReksioLangParser.js'
-import { SpecialCallContext } from './ReksioLangParser.js'
-import { OperationGroupingContext } from './ReksioLangParser.js'
-import { OperationContext } from './ReksioLangParser.js'
-import { CommentContext } from './ReksioLangParser.js'
-import { NumberContext } from './ReksioLangParser.js'
-import { BoolContext } from './ReksioLangParser.js'
-import { StringContext } from './ReksioLangParser.js'
-import { IdentifierContext } from './ReksioLangParser.js'
+import { ExprContext } from './ReksioLangParser'
+import { StatementContext } from './ReksioLangParser'
+import { StatementListContext } from './ReksioLangParser'
+import { MethodCallContext } from './ReksioLangParser'
+import { ObjectNameContext } from './ReksioLangParser'
+import { MethodNameContext } from './ReksioLangParser'
+import { MethodCallArgumentsContext } from './ReksioLangParser'
+import { SpecialCallContext } from './ReksioLangParser'
+import { OperationGroupingContext } from './ReksioLangParser'
+import { OperationContext } from './ReksioLangParser'
+import { CommentContext } from './ReksioLangParser'
+import { NumberContext } from './ReksioLangParser'
+import { BoolContext } from './ReksioLangParser'
+import { StringContext } from './ReksioLangParser'
+import { IdentifierContext } from './ReksioLangParser'
 
 /**
  * This interface defines a complete generic visitor for a parse tree produced
