@@ -62,7 +62,9 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
                 const object = Object.values(this.engine.scope).find(
                     (obj) => obj instanceof DisplayType && obj.getRenderObject() === renderObject
                 )
-                assert(object !== undefined)
+                if (object === undefined) {
+                    continue
+                }
                 return object.name
             }
         }
