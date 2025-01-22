@@ -289,6 +289,7 @@ export type BoolDefinition = TypeDefinition & {
     DEFAULT?: boolean
     ONCHANGED?: callbacks<boolean>
     ONBRUTALCHANGED?: callbacks<boolean>
+    TOINI?: boolean
 }
 
 const BoolDefinitionStructure = {
@@ -296,6 +297,7 @@ const BoolDefinitionStructure = {
     DEFAULT: optional(boolean),
     ONCHANGED: optional(callbacks(boolean)),
     ONBRUTALCHANGED: optional(callbacks(boolean)),
+    TOINI: optional(boolean),
 }
 
 export type ArrayDefinition = TypeDefinition & {
@@ -439,11 +441,13 @@ const RandDefinitionStructure = {}
 export type DoubleDefinition = TypeDefinition & {
     VALUE?: string
     DEFAULT?: number
+    TOINI?: boolean
 }
 
 const DoubleStructure = {
     VALUE: optional(number),
     DEFAULT: optional(number),
+    TOINI: optional(boolean),
 }
 
 export type ExpressionDefinition = TypeDefinition & {
