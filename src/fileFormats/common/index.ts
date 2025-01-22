@@ -122,7 +122,7 @@ export const callbacks = <K>(subType: FieldTypeEntry) => ({
 const createCallback = (value: string) => {
     if (value.startsWith('{')) {
         return {
-            code: value.substring(1, value.length - 1),
+            code: value.replace(/^\{|};*$/g, ''),
             isSingleStatement: false,
         }
     } else {

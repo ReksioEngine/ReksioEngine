@@ -53,7 +53,8 @@ export const parseCNV = (content: string) => {
             if (definition && variableName in definition) {
                 const fieldTypeDefinition: FieldTypeEntry = definition[variableName]
                 try {
-                    const processedValue = fieldTypeDefinition.processor(object, variableName, param, value)
+                    const cleanedValue = value.trim()
+                    const processedValue = fieldTypeDefinition.processor(object, variableName, param, cleanedValue)
                     if (processedValue !== undefined) {
                         object[variableName] = processedValue
                     }
