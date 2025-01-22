@@ -1,4 +1,9 @@
 export class IrrecoverableError extends Error {}
+
+export class InterpreterError extends IrrecoverableError {}
+export class LexerError extends InterpreterError {}
+export class ParserError extends InterpreterError {}
+
 export class UnexpectedError extends Error {}
 export class InvalidObjectError extends Error {
     constructor(message: string) {

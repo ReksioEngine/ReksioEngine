@@ -15,10 +15,10 @@ import ReksioLangParser, {
     StringContext,
 } from './ReksioLangParser'
 import ReksioLangLexer from './ReksioLangLexer'
-import antlr4, { ParserRuleContext } from 'antlr4'
+import antlr4, { ParserRuleContext, RecognitionException, Recognizer, Token } from 'antlr4'
 import { Engine } from '../../engine'
 import { Behaviour } from '../../engine/types/behaviour'
-import { assert, NotImplementedError } from '../../errors'
+import { assert, LexerError, NotImplementedError, ParserError } from '../../errors'
 import { Compare, ForceNumber } from '../../types'
 import { Type } from '../../engine/types'
 import { String } from '../../engine/types/string'
@@ -441,8 +441,35 @@ export const runScript = (
     printDebug = true
 ) => {
     const lexer = new ReksioLangLexer(new antlr4.CharStream(script))
+    lexer.removeErrorListeners()
+    lexer.addErrorListener({
+        syntaxError(
+            _recognizer: Recognizer<number>,
+            _offendingSymbol: number,
+            _line: number,
+            _column: number,
+            msg: string
+        ) {
+            throw new LexerError(msg)
+        },
+    })
+
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioLangParser(tokens)
+    parser.removeErrorListeners()
+    parser.addErrorListener({
+        syntaxError(
+            _recognizer: Recognizer<Token>,
+            _offendingSymbol: Token,
+            _line: number,
+            _column: number,
+            msg: string,
+            _e: RecognitionException | undefined
+        ) {
+            throw new ParserError(msg)
+        },
+    })
+
     const tree = singleStatement ? parser.statement() : parser.statementList()
 
     const evaluator = new ScriptEvaluator(engine, script, args, printDebug)
