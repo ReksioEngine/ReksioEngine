@@ -13,6 +13,7 @@ export class Image extends DisplayType<ImageDefinition> {
         this.sprite = await this.load()
         this.sprite.visible = this.definition.VISIBLE
         this.sprite.eventMode = 'none'
+        this.sprite.name = `${this.name} (IMAGE)` // For PIXI Devtools
     }
 
     applyDefaults() {

@@ -14,6 +14,7 @@ import { Debugging } from './debugging'
 import { Timer } from './types/timer'
 import { IrrecoverableError } from '../errors'
 import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
+import { initDevtools } from '@pixi/devtools'
 
 export class Engine {
     readonly app: Application
@@ -45,6 +46,7 @@ export class Engine {
         )
         this.canvasBackground = new Sprite(this.blackTexture)
         this.canvasBackground.zIndex = -99999
+        this.canvasBackground.name = 'Scene Background' // For PIXI Devtools
     }
 
     async init() {
@@ -64,13 +66,13 @@ export class Engine {
             this.app.stage.interactive = true
             sound.disableAutoPause = true
 
+            this.app.stage.name = 'Scene' // For PIXI Devtools
             this.app.stage.addChild(this.canvasBackground)
             this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS))
 
             // @ts-expect-error no engine in globalThis
             globalThis.engine = this
-            // @ts-expect-error no __PIXI_APP__ in globalThis
-            globalThis.__PIXI_APP__ = this.app
+            await initDevtools({ app: this.app });
         } catch (err) {
             console.error(
                 'Unhandled error occurred during initialization\n%cScope:%c%O',

@@ -724,6 +724,11 @@
     "@pixi/utils" "7.3.3"
     "@types/offscreencanvas" "^2019.6.4"
 
+"@pixi/devtools@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@pixi/devtools/-/devtools-2.0.1.tgz#eb0c304f88973e5a2d34c8f0919c96e306a07749"
+  integrity sha512-TFCqNkJoLNYHDELgQ3bKWvA33twWpoUhQB8Y+hneBdDBunRsqZ5ZzwH7+6E5eVaVn7eeLAXHs9QGRGsxM0fRlw==
+
 "@pixi/display@7.3.3":
   version "7.3.3"
   resolved "https://registry.yarnpkg.com/@pixi/display/-/display-7.3.3.tgz#a5e68b704519ae5137d5ab8704e12cb2e8584349"

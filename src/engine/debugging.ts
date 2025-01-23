@@ -279,6 +279,7 @@ export class Debugging {
                 }
             } else {
                 container = new Container()
+                container.__devtoolIgnore = true // For PIXI Devtools
                 container.eventMode = 'none'
                 this.engine.app.stage.addChild(container)
                 this.xrays.set(object.name, container)

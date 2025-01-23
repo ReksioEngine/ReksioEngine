@@ -10,6 +10,7 @@
     },
     "private": true,
     "dependencies": {
+        "@pixi/devtools": "^2.0.1",
         "@pixi/sound": "^5.2.3",
         "antlr4": "^4.13.1-patch-1",
         "ini": "^5.0.0",

@@ -76,6 +76,7 @@ export class Button extends Type<ButtonDefinition> {
         if (this.interactArea === null) {
             this.interactArea = new Graphics()
             this.interactArea.visible = this.definition.ENABLE
+            this.interactArea.name = `${this.name} (Button)` // For PIXI Devtools
             this.engine.app.stage.addChild(this.interactArea)
         }
 

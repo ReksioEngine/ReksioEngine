@@ -3,7 +3,7 @@ import { AnimoDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { assert, InvalidObjectError } from '../../errors'
 import * as PIXI from 'pixi.js'
-import { Graphics, Rectangle, Texture } from 'pixi.js'
+import { Graphics, Rectangle, Sprite, Texture } from 'pixi.js'
 import { ANN, Event } from '../../fileFormats/ann'
 import { ButtonLogicComponent, Event as FSMEvent, State } from '../components/button'
 import { loadSound } from '../assetsLoader'
@@ -159,6 +159,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         assert(this.annFile !== null)
 
         this.sprite = new AdvancedSprite()
+        this.sprite.name = `${this.name} [ANIMO]` // For PIXI Devtools
         this.sprite.eventMode = 'none'
         this.sprite.visible = this.definition.VISIBLE
         this.SETPRIORITY(this.definition.PRIORITY ?? 0)
@@ -273,6 +274,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         // TODO: refactor it so we don't assign texture and hitmap separately?
         this.sprite.texture = this.getTexture(imageIndex)
         this.sprite.hitmap = this.getHitmap(imageIndex)
+        this.sprite.name = `${this.name} (${event.name}) (ANIMO)` // For PIXI Devtools
 
         this.positionOffsetX = annImage.positionX + eventFrame.positionX
         this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX
@@ -433,6 +435,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         assert(this.sprite !== null)
         if (enabled) {
             this.buttonInteractArea = new Graphics()
+            this.buttonInteractArea.name = `${this.name} (ANIMO Button)` // For PIXI Devtools
             this.buttonInteractArea.hitArea = this.sprite.getBounds()
             this.buttonInteractArea.zIndex = this.sprite.zIndex
             this.engine.app.stage.addChild(this.buttonInteractArea)
