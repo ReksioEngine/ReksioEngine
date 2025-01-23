@@ -53560,7 +53560,6 @@ const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
 const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 let CanvasObserver = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -53605,7 +53604,9 @@ let CanvasObserver = (() => {
                     }
                     if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
                         const object = Object.values(this.engine.scope).find((obj) => obj instanceof index_1.DisplayType && obj.getRenderObject() === renderObject);
-                        (0, errors_1.assert)(object !== undefined);
+                        if (object === undefined) {
+                            continue;
+                        }
                         return object.name;
                     }
                 }
@@ -56710,10 +56711,19 @@ exports.Vector = Vector;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.assert = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.IrrecoverableError = void 0;
+exports.assert = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.ParserError = exports.LexerError = exports.InterpreterError = exports.IrrecoverableError = void 0;
 class IrrecoverableError extends Error {
 }
 exports.IrrecoverableError = IrrecoverableError;
+class InterpreterError extends IrrecoverableError {
+}
+exports.InterpreterError = InterpreterError;
+class LexerError extends InterpreterError {
+}
+exports.LexerError = LexerError;
+class ParserError extends InterpreterError {
+}
+exports.ParserError = ParserError;
 class UnexpectedError extends Error {
 }
 exports.UnexpectedError = UnexpectedError;
@@ -57006,7 +57016,8 @@ const parseCNV = (content) => {
             if (definition && variableName in definition) {
                 const fieldTypeDefinition = definition[variableName];
                 try {
-                    const processedValue = fieldTypeDefinition.processor(object, variableName, param, value);
+                    const cleanedValue = value.trim();
+                    const processedValue = fieldTypeDefinition.processor(object, variableName, param, cleanedValue);
                     if (processedValue !== undefined) {
                         object[variableName] = processedValue;
                     }
@@ -57189,6 +57200,7 @@ const BoolDefinitionStructure = {
     DEFAULT: (0, common_1.optional)(common_1.boolean),
     ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.boolean)),
     ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.boolean)),
+    TOINI: (0, common_1.optional)(common_1.boolean),
 };
 const ArrayDefinitionStructure = {
     ONINIT: (0, common_1.optional)(common_1.callback),
@@ -57259,6 +57271,7 @@ const RandDefinitionStructure = {};
 const DoubleStructure = {
     VALUE: (0, common_1.optional)(common_1.number),
     DEFAULT: (0, common_1.optional)(common_1.number),
+    TOINI: (0, common_1.optional)(common_1.boolean),
 };
 const ExpressionDefinitionStructure = {
     OPERAND1: common_1.code,
@@ -57428,7 +57441,7 @@ exports.callbacks = callbacks;
 const createCallback = (value) => {
     if (value.startsWith('{')) {
         return {
-            code: value.substring(1, value.length - 1),
+            code: value.replace(/^\{|};*$/g, ''),
             isSingleStatement: false,
         };
     }
@@ -60819,8 +60832,20 @@ class ScriptEvaluator extends ReksioLangVisitor_1.default {
 exports.ScriptEvaluator = ScriptEvaluator;
 const runScript = (engine, script, args, singleStatement = false, printDebug = true) => {
     const lexer = new ReksioLangLexer_1.default(new antlr4_1.default.CharStream(script));
+    lexer.removeErrorListeners();
+    lexer.addErrorListener({
+        syntaxError(_recognizer, _offendingSymbol, _line, _column, msg) {
+            throw new errors_1.LexerError(msg);
+        },
+    });
     const tokens = new antlr4_1.default.CommonTokenStream(lexer);
     const parser = new ReksioLangParser_1.default(tokens);
+    parser.removeErrorListeners();
+    parser.addErrorListener({
+        syntaxError(_recognizer, _offendingSymbol, _line, _column, msg, _e) {
+            throw new errors_1.ParserError(msg);
+        },
+    });
     const tree = singleStatement ? parser.statement() : parser.statementList();
     const evaluator = new ScriptEvaluator(engine, script, args, printDebug);
     try {
