@@ -11,92 +11,6 @@ import {
     TypeDefinition,
 } from '../common'
 
-export type ApplicationDefinition = TypeDefinition & {
-    DESCRIPTION: string
-    CREATIONTIME: string
-    LASTMODIFYTIME: string
-    AUTHOR: string
-    VERSION: string
-    PATH: string
-    EPISODES: Array<string>
-    STARTWITH: string
-}
-
-const ApplicationStructure = {
-    DESCRIPTION: string,
-    CREATIONTIME: string,
-    LASTMODIFYTIME: string,
-    AUTHOR: string,
-    VERSION: string,
-    PATH: string,
-    EPISODES: array(string),
-    STARTWITH: string,
-}
-
-export type EpisodeDefinition = TypeDefinition & {
-    DESCRIPTION: string
-    CREATIONTIME: string
-    LASTMODIFYTIME: string
-    AUTHOR: string
-    VERSION: string
-    PATH?: string
-    SCENES: Array<string>
-    STARTWITH: string
-}
-
-const EpisodeStructure = {
-    DESCRIPTION: string,
-    CREATIONTIME: string,
-    LASTMODIFYTIME: string,
-    AUTHOR: string,
-    VERSION: string,
-    PATH: optional(string),
-    SCENES: array(string),
-    STARTWITH: string,
-}
-
-export type SceneDefinition = TypeDefinition & {
-    DESCRIPTION?: string
-    CREATIONTIME: string
-    LASTMODIFYTIME: string
-    VERSION: string
-    PATH: string
-    BACKGROUND?: string
-    MUSIC?: string
-    DLLS?: Array<string>
-}
-
-const SceneStructure = {
-    DESCRIPTION: optional(string),
-    CREATIONTIME: string,
-    LASTMODIFYTIME: string,
-    VERSION: string,
-    PATH: string,
-    BACKGROUND: optional(string),
-    MUSIC: optional(string),
-    DLLS: optional(array(string)),
-}
-
-export type IntegerDefinition = TypeDefinition & {
-    VALUE?: number
-    VARTYPE?: string
-    DEFAULT?: number
-    TOINI?: boolean
-    ONINIT?: callback
-    ONCHANGED?: callbacks<number>
-    ONBRUTALCHANGED?: callbacks<number>
-}
-
-const IntegerStructure = {
-    VALUE: optional(number),
-    VARTYPE: optional(string),
-    DEFAULT: optional(number),
-    TOINI: optional(boolean),
-    ONINIT: optional(callback),
-    ONCHANGED: optional(callbacks(number)),
-    ONBRUTALCHANGED: optional(callbacks(number)),
-}
-
 export type AnimoDefinition = TypeDefinition & {
     VISIBLE: boolean
     FILENAME: string
@@ -142,48 +56,34 @@ const AnimoStructure = {
     ONRELEASE: optional(callback),
 }
 
-export type MusicDefinition = TypeDefinition & {
-    FILENAME: string
+export type ApplicationDefinition = TypeDefinition & {
+    DESCRIPTION: string
+    CREATIONTIME: string
+    LASTMODIFYTIME: string
+    AUTHOR: string
+    VERSION: string
+    PATH: string
+    EPISODES: Array<string>
+    STARTWITH: string
 }
 
-const MusicStructure = {
-    FILENAME: string,
+const ApplicationStructure = {
+    DESCRIPTION: string,
+    CREATIONTIME: string,
+    LASTMODIFYTIME: string,
+    AUTHOR: string,
+    VERSION: string,
+    PATH: string,
+    EPISODES: array(string),
+    STARTWITH: string,
 }
 
-export type SoundDefinition = TypeDefinition & {
-    FILENAME: string
-    PRELOAD?: boolean
-    RELEASE?: boolean
-    FLUSHAFTERPLAYED?: boolean
+export type ArrayDefinition = TypeDefinition & {
     ONINIT?: callback
-    ONFINISHED?: callback
-    ONSTARTED?: callback
 }
 
-const SoundStructure = {
-    FILENAME: string,
-    PRELOAD: optional(boolean),
-    RELEASE: optional(boolean),
-    FLUSHAFTERPLAYED: optional(boolean),
+const ArrayDefinitionStructure = {
     ONINIT: optional(callback),
-    ONFINISHED: optional(callback),
-    ONSTARTED: optional(callback),
-}
-
-export type TimerDefinition = TypeDefinition & {
-    ENABLED?: boolean
-    ELAPSE: number
-    TICKS?: number
-    ONINIT?: callback
-    ONTICK?: callbacks<number>
-}
-
-const TimerStructure = {
-    ENABLED: optional(boolean),
-    ELAPSE: number,
-    TICKS: optional(number),
-    ONINIT: optional(callback),
-    ONTICK: optional(callbacks(number)),
 }
 
 export type BehaviourDefinition = TypeDefinition & {
@@ -194,94 +94,6 @@ export type BehaviourDefinition = TypeDefinition & {
 const BehaviourStructure = {
     CODE: callback,
     CONDITION: optional(reference),
-}
-
-export type ImageDefinition = TypeDefinition & {
-    VISIBLE: boolean
-    FILENAME: string
-    TOCANVAS: boolean
-    PRIORITY?: number
-    PRELOAD?: boolean
-    RELEASE?: boolean
-    MONITORCOLLISION?: boolean
-    MONITORCOLLISIONALPHA?: boolean
-    ONINIT?: callback
-}
-
-const ImageStructure = {
-    VISIBLE: boolean,
-    FILENAME: string,
-    TOCANVAS: boolean,
-    PRIORITY: optional(number),
-    PRELOAD: optional(boolean),
-    RELEASE: optional(boolean),
-    MONITORCOLLISION: optional(boolean),
-    MONITORCOLLISIONALPHA: optional(boolean),
-    ONINIT: optional(callback),
-}
-
-export type MouseDefinition = TypeDefinition & {
-    ONCLICK?: callbacks<string>
-    ONRELEASE?: callbacks<string>
-    ONINIT?: callback
-    ONMOVE?: callback
-}
-
-const MouseStructure = {
-    ONCLICK: optional(callbacks(string)),
-    ONRELEASE: optional(callbacks(string)),
-    ONINIT: optional(callback),
-    ONMOVE: optional(callback),
-}
-
-export type KeyboardDefinition = TypeDefinition & {
-    ONKEYDOWN?: callbacks<string>
-    ONKEYUP?: callbacks<string>
-}
-
-const KeyboardStructure = {
-    ONKEYDOWN: optional(callbacks(string)),
-    ONKEYUP: optional(callbacks(string)),
-}
-
-export type CanvasObserverDefinition = TypeDefinition & NonNullable<unknown>
-const CanvasObserverStructure = {}
-
-export type CNVLoaderDefinition = TypeDefinition & NonNullable<unknown>
-const CNVLoaderStructure = {}
-
-export type ConditionDefinition = TypeDefinition & {
-    OPERAND1: callback
-    OPERATOR: 'EQUAL' | 'NOTEQUAL' | 'LESS' | 'GREATER' | 'LESSEQUAL' | 'GREATEREQUAL'
-    OPERAND2: callback
-    ONRUNTIMESUCCESS?: callback
-    ONRUNTIMEFAILED?: callback
-}
-
-const ConditionDefinitionStructure = {
-    OPERAND1: code,
-    OPERATOR: string,
-    OPERAND2: code,
-    ONRUNTIMESUCCESS: optional(callback),
-    ONRUNTIMEFAILED: optional(callback),
-}
-
-export type StringDefinition = TypeDefinition & {
-    TOINI?: boolean
-    VALUE?: string
-    DEFAULT?: string
-    ONINIT?: callback
-    ONCHANGED?: callbacks<string>
-    ONBRUTALCHANGED?: callbacks<string>
-}
-
-const StringDefinitionStructure = {
-    TOINI: optional(boolean),
-    VALUE: optional(string),
-    DEFAULT: optional(string),
-    ONINIT: optional(callback),
-    ONCHANGED: optional(callbacks(string)),
-    ONBRUTALCHANGED: optional(callbacks(string)),
 }
 
 export type BoolDefinition = TypeDefinition & {
@@ -298,22 +110,6 @@ const BoolDefinitionStructure = {
     ONCHANGED: optional(callbacks(boolean)),
     ONBRUTALCHANGED: optional(callbacks(boolean)),
     TOINI: optional(boolean),
-}
-
-export type ArrayDefinition = TypeDefinition & {
-    ONINIT?: callback
-}
-
-const ArrayDefinitionStructure = {
-    ONINIT: optional(callback),
-}
-
-export type MultiArrayDefinition = TypeDefinition & {
-    DIMENSIONS: number
-}
-
-const MultiArrayDefinitionStructure = {
-    DIMENSIONS: number,
 }
 
 export type ButtonDefinition = TypeDefinition & {
@@ -366,6 +162,224 @@ const ButtonDefinitionStructure = {
     ONINIT: optional(callback),
 }
 
+export type CanvasObserverDefinition = TypeDefinition & NonNullable<unknown>
+const CanvasObserverStructure = {}
+
+export type CNVLoaderDefinition = TypeDefinition & NonNullable<unknown>
+const CNVLoaderStructure = {}
+
+export type ComplexConditionDefinition = TypeDefinition & {
+    CONDITION1: reference
+    CONDITION2: reference
+    ONRUNTIMEFAILED?: callback
+    ONRUNTIMESUCCESS?: callback
+    OPERATOR: 'AND' | 'OR'
+}
+
+const ComplexConditionDefinitionStructure = {
+    CONDITION1: reference,
+    CONDITION2: reference,
+    ONRUNTIMEFAILED: optional(callback),
+    ONRUNTIMESUCCESS: optional(callback),
+    OPERATOR: string,
+}
+
+export type ConditionDefinition = TypeDefinition & {
+    OPERAND1: callback
+    OPERATOR: 'EQUAL' | 'NOTEQUAL' | 'LESS' | 'GREATER' | 'LESSEQUAL' | 'GREATEREQUAL'
+    OPERAND2: callback
+    ONRUNTIMESUCCESS?: callback
+    ONRUNTIMEFAILED?: callback
+}
+
+const ConditionDefinitionStructure = {
+    OPERAND1: code,
+    OPERATOR: string,
+    OPERAND2: code,
+    ONRUNTIMESUCCESS: optional(callback),
+    ONRUNTIMEFAILED: optional(callback),
+}
+
+export type DoubleDefinition = TypeDefinition & {
+    VALUE?: string
+    DEFAULT?: number
+    TOINI?: boolean
+}
+
+const DoubleStructure = {
+    VALUE: optional(number),
+    DEFAULT: optional(number),
+    TOINI: optional(boolean),
+}
+
+export type EpisodeDefinition = TypeDefinition & {
+    DESCRIPTION: string
+    CREATIONTIME: string
+    LASTMODIFYTIME: string
+    AUTHOR: string
+    VERSION: string
+    PATH?: string
+    SCENES: Array<string>
+    STARTWITH: string
+}
+
+const EpisodeStructure = {
+    DESCRIPTION: string,
+    CREATIONTIME: string,
+    LASTMODIFYTIME: string,
+    AUTHOR: string,
+    VERSION: string,
+    PATH: optional(string),
+    SCENES: array(string),
+    STARTWITH: string,
+}
+
+export type ExpressionDefinition = TypeDefinition & {
+    OPERAND1: callback
+    OPERATOR: 'ADD' | 'SUB' | 'MUL' | 'DIV' | 'MOD'
+    OPERAND2: callback
+}
+
+const ExpressionDefinitionStructure = {
+    OPERAND1: code,
+    OPERATOR: string,
+    OPERAND2: code,
+}
+
+export type FilterDefinition = TypeDefinition & {
+    ACTION: string
+}
+
+const FilterDefinitionStructure = {
+    ACTION: string,
+}
+
+export type FontDefinition = TypeDefinition & {
+    DEF_ARIAL_STANDARD_14: string // wtf
+}
+
+const FontDefinitionStructure = {
+    DEF_ARIAL_STANDARD_14: string, // wtf
+}
+
+export type GroupDefinition = TypeDefinition & {
+    ONINIT?: callback
+}
+
+const GroupDefinitionStructure = {
+    ONINIT: optional(callback),
+}
+
+export type ImageDefinition = TypeDefinition & {
+    VISIBLE: boolean
+    FILENAME: string
+    TOCANVAS: boolean
+    PRIORITY?: number
+    PRELOAD?: boolean
+    RELEASE?: boolean
+    MONITORCOLLISION?: boolean
+    MONITORCOLLISIONALPHA?: boolean
+    ONINIT?: callback
+}
+
+const ImageStructure = {
+    VISIBLE: boolean,
+    FILENAME: string,
+    TOCANVAS: boolean,
+    PRIORITY: optional(number),
+    PRELOAD: optional(boolean),
+    RELEASE: optional(boolean),
+    MONITORCOLLISION: optional(boolean),
+    MONITORCOLLISIONALPHA: optional(boolean),
+    ONINIT: optional(callback),
+}
+
+export type IntegerDefinition = TypeDefinition & {
+    VALUE?: number
+    VARTYPE?: string
+    DEFAULT?: number
+    TOINI?: boolean
+    ONINIT?: callback
+    ONCHANGED?: callbacks<number>
+    ONBRUTALCHANGED?: callbacks<number>
+}
+
+const IntegerStructure = {
+    VALUE: optional(number),
+    VARTYPE: optional(string),
+    DEFAULT: optional(number),
+    TOINI: optional(boolean),
+    ONINIT: optional(callback),
+    ONCHANGED: optional(callbacks(number)),
+    ONBRUTALCHANGED: optional(callbacks(number)),
+}
+
+export type KeyboardDefinition = TypeDefinition & {
+    ONKEYDOWN?: callbacks<string>
+    ONKEYUP?: callbacks<string>
+}
+
+const KeyboardStructure = {
+    ONKEYDOWN: optional(callbacks(string)),
+    ONKEYUP: optional(callbacks(string)),
+}
+
+export type MouseDefinition = TypeDefinition & {
+    ONCLICK?: callbacks<string>
+    ONRELEASE?: callbacks<string>
+    ONINIT?: callback
+    ONMOVE?: callback
+}
+
+const MouseStructure = {
+    ONCLICK: optional(callbacks(string)),
+    ONRELEASE: optional(callbacks(string)),
+    ONINIT: optional(callback),
+    ONMOVE: optional(callback),
+}
+
+export type MultiArrayDefinition = TypeDefinition & {
+    DIMENSIONS: number
+}
+
+const MultiArrayDefinitionStructure = {
+    DIMENSIONS: number,
+}
+
+export type MusicDefinition = TypeDefinition & {
+    FILENAME: string
+}
+
+const MusicStructure = {
+    FILENAME: string,
+}
+
+export type RandDefinition = TypeDefinition
+
+const RandDefinitionStructure = {}
+
+export type SceneDefinition = TypeDefinition & {
+    DESCRIPTION?: string
+    CREATIONTIME: string
+    LASTMODIFYTIME: string
+    VERSION: string
+    PATH: string
+    BACKGROUND?: string
+    MUSIC?: string
+    DLLS?: Array<string>
+}
+
+const SceneStructure = {
+    DESCRIPTION: optional(string),
+    CREATIONTIME: string,
+    LASTMODIFYTIME: string,
+    VERSION: string,
+    PATH: string,
+    BACKGROUND: optional(string),
+    MUSIC: optional(string),
+    DLLS: optional(array(string)),
+}
+
 export type SequenceDefinition = TypeDefinition & {
     FILENAME: string
     ONFINISHED?: callbacks<string>
@@ -380,13 +394,54 @@ const SequenceDefinitionStructure = {
     ONINIT: optional(callback),
 }
 
-export type GroupDefinition = TypeDefinition & {
+export type SoundDefinition = TypeDefinition & {
+    FILENAME: string
+    PRELOAD?: boolean
+    RELEASE?: boolean
+    FLUSHAFTERPLAYED?: boolean
     ONINIT?: callback
+    ONFINISHED?: callback
+    ONSTARTED?: callback
 }
 
-const GroupDefinitionStructure = {
+const SoundStructure = {
+    FILENAME: string,
+    PRELOAD: optional(boolean),
+    RELEASE: optional(boolean),
+    FLUSHAFTERPLAYED: optional(boolean),
     ONINIT: optional(callback),
+    ONFINISHED: optional(callback),
+    ONSTARTED: optional(callback),
 }
+
+export type StaticFilterDefinition = TypeDefinition & {
+    ACTION: string
+}
+
+const StaticFilterDefinitionStructure = {
+    ACTION: string,
+}
+
+export type StringDefinition = TypeDefinition & {
+    TOINI?: boolean
+    VALUE?: string
+    DEFAULT?: string
+    ONINIT?: callback
+    ONCHANGED?: callbacks<string>
+    ONBRUTALCHANGED?: callbacks<string>
+}
+
+const StringDefinitionStructure = {
+    TOINI: optional(boolean),
+    VALUE: optional(string),
+    DEFAULT: optional(string),
+    ONINIT: optional(callback),
+    ONCHANGED: optional(callbacks(string)),
+    ONBRUTALCHANGED: optional(callbacks(string)),
+}
+
+export type SystemDefinition = TypeDefinition
+const SystemDefinitionStructure = {}
 
 export type TextDefinition = TypeDefinition & {
     VISIBLE: boolean
@@ -410,56 +465,20 @@ const TextDefinitionStructure = {
     FONT: string,
 }
 
-export type FontDefinition = TypeDefinition & {
-    DEF_ARIAL_STANDARD_14: string // wtf
+export type TimerDefinition = TypeDefinition & {
+    ENABLED?: boolean
+    ELAPSE: number
+    TICKS?: number
+    ONINIT?: callback
+    ONTICK?: callbacks<number>
 }
 
-const FontDefinitionStructure = {
-    DEF_ARIAL_STANDARD_14: string, // wtf
-}
-
-export type ComplexConditionDefinition = TypeDefinition & {
-    CONDITION1: reference
-    CONDITION2: reference
-    ONRUNTIMEFAILED?: callback
-    ONRUNTIMESUCCESS?: callback
-    OPERATOR: 'AND' | 'OR'
-}
-
-const ComplexConditionDefinitionStructure = {
-    CONDITION1: reference,
-    CONDITION2: reference,
-    ONRUNTIMEFAILED: optional(callback),
-    ONRUNTIMESUCCESS: optional(callback),
-    OPERATOR: string,
-}
-
-export type RandDefinition = TypeDefinition
-
-const RandDefinitionStructure = {}
-
-export type DoubleDefinition = TypeDefinition & {
-    VALUE?: string
-    DEFAULT?: number
-    TOINI?: boolean
-}
-
-const DoubleStructure = {
-    VALUE: optional(number),
-    DEFAULT: optional(number),
-    TOINI: optional(boolean),
-}
-
-export type ExpressionDefinition = TypeDefinition & {
-    OPERAND1: callback
-    OPERATOR: 'ADD' | 'SUB' | 'MUL' | 'DIV' | 'MOD'
-    OPERAND2: callback
-}
-
-const ExpressionDefinitionStructure = {
-    OPERAND1: code,
-    OPERATOR: string,
-    OPERAND2: code,
+const TimerStructure = {
+    ENABLED: optional(boolean),
+    ELAPSE: number,
+    TICKS: optional(number),
+    ONINIT: optional(callback),
+    ONTICK: optional(callbacks(number)),
 }
 
 export type VectorDefinition = TypeDefinition & {
@@ -472,57 +491,38 @@ const VectorDefinitionStructure = {
     VALUE: array(number),
 }
 
-export type StaticFilterDefinition = TypeDefinition & {
-    ACTION: string
-}
-
-const StaticFilterDefinitionStructure = {
-    ACTION: string,
-}
-
-export type FilterDefinition = TypeDefinition & {
-    ACTION: string
-}
-
-const FilterDefinitionStructure = {
-    ACTION: string,
-}
-
-export type SystemDefinition = TypeDefinition
-const SystemDefinitionStructure = {}
-
 export const structureDefinitions = {
-    APPLICATION: ApplicationStructure,
-    EPISODE: EpisodeStructure,
-    SCENE: SceneStructure,
-    INTEGER: IntegerStructure,
     ANIMO: AnimoStructure,
-    MUSIC: MusicStructure,
-    TIMER: TimerStructure,
+    APPLICATION: ApplicationStructure,
+    ARRAY: ArrayDefinitionStructure,
     BEHAVIOUR: BehaviourStructure,
-    IMAGE: ImageStructure,
-    MOUSE: MouseStructure,
-    KEYBOARD: KeyboardStructure,
+    BOOL: BoolDefinitionStructure,
+    BUTTON: ButtonDefinitionStructure,
     CANVASOBSERVER: CanvasObserverStructure,
     CANVAS_OBSERVER: CanvasObserverStructure,
     CNVLOADER: CNVLoaderStructure,
-    CONDITION: ConditionDefinitionStructure,
-    SOUND: SoundStructure,
-    STRING: StringDefinitionStructure,
-    BOOL: BoolDefinitionStructure,
-    ARRAY: ArrayDefinitionStructure,
-    BUTTON: ButtonDefinitionStructure,
-    SEQUENCE: SequenceDefinitionStructure,
-    GROUP: GroupDefinitionStructure,
-    TEXT: TextDefinitionStructure,
-    FONT: FontDefinitionStructure,
     COMPLEXCONDITION: ComplexConditionDefinitionStructure,
-    RAND: RandDefinitionStructure,
+    CONDITION: ConditionDefinitionStructure,
     DOUBLE: DoubleStructure,
+    EPISODE: EpisodeStructure,
     EXPRESSION: ExpressionDefinitionStructure,
-    VECTOR: VectorDefinitionStructure,
-    STATICFILTER: StaticFilterDefinitionStructure,
     FILTER: FilterDefinitionStructure,
+    FONT: FontDefinitionStructure,
+    GROUP: GroupDefinitionStructure,
+    IMAGE: ImageStructure,
+    INTEGER: IntegerStructure,
+    KEYBOARD: KeyboardStructure,
+    MOUSE: MouseStructure,
     MULTIARRAY: MultiArrayDefinitionStructure,
+    MUSIC: MusicStructure,
+    RAND: RandDefinitionStructure,
+    SCENE: SceneStructure,
+    SEQUENCE: SequenceDefinitionStructure,
+    SOUND: SoundStructure,
+    STATICFILTER: StaticFilterDefinitionStructure,
+    STRING: StringDefinitionStructure,
     SYSTEM: SystemDefinitionStructure,
+    TEXT: TextDefinitionStructure,
+    TIMER: TimerStructure,
+    VECTOR: VectorDefinitionStructure,
 } as any
