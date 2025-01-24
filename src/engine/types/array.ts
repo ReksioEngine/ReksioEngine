@@ -10,7 +10,7 @@ const generateMessage = (action: string, position: number, value: any[]) => {
 
 export class ArrayObject extends ValueType<ArrayDefinition> {
     constructor(engine: Engine, parent: Type<any> | null, definition: ArrayDefinition) {
-        super(engine, parent, definition, [])
+        super(engine, parent, definition, [], false)
     }
 
     ready() {

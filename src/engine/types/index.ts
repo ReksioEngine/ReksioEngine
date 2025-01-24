@@ -128,16 +128,19 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
 export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<DefinitionType> {
     protected _value?: any
     private readonly defaultValue?: number | string | boolean | any[]
+    private readonly autoSave: boolean
 
     constructor(
         engine: Engine,
         parent: Type<any> | null,
         definition: DefinitionType,
-        defaultValue?: number | string | boolean | any[]
+        defaultValue?: number | string | boolean | any[],
+        autoSave: boolean = true
     ) {
         super(engine, parent, definition)
         this.defaultValue = defaultValue
         this._value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue
+        this.autoSave = autoSave
     }
 
     @method()
@@ -172,7 +175,7 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
         this._value = newValue
         this.valueChanged(oldValue, newValue)
 
-        if (this.definition.TOINI) {
+        if (this.autoSave && this.definition.TOINI) {
             this.saveToINI()
         }
     }
