@@ -1,4 +1,10 @@
-import ReksioLangParser, { BoolContext, IdentifierContext, MethodCallArgumentsContext, NumberContext, StringContext } from '../script/ReksioLangParser'
+import ReksioLangParser, {
+    BoolContext,
+    IdentifierContext,
+    MethodCallArgumentsContext,
+    NumberContext,
+    StringContext,
+} from '../script/ReksioLangParser'
 import ReksioLangLexer from '../script/ReksioLangLexer'
 import antlr4 from 'antlr4'
 import ReksioLangVisitor from '../script/ReksioLangVisitor'

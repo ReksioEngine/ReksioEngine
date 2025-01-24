@@ -1,4 +1,3 @@
-import { assert } from '../../errors'
 import { parseConstantArgs } from '../../interpreter/constArgs/evaluator'
 
 type FieldTypeProcessor = (object: any, key: string, param: string, value: string) => any
@@ -11,6 +10,8 @@ export type FieldTypeEntry = {
     name: string
     processor: FieldTypeProcessor
 }
+
+export class FieldProcessorRecoverableError extends Error {}
 
 export const optional = (subType: FieldTypeEntry) => ({
     ...subType,
@@ -35,7 +36,9 @@ export const number = {
     name: 'number',
     processor: (object: any, key: string, param: string, value: string) => {
         const result = Number(value.startsWith('"') ? value.slice(1, -1) : value)
-        assert(!isNaN(result), 'Value is not a number')
+        if (isNaN(result)) {
+            throw new FieldProcessorRecoverableError('Value references in CNV are not supported yet')
+        }
         return result
     },
 }
@@ -43,7 +46,12 @@ export const number = {
 export const boolean = {
     name: 'boolean',
     processor: (object: any, key: string, param: string, value: string) => {
-        assert(value === 'TRUE' || value === 'FALSE', 'Expected TRUE or FALSE')
+        if (value !== 'TRUE' && value !== 'FALSE' && value !== '0' && value !== '1') {
+            throw new FieldProcessorRecoverableError('Expected TRUE, FALSE, 0 or 1')
+        }
+        if (value === '0' || value === '1') {
+            return Number(value)
+        }
         return value === 'TRUE'
     },
 }

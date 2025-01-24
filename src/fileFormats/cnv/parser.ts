@@ -1,5 +1,5 @@
 import { structureDefinitions } from './types'
-import { FieldTypeEntry } from '../common'
+import { FieldProcessorRecoverableError, FieldTypeEntry } from '../common'
 
 export interface CNVObject {
     TYPE: string
@@ -59,6 +59,32 @@ export const parseCNV = (content: string) => {
                         object[variableName] = processedValue
                     }
                 } catch (err) {
+                    if (err instanceof FieldProcessorRecoverableError) {
+                        console.warn(
+                            'Recoverable error occured\n' +
+                                `%cError%c: ${err.message}\n` +
+                                `%cObject name:%c ${objectName}\n` +
+                                `%cObject type:%c ${object.TYPE}\n` +
+                                `%cField name:%c ${variableName}\n` +
+                                `%cParam:%c ${param}\n` +
+                                '%cValue:%c %O',
+                            'font-weight: bold',
+                            'font-weight: inherit',
+                            'font-weight: bold',
+                            'font-weight: inherit',
+                            'font-weight: bold',
+                            'font-weight: inherit',
+                            'font-weight: bold',
+                            'font-weight: inherit',
+                            'font-weight: bold',
+                            'font-weight: inherit',
+                            'font-weight: bold',
+                            'font-weight: inherit',
+                            value
+                        )
+                        continue
+                    }
+
                     console.error(
                         'Failed to process CNV field\n' +
                             `%cObject name:%c ${objectName}\n` +

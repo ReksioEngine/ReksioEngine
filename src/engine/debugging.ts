@@ -150,12 +150,20 @@ export class Debugging {
             sceneSelector.appendChild(option)
         }
 
-        sceneSelector.addEventListener('change', () => {
-            this.engine.changeScene(sceneSelector.value)
+        sceneSelector.addEventListener('change', async () => {
+            try {
+                await this.engine.changeScene(sceneSelector.value)
+            } catch (err) {
+                console.error(err)
+            }
         })
 
-        sceneRestart.addEventListener('click', () => {
-            this.engine.changeScene(this.engine.currentScene!.name)
+        sceneRestart.addEventListener('click', async () => {
+            try {
+                await this.engine.changeScene(this.engine.currentScene!.name)
+            } catch (err) {
+                console.error(err)
+            }
         })
 
         resetSave.addEventListener('click', () => {

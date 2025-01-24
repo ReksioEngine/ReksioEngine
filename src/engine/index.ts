@@ -72,7 +72,7 @@ export class Engine {
 
             // @ts-expect-error no engine in globalThis
             globalThis.engine = this
-            await initDevtools({ app: this.app });
+            await initDevtools({ app: this.app })
         } catch (err) {
             console.error(
                 'Unhandled error occurred during initialization\n%cScope:%c%O',
