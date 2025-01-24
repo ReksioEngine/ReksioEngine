@@ -53104,13 +53104,11 @@ let Behaviour = (() => {
             }
             RUNLOOPED(start, len, step = 1, ...args) {
                 const resolvedArgs = this.resolveArgs(args);
-                let value = start;
-                for (let i = 0; i < len; i++) {
+                for (let i = start; i < start + len; i += step) {
                     try {
-                        if (!this.shouldRun()) {
-                            continue;
+                        if (this.shouldRun()) {
+                            this.engine.executeCallback(null, this.definition.CODE, [i, step, ...resolvedArgs]);
                         }
-                        this.engine.executeCallback(null, this.definition.CODE, [value, step, ...resolvedArgs]);
                     }
                     catch (err) {
                         if (err instanceof evaluator_1.InterruptScriptExecution) {
@@ -53121,12 +53119,7 @@ let Behaviour = (() => {
                                 break;
                             }
                         }
-                        else {
-                            throw err;
-                        }
-                    }
-                    finally {
-                        value += step;
+                        throw err;
                     }
                 }
             }
@@ -57125,45 +57118,6 @@ exports.parseCNV = parseCNV;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.structureDefinitions = void 0;
 const common_1 = __webpack_require__(/*! ../common */ "./src/fileFormats/common/index.ts");
-const ApplicationStructure = {
-    DESCRIPTION: common_1.string,
-    CREATIONTIME: common_1.string,
-    LASTMODIFYTIME: common_1.string,
-    AUTHOR: common_1.string,
-    VERSION: common_1.string,
-    PATH: common_1.string,
-    EPISODES: (0, common_1.array)(common_1.string),
-    STARTWITH: common_1.string,
-};
-const EpisodeStructure = {
-    DESCRIPTION: common_1.string,
-    CREATIONTIME: common_1.string,
-    LASTMODIFYTIME: common_1.string,
-    AUTHOR: common_1.string,
-    VERSION: common_1.string,
-    PATH: (0, common_1.optional)(common_1.string),
-    SCENES: (0, common_1.array)(common_1.string),
-    STARTWITH: common_1.string,
-};
-const SceneStructure = {
-    DESCRIPTION: (0, common_1.optional)(common_1.string),
-    CREATIONTIME: common_1.string,
-    LASTMODIFYTIME: common_1.string,
-    VERSION: common_1.string,
-    PATH: common_1.string,
-    BACKGROUND: (0, common_1.optional)(common_1.string),
-    MUSIC: (0, common_1.optional)(common_1.string),
-    DLLS: (0, common_1.optional)((0, common_1.array)(common_1.string)),
-};
-const IntegerStructure = {
-    VALUE: (0, common_1.optional)(common_1.number),
-    VARTYPE: (0, common_1.optional)(common_1.string),
-    DEFAULT: (0, common_1.optional)(common_1.number),
-    TOINI: (0, common_1.optional)(common_1.boolean),
-    ONINIT: (0, common_1.optional)(common_1.callback),
-    ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.number)),
-    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.number)),
-};
 const AnimoStructure = {
     VISIBLE: common_1.boolean,
     FILENAME: common_1.string,
@@ -57184,66 +57138,22 @@ const AnimoStructure = {
     ONCLICK: (0, common_1.optional)(common_1.callback),
     ONRELEASE: (0, common_1.optional)(common_1.callback),
 };
-const MusicStructure = {
-    FILENAME: common_1.string,
+const ApplicationStructure = {
+    DESCRIPTION: common_1.string,
+    CREATIONTIME: common_1.string,
+    LASTMODIFYTIME: common_1.string,
+    AUTHOR: common_1.string,
+    VERSION: common_1.string,
+    PATH: common_1.string,
+    EPISODES: (0, common_1.array)(common_1.string),
+    STARTWITH: common_1.string,
 };
-const SoundStructure = {
-    FILENAME: common_1.string,
-    PRELOAD: (0, common_1.optional)(common_1.boolean),
-    RELEASE: (0, common_1.optional)(common_1.boolean),
-    FLUSHAFTERPLAYED: (0, common_1.optional)(common_1.boolean),
+const ArrayDefinitionStructure = {
     ONINIT: (0, common_1.optional)(common_1.callback),
-    ONFINISHED: (0, common_1.optional)(common_1.callback),
-    ONSTARTED: (0, common_1.optional)(common_1.callback),
-};
-const TimerStructure = {
-    ENABLED: (0, common_1.optional)(common_1.boolean),
-    ELAPSE: common_1.number,
-    TICKS: (0, common_1.optional)(common_1.number),
-    ONINIT: (0, common_1.optional)(common_1.callback),
-    ONTICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.number)),
 };
 const BehaviourStructure = {
     CODE: common_1.callback,
     CONDITION: (0, common_1.optional)(common_1.reference),
-};
-const ImageStructure = {
-    VISIBLE: common_1.boolean,
-    FILENAME: common_1.string,
-    TOCANVAS: common_1.boolean,
-    PRIORITY: (0, common_1.optional)(common_1.number),
-    PRELOAD: (0, common_1.optional)(common_1.boolean),
-    RELEASE: (0, common_1.optional)(common_1.boolean),
-    MONITORCOLLISION: (0, common_1.optional)(common_1.boolean),
-    MONITORCOLLISIONALPHA: (0, common_1.optional)(common_1.boolean),
-    ONINIT: (0, common_1.optional)(common_1.callback),
-};
-const MouseStructure = {
-    ONCLICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
-    ONRELEASE: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
-    ONINIT: (0, common_1.optional)(common_1.callback),
-    ONMOVE: (0, common_1.optional)(common_1.callback),
-};
-const KeyboardStructure = {
-    ONKEYDOWN: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
-    ONKEYUP: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
-};
-const CanvasObserverStructure = {};
-const CNVLoaderStructure = {};
-const ConditionDefinitionStructure = {
-    OPERAND1: common_1.code,
-    OPERATOR: common_1.string,
-    OPERAND2: common_1.code,
-    ONRUNTIMESUCCESS: (0, common_1.optional)(common_1.callback),
-    ONRUNTIMEFAILED: (0, common_1.optional)(common_1.callback),
-};
-const StringDefinitionStructure = {
-    TOINI: (0, common_1.optional)(common_1.boolean),
-    VALUE: (0, common_1.optional)(common_1.string),
-    DEFAULT: (0, common_1.optional)(common_1.string),
-    ONINIT: (0, common_1.optional)(common_1.callback),
-    ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
-    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
 };
 const BoolDefinitionStructure = {
     VALUE: (0, common_1.optional)(common_1.boolean),
@@ -57251,12 +57161,6 @@ const BoolDefinitionStructure = {
     ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.boolean)),
     ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.boolean)),
     TOINI: (0, common_1.optional)(common_1.boolean),
-};
-const ArrayDefinitionStructure = {
-    ONINIT: (0, common_1.optional)(common_1.callback),
-};
-const MultiArrayDefinitionStructure = {
-    DIMENSIONS: common_1.number,
 };
 const ButtonDefinitionStructure = {
     DRAGGABLE: (0, common_1.optional)(common_1.boolean),
@@ -57288,15 +57192,125 @@ const ButtonDefinitionStructure = {
     ONSTARTDRAGGING: (0, common_1.optional)(common_1.callback),
     ONINIT: (0, common_1.optional)(common_1.callback),
 };
+const CanvasObserverStructure = {};
+const CNVLoaderStructure = {};
+const ComplexConditionDefinitionStructure = {
+    CONDITION1: common_1.reference,
+    CONDITION2: common_1.reference,
+    ONRUNTIMEFAILED: (0, common_1.optional)(common_1.callback),
+    ONRUNTIMESUCCESS: (0, common_1.optional)(common_1.callback),
+    OPERATOR: common_1.string,
+};
+const ConditionDefinitionStructure = {
+    OPERAND1: common_1.code,
+    OPERATOR: common_1.string,
+    OPERAND2: common_1.code,
+    ONRUNTIMESUCCESS: (0, common_1.optional)(common_1.callback),
+    ONRUNTIMEFAILED: (0, common_1.optional)(common_1.callback),
+};
+const DoubleStructure = {
+    VALUE: (0, common_1.optional)(common_1.number),
+    DEFAULT: (0, common_1.optional)(common_1.number),
+    TOINI: (0, common_1.optional)(common_1.boolean),
+};
+const EpisodeStructure = {
+    DESCRIPTION: common_1.string,
+    CREATIONTIME: common_1.string,
+    LASTMODIFYTIME: common_1.string,
+    AUTHOR: common_1.string,
+    VERSION: common_1.string,
+    PATH: (0, common_1.optional)(common_1.string),
+    SCENES: (0, common_1.array)(common_1.string),
+    STARTWITH: common_1.string,
+};
+const ExpressionDefinitionStructure = {
+    OPERAND1: common_1.code,
+    OPERATOR: common_1.string,
+    OPERAND2: common_1.code,
+};
+const FilterDefinitionStructure = {
+    ACTION: common_1.string,
+};
+const FontDefinitionStructure = {
+    DEF_ARIAL_STANDARD_14: common_1.string, // wtf
+};
+const GroupDefinitionStructure = {
+    ONINIT: (0, common_1.optional)(common_1.callback),
+};
+const ImageStructure = {
+    VISIBLE: common_1.boolean,
+    FILENAME: common_1.string,
+    TOCANVAS: common_1.boolean,
+    PRIORITY: (0, common_1.optional)(common_1.number),
+    PRELOAD: (0, common_1.optional)(common_1.boolean),
+    RELEASE: (0, common_1.optional)(common_1.boolean),
+    MONITORCOLLISION: (0, common_1.optional)(common_1.boolean),
+    MONITORCOLLISIONALPHA: (0, common_1.optional)(common_1.boolean),
+    ONINIT: (0, common_1.optional)(common_1.callback),
+};
+const IntegerStructure = {
+    VALUE: (0, common_1.optional)(common_1.number),
+    VARTYPE: (0, common_1.optional)(common_1.string),
+    DEFAULT: (0, common_1.optional)(common_1.number),
+    TOINI: (0, common_1.optional)(common_1.boolean),
+    ONINIT: (0, common_1.optional)(common_1.callback),
+    ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.number)),
+    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.number)),
+};
+const KeyboardStructure = {
+    ONKEYDOWN: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONKEYUP: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+};
+const MouseStructure = {
+    ONCLICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONRELEASE: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONINIT: (0, common_1.optional)(common_1.callback),
+    ONMOVE: (0, common_1.optional)(common_1.callback),
+};
+const MultiArrayDefinitionStructure = {
+    DIMENSIONS: common_1.number,
+};
+const MusicStructure = {
+    FILENAME: common_1.string,
+};
+const RandDefinitionStructure = {};
+const SceneStructure = {
+    DESCRIPTION: (0, common_1.optional)(common_1.string),
+    CREATIONTIME: common_1.string,
+    LASTMODIFYTIME: common_1.string,
+    VERSION: common_1.string,
+    PATH: common_1.string,
+    BACKGROUND: (0, common_1.optional)(common_1.string),
+    MUSIC: (0, common_1.optional)(common_1.string),
+    DLLS: (0, common_1.optional)((0, common_1.array)(common_1.string)),
+};
 const SequenceDefinitionStructure = {
     FILENAME: common_1.string,
     ONFINISHED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONSTARTED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONINIT: (0, common_1.optional)(common_1.callback),
 };
-const GroupDefinitionStructure = {
+const SoundStructure = {
+    FILENAME: common_1.string,
+    PRELOAD: (0, common_1.optional)(common_1.boolean),
+    RELEASE: (0, common_1.optional)(common_1.boolean),
+    FLUSHAFTERPLAYED: (0, common_1.optional)(common_1.boolean),
     ONINIT: (0, common_1.optional)(common_1.callback),
+    ONFINISHED: (0, common_1.optional)(common_1.callback),
+    ONSTARTED: (0, common_1.optional)(common_1.callback),
 };
+const StaticFilterDefinitionStructure = {
+    ACTION: common_1.string,
+};
+const StringDefinitionStructure = {
+    TOINI: (0, common_1.optional)(common_1.boolean),
+    VALUE: (0, common_1.optional)(common_1.string),
+    DEFAULT: (0, common_1.optional)(common_1.string),
+    ONINIT: (0, common_1.optional)(common_1.callback),
+    ONCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+};
+const SystemDefinitionStructure = {};
 const TextDefinitionStructure = {
     VISIBLE: common_1.boolean,
     VJUSTIFY: (0, common_1.optional)(common_1.boolean),
@@ -57307,72 +57321,51 @@ const TextDefinitionStructure = {
     MONITORCOLLISION: common_1.boolean,
     FONT: common_1.string,
 };
-const FontDefinitionStructure = {
-    DEF_ARIAL_STANDARD_14: common_1.string, // wtf
-};
-const ComplexConditionDefinitionStructure = {
-    CONDITION1: common_1.reference,
-    CONDITION2: common_1.reference,
-    ONRUNTIMEFAILED: (0, common_1.optional)(common_1.callback),
-    ONRUNTIMESUCCESS: (0, common_1.optional)(common_1.callback),
-    OPERATOR: common_1.string,
-};
-const RandDefinitionStructure = {};
-const DoubleStructure = {
-    VALUE: (0, common_1.optional)(common_1.number),
-    DEFAULT: (0, common_1.optional)(common_1.number),
-    TOINI: (0, common_1.optional)(common_1.boolean),
-};
-const ExpressionDefinitionStructure = {
-    OPERAND1: common_1.code,
-    OPERATOR: common_1.string,
-    OPERAND2: common_1.code,
+const TimerStructure = {
+    ENABLED: (0, common_1.optional)(common_1.boolean),
+    ELAPSE: common_1.number,
+    TICKS: (0, common_1.optional)(common_1.number),
+    ONINIT: (0, common_1.optional)(common_1.callback),
+    ONTICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.number)),
 };
 const VectorDefinitionStructure = {
     SIZE: common_1.number,
     VALUE: (0, common_1.array)(common_1.number),
 };
-const StaticFilterDefinitionStructure = {
-    ACTION: common_1.string,
-};
-const FilterDefinitionStructure = {
-    ACTION: common_1.string,
-};
-const SystemDefinitionStructure = {};
 exports.structureDefinitions = {
-    APPLICATION: ApplicationStructure,
-    EPISODE: EpisodeStructure,
-    SCENE: SceneStructure,
-    INTEGER: IntegerStructure,
     ANIMO: AnimoStructure,
-    MUSIC: MusicStructure,
-    TIMER: TimerStructure,
+    APPLICATION: ApplicationStructure,
+    ARRAY: ArrayDefinitionStructure,
     BEHAVIOUR: BehaviourStructure,
-    IMAGE: ImageStructure,
-    MOUSE: MouseStructure,
-    KEYBOARD: KeyboardStructure,
+    BOOL: BoolDefinitionStructure,
+    BUTTON: ButtonDefinitionStructure,
     CANVASOBSERVER: CanvasObserverStructure,
     CANVAS_OBSERVER: CanvasObserverStructure,
     CNVLOADER: CNVLoaderStructure,
-    CONDITION: ConditionDefinitionStructure,
-    SOUND: SoundStructure,
-    STRING: StringDefinitionStructure,
-    BOOL: BoolDefinitionStructure,
-    ARRAY: ArrayDefinitionStructure,
-    BUTTON: ButtonDefinitionStructure,
-    SEQUENCE: SequenceDefinitionStructure,
-    GROUP: GroupDefinitionStructure,
-    TEXT: TextDefinitionStructure,
-    FONT: FontDefinitionStructure,
     COMPLEXCONDITION: ComplexConditionDefinitionStructure,
-    RAND: RandDefinitionStructure,
+    CONDITION: ConditionDefinitionStructure,
     DOUBLE: DoubleStructure,
+    EPISODE: EpisodeStructure,
     EXPRESSION: ExpressionDefinitionStructure,
-    VECTOR: VectorDefinitionStructure,
-    STATICFILTER: StaticFilterDefinitionStructure,
     FILTER: FilterDefinitionStructure,
+    FONT: FontDefinitionStructure,
+    GROUP: GroupDefinitionStructure,
+    IMAGE: ImageStructure,
+    INTEGER: IntegerStructure,
+    KEYBOARD: KeyboardStructure,
+    MOUSE: MouseStructure,
     MULTIARRAY: MultiArrayDefinitionStructure,
+    MUSIC: MusicStructure,
+    RAND: RandDefinitionStructure,
+    SCENE: SceneStructure,
+    SEQUENCE: SequenceDefinitionStructure,
+    SOUND: SoundStructure,
+    STATICFILTER: StaticFilterDefinitionStructure,
+    STRING: StringDefinitionStructure,
     SYSTEM: SystemDefinitionStructure,
+    TEXT: TextDefinitionStructure,
+    TIMER: TimerStructure,
+    VECTOR: VectorDefinitionStructure,
 };
 
 
