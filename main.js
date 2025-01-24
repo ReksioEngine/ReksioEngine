@@ -51131,11 +51131,21 @@ class Debugging {
             option.disabled = !canGoTo;
             sceneSelector.appendChild(option);
         }
-        sceneSelector.addEventListener('change', () => {
-            this.engine.changeScene(sceneSelector.value);
+        sceneSelector.addEventListener('change', async () => {
+            try {
+                await this.engine.changeScene(sceneSelector.value);
+            }
+            catch (err) {
+                console.error(err);
+            }
         });
-        sceneRestart.addEventListener('click', () => {
-            this.engine.changeScene(this.engine.currentScene.name);
+        sceneRestart.addEventListener('click', async () => {
+            try {
+                await this.engine.changeScene(this.engine.currentScene.name);
+            }
+            catch (err) {
+                console.error(err);
+            }
         });
         resetSave.addEventListener('click', () => {
             this.engine.pause();
@@ -52139,8 +52149,12 @@ let Animo = (() => {
                 this.callbacks.run('ONINIT');
             }
             destroy() {
-                (0, errors_1.assert)(this.sprite !== null);
-                this.engine.removeFromStage(this.sprite);
+                if (this.sprite !== null) {
+                    this.engine.removeFromStage(this.sprite);
+                }
+                if (this.buttonInteractArea !== null) {
+                    this.engine.removeFromStage(this.buttonInteractArea);
+                }
             }
             tick(elapsedMS) {
                 if (this.isFirstTick) {
@@ -57002,6 +57016,7 @@ Object.defineProperty(exports, "parseCNV", ({ enumerable: true, get: function ()
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseCNV = void 0;
 const types_1 = __webpack_require__(/*! ./types */ "./src/fileFormats/cnv/types.ts");
+const common_1 = __webpack_require__(/*! ../common */ "./src/fileFormats/common/index.ts");
 const splitOnce = (text, separator) => {
     const index = text.indexOf(separator);
     return [text.substring(0, index), text.substring(index + 1)];
@@ -57048,6 +57063,16 @@ const parseCNV = (content) => {
                     }
                 }
                 catch (err) {
+                    if (err instanceof common_1.FieldProcessorRecoverableError) {
+                        console.warn('Recoverable error occured\n' +
+                            `%cError%c: ${err.message}\n` +
+                            `%cObject name:%c ${objectName}\n` +
+                            `%cObject type:%c ${object.TYPE}\n` +
+                            `%cField name:%c ${variableName}\n` +
+                            `%cParam:%c ${param}\n` +
+                            '%cValue:%c %O', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', value);
+                        continue;
+                    }
                     console.error('Failed to process CNV field\n' +
                         `%cObject name:%c ${objectName}\n` +
                         `%cObject type:%c ${object.TYPE}\n` +
@@ -57362,9 +57387,11 @@ exports.structureDefinitions = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.callbacks = exports.map = exports.array = exports.reference = exports.code = exports.callback = exports.boolean = exports.number = exports.string = exports.optional = void 0;
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+exports.callbacks = exports.map = exports.array = exports.reference = exports.code = exports.callback = exports.boolean = exports.number = exports.string = exports.optional = exports.FieldProcessorRecoverableError = void 0;
 const evaluator_1 = __webpack_require__(/*! ../../interpreter/constArgs/evaluator */ "./src/interpreter/constArgs/evaluator.ts");
+class FieldProcessorRecoverableError extends Error {
+}
+exports.FieldProcessorRecoverableError = FieldProcessorRecoverableError;
 const optional = (subType) => ({
     ...subType,
     flags: {
@@ -57386,14 +57413,21 @@ exports.number = {
     name: 'number',
     processor: (object, key, param, value) => {
         const result = Number(value.startsWith('"') ? value.slice(1, -1) : value);
-        (0, errors_1.assert)(!isNaN(result), 'Value is not a number');
+        if (isNaN(result)) {
+            throw new FieldProcessorRecoverableError('Value references in CNV are not supported yet');
+        }
         return result;
     },
 };
 exports.boolean = {
     name: 'boolean',
     processor: (object, key, param, value) => {
-        (0, errors_1.assert)(value === 'TRUE' || value === 'FALSE', 'Expected TRUE or FALSE');
+        if (value !== 'TRUE' && value !== 'FALSE' && value !== '0' && value !== '1') {
+            throw new FieldProcessorRecoverableError('Expected TRUE, FALSE, 0 or 1');
+        }
+        if (value === '0' || value === '1') {
+            return Number(value);
+        }
         return value === 'TRUE';
     },
 };
