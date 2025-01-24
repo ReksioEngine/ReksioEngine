@@ -577,18 +577,33 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    ISNEAR(objectName: string, distance: number) {
-        const otherObject: AdvancedSprite = this.engine.getObject(objectName).getRenderObject()
-        const thisObject: AdvancedSprite = this.getRenderObject()!
+    ISNEAR(objectName: string, percentage: number) {
+        const otherObject = this.engine.getObject(objectName)
+        if (otherObject === null || !(otherObject instanceof DisplayType)) {
+            return false
+        }
 
-        const boundOther = new Rectangle(
-            otherObject.x - distance,
-            otherObject.y - distance,
-            otherObject.width + distance * 2,
-            otherObject.height + distance * 2
-        )
+        const otherSprite: Sprite | null = otherObject.getRenderObject()
+        assert(otherSprite !== null)
 
-        return boundOther.intersects(thisObject.getBounds())
+        const thisSprite: Sprite | null = this.getRenderObject()
+        assert(thisSprite !== null)
+
+        const boundsThis = thisSprite.getBounds()
+        const boundsOther = otherSprite.getBounds()
+
+        const x1 = Math.max(boundsThis.x, boundsOther.x)
+        const y1 = Math.max(boundsThis.y, boundsOther.y)
+        const x2 = Math.min(boundsThis.x + boundsThis.width, boundsOther.x + boundsOther.width)
+        const y2 = Math.min(boundsThis.y + boundsThis.height, boundsOther.y + boundsOther.height)
+
+        const intersectionWidth = Math.max(0, x2 - x1)
+        const intersectionHeight = Math.max(0, y2 - y1)
+        const intersectionArea = intersectionWidth * intersectionHeight
+
+        const areaThis = boundsThis.width * boundsThis.height
+        const val = intersectionArea / areaThis
+        return val * 100 > percentage
     }
 
     @method()
