@@ -2,7 +2,7 @@ import { callback, reference } from '../fileFormats/common'
 import { runScript } from '../interpreter/script/evaluator'
 import { DisplayType, Type } from './types'
 import { loadDefinition } from './definitionLoader'
-import { Application, Rectangle, Sprite } from 'pixi.js'
+import { Application, DisplayObject, Rectangle, Sprite } from 'pixi.js'
 import { Scene } from './types/scene'
 import { FileLoader, GithubFileLoader, UrlFileLoader } from './filesLoader'
 import { sound, Sound } from '@pixi/sound'
@@ -160,12 +160,12 @@ export class Engine {
         return runScript(this, code, args, isSingleStatement, printDebug)
     }
 
-    addToStage(sprite: Sprite) {
+    addToStage(sprite: DisplayObject) {
         this.app.stage.addChild(sprite)
         this.sortObjects()
     }
 
-    removeFromStage(sprite: Sprite) {
+    removeFromStage(sprite: DisplayObject) {
         this.app.stage.removeChild(sprite)
         this.sortObjects()
     }

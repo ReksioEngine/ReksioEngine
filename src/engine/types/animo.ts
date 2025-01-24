@@ -72,8 +72,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     destroy() {
-        assert(this.sprite !== null)
-        this.engine.removeFromStage(this.sprite)
+        if (this.sprite !== null) {
+            this.engine.removeFromStage(this.sprite)
+        }
+        if (this.buttonInteractArea !== null) {
+            this.engine.removeFromStage(this.buttonInteractArea)
+        }
     }
 
     tick(elapsedMS: number) {
