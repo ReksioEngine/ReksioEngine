@@ -51241,6 +51241,7 @@ class Debugging {
             }
             else {
                 container = new pixi_js_1.Container();
+                container.__devtoolIgnore = true; // For PIXI Devtools
                 container.eventMode = 'none';
                 this.engine.app.stage.addChild(container);
                 this.xrays.set(object.name, container);
@@ -51599,6 +51600,7 @@ const debugging_1 = __webpack_require__(/*! ./debugging */ "./src/engine/debuggi
 const timer_1 = __webpack_require__(/*! ./types/timer */ "./src/engine/types/timer.ts");
 const errors_1 = __webpack_require__(/*! ../errors */ "./src/errors.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
+const devtools_1 = __webpack_require__(/*! @pixi/devtools */ "./node_modules/@pixi/devtools/dist/index.cjs");
 class Engine {
     constructor(app) {
         this.speed = 1;
@@ -51614,6 +51616,7 @@ class Engine {
         this.blackTexture = (0, utils_1.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0);
         this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
         this.canvasBackground.zIndex = -99999;
+        this.canvasBackground.name = 'Scene Background'; // For PIXI Devtools
     }
     async init() {
         try {
@@ -51627,12 +51630,12 @@ class Engine {
             this.app.ticker.maxFPS = 60;
             this.app.stage.interactive = true;
             sound_1.sound.disableAutoPause = true;
+            this.app.stage.name = 'Scene'; // For PIXI Devtools
             this.app.stage.addChild(this.canvasBackground);
             this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS));
             // @ts-expect-error no engine in globalThis
             globalThis.engine = this;
-            // @ts-expect-error no __PIXI_APP__ in globalThis
-            globalThis.__PIXI_APP__ = this.app;
+            await (0, devtools_1.initDevtools)({ app: this.app });
         }
         catch (err) {
             console.error('Unhandled error occurred during initialization\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
@@ -52211,6 +52214,7 @@ let Animo = (() => {
             initSprite() {
                 (0, errors_1.assert)(this.annFile !== null);
                 this.sprite = new rendering_1.AdvancedSprite();
+                this.sprite.name = `${this.name} [ANIMO]`; // For PIXI Devtools
                 this.sprite.eventMode = 'none';
                 this.sprite.visible = this.definition.VISIBLE;
                 this.SETPRIORITY(this.definition.PRIORITY ?? 0);
@@ -52301,6 +52305,7 @@ let Animo = (() => {
                 // TODO: refactor it so we don't assign texture and hitmap separately?
                 this.sprite.texture = this.getTexture(imageIndex);
                 this.sprite.hitmap = this.getHitmap(imageIndex);
+                this.sprite.name = `${this.name} (${event.name}) (ANIMO)`; // For PIXI Devtools
                 this.positionOffsetX = annImage.positionX + eventFrame.positionX;
                 this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX;
                 this.positionOffsetY = annImage.positionY + eventFrame.positionY;
@@ -52418,6 +52423,7 @@ let Animo = (() => {
                 (0, errors_1.assert)(this.sprite !== null);
                 if (enabled) {
                     this.buttonInteractArea = new pixi_js_1.Graphics();
+                    this.buttonInteractArea.name = `${this.name} (ANIMO Button)`; // For PIXI Devtools
                     this.buttonInteractArea.hitArea = this.sprite.getBounds();
                     this.buttonInteractArea.zIndex = this.sprite.zIndex;
                     this.engine.app.stage.addChild(this.buttonInteractArea);
@@ -52526,11 +52532,27 @@ let Animo = (() => {
                 (0, errors_1.assert)(this.currentEvent !== null);
                 return this.isPlaying && this.currentEvent == animName;
             }
-            ISNEAR(objectName, distance) {
-                const otherObject = this.engine.getObject(objectName).getRenderObject();
-                const thisObject = this.getRenderObject();
-                const boundOther = new pixi_js_1.Rectangle(otherObject.x - distance, otherObject.y - distance, otherObject.width + distance * 2, otherObject.height + distance * 2);
-                return boundOther.intersects(thisObject.getBounds());
+            ISNEAR(objectName, percentage) {
+                const otherObject = this.engine.getObject(objectName);
+                if (otherObject === null || !(otherObject instanceof index_1.DisplayType)) {
+                    return false;
+                }
+                const otherSprite = otherObject.getRenderObject();
+                (0, errors_1.assert)(otherSprite !== null);
+                const thisSprite = this.getRenderObject();
+                (0, errors_1.assert)(thisSprite !== null);
+                const boundsThis = thisSprite.getBounds();
+                const boundsOther = otherSprite.getBounds();
+                const x1 = Math.max(boundsThis.x, boundsOther.x);
+                const y1 = Math.max(boundsThis.y, boundsOther.y);
+                const x2 = Math.min(boundsThis.x + boundsThis.width, boundsOther.x + boundsOther.width);
+                const y2 = Math.min(boundsThis.y + boundsThis.height, boundsOther.y + boundsOther.height);
+                const intersectionWidth = Math.max(0, x2 - x1);
+                const intersectionHeight = Math.max(0, y2 - y1);
+                const intersectionArea = intersectionWidth * intersectionHeight;
+                const areaThis = boundsThis.width * boundsThis.height;
+                const val = intersectionArea / areaThis;
+                return val * 100 > percentage;
             }
             ADDBEHAVIOUR(callbackString, behaviourName) {
                 this.callbacks.addBehaviour(callbackString, behaviourName);
@@ -52610,7 +52632,7 @@ let Animo = (() => {
             _GETCURRFRAMEPOSX_decorators = [(0, types_1.method)()];
             _GETCURRFRAMEPOSY_decorators = [(0, types_1.method)()];
             _ISPLAYING_decorators = [(0, types_1.method)({ name: "animName", types: [{ name: "string", literal: null, isArray: false }], optional: true, rest: false })];
-            _ISNEAR_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "distance", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _ISNEAR_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "percentage", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _ADDBEHAVIOUR_decorators = [(0, types_1.method)({ name: "callbackString", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _MONITORCOLLISION_decorators = [(0, types_1.method)({ name: "newState", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             _REMOVEMONITORCOLLISION_decorators = [(0, types_1.method)()];
@@ -52855,7 +52877,7 @@ let ArrayObject = (() => {
     let _MSGBOX_decorators;
     return _a = class ArrayObject extends _classSuper {
             constructor(engine, parent, definition) {
-                super(engine, parent, definition, []);
+                super(engine, parent, definition, [], false);
                 __runInitializers(this, _instanceExtraInitializers);
             }
             ready() {
@@ -53333,6 +53355,7 @@ let Button = (() => {
                 if (this.interactArea === null) {
                     this.interactArea = new pixi_js_1.Graphics();
                     this.interactArea.visible = this.definition.ENABLE;
+                    this.interactArea.name = `${this.name} (Button)`; // For PIXI Devtools
                     this.engine.app.stage.addChild(this.interactArea);
                 }
                 this.rect = rectangle;
@@ -54453,6 +54476,7 @@ let Image = (() => {
                 this.sprite = await this.load();
                 this.sprite.visible = this.definition.VISIBLE;
                 this.sprite.eventMode = 'none';
+                this.sprite.name = `${this.name} (IMAGE)`; // For PIXI Devtools
             }
             applyDefaults() {
                 this.SETPRIORITY(this.definition.PRIORITY ?? 0);
@@ -54705,11 +54729,12 @@ let ValueType = (() => {
     let _instanceExtraInitializers = [];
     let _RESETINI_decorators;
     return _a = class ValueType extends _classSuper {
-            constructor(engine, parent, definition, defaultValue) {
+            constructor(engine, parent, definition, defaultValue, autoSave = true) {
                 super(engine, parent, definition);
                 this._value = (__runInitializers(this, _instanceExtraInitializers), void 0);
                 this.defaultValue = defaultValue;
                 this._value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue;
+                this.autoSave = autoSave;
             }
             RESETINI() {
                 if (this.definition.TOINI) {
@@ -54731,7 +54756,7 @@ let ValueType = (() => {
                 const oldValue = this._value;
                 this._value = newValue;
                 this.valueChanged(oldValue, newValue);
-                if (this.definition.TOINI) {
+                if (this.autoSave && this.definition.TOINI) {
                     this.saveToINI();
                 }
             }
@@ -62583,6 +62608,18 @@ exports.Url = Url;
 
 /***/ }),
 
+/***/ "./node_modules/@pixi/devtools/dist/index.cjs":
+/*!****************************************************!*\
+  !*** ./node_modules/@pixi/devtools/dist/index.cjs ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+var r=Object.create;var t=Object.defineProperty;var s=Object.getOwnPropertyDescriptor;var _=Object.getOwnPropertyNames;var d=Object.getPrototypeOf,g=Object.prototype.hasOwnProperty;var l=(i,e,a,o)=>{if(e&&typeof e=="object"||typeof e=="function")for(let p of _(e))!g.call(i,p)&&p!==a&&t(i,p,{get:()=>e[p],enumerable:!(o=s(e,p))||o.enumerable});return i};var w=(i,e,a)=>(a=i!=null?r(d(i)):{},l(e||!i||!i.__esModule?t(a,"default",{value:i,enumerable:!0}):a,i));Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});var n=(i=>(i[i.Low=-1]="Low",i[i.Normal=0]="Normal",i[i.High=1]="High",i))(n||{});async function O(i){var a;const e={importPixi:!1,...i};e.app&&(e.renderer=e.app.renderer,e.stage=e.app.stage),e.importPixi&&!e.pixi&&(e.pixi=await __webpack_require__.e(/*! import() */ "vendors-node_modules_pixi_js_lib_index_mjs").then(__webpack_require__.bind(__webpack_require__, /*! pixi.js */ "./node_modules/pixi.js/lib/index.mjs"))),window.__PIXI_DEVTOOLS__={...window.__PIXI_DEVTOOLS__||{},app:e.app,stage:e.stage,renderer:e.renderer,extensions:[...((a=window.__PIXI_DEVTOOLS__)==null?void 0:a.extensions)||[],...e.extensions||[]],plugins:{}}}exports.ExtensionPriority=n;exports.initDevtools=O;
+
+
+/***/ }),
+
 /***/ "./node_modules/antlr4/dist/antlr4.web.cjs":
 /*!*************************************************!*\
   !*** ./node_modules/antlr4/dist/antlr4.web.cjs ***!
@@ -62623,6 +62660,9 @@ exports.Url = Url;
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = __webpack_modules__;
+/******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
@@ -62633,6 +62673,28 @@ exports.Url = Url;
 /******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
 /******/ 				}
 /******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/ensure chunk */
+/******/ 	(() => {
+/******/ 		__webpack_require__.f = {};
+/******/ 		// This file contains only the entry chunk.
+/******/ 		// The chunk loading function for additional chunks
+/******/ 		__webpack_require__.e = (chunkId) => {
+/******/ 			return Promise.all(Object.keys(__webpack_require__.f).reduce((promises, key) => {
+/******/ 				__webpack_require__.f[key](chunkId, promises);
+/******/ 				return promises;
+/******/ 			}, []));
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/get javascript chunk filename */
+/******/ 	(() => {
+/******/ 		// This function allow to reference async chunks
+/******/ 		__webpack_require__.u = (chunkId) => {
+/******/ 			// return url for filenames based on template
+/******/ 			return "" + chunkId + ".js";
 /******/ 		};
 /******/ 	})();
 /******/ 	
@@ -62653,6 +62715,52 @@ exports.Url = Url;
 /******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
 /******/ 	})();
 /******/ 	
+/******/ 	/* webpack/runtime/load script */
+/******/ 	(() => {
+/******/ 		var inProgress = {};
+/******/ 		var dataWebpackPrefix = "reksioengine:";
+/******/ 		// loadScript function to load a script via script tag
+/******/ 		__webpack_require__.l = (url, done, key, chunkId) => {
+/******/ 			if(inProgress[url]) { inProgress[url].push(done); return; }
+/******/ 			var script, needAttach;
+/******/ 			if(key !== undefined) {
+/******/ 				var scripts = document.getElementsByTagName("script");
+/******/ 				for(var i = 0; i < scripts.length; i++) {
+/******/ 					var s = scripts[i];
+/******/ 					if(s.getAttribute("src") == url || s.getAttribute("data-webpack") == dataWebpackPrefix + key) { script = s; break; }
+/******/ 				}
+/******/ 			}
+/******/ 			if(!script) {
+/******/ 				needAttach = true;
+/******/ 				script = document.createElement('script');
+/******/ 		
+/******/ 				script.charset = 'utf-8';
+/******/ 				script.timeout = 120;
+/******/ 				if (__webpack_require__.nc) {
+/******/ 					script.setAttribute("nonce", __webpack_require__.nc);
+/******/ 				}
+/******/ 				script.setAttribute("data-webpack", dataWebpackPrefix + key);
+/******/ 		
+/******/ 				script.src = url;
+/******/ 			}
+/******/ 			inProgress[url] = [done];
+/******/ 			var onScriptComplete = (prev, event) => {
+/******/ 				// avoid mem leaks in IE.
+/******/ 				script.onerror = script.onload = null;
+/******/ 				clearTimeout(timeout);
+/******/ 				var doneFns = inProgress[url];
+/******/ 				delete inProgress[url];
+/******/ 				script.parentNode && script.parentNode.removeChild(script);
+/******/ 				doneFns && doneFns.forEach((fn) => (fn(event)));
+/******/ 				if(prev) return prev(event);
+/******/ 			}
+/******/ 			var timeout = setTimeout(onScriptComplete.bind(null, undefined, { type: 'timeout', target: script }), 120000);
+/******/ 			script.onerror = onScriptComplete.bind(null, script.onerror);
+/******/ 			script.onload = onScriptComplete.bind(null, script.onload);
+/******/ 			needAttach && document.head.appendChild(script);
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
@@ -62671,6 +62779,119 @@ exports.Url = Url;
 /******/ 			if (!module.children) module.children = [];
 /******/ 			return module;
 /******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/publicPath */
+/******/ 	(() => {
+/******/ 		var scriptUrl;
+/******/ 		if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
+/******/ 		var document = __webpack_require__.g.document;
+/******/ 		if (!scriptUrl && document) {
+/******/ 			if (document.currentScript)
+/******/ 				scriptUrl = document.currentScript.src;
+/******/ 			if (!scriptUrl) {
+/******/ 				var scripts = document.getElementsByTagName("script");
+/******/ 				if(scripts.length) {
+/******/ 					var i = scripts.length - 1;
+/******/ 					while (i > -1 && !scriptUrl) scriptUrl = scripts[i--].src;
+/******/ 				}
+/******/ 			}
+/******/ 		}
+/******/ 		// When supporting browsers where an automatic publicPath is not supported you must specify an output.publicPath manually via configuration
+/******/ 		// or pass an empty string ("") and set the __webpack_public_path__ variable from your code to use your own logic.
+/******/ 		if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
+/******/ 		scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/[^\/]+$/, "/");
+/******/ 		__webpack_require__.p = scriptUrl;
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/jsonp chunk loading */
+/******/ 	(() => {
+/******/ 		// no baseURI
+/******/ 		
+/******/ 		// object to store loaded and loading chunks
+/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
+/******/ 		var installedChunks = {
+/******/ 			"main": 0
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.j = (chunkId, promises) => {
+/******/ 				// JSONP chunk loading for javascript
+/******/ 				var installedChunkData = __webpack_require__.o(installedChunks, chunkId) ? installedChunks[chunkId] : undefined;
+/******/ 				if(installedChunkData !== 0) { // 0 means "already installed".
+/******/ 		
+/******/ 					// a Promise means "currently loading".
+/******/ 					if(installedChunkData) {
+/******/ 						promises.push(installedChunkData[2]);
+/******/ 					} else {
+/******/ 						if(true) { // all chunks have JS
+/******/ 							// setup Promise in chunk cache
+/******/ 							var promise = new Promise((resolve, reject) => (installedChunkData = installedChunks[chunkId] = [resolve, reject]));
+/******/ 							promises.push(installedChunkData[2] = promise);
+/******/ 		
+/******/ 							// start chunk loading
+/******/ 							var url = __webpack_require__.p + __webpack_require__.u(chunkId);
+/******/ 							// create error before stack unwound to get useful stacktrace later
+/******/ 							var error = new Error();
+/******/ 							var loadingEnded = (event) => {
+/******/ 								if(__webpack_require__.o(installedChunks, chunkId)) {
+/******/ 									installedChunkData = installedChunks[chunkId];
+/******/ 									if(installedChunkData !== 0) installedChunks[chunkId] = undefined;
+/******/ 									if(installedChunkData) {
+/******/ 										var errorType = event && (event.type === 'load' ? 'missing' : event.type);
+/******/ 										var realSrc = event && event.target && event.target.src;
+/******/ 										error.message = 'Loading chunk ' + chunkId + ' failed.\n(' + errorType + ': ' + realSrc + ')';
+/******/ 										error.name = 'ChunkLoadError';
+/******/ 										error.type = errorType;
+/******/ 										error.request = realSrc;
+/******/ 										installedChunkData[1](error);
+/******/ 									}
+/******/ 								}
+/******/ 							};
+/******/ 							__webpack_require__.l(url, loadingEnded, "chunk-" + chunkId, chunkId);
+/******/ 						}
+/******/ 					}
+/******/ 				}
+/******/ 		};
+/******/ 		
+/******/ 		// no prefetching
+/******/ 		
+/******/ 		// no preloaded
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 		
+/******/ 		// no on chunks loaded
+/******/ 		
+/******/ 		// install a JSONP callback for chunk loading
+/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
+/******/ 			var [chunkIds, moreModules, runtime] = data;
+/******/ 			// add "moreModules" to the modules object,
+/******/ 			// then flag all "chunkIds" as loaded and fire callback
+/******/ 			var moduleId, chunkId, i = 0;
+/******/ 			if(chunkIds.some((id) => (installedChunks[id] !== 0))) {
+/******/ 				for(moduleId in moreModules) {
+/******/ 					if(__webpack_require__.o(moreModules, moduleId)) {
+/******/ 						__webpack_require__.m[moduleId] = moreModules[moduleId];
+/******/ 					}
+/******/ 				}
+/******/ 				if(runtime) var result = runtime(__webpack_require__);
+/******/ 			}
+/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
+/******/ 			for(;i < chunkIds.length; i++) {
+/******/ 				chunkId = chunkIds[i];
+/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
+/******/ 					installedChunks[chunkId][0]();
+/******/ 				}
+/******/ 				installedChunks[chunkId] = 0;
+/******/ 			}
+/******/ 		
+/******/ 		}
+/******/ 		
+/******/ 		var chunkLoadingGlobal = self["webpackChunkreksioengine"] = self["webpackChunkreksioengine"] || [];
+/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
+/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
 /******/ 	})();
 /******/ 	
 /************************************************************************/
