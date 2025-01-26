@@ -1,15 +1,16 @@
 import { Episode } from './types/episode'
-import { DisplayType, Type } from './types'
+import { Type } from './types'
 import { Engine } from './index'
 import { sound } from '@pixi/sound'
 import { ArchiveOrgFileLoader, GithubFileLoader } from './filesLoader'
 import { drawRectangle } from '../utils'
-import { Container, Graphics, Rectangle, Sprite, Text } from 'pixi.js'
+import { Container, Graphics, Rectangle, Text } from 'pixi.js'
 import { Animo } from './types/animo'
-import { Button } from './types/button'
 import { CNVObject, parseCNV } from '../fileFormats/cnv/parser'
 import { createObject, loadDefinition } from './definitionLoader'
 import { SaveFileManager } from './saveFile'
+import { printStackTrace } from '../interpreter/script/stacktrace'
+import { EngineError } from '../errors'
 
 export class Debugging {
     private engine: Engine
@@ -155,6 +156,9 @@ export class Debugging {
                 await this.engine.changeScene(sceneSelector.value)
             } catch (err) {
                 console.error(err)
+                if (err instanceof EngineError) {
+                    printStackTrace(err.stackTrace)
+                }
             }
         })
 
@@ -163,6 +167,9 @@ export class Debugging {
                 await this.engine.changeScene(this.engine.currentScene!.name)
             } catch (err) {
                 console.error(err)
+                if (err instanceof EngineError) {
+                    printStackTrace(err.stackTrace)
+                }
             }
         })
 

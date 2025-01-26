@@ -1,6 +1,28 @@
-export class IrrecoverableError extends Error {}
+import { StackFrame } from './interpreter/script/stacktrace'
 
-export class InterpreterError extends IrrecoverableError {}
+export class EngineError extends Error {
+    public stackTrace: StackFrame[] | null
+    constructor(message: string, stackTrace: StackFrame[] | null = null) {
+        super(message)
+        this.stackTrace = stackTrace
+    }
+}
+
+export class IrrecoverableError extends EngineError {}
+
+export class InterpreterError extends IrrecoverableError {
+    public script: string
+    public line: number
+    public column: number
+
+    constructor(message: string, script: string, line: number, column: number, stackTrace: StackFrame[]) {
+        super(message + ` at ${line}:${column}\n${script}`, stackTrace)
+        this.script = script
+        this.line = line
+        this.column = column
+    }
+}
+
 export class LexerError extends InterpreterError {}
 export class ParserError extends InterpreterError {}
 

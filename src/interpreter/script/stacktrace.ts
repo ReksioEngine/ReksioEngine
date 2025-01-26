@@ -56,10 +56,10 @@ class StackFrameBuilder {
 
 export const stackTrace: StackFrame[] = []
 
-export const printStackTrace = () => {
+export const generateStackTrace = (stackTraceSource: StackFrame[]) => {
     const lines: string[] = []
 
-    for (const frame of stackTrace) {
+    for (const frame of stackTraceSource) {
         const argsString = (frame.args ?? [])
             .map((arg) => {
                 if ((typeof arg !== 'object' || arg === null) && arg !== undefined) {
@@ -86,5 +86,9 @@ export const printStackTrace = () => {
         }
     }
 
-    console.error('\t' + lines.join('\n\t'))
+    return '\t' + lines.join('\n\t')
+}
+
+export const printStackTrace = (stackTraceSource: StackFrame[] | null = null) => {
+    console.error(generateStackTrace(stackTraceSource ?? stackTrace))
 }

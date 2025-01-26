@@ -446,11 +446,11 @@ export const runScript = (
         syntaxError(
             _recognizer: Recognizer<number>,
             _offendingSymbol: number,
-            _line: number,
-            _column: number,
+            line: number,
+            column: number,
             msg: string
         ) {
-            throw new LexerError(msg)
+            throw new LexerError(msg, script, line, column, [...stackTrace])
         },
     })
 
@@ -461,12 +461,12 @@ export const runScript = (
         syntaxError(
             _recognizer: Recognizer<Token>,
             _offendingSymbol: Token,
-            _line: number,
-            _column: number,
+            line: number,
+            column: number,
             msg: string,
             _e: RecognitionException | undefined
         ) {
-            throw new ParserError(msg)
+            throw new ParserError(msg, script, line, column, [...stackTrace])
         },
     })
 
