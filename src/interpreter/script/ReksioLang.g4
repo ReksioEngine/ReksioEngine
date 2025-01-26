@@ -15,8 +15,8 @@ expr :
         | operationGrouping
     );
 
-statement: | expr;
-statementList: (statement STATEMENT_END)* EOF;
+statement: expr;
+statementList: statement (STATEMENT_END statement)* STATEMENT_END? EOF;
 
 methodCall: objectName METHOD_CALL_SYMBOL methodName '(' methodCallArguments? ')';
 objectName: IDENTIFIER;
