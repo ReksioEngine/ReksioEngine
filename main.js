@@ -51022,6 +51022,8 @@ const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/ani
 const parser_1 = __webpack_require__(/*! ../fileFormats/cnv/parser */ "./src/fileFormats/cnv/parser.ts");
 const definitionLoader_1 = __webpack_require__(/*! ./definitionLoader */ "./src/engine/definitionLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
+const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
+const errors_1 = __webpack_require__(/*! ../errors */ "./src/errors.ts");
 class Debugging {
     constructor(engine, isDebug) {
         this.isDebug = false;
@@ -51137,6 +51139,9 @@ class Debugging {
             }
             catch (err) {
                 console.error(err);
+                if (err instanceof errors_1.EngineError) {
+                    (0, stacktrace_1.printStackTrace)(err.stackTrace);
+                }
             }
         });
         sceneRestart.addEventListener('click', async () => {
@@ -51145,6 +51150,9 @@ class Debugging {
             }
             catch (err) {
                 console.error(err);
+                if (err instanceof errors_1.EngineError) {
+                    (0, stacktrace_1.printStackTrace)(err.stackTrace);
+                }
             }
         });
         resetSave.addEventListener('click', () => {
@@ -52113,8 +52121,6 @@ let Animo = (() => {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition);
                 this.buttonLogic = (__runInitializers(this, _instanceExtraInitializers), void 0);
-                this.isFirstTick = true;
-                this.isAnyFrameSet = false;
                 this.isPlaying = false;
                 this.currentFrame = 0;
                 this.currentEvent = '';
@@ -52144,6 +52150,10 @@ let Animo = (() => {
             }
             applyDefaults() {
                 this.currentEvent = this.getDefaultEvent() ?? '';
+                const event = this.getEventByName(this.currentEvent);
+                if (event) {
+                    this.changeFrame(event, 0, false);
+                }
             }
             ready() {
                 this.callbacks.run('ONINIT');
@@ -52157,15 +52167,6 @@ let Animo = (() => {
                 }
             }
             tick(elapsedMS) {
-                if (this.isFirstTick) {
-                    if (!this.isAnyFrameSet) {
-                        const event = this.getEventByName(this.currentEvent);
-                        if (event) {
-                            this.changeFrame(event, 0, false);
-                        }
-                    }
-                    this.isFirstTick = false;
-                }
                 this.collisions.handle((object) => {
                     this.callbacks.run('ONCOLLISION', object.name);
                 });
@@ -52332,7 +52333,6 @@ let Animo = (() => {
                 if (signal) {
                     this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
                 }
-                this.isAnyFrameSet = true;
             }
             PLAY(name) {
                 if (name === undefined) {
@@ -54371,17 +54371,15 @@ let Group = (() => {
                 this.callbacks.run('ONINIT');
             }
             ADD(...objectsNames) {
-                this.objects.push(...objectsNames
-                    .map((objectName) => {
-                    return this.engine.getObject(objectName);
-                })
-                    .filter((x, index) => {
-                    if (x == null) {
-                        // It happens in original game scripts
-                        console.warn(`Script was trying to add non-existing object "${objectsNames[index]}" to a group "${this.name}"`);
+                objectsNames.forEach(objectName => {
+                    const object = this.engine.getObject(objectName);
+                    if (object === null) {
+                        console.warn(`Script was trying to add non-existing object "${objectName}" to a group "${this.name}"`);
                     }
-                    return x !== null;
-                }));
+                    else {
+                        this.objects.push(object);
+                    }
+                });
             }
             REMOVE(...objectsNames) {
                 this.objects = this.objects.filter((object) => !objectsNames.includes(object.name));
@@ -54392,8 +54390,8 @@ let Group = (() => {
                         object[methodName](...args);
                     }
                     else {
-                        const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
-                        throw new Error(`Method '${methodName}(${argumentsString})' does not exist in ${object.constructor.name}`);
+                        const argumentsString = args?.map((arg) => typeof arg).join(', ');
+                        throw new Error(`Method '${methodName}(${argumentsString ?? ""})' does not exist in ${object.constructor.name}`);
                     }
                 }
             }
@@ -56743,11 +56741,24 @@ exports.Vector = Vector;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.assert = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.ParserError = exports.LexerError = exports.InterpreterError = exports.IrrecoverableError = void 0;
-class IrrecoverableError extends Error {
+exports.assert = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.ParserError = exports.LexerError = exports.InterpreterError = exports.IrrecoverableError = exports.EngineError = void 0;
+class EngineError extends Error {
+    constructor(message, stackTrace = null) {
+        super(message);
+        this.stackTrace = stackTrace;
+    }
+}
+exports.EngineError = EngineError;
+class IrrecoverableError extends EngineError {
 }
 exports.IrrecoverableError = IrrecoverableError;
 class InterpreterError extends IrrecoverableError {
+    constructor(message, script, line, column, stackTrace) {
+        super(message + ` at ${line}:${column}\n${script}`, stackTrace);
+        this.script = script;
+        this.line = line;
+        this.column = column;
+    }
 }
 exports.InterpreterError = InterpreterError;
 class LexerError extends InterpreterError {
@@ -59077,7 +59088,7 @@ exports.evaluateExpression = evaluateExpression;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-// Generated from ./src/interpreter/ReksioLang.g4 by ANTLR 4.13.2
+// Generated from ./src/interpreter/script/ReksioLang.g4 by ANTLR 4.13.2
 // noinspection ES6UnusedImports,JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 const antlr4_1 = __webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs");
 class ReksioLangLexer extends antlr4_1.Lexer {
@@ -59085,27 +59096,13 @@ class ReksioLangLexer extends antlr4_1.Lexer {
         super(input);
         this._interp = new antlr4_1.LexerATNSimulator(this, ReksioLangLexer._ATN, ReksioLangLexer.DecisionsToDFA, new antlr4_1.PredictionContextCache());
     }
-    get grammarFileName() {
-        return 'ReksioLang.g4';
-    }
-    get literalNames() {
-        return ReksioLangLexer.literalNames;
-    }
-    get symbolicNames() {
-        return ReksioLangLexer.symbolicNames;
-    }
-    get ruleNames() {
-        return ReksioLangLexer.ruleNames;
-    }
-    get serializedATN() {
-        return ReksioLangLexer._serializedATN;
-    }
-    get channelNames() {
-        return ReksioLangLexer.channelNames;
-    }
-    get modeNames() {
-        return ReksioLangLexer.modeNames;
-    }
+    get grammarFileName() { return "ReksioLang.g4"; }
+    get literalNames() { return ReksioLangLexer.literalNames; }
+    get symbolicNames() { return ReksioLangLexer.symbolicNames; }
+    get ruleNames() { return ReksioLangLexer.ruleNames; }
+    get serializedATN() { return ReksioLangLexer._serializedATN; }
+    get channelNames() { return ReksioLangLexer.channelNames; }
+    get modeNames() { return ReksioLangLexer.modeNames; }
     static get _ATN() {
         if (!ReksioLangLexer.__ATN) {
             ReksioLangLexer.__ATN = new antlr4_1.ATNDeserializer().deserialize(ReksioLangLexer._serializedATN);
@@ -59133,109 +59130,75 @@ ReksioLangLexer.METHOD_CALL_SYMBOL = 17;
 ReksioLangLexer.STATEMENT_END = 18;
 ReksioLangLexer.WHITESPACE = 19;
 ReksioLangLexer.EOF = antlr4_1.Token.EOF;
-ReksioLangLexer.channelNames = ['DEFAULT_TOKEN_CHANNEL', 'HIDDEN'];
-ReksioLangLexer.literalNames = [
-    null,
-    "'('",
-    "')'",
-    "','",
-    "'['",
-    "']'",
-    "'TRUE'",
-    "'FALSE'",
-    null,
-    null,
-    null,
-    null,
-    "'+'",
-    "'-'",
-    "'*'",
-    "'%'",
-    "'@'",
-];
-ReksioLangLexer.symbolicNames = [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    'TRUE',
-    'FALSE',
-    'IDENTIFIER',
-    'NUMBER',
-    'STRING',
-    'COMMENT_START',
-    'ADD',
-    'SUB',
-    'MUL',
-    'MOD',
-    'DIV',
-    'METHOD_CALL_SYMBOL',
-    'STATEMENT_END',
-    'WHITESPACE',
-];
-ReksioLangLexer.modeNames = ['DEFAULT_MODE'];
+ReksioLangLexer.channelNames = ["DEFAULT_TOKEN_CHANNEL", "HIDDEN"];
+ReksioLangLexer.literalNames = [null, "'('",
+    "')'", "','",
+    "'['", "']'",
+    "'TRUE'", "'FALSE'",
+    null, null,
+    null, null,
+    "'+'", "'-'",
+    "'*'", "'%'",
+    "'@'"];
+ReksioLangLexer.symbolicNames = [null, null,
+    null, null,
+    null, null,
+    "TRUE", "FALSE",
+    "IDENTIFIER",
+    "NUMBER", "STRING",
+    "COMMENT_START",
+    "ADD", "SUB",
+    "MUL", "MOD",
+    "DIV", "METHOD_CALL_SYMBOL",
+    "STATEMENT_END",
+    "WHITESPACE"];
+ReksioLangLexer.modeNames = ["DEFAULT_MODE",];
 ReksioLangLexer.ruleNames = [
-    'T__0',
-    'T__1',
-    'T__2',
-    'T__3',
-    'T__4',
-    'TRUE',
-    'FALSE',
-    'IDENTIFIER',
-    'NUMBER',
-    'STRING',
-    'COMMENT_START',
-    'ADD',
-    'SUB',
-    'MUL',
-    'MOD',
-    'DIV',
-    'METHOD_CALL_SYMBOL',
-    'STATEMENT_END',
-    'WHITESPACE',
+    "T__0", "T__1", "T__2", "T__3", "T__4", "TRUE", "FALSE", "IDENTIFIER",
+    "NUMBER", "STRING", "COMMENT_START", "ADD", "SUB", "MUL", "MOD", "DIV",
+    "METHOD_CALL_SYMBOL", "STATEMENT_END", "WHITESPACE",
 ];
-ReksioLangLexer._serializedATN = [
-    4, 0, 19, 125, 6, -1, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7,
-    7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7, 10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7,
-    15, 2, 16, 7, 16, 2, 17, 7, 17, 2, 18, 7, 18, 1, 0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 2, 1, 3, 1, 3, 1, 4, 1, 4, 1, 5,
-    1, 5, 1, 5, 1, 5, 1, 5, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 7, 5, 7, 62, 8, 7, 10, 7, 12, 7, 65, 9, 7, 1, 7,
-    4, 7, 68, 8, 7, 11, 7, 12, 7, 69, 1, 7, 5, 7, 73, 8, 7, 10, 7, 12, 7, 76, 9, 7, 1, 8, 4, 8, 79, 8, 8, 11, 8, 12,
-    8, 80, 1, 8, 1, 8, 4, 8, 85, 8, 8, 11, 8, 12, 8, 86, 3, 8, 89, 8, 8, 1, 9, 1, 9, 5, 9, 93, 8, 9, 10, 9, 12, 9,
-    96, 9, 9, 1, 9, 1, 9, 1, 10, 4, 10, 101, 8, 10, 11, 10, 12, 10, 102, 1, 11, 1, 11, 1, 12, 1, 12, 1, 13, 1, 13,
-    1, 14, 1, 14, 1, 15, 1, 15, 1, 16, 1, 16, 1, 17, 1, 17, 1, 18, 4, 18, 120, 8, 18, 11, 18, 12, 18, 121, 1, 18, 1,
-    18, 0, 0, 19, 1, 1, 3, 2, 5, 3, 7, 4, 9, 5, 11, 6, 13, 7, 15, 8, 17, 9, 19, 10, 21, 11, 23, 12, 25, 13, 27, 14,
-    29, 15, 31, 16, 33, 17, 35, 18, 37, 19, 1, 0, 7, 5, 0, 36, 36, 48, 57, 65, 90, 95, 95, 97, 122, 5, 0, 36, 36,
-    63, 63, 65, 90, 95, 95, 97, 122, 1, 0, 48, 57, 2, 0, 41, 41, 44, 44, 2, 0, 62, 62, 94, 94, 1, 0, 58, 59, 3, 0,
-    9, 10, 12, 13, 32, 32, 133, 0, 1, 1, 0, 0, 0, 0, 3, 1, 0, 0, 0, 0, 5, 1, 0, 0, 0, 0, 7, 1, 0, 0, 0, 0, 9, 1, 0,
-    0, 0, 0, 11, 1, 0, 0, 0, 0, 13, 1, 0, 0, 0, 0, 15, 1, 0, 0, 0, 0, 17, 1, 0, 0, 0, 0, 19, 1, 0, 0, 0, 0, 21, 1,
-    0, 0, 0, 0, 23, 1, 0, 0, 0, 0, 25, 1, 0, 0, 0, 0, 27, 1, 0, 0, 0, 0, 29, 1, 0, 0, 0, 0, 31, 1, 0, 0, 0, 0, 33,
-    1, 0, 0, 0, 0, 35, 1, 0, 0, 0, 0, 37, 1, 0, 0, 0, 1, 39, 1, 0, 0, 0, 3, 41, 1, 0, 0, 0, 5, 43, 1, 0, 0, 0, 7,
-    45, 1, 0, 0, 0, 9, 47, 1, 0, 0, 0, 11, 49, 1, 0, 0, 0, 13, 54, 1, 0, 0, 0, 15, 63, 1, 0, 0, 0, 17, 78, 1, 0, 0,
-    0, 19, 90, 1, 0, 0, 0, 21, 100, 1, 0, 0, 0, 23, 104, 1, 0, 0, 0, 25, 106, 1, 0, 0, 0, 27, 108, 1, 0, 0, 0, 29,
-    110, 1, 0, 0, 0, 31, 112, 1, 0, 0, 0, 33, 114, 1, 0, 0, 0, 35, 116, 1, 0, 0, 0, 37, 119, 1, 0, 0, 0, 39, 40, 5,
-    40, 0, 0, 40, 2, 1, 0, 0, 0, 41, 42, 5, 41, 0, 0, 42, 4, 1, 0, 0, 0, 43, 44, 5, 44, 0, 0, 44, 6, 1, 0, 0, 0, 45,
-    46, 5, 91, 0, 0, 46, 8, 1, 0, 0, 0, 47, 48, 5, 93, 0, 0, 48, 10, 1, 0, 0, 0, 49, 50, 5, 84, 0, 0, 50, 51, 5, 82,
-    0, 0, 51, 52, 5, 85, 0, 0, 52, 53, 5, 69, 0, 0, 53, 12, 1, 0, 0, 0, 54, 55, 5, 70, 0, 0, 55, 56, 5, 65, 0, 0,
-    56, 57, 5, 76, 0, 0, 57, 58, 5, 83, 0, 0, 58, 59, 5, 69, 0, 0, 59, 14, 1, 0, 0, 0, 60, 62, 7, 0, 0, 0, 61, 60,
-    1, 0, 0, 0, 62, 65, 1, 0, 0, 0, 63, 61, 1, 0, 0, 0, 63, 64, 1, 0, 0, 0, 64, 67, 1, 0, 0, 0, 65, 63, 1, 0, 0, 0,
-    66, 68, 7, 1, 0, 0, 67, 66, 1, 0, 0, 0, 68, 69, 1, 0, 0, 0, 69, 67, 1, 0, 0, 0, 69, 70, 1, 0, 0, 0, 70, 74, 1,
-    0, 0, 0, 71, 73, 7, 0, 0, 0, 72, 71, 1, 0, 0, 0, 73, 76, 1, 0, 0, 0, 74, 72, 1, 0, 0, 0, 74, 75, 1, 0, 0, 0, 75,
-    16, 1, 0, 0, 0, 76, 74, 1, 0, 0, 0, 77, 79, 7, 2, 0, 0, 78, 77, 1, 0, 0, 0, 79, 80, 1, 0, 0, 0, 80, 78, 1, 0, 0,
-    0, 80, 81, 1, 0, 0, 0, 81, 88, 1, 0, 0, 0, 82, 84, 5, 46, 0, 0, 83, 85, 7, 2, 0, 0, 84, 83, 1, 0, 0, 0, 85, 86,
-    1, 0, 0, 0, 86, 84, 1, 0, 0, 0, 86, 87, 1, 0, 0, 0, 87, 89, 1, 0, 0, 0, 88, 82, 1, 0, 0, 0, 88, 89, 1, 0, 0, 0,
-    89, 18, 1, 0, 0, 0, 90, 94, 5, 34, 0, 0, 91, 93, 8, 3, 0, 0, 92, 91, 1, 0, 0, 0, 93, 96, 1, 0, 0, 0, 94, 92, 1,
-    0, 0, 0, 94, 95, 1, 0, 0, 0, 95, 97, 1, 0, 0, 0, 96, 94, 1, 0, 0, 0, 97, 98, 5, 34, 0, 0, 98, 20, 1, 0, 0, 0,
-    99, 101, 5, 33, 0, 0, 100, 99, 1, 0, 0, 0, 101, 102, 1, 0, 0, 0, 102, 100, 1, 0, 0, 0, 102, 103, 1, 0, 0, 0,
-    103, 22, 1, 0, 0, 0, 104, 105, 5, 43, 0, 0, 105, 24, 1, 0, 0, 0, 106, 107, 5, 45, 0, 0, 107, 26, 1, 0, 0, 0,
-    108, 109, 5, 42, 0, 0, 109, 28, 1, 0, 0, 0, 110, 111, 5, 37, 0, 0, 111, 30, 1, 0, 0, 0, 112, 113, 5, 64, 0, 0,
-    113, 32, 1, 0, 0, 0, 114, 115, 7, 4, 0, 0, 115, 34, 1, 0, 0, 0, 116, 117, 7, 5, 0, 0, 117, 36, 1, 0, 0, 0, 118,
-    120, 7, 6, 0, 0, 119, 118, 1, 0, 0, 0, 120, 121, 1, 0, 0, 0, 121, 119, 1, 0, 0, 0, 121, 122, 1, 0, 0, 0, 122,
-    123, 1, 0, 0, 0, 123, 124, 6, 18, 0, 0, 124, 38, 1, 0, 0, 0, 10, 0, 63, 69, 74, 80, 86, 88, 94, 102, 121, 1, 6,
-    0, 0,
-];
+ReksioLangLexer._serializedATN = [4, 0, 19, 125, 6, -1, 2, 0,
+    7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9,
+    7, 9, 2, 10, 7, 10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15, 2, 16, 7,
+    16, 2, 17, 7, 17, 2, 18, 7, 18, 1, 0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 2, 1, 3, 1, 3, 1, 4, 1, 4, 1, 5, 1, 5,
+    1, 5, 1, 5, 1, 5, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 6, 1, 7, 5, 7, 62, 8, 7, 10, 7, 12, 7, 65, 9, 7, 1, 7,
+    4, 7, 68, 8, 7, 11, 7, 12, 7, 69, 1, 7, 5, 7, 73, 8, 7, 10, 7, 12, 7, 76, 9, 7, 1, 8, 4, 8, 79, 8, 8,
+    11, 8, 12, 8, 80, 1, 8, 1, 8, 4, 8, 85, 8, 8, 11, 8, 12, 8, 86, 3, 8, 89, 8, 8, 1, 9, 1, 9, 5, 9, 93,
+    8, 9, 10, 9, 12, 9, 96, 9, 9, 1, 9, 1, 9, 1, 10, 4, 10, 101, 8, 10, 11, 10, 12, 10, 102, 1, 11, 1,
+    11, 1, 12, 1, 12, 1, 13, 1, 13, 1, 14, 1, 14, 1, 15, 1, 15, 1, 16, 1, 16, 1, 17, 1, 17, 1, 18, 4, 18,
+    120, 8, 18, 11, 18, 12, 18, 121, 1, 18, 1, 18, 0, 0, 19, 1, 1, 3, 2, 5, 3, 7, 4, 9, 5, 11, 6, 13, 7,
+    15, 8, 17, 9, 19, 10, 21, 11, 23, 12, 25, 13, 27, 14, 29, 15, 31, 16, 33, 17, 35, 18, 37, 19, 1,
+    0, 7, 5, 0, 36, 36, 48, 57, 65, 90, 95, 95, 97, 122, 5, 0, 36, 36, 63, 63, 65, 90, 95, 95, 97, 122,
+    1, 0, 48, 57, 2, 0, 41, 41, 44, 44, 2, 0, 62, 62, 94, 94, 1, 0, 58, 59, 3, 0, 9, 10, 12, 13, 32, 32,
+    133, 0, 1, 1, 0, 0, 0, 0, 3, 1, 0, 0, 0, 0, 5, 1, 0, 0, 0, 0, 7, 1, 0, 0, 0, 0, 9, 1, 0, 0, 0, 0, 11, 1,
+    0, 0, 0, 0, 13, 1, 0, 0, 0, 0, 15, 1, 0, 0, 0, 0, 17, 1, 0, 0, 0, 0, 19, 1, 0, 0, 0, 0, 21, 1, 0, 0, 0,
+    0, 23, 1, 0, 0, 0, 0, 25, 1, 0, 0, 0, 0, 27, 1, 0, 0, 0, 0, 29, 1, 0, 0, 0, 0, 31, 1, 0, 0, 0, 0, 33, 1,
+    0, 0, 0, 0, 35, 1, 0, 0, 0, 0, 37, 1, 0, 0, 0, 1, 39, 1, 0, 0, 0, 3, 41, 1, 0, 0, 0, 5, 43, 1, 0, 0, 0,
+    7, 45, 1, 0, 0, 0, 9, 47, 1, 0, 0, 0, 11, 49, 1, 0, 0, 0, 13, 54, 1, 0, 0, 0, 15, 63, 1, 0, 0, 0, 17,
+    78, 1, 0, 0, 0, 19, 90, 1, 0, 0, 0, 21, 100, 1, 0, 0, 0, 23, 104, 1, 0, 0, 0, 25, 106, 1, 0, 0, 0, 27,
+    108, 1, 0, 0, 0, 29, 110, 1, 0, 0, 0, 31, 112, 1, 0, 0, 0, 33, 114, 1, 0, 0, 0, 35, 116, 1, 0, 0, 0,
+    37, 119, 1, 0, 0, 0, 39, 40, 5, 40, 0, 0, 40, 2, 1, 0, 0, 0, 41, 42, 5, 41, 0, 0, 42, 4, 1, 0, 0, 0,
+    43, 44, 5, 44, 0, 0, 44, 6, 1, 0, 0, 0, 45, 46, 5, 91, 0, 0, 46, 8, 1, 0, 0, 0, 47, 48, 5, 93, 0, 0,
+    48, 10, 1, 0, 0, 0, 49, 50, 5, 84, 0, 0, 50, 51, 5, 82, 0, 0, 51, 52, 5, 85, 0, 0, 52, 53, 5, 69, 0,
+    0, 53, 12, 1, 0, 0, 0, 54, 55, 5, 70, 0, 0, 55, 56, 5, 65, 0, 0, 56, 57, 5, 76, 0, 0, 57, 58, 5, 83,
+    0, 0, 58, 59, 5, 69, 0, 0, 59, 14, 1, 0, 0, 0, 60, 62, 7, 0, 0, 0, 61, 60, 1, 0, 0, 0, 62, 65, 1, 0,
+    0, 0, 63, 61, 1, 0, 0, 0, 63, 64, 1, 0, 0, 0, 64, 67, 1, 0, 0, 0, 65, 63, 1, 0, 0, 0, 66, 68, 7, 1, 0,
+    0, 67, 66, 1, 0, 0, 0, 68, 69, 1, 0, 0, 0, 69, 67, 1, 0, 0, 0, 69, 70, 1, 0, 0, 0, 70, 74, 1, 0, 0, 0,
+    71, 73, 7, 0, 0, 0, 72, 71, 1, 0, 0, 0, 73, 76, 1, 0, 0, 0, 74, 72, 1, 0, 0, 0, 74, 75, 1, 0, 0, 0, 75,
+    16, 1, 0, 0, 0, 76, 74, 1, 0, 0, 0, 77, 79, 7, 2, 0, 0, 78, 77, 1, 0, 0, 0, 79, 80, 1, 0, 0, 0, 80, 78,
+    1, 0, 0, 0, 80, 81, 1, 0, 0, 0, 81, 88, 1, 0, 0, 0, 82, 84, 5, 46, 0, 0, 83, 85, 7, 2, 0, 0, 84, 83,
+    1, 0, 0, 0, 85, 86, 1, 0, 0, 0, 86, 84, 1, 0, 0, 0, 86, 87, 1, 0, 0, 0, 87, 89, 1, 0, 0, 0, 88, 82, 1,
+    0, 0, 0, 88, 89, 1, 0, 0, 0, 89, 18, 1, 0, 0, 0, 90, 94, 5, 34, 0, 0, 91, 93, 8, 3, 0, 0, 92, 91, 1,
+    0, 0, 0, 93, 96, 1, 0, 0, 0, 94, 92, 1, 0, 0, 0, 94, 95, 1, 0, 0, 0, 95, 97, 1, 0, 0, 0, 96, 94, 1, 0,
+    0, 0, 97, 98, 5, 34, 0, 0, 98, 20, 1, 0, 0, 0, 99, 101, 5, 33, 0, 0, 100, 99, 1, 0, 0, 0, 101, 102,
+    1, 0, 0, 0, 102, 100, 1, 0, 0, 0, 102, 103, 1, 0, 0, 0, 103, 22, 1, 0, 0, 0, 104, 105, 5, 43, 0, 0,
+    105, 24, 1, 0, 0, 0, 106, 107, 5, 45, 0, 0, 107, 26, 1, 0, 0, 0, 108, 109, 5, 42, 0, 0, 109, 28,
+    1, 0, 0, 0, 110, 111, 5, 37, 0, 0, 111, 30, 1, 0, 0, 0, 112, 113, 5, 64, 0, 0, 113, 32, 1, 0, 0, 0,
+    114, 115, 7, 4, 0, 0, 115, 34, 1, 0, 0, 0, 116, 117, 7, 5, 0, 0, 117, 36, 1, 0, 0, 0, 118, 120, 7,
+    6, 0, 0, 119, 118, 1, 0, 0, 0, 120, 121, 1, 0, 0, 0, 121, 119, 1, 0, 0, 0, 121, 122, 1, 0, 0, 0, 122,
+    123, 1, 0, 0, 0, 123, 124, 6, 18, 0, 0, 124, 38, 1, 0, 0, 0, 10, 0, 63, 69, 74, 80, 86, 88, 94, 102,
+    121, 1, 6, 0, 0];
 ReksioLangLexer.DecisionsToDFA = ReksioLangLexer._ATN.decisionToState.map((ds, index) => new antlr4_1.DFA(ds, index));
 exports["default"] = ReksioLangLexer;
 
@@ -59250,27 +59213,17 @@ exports["default"] = ReksioLangLexer;
 
 "use strict";
 
-// Generated from ./src/interpreter/ReksioLang.g4 by ANTLR 4.13.2
+// Generated from ./src/interpreter/script/ReksioLang.g4 by ANTLR 4.13.2
 // noinspection ES6UnusedImports,JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.IdentifierContext = exports.StringContext = exports.BoolContext = exports.NumberContext = exports.CommentContext = exports.OperationContext = exports.OperationGroupingContext = exports.SpecialCallContext = exports.MethodCallArgumentsContext = exports.MethodNameContext = exports.ObjectNameContext = exports.MethodCallContext = exports.StatementListContext = exports.StatementContext = exports.ExprContext = void 0;
 const antlr4_1 = __webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs");
 class ReksioLangParser extends antlr4_1.Parser {
-    get grammarFileName() {
-        return 'ReksioLang.g4';
-    }
-    get literalNames() {
-        return ReksioLangParser.literalNames;
-    }
-    get symbolicNames() {
-        return ReksioLangParser.symbolicNames;
-    }
-    get ruleNames() {
-        return ReksioLangParser.ruleNames;
-    }
-    get serializedATN() {
-        return ReksioLangParser._serializedATN;
-    }
+    get grammarFileName() { return "ReksioLang.g4"; }
+    get literalNames() { return ReksioLangParser.literalNames; }
+    get symbolicNames() { return ReksioLangParser.symbolicNames; }
+    get ruleNames() { return ReksioLangParser.ruleNames; }
+    get serializedATN() { return ReksioLangParser._serializedATN; }
     createFailedPredicateException(predicate, message) {
         return new antlr4_1.FailedPredicateException(this, predicate, message);
     }
@@ -59280,7 +59233,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     expr() {
-        const localctx = new ExprContext(this, this._ctx, this.state);
+        let localctx = new ExprContext(this, this._ctx, this.state);
         this.enterRule(localctx, 0, ReksioLangParser.RULE_expr);
         let _la;
         try {
@@ -59360,35 +59313,13 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     statement() {
-        const localctx = new StatementContext(this, this._ctx, this.state);
+        let localctx = new StatementContext(this, this._ctx, this.state);
         this.enterRule(localctx, 2, ReksioLangParser.RULE_statement);
         try {
-            this.state = 44;
-            this._errHandler.sync(this);
-            switch (this._input.LA(1)) {
-                case 18:
-                    this.enterOuterAlt(localctx, 1);
-                    // tslint:disable-next-line:no-empty
-                    {
-                    }
-                    break;
-                case 4:
-                case 6:
-                case 7:
-                case 8:
-                case 9:
-                case 10:
-                case 11:
-                case 13:
-                case 16:
-                    this.enterOuterAlt(localctx, 2);
-                    {
-                        this.state = 43;
-                        this.expr();
-                    }
-                    break;
-                default:
-                    throw new antlr4_1.NoViableAltException(this);
+            this.enterOuterAlt(localctx, 1);
+            {
+                this.state = 42;
+                this.expr();
             }
         }
         catch (re) {
@@ -59408,29 +59339,43 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     statementList() {
-        const localctx = new StatementListContext(this, this._ctx, this.state);
+        let localctx = new StatementListContext(this, this._ctx, this.state);
         this.enterRule(localctx, 4, ReksioLangParser.RULE_statementList);
         let _la;
         try {
+            let _alt;
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 51;
+                this.state = 44;
+                this.statement();
+                this.state = 49;
                 this._errHandler.sync(this);
-                _la = this._input.LA(1);
-                while ((_la & ~0x1f) === 0 && ((1 << _la) & 339920) !== 0) {
-                    {
+                _alt = this._interp.adaptivePredict(this._input, 2, this._ctx);
+                while (_alt !== 2 && _alt !== antlr4_1.ATN.INVALID_ALT_NUMBER) {
+                    if (_alt === 1) {
                         {
-                            this.state = 46;
-                            this.statement();
-                            this.state = 47;
-                            this.match(ReksioLangParser.STATEMENT_END);
+                            {
+                                this.state = 45;
+                                this.match(ReksioLangParser.STATEMENT_END);
+                                this.state = 46;
+                                this.statement();
+                            }
                         }
                     }
-                    this.state = 53;
+                    this.state = 51;
                     this._errHandler.sync(this);
-                    _la = this._input.LA(1);
+                    _alt = this._interp.adaptivePredict(this._input, 2, this._ctx);
                 }
-                this.state = 54;
+                this.state = 53;
+                this._errHandler.sync(this);
+                _la = this._input.LA(1);
+                if (_la === 18) {
+                    {
+                        this.state = 52;
+                        this.match(ReksioLangParser.STATEMENT_END);
+                    }
+                }
+                this.state = 55;
                 this.match(ReksioLangParser.EOF);
             }
         }
@@ -59451,30 +59396,30 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     methodCall() {
-        const localctx = new MethodCallContext(this, this._ctx, this.state);
+        let localctx = new MethodCallContext(this, this._ctx, this.state);
         this.enterRule(localctx, 6, ReksioLangParser.RULE_methodCall);
         let _la;
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 56;
-                this.objectName();
                 this.state = 57;
-                this.match(ReksioLangParser.METHOD_CALL_SYMBOL);
+                this.objectName();
                 this.state = 58;
-                this.methodName();
+                this.match(ReksioLangParser.METHOD_CALL_SYMBOL);
                 this.state = 59;
+                this.methodName();
+                this.state = 60;
                 this.match(ReksioLangParser.T__0);
-                this.state = 61;
+                this.state = 62;
                 this._errHandler.sync(this);
                 _la = this._input.LA(1);
-                if ((_la & ~0x1f) === 0 && ((1 << _la) & 77776) !== 0) {
+                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 77776) !== 0)) {
                     {
-                        this.state = 60;
+                        this.state = 61;
                         this.methodCallArguments();
                     }
                 }
-                this.state = 63;
+                this.state = 64;
                 this.match(ReksioLangParser.T__1);
             }
         }
@@ -59495,12 +59440,12 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     objectName() {
-        const localctx = new ObjectNameContext(this, this._ctx, this.state);
+        let localctx = new ObjectNameContext(this, this._ctx, this.state);
         this.enterRule(localctx, 8, ReksioLangParser.RULE_objectName);
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 65;
+                this.state = 66;
                 this.match(ReksioLangParser.IDENTIFIER);
             }
         }
@@ -59521,12 +59466,12 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     methodName() {
-        const localctx = new MethodNameContext(this, this._ctx, this.state);
+        let localctx = new MethodNameContext(this, this._ctx, this.state);
         this.enterRule(localctx, 10, ReksioLangParser.RULE_methodName);
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 67;
+                this.state = 68;
                 this.match(ReksioLangParser.IDENTIFIER);
             }
         }
@@ -59547,27 +59492,27 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     methodCallArguments() {
-        const localctx = new MethodCallArgumentsContext(this, this._ctx, this.state);
+        let localctx = new MethodCallArgumentsContext(this, this._ctx, this.state);
         this.enterRule(localctx, 12, ReksioLangParser.RULE_methodCallArguments);
         let _la;
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 69;
+                this.state = 70;
                 this.expr();
-                this.state = 74;
+                this.state = 75;
                 this._errHandler.sync(this);
                 _la = this._input.LA(1);
                 while (_la === 3) {
                     {
                         {
-                            this.state = 70;
-                            this.match(ReksioLangParser.T__2);
                             this.state = 71;
+                            this.match(ReksioLangParser.T__2);
+                            this.state = 72;
                             this.expr();
                         }
                     }
-                    this.state = 76;
+                    this.state = 77;
                     this._errHandler.sync(this);
                     _la = this._input.LA(1);
                 }
@@ -59590,28 +59535,28 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     specialCall() {
-        const localctx = new SpecialCallContext(this, this._ctx, this.state);
+        let localctx = new SpecialCallContext(this, this._ctx, this.state);
         this.enterRule(localctx, 14, ReksioLangParser.RULE_specialCall);
         let _la;
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 77;
-                this.match(ReksioLangParser.DIV);
                 this.state = 78;
-                this.methodName();
+                this.match(ReksioLangParser.DIV);
                 this.state = 79;
+                this.methodName();
+                this.state = 80;
                 this.match(ReksioLangParser.T__0);
-                this.state = 81;
+                this.state = 82;
                 this._errHandler.sync(this);
                 _la = this._input.LA(1);
-                if ((_la & ~0x1f) === 0 && ((1 << _la) & 77776) !== 0) {
+                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 77776) !== 0)) {
                     {
-                        this.state = 80;
+                        this.state = 81;
                         this.methodCallArguments();
                     }
                 }
-                this.state = 83;
+                this.state = 84;
                 this.match(ReksioLangParser.T__1);
             }
         }
@@ -59632,16 +59577,16 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     operationGrouping() {
-        const localctx = new OperationGroupingContext(this, this._ctx, this.state);
+        let localctx = new OperationGroupingContext(this, this._ctx, this.state);
         this.enterRule(localctx, 16, ReksioLangParser.RULE_operationGrouping);
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 85;
-                this.match(ReksioLangParser.T__3);
                 this.state = 86;
-                this.operation(0);
+                this.match(ReksioLangParser.T__3);
                 this.state = 87;
+                this.operation(0);
+                this.state = 88;
                 this.match(ReksioLangParser.T__4);
             }
         }
@@ -59665,22 +59610,22 @@ class ReksioLangParser extends antlr4_1.Parser {
         if (_p === undefined) {
             _p = 0;
         }
-        const _parentctx = this._ctx;
-        const _parentState = this.state;
+        let _parentctx = this._ctx;
+        let _parentState = this.state;
         let localctx = new OperationContext(this, this._ctx, _parentState);
         let _prevctx = localctx;
-        const _startState = 18;
+        let _startState = 18;
         this.enterRecursionRule(localctx, 18, ReksioLangParser.RULE_operation, _p);
         try {
             let _alt;
             this.enterOuterAlt(localctx, 1);
             {
                 {
-                    this.state = 90;
+                    this.state = 91;
                     this.expr();
                 }
                 this._ctx.stop = this._input.LT(-1);
-                this.state = 109;
+                this.state = 110;
                 this._errHandler.sync(this);
                 _alt = this._interp.adaptivePredict(this._input, 8, this._ctx);
                 while (_alt !== 2 && _alt !== antlr4_1.ATN.INVALID_ALT_NUMBER) {
@@ -59690,7 +59635,7 @@ class ReksioLangParser extends antlr4_1.Parser {
                         }
                         _prevctx = localctx;
                         {
-                            this.state = 107;
+                            this.state = 108;
                             this._errHandler.sync(this);
                             switch (this._interp.adaptivePredict(this._input, 7, this._ctx)) {
                                 case 1:
@@ -59698,13 +59643,13 @@ class ReksioLangParser extends antlr4_1.Parser {
                                         localctx = new OperationContext(this, _parentctx, _parentState);
                                         localctx._left = _prevctx;
                                         this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-                                        this.state = 92;
-                                        if (!this.precpred(this._ctx, 6)) {
-                                            throw this.createFailedPredicateException('this.precpred(this._ctx, 6)');
-                                        }
                                         this.state = 93;
-                                        localctx._operator = this.match(ReksioLangParser.ADD);
+                                        if (!(this.precpred(this._ctx, 6))) {
+                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 6)");
+                                        }
                                         this.state = 94;
+                                        localctx._operator = this.match(ReksioLangParser.ADD);
+                                        this.state = 95;
                                         localctx._right = this.operation(7);
                                     }
                                     break;
@@ -59713,13 +59658,13 @@ class ReksioLangParser extends antlr4_1.Parser {
                                         localctx = new OperationContext(this, _parentctx, _parentState);
                                         localctx._left = _prevctx;
                                         this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-                                        this.state = 95;
-                                        if (!this.precpred(this._ctx, 5)) {
-                                            throw this.createFailedPredicateException('this.precpred(this._ctx, 5)');
-                                        }
                                         this.state = 96;
-                                        localctx._operator = this.match(ReksioLangParser.SUB);
+                                        if (!(this.precpred(this._ctx, 5))) {
+                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 5)");
+                                        }
                                         this.state = 97;
+                                        localctx._operator = this.match(ReksioLangParser.SUB);
+                                        this.state = 98;
                                         localctx._right = this.operation(6);
                                     }
                                     break;
@@ -59728,13 +59673,13 @@ class ReksioLangParser extends antlr4_1.Parser {
                                         localctx = new OperationContext(this, _parentctx, _parentState);
                                         localctx._left = _prevctx;
                                         this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-                                        this.state = 98;
-                                        if (!this.precpred(this._ctx, 4)) {
-                                            throw this.createFailedPredicateException('this.precpred(this._ctx, 4)');
-                                        }
                                         this.state = 99;
-                                        localctx._operator = this.match(ReksioLangParser.MUL);
+                                        if (!(this.precpred(this._ctx, 4))) {
+                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 4)");
+                                        }
                                         this.state = 100;
+                                        localctx._operator = this.match(ReksioLangParser.MUL);
+                                        this.state = 101;
                                         localctx._right = this.operation(5);
                                     }
                                     break;
@@ -59743,13 +59688,13 @@ class ReksioLangParser extends antlr4_1.Parser {
                                         localctx = new OperationContext(this, _parentctx, _parentState);
                                         localctx._left = _prevctx;
                                         this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-                                        this.state = 101;
-                                        if (!this.precpred(this._ctx, 3)) {
-                                            throw this.createFailedPredicateException('this.precpred(this._ctx, 3)');
-                                        }
                                         this.state = 102;
-                                        localctx._operator = this.match(ReksioLangParser.MOD);
+                                        if (!(this.precpred(this._ctx, 3))) {
+                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 3)");
+                                        }
                                         this.state = 103;
+                                        localctx._operator = this.match(ReksioLangParser.MOD);
+                                        this.state = 104;
                                         localctx._right = this.operation(4);
                                     }
                                     break;
@@ -59758,20 +59703,20 @@ class ReksioLangParser extends antlr4_1.Parser {
                                         localctx = new OperationContext(this, _parentctx, _parentState);
                                         localctx._left = _prevctx;
                                         this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-                                        this.state = 104;
-                                        if (!this.precpred(this._ctx, 2)) {
-                                            throw this.createFailedPredicateException('this.precpred(this._ctx, 2)');
-                                        }
                                         this.state = 105;
-                                        localctx._operator = this.match(ReksioLangParser.DIV);
+                                        if (!(this.precpred(this._ctx, 2))) {
+                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 2)");
+                                        }
                                         this.state = 106;
+                                        localctx._operator = this.match(ReksioLangParser.DIV);
+                                        this.state = 107;
                                         localctx._right = this.operation(3);
                                     }
                                     break;
                             }
                         }
                     }
-                    this.state = 111;
+                    this.state = 112;
                     this._errHandler.sync(this);
                     _alt = this._interp.adaptivePredict(this._input, 8, this._ctx);
                 }
@@ -59794,12 +59739,12 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     comment() {
-        const localctx = new CommentContext(this, this._ctx, this.state);
+        let localctx = new CommentContext(this, this._ctx, this.state);
         this.enterRule(localctx, 20, ReksioLangParser.RULE_comment);
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 112;
+                this.state = 113;
                 this.match(ReksioLangParser.COMMENT_START);
             }
         }
@@ -59820,25 +59765,25 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     number_() {
-        const localctx = new NumberContext(this, this._ctx, this.state);
+        let localctx = new NumberContext(this, this._ctx, this.state);
         this.enterRule(localctx, 22, ReksioLangParser.RULE_number);
         try {
-            this.state = 117;
+            this.state = 118;
             this._errHandler.sync(this);
             switch (this._input.LA(1)) {
                 case 13:
                     this.enterOuterAlt(localctx, 1);
                     {
-                        this.state = 114;
-                        this.match(ReksioLangParser.SUB);
                         this.state = 115;
+                        this.match(ReksioLangParser.SUB);
+                        this.state = 116;
                         this.match(ReksioLangParser.NUMBER);
                     }
                     break;
                 case 9:
                     this.enterOuterAlt(localctx, 2);
                     {
-                        this.state = 116;
+                        this.state = 117;
                         this.match(ReksioLangParser.NUMBER);
                     }
                     break;
@@ -59863,13 +59808,13 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     bool() {
-        const localctx = new BoolContext(this, this._ctx, this.state);
+        let localctx = new BoolContext(this, this._ctx, this.state);
         this.enterRule(localctx, 24, ReksioLangParser.RULE_bool);
         let _la;
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 119;
+                this.state = 120;
                 _la = this._input.LA(1);
                 if (!(_la === 6 || _la === 7)) {
                     this._errHandler.recoverInline(this);
@@ -59897,12 +59842,12 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     string_() {
-        const localctx = new StringContext(this, this._ctx, this.state);
+        let localctx = new StringContext(this, this._ctx, this.state);
         this.enterRule(localctx, 26, ReksioLangParser.RULE_string);
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 121;
+                this.state = 122;
                 this.match(ReksioLangParser.STRING);
             }
         }
@@ -59923,12 +59868,12 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     identifier() {
-        const localctx = new IdentifierContext(this, this._ctx, this.state);
+        let localctx = new IdentifierContext(this, this._ctx, this.state);
         this.enterRule(localctx, 28, ReksioLangParser.RULE_identifier);
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 123;
+                this.state = 124;
                 this.match(ReksioLangParser.IDENTIFIER);
             }
         }
@@ -60011,100 +59956,70 @@ ReksioLangParser.RULE_number = 11;
 ReksioLangParser.RULE_bool = 12;
 ReksioLangParser.RULE_string = 13;
 ReksioLangParser.RULE_identifier = 14;
-ReksioLangParser.literalNames = [
-    null,
-    "'('",
-    "')'",
-    "','",
-    "'['",
-    "']'",
-    "'TRUE'",
-    "'FALSE'",
-    null,
-    null,
-    null,
-    null,
-    "'+'",
-    "'-'",
-    "'*'",
-    "'%'",
-    "'@'",
-];
-ReksioLangParser.symbolicNames = [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    'TRUE',
-    'FALSE',
-    'IDENTIFIER',
-    'NUMBER',
-    'STRING',
-    'COMMENT_START',
-    'ADD',
-    'SUB',
-    'MUL',
-    'MOD',
-    'DIV',
-    'METHOD_CALL_SYMBOL',
-    'STATEMENT_END',
-    'WHITESPACE',
-];
+ReksioLangParser.literalNames = [null, "'('",
+    "')'", "','",
+    "'['", "']'",
+    "'TRUE'", "'FALSE'",
+    null, null,
+    null, null,
+    "'+'", "'-'",
+    "'*'", "'%'",
+    "'@'"];
+ReksioLangParser.symbolicNames = [null, null,
+    null, null,
+    null, null,
+    "TRUE", "FALSE",
+    "IDENTIFIER",
+    "NUMBER", "STRING",
+    "COMMENT_START",
+    "ADD", "SUB",
+    "MUL", "MOD",
+    "DIV", "METHOD_CALL_SYMBOL",
+    "STATEMENT_END",
+    "WHITESPACE"];
 // tslint:disable:no-trailing-whitespace
 ReksioLangParser.ruleNames = [
-    'expr',
-    'statement',
-    'statementList',
-    'methodCall',
-    'objectName',
-    'methodName',
-    'methodCallArguments',
-    'specialCall',
-    'operationGrouping',
-    'operation',
-    'comment',
-    'number',
-    'bool',
-    'string',
-    'identifier',
+    "expr", "statement", "statementList", "methodCall", "objectName", "methodName",
+    "methodCallArguments", "specialCall", "operationGrouping", "operation",
+    "comment", "number", "bool", "string", "identifier",
 ];
-ReksioLangParser._serializedATN = [
-    4, 1, 19, 126, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7,
-    2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7, 10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 1, 0, 3, 0, 32, 8,
-    0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 3, 0, 41, 8, 0, 1, 1, 1, 1, 3, 1, 45, 8, 1, 1, 2, 1, 2, 1, 2, 5, 2,
-    50, 8, 2, 10, 2, 12, 2, 53, 9, 2, 1, 2, 1, 2, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 3, 3, 62, 8, 3, 1, 3, 1, 3, 1, 4, 1,
-    4, 1, 5, 1, 5, 1, 6, 1, 6, 1, 6, 5, 6, 73, 8, 6, 10, 6, 12, 6, 76, 9, 6, 1, 7, 1, 7, 1, 7, 1, 7, 3, 7, 82, 8, 7,
-    1, 7, 1, 7, 1, 8, 1, 8, 1, 8, 1, 8, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1,
-    9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 5, 9, 108, 8, 9, 10, 9, 12, 9, 111, 9, 9, 1, 10, 1, 10, 1, 11, 1, 11, 1, 11, 3,
-    11, 118, 8, 11, 1, 12, 1, 12, 1, 13, 1, 13, 1, 14, 1, 14, 1, 14, 0, 1, 18, 15, 0, 2, 4, 6, 8, 10, 12, 14, 16,
-    18, 20, 22, 24, 26, 28, 0, 1, 1, 0, 6, 7, 128, 0, 31, 1, 0, 0, 0, 2, 44, 1, 0, 0, 0, 4, 51, 1, 0, 0, 0, 6, 56,
-    1, 0, 0, 0, 8, 65, 1, 0, 0, 0, 10, 67, 1, 0, 0, 0, 12, 69, 1, 0, 0, 0, 14, 77, 1, 0, 0, 0, 16, 85, 1, 0, 0, 0,
-    18, 89, 1, 0, 0, 0, 20, 112, 1, 0, 0, 0, 22, 117, 1, 0, 0, 0, 24, 119, 1, 0, 0, 0, 26, 121, 1, 0, 0, 0, 28, 123,
-    1, 0, 0, 0, 30, 32, 3, 20, 10, 0, 31, 30, 1, 0, 0, 0, 31, 32, 1, 0, 0, 0, 32, 40, 1, 0, 0, 0, 33, 41, 3, 26, 13,
-    0, 34, 41, 3, 22, 11, 0, 35, 41, 3, 24, 12, 0, 36, 41, 3, 28, 14, 0, 37, 41, 3, 14, 7, 0, 38, 41, 3, 6, 3, 0,
-    39, 41, 3, 16, 8, 0, 40, 33, 1, 0, 0, 0, 40, 34, 1, 0, 0, 0, 40, 35, 1, 0, 0, 0, 40, 36, 1, 0, 0, 0, 40, 37, 1,
-    0, 0, 0, 40, 38, 1, 0, 0, 0, 40, 39, 1, 0, 0, 0, 41, 1, 1, 0, 0, 0, 42, 45, 1, 0, 0, 0, 43, 45, 3, 0, 0, 0, 44,
-    42, 1, 0, 0, 0, 44, 43, 1, 0, 0, 0, 45, 3, 1, 0, 0, 0, 46, 47, 3, 2, 1, 0, 47, 48, 5, 18, 0, 0, 48, 50, 1, 0, 0,
-    0, 49, 46, 1, 0, 0, 0, 50, 53, 1, 0, 0, 0, 51, 49, 1, 0, 0, 0, 51, 52, 1, 0, 0, 0, 52, 54, 1, 0, 0, 0, 53, 51,
-    1, 0, 0, 0, 54, 55, 5, 0, 0, 1, 55, 5, 1, 0, 0, 0, 56, 57, 3, 8, 4, 0, 57, 58, 5, 17, 0, 0, 58, 59, 3, 10, 5, 0,
-    59, 61, 5, 1, 0, 0, 60, 62, 3, 12, 6, 0, 61, 60, 1, 0, 0, 0, 61, 62, 1, 0, 0, 0, 62, 63, 1, 0, 0, 0, 63, 64, 5,
-    2, 0, 0, 64, 7, 1, 0, 0, 0, 65, 66, 5, 8, 0, 0, 66, 9, 1, 0, 0, 0, 67, 68, 5, 8, 0, 0, 68, 11, 1, 0, 0, 0, 69,
-    74, 3, 0, 0, 0, 70, 71, 5, 3, 0, 0, 71, 73, 3, 0, 0, 0, 72, 70, 1, 0, 0, 0, 73, 76, 1, 0, 0, 0, 74, 72, 1, 0, 0,
-    0, 74, 75, 1, 0, 0, 0, 75, 13, 1, 0, 0, 0, 76, 74, 1, 0, 0, 0, 77, 78, 5, 16, 0, 0, 78, 79, 3, 10, 5, 0, 79, 81,
-    5, 1, 0, 0, 80, 82, 3, 12, 6, 0, 81, 80, 1, 0, 0, 0, 81, 82, 1, 0, 0, 0, 82, 83, 1, 0, 0, 0, 83, 84, 5, 2, 0, 0,
-    84, 15, 1, 0, 0, 0, 85, 86, 5, 4, 0, 0, 86, 87, 3, 18, 9, 0, 87, 88, 5, 5, 0, 0, 88, 17, 1, 0, 0, 0, 89, 90, 6,
-    9, -1, 0, 90, 91, 3, 0, 0, 0, 91, 109, 1, 0, 0, 0, 92, 93, 10, 6, 0, 0, 93, 94, 5, 12, 0, 0, 94, 108, 3, 18, 9,
-    7, 95, 96, 10, 5, 0, 0, 96, 97, 5, 13, 0, 0, 97, 108, 3, 18, 9, 6, 98, 99, 10, 4, 0, 0, 99, 100, 5, 14, 0, 0,
-    100, 108, 3, 18, 9, 5, 101, 102, 10, 3, 0, 0, 102, 103, 5, 15, 0, 0, 103, 108, 3, 18, 9, 4, 104, 105, 10, 2, 0,
-    0, 105, 106, 5, 16, 0, 0, 106, 108, 3, 18, 9, 3, 107, 92, 1, 0, 0, 0, 107, 95, 1, 0, 0, 0, 107, 98, 1, 0, 0, 0,
-    107, 101, 1, 0, 0, 0, 107, 104, 1, 0, 0, 0, 108, 111, 1, 0, 0, 0, 109, 107, 1, 0, 0, 0, 109, 110, 1, 0, 0, 0,
-    110, 19, 1, 0, 0, 0, 111, 109, 1, 0, 0, 0, 112, 113, 5, 11, 0, 0, 113, 21, 1, 0, 0, 0, 114, 115, 5, 13, 0, 0,
-    115, 118, 5, 9, 0, 0, 116, 118, 5, 9, 0, 0, 117, 114, 1, 0, 0, 0, 117, 116, 1, 0, 0, 0, 118, 23, 1, 0, 0, 0,
-    119, 120, 7, 0, 0, 0, 120, 25, 1, 0, 0, 0, 121, 122, 5, 10, 0, 0, 122, 27, 1, 0, 0, 0, 123, 124, 5, 8, 0, 0,
-    124, 29, 1, 0, 0, 0, 10, 31, 40, 44, 51, 61, 74, 81, 107, 109, 117,
-];
+ReksioLangParser._serializedATN = [4, 1, 19, 127, 2, 0, 7, 0, 2,
+    1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2,
+    10, 7, 10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 1, 0, 3, 0, 32, 8, 0, 1, 0, 1, 0,
+    1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 3, 0, 41, 8, 0, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 5, 2, 48, 8, 2, 10, 2, 12, 2,
+    51, 9, 2, 1, 2, 3, 2, 54, 8, 2, 1, 2, 1, 2, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 3, 3, 63, 8, 3, 1, 3, 1, 3, 1,
+    4, 1, 4, 1, 5, 1, 5, 1, 6, 1, 6, 1, 6, 5, 6, 74, 8, 6, 10, 6, 12, 6, 77, 9, 6, 1, 7, 1, 7, 1, 7, 1, 7, 3,
+    7, 83, 8, 7, 1, 7, 1, 7, 1, 8, 1, 8, 1, 8, 1, 8, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1,
+    9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 5, 9, 109, 8, 9, 10, 9, 12, 9, 112, 9, 9, 1, 10, 1,
+    10, 1, 11, 1, 11, 1, 11, 3, 11, 119, 8, 11, 1, 12, 1, 12, 1, 13, 1, 13, 1, 14, 1, 14, 1, 14, 0, 1,
+    18, 15, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 0, 1, 1, 0, 6, 7, 129, 0, 31, 1, 0,
+    0, 0, 2, 42, 1, 0, 0, 0, 4, 44, 1, 0, 0, 0, 6, 57, 1, 0, 0, 0, 8, 66, 1, 0, 0, 0, 10, 68, 1, 0, 0, 0, 12,
+    70, 1, 0, 0, 0, 14, 78, 1, 0, 0, 0, 16, 86, 1, 0, 0, 0, 18, 90, 1, 0, 0, 0, 20, 113, 1, 0, 0, 0, 22,
+    118, 1, 0, 0, 0, 24, 120, 1, 0, 0, 0, 26, 122, 1, 0, 0, 0, 28, 124, 1, 0, 0, 0, 30, 32, 3, 20, 10,
+    0, 31, 30, 1, 0, 0, 0, 31, 32, 1, 0, 0, 0, 32, 40, 1, 0, 0, 0, 33, 41, 3, 26, 13, 0, 34, 41, 3, 22,
+    11, 0, 35, 41, 3, 24, 12, 0, 36, 41, 3, 28, 14, 0, 37, 41, 3, 14, 7, 0, 38, 41, 3, 6, 3, 0, 39, 41,
+    3, 16, 8, 0, 40, 33, 1, 0, 0, 0, 40, 34, 1, 0, 0, 0, 40, 35, 1, 0, 0, 0, 40, 36, 1, 0, 0, 0, 40, 37,
+    1, 0, 0, 0, 40, 38, 1, 0, 0, 0, 40, 39, 1, 0, 0, 0, 41, 1, 1, 0, 0, 0, 42, 43, 3, 0, 0, 0, 43, 3, 1, 0,
+    0, 0, 44, 49, 3, 2, 1, 0, 45, 46, 5, 18, 0, 0, 46, 48, 3, 2, 1, 0, 47, 45, 1, 0, 0, 0, 48, 51, 1, 0,
+    0, 0, 49, 47, 1, 0, 0, 0, 49, 50, 1, 0, 0, 0, 50, 53, 1, 0, 0, 0, 51, 49, 1, 0, 0, 0, 52, 54, 5, 18,
+    0, 0, 53, 52, 1, 0, 0, 0, 53, 54, 1, 0, 0, 0, 54, 55, 1, 0, 0, 0, 55, 56, 5, 0, 0, 1, 56, 5, 1, 0, 0,
+    0, 57, 58, 3, 8, 4, 0, 58, 59, 5, 17, 0, 0, 59, 60, 3, 10, 5, 0, 60, 62, 5, 1, 0, 0, 61, 63, 3, 12,
+    6, 0, 62, 61, 1, 0, 0, 0, 62, 63, 1, 0, 0, 0, 63, 64, 1, 0, 0, 0, 64, 65, 5, 2, 0, 0, 65, 7, 1, 0, 0,
+    0, 66, 67, 5, 8, 0, 0, 67, 9, 1, 0, 0, 0, 68, 69, 5, 8, 0, 0, 69, 11, 1, 0, 0, 0, 70, 75, 3, 0, 0, 0,
+    71, 72, 5, 3, 0, 0, 72, 74, 3, 0, 0, 0, 73, 71, 1, 0, 0, 0, 74, 77, 1, 0, 0, 0, 75, 73, 1, 0, 0, 0, 75,
+    76, 1, 0, 0, 0, 76, 13, 1, 0, 0, 0, 77, 75, 1, 0, 0, 0, 78, 79, 5, 16, 0, 0, 79, 80, 3, 10, 5, 0, 80,
+    82, 5, 1, 0, 0, 81, 83, 3, 12, 6, 0, 82, 81, 1, 0, 0, 0, 82, 83, 1, 0, 0, 0, 83, 84, 1, 0, 0, 0, 84,
+    85, 5, 2, 0, 0, 85, 15, 1, 0, 0, 0, 86, 87, 5, 4, 0, 0, 87, 88, 3, 18, 9, 0, 88, 89, 5, 5, 0, 0, 89,
+    17, 1, 0, 0, 0, 90, 91, 6, 9, -1, 0, 91, 92, 3, 0, 0, 0, 92, 110, 1, 0, 0, 0, 93, 94, 10, 6, 0, 0, 94,
+    95, 5, 12, 0, 0, 95, 109, 3, 18, 9, 7, 96, 97, 10, 5, 0, 0, 97, 98, 5, 13, 0, 0, 98, 109, 3, 18, 9,
+    6, 99, 100, 10, 4, 0, 0, 100, 101, 5, 14, 0, 0, 101, 109, 3, 18, 9, 5, 102, 103, 10, 3, 0, 0, 103,
+    104, 5, 15, 0, 0, 104, 109, 3, 18, 9, 4, 105, 106, 10, 2, 0, 0, 106, 107, 5, 16, 0, 0, 107, 109,
+    3, 18, 9, 3, 108, 93, 1, 0, 0, 0, 108, 96, 1, 0, 0, 0, 108, 99, 1, 0, 0, 0, 108, 102, 1, 0, 0, 0, 108,
+    105, 1, 0, 0, 0, 109, 112, 1, 0, 0, 0, 110, 108, 1, 0, 0, 0, 110, 111, 1, 0, 0, 0, 111, 19, 1, 0,
+    0, 0, 112, 110, 1, 0, 0, 0, 113, 114, 5, 11, 0, 0, 114, 21, 1, 0, 0, 0, 115, 116, 5, 13, 0, 0, 116,
+    119, 5, 9, 0, 0, 117, 119, 5, 9, 0, 0, 118, 115, 1, 0, 0, 0, 118, 117, 1, 0, 0, 0, 119, 23, 1, 0,
+    0, 0, 120, 121, 7, 0, 0, 0, 121, 25, 1, 0, 0, 0, 122, 123, 5, 10, 0, 0, 123, 27, 1, 0, 0, 0, 124,
+    125, 5, 8, 0, 0, 125, 29, 1, 0, 0, 0, 10, 31, 40, 49, 53, 62, 75, 82, 108, 110, 118];
 ReksioLangParser.DecisionsToDFA = ReksioLangParser._ATN.decisionToState.map((ds, index) => new antlr4_1.DFA(ds, index));
 exports["default"] = ReksioLangParser;
 class ExprContext extends antlr4_1.ParserRuleContext {
@@ -60177,14 +60092,14 @@ class StatementListContext extends antlr4_1.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
     }
-    EOF() {
-        return this.getToken(ReksioLangParser.EOF, 0);
-    }
     statement_list() {
         return this.getTypedRuleContexts(StatementContext);
     }
     statement(i) {
         return this.getTypedRuleContext(StatementContext, i);
+    }
+    EOF() {
+        return this.getToken(ReksioLangParser.EOF, 0);
     }
     STATEMENT_END_list() {
         return this.getTokens(ReksioLangParser.STATEMENT_END);
@@ -60527,7 +60442,7 @@ exports.IdentifierContext = IdentifierContext;
 
 "use strict";
 
-// Generated from ./src/interpreter/ReksioLang.g4 by ANTLR 4.13.2
+// Generated from ./src/interpreter/script/ReksioLang.g4 by ANTLR 4.13.2
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const antlr4_1 = __webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs");
 /**
@@ -60886,16 +60801,16 @@ const runScript = (engine, script, args, singleStatement = false, printDebug = t
     const lexer = new ReksioLangLexer_1.default(new antlr4_1.default.CharStream(script));
     lexer.removeErrorListeners();
     lexer.addErrorListener({
-        syntaxError(_recognizer, _offendingSymbol, _line, _column, msg) {
-            throw new errors_1.LexerError(msg);
+        syntaxError(_recognizer, _offendingSymbol, line, column, msg) {
+            throw new errors_1.LexerError(msg, script, line, column, [...stacktrace_1.stackTrace]);
         },
     });
     const tokens = new antlr4_1.default.CommonTokenStream(lexer);
     const parser = new ReksioLangParser_1.default(tokens);
     parser.removeErrorListeners();
     parser.addErrorListener({
-        syntaxError(_recognizer, _offendingSymbol, _line, _column, msg, _e) {
-            throw new errors_1.ParserError(msg);
+        syntaxError(_recognizer, _offendingSymbol, line, column, msg, _e) {
+            throw new errors_1.ParserError(msg, script, line, column, [...stacktrace_1.stackTrace]);
         },
     });
     const tree = singleStatement ? parser.statement() : parser.statementList();
@@ -60935,7 +60850,7 @@ exports.runScript = runScript;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.printStackTrace = exports.stackTrace = exports.StackFrame = void 0;
+exports.printStackTrace = exports.generateStackTrace = exports.stackTrace = exports.StackFrame = void 0;
 const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
 class StackFrame {
     constructor() {
@@ -60984,9 +60899,9 @@ class StackFrameBuilder {
     }
 }
 exports.stackTrace = [];
-const printStackTrace = () => {
+const generateStackTrace = (stackTraceSource) => {
     const lines = [];
-    for (const frame of exports.stackTrace) {
+    for (const frame of stackTraceSource) {
         const argsString = (frame.args ?? [])
             .map((arg) => {
             if ((typeof arg !== 'object' || arg === null) && arg !== undefined) {
@@ -61013,7 +60928,11 @@ const printStackTrace = () => {
                 break;
         }
     }
-    console.error('\t' + lines.join('\n\t'));
+    return '\t' + lines.join('\n\t');
+};
+exports.generateStackTrace = generateStackTrace;
+const printStackTrace = (stackTraceSource = null) => {
+    console.error((0, exports.generateStackTrace)(stackTraceSource ?? exports.stackTrace));
 };
 exports.printStackTrace = printStackTrace;
 
