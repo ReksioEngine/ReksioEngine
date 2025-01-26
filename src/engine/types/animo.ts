@@ -17,9 +17,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent
     readonly collisions: CollisionsComponent
 
-    private isFirstTick: boolean = true
-    private isAnyFrameSet: boolean = false
-
     private isPlaying: boolean = false
     private currentFrame: number = 0
     private currentEvent: string = ''
@@ -65,6 +62,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     applyDefaults() {
         this.currentEvent = this.getDefaultEvent() ?? ''
+        const event = this.getEventByName(this.currentEvent)
+        if (event) {
+            this.changeFrame(event, 0, false)
+        }
     }
 
     ready() {
@@ -81,16 +82,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     tick(elapsedMS: number) {
-        if (this.isFirstTick) {
-            if (!this.isAnyFrameSet) {
-                const event = this.getEventByName(this.currentEvent)
-                if (event) {
-                    this.changeFrame(event, 0, false)
-                }
-            }
-            this.isFirstTick = false
-        }
-
         this.collisions.handle((object: Animo) => {
             this.callbacks.run('ONCOLLISION', object.name)
         })
@@ -296,7 +287,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         if (signal) {
             this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
         }
-        this.isAnyFrameSet = true
     }
 
     @method()
