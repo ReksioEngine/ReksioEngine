@@ -60802,7 +60802,8 @@ const runScript = (engine, script, args, singleStatement = false, printDebug = t
     lexer.removeErrorListeners();
     lexer.addErrorListener({
         syntaxError(_recognizer, _offendingSymbol, line, column, msg) {
-            throw new errors_1.LexerError(msg, script, line, column, [...stacktrace_1.stackTrace]);
+            console.error(`Lexer error: ${msg} at ${line}:${column}\n${script}`);
+            (0, stacktrace_1.printStackTrace)();
         },
     });
     const tokens = new antlr4_1.default.CommonTokenStream(lexer);
@@ -60810,7 +60811,8 @@ const runScript = (engine, script, args, singleStatement = false, printDebug = t
     parser.removeErrorListeners();
     parser.addErrorListener({
         syntaxError(_recognizer, _offendingSymbol, line, column, msg, _e) {
-            throw new errors_1.ParserError(msg, script, line, column, [...stacktrace_1.stackTrace]);
+            console.error(`Parser error: ${msg} at ${line}:${column}\n${script}`);
+            (0, stacktrace_1.printStackTrace)();
         },
     });
     const tree = singleStatement ? parser.statement() : parser.statementList();
