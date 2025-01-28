@@ -18,7 +18,7 @@ import ReksioLangLexer from './ReksioLangLexer'
 import antlr4, { ParserRuleContext, RecognitionException, Recognizer, Token } from 'antlr4'
 import { Engine } from '../../engine'
 import { Behaviour } from '../../engine/types/behaviour'
-import { assert, LexerError, NotImplementedError, ParserError } from '../../errors'
+import { assert, NotImplementedError } from '../../errors'
 import { Compare, ForceNumber } from '../../types'
 import { Type } from '../../engine/types'
 import { String } from '../../engine/types/string'
@@ -450,7 +450,8 @@ export const runScript = (
             column: number,
             msg: string
         ) {
-            throw new LexerError(msg, script, line, column, [...stackTrace])
+            console.error(`Lexer error: ${msg} at ${line}:${column}\n${script}`)
+            printStackTrace()
         },
     })
 
@@ -466,7 +467,8 @@ export const runScript = (
             msg: string,
             _e: RecognitionException | undefined
         ) {
-            throw new ParserError(msg, script, line, column, [...stackTrace])
+            console.error(`Parser error: ${msg} at ${line}:${column}\n${script}`)
+            printStackTrace()
         },
     })
 
