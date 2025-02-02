@@ -51030,6 +51030,7 @@ class Debugging {
         this.nextSceneOverwrite = null;
         this.xrays = new Map();
         this.enableXRay = false;
+        this.enableXRayInvisible = false;
         this.engine = engine;
         this.isDebug = isDebug;
     }
@@ -51080,6 +51081,7 @@ class Debugging {
         const speedDisplay = debug.querySelector('#speedDisplay');
         const spaceVelocity = debug.querySelector('#spaceVelocity');
         const xray = debug.querySelector('#xray');
+        const xrayInvisible = debug.querySelector('#xrayShowInvisible');
         const sceneSelector = document.querySelector('#sceneSelector');
         const sceneRestart = document.querySelector('#restartButton');
         const resetSave = document.querySelector('#resetSave');
@@ -51119,6 +51121,10 @@ class Debugging {
         xray.addEventListener('change', (e) => {
             const target = e.target;
             this.enableXRay = target.checked;
+        });
+        xrayInvisible.addEventListener('change', (e) => {
+            const target = e.target;
+            this.enableXRayInvisible = target.checked;
         });
         const episode = Object.values(this.engine.globalScope).find((object) => object.definition.TYPE === 'EPISODE');
         for (const sceneName of episode.definition.SCENES) {
@@ -51226,7 +51232,7 @@ class Debugging {
         }
         for (const object of Object.values(this.engine.scope)) {
             const info = object.__getXRayInfo();
-            if (info == null) {
+            if (info == null || (!this.enableXRayInvisible && !info.visible)) {
                 this.xrays.get(object.name)?.destroy({
                     children: true,
                 });
@@ -51273,7 +51279,7 @@ class Debugging {
                 }
             }
             const drawRect = new pixi_js_1.Rectangle(info.bounds.x, info.bounds.y, info.bounds.width, info.bounds.height);
-            (0, utils_1.drawRectangle)(graphics, drawRect, 0, 0, 1, info.color ?? 0x808080);
+            (0, utils_1.drawRectangle)(graphics, drawRect, 0, 0, 1, info.color ?? (info.visible ? 0xff00ff : 0xc0c0c0));
             nameText.style = {
                 fontSize: info.position === 'outside' ? 7 : 11,
                 fontWeight: 'bold',
@@ -52124,7 +52130,6 @@ let Animo = (() => {
                 this.isPlaying = false;
                 this.currentFrame = 0;
                 this.currentEvent = '';
-                this.currentLoop = 0;
                 this.animationEndedLastTick = false;
                 this.buttonInteractArea = null;
                 this.fps = 16;
@@ -52263,14 +52268,8 @@ let Animo = (() => {
                 }
                 if (this.animationEndedLastTick) {
                     this.animationEndedLastTick = false;
-                    if (this.currentLoop >= event.loopNumber) {
-                        this.currentLoop = 0;
-                        this.STOP(true);
-                        return;
-                    }
-                    else {
-                        this.currentLoop++;
-                    }
+                    this.STOP(true);
+                    return;
                 }
                 this.changeFrame(event, this.currentFrame);
                 if (this.currentFrame === 0) {
@@ -52298,7 +52297,10 @@ let Animo = (() => {
                         sound.play();
                     }
                 }
-                if (this.currentFrame + 1 >= event.framesCount) {
+                if (event.loopAfterFrame != 0 && this.currentFrame >= event.loopAfterFrame) {
+                    this.currentFrame = 0;
+                }
+                else if (this.currentFrame + 1 >= event.framesCount) {
                     this.currentFrame = 0;
                     this.animationEndedLastTick = true;
                 }
@@ -52592,7 +52594,6 @@ let Animo = (() => {
                 clone.isPlaying = this.isPlaying;
                 clone.currentFrame = this.currentFrame;
                 clone.currentEvent = this.currentEvent;
-                clone.currentLoop = this.currentLoop;
                 clone.annFile = this.annFile;
                 clone.textures = this.textures;
                 clone.sounds = this.sounds;
@@ -52606,6 +52607,7 @@ let Animo = (() => {
                         bounds: this.buttonInteractArea.hitArea,
                         color: this.buttonLogic.enabled ? 0x00ff00 : 0x0000ff,
                         position: 'outside',
+                        visible: this.buttonLogic.state != button_1.State.DISABLED,
                     };
                 }
                 else if (this.sprite?.visible) {
@@ -52613,6 +52615,7 @@ let Animo = (() => {
                         type: 'sprite',
                         bounds: this.sprite.getBounds(),
                         position: 'inside',
+                        visible: this.sprite.visible,
                     };
                 }
                 return null;
@@ -53507,6 +53510,7 @@ let Button = (() => {
                         bounds: this.rect,
                         color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
                         position: 'outside',
+                        visible: this.logic.state != button_1.State.DISABLED,
                     };
                 }
                 else if (this.gfxStandard?.getRenderObject()?.visible) {
@@ -53515,6 +53519,7 @@ let Button = (() => {
                         bounds: this.gfxStandard.getRenderObject().getBounds(),
                         color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
                         position: 'outside',
+                        visible: this.gfxStandard.getRenderObject()?.visible ?? false,
                     };
                 }
                 return null;
@@ -54371,7 +54376,7 @@ let Group = (() => {
                 this.callbacks.run('ONINIT');
             }
             ADD(...objectsNames) {
-                objectsNames.forEach(objectName => {
+                objectsNames.forEach((objectName) => {
                     const object = this.engine.getObject(objectName);
                     if (object === null) {
                         console.warn(`Script was trying to add non-existing object "${objectName}" to a group "${this.name}"`);
@@ -54391,7 +54396,7 @@ let Group = (() => {
                     }
                     else {
                         const argumentsString = args?.map((arg) => typeof arg).join(', ');
-                        throw new Error(`Method '${methodName}(${argumentsString ?? ""})' does not exist in ${object.constructor.name}`);
+                        throw new Error(`Method '${methodName}(${argumentsString ?? ''})' does not exist in ${object.constructor.name}`);
                     }
                 }
             }
@@ -54707,13 +54712,14 @@ let DisplayType = (() => {
             }
             __getXRayInfo() {
                 const renderObject = this.getRenderObject();
-                if (renderObject === null || !renderObject.visible) {
+                if (renderObject === null) {
                     return null;
                 }
                 return {
                     type: 'sprite',
                     bounds: renderObject.getBounds(),
                     position: 'outside',
+                    visible: renderObject.visible,
                 };
             }
         },
@@ -56854,7 +56860,7 @@ const parseEvent = (view) => {
     event.name = (0, utils_2.stringUntilNull)(decoder.decode(view.read(0x20)));
     event.framesCount = view.getUint16();
     view.skip(0x6);
-    event.loopNumber = view.getUint32();
+    event.loopAfterFrame = view.getUint32();
     view.skip(0x4 + 0x6);
     event.transparency = view.getUint8();
     view.skip(0xc);
