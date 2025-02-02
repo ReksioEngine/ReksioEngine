@@ -20,7 +20,7 @@ interface AnnHeader {
 export interface Event {
     name: string
     framesCount: number
-    loopNumber: number
+    loopAfterFrame: number
     transparency: number
 
     framesImageMapping: Array<number>
@@ -105,7 +105,7 @@ const parseEvent = (view: BinaryBuffer) => {
     event.name = stringUntilNull(decoder.decode(view.read(0x20)))
     event.framesCount = view.getUint16()
     view.skip(0x6)
-    event.loopNumber = view.getUint32()
+    event.loopAfterFrame = view.getUint32()
     view.skip(0x4 + 0x6)
     event.transparency = view.getUint8()
     view.skip(0xc)

@@ -20,7 +20,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private isPlaying: boolean = false
     private currentFrame: number = 0
     private currentEvent: string = ''
-    private currentLoop: number = 0
 
     private animationEndedLastTick: boolean = false
     private buttonInteractArea: Graphics | null = null
@@ -203,13 +202,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         if (this.animationEndedLastTick) {
             this.animationEndedLastTick = false
-            if (this.currentLoop >= event.loopNumber) {
-                this.currentLoop = 0
-                this.STOP(true)
-                return
-            } else {
-                this.currentLoop++
-            }
+            this.STOP(true)
+            return
         }
 
         this.changeFrame(event, this.currentFrame)
@@ -244,7 +238,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
             }
         }
 
-        if (this.currentFrame + 1 >= event.framesCount) {
+        if (event.loopAfterFrame != 0 && this.currentFrame >= event.loopAfterFrame) {
+            this.currentFrame = 0
+        } else if (this.currentFrame + 1 >= event.framesCount) {
             this.currentFrame = 0
             this.animationEndedLastTick = true
         } else {
@@ -633,7 +629,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         clone.isPlaying = this.isPlaying
         clone.currentFrame = this.currentFrame
         clone.currentEvent = this.currentEvent
-        clone.currentLoop = this.currentLoop
         clone.annFile = this.annFile
         clone.textures = this.textures
         clone.sounds = this.sounds
