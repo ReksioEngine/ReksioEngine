@@ -648,12 +648,14 @@ export class Animo extends DisplayType<AnimoDefinition> {
                 bounds: this.buttonInteractArea.hitArea as Rectangle,
                 color: this.buttonLogic.enabled ? 0x00ff00 : 0x0000ff,
                 position: 'outside',
+                visible: this.buttonLogic.state != State.DISABLED,
             }
         } else if (this.sprite?.visible) {
             return {
                 type: 'sprite',
                 bounds: this.sprite.getBounds(),
                 position: 'inside',
+                visible: this.sprite.visible,
             }
         }
         return null

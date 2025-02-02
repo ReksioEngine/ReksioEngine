@@ -243,6 +243,7 @@ export class Button extends Type<ButtonDefinition> {
                 bounds: this.rect,
                 color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
                 position: 'outside',
+                visible: this.logic.state != State.DISABLED,
             }
         } else if (this.gfxStandard?.getRenderObject()?.visible) {
             return {
@@ -250,6 +251,7 @@ export class Button extends Type<ButtonDefinition> {
                 bounds: this.gfxStandard.getRenderObject()!.getBounds(),
                 color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
                 position: 'outside',
+                visible: this.gfxStandard.getRenderObject()?.visible ?? false,
             }
         }
         return null

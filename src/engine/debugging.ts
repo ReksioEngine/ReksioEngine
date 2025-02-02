@@ -17,8 +17,10 @@ export class Debugging {
     public isDebug = false
 
     public nextSceneOverwrite: string | null = null
+
     private xrays: Map<string, Container> = new Map()
     private enableXRay = false
+    private enableXRayInvisible = false
 
     constructor(engine: Engine, isDebug: boolean) {
         this.engine = engine
@@ -83,6 +85,7 @@ export class Debugging {
         const speedDisplay = debug.querySelector('#speedDisplay')
         const spaceVelocity = debug.querySelector('#spaceVelocity')
         const xray = debug.querySelector('#xray')
+        const xrayInvisible = debug.querySelector('#xrayShowInvisible')
 
         const sceneSelector: any = document.querySelector('#sceneSelector')!
         const sceneRestart: any = document.querySelector('#restartButton')!
@@ -131,6 +134,10 @@ export class Debugging {
         xray.addEventListener('change', (e: InputEvent) => {
             const target = e.target as HTMLInputElement
             this.enableXRay = target.checked
+        })
+        xrayInvisible.addEventListener('change', (e: InputEvent) => {
+            const target = e.target as HTMLInputElement
+            this.enableXRayInvisible = target.checked
         })
 
         const episode: Episode = Object.values(this.engine.globalScope).find(
@@ -255,7 +262,7 @@ export class Debugging {
 
         for (const object of Object.values(this.engine.scope)) {
             const info = object.__getXRayInfo()
-            if (info == null) {
+            if (info == null || (!this.enableXRayInvisible && !info.visible)) {
                 this.xrays.get(object.name)?.destroy({
                     children: true,
                 })
@@ -312,7 +319,7 @@ export class Debugging {
             }
 
             const drawRect = new Rectangle(info.bounds.x, info.bounds.y, info.bounds.width, info.bounds.height)
-            drawRectangle(graphics, drawRect, 0, 0, 1, info.color ?? 0x808080)
+            drawRectangle(graphics, drawRect, 0, 0, 1, info.color ?? (info.visible ? 0xff00ff : 0xc0c0c0))
 
             nameText.style = {
                 fontSize: info.position === 'outside' ? 7 : 11,

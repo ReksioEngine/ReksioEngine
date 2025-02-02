@@ -11,6 +11,7 @@ export type XRayInfo = {
     bounds: Rectangle
     color?: number
     position: 'inside' | 'outside'
+    visible: boolean
 }
 
 export class Type<DefinitionType extends TypeDefinition> {
@@ -113,7 +114,7 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
 
     __getXRayInfo(): XRayInfo | null {
         const renderObject = this.getRenderObject()
-        if (renderObject === null || !renderObject.visible) {
+        if (renderObject === null) {
             return null
         }
 
@@ -121,6 +122,7 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
             type: 'sprite',
             bounds: renderObject.getBounds(),
             position: 'outside',
+            visible: renderObject.visible,
         }
     }
 }
