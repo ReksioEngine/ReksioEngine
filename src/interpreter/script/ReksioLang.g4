@@ -38,12 +38,13 @@ operation
 comment: COMMENT_START;
 number: '-' NUMBER | NUMBER;
 bool: TRUE | FALSE;
-string: STRING;
+string: CODE_STRING | STRING;
 identifier: IDENTIFIER;
 
 // Literals
 IDENTIFIER: [a-zA-Z0-9_$]*[a-zA-Z_?$]+[a-zA-Z0-9_$]*;
 NUMBER: [0-9]+ ('.' [0-9]+)? ;
+CODE_STRING: '"{' ~[{]* '}"';
 STRING: '"' ~[,)]* '"';
 COMMENT_START: '!'+;
 

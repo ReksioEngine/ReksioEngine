@@ -170,7 +170,11 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
     }
 
     visitString = (ctx: StringContext): any => {
-        return this.replaceParameters(ctx.STRING().getText().replace(/^"|"$/g, ''))
+        if (ctx.CODE_STRING() != null) {
+            return ctx.CODE_STRING().getText().replace(/^"|"$/g, '')
+        } else if (ctx.STRING() != null) {
+            return this.replaceParameters(ctx.STRING().getText().replace(/^"|"$/g, ''))
+        }
     }
 
     replaceParameters(str: string): string {

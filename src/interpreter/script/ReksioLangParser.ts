@@ -27,16 +27,17 @@ export default class ReksioLangParser extends Parser {
 	public static readonly FALSE = 7;
 	public static readonly IDENTIFIER = 8;
 	public static readonly NUMBER = 9;
-	public static readonly STRING = 10;
-	public static readonly COMMENT_START = 11;
-	public static readonly ADD = 12;
-	public static readonly SUB = 13;
-	public static readonly MUL = 14;
-	public static readonly MOD = 15;
-	public static readonly DIV = 16;
-	public static readonly METHOD_CALL_SYMBOL = 17;
-	public static readonly STATEMENT_END = 18;
-	public static readonly WHITESPACE = 19;
+	public static readonly CODE_STRING = 10;
+	public static readonly STRING = 11;
+	public static readonly COMMENT_START = 12;
+	public static readonly ADD = 13;
+	public static readonly SUB = 14;
+	public static readonly MUL = 15;
+	public static readonly MOD = 16;
+	public static readonly DIV = 17;
+	public static readonly METHOD_CALL_SYMBOL = 18;
+	public static readonly STATEMENT_END = 19;
+	public static readonly WHITESPACE = 20;
 	public static override readonly EOF = Token.EOF;
 	public static readonly RULE_expr = 0;
 	public static readonly RULE_statement = 1;
@@ -59,16 +60,16 @@ export default class ReksioLangParser extends Parser {
                                                             "'TRUE'", "'FALSE'", 
                                                             null, null, 
                                                             null, null, 
-                                                            "'+'", "'-'", 
-                                                            "'*'", "'%'", 
-                                                            "'@'" ];
+                                                            null, "'+'", 
+                                                            "'-'", "'*'", 
+                                                            "'%'", "'@'" ];
 	public static readonly symbolicNames: (string | null)[] = [ null, null, 
                                                              null, null, 
                                                              null, null, 
                                                              "TRUE", "FALSE", 
                                                              "IDENTIFIER", 
-                                                             "NUMBER", "STRING", 
-                                                             "COMMENT_START", 
+                                                             "NUMBER", "CODE_STRING", 
+                                                             "STRING", "COMMENT_START", 
                                                              "ADD", "SUB", 
                                                              "MUL", "MOD", 
                                                              "DIV", "METHOD_CALL_SYMBOL", 
@@ -105,7 +106,7 @@ export default class ReksioLangParser extends Parser {
 			this.state = 31;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if (_la===11) {
+			if (_la===12) {
 				{
 				this.state = 30;
 				this.comment();
@@ -231,7 +232,7 @@ export default class ReksioLangParser extends Parser {
 			this.state = 53;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if (_la===18) {
+			if (_la===19) {
 				{
 				this.state = 52;
 				this.match(ReksioLangParser.STATEMENT_END);
@@ -275,7 +276,7 @@ export default class ReksioLangParser extends Parser {
 			this.state = 62;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 77776) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 155600) !== 0)) {
 				{
 				this.state = 61;
 				this.methodCallArguments();
@@ -409,7 +410,7 @@ export default class ReksioLangParser extends Parser {
 			this.state = 82;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 77776) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 155600) !== 0)) {
 				{
 				this.state = 81;
 				this.methodCallArguments();
@@ -631,7 +632,7 @@ export default class ReksioLangParser extends Parser {
 			this.state = 118;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case 13:
+			case 14:
 				this.enterOuterAlt(localctx, 1);
 				{
 				this.state = 115;
@@ -702,11 +703,19 @@ export default class ReksioLangParser extends Parser {
 	public string_(): StringContext {
 		let localctx: StringContext = new StringContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 26, ReksioLangParser.RULE_string);
+		let _la: number;
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
 			this.state = 122;
-			this.match(ReksioLangParser.STRING);
+			_la = this._input.LA(1);
+			if(!(_la===10 || _la===11)) {
+			this._errHandler.recoverInline(this);
+			}
+			else {
+				this._errHandler.reportMatch(this);
+			    this.consume();
+			}
 			}
 		}
 		catch (re) {
@@ -772,7 +781,7 @@ export default class ReksioLangParser extends Parser {
 		return true;
 	}
 
-	public static readonly _serializedATN: number[] = [4,1,19,127,2,0,7,0,2,
+	public static readonly _serializedATN: number[] = [4,1,20,127,2,0,7,0,2,
 	1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,
 	10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,14,1,0,3,0,32,8,0,1,0,1,0,
 	1,0,1,0,1,0,1,0,1,0,3,0,41,8,0,1,1,1,1,1,2,1,2,1,2,5,2,48,8,2,10,2,12,2,
@@ -781,34 +790,35 @@ export default class ReksioLangParser extends Parser {
 	7,83,8,7,1,7,1,7,1,8,1,8,1,8,1,8,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,
 	9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,5,9,109,8,9,10,9,12,9,112,9,9,1,10,1,
 	10,1,11,1,11,1,11,3,11,119,8,11,1,12,1,12,1,13,1,13,1,14,1,14,1,14,0,1,
-	18,15,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,0,1,1,0,6,7,129,0,31,1,0,
-	0,0,2,42,1,0,0,0,4,44,1,0,0,0,6,57,1,0,0,0,8,66,1,0,0,0,10,68,1,0,0,0,12,
-	70,1,0,0,0,14,78,1,0,0,0,16,86,1,0,0,0,18,90,1,0,0,0,20,113,1,0,0,0,22,
-	118,1,0,0,0,24,120,1,0,0,0,26,122,1,0,0,0,28,124,1,0,0,0,30,32,3,20,10,
-	0,31,30,1,0,0,0,31,32,1,0,0,0,32,40,1,0,0,0,33,41,3,26,13,0,34,41,3,22,
-	11,0,35,41,3,24,12,0,36,41,3,28,14,0,37,41,3,14,7,0,38,41,3,6,3,0,39,41,
-	3,16,8,0,40,33,1,0,0,0,40,34,1,0,0,0,40,35,1,0,0,0,40,36,1,0,0,0,40,37,
-	1,0,0,0,40,38,1,0,0,0,40,39,1,0,0,0,41,1,1,0,0,0,42,43,3,0,0,0,43,3,1,0,
-	0,0,44,49,3,2,1,0,45,46,5,18,0,0,46,48,3,2,1,0,47,45,1,0,0,0,48,51,1,0,
-	0,0,49,47,1,0,0,0,49,50,1,0,0,0,50,53,1,0,0,0,51,49,1,0,0,0,52,54,5,18,
-	0,0,53,52,1,0,0,0,53,54,1,0,0,0,54,55,1,0,0,0,55,56,5,0,0,1,56,5,1,0,0,
-	0,57,58,3,8,4,0,58,59,5,17,0,0,59,60,3,10,5,0,60,62,5,1,0,0,61,63,3,12,
-	6,0,62,61,1,0,0,0,62,63,1,0,0,0,63,64,1,0,0,0,64,65,5,2,0,0,65,7,1,0,0,
-	0,66,67,5,8,0,0,67,9,1,0,0,0,68,69,5,8,0,0,69,11,1,0,0,0,70,75,3,0,0,0,
-	71,72,5,3,0,0,72,74,3,0,0,0,73,71,1,0,0,0,74,77,1,0,0,0,75,73,1,0,0,0,75,
-	76,1,0,0,0,76,13,1,0,0,0,77,75,1,0,0,0,78,79,5,16,0,0,79,80,3,10,5,0,80,
-	82,5,1,0,0,81,83,3,12,6,0,82,81,1,0,0,0,82,83,1,0,0,0,83,84,1,0,0,0,84,
-	85,5,2,0,0,85,15,1,0,0,0,86,87,5,4,0,0,87,88,3,18,9,0,88,89,5,5,0,0,89,
-	17,1,0,0,0,90,91,6,9,-1,0,91,92,3,0,0,0,92,110,1,0,0,0,93,94,10,6,0,0,94,
-	95,5,12,0,0,95,109,3,18,9,7,96,97,10,5,0,0,97,98,5,13,0,0,98,109,3,18,9,
-	6,99,100,10,4,0,0,100,101,5,14,0,0,101,109,3,18,9,5,102,103,10,3,0,0,103,
-	104,5,15,0,0,104,109,3,18,9,4,105,106,10,2,0,0,106,107,5,16,0,0,107,109,
-	3,18,9,3,108,93,1,0,0,0,108,96,1,0,0,0,108,99,1,0,0,0,108,102,1,0,0,0,108,
-	105,1,0,0,0,109,112,1,0,0,0,110,108,1,0,0,0,110,111,1,0,0,0,111,19,1,0,
-	0,0,112,110,1,0,0,0,113,114,5,11,0,0,114,21,1,0,0,0,115,116,5,13,0,0,116,
-	119,5,9,0,0,117,119,5,9,0,0,118,115,1,0,0,0,118,117,1,0,0,0,119,23,1,0,
-	0,0,120,121,7,0,0,0,121,25,1,0,0,0,122,123,5,10,0,0,123,27,1,0,0,0,124,
-	125,5,8,0,0,125,29,1,0,0,0,10,31,40,49,53,62,75,82,108,110,118];
+	18,15,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,0,2,1,0,6,7,1,0,10,11,129,
+	0,31,1,0,0,0,2,42,1,0,0,0,4,44,1,0,0,0,6,57,1,0,0,0,8,66,1,0,0,0,10,68,
+	1,0,0,0,12,70,1,0,0,0,14,78,1,0,0,0,16,86,1,0,0,0,18,90,1,0,0,0,20,113,
+	1,0,0,0,22,118,1,0,0,0,24,120,1,0,0,0,26,122,1,0,0,0,28,124,1,0,0,0,30,
+	32,3,20,10,0,31,30,1,0,0,0,31,32,1,0,0,0,32,40,1,0,0,0,33,41,3,26,13,0,
+	34,41,3,22,11,0,35,41,3,24,12,0,36,41,3,28,14,0,37,41,3,14,7,0,38,41,3,
+	6,3,0,39,41,3,16,8,0,40,33,1,0,0,0,40,34,1,0,0,0,40,35,1,0,0,0,40,36,1,
+	0,0,0,40,37,1,0,0,0,40,38,1,0,0,0,40,39,1,0,0,0,41,1,1,0,0,0,42,43,3,0,
+	0,0,43,3,1,0,0,0,44,49,3,2,1,0,45,46,5,19,0,0,46,48,3,2,1,0,47,45,1,0,0,
+	0,48,51,1,0,0,0,49,47,1,0,0,0,49,50,1,0,0,0,50,53,1,0,0,0,51,49,1,0,0,0,
+	52,54,5,19,0,0,53,52,1,0,0,0,53,54,1,0,0,0,54,55,1,0,0,0,55,56,5,0,0,1,
+	56,5,1,0,0,0,57,58,3,8,4,0,58,59,5,18,0,0,59,60,3,10,5,0,60,62,5,1,0,0,
+	61,63,3,12,6,0,62,61,1,0,0,0,62,63,1,0,0,0,63,64,1,0,0,0,64,65,5,2,0,0,
+	65,7,1,0,0,0,66,67,5,8,0,0,67,9,1,0,0,0,68,69,5,8,0,0,69,11,1,0,0,0,70,
+	75,3,0,0,0,71,72,5,3,0,0,72,74,3,0,0,0,73,71,1,0,0,0,74,77,1,0,0,0,75,73,
+	1,0,0,0,75,76,1,0,0,0,76,13,1,0,0,0,77,75,1,0,0,0,78,79,5,17,0,0,79,80,
+	3,10,5,0,80,82,5,1,0,0,81,83,3,12,6,0,82,81,1,0,0,0,82,83,1,0,0,0,83,84,
+	1,0,0,0,84,85,5,2,0,0,85,15,1,0,0,0,86,87,5,4,0,0,87,88,3,18,9,0,88,89,
+	5,5,0,0,89,17,1,0,0,0,90,91,6,9,-1,0,91,92,3,0,0,0,92,110,1,0,0,0,93,94,
+	10,6,0,0,94,95,5,13,0,0,95,109,3,18,9,7,96,97,10,5,0,0,97,98,5,14,0,0,98,
+	109,3,18,9,6,99,100,10,4,0,0,100,101,5,15,0,0,101,109,3,18,9,5,102,103,
+	10,3,0,0,103,104,5,16,0,0,104,109,3,18,9,4,105,106,10,2,0,0,106,107,5,17,
+	0,0,107,109,3,18,9,3,108,93,1,0,0,0,108,96,1,0,0,0,108,99,1,0,0,0,108,102,
+	1,0,0,0,108,105,1,0,0,0,109,112,1,0,0,0,110,108,1,0,0,0,110,111,1,0,0,0,
+	111,19,1,0,0,0,112,110,1,0,0,0,113,114,5,12,0,0,114,21,1,0,0,0,115,116,
+	5,14,0,0,116,119,5,9,0,0,117,119,5,9,0,0,118,115,1,0,0,0,118,117,1,0,0,
+	0,119,23,1,0,0,0,120,121,7,0,0,0,121,25,1,0,0,0,122,123,7,1,0,0,123,27,
+	1,0,0,0,124,125,5,8,0,0,125,29,1,0,0,0,10,31,40,49,53,62,75,82,108,110,
+	118];
 
 	private static __ATN: ATN;
 	public static get _ATN(): ATN {
@@ -1195,6 +1205,9 @@ export class StringContext extends ParserRuleContext {
 	constructor(parser?: ReksioLangParser, parent?: ParserRuleContext, invokingState?: number) {
 		super(parent, invokingState);
     	this.parser = parser;
+	}
+	public CODE_STRING(): TerminalNode {
+		return this.getToken(ReksioLangParser.CODE_STRING, 0);
 	}
 	public STRING(): TerminalNode {
 		return this.getToken(ReksioLangParser.STRING, 0);
