@@ -265,13 +265,19 @@ export class Sequence extends Type<SequenceDefinition> {
             }
 
             if (this.activeAnimo) {
-                if (!this.activeAnimo.hasEvent(simple.EVENT)) {
-                    await this.progressNext()
-                    return
+                let eventName = simple.EVENT
+
+                if (!this.activeAnimo.hasEvent(eventName)) {
+                    const defaultEvent = this.activeAnimo.getDefaultEvent()
+                    if (defaultEvent == null) {
+                        await this.progressNext()
+                        return
+                    }
+                    eventName = defaultEvent
                 }
 
                 this.runningSubSequence = simple
-                this.playAnimoEvent(simple.EVENT)
+                this.playAnimoEvent(eventName)
             }
         }
     }

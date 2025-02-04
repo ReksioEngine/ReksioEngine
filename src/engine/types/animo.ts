@@ -98,7 +98,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
     }
 
-    private getDefaultEvent() {
+    public getDefaultEvent() {
         assert(this.annFile !== null)
         // Find first event with any frames
         const defaultEvent = this.annFile.events.find((event) => event.framesCount > 0)
@@ -612,8 +612,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     public getEventByName(name: string): Event | null {
-        assert(this.annFile !== undefined)
-        return this.annFile!.events.find((event) => event.name.toUpperCase() === name.toUpperCase()) ?? null
+        assert(this.annFile !== null)
+        return this.annFile.events.find((event) => event.name.toUpperCase() === name.toUpperCase()) ?? null
     }
 
     public hasEvent(name: string): boolean {
