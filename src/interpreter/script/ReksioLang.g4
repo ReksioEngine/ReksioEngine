@@ -19,8 +19,8 @@ statement: | expr;
 statementList: (statement STATEMENT_END)* EOF;
 
 methodCall: objectName METHOD_CALL_SYMBOL methodName '(' methodCallArguments? ')';
-objectName: IDENTIFIER;
-methodName: IDENTIFIER;
+objectName: identifier;
+methodName: identifier;
 methodCallArguments: expr (',' expr)*;
 
 specialCall: '@' methodName '(' methodCallArguments? ')';
@@ -36,13 +36,13 @@ operation
   ;
 
 comment: COMMENT_START;
-number: '-' NUMBER | NUMBER;
+number: SUB NUMBER | NUMBER;
 bool: TRUE | FALSE;
 string: CODE_STRING | STRING;
 identifier: IDENTIFIER;
 
 // Literals
-IDENTIFIER: [a-zA-Z0-9_$]*[a-zA-Z_?$]+[a-zA-Z0-9_$]*;
+IDENTIFIER: [a-zA-Z0-9_$\-]+ { this.text.match(/[A-Za-z$]/) !== null }? ;
 NUMBER: [0-9]+ ('.' [0-9]+)? ;
 CODE_STRING: '"{' ~[{]* '}"';
 STRING: '"' ~[,)]* '"';
