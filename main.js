@@ -52580,7 +52580,7 @@ let Animo = (() => {
                 this.collisions.enabled = false;
             }
             getEventByName(name) {
-                (0, errors_1.assert)(this.annFile !== undefined);
+                (0, errors_1.assert)(this.annFile !== null);
                 return this.annFile.events.find((event) => event.name.toUpperCase() === name.toUpperCase()) ?? null;
             }
             hasEvent(name) {
@@ -55869,12 +55869,17 @@ let Sequence = (() => {
                         }
                     }
                     if (this.activeAnimo) {
-                        if (!this.activeAnimo.hasEvent(simple.EVENT)) {
-                            await this.progressNext();
-                            return;
+                        let eventName = simple.EVENT;
+                        if (!this.activeAnimo.hasEvent(eventName)) {
+                            const defaultEvent = this.activeAnimo.getDefaultEvent();
+                            if (defaultEvent == null) {
+                                await this.progressNext();
+                                return;
+                            }
+                            eventName = defaultEvent;
                         }
                         this.runningSubSequence = simple;
-                        this.playAnimoEvent(simple.EVENT);
+                        this.playAnimoEvent(eventName);
                     }
                 }
             }
