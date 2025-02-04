@@ -1,4 +1,5 @@
 import { boolean, map, string } from '../common'
+import { assert } from '../../errors'
 
 export interface SequenceFileEntry {
     TYPE: string
@@ -6,11 +7,11 @@ export interface SequenceFileEntry {
     [key: string]: any
 }
 
-export type SequenceFile = { [key: string]: SequenceFileEntry }
+export type SequenceFile = SequenceFileEntry[]
 
-export const parseSequence = (content: string) => {
+export const parseSequence = (content: string): SequenceFile => {
     const lines = content.split('\n')
-    const objects: SequenceFile = {}
+    const objectsMap = new Map<string, SequenceFileEntry>()
 
     for (const line of lines) {
         if (line.startsWith('#') || line.trim() === '') {
@@ -19,15 +20,16 @@ export const parseSequence = (content: string) => {
 
         const [key, value] = line.split(/[\s=]+/)
         if (key === 'NAME') {
-            objects[value] = {
+            objectsMap.set(value, {
                 NAME: value,
                 TYPE: 'unknown',
-            }
+            })
         } else {
             const [objectName, variableName, subKey] = key.split(':')
-            const object = objects[objectName]
-            const definition = structureDefinitions[object.TYPE]
+            const object = objectsMap.get(objectName)
+            assert(object !== undefined)
 
+            const definition = structureDefinitions[object.TYPE]
             if (definition && variableName in definition) {
                 const typeDefinition = definition[variableName]
                 object[variableName] = typeDefinition.processor(object, variableName, subKey, value)
@@ -37,7 +39,7 @@ export const parseSequence = (content: string) => {
         }
     }
 
-    return objects
+    return Array.from(objectsMap.values())
 }
 
 export type SequenceSequence = SequenceFileEntry & {

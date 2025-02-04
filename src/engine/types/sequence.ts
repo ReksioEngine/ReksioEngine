@@ -67,7 +67,7 @@ export class Sequence extends Type<SequenceDefinition> {
         assert(this.sequenceFile !== null)
 
         const soundsNames = []
-        for (const definition of Object.values(this.sequenceFile)) {
+        for (const definition of this.sequenceFile) {
             if (definition.TYPE === 'SEQUENCE') {
                 const sequence = definition as SequenceSequence
                 if (sequence.MODE === 'PARAMETER') {
