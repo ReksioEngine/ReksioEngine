@@ -55695,7 +55695,7 @@ let Sequence = (() => {
             async load() {
                 (0, errors_1.assert)(this.sequenceFile !== null);
                 const soundsNames = [];
-                for (const definition of Object.values(this.sequenceFile)) {
+                for (const definition of this.sequenceFile) {
                     if (definition.TYPE === 'SEQUENCE') {
                         const sequence = definition;
                         if (sequence.MODE === 'PARAMETER') {
@@ -57870,23 +57870,25 @@ const decompressImageData = (buffer, descriptor) => {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.structureDefinitions = exports.parseSequence = void 0;
 const common_1 = __webpack_require__(/*! ../common */ "./src/fileFormats/common/index.ts");
+const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
 const parseSequence = (content) => {
     const lines = content.split('\n');
-    const objects = {};
+    const objectsMap = new Map();
     for (const line of lines) {
         if (line.startsWith('#') || line.trim() === '') {
             continue;
         }
         const [key, value] = line.split(/[\s=]+/);
         if (key === 'NAME') {
-            objects[value] = {
+            objectsMap.set(value, {
                 NAME: value,
                 TYPE: 'unknown',
-            };
+            });
         }
         else {
             const [objectName, variableName, subKey] = key.split(':');
-            const object = objects[objectName];
+            const object = objectsMap.get(objectName);
+            (0, errors_1.assert)(object !== undefined);
             const definition = exports.structureDefinitions[object.TYPE];
             if (definition && variableName in definition) {
                 const typeDefinition = definition[variableName];
@@ -57897,7 +57899,7 @@ const parseSequence = (content) => {
             }
         }
     }
-    return objects;
+    return Array.from(objectsMap.values());
 };
 exports.parseSequence = parseSequence;
 const SequenceSequenceStructure = {
