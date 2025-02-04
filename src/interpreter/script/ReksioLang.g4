@@ -15,8 +15,8 @@ expr :
         | operationGrouping
     );
 
-statement: expr;
-statementList: statement (STATEMENT_END statement)* STATEMENT_END? EOF;
+statement: | expr;
+statementList: (statement STATEMENT_END)* EOF;
 
 methodCall: objectName METHOD_CALL_SYMBOL methodName '(' methodCallArguments? ')';
 objectName: IDENTIFIER;
@@ -54,8 +54,10 @@ MUL: '*';
 MOD: '%';
 DIV: '@';
 
+METHOD_CALL_SYMBOL: '^';
+STATEMENT_END: ';';
+
 // Inconsistency
-METHOD_CALL_SYMBOL: [^>];
-STATEMENT_END: [;:];
+TYPO: [>:];
 
 WHITESPACE: [ \t\u000C\r\n]+ -> skip;

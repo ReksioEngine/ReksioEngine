@@ -441,7 +441,28 @@ export const runScript = (
     singleStatement: boolean = false,
     printDebug = true
 ) => {
-    const lexer = new ReksioLangLexer(new antlr4.CharStream(script))
+    const initialLexer = new ReksioLangLexer(new antlr4.CharStream(script))
+    initialLexer.removeErrorListeners()
+
+    const initialTokens = new antlr4.CommonTokenStream(initialLexer)
+    initialTokens.fill()
+
+    // Fix simple typos in scripts
+    const rewriter = new antlr4.TokenStreamRewriter(initialTokens)
+    for (const token of initialTokens.tokens) {
+        if (token.type === ReksioLangLexer.TYPO && token.text === ':') {
+            rewriter.replaceSingle(token, ';')
+        } else if (token.type === ReksioLangLexer.TYPO && token.text === '>') {
+            rewriter.replaceSingle(token, '^')
+        } else if (token.type === ReksioLangLexer.EOF) {
+            const prevToken = initialTokens.get(token.tokenIndex - 1)
+            if (prevToken.type !== ReksioLangLexer.STATEMENT_END) {
+                rewriter.insertAfter(prevToken, ';')
+            }
+        }
+    }
+
+    const lexer = new ReksioLangLexer(new antlr4.CharStream(rewriter.getText()))
     lexer.removeErrorListeners()
     lexer.addErrorListener({
         syntaxError(

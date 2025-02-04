@@ -37,7 +37,8 @@ export default class ReksioLangParser extends Parser {
 	public static readonly DIV = 17;
 	public static readonly METHOD_CALL_SYMBOL = 18;
 	public static readonly STATEMENT_END = 19;
-	public static readonly WHITESPACE = 20;
+	public static readonly TYPO = 20;
+	public static readonly WHITESPACE = 21;
 	public static override readonly EOF = Token.EOF;
 	public static readonly RULE_expr = 0;
 	public static readonly RULE_statement = 1;
@@ -62,7 +63,8 @@ export default class ReksioLangParser extends Parser {
                                                             null, null, 
                                                             null, "'+'", 
                                                             "'-'", "'*'", 
-                                                            "'%'", "'@'" ];
+                                                            "'%'", "'@'", 
+                                                            "'^'", "';'" ];
 	public static readonly symbolicNames: (string | null)[] = [ null, null, 
                                                              null, null, 
                                                              null, null, 
@@ -74,7 +76,7 @@ export default class ReksioLangParser extends Parser {
                                                              "MUL", "MOD", 
                                                              "DIV", "METHOD_CALL_SYMBOL", 
                                                              "STATEMENT_END", 
-                                                             "WHITESPACE" ];
+                                                             "TYPO", "WHITESPACE" ];
 	// tslint:disable:no-trailing-whitespace
 	public static readonly ruleNames: string[] = [
 		"expr", "statement", "statementList", "methodCall", "objectName", "methodName", 
@@ -180,10 +182,33 @@ export default class ReksioLangParser extends Parser {
 		let localctx: StatementContext = new StatementContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 2, ReksioLangParser.RULE_statement);
 		try {
-			this.enterOuterAlt(localctx, 1);
-			{
-			this.state = 42;
-			this.expr();
+			this.state = 44;
+			this._errHandler.sync(this);
+			switch (this._input.LA(1)) {
+			case 19:
+				this.enterOuterAlt(localctx, 1);
+				// tslint:disable-next-line:no-empty
+				{
+				}
+				break;
+			case 4:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+			case 10:
+			case 11:
+			case 12:
+			case 14:
+			case 17:
+				this.enterOuterAlt(localctx, 2);
+				{
+				this.state = 43;
+				this.expr();
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
 			}
 		}
 		catch (re) {
@@ -206,40 +231,25 @@ export default class ReksioLangParser extends Parser {
 		this.enterRule(localctx, 4, ReksioLangParser.RULE_statementList);
 		let _la: number;
 		try {
-			let _alt: number;
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 44;
-			this.statement();
-			this.state = 49;
-			this._errHandler.sync(this);
-			_alt = this._interp.adaptivePredict(this._input, 2, this._ctx);
-			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
-				if (_alt === 1) {
-					{
-					{
-					this.state = 45;
-					this.match(ReksioLangParser.STATEMENT_END);
-					this.state = 46;
-					this.statement();
-					}
-					}
-				}
-				this.state = 51;
-				this._errHandler.sync(this);
-				_alt = this._interp.adaptivePredict(this._input, 2, this._ctx);
-			}
-			this.state = 53;
+			this.state = 51;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if (_la===19) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 679888) !== 0)) {
 				{
-				this.state = 52;
+				{
+				this.state = 46;
+				this.statement();
+				this.state = 47;
 				this.match(ReksioLangParser.STATEMENT_END);
 				}
+				}
+				this.state = 53;
+				this._errHandler.sync(this);
+				_la = this._input.LA(1);
 			}
-
-			this.state = 55;
+			this.state = 54;
 			this.match(ReksioLangParser.EOF);
 			}
 		}
@@ -265,25 +275,25 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 57;
+			this.state = 56;
 			this.objectName();
-			this.state = 58;
+			this.state = 57;
 			this.match(ReksioLangParser.METHOD_CALL_SYMBOL);
-			this.state = 59;
+			this.state = 58;
 			this.methodName();
-			this.state = 60;
+			this.state = 59;
 			this.match(ReksioLangParser.T__0);
-			this.state = 62;
+			this.state = 61;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 155600) !== 0)) {
 				{
-				this.state = 61;
+				this.state = 60;
 				this.methodCallArguments();
 				}
 			}
 
-			this.state = 64;
+			this.state = 63;
 			this.match(ReksioLangParser.T__1);
 			}
 		}
@@ -308,7 +318,7 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 66;
+			this.state = 65;
 			this.match(ReksioLangParser.IDENTIFIER);
 			}
 		}
@@ -333,7 +343,7 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 68;
+			this.state = 67;
 			this.match(ReksioLangParser.IDENTIFIER);
 			}
 		}
@@ -359,21 +369,21 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 70;
+			this.state = 69;
 			this.expr();
-			this.state = 75;
+			this.state = 74;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			while (_la===3) {
 				{
 				{
-				this.state = 71;
+				this.state = 70;
 				this.match(ReksioLangParser.T__2);
-				this.state = 72;
+				this.state = 71;
 				this.expr();
 				}
 				}
-				this.state = 77;
+				this.state = 76;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 			}
@@ -401,23 +411,23 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 78;
+			this.state = 77;
 			this.match(ReksioLangParser.DIV);
-			this.state = 79;
+			this.state = 78;
 			this.methodName();
-			this.state = 80;
+			this.state = 79;
 			this.match(ReksioLangParser.T__0);
-			this.state = 82;
+			this.state = 81;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 155600) !== 0)) {
 				{
-				this.state = 81;
+				this.state = 80;
 				this.methodCallArguments();
 				}
 			}
 
-			this.state = 84;
+			this.state = 83;
 			this.match(ReksioLangParser.T__1);
 			}
 		}
@@ -442,11 +452,11 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 86;
+			this.state = 85;
 			this.match(ReksioLangParser.T__3);
-			this.state = 87;
+			this.state = 86;
 			this.operation(0);
-			this.state = 88;
+			this.state = 87;
 			this.match(ReksioLangParser.T__4);
 			}
 		}
@@ -484,11 +494,11 @@ export default class ReksioLangParser extends Parser {
 			this.enterOuterAlt(localctx, 1);
 			{
 			{
-			this.state = 91;
+			this.state = 90;
 			this.expr();
 			}
 			this._ctx.stop = this._input.LT(-1);
-			this.state = 110;
+			this.state = 109;
 			this._errHandler.sync(this);
 			_alt = this._interp.adaptivePredict(this._input, 8, this._ctx);
 			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
@@ -498,7 +508,7 @@ export default class ReksioLangParser extends Parser {
 					}
 					_prevctx = localctx;
 					{
-					this.state = 108;
+					this.state = 107;
 					this._errHandler.sync(this);
 					switch ( this._interp.adaptivePredict(this._input, 7, this._ctx) ) {
 					case 1:
@@ -506,13 +516,13 @@ export default class ReksioLangParser extends Parser {
 						localctx = new OperationContext(this, _parentctx, _parentState);
 						localctx._left = _prevctx;
 						this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-						this.state = 93;
+						this.state = 92;
 						if (!(this.precpred(this._ctx, 6))) {
 							throw this.createFailedPredicateException("this.precpred(this._ctx, 6)");
 						}
-						this.state = 94;
+						this.state = 93;
 						localctx._operator = this.match(ReksioLangParser.ADD);
-						this.state = 95;
+						this.state = 94;
 						localctx._right = this.operation(7);
 						}
 						break;
@@ -521,13 +531,13 @@ export default class ReksioLangParser extends Parser {
 						localctx = new OperationContext(this, _parentctx, _parentState);
 						localctx._left = _prevctx;
 						this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-						this.state = 96;
+						this.state = 95;
 						if (!(this.precpred(this._ctx, 5))) {
 							throw this.createFailedPredicateException("this.precpred(this._ctx, 5)");
 						}
-						this.state = 97;
+						this.state = 96;
 						localctx._operator = this.match(ReksioLangParser.SUB);
-						this.state = 98;
+						this.state = 97;
 						localctx._right = this.operation(6);
 						}
 						break;
@@ -536,13 +546,13 @@ export default class ReksioLangParser extends Parser {
 						localctx = new OperationContext(this, _parentctx, _parentState);
 						localctx._left = _prevctx;
 						this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-						this.state = 99;
+						this.state = 98;
 						if (!(this.precpred(this._ctx, 4))) {
 							throw this.createFailedPredicateException("this.precpred(this._ctx, 4)");
 						}
-						this.state = 100;
+						this.state = 99;
 						localctx._operator = this.match(ReksioLangParser.MUL);
-						this.state = 101;
+						this.state = 100;
 						localctx._right = this.operation(5);
 						}
 						break;
@@ -551,13 +561,13 @@ export default class ReksioLangParser extends Parser {
 						localctx = new OperationContext(this, _parentctx, _parentState);
 						localctx._left = _prevctx;
 						this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-						this.state = 102;
+						this.state = 101;
 						if (!(this.precpred(this._ctx, 3))) {
 							throw this.createFailedPredicateException("this.precpred(this._ctx, 3)");
 						}
-						this.state = 103;
+						this.state = 102;
 						localctx._operator = this.match(ReksioLangParser.MOD);
-						this.state = 104;
+						this.state = 103;
 						localctx._right = this.operation(4);
 						}
 						break;
@@ -566,20 +576,20 @@ export default class ReksioLangParser extends Parser {
 						localctx = new OperationContext(this, _parentctx, _parentState);
 						localctx._left = _prevctx;
 						this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-						this.state = 105;
+						this.state = 104;
 						if (!(this.precpred(this._ctx, 2))) {
 							throw this.createFailedPredicateException("this.precpred(this._ctx, 2)");
 						}
-						this.state = 106;
+						this.state = 105;
 						localctx._operator = this.match(ReksioLangParser.DIV);
-						this.state = 107;
+						this.state = 106;
 						localctx._right = this.operation(3);
 						}
 						break;
 					}
 					}
 				}
-				this.state = 112;
+				this.state = 111;
 				this._errHandler.sync(this);
 				_alt = this._interp.adaptivePredict(this._input, 8, this._ctx);
 			}
@@ -606,7 +616,7 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 113;
+			this.state = 112;
 			this.match(ReksioLangParser.COMMENT_START);
 			}
 		}
@@ -629,22 +639,22 @@ export default class ReksioLangParser extends Parser {
 		let localctx: NumberContext = new NumberContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 22, ReksioLangParser.RULE_number);
 		try {
-			this.state = 118;
+			this.state = 117;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
 			case 14:
 				this.enterOuterAlt(localctx, 1);
 				{
-				this.state = 115;
+				this.state = 114;
 				this.match(ReksioLangParser.SUB);
-				this.state = 116;
+				this.state = 115;
 				this.match(ReksioLangParser.NUMBER);
 				}
 				break;
 			case 9:
 				this.enterOuterAlt(localctx, 2);
 				{
-				this.state = 117;
+				this.state = 116;
 				this.match(ReksioLangParser.NUMBER);
 				}
 				break;
@@ -674,7 +684,7 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 120;
+			this.state = 119;
 			_la = this._input.LA(1);
 			if(!(_la===6 || _la===7)) {
 			this._errHandler.recoverInline(this);
@@ -707,7 +717,7 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 122;
+			this.state = 121;
 			_la = this._input.LA(1);
 			if(!(_la===10 || _la===11)) {
 			this._errHandler.recoverInline(this);
@@ -739,7 +749,7 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 124;
+			this.state = 123;
 			this.match(ReksioLangParser.IDENTIFIER);
 			}
 		}
@@ -781,44 +791,43 @@ export default class ReksioLangParser extends Parser {
 		return true;
 	}
 
-	public static readonly _serializedATN: number[] = [4,1,20,127,2,0,7,0,2,
+	public static readonly _serializedATN: number[] = [4,1,21,126,2,0,7,0,2,
 	1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,
 	10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,14,1,0,3,0,32,8,0,1,0,1,0,
-	1,0,1,0,1,0,1,0,1,0,3,0,41,8,0,1,1,1,1,1,2,1,2,1,2,5,2,48,8,2,10,2,12,2,
-	51,9,2,1,2,3,2,54,8,2,1,2,1,2,1,3,1,3,1,3,1,3,1,3,3,3,63,8,3,1,3,1,3,1,
-	4,1,4,1,5,1,5,1,6,1,6,1,6,5,6,74,8,6,10,6,12,6,77,9,6,1,7,1,7,1,7,1,7,3,
-	7,83,8,7,1,7,1,7,1,8,1,8,1,8,1,8,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,
-	9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,5,9,109,8,9,10,9,12,9,112,9,9,1,10,1,
-	10,1,11,1,11,1,11,3,11,119,8,11,1,12,1,12,1,13,1,13,1,14,1,14,1,14,0,1,
-	18,15,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,0,2,1,0,6,7,1,0,10,11,129,
-	0,31,1,0,0,0,2,42,1,0,0,0,4,44,1,0,0,0,6,57,1,0,0,0,8,66,1,0,0,0,10,68,
-	1,0,0,0,12,70,1,0,0,0,14,78,1,0,0,0,16,86,1,0,0,0,18,90,1,0,0,0,20,113,
-	1,0,0,0,22,118,1,0,0,0,24,120,1,0,0,0,26,122,1,0,0,0,28,124,1,0,0,0,30,
-	32,3,20,10,0,31,30,1,0,0,0,31,32,1,0,0,0,32,40,1,0,0,0,33,41,3,26,13,0,
-	34,41,3,22,11,0,35,41,3,24,12,0,36,41,3,28,14,0,37,41,3,14,7,0,38,41,3,
-	6,3,0,39,41,3,16,8,0,40,33,1,0,0,0,40,34,1,0,0,0,40,35,1,0,0,0,40,36,1,
-	0,0,0,40,37,1,0,0,0,40,38,1,0,0,0,40,39,1,0,0,0,41,1,1,0,0,0,42,43,3,0,
-	0,0,43,3,1,0,0,0,44,49,3,2,1,0,45,46,5,19,0,0,46,48,3,2,1,0,47,45,1,0,0,
-	0,48,51,1,0,0,0,49,47,1,0,0,0,49,50,1,0,0,0,50,53,1,0,0,0,51,49,1,0,0,0,
-	52,54,5,19,0,0,53,52,1,0,0,0,53,54,1,0,0,0,54,55,1,0,0,0,55,56,5,0,0,1,
-	56,5,1,0,0,0,57,58,3,8,4,0,58,59,5,18,0,0,59,60,3,10,5,0,60,62,5,1,0,0,
-	61,63,3,12,6,0,62,61,1,0,0,0,62,63,1,0,0,0,63,64,1,0,0,0,64,65,5,2,0,0,
-	65,7,1,0,0,0,66,67,5,8,0,0,67,9,1,0,0,0,68,69,5,8,0,0,69,11,1,0,0,0,70,
-	75,3,0,0,0,71,72,5,3,0,0,72,74,3,0,0,0,73,71,1,0,0,0,74,77,1,0,0,0,75,73,
-	1,0,0,0,75,76,1,0,0,0,76,13,1,0,0,0,77,75,1,0,0,0,78,79,5,17,0,0,79,80,
-	3,10,5,0,80,82,5,1,0,0,81,83,3,12,6,0,82,81,1,0,0,0,82,83,1,0,0,0,83,84,
-	1,0,0,0,84,85,5,2,0,0,85,15,1,0,0,0,86,87,5,4,0,0,87,88,3,18,9,0,88,89,
-	5,5,0,0,89,17,1,0,0,0,90,91,6,9,-1,0,91,92,3,0,0,0,92,110,1,0,0,0,93,94,
-	10,6,0,0,94,95,5,13,0,0,95,109,3,18,9,7,96,97,10,5,0,0,97,98,5,14,0,0,98,
-	109,3,18,9,6,99,100,10,4,0,0,100,101,5,15,0,0,101,109,3,18,9,5,102,103,
-	10,3,0,0,103,104,5,16,0,0,104,109,3,18,9,4,105,106,10,2,0,0,106,107,5,17,
-	0,0,107,109,3,18,9,3,108,93,1,0,0,0,108,96,1,0,0,0,108,99,1,0,0,0,108,102,
-	1,0,0,0,108,105,1,0,0,0,109,112,1,0,0,0,110,108,1,0,0,0,110,111,1,0,0,0,
-	111,19,1,0,0,0,112,110,1,0,0,0,113,114,5,12,0,0,114,21,1,0,0,0,115,116,
-	5,14,0,0,116,119,5,9,0,0,117,119,5,9,0,0,118,115,1,0,0,0,118,117,1,0,0,
-	0,119,23,1,0,0,0,120,121,7,0,0,0,121,25,1,0,0,0,122,123,7,1,0,0,123,27,
-	1,0,0,0,124,125,5,8,0,0,125,29,1,0,0,0,10,31,40,49,53,62,75,82,108,110,
-	118];
+	1,0,1,0,1,0,1,0,1,0,3,0,41,8,0,1,1,1,1,3,1,45,8,1,1,2,1,2,1,2,5,2,50,8,
+	2,10,2,12,2,53,9,2,1,2,1,2,1,3,1,3,1,3,1,3,1,3,3,3,62,8,3,1,3,1,3,1,4,1,
+	4,1,5,1,5,1,6,1,6,1,6,5,6,73,8,6,10,6,12,6,76,9,6,1,7,1,7,1,7,1,7,3,7,82,
+	8,7,1,7,1,7,1,8,1,8,1,8,1,8,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,
+	1,9,1,9,1,9,1,9,1,9,1,9,1,9,5,9,108,8,9,10,9,12,9,111,9,9,1,10,1,10,1,11,
+	1,11,1,11,3,11,118,8,11,1,12,1,12,1,13,1,13,1,14,1,14,1,14,0,1,18,15,0,
+	2,4,6,8,10,12,14,16,18,20,22,24,26,28,0,2,1,0,6,7,1,0,10,11,128,0,31,1,
+	0,0,0,2,44,1,0,0,0,4,51,1,0,0,0,6,56,1,0,0,0,8,65,1,0,0,0,10,67,1,0,0,0,
+	12,69,1,0,0,0,14,77,1,0,0,0,16,85,1,0,0,0,18,89,1,0,0,0,20,112,1,0,0,0,
+	22,117,1,0,0,0,24,119,1,0,0,0,26,121,1,0,0,0,28,123,1,0,0,0,30,32,3,20,
+	10,0,31,30,1,0,0,0,31,32,1,0,0,0,32,40,1,0,0,0,33,41,3,26,13,0,34,41,3,
+	22,11,0,35,41,3,24,12,0,36,41,3,28,14,0,37,41,3,14,7,0,38,41,3,6,3,0,39,
+	41,3,16,8,0,40,33,1,0,0,0,40,34,1,0,0,0,40,35,1,0,0,0,40,36,1,0,0,0,40,
+	37,1,0,0,0,40,38,1,0,0,0,40,39,1,0,0,0,41,1,1,0,0,0,42,45,1,0,0,0,43,45,
+	3,0,0,0,44,42,1,0,0,0,44,43,1,0,0,0,45,3,1,0,0,0,46,47,3,2,1,0,47,48,5,
+	19,0,0,48,50,1,0,0,0,49,46,1,0,0,0,50,53,1,0,0,0,51,49,1,0,0,0,51,52,1,
+	0,0,0,52,54,1,0,0,0,53,51,1,0,0,0,54,55,5,0,0,1,55,5,1,0,0,0,56,57,3,8,
+	4,0,57,58,5,18,0,0,58,59,3,10,5,0,59,61,5,1,0,0,60,62,3,12,6,0,61,60,1,
+	0,0,0,61,62,1,0,0,0,62,63,1,0,0,0,63,64,5,2,0,0,64,7,1,0,0,0,65,66,5,8,
+	0,0,66,9,1,0,0,0,67,68,5,8,0,0,68,11,1,0,0,0,69,74,3,0,0,0,70,71,5,3,0,
+	0,71,73,3,0,0,0,72,70,1,0,0,0,73,76,1,0,0,0,74,72,1,0,0,0,74,75,1,0,0,0,
+	75,13,1,0,0,0,76,74,1,0,0,0,77,78,5,17,0,0,78,79,3,10,5,0,79,81,5,1,0,0,
+	80,82,3,12,6,0,81,80,1,0,0,0,81,82,1,0,0,0,82,83,1,0,0,0,83,84,5,2,0,0,
+	84,15,1,0,0,0,85,86,5,4,0,0,86,87,3,18,9,0,87,88,5,5,0,0,88,17,1,0,0,0,
+	89,90,6,9,-1,0,90,91,3,0,0,0,91,109,1,0,0,0,92,93,10,6,0,0,93,94,5,13,0,
+	0,94,108,3,18,9,7,95,96,10,5,0,0,96,97,5,14,0,0,97,108,3,18,9,6,98,99,10,
+	4,0,0,99,100,5,15,0,0,100,108,3,18,9,5,101,102,10,3,0,0,102,103,5,16,0,
+	0,103,108,3,18,9,4,104,105,10,2,0,0,105,106,5,17,0,0,106,108,3,18,9,3,107,
+	92,1,0,0,0,107,95,1,0,0,0,107,98,1,0,0,0,107,101,1,0,0,0,107,104,1,0,0,
+	0,108,111,1,0,0,0,109,107,1,0,0,0,109,110,1,0,0,0,110,19,1,0,0,0,111,109,
+	1,0,0,0,112,113,5,12,0,0,113,21,1,0,0,0,114,115,5,14,0,0,115,118,5,9,0,
+	0,116,118,5,9,0,0,117,114,1,0,0,0,117,116,1,0,0,0,118,23,1,0,0,0,119,120,
+	7,0,0,0,120,25,1,0,0,0,121,122,7,1,0,0,122,27,1,0,0,0,123,124,5,8,0,0,124,
+	29,1,0,0,0,10,31,40,44,51,61,74,81,107,109,117];
 
 	private static __ATN: ATN;
 	public static get _ATN(): ATN {
@@ -904,14 +913,14 @@ export class StatementListContext extends ParserRuleContext {
 		super(parent, invokingState);
     	this.parser = parser;
 	}
+	public EOF(): TerminalNode {
+		return this.getToken(ReksioLangParser.EOF, 0);
+	}
 	public statement_list(): StatementContext[] {
 		return this.getTypedRuleContexts(StatementContext) as StatementContext[];
 	}
 	public statement(i: number): StatementContext {
 		return this.getTypedRuleContext(StatementContext, i) as StatementContext;
-	}
-	public EOF(): TerminalNode {
-		return this.getToken(ReksioLangParser.EOF, 0);
 	}
 	public STATEMENT_END_list(): TerminalNode[] {
 	    	return this.getTokens(ReksioLangParser.STATEMENT_END);
