@@ -127,10 +127,11 @@ export const callbacks = <K>(subType: FieldTypeEntry) => ({
     },
 })
 
-const createCallback = (value: string) => {
+export const createCallback = (value: string): callback | undefined => {
     if (value.startsWith('{')) {
         return {
             code: value.replace(/^\{|};*$/g, ''),
+            constantArguments: [],
             isSingleStatement: false,
         }
     } else {

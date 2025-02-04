@@ -19,7 +19,7 @@ import antlr4, { ParserRuleContext, RecognitionException, Recognizer, Token } fr
 import { Engine } from '../../engine'
 import { Behaviour } from '../../engine/types/behaviour'
 import { assert, NotImplementedError } from '../../errors'
-import { Compare, ForceNumber } from '../../types'
+import { Compare, ForceNumber, valueAsString } from '../../types'
 import { Type } from '../../engine/types'
 import { String } from '../../engine/types/string'
 import { printStackTrace, StackFrame, stackTrace } from './stacktrace'
@@ -42,9 +42,9 @@ class AlreadyDisplayedError {
 }
 
 export class ScriptEvaluator extends ReksioLangVisitor<any> {
-    private readonly engine?: Engine
+    private readonly engine: Engine
     private readonly args: any[]
-    private readonly script?: string
+    private readonly script: string
     private readonly printDebug: boolean
 
     public lastContext: ParserRuleContext | null = null
@@ -53,20 +53,16 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 
     private globalInstances = new Map<string, any>()
 
-    constructor(engine?: Engine, script?: string, args?: any[], printDebug?: boolean) {
+    constructor(engine: Engine, script: string, args: any[], printDebug: boolean = true) {
         super()
         this.engine = engine
         this.script = script
-        this.args = args ?? []
-        this.printDebug = printDebug ?? true
+        this.args = args
+        this.printDebug = printDebug
         this.loadLibraries()
     }
 
     private loadLibraries() {
-        if (this.engine === undefined) {
-            return
-        }
-
         this.globalInstances.set(
             'RANDOM',
             new Rand(this.engine, null, {
@@ -124,7 +120,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             this.scriptUsedVariables[identifier] = arg
 
             if (typeof arg === 'string') {
-                const object = this.engine?.getObject(arg)
+                const object = this.engine.getObject(arg)
                 if (object !== null && object instanceof String) {
                     return object.value
                 }
@@ -133,7 +129,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
             return this.args[argIdx]
         }
 
-        const object = this.engine?.getObject(identifier)
+        const object = this.engine.getObject(identifier)
         this.methodCallUsedVariables[identifier] = object
         this.scriptUsedVariables[identifier] = object
         if (object === null) {
@@ -261,7 +257,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                         : []),
                     'font-weight: bold',
                     'font-weight: inherit',
-                    this.engine?.scope
+                    this.engine.scope
                 )
                 console.error(err)
                 printStackTrace()
@@ -287,9 +283,9 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 
         if (methodName === 'IF') {
             if (args.length == 5) {
-                const operator = args[1]
-                const left = this.engine?.getObject(args[0].toString())?.value ?? args[0]
-                const right = this.engine?.getObject(args[2].toString())?.value ?? args[2]
+                const [a, operator, b, ifTrue, ifFalse] = args
+                const left = this.engine.getObject(valueAsString(a))?.value ?? a
+                const right = this.engine.getObject(valueAsString(b))?.value ?? b
 
                 let result = false
                 if (operator == '_') {
@@ -306,8 +302,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                     result = Compare.LessOrEqual(left, right)
                 }
 
-                const onTrue: Behaviour | null = this.engine?.getObject(args[3])
-                const onFalse: Behaviour | null = this.engine?.getObject(args[4])
+                const onTrue: Behaviour | null = this.engine.getObject(ifTrue)
+                const onFalse: Behaviour | null = this.engine.getObject(ifFalse)
 
                 if (result && onTrue !== null) {
                     onTrue.RUNC()
@@ -315,9 +311,10 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                     onFalse.RUNC()
                 }
             } else if (args.length == 3) {
-                const result = evaluateExpression(this.engine!, args[0])
-                const onTrue: Behaviour | null = this.engine?.getObject(args[1])
-                const onFalse: Behaviour | null = this.engine?.getObject(args[2])
+                const [expression, ifTrue, ifFalse] = args
+                const result = evaluateExpression(this.engine, expression)
+                const onTrue: Behaviour | null = this.engine.getObject(ifTrue)
+                const onFalse: Behaviour | null = this.engine.getObject(ifFalse)
 
                 if (result && onTrue !== null) {
                     onTrue.RUNC()
@@ -352,7 +349,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
         this.lastContext = ctx
 
         const objectName = this.replaceParameters(ctx.getText())
-        const object = this.engine?.getObject(objectName)
+        const object = this.engine.getObject(objectName)
         this.methodCallUsedVariables[objectName] = object
         this.scriptUsedVariables[objectName] = object
 
@@ -378,7 +375,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
                     this.scriptUsedVariables,
                     'font-weight: bold',
                     'font-weight: inherit',
-                    this.engine?.scope
+                    this.engine.scope
                 )
             }
 
@@ -440,7 +437,7 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 export const runScript = (
     engine: Engine,
     script: string,
-    args?: any[],
+    args: any[] = [],
     singleStatement: boolean = false,
     printDebug = true
 ) => {
@@ -477,7 +474,6 @@ export const runScript = (
     })
 
     const tree = singleStatement ? parser.statement() : parser.statementList()
-
     const evaluator = new ScriptEvaluator(engine, script, args, printDebug)
     try {
         return tree.accept(evaluator)
