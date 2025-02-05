@@ -450,6 +450,9 @@ export const runScript = (
             rewriter.replaceSingle(token, ';')
         } else if (token.type === ReksioLangLexer.TYPO && token.text === '>') {
             rewriter.replaceSingle(token, '^')
+        } else if (token.type === ReksioLangLexer.TYPO_QUOTE) {
+            const nextToken = initialTokens.get(token.tokenIndex + 1)
+            rewriter.replace(token, nextToken, `"${nextToken.text}"`)
         } else if (token.type === ReksioLangLexer.EOF) {
             const prevToken = initialTokens.get(token.tokenIndex - 1)
             if (prevToken.type !== ReksioLangLexer.STATEMENT_END) {
