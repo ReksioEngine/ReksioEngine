@@ -50610,6 +50610,320 @@ module.exports = function getSideChannel() {
 
 /***/ }),
 
+/***/ "./src/common/errors.ts":
+/*!******************************!*\
+  !*** ./src/common/errors.ts ***!
+  \******************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.assert = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.IrrecoverableError = exports.EngineError = void 0;
+class EngineError extends Error {
+    constructor(message, stackTrace = null) {
+        super(message);
+        this.stackTrace = stackTrace;
+    }
+}
+exports.EngineError = EngineError;
+class IrrecoverableError extends EngineError {
+}
+exports.IrrecoverableError = IrrecoverableError;
+class UnexpectedError extends EngineError {
+}
+exports.UnexpectedError = UnexpectedError;
+class InvalidObjectError extends EngineError {
+    constructor(message) {
+        super(message);
+    }
+}
+exports.InvalidObjectError = InvalidObjectError;
+class NotImplementedError extends EngineError {
+    constructor(message) {
+        super(message ?? 'Not implemented');
+    }
+}
+exports.NotImplementedError = NotImplementedError;
+function assert(expr, message) {
+    if (!expr) {
+        throw new UnexpectedError('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''));
+    }
+}
+exports.assert = assert;
+
+
+/***/ }),
+
+/***/ "./src/common/stateMachine.ts":
+/*!************************************!*\
+  !*** ./src/common/stateMachine.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.t = exports.StateMachine = void 0;
+class StateMachine {
+    constructor(initialState, transitions = [], onStateChange) {
+        this.transitions = transitions;
+        this.currentState = initialState;
+        this.onStateChange = onStateChange;
+    }
+    getState() {
+        return this.currentState;
+    }
+    can(event) {
+        return this.transitions.some((transition) => transition.from === this.currentState && transition.event === event);
+    }
+    dispatch(event) {
+        const transition = this.transitions.find((transition) => transition.from === this.currentState && transition.event === event);
+        if (transition === undefined) {
+            throw new Error('No transition found for event from current state');
+        }
+        const previousState = this.currentState;
+        this.currentState = transition.to;
+        this.onStateChange(previousState, event, this.currentState);
+    }
+}
+exports.StateMachine = StateMachine;
+function t(from, event, to) {
+    return {
+        from,
+        event,
+        to,
+    };
+}
+exports.t = t;
+
+
+/***/ }),
+
+/***/ "./src/common/types.ts":
+/*!*****************************!*\
+  !*** ./src/common/types.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.method = exports.InvalidMethodParameter = exports.compareType = exports.isDirectlyConvertible = exports.Compare = exports.ForceNumber = exports.valueAsInteger = exports.valueAsDouble = exports.valueAsBool = exports.valueAsString = void 0;
+const errors_1 = __webpack_require__(/*! ./errors */ "./src/common/errors.ts");
+const valueAsString = (value) => {
+    if (typeof value === 'string') {
+        return value;
+    }
+    if (typeof value === 'boolean') {
+        return value ? 'TRUE' : 'FALSE';
+    }
+    if (value === null) {
+        return 'NULL';
+    }
+    (0, errors_1.assert)(value !== undefined);
+    (0, errors_1.assert)(typeof value !== 'object');
+    return value.toString();
+};
+exports.valueAsString = valueAsString;
+const valueAsBool = (value) => {
+    if (typeof value === 'boolean') {
+        return value;
+    }
+    (0, errors_1.assert)(value.toUpperCase() === 'TRUE' || value.toUpperCase() === 'FALSE');
+    return value.toUpperCase() === 'TRUE';
+};
+exports.valueAsBool = valueAsBool;
+const valueAsDouble = (value) => {
+    if (typeof value === 'number') {
+        return value;
+    }
+    const number = Number(value);
+    (0, errors_1.assert)(!Number.isNaN(number), 'Value is not a number');
+    return number;
+};
+exports.valueAsDouble = valueAsDouble;
+const valueAsInteger = (value) => {
+    if (typeof value === 'number' && Number.isInteger(value)) {
+        return value;
+    }
+    return Math.floor((0, exports.valueAsDouble)(value));
+};
+exports.valueAsInteger = valueAsInteger;
+const ForceNumber = (value) => {
+    const numberValue = Number(value);
+    (0, errors_1.assert)(!isNaN(numberValue), `${value} is not a number`);
+    return numberValue;
+};
+exports.ForceNumber = ForceNumber;
+exports.Compare = {
+    Equal: (a, b) => {
+        return (0, exports.valueAsString)(a).toLowerCase() == (0, exports.valueAsString)(b).toLowerCase();
+    },
+    NotEqual: (a, b) => {
+        return (0, exports.valueAsString)(a).toLowerCase() != (0, exports.valueAsString)(b).toLowerCase();
+    },
+    Less: (a, b) => {
+        return (0, exports.ForceNumber)(a) < (0, exports.ForceNumber)(b);
+    },
+    Greater: (a, b) => {
+        return (0, exports.ForceNumber)(a) > (0, exports.ForceNumber)(b);
+    },
+    LessOrEqual: (a, b) => {
+        return (0, exports.ForceNumber)(a) <= (0, exports.ForceNumber)(b);
+    },
+    GreaterOrEqual: (a, b) => {
+        return (0, exports.ForceNumber)(a) >= (0, exports.ForceNumber)(b);
+    },
+};
+const convertValue = (value, targetType) => {
+    if (Array.isArray(value)) {
+        const newArray = new Array(value.length);
+        for (let i = 0; i < value.length; i++) {
+            newArray[i] = convertValue(value[i], targetType);
+        }
+        return newArray;
+    }
+    switch (targetType) {
+        case 'string':
+            return (0, exports.valueAsString)(value);
+        case 'boolean':
+            return (0, exports.valueAsBool)(value);
+        case 'number':
+            return (0, exports.valueAsDouble)(value);
+        default:
+            return value;
+    }
+};
+const isDirectlyConvertible = (value, type) => {
+    if (type.isArray !== Array.isArray(value)) {
+        return false;
+    }
+    if (type.isArray) {
+        return value.every((entry) => (0, exports.isDirectlyConvertible)(entry, {
+            name: type.name,
+            literal: type.literal,
+            isArray: false,
+        }));
+    }
+    if (type.literal !== null) {
+        return type.literal === convertValue(value, type.name);
+    }
+    switch (type.name) {
+        case 'string':
+            return true;
+        case 'boolean':
+            return (typeof value === 'boolean' ||
+                value.toString().toUpperCase() === 'TRUE' ||
+                value.toString().toUpperCase() === 'FALSE');
+        case 'number':
+            return typeof value === 'number' || !Number.isNaN(Number(value));
+        default:
+            return false;
+    }
+};
+exports.isDirectlyConvertible = isDirectlyConvertible;
+const compareType = (value, expectedType) => {
+    if (expectedType.name === 'any') {
+        return true;
+    }
+    if (expectedType.literal !== null) {
+        return value === expectedType.literal;
+    }
+    const type = typeof value;
+    const isArray = Array.isArray(value);
+    return type === expectedType.name && isArray === expectedType.isArray;
+};
+exports.compareType = compareType;
+class InvalidMethodParameter extends errors_1.UnexpectedError {
+}
+exports.InvalidMethodParameter = InvalidMethodParameter;
+function method(...types) {
+    return (originalMethod, context) => {
+        function typeGuardWrapper(...args) {
+            const newArgs = [...args];
+            for (let i = 0; i < types.length; i++) {
+                const argExpectedTypeInfo = types[i];
+                const subArgsCount = argExpectedTypeInfo.rest ? args.length - i : 1;
+                for (let subArgIdx = i; subArgIdx < i + subArgsCount; subArgIdx++) {
+                    const arg = args[subArgIdx];
+                    const argRealType = typeof arg;
+                    if (arg === undefined) {
+                        if (!argExpectedTypeInfo.optional) {
+                            throw new InvalidMethodParameter(`Non-optional argument "${argExpectedTypeInfo.name}" is undefined`);
+                        }
+                        else {
+                            continue;
+                        }
+                    }
+                    const isExpectedType = argExpectedTypeInfo.types.some((type) => (0, exports.compareType)(arg, type));
+                    const isAnyAllowed = argExpectedTypeInfo.types.some((type) => type.name === 'any');
+                    if (isExpectedType || isAnyAllowed) {
+                        continue;
+                    }
+                    const typesDisplayStrings = argExpectedTypeInfo.types.map((type) => `${type.name}${type.isArray ? '[]' : ''}`);
+                    // We only try to convert when the parameter accepts only one type
+                    if (argExpectedTypeInfo.types.length === 1) {
+                        const firstArgType = argExpectedTypeInfo.types[0];
+                        if (!(0, exports.isDirectlyConvertible)(arg, firstArgType)) {
+                            throw new InvalidMethodParameter([
+                                `Function: ${originalMethod.name}`,
+                                `Type of argument "${argExpectedTypeInfo.name}" does not match the expected type`,
+                                `Expected: ${typesDisplayStrings[0]}`,
+                                `Received: ${argRealType}`,
+                            ].join('\n'));
+                        }
+                        const convertedValue = convertValue(args[subArgIdx], firstArgType.name);
+                        if (firstArgType.literal !== null && firstArgType.literal !== convertedValue) {
+                            throw new InvalidMethodParameter([
+                                `Function: ${originalMethod.name}`,
+                                `Argument "${arg}" does not match literal "${firstArgType.literal}"`,
+                            ].join('\n'));
+                        }
+                        newArgs[subArgIdx] = convertedValue;
+                        continue;
+                    }
+                    // Otherwise we just check if it could be converted to any of the accepted types
+                    const anyTypeMatches = argExpectedTypeInfo.types.some((type) => (0, exports.isDirectlyConvertible)(arg, type));
+                    if (!anyTypeMatches) {
+                        throw new InvalidMethodParameter([
+                            `Function: ${originalMethod.name}`,
+                            `Type of argument "${argExpectedTypeInfo.name}" does not match any of the possible types`,
+                            `Expected: ${typesDisplayStrings.join(' or ')}`,
+                            `Received: ${argRealType}`,
+                        ].join('\n'));
+                    }
+                }
+            }
+            return originalMethod.call(this, ...newArgs);
+        }
+        return typeGuardWrapper;
+    };
+}
+exports.method = method;
+
+
+/***/ }),
+
+/***/ "./src/common/utils.ts":
+/*!*****************************!*\
+  !*** ./src/common/utils.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.pathJoin = void 0;
+const pathJoin = (...parts) => {
+    const fixedParts = parts.map((part) => part.replace(/\\/g, '/'));
+    return fixedParts.join('/');
+};
+exports.pathJoin = pathJoin;
+
+
+/***/ }),
+
 /***/ "./src/engine/assetsLoader.ts":
 /*!************************************!*\
   !*** ./src/engine/assetsLoader.ts ***!
@@ -50685,7 +50999,7 @@ exports.loadTexture = loadTexture;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ButtonLogicComponent = exports.Event = exports.State = void 0;
-const stateMachine_1 = __webpack_require__(/*! ../../stateMachine */ "./src/stateMachine.ts");
+const stateMachine_1 = __webpack_require__(/*! ../../common/stateMachine */ "./src/common/stateMachine.ts");
 var State;
 (function (State) {
     State["INIT"] = "INIT";
@@ -50808,8 +51122,8 @@ exports.ButtonLogicComponent = ButtonLogicComponent;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CallbacksComponent = void 0;
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const evaluator_1 = __webpack_require__(/*! ../../interpreter/script/evaluator */ "./src/interpreter/script/evaluator.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
 const stacktrace_1 = __webpack_require__(/*! ../../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const types_1 = __webpack_require__(/*! ../../fileFormats/cnv/types */ "./src/fileFormats/cnv/types.ts");
 class CallbacksComponent {
@@ -50876,7 +51190,7 @@ class CallbacksComponent {
             }
         }
         catch (err) {
-            if (!(err instanceof evaluator_1.InterruptScriptExecution)) {
+            if (!(err instanceof script_1.InterruptScriptExecution)) {
                 throw err;
             }
         }
@@ -51016,18 +51330,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Debugging = void 0;
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const filesLoader_1 = __webpack_require__(/*! ./filesLoader */ "./src/engine/filesLoader.ts");
-const utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/animo.ts");
 const parser_1 = __webpack_require__(/*! ../fileFormats/cnv/parser */ "./src/fileFormats/cnv/parser.ts");
 const definitionLoader_1 = __webpack_require__(/*! ./definitionLoader */ "./src/engine/definitionLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
-const errors_1 = __webpack_require__(/*! ../errors */ "./src/errors.ts");
+const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
+const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
 class Debugging {
     constructor(engine, isDebug) {
         this.isDebug = false;
         this.nextSceneOverwrite = null;
+        this.muteMusic = false;
         this.xrays = new Map();
         this.enableXRay = false;
         this.enableXRayInvisible = false;
@@ -51089,6 +51404,7 @@ class Debugging {
         const importSave = document.querySelector('#importSave');
         const exportSave = document.querySelector('#exportSave');
         const enableSaveFiles = document.querySelector('#enableSaveFiles');
+        const muteMusic = document.querySelector('#muteMusic');
         const setSpeed = (speed) => {
             this.engine.speed = speed;
             sound_1.sound.speedAll = speed;
@@ -51116,6 +51432,13 @@ class Debugging {
                 speedSlider.max = 1.9;
                 speedSlider.value = 1;
                 setSpeed(1);
+            }
+        });
+        muteMusic.addEventListener('change', (e) => {
+            const target = e.target;
+            this.muteMusic = target.checked;
+            if (this.engine.music !== null) {
+                this.engine.music.muted = target.checked;
             }
         });
         xray.addEventListener('change', (e) => {
@@ -51279,7 +51602,7 @@ class Debugging {
                 }
             }
             const drawRect = new pixi_js_1.Rectangle(info.bounds.x, info.bounds.y, info.bounds.width, info.bounds.height);
-            (0, utils_1.drawRectangle)(graphics, drawRect, 0, 0, 1, info.color ?? (info.visible ? 0xff00ff : 0xc0c0c0));
+            (0, rendering_1.drawRectangle)(graphics, drawRect, 0, 0, 1, info.color ?? (info.visible ? 0xff00ff : 0xc0c0c0));
             nameText.style = {
                 fontSize: info.position === 'outside' ? 7 : 11,
                 fontWeight: 'bold',
@@ -51611,20 +51934,20 @@ exports.ArchiveOrgFileLoader = ArchiveOrgFileLoader;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Engine = void 0;
-const evaluator_1 = __webpack_require__(/*! ../interpreter/script/evaluator */ "./src/interpreter/script/evaluator.ts");
+const script_1 = __webpack_require__(/*! ../interpreter/script */ "./src/interpreter/script/index.ts");
 const definitionLoader_1 = __webpack_require__(/*! ./definitionLoader */ "./src/engine/definitionLoader.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const filesLoader_1 = __webpack_require__(/*! ./filesLoader */ "./src/engine/filesLoader.ts");
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const assetsLoader_1 = __webpack_require__(/*! ./assetsLoader */ "./src/engine/assetsLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
-const utils_1 = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 const optimizations_1 = __webpack_require__(/*! ./optimizations */ "./src/engine/optimizations.ts");
 const debugging_1 = __webpack_require__(/*! ./debugging */ "./src/engine/debugging.ts");
 const timer_1 = __webpack_require__(/*! ./types/timer */ "./src/engine/types/timer.ts");
-const errors_1 = __webpack_require__(/*! ../errors */ "./src/errors.ts");
+const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const devtools_1 = __webpack_require__(/*! @pixi/devtools */ "./node_modules/@pixi/devtools/dist/index.cjs");
+const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
 class Engine {
     constructor(app) {
         this.speed = 1;
@@ -51637,7 +51960,7 @@ class Engine {
         this.music = null;
         this.app = app;
         this.debug = new debugging_1.Debugging(this, true);
-        this.blackTexture = (0, utils_1.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0);
+        this.blackTexture = (0, rendering_1.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0);
         this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
         this.canvasBackground.zIndex = -99999;
         this.canvasBackground.name = 'Scene Background'; // For PIXI Devtools
@@ -51691,7 +52014,7 @@ class Engine {
         let stackFrame = null;
         try {
             if (callback.code) {
-                return (0, evaluator_1.runScript)(this, callback.code, args, callback.isSingleStatement);
+                return (0, script_1.runScript)(this, callback.code, args, callback.isSingleStatement);
             }
             else if (callback.behaviourReference) {
                 if (!this.scope[callback.behaviourReference]) {
@@ -51717,7 +52040,7 @@ class Engine {
         }
     }
     runScript(code, args, isSingleStatement, printDebug) {
-        return (0, evaluator_1.runScript)(this, code, args, isSingleStatement, printDebug);
+        return (0, script_1.runScript)(this, code, args, isSingleStatement, printDebug);
     }
     addToStage(sprite) {
         this.app.stage.addChild(sprite);
@@ -51785,6 +52108,9 @@ class Engine {
                 loop: true,
             });
             this.music.play();
+            if (this.debug.muteMusic) {
+                this.music.muted = true;
+            }
         }
         // Wait for assets to load
         if (this.fileLoader instanceof filesLoader_1.UrlFileLoader) {
@@ -51866,9 +52192,9 @@ exports.preloadAssets = preloadAssets;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createHitmapFromImageBytes = exports.AdvancedSprite = void 0;
+exports.createColorTexture = exports.drawRectangle = exports.createHitmapFromImageBytes = exports.AdvancedSprite = void 0;
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
-const errors_1 = __webpack_require__(/*! ../errors */ "./src/errors.ts");
+const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 class AdvancedSprite extends pixi_js_1.Sprite {
     constructor() {
         super(...arguments);
@@ -51908,6 +52234,20 @@ const createHitmapFromImageBytes = (bytes) => {
     return hitmap;
 };
 exports.createHitmapFromImageBytes = createHitmapFromImageBytes;
+const drawRectangle = (graphics, dimensions, color, alpha, borderWidth, borderColor) => {
+    graphics.beginFill(color, alpha);
+    if (borderWidth !== undefined && borderWidth > 0) {
+        graphics.lineStyle(borderWidth, borderColor ?? 0xffa500);
+    }
+    graphics.drawRect(dimensions.x, dimensions.y, dimensions.width, dimensions.height);
+};
+exports.drawRectangle = drawRectangle;
+const createColorTexture = (app, dimensions, color, alpha) => {
+    const graphics = new pixi_js_1.Graphics();
+    (0, exports.drawRectangle)(graphics, dimensions, color, alpha);
+    return app.renderer.generateTexture(graphics);
+};
+exports.createColorTexture = createColorTexture;
 
 
 /***/ }),
@@ -52080,14 +52420,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Animo = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/components/button.ts");
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
 const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const collisions_1 = __webpack_require__(/*! ../components/collisions */ "./src/engine/components/collisions.ts");
 let Animo = (() => {
     var _a;
@@ -52741,11 +53081,11 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Application = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const utils_1 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
+const utils_1 = __webpack_require__(/*! ../../common/utils */ "./src/common/utils.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const langCodeMapping = {
     '0415': 'POL',
     '040E': 'HUN',
@@ -52864,8 +53204,8 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ArrayObject = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const generateMessage = (action, position, value) => {
     return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`;
 };
@@ -53073,8 +53413,8 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Behaviour = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const evaluator_1 = __webpack_require__(/*! ../../interpreter/script/evaluator */ "./src/interpreter/script/evaluator.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Behaviour = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -53094,7 +53434,7 @@ let Behaviour = (() => {
                     return this.engine.executeCallback(null, this.definition.CODE, args);
                 }
                 catch (err) {
-                    if (!(err instanceof evaluator_1.InterruptScriptExecution)) {
+                    if (!(err instanceof script_1.InterruptScriptExecution)) {
                         throw err;
                     }
                 }
@@ -53114,7 +53454,7 @@ let Behaviour = (() => {
                         }
                     }
                     catch (err) {
-                        if (err instanceof evaluator_1.InterruptScriptExecution) {
+                        if (err instanceof script_1.InterruptScriptExecution) {
                             if (err.one) {
                                 continue;
                             }
@@ -53209,7 +53549,7 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Bool = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Bool = (() => {
     var _a;
     let _classSuper = index_1.ValueType;
@@ -53297,8 +53637,8 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const image_1 = __webpack_require__(/*! ./image */ "./src/engine/types/image.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/components/button.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Button = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -53593,7 +53933,7 @@ exports.CanvasObserver = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
 let CanvasObserver = (() => {
     var _a;
@@ -53714,8 +54054,8 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CNVLoader = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let CNVLoader = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -53788,8 +54128,8 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ComplexCondition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const evaluator_1 = __webpack_require__(/*! ../../interpreter/script/evaluator */ "./src/interpreter/script/evaluator.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let ComplexCondition = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -53801,13 +54141,13 @@ let ComplexCondition = (() => {
             // In loops its like 'break'
             BREAK(arg) {
                 if (this.CHECK(arg)) {
-                    throw new evaluator_1.InterruptScriptExecution(false);
+                    throw new script_1.InterruptScriptExecution(false);
                 }
             }
             // In loops its like 'continue'
             ONE_BREAK(arg) {
                 if (this.CHECK(arg)) {
-                    throw new evaluator_1.InterruptScriptExecution(true);
+                    throw new script_1.InterruptScriptExecution(true);
                 }
             }
             CHECK(arg) {
@@ -53897,9 +54237,9 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Condition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const evaluator_1 = __webpack_require__(/*! ../../interpreter/script/evaluator */ "./src/interpreter/script/evaluator.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 let Condition = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -53912,14 +54252,14 @@ let Condition = (() => {
             // In loops its like 'break'
             BREAK(arg) {
                 if (this.CHECK(arg)) {
-                    throw new evaluator_1.InterruptScriptExecution(false);
+                    throw new script_1.InterruptScriptExecution(false);
                 }
             }
             // arg is always true in ReksioIUfo
             // In loops its like 'continue'
             ONE_BREAK(arg) {
                 if (this.CHECK(arg)) {
-                    throw new evaluator_1.InterruptScriptExecution(true);
+                    throw new script_1.InterruptScriptExecution(true);
                 }
             }
             CHECK(shouldSignal) {
@@ -54034,7 +54374,7 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Double = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const radianMultiplier = Math.PI / 180;
 let Double = (() => {
     var _a;
@@ -54168,11 +54508,11 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Episode = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const utils_1 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const utils_1 = __webpack_require__(/*! ../../common/utils */ "./src/common/utils.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Episode = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -54246,7 +54586,7 @@ exports.Episode = Episode;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Expression = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 class Expression extends index_1.ValueType {
     get value() {
         const operand1 = this.engine.executeCallback(this, this.definition.OPERAND1);
@@ -54360,7 +54700,7 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Group = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Group = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -54461,10 +54801,10 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Image = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Image = (() => {
     var _a;
     let _classSuper = index_1.DisplayType;
@@ -54613,9 +54953,9 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ValueType = exports.DisplayType = exports.Type = void 0;
 const callbacks_1 = __webpack_require__(/*! ../components/callbacks */ "./src/engine/components/callbacks.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const events_1 = __webpack_require__(/*! ../components/events */ "./src/engine/components/events.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Type = (() => {
     var _a;
     let _instanceExtraInitializers = [];
@@ -54847,7 +55187,7 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Integer = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Integer = (() => {
     var _a;
     let _classSuper = index_1.ValueType;
@@ -55020,7 +55360,7 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Keyboard = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const keysMapping = {
     ArrowLeft: 'LEFT',
     ArrowRight: 'RIGHT',
@@ -55142,8 +55482,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Mouse = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const keysMapping = new Map([
     [0, 'LEFT'],
     [1, 'MIDDLE'],
@@ -55325,8 +55665,8 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MultiArray = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let MultiArray = (() => {
     var _a;
     let _classSuper = index_1.ValueType;
@@ -55435,7 +55775,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Rand = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Rand = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -55526,9 +55866,9 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Scene = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const utils_1 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const utils_1 = __webpack_require__(/*! ../../common/utils */ "./src/common/utils.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Scene = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -55645,11 +55985,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Sequence = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts");
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~';
 let Sequence = (() => {
     var _a;
@@ -55988,8 +56328,8 @@ exports.Sound = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
 const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Sound = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -56144,7 +56484,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.StaticFilter = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let StaticFilter = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -56249,7 +56589,7 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.String = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let String = (() => {
     var _a;
     let _classSuper = index_1.ValueType;
@@ -56349,7 +56689,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.System = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let System = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -56447,7 +56787,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Text = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Text = (() => {
     var _a;
     let _classSuper = index_1.DisplayType;
@@ -56534,7 +56874,7 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Timer = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Timer = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -56661,8 +57001,8 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Vector = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Vector = (() => {
     var _a;
     let _classSuper = index_1.ValueType;
@@ -56743,66 +57083,6 @@ exports.Vector = Vector;
 
 /***/ }),
 
-/***/ "./src/errors.ts":
-/*!***********************!*\
-  !*** ./src/errors.ts ***!
-  \***********************/
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.assert = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.ParserError = exports.LexerError = exports.InterpreterError = exports.IrrecoverableError = exports.EngineError = void 0;
-class EngineError extends Error {
-    constructor(message, stackTrace = null) {
-        super(message);
-        this.stackTrace = stackTrace;
-    }
-}
-exports.EngineError = EngineError;
-class IrrecoverableError extends EngineError {
-}
-exports.IrrecoverableError = IrrecoverableError;
-class InterpreterError extends IrrecoverableError {
-    constructor(message, script, line, column, stackTrace) {
-        super(message + ` at ${line}:${column}\n${script}`, stackTrace);
-        this.script = script;
-        this.line = line;
-        this.column = column;
-    }
-}
-exports.InterpreterError = InterpreterError;
-class LexerError extends InterpreterError {
-}
-exports.LexerError = LexerError;
-class ParserError extends InterpreterError {
-}
-exports.ParserError = ParserError;
-class UnexpectedError extends Error {
-}
-exports.UnexpectedError = UnexpectedError;
-class InvalidObjectError extends Error {
-    constructor(message) {
-        super(message);
-    }
-}
-exports.InvalidObjectError = InvalidObjectError;
-class NotImplementedError extends Error {
-    constructor() {
-        super('Not implemented');
-    }
-}
-exports.NotImplementedError = NotImplementedError;
-function assert(expr, message) {
-    if (!expr) {
-        throw new UnexpectedError('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''));
-    }
-}
-exports.assert = assert;
-
-
-/***/ }),
-
 /***/ "./src/fileFormats/ann/index.ts":
 /*!**************************************!*\
   !*** ./src/fileFormats/ann/index.ts ***!
@@ -56816,7 +57096,6 @@ exports.loadAnn = void 0;
 const utils_1 = __webpack_require__(/*! ../utils */ "./src/fileFormats/utils.ts");
 const img_1 = __webpack_require__(/*! ../img */ "./src/fileFormats/img/index.ts");
 const compression_1 = __webpack_require__(/*! ../compression */ "./src/fileFormats/compression/index.ts");
-const utils_2 = __webpack_require__(/*! ../../utils */ "./src/utils.ts");
 const decoder = new TextDecoder();
 const parseHeader = (view) => {
     const magic = view.getUint32();
@@ -56851,10 +57130,10 @@ const parseFrame = (view) => {
     frame.transparency = view.getUint8();
     view.skip(5);
     const nameSize = view.getUint32();
-    frame.name = (0, utils_2.stringUntilNull)(decoder.decode(view.read(nameSize)));
+    frame.name = (0, utils_1.stringUntilNull)(decoder.decode(view.read(nameSize)));
     if (frame.hasSounds != 0) {
         const soundsLen = view.getUint32();
-        frame.sounds = (0, utils_2.stringUntilNull)(decoder.decode(view.read(soundsLen)))
+        frame.sounds = (0, utils_1.stringUntilNull)(decoder.decode(view.read(soundsLen)))
             .split(';')
             .filter((x) => x.trim() !== '');
     }
@@ -56862,7 +57141,7 @@ const parseFrame = (view) => {
 };
 const parseEvent = (view) => {
     const event = {};
-    event.name = (0, utils_2.stringUntilNull)(decoder.decode(view.read(0x20)));
+    event.name = (0, utils_1.stringUntilNull)(decoder.decode(view.read(0x20)));
     event.framesCount = view.getUint16();
     view.skip(0x6);
     event.loopAfterFrame = view.getUint32();
@@ -56891,7 +57170,7 @@ const parseAnnImage = (view) => {
     view.read(someDataLen); // some data, the size is for data here
     view.skip(12 - someDataLen);
     img.alphaLen = view.getUint32();
-    img.name = (0, utils_2.stringUntilNull)(decoder.decode(view.read(0x14)));
+    img.name = (0, utils_1.stringUntilNull)(decoder.decode(view.read(0x14)));
     return img;
 };
 const loadAnn = (data) => {
@@ -57032,6 +57311,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseCNV = void 0;
 const types_1 = __webpack_require__(/*! ./types */ "./src/fileFormats/cnv/types.ts");
 const common_1 = __webpack_require__(/*! ../common */ "./src/fileFormats/common/index.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const splitOnce = (text, separator) => {
     const index = text.indexOf(separator);
     return [text.substring(0, index), text.substring(index + 1)];
@@ -57066,6 +57346,9 @@ const parseCNV = (content) => {
             const object = objects[objectName];
             if (object === undefined) {
                 continue;
+            }
+            if (variableName !== 'TYPE' && !Object.prototype.hasOwnProperty.call(types_1.structureDefinitions, object.TYPE)) {
+                throw new errors_1.NotImplementedError(`Objects of type ${object.TYPE} are not supported`);
             }
             const definition = types_1.structureDefinitions[object.TYPE];
             if (definition && variableName in definition) {
@@ -57403,7 +57686,7 @@ exports.structureDefinitions = {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createCallback = exports.callbacks = exports.map = exports.array = exports.reference = exports.code = exports.callback = exports.boolean = exports.number = exports.string = exports.optional = exports.FieldProcessorRecoverableError = void 0;
-const evaluator_1 = __webpack_require__(/*! ../../interpreter/constArgs/evaluator */ "./src/interpreter/constArgs/evaluator.ts");
+const constArgs_1 = __webpack_require__(/*! ../../interpreter/constArgs */ "./src/interpreter/constArgs/index.ts");
 class FieldProcessorRecoverableError extends Error {
 }
 exports.FieldProcessorRecoverableError = FieldProcessorRecoverableError;
@@ -57526,7 +57809,7 @@ const createCallback = (value) => {
         const groups = argParsed?.groups;
         if (groups) {
             const name = groups['name'];
-            const args = groups['args'] ? (0, evaluator_1.parseConstantArgs)(groups['args']) : [];
+            const args = groups['args'] ? (0, constArgs_1.parseConstantArgs)(groups['args']) : [];
             return {
                 behaviourReference: name,
                 constantArguments: args,
@@ -57872,7 +58155,7 @@ const decompressImageData = (buffer, descriptor) => {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.structureDefinitions = exports.parseSequence = void 0;
 const common_1 = __webpack_require__(/*! ../common */ "./src/fileFormats/common/index.ts");
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const parseSequence = (content) => {
     const lines = content.split('\n');
     const objectsMap = new Map();
@@ -57940,7 +58223,7 @@ exports.structureDefinitions = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.BinaryBuffer = void 0;
+exports.stringUntilNull = exports.BinaryBuffer = void 0;
 class BinaryBuffer {
     constructor(view) {
         this.offset = 0;
@@ -58104,6 +58387,10 @@ class BinaryBuffer {
     }
 }
 exports.BinaryBuffer = BinaryBuffer;
+const stringUntilNull = (text) => {
+    return text.substring(0, text.indexOf('\x00'));
+};
+exports.stringUntilNull = stringUntilNull;
 
 
 /***/ }),
@@ -58153,10 +58440,10 @@ main();
 
 /***/ }),
 
-/***/ "./src/interpreter/constArgs/evaluator.ts":
-/*!************************************************!*\
-  !*** ./src/interpreter/constArgs/evaluator.ts ***!
-  \************************************************/
+/***/ "./src/interpreter/constArgs/index.ts":
+/*!********************************************!*\
+  !*** ./src/interpreter/constArgs/index.ts ***!
+  \********************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -58170,7 +58457,7 @@ const ReksioLangParser_1 = __importDefault(__webpack_require__(/*! ../script/Rek
 const ReksioLangLexer_1 = __importDefault(__webpack_require__(/*! ../script/ReksioLangLexer */ "./src/interpreter/script/ReksioLangLexer.ts"));
 const antlr4_1 = __importDefault(__webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs"));
 const ReksioLangParserVisitor_1 = __importDefault(__webpack_require__(/*! ../script/ReksioLangParserVisitor */ "./src/interpreter/script/ReksioLangParserVisitor.ts"));
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 class ConstantArgsEvaluator extends ReksioLangParserVisitor_1.default {
     constructor() {
         super(...arguments);
@@ -59006,10 +59293,10 @@ exports["default"] = ReksioIFExpressionVisitor;
 
 /***/ }),
 
-/***/ "./src/interpreter/ifExpression/evaluator.ts":
-/*!***************************************************!*\
-  !*** ./src/interpreter/ifExpression/evaluator.ts ***!
-  \***************************************************/
+/***/ "./src/interpreter/ifExpression/index.ts":
+/*!***********************************************!*\
+  !*** ./src/interpreter/ifExpression/index.ts ***!
+  \***********************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -59023,7 +59310,7 @@ const ReksioIFExpressionVisitor_1 = __importDefault(__webpack_require__(/*! ./Re
 const antlr4_1 = __importDefault(__webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs"));
 const ReksioIFExpressionParser_1 = __importDefault(__webpack_require__(/*! ./ReksioIFExpressionParser */ "./src/interpreter/ifExpression/ReksioIFExpressionParser.ts"));
 const ReksioIFExpressionLexer_1 = __importDefault(__webpack_require__(/*! ./ReksioIFExpressionLexer */ "./src/interpreter/ifExpression/ReksioIFExpressionLexer.ts"));
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 class ExpressionEvaluator extends ReksioIFExpressionVisitor_1.default {
     constructor(engine) {
         super();
@@ -60584,10 +60871,10 @@ exports["default"] = ReksioLangParserVisitor;
 
 /***/ }),
 
-/***/ "./src/interpreter/script/evaluator.ts":
-/*!*********************************************!*\
-  !*** ./src/interpreter/script/evaluator.ts ***!
-  \*********************************************/
+/***/ "./src/interpreter/script/index.ts":
+/*!*****************************************!*\
+  !*** ./src/interpreter/script/index.ts ***!
+  \*****************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -60601,12 +60888,12 @@ const ReksioLangParserVisitor_1 = __importDefault(__webpack_require__(/*! ./Reks
 const ReksioLangParser_1 = __importDefault(__webpack_require__(/*! ./ReksioLangParser */ "./src/interpreter/script/ReksioLangParser.ts"));
 const ReksioLangLexer_1 = __importDefault(__webpack_require__(/*! ./ReksioLangLexer */ "./src/interpreter/script/ReksioLangLexer.ts"));
 const antlr4_1 = __importDefault(__webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs"));
-const errors_1 = __webpack_require__(/*! ../../errors */ "./src/errors.ts");
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const types_2 = __webpack_require__(/*! ../../engine/types */ "./src/engine/types/index.ts");
 const string_1 = __webpack_require__(/*! ../../engine/types/string */ "./src/engine/types/string.ts");
 const stacktrace_1 = __webpack_require__(/*! ./stacktrace */ "./src/interpreter/script/stacktrace.ts");
-const evaluator_1 = __webpack_require__(/*! ../ifExpression/evaluator */ "./src/interpreter/ifExpression/evaluator.ts");
+const ifExpression_1 = __webpack_require__(/*! ../ifExpression */ "./src/interpreter/ifExpression/index.ts");
 const rand_1 = __webpack_require__(/*! ../../engine/types/rand */ "./src/engine/types/rand.ts");
 const system_1 = __webpack_require__(/*! ../../engine/types/system */ "./src/engine/types/system.ts");
 class InterruptScriptExecution {
@@ -60796,7 +61083,7 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                 }
                 else if (args.length == 3) {
                     const [expression, ifTrue, ifFalse] = args;
-                    const result = (0, evaluator_1.evaluateExpression)(this.engine, expression);
+                    const result = (0, ifExpression_1.evaluateExpression)(this.engine, expression);
                     const onTrue = this.engine.getObject(ifTrue);
                     const onFalse = this.engine.getObject(ifFalse);
                     if (result && onTrue !== null) {
@@ -61002,7 +61289,7 @@ exports.runScript = runScript;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.printStackTrace = exports.generateStackTrace = exports.stackTrace = exports.StackFrame = void 0;
-const types_1 = __webpack_require__(/*! ../../types */ "./src/types.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 class StackFrame {
     constructor() {
         this.type = null;
@@ -61083,297 +61370,14 @@ const generateStackTrace = (stackTraceSource) => {
 };
 exports.generateStackTrace = generateStackTrace;
 const printStackTrace = (stackTraceSource = null) => {
+    const selectedStackTrace = stackTraceSource ?? exports.stackTrace;
+    if (selectedStackTrace.length === 0) {
+        console.error('Stack trace is empty');
+        return;
+    }
     console.error((0, exports.generateStackTrace)(stackTraceSource ?? exports.stackTrace));
 };
 exports.printStackTrace = printStackTrace;
-
-
-/***/ }),
-
-/***/ "./src/stateMachine.ts":
-/*!*****************************!*\
-  !*** ./src/stateMachine.ts ***!
-  \*****************************/
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.t = exports.StateMachine = void 0;
-class StateMachine {
-    constructor(initialState, transitions = [], onStateChange) {
-        this.transitions = transitions;
-        this.currentState = initialState;
-        this.onStateChange = onStateChange;
-    }
-    getState() {
-        return this.currentState;
-    }
-    can(event) {
-        return this.transitions.some((transition) => transition.from === this.currentState && transition.event === event);
-    }
-    dispatch(event) {
-        const transition = this.transitions.find((transition) => transition.from === this.currentState && transition.event === event);
-        if (transition === undefined) {
-            throw new Error('No transition found for event from current state');
-        }
-        const previousState = this.currentState;
-        this.currentState = transition.to;
-        this.onStateChange(previousState, event, this.currentState);
-    }
-}
-exports.StateMachine = StateMachine;
-function t(from, event, to) {
-    return {
-        from,
-        event,
-        to,
-    };
-}
-exports.t = t;
-
-
-/***/ }),
-
-/***/ "./src/types.ts":
-/*!**********************!*\
-  !*** ./src/types.ts ***!
-  \**********************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.method = exports.InvalidMethodParameter = exports.compareType = exports.isDirectlyConvertible = exports.Compare = exports.ForceNumber = exports.valueAsInteger = exports.valueAsDouble = exports.valueAsBool = exports.valueAsString = void 0;
-const errors_1 = __webpack_require__(/*! ./errors */ "./src/errors.ts");
-const valueAsString = (value) => {
-    if (typeof value === 'string') {
-        return value;
-    }
-    if (typeof value === 'boolean') {
-        return value ? 'TRUE' : 'FALSE';
-    }
-    if (value === null) {
-        return 'NULL';
-    }
-    (0, errors_1.assert)(value !== undefined);
-    (0, errors_1.assert)(typeof value !== 'object');
-    return value.toString();
-};
-exports.valueAsString = valueAsString;
-const valueAsBool = (value) => {
-    if (typeof value === 'boolean') {
-        return value;
-    }
-    (0, errors_1.assert)(value.toUpperCase() === 'TRUE' || value.toUpperCase() === 'FALSE');
-    return value.toUpperCase() === 'TRUE';
-};
-exports.valueAsBool = valueAsBool;
-const valueAsDouble = (value) => {
-    if (typeof value === 'number') {
-        return value;
-    }
-    const number = Number(value);
-    (0, errors_1.assert)(!Number.isNaN(number), 'Value is not a number');
-    return number;
-};
-exports.valueAsDouble = valueAsDouble;
-const valueAsInteger = (value) => {
-    if (typeof value === 'number' && Number.isInteger(value)) {
-        return value;
-    }
-    return Math.floor((0, exports.valueAsDouble)(value));
-};
-exports.valueAsInteger = valueAsInteger;
-const ForceNumber = (value) => {
-    const numberValue = Number(value);
-    (0, errors_1.assert)(!isNaN(numberValue), `${value} is not a number`);
-    return numberValue;
-};
-exports.ForceNumber = ForceNumber;
-exports.Compare = {
-    Equal: (a, b) => {
-        return (0, exports.valueAsString)(a).toLowerCase() == (0, exports.valueAsString)(b).toLowerCase();
-    },
-    NotEqual: (a, b) => {
-        return (0, exports.valueAsString)(a).toLowerCase() != (0, exports.valueAsString)(b).toLowerCase();
-    },
-    Less: (a, b) => {
-        return (0, exports.ForceNumber)(a) < (0, exports.ForceNumber)(b);
-    },
-    Greater: (a, b) => {
-        return (0, exports.ForceNumber)(a) > (0, exports.ForceNumber)(b);
-    },
-    LessOrEqual: (a, b) => {
-        return (0, exports.ForceNumber)(a) <= (0, exports.ForceNumber)(b);
-    },
-    GreaterOrEqual: (a, b) => {
-        return (0, exports.ForceNumber)(a) >= (0, exports.ForceNumber)(b);
-    },
-};
-const convertValue = (value, targetType) => {
-    if (Array.isArray(value)) {
-        const newArray = new Array(value.length);
-        for (let i = 0; i < value.length; i++) {
-            newArray[i] = convertValue(value[i], targetType);
-        }
-        return newArray;
-    }
-    switch (targetType) {
-        case 'string':
-            return (0, exports.valueAsString)(value);
-        case 'boolean':
-            return (0, exports.valueAsBool)(value);
-        case 'number':
-            return (0, exports.valueAsDouble)(value);
-        default:
-            return value;
-    }
-};
-const isDirectlyConvertible = (value, type) => {
-    if (type.isArray !== Array.isArray(value)) {
-        return false;
-    }
-    if (type.isArray) {
-        return value.every((entry) => (0, exports.isDirectlyConvertible)(entry, {
-            name: type.name,
-            literal: type.literal,
-            isArray: false,
-        }));
-    }
-    if (type.literal !== null) {
-        return type.literal === convertValue(value, type.name);
-    }
-    switch (type.name) {
-        case 'string':
-            return true;
-        case 'boolean':
-            return (typeof value === 'boolean' ||
-                value.toString().toUpperCase() === 'TRUE' ||
-                value.toString().toUpperCase() === 'FALSE');
-        case 'number':
-            return typeof value === 'number' || !Number.isNaN(Number(value));
-        default:
-            return false;
-    }
-};
-exports.isDirectlyConvertible = isDirectlyConvertible;
-const compareType = (value, expectedType) => {
-    if (expectedType.name === 'any') {
-        return true;
-    }
-    if (expectedType.literal !== null) {
-        return value === expectedType.literal;
-    }
-    const type = typeof value;
-    const isArray = Array.isArray(value);
-    return type === expectedType.name && isArray === expectedType.isArray;
-};
-exports.compareType = compareType;
-class InvalidMethodParameter extends errors_1.UnexpectedError {
-}
-exports.InvalidMethodParameter = InvalidMethodParameter;
-function method(...types) {
-    return (originalMethod, context) => {
-        function typeGuardWrapper(...args) {
-            const newArgs = [...args];
-            for (let i = 0; i < types.length; i++) {
-                const argExpectedTypeInfo = types[i];
-                const subArgsCount = argExpectedTypeInfo.rest ? args.length - i : 1;
-                for (let subArgIdx = i; subArgIdx < i + subArgsCount; subArgIdx++) {
-                    const arg = args[subArgIdx];
-                    const argRealType = typeof arg;
-                    if (arg === undefined) {
-                        if (!argExpectedTypeInfo.optional) {
-                            throw new InvalidMethodParameter(`Non-optional argument "${argExpectedTypeInfo.name}" is undefined`);
-                        }
-                        else {
-                            continue;
-                        }
-                    }
-                    const isExpectedType = argExpectedTypeInfo.types.some((type) => (0, exports.compareType)(arg, type));
-                    const isAnyAllowed = argExpectedTypeInfo.types.some((type) => type.name === 'any');
-                    if (isExpectedType || isAnyAllowed) {
-                        continue;
-                    }
-                    const typesDisplayStrings = argExpectedTypeInfo.types.map((type) => `${type.name}${type.isArray ? '[]' : ''}`);
-                    // We only try to convert when the parameter accepts only one type
-                    if (argExpectedTypeInfo.types.length === 1) {
-                        const firstArgType = argExpectedTypeInfo.types[0];
-                        if (!(0, exports.isDirectlyConvertible)(arg, firstArgType)) {
-                            throw new InvalidMethodParameter([
-                                `Function: ${originalMethod.name}`,
-                                `Type of argument "${argExpectedTypeInfo.name}" does not match the expected type`,
-                                `Expected: ${typesDisplayStrings[0]}`,
-                                `Received: ${argRealType}`,
-                            ].join('\n'));
-                        }
-                        const convertedValue = convertValue(args[subArgIdx], firstArgType.name);
-                        if (firstArgType.literal !== null && firstArgType.literal !== convertedValue) {
-                            throw new InvalidMethodParameter([
-                                `Function: ${originalMethod.name}`,
-                                `Argument "${arg}" does not match literal "${firstArgType.literal}"`,
-                            ].join('\n'));
-                        }
-                        newArgs[subArgIdx] = convertedValue;
-                        continue;
-                    }
-                    // Otherwise we just check if it could be converted to any of the accepted types
-                    const anyTypeMatches = argExpectedTypeInfo.types.some((type) => (0, exports.isDirectlyConvertible)(arg, type));
-                    if (!anyTypeMatches) {
-                        throw new InvalidMethodParameter([
-                            `Function: ${originalMethod.name}`,
-                            `Type of argument "${argExpectedTypeInfo.name}" does not match any of the possible types`,
-                            `Expected: ${typesDisplayStrings.join(' or ')}`,
-                            `Received: ${argRealType}`,
-                        ].join('\n'));
-                    }
-                }
-            }
-            return originalMethod.call(this, ...newArgs);
-        }
-        return typeGuardWrapper;
-    };
-}
-exports.method = method;
-
-
-/***/ }),
-
-/***/ "./src/utils.ts":
-/*!**********************!*\
-  !*** ./src/utils.ts ***!
-  \**********************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createColorTexture = exports.drawRectangle = exports.stringUntilNull = exports.pathJoin = void 0;
-const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
-const pathJoin = (...parts) => {
-    const fixedParts = parts.map((part) => part.replace(/\\/g, '/'));
-    return fixedParts.join('/');
-};
-exports.pathJoin = pathJoin;
-const stringUntilNull = (text) => {
-    return text.substring(0, text.indexOf('\x00'));
-};
-exports.stringUntilNull = stringUntilNull;
-const drawRectangle = (graphics, dimensions, color, alpha, borderWidth, borderColor) => {
-    graphics.beginFill(color, alpha);
-    if (borderWidth !== undefined && borderWidth > 0) {
-        graphics.lineStyle(borderWidth, borderColor ?? 0xffa500);
-    }
-    graphics.drawRect(dimensions.x, dimensions.y, dimensions.width, dimensions.height);
-};
-exports.drawRectangle = drawRectangle;
-const createColorTexture = (app, dimensions, color, alpha) => {
-    const graphics = new pixi_js_1.Graphics();
-    (0, exports.drawRectangle)(graphics, dimensions, color, alpha);
-    return app.renderer.generateTexture(graphics);
-};
-exports.createColorTexture = createColorTexture;
 
 
 /***/ }),
