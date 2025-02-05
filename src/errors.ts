@@ -9,32 +9,15 @@ export class EngineError extends Error {
 }
 
 export class IrrecoverableError extends EngineError {}
-
-export class InterpreterError extends IrrecoverableError {
-    public script: string
-    public line: number
-    public column: number
-
-    constructor(message: string, script: string, line: number, column: number, stackTrace: StackFrame[]) {
-        super(message + ` at ${line}:${column}\n${script}`, stackTrace)
-        this.script = script
-        this.line = line
-        this.column = column
-    }
-}
-
-export class LexerError extends InterpreterError {}
-export class ParserError extends InterpreterError {}
-
-export class UnexpectedError extends Error {}
-export class InvalidObjectError extends Error {
+export class UnexpectedError extends EngineError {}
+export class InvalidObjectError extends EngineError {
     constructor(message: string) {
         super(message)
     }
 }
-export class NotImplementedError extends Error {
-    constructor() {
-        super('Not implemented')
+export class NotImplementedError extends EngineError {
+    constructor(message?: string) {
+        super(message ?? 'Not implemented')
     }
 }
 

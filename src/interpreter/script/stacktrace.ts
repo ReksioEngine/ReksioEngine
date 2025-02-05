@@ -90,5 +90,10 @@ export const generateStackTrace = (stackTraceSource: StackFrame[]) => {
 }
 
 export const printStackTrace = (stackTraceSource: StackFrame[] | null = null) => {
+    const selectedStackTrace = stackTraceSource ?? stackTrace
+    if (selectedStackTrace.length === 0) {
+        console.error('Stack trace is empty')
+        return
+    }
     console.error(generateStackTrace(stackTraceSource ?? stackTrace))
 }
