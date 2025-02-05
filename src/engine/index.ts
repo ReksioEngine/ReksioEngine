@@ -243,6 +243,9 @@ export class Engine {
                 loop: true,
             })
             this.music.play()
+            if (this.debug.muteMusic) {
+                this.music.muted = true
+            }
         }
 
         // Wait for assets to load

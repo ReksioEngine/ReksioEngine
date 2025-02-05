@@ -13,10 +13,11 @@ import { printStackTrace } from '../interpreter/script/stacktrace'
 import { EngineError } from '../errors'
 
 export class Debugging {
-    private engine: Engine
+    private readonly engine: Engine
     public isDebug = false
 
     public nextSceneOverwrite: string | null = null
+    public muteMusic = false
 
     private xrays: Map<string, Container> = new Map()
     private enableXRay = false
@@ -94,6 +95,7 @@ export class Debugging {
         const importSave: any = document.querySelector('#importSave')!
         const exportSave: any = document.querySelector('#exportSave')!
         const enableSaveFiles: any = document.querySelector('#enableSaveFiles')!
+        const muteMusic: any = document.querySelector('#muteMusic')!
 
         const setSpeed = (speed: number) => {
             this.engine.speed = speed
@@ -128,6 +130,14 @@ export class Debugging {
                 speedSlider.max = 1.9
                 speedSlider.value = 1
                 setSpeed(1)
+            }
+        })
+
+        muteMusic.addEventListener('change', (e: InputEvent) => {
+            const target = e.target as HTMLInputElement
+            this.muteMusic = target.checked
+            if (this.engine.music !== null) {
+                this.engine.music.muted = target.checked
             }
         })
 
