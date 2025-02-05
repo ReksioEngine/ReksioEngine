@@ -7,10 +7,10 @@ import ReksioLangParser, {
 } from '../script/ReksioLangParser'
 import ReksioLangLexer from '../script/ReksioLangLexer'
 import antlr4 from 'antlr4'
-import ReksioLangVisitor from '../script/ReksioLangVisitor'
+import ReksioLangParserVisitor from '../script/ReksioLangParserVisitor'
 import { ForceNumber } from '../../types'
 
-export class ConstantArgsEvaluator extends ReksioLangVisitor<any> {
+export class ConstantArgsEvaluator extends ReksioLangParserVisitor<any> {
     visitIdentifier = (ctx: IdentifierContext): any => {
         return ctx.IDENTIFIER().getText()
     }

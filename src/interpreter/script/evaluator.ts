@@ -1,4 +1,4 @@
-import ReksioLangVisitor from './ReksioLangVisitor'
+import ReksioLangParserVisitor from './ReksioLangParserVisitor'
 import ReksioLangParser, {
     BoolContext,
     ExprContext,
@@ -41,7 +41,7 @@ class AlreadyDisplayedError {
     }
 }
 
-export class ScriptEvaluator extends ReksioLangVisitor<any> {
+export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
     private readonly engine: Engine
     private readonly args: any[]
     private readonly script: string
@@ -393,12 +393,8 @@ export class ScriptEvaluator extends ReksioLangVisitor<any> {
 
     visitOperation = (ctx: OperationContext): any => {
         this.lastContext = ctx
-        if (ctx.expr() != null) {
-            return this.visitExpr(ctx.expr())
-        }
-
-        const left = this.visitOperation(ctx._left)
-        let right = this.visitOperation(ctx._right)
+        const left = this.visitExpr(ctx._left)
+        let right = this.visitExpr(ctx._right)
 
         // It was a problem in S71_DROGA (Ufo)
         if (typeof left === 'number' && typeof right === 'string') {

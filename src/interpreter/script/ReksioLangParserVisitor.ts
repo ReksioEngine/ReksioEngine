@@ -1,4 +1,4 @@
-// Generated from ./src/interpreter/script/ReksioLang.g4 by ANTLR 4.13.2
+// Generated from ./src/interpreter/script/ReksioLangParser.g4 by ANTLR 4.13.2
 
 import {ParseTreeVisitor} from 'antlr4';
 
@@ -27,7 +27,7 @@ import { IdentifierContext } from "./ReksioLangParser.js";
  * @param <Result> The return type of the visit operation. Use `void` for
  * operations with no return type.
  */
-export default class ReksioLangVisitor<Result> extends ParseTreeVisitor<Result> {
+export default class ReksioLangParserVisitor<Result> extends ParseTreeVisitor<Result> {
 	/**
 	 * Visit a parse tree produced by `ReksioLangParser.expr`.
 	 * @param ctx the parse tree

@@ -1,4 +1,4 @@
-// Generated from ./src/interpreter/script/ReksioLang.g4 by ANTLR 4.13.2
+// Generated from ./src/interpreter/script/ReksioLangParser.g4 by ANTLR 4.13.2
 // noinspection ES6UnusedImports,JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 
 import {
@@ -11,34 +11,36 @@ import {
 	Token, TokenStream,
 	Interval, IntervalSet
 } from 'antlr4';
-import ReksioLangVisitor from "./ReksioLangVisitor.js";
+import ReksioLangParserVisitor from "./ReksioLangParserVisitor.js";
 
 // for running tests with parameters, TODO: discuss strategy for typed parameters in CI
 // eslint-disable-next-line no-unused-vars
 type int = number;
 
 export default class ReksioLangParser extends Parser {
-	public static readonly T__0 = 1;
-	public static readonly T__1 = 2;
-	public static readonly T__2 = 3;
-	public static readonly T__3 = 4;
-	public static readonly T__4 = 5;
-	public static readonly TRUE = 6;
-	public static readonly FALSE = 7;
-	public static readonly IDENTIFIER = 8;
-	public static readonly NUMBER = 9;
-	public static readonly CODE_STRING = 10;
-	public static readonly STRING = 11;
-	public static readonly COMMENT_START = 12;
-	public static readonly ADD = 13;
-	public static readonly SUB = 14;
-	public static readonly MUL = 15;
-	public static readonly MOD = 16;
-	public static readonly DIV = 17;
-	public static readonly METHOD_CALL_SYMBOL = 18;
-	public static readonly STATEMENT_END = 19;
-	public static readonly TYPO = 20;
-	public static readonly WHITESPACE = 21;
+	public static readonly TRUE = 1;
+	public static readonly FALSE = 2;
+	public static readonly NUMBER = 3;
+	public static readonly CODE_STRING = 4;
+	public static readonly STRING = 5;
+	public static readonly COMMENT_START = 6;
+	public static readonly ADD = 7;
+	public static readonly SUB = 8;
+	public static readonly MUL = 9;
+	public static readonly MOD = 10;
+	public static readonly DIV = 11;
+	public static readonly METHOD_CALL_SYMBOL = 12;
+	public static readonly TYPO = 13;
+	public static readonly WHITESPACE = 14;
+	public static readonly AT = 15;
+	public static readonly COMMA = 16;
+	public static readonly IDENTIFIER = 17;
+	public static readonly BRACKET_START = 18;
+	public static readonly BRACKET_END = 19;
+	public static readonly OPERATION_GROUPING_START = 20;
+	public static readonly OPERATION_GROUPING_END = 21;
+	public static readonly STATEMENT_END = 22;
+	public static readonly I_WHITESPACE = 23;
 	public static override readonly EOF = Token.EOF;
 	public static readonly RULE_expr = 0;
 	public static readonly RULE_statement = 1;
@@ -55,35 +57,41 @@ export default class ReksioLangParser extends Parser {
 	public static readonly RULE_bool = 12;
 	public static readonly RULE_string = 13;
 	public static readonly RULE_identifier = 14;
-	public static readonly literalNames: (string | null)[] = [ null, "'('", 
-                                                            "')'", "','", 
-                                                            "'['", "']'", 
-                                                            "'TRUE'", "'FALSE'", 
+	public static readonly literalNames: (string | null)[] = [ null, null, 
                                                             null, null, 
                                                             null, null, 
-                                                            null, "'+'", 
-                                                            "'-'", "'*'", 
-                                                            "'%'", "'@'", 
-                                                            "'^'", "';'" ];
-	public static readonly symbolicNames: (string | null)[] = [ null, null, 
-                                                             null, null, 
-                                                             null, null, 
-                                                             "TRUE", "FALSE", 
-                                                             "IDENTIFIER", 
-                                                             "NUMBER", "CODE_STRING", 
+                                                            null, null, 
+                                                            null, null, 
+                                                            null, null, 
+                                                            null, null, 
+                                                            null, null, 
+                                                            null, null, 
+                                                            null, null, 
+                                                            null, null, 
+                                                            "';'" ];
+	public static readonly symbolicNames: (string | null)[] = [ null, "TRUE", 
+                                                             "FALSE", "NUMBER", 
+                                                             "CODE_STRING", 
                                                              "STRING", "COMMENT_START", 
                                                              "ADD", "SUB", 
                                                              "MUL", "MOD", 
                                                              "DIV", "METHOD_CALL_SYMBOL", 
+                                                             "TYPO", "WHITESPACE", 
+                                                             "AT", "COMMA", 
+                                                             "IDENTIFIER", 
+                                                             "BRACKET_START", 
+                                                             "BRACKET_END", 
+                                                             "OPERATION_GROUPING_START", 
+                                                             "OPERATION_GROUPING_END", 
                                                              "STATEMENT_END", 
-                                                             "TYPO", "WHITESPACE" ];
+                                                             "I_WHITESPACE" ];
 	// tslint:disable:no-trailing-whitespace
 	public static readonly ruleNames: string[] = [
 		"expr", "statement", "statementList", "methodCall", "objectName", "methodName", 
 		"methodCallArguments", "specialCall", "operationGrouping", "operation", 
 		"comment", "number", "bool", "string", "identifier",
 	];
-	public get grammarFileName(): string { return "ReksioLang.g4"; }
+	public get grammarFileName(): string { return "ReksioLangParser.g4"; }
 	public get literalNames(): (string | null)[] { return ReksioLangParser.literalNames; }
 	public get symbolicNames(): (string | null)[] { return ReksioLangParser.symbolicNames; }
 	public get ruleNames(): string[] { return ReksioLangParser.ruleNames; }
@@ -108,7 +116,7 @@ export default class ReksioLangParser extends Parser {
 			this.state = 31;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if (_la===12) {
+			if (_la===6) {
 				{
 				this.state = 30;
 				this.comment();
@@ -185,22 +193,22 @@ export default class ReksioLangParser extends Parser {
 			this.state = 44;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case 19:
+			case 22:
 				this.enterOuterAlt(localctx, 1);
 				// tslint:disable-next-line:no-empty
 				{
 				}
 				break;
+			case 1:
+			case 2:
+			case 3:
 			case 4:
+			case 5:
 			case 6:
-			case 7:
 			case 8:
-			case 9:
-			case 10:
-			case 11:
-			case 12:
-			case 14:
+			case 15:
 			case 17:
+			case 20:
 				this.enterOuterAlt(localctx, 2);
 				{
 				this.state = 43;
@@ -236,7 +244,7 @@ export default class ReksioLangParser extends Parser {
 			this.state = 51;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 679888) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 5407102) !== 0)) {
 				{
 				{
 				this.state = 46;
@@ -282,11 +290,11 @@ export default class ReksioLangParser extends Parser {
 			this.state = 58;
 			this.methodName();
 			this.state = 59;
-			this.match(ReksioLangParser.T__0);
+			this.match(ReksioLangParser.BRACKET_START);
 			this.state = 61;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 155600) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 1212798) !== 0)) {
 				{
 				this.state = 60;
 				this.methodCallArguments();
@@ -294,7 +302,7 @@ export default class ReksioLangParser extends Parser {
 			}
 
 			this.state = 63;
-			this.match(ReksioLangParser.T__1);
+			this.match(ReksioLangParser.BRACKET_END);
 			}
 		}
 		catch (re) {
@@ -374,11 +382,11 @@ export default class ReksioLangParser extends Parser {
 			this.state = 74;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while (_la===3) {
+			while (_la===16) {
 				{
 				{
 				this.state = 70;
-				this.match(ReksioLangParser.T__2);
+				this.match(ReksioLangParser.COMMA);
 				this.state = 71;
 				this.expr();
 				}
@@ -412,15 +420,15 @@ export default class ReksioLangParser extends Parser {
 			this.enterOuterAlt(localctx, 1);
 			{
 			this.state = 77;
-			this.match(ReksioLangParser.DIV);
+			this.match(ReksioLangParser.AT);
 			this.state = 78;
 			this.methodName();
 			this.state = 79;
-			this.match(ReksioLangParser.T__0);
+			this.match(ReksioLangParser.BRACKET_START);
 			this.state = 81;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 155600) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 1212798) !== 0)) {
 				{
 				this.state = 80;
 				this.methodCallArguments();
@@ -428,7 +436,7 @@ export default class ReksioLangParser extends Parser {
 			}
 
 			this.state = 83;
-			this.match(ReksioLangParser.T__1);
+			this.match(ReksioLangParser.BRACKET_END);
 			}
 		}
 		catch (re) {
@@ -453,11 +461,11 @@ export default class ReksioLangParser extends Parser {
 			this.enterOuterAlt(localctx, 1);
 			{
 			this.state = 85;
-			this.match(ReksioLangParser.T__3);
+			this.match(ReksioLangParser.OPERATION_GROUPING_START);
 			this.state = 86;
-			this.operation(0);
+			this.operation();
 			this.state = 87;
-			this.match(ReksioLangParser.T__4);
+			this.match(ReksioLangParser.OPERATION_GROUPING_END);
 			}
 		}
 		catch (re) {
@@ -474,125 +482,69 @@ export default class ReksioLangParser extends Parser {
 		}
 		return localctx;
 	}
-
-	public operation(): OperationContext;
-	public operation(_p: number): OperationContext;
 	// @RuleVersion(0)
-	public operation(_p?: number): OperationContext {
-		if (_p === undefined) {
-			_p = 0;
-		}
-
-		let _parentctx: ParserRuleContext = this._ctx;
-		let _parentState: number = this.state;
-		let localctx: OperationContext = new OperationContext(this, this._ctx, _parentState);
-		let _prevctx: OperationContext = localctx;
-		let _startState: number = 18;
-		this.enterRecursionRule(localctx, 18, ReksioLangParser.RULE_operation, _p);
+	public operation(): OperationContext {
+		let localctx: OperationContext = new OperationContext(this, this._ctx, this.state);
+		this.enterRule(localctx, 18, ReksioLangParser.RULE_operation);
 		try {
-			let _alt: number;
-			this.enterOuterAlt(localctx, 1);
-			{
-			{
-			this.state = 90;
-			this.expr();
-			}
-			this._ctx.stop = this._input.LT(-1);
 			this.state = 109;
 			this._errHandler.sync(this);
-			_alt = this._interp.adaptivePredict(this._input, 8, this._ctx);
-			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
-				if (_alt === 1) {
-					if (this._parseListeners != null) {
-						this.triggerExitRuleEvent();
-					}
-					_prevctx = localctx;
-					{
-					this.state = 107;
-					this._errHandler.sync(this);
-					switch ( this._interp.adaptivePredict(this._input, 7, this._ctx) ) {
-					case 1:
-						{
-						localctx = new OperationContext(this, _parentctx, _parentState);
-						localctx._left = _prevctx;
-						this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-						this.state = 92;
-						if (!(this.precpred(this._ctx, 6))) {
-							throw this.createFailedPredicateException("this.precpred(this._ctx, 6)");
-						}
-						this.state = 93;
-						localctx._operator = this.match(ReksioLangParser.ADD);
-						this.state = 94;
-						localctx._right = this.operation(7);
-						}
-						break;
-					case 2:
-						{
-						localctx = new OperationContext(this, _parentctx, _parentState);
-						localctx._left = _prevctx;
-						this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-						this.state = 95;
-						if (!(this.precpred(this._ctx, 5))) {
-							throw this.createFailedPredicateException("this.precpred(this._ctx, 5)");
-						}
-						this.state = 96;
-						localctx._operator = this.match(ReksioLangParser.SUB);
-						this.state = 97;
-						localctx._right = this.operation(6);
-						}
-						break;
-					case 3:
-						{
-						localctx = new OperationContext(this, _parentctx, _parentState);
-						localctx._left = _prevctx;
-						this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-						this.state = 98;
-						if (!(this.precpred(this._ctx, 4))) {
-							throw this.createFailedPredicateException("this.precpred(this._ctx, 4)");
-						}
-						this.state = 99;
-						localctx._operator = this.match(ReksioLangParser.MUL);
-						this.state = 100;
-						localctx._right = this.operation(5);
-						}
-						break;
-					case 4:
-						{
-						localctx = new OperationContext(this, _parentctx, _parentState);
-						localctx._left = _prevctx;
-						this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-						this.state = 101;
-						if (!(this.precpred(this._ctx, 3))) {
-							throw this.createFailedPredicateException("this.precpred(this._ctx, 3)");
-						}
-						this.state = 102;
-						localctx._operator = this.match(ReksioLangParser.MOD);
-						this.state = 103;
-						localctx._right = this.operation(4);
-						}
-						break;
-					case 5:
-						{
-						localctx = new OperationContext(this, _parentctx, _parentState);
-						localctx._left = _prevctx;
-						this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-						this.state = 104;
-						if (!(this.precpred(this._ctx, 2))) {
-							throw this.createFailedPredicateException("this.precpred(this._ctx, 2)");
-						}
-						this.state = 105;
-						localctx._operator = this.match(ReksioLangParser.DIV);
-						this.state = 106;
-						localctx._right = this.operation(3);
-						}
-						break;
-					}
-					}
+			switch ( this._interp.adaptivePredict(this._input, 7, this._ctx) ) {
+			case 1:
+				this.enterOuterAlt(localctx, 1);
+				{
+				this.state = 89;
+				localctx._left = this.expr();
+				this.state = 90;
+				localctx._operator = this.match(ReksioLangParser.ADD);
+				this.state = 91;
+				localctx._right = this.expr();
 				}
-				this.state = 111;
-				this._errHandler.sync(this);
-				_alt = this._interp.adaptivePredict(this._input, 8, this._ctx);
-			}
+				break;
+			case 2:
+				this.enterOuterAlt(localctx, 2);
+				{
+				this.state = 93;
+				localctx._left = this.expr();
+				this.state = 94;
+				localctx._operator = this.match(ReksioLangParser.SUB);
+				this.state = 95;
+				localctx._right = this.expr();
+				}
+				break;
+			case 3:
+				this.enterOuterAlt(localctx, 3);
+				{
+				this.state = 97;
+				localctx._left = this.expr();
+				this.state = 98;
+				localctx._operator = this.match(ReksioLangParser.MUL);
+				this.state = 99;
+				localctx._right = this.expr();
+				}
+				break;
+			case 4:
+				this.enterOuterAlt(localctx, 4);
+				{
+				this.state = 101;
+				localctx._left = this.expr();
+				this.state = 102;
+				localctx._operator = this.match(ReksioLangParser.MOD);
+				this.state = 103;
+				localctx._right = this.expr();
+				}
+				break;
+			case 5:
+				this.enterOuterAlt(localctx, 5);
+				{
+				this.state = 105;
+				localctx._left = this.expr();
+				this.state = 106;
+				localctx._operator = this.match(ReksioLangParser.DIV);
+				this.state = 107;
+				localctx._right = this.expr();
+				}
+				break;
 			}
 		}
 		catch (re) {
@@ -605,7 +557,7 @@ export default class ReksioLangParser extends Parser {
 			}
 		}
 		finally {
-			this.unrollRecursionContexts(_parentctx);
+			this.exitRule();
 		}
 		return localctx;
 	}
@@ -616,7 +568,7 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 112;
+			this.state = 111;
 			this.match(ReksioLangParser.COMMENT_START);
 			}
 		}
@@ -639,22 +591,22 @@ export default class ReksioLangParser extends Parser {
 		let localctx: NumberContext = new NumberContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 22, ReksioLangParser.RULE_number);
 		try {
-			this.state = 117;
+			this.state = 116;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case 14:
+			case 8:
 				this.enterOuterAlt(localctx, 1);
 				{
-				this.state = 114;
+				this.state = 113;
 				this.match(ReksioLangParser.SUB);
-				this.state = 115;
+				this.state = 114;
 				this.match(ReksioLangParser.NUMBER);
 				}
 				break;
-			case 9:
+			case 3:
 				this.enterOuterAlt(localctx, 2);
 				{
-				this.state = 116;
+				this.state = 115;
 				this.match(ReksioLangParser.NUMBER);
 				}
 				break;
@@ -684,9 +636,9 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 119;
+			this.state = 118;
 			_la = this._input.LA(1);
-			if(!(_la===6 || _la===7)) {
+			if(!(_la===1 || _la===2)) {
 			this._errHandler.recoverInline(this);
 			}
 			else {
@@ -717,9 +669,9 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 121;
+			this.state = 120;
 			_la = this._input.LA(1);
-			if(!(_la===10 || _la===11)) {
+			if(!(_la===4 || _la===5)) {
 			this._errHandler.recoverInline(this);
 			}
 			else {
@@ -749,7 +701,7 @@ export default class ReksioLangParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 123;
+			this.state = 122;
 			this.match(ReksioLangParser.IDENTIFIER);
 			}
 		}
@@ -768,66 +720,42 @@ export default class ReksioLangParser extends Parser {
 		return localctx;
 	}
 
-	public sempred(localctx: RuleContext, ruleIndex: number, predIndex: number): boolean {
-		switch (ruleIndex) {
-		case 9:
-			return this.operation_sempred(localctx as OperationContext, predIndex);
-		}
-		return true;
-	}
-	private operation_sempred(localctx: OperationContext, predIndex: number): boolean {
-		switch (predIndex) {
-		case 0:
-			return this.precpred(this._ctx, 6);
-		case 1:
-			return this.precpred(this._ctx, 5);
-		case 2:
-			return this.precpred(this._ctx, 4);
-		case 3:
-			return this.precpred(this._ctx, 3);
-		case 4:
-			return this.precpred(this._ctx, 2);
-		}
-		return true;
-	}
-
-	public static readonly _serializedATN: number[] = [4,1,21,126,2,0,7,0,2,
+	public static readonly _serializedATN: number[] = [4,1,23,125,2,0,7,0,2,
 	1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,
 	10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,14,1,0,3,0,32,8,0,1,0,1,0,
 	1,0,1,0,1,0,1,0,1,0,3,0,41,8,0,1,1,1,1,3,1,45,8,1,1,2,1,2,1,2,5,2,50,8,
 	2,10,2,12,2,53,9,2,1,2,1,2,1,3,1,3,1,3,1,3,1,3,3,3,62,8,3,1,3,1,3,1,4,1,
 	4,1,5,1,5,1,6,1,6,1,6,5,6,73,8,6,10,6,12,6,76,9,6,1,7,1,7,1,7,1,7,3,7,82,
 	8,7,1,7,1,7,1,8,1,8,1,8,1,8,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,
-	1,9,1,9,1,9,1,9,1,9,1,9,1,9,5,9,108,8,9,10,9,12,9,111,9,9,1,10,1,10,1,11,
-	1,11,1,11,3,11,118,8,11,1,12,1,12,1,13,1,13,1,14,1,14,1,14,0,1,18,15,0,
-	2,4,6,8,10,12,14,16,18,20,22,24,26,28,0,2,1,0,6,7,1,0,10,11,128,0,31,1,
-	0,0,0,2,44,1,0,0,0,4,51,1,0,0,0,6,56,1,0,0,0,8,65,1,0,0,0,10,67,1,0,0,0,
-	12,69,1,0,0,0,14,77,1,0,0,0,16,85,1,0,0,0,18,89,1,0,0,0,20,112,1,0,0,0,
-	22,117,1,0,0,0,24,119,1,0,0,0,26,121,1,0,0,0,28,123,1,0,0,0,30,32,3,20,
-	10,0,31,30,1,0,0,0,31,32,1,0,0,0,32,40,1,0,0,0,33,41,3,26,13,0,34,41,3,
-	22,11,0,35,41,3,24,12,0,36,41,3,28,14,0,37,41,3,14,7,0,38,41,3,6,3,0,39,
-	41,3,16,8,0,40,33,1,0,0,0,40,34,1,0,0,0,40,35,1,0,0,0,40,36,1,0,0,0,40,
-	37,1,0,0,0,40,38,1,0,0,0,40,39,1,0,0,0,41,1,1,0,0,0,42,45,1,0,0,0,43,45,
-	3,0,0,0,44,42,1,0,0,0,44,43,1,0,0,0,45,3,1,0,0,0,46,47,3,2,1,0,47,48,5,
-	19,0,0,48,50,1,0,0,0,49,46,1,0,0,0,50,53,1,0,0,0,51,49,1,0,0,0,51,52,1,
-	0,0,0,52,54,1,0,0,0,53,51,1,0,0,0,54,55,5,0,0,1,55,5,1,0,0,0,56,57,3,8,
-	4,0,57,58,5,18,0,0,58,59,3,10,5,0,59,61,5,1,0,0,60,62,3,12,6,0,61,60,1,
-	0,0,0,61,62,1,0,0,0,62,63,1,0,0,0,63,64,5,2,0,0,64,7,1,0,0,0,65,66,3,28,
-	14,0,66,9,1,0,0,0,67,68,3,28,14,0,68,11,1,0,0,0,69,74,3,0,0,0,70,71,5,3,
-	0,0,71,73,3,0,0,0,72,70,1,0,0,0,73,76,1,0,0,0,74,72,1,0,0,0,74,75,1,0,0,
-	0,75,13,1,0,0,0,76,74,1,0,0,0,77,78,5,17,0,0,78,79,3,10,5,0,79,81,5,1,0,
-	0,80,82,3,12,6,0,81,80,1,0,0,0,81,82,1,0,0,0,82,83,1,0,0,0,83,84,5,2,0,
-	0,84,15,1,0,0,0,85,86,5,4,0,0,86,87,3,18,9,0,87,88,5,5,0,0,88,17,1,0,0,
-	0,89,90,6,9,-1,0,90,91,3,0,0,0,91,109,1,0,0,0,92,93,10,6,0,0,93,94,5,13,
-	0,0,94,108,3,18,9,7,95,96,10,5,0,0,96,97,5,14,0,0,97,108,3,18,9,6,98,99,
-	10,4,0,0,99,100,5,15,0,0,100,108,3,18,9,5,101,102,10,3,0,0,102,103,5,16,
-	0,0,103,108,3,18,9,4,104,105,10,2,0,0,105,106,5,17,0,0,106,108,3,18,9,3,
-	107,92,1,0,0,0,107,95,1,0,0,0,107,98,1,0,0,0,107,101,1,0,0,0,107,104,1,
-	0,0,0,108,111,1,0,0,0,109,107,1,0,0,0,109,110,1,0,0,0,110,19,1,0,0,0,111,
-	109,1,0,0,0,112,113,5,12,0,0,113,21,1,0,0,0,114,115,5,14,0,0,115,118,5,
-	9,0,0,116,118,5,9,0,0,117,114,1,0,0,0,117,116,1,0,0,0,118,23,1,0,0,0,119,
-	120,7,0,0,0,120,25,1,0,0,0,121,122,7,1,0,0,122,27,1,0,0,0,123,124,5,8,0,
-	0,124,29,1,0,0,0,10,31,40,44,51,61,74,81,107,109,117];
+	1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,3,9,110,8,9,1,10,1,10,1,11,1,11,1,11,
+	3,11,117,8,11,1,12,1,12,1,13,1,13,1,14,1,14,1,14,0,0,15,0,2,4,6,8,10,12,
+	14,16,18,20,22,24,26,28,0,2,1,0,1,2,1,0,4,5,126,0,31,1,0,0,0,2,44,1,0,0,
+	0,4,51,1,0,0,0,6,56,1,0,0,0,8,65,1,0,0,0,10,67,1,0,0,0,12,69,1,0,0,0,14,
+	77,1,0,0,0,16,85,1,0,0,0,18,109,1,0,0,0,20,111,1,0,0,0,22,116,1,0,0,0,24,
+	118,1,0,0,0,26,120,1,0,0,0,28,122,1,0,0,0,30,32,3,20,10,0,31,30,1,0,0,0,
+	31,32,1,0,0,0,32,40,1,0,0,0,33,41,3,26,13,0,34,41,3,22,11,0,35,41,3,24,
+	12,0,36,41,3,28,14,0,37,41,3,14,7,0,38,41,3,6,3,0,39,41,3,16,8,0,40,33,
+	1,0,0,0,40,34,1,0,0,0,40,35,1,0,0,0,40,36,1,0,0,0,40,37,1,0,0,0,40,38,1,
+	0,0,0,40,39,1,0,0,0,41,1,1,0,0,0,42,45,1,0,0,0,43,45,3,0,0,0,44,42,1,0,
+	0,0,44,43,1,0,0,0,45,3,1,0,0,0,46,47,3,2,1,0,47,48,5,22,0,0,48,50,1,0,0,
+	0,49,46,1,0,0,0,50,53,1,0,0,0,51,49,1,0,0,0,51,52,1,0,0,0,52,54,1,0,0,0,
+	53,51,1,0,0,0,54,55,5,0,0,1,55,5,1,0,0,0,56,57,3,8,4,0,57,58,5,12,0,0,58,
+	59,3,10,5,0,59,61,5,18,0,0,60,62,3,12,6,0,61,60,1,0,0,0,61,62,1,0,0,0,62,
+	63,1,0,0,0,63,64,5,19,0,0,64,7,1,0,0,0,65,66,3,28,14,0,66,9,1,0,0,0,67,
+	68,3,28,14,0,68,11,1,0,0,0,69,74,3,0,0,0,70,71,5,16,0,0,71,73,3,0,0,0,72,
+	70,1,0,0,0,73,76,1,0,0,0,74,72,1,0,0,0,74,75,1,0,0,0,75,13,1,0,0,0,76,74,
+	1,0,0,0,77,78,5,15,0,0,78,79,3,10,5,0,79,81,5,18,0,0,80,82,3,12,6,0,81,
+	80,1,0,0,0,81,82,1,0,0,0,82,83,1,0,0,0,83,84,5,19,0,0,84,15,1,0,0,0,85,
+	86,5,20,0,0,86,87,3,18,9,0,87,88,5,21,0,0,88,17,1,0,0,0,89,90,3,0,0,0,90,
+	91,5,7,0,0,91,92,3,0,0,0,92,110,1,0,0,0,93,94,3,0,0,0,94,95,5,8,0,0,95,
+	96,3,0,0,0,96,110,1,0,0,0,97,98,3,0,0,0,98,99,5,9,0,0,99,100,3,0,0,0,100,
+	110,1,0,0,0,101,102,3,0,0,0,102,103,5,10,0,0,103,104,3,0,0,0,104,110,1,
+	0,0,0,105,106,3,0,0,0,106,107,5,11,0,0,107,108,3,0,0,0,108,110,1,0,0,0,
+	109,89,1,0,0,0,109,93,1,0,0,0,109,97,1,0,0,0,109,101,1,0,0,0,109,105,1,
+	0,0,0,110,19,1,0,0,0,111,112,5,6,0,0,112,21,1,0,0,0,113,114,5,8,0,0,114,
+	117,5,3,0,0,115,117,5,3,0,0,116,113,1,0,0,0,116,115,1,0,0,0,117,23,1,0,
+	0,0,118,119,7,0,0,0,119,25,1,0,0,0,120,121,7,1,0,0,121,27,1,0,0,0,122,123,
+	5,17,0,0,123,29,1,0,0,0,9,31,40,44,51,61,74,81,109,116];
 
 	private static __ATN: ATN;
 	public static get _ATN(): ATN {
@@ -876,7 +804,7 @@ export class ExprContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_expr;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitExpr) {
 			return visitor.visitExpr(this);
 		} else {
@@ -898,7 +826,7 @@ export class StatementContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_statement;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitStatement) {
 			return visitor.visitStatement(this);
 		} else {
@@ -932,7 +860,7 @@ export class StatementListContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_statementList;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitStatementList) {
 			return visitor.visitStatementList(this);
 		} else {
@@ -956,6 +884,12 @@ export class MethodCallContext extends ParserRuleContext {
 	public methodName(): MethodNameContext {
 		return this.getTypedRuleContext(MethodNameContext, 0) as MethodNameContext;
 	}
+	public BRACKET_START(): TerminalNode {
+		return this.getToken(ReksioLangParser.BRACKET_START, 0);
+	}
+	public BRACKET_END(): TerminalNode {
+		return this.getToken(ReksioLangParser.BRACKET_END, 0);
+	}
 	public methodCallArguments(): MethodCallArgumentsContext {
 		return this.getTypedRuleContext(MethodCallArgumentsContext, 0) as MethodCallArgumentsContext;
 	}
@@ -963,7 +897,7 @@ export class MethodCallContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_methodCall;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitMethodCall) {
 			return visitor.visitMethodCall(this);
 		} else {
@@ -985,7 +919,7 @@ export class ObjectNameContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_objectName;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitObjectName) {
 			return visitor.visitObjectName(this);
 		} else {
@@ -1007,7 +941,7 @@ export class MethodNameContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_methodName;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitMethodName) {
 			return visitor.visitMethodName(this);
 		} else {
@@ -1028,11 +962,17 @@ export class MethodCallArgumentsContext extends ParserRuleContext {
 	public expr(i: number): ExprContext {
 		return this.getTypedRuleContext(ExprContext, i) as ExprContext;
 	}
+	public COMMA_list(): TerminalNode[] {
+	    	return this.getTokens(ReksioLangParser.COMMA);
+	}
+	public COMMA(i: number): TerminalNode {
+		return this.getToken(ReksioLangParser.COMMA, i);
+	}
     public get ruleIndex(): number {
     	return ReksioLangParser.RULE_methodCallArguments;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitMethodCallArguments) {
 			return visitor.visitMethodCallArguments(this);
 		} else {
@@ -1047,11 +987,17 @@ export class SpecialCallContext extends ParserRuleContext {
 		super(parent, invokingState);
     	this.parser = parser;
 	}
-	public DIV(): TerminalNode {
-		return this.getToken(ReksioLangParser.DIV, 0);
+	public AT(): TerminalNode {
+		return this.getToken(ReksioLangParser.AT, 0);
 	}
 	public methodName(): MethodNameContext {
 		return this.getTypedRuleContext(MethodNameContext, 0) as MethodNameContext;
+	}
+	public BRACKET_START(): TerminalNode {
+		return this.getToken(ReksioLangParser.BRACKET_START, 0);
+	}
+	public BRACKET_END(): TerminalNode {
+		return this.getToken(ReksioLangParser.BRACKET_END, 0);
 	}
 	public methodCallArguments(): MethodCallArgumentsContext {
 		return this.getTypedRuleContext(MethodCallArgumentsContext, 0) as MethodCallArgumentsContext;
@@ -1060,7 +1006,7 @@ export class SpecialCallContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_specialCall;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitSpecialCall) {
 			return visitor.visitSpecialCall(this);
 		} else {
@@ -1075,14 +1021,20 @@ export class OperationGroupingContext extends ParserRuleContext {
 		super(parent, invokingState);
     	this.parser = parser;
 	}
+	public OPERATION_GROUPING_START(): TerminalNode {
+		return this.getToken(ReksioLangParser.OPERATION_GROUPING_START, 0);
+	}
 	public operation(): OperationContext {
 		return this.getTypedRuleContext(OperationContext, 0) as OperationContext;
+	}
+	public OPERATION_GROUPING_END(): TerminalNode {
+		return this.getToken(ReksioLangParser.OPERATION_GROUPING_END, 0);
 	}
     public get ruleIndex(): number {
     	return ReksioLangParser.RULE_operationGrouping;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitOperationGrouping) {
 			return visitor.visitOperationGrouping(this);
 		} else {
@@ -1093,21 +1045,18 @@ export class OperationGroupingContext extends ParserRuleContext {
 
 
 export class OperationContext extends ParserRuleContext {
-	public _left!: OperationContext;
+	public _left!: ExprContext;
 	public _operator!: Token;
-	public _right!: OperationContext;
+	public _right!: ExprContext;
 	constructor(parser?: ReksioLangParser, parent?: ParserRuleContext, invokingState?: number) {
 		super(parent, invokingState);
     	this.parser = parser;
 	}
-	public expr(): ExprContext {
-		return this.getTypedRuleContext(ExprContext, 0) as ExprContext;
+	public expr_list(): ExprContext[] {
+		return this.getTypedRuleContexts(ExprContext) as ExprContext[];
 	}
-	public operation_list(): OperationContext[] {
-		return this.getTypedRuleContexts(OperationContext) as OperationContext[];
-	}
-	public operation(i: number): OperationContext {
-		return this.getTypedRuleContext(OperationContext, i) as OperationContext;
+	public expr(i: number): ExprContext {
+		return this.getTypedRuleContext(ExprContext, i) as ExprContext;
 	}
 	public ADD(): TerminalNode {
 		return this.getToken(ReksioLangParser.ADD, 0);
@@ -1128,7 +1077,7 @@ export class OperationContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_operation;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitOperation) {
 			return visitor.visitOperation(this);
 		} else {
@@ -1150,7 +1099,7 @@ export class CommentContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_comment;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitComment) {
 			return visitor.visitComment(this);
 		} else {
@@ -1175,7 +1124,7 @@ export class NumberContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_number;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitNumber) {
 			return visitor.visitNumber(this);
 		} else {
@@ -1200,7 +1149,7 @@ export class BoolContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_bool;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitBool) {
 			return visitor.visitBool(this);
 		} else {
@@ -1225,7 +1174,7 @@ export class StringContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_string;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitString) {
 			return visitor.visitString(this);
 		} else {
@@ -1247,7 +1196,7 @@ export class IdentifierContext extends ParserRuleContext {
     	return ReksioLangParser.RULE_identifier;
 	}
 	// @Override
-	public accept<Result>(visitor: ReksioLangVisitor<Result>): Result {
+	public accept<Result>(visitor: ReksioLangParserVisitor<Result>): Result {
 		if (visitor.visitIdentifier) {
 			return visitor.visitIdentifier(this);
 		} else {
