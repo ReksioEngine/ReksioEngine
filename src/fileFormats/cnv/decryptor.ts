@@ -1,47 +1,48 @@
 const textDecoder = new TextDecoder('utf-8')
 
-const headerPattern = /{<(?<direction>[cCdD]):(?<movement>\d+)>}/
+const HEADER_PATTERN = /{<(?<direction>[cCdD]):(?<movement>\d+)>}/
+const CR = '\r'.charCodeAt(0)
+const NL = '\n'.charCodeAt(0)
 
-const parseHeader = (content: string) => {
-    const match = headerPattern.exec(content)
+type Direction = 'C' | 'd'
+type Header = {
+    length: number
+    direction: Direction
+    movement: number
+}
+
+const parseHeader = (content: string): Header | null => {
+    const match = HEADER_PATTERN.exec(content)
     if (match == null || match.groups === undefined) {
-        throw new Error('Failed to parse encrypted file header')
+        return null
     }
 
     const { direction, movement } = match.groups
     return {
         length: match[0].length,
-        direction,
+        direction: direction as Direction,
         movement: parseInt(movement, 10),
     }
 }
 
-const isEncryped = (content: string) => {
-    return headerPattern.exec(content) !== null
-}
-
-const calcShift = (step: number, movement: number) => {
-    step += 1
-    if (step > movement) {
-        step = 1
-    }
-    let shift = Math.floor(step / 2) + (step % 2)
-    if (step % 2) {
-        shift *= -1
-    }
+const calcShift = (step: number, movement: number): { step: number; shift: number } => {
+    const newStep = (step % movement) + 1
+    const currentShift = Math.ceil(newStep / 2)
+    const isOddStep = newStep % 2 !== 0
+    const finalShift = isOddStep ? -currentShift : currentShift
     return {
-        step,
-        shift,
+        step: newStep,
+        shift: finalShift,
     }
 }
 
 export const decryptCNV = (content: ArrayBuffer): string => {
     const contentText = textDecoder.decode(content)
-    if (!isEncryped(contentText)) {
+    const header = parseHeader(contentText)
+    if (header === null) {
         return contentText.replaceAll('\r\n', '\n')
     }
 
-    const header = parseHeader(contentText)
     const { length, direction, movement } = header
     const directionMultiplier = direction.toLowerCase() === 'd' ? -1 : 1
     const payload = new Uint8Array(content.slice(length))
@@ -58,7 +59,7 @@ export const decryptCNV = (content: ArrayBuffer): string => {
         ) {
             output += '\n'
             pos += 2
-        } else if (payload[pos] !== '\r'.charCodeAt(0) && payload[pos] !== '\n'.charCodeAt(0)) {
+        } else if (payload[pos] !== CR && payload[pos] !== NL) {
             const newShift = calcShift(step, movement)
             step = newShift.step
             shift = newShift.shift
