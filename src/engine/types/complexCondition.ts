@@ -1,7 +1,7 @@
 import { Type } from './index'
 import { ComplexConditionDefinition } from '../../fileFormats/cnv/types'
-import { InterruptScriptExecution } from '../../interpreter/script/evaluator'
-import { method } from '../../types'
+import { InterruptScriptExecution } from '../../interpreter/script'
+import { method } from '../../common/types'
 
 export class ComplexCondition extends Type<ComplexConditionDefinition> {
     // In loops its like 'break'

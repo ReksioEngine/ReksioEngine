@@ -1,5 +1,5 @@
 import { DisplayObject } from 'pixi.js'
-import { StateMachine, t } from '../../stateMachine'
+import { StateMachine, t } from '../../common/stateMachine'
 
 export enum State {
     INIT = 'INIT',

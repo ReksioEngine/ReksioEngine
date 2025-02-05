@@ -1,5 +1,5 @@
 import { callback, reference } from '../fileFormats/common'
-import { runScript } from '../interpreter/script/evaluator'
+import { runScript } from '../interpreter/script'
 import { DisplayType, Type } from './types'
 import { loadDefinition } from './definitionLoader'
 import { Application, DisplayObject, Rectangle, Sprite } from 'pixi.js'
@@ -8,13 +8,13 @@ import { FileLoader, GithubFileLoader, UrlFileLoader } from './filesLoader'
 import { sound, Sound } from '@pixi/sound'
 import { loadSound, loadTexture } from './assetsLoader'
 import { SaveFile, SaveFileManager } from './saveFile'
-import { createColorTexture } from '../utils'
 import { preloadAssets } from './optimizations'
 import { Debugging } from './debugging'
 import { Timer } from './types/timer'
-import { IrrecoverableError } from '../errors'
+import { IrrecoverableError } from '../common/errors'
 import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
 import { initDevtools } from '@pixi/devtools'
+import { createColorTexture } from './rendering'
 
 export class Engine {
     readonly app: Application

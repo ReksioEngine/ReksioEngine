@@ -169,3 +169,7 @@ export class BinaryBuffer {
         return slice
     }
 }
+
+export const stringUntilNull = (text: string) => {
+    return text.substring(0, text.indexOf('\x00'))
+}

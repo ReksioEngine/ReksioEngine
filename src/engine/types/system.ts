@@ -1,6 +1,6 @@
 import { Type } from './index'
 import { SystemDefinition } from '../../fileFormats/cnv/types'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 export class System extends Type<SystemDefinition> {
     @method()

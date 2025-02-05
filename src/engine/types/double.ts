@@ -1,7 +1,7 @@
 import { Type, ValueType } from './index'
 import { Engine } from '../index'
 import { DoubleDefinition } from '../../fileFormats/cnv/types'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 const radianMultiplier = Math.PI / 180
 

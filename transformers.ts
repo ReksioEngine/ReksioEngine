@@ -1,5 +1,5 @@
 import * as ts from 'typescript'
-import { parameter, parameterType } from './src/types'
+import { parameter, parameterType } from './src/common/types'
 
 const getLiteralType = (literal: ts.LiteralTypeNode) => {
     if (ts.isStringLiteral(literal)) {

@@ -9,7 +9,7 @@ import ReksioIFExpressionParser, {
     StringContext,
 } from './ReksioIFExpressionParser'
 import ReksioIFExpressionLexer from './ReksioIFExpressionLexer'
-import { ForceNumber } from '../../types'
+import { ForceNumber } from '../../common/types'
 import { Engine } from '../../engine'
 
 export class ExpressionEvaluator extends ReksioIFExpressionVisitor<any> {

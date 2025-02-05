@@ -1,7 +1,7 @@
 import { DisplayType, Type, XRayInfo } from './index'
 import { AnimoDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
-import { assert, InvalidObjectError } from '../../errors'
+import { assert, InvalidObjectError } from '../../common/errors'
 import * as PIXI from 'pixi.js'
 import { Graphics, Rectangle, Sprite, Texture } from 'pixi.js'
 import { ANN, Event } from '../../fileFormats/ann'
@@ -10,7 +10,7 @@ import { loadSound } from '../assetsLoader'
 import { Sound as PIXISound } from '@pixi/sound'
 import { FileNotFoundError } from '../filesLoader'
 import { AdvancedSprite, createHitmapFromImageBytes } from '../rendering'
-import { method } from '../../types'
+import { method } from '../../common/types'
 import { CollisionsComponent } from '../components/collisions'
 
 export class Animo extends DisplayType<AnimoDefinition> {

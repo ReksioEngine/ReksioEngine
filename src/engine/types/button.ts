@@ -5,9 +5,9 @@ import { Image } from './image'
 import { Graphics, Rectangle } from 'pixi.js'
 import { ButtonLogicComponent, Event, State } from '../components/button'
 import { Animo } from './animo'
-import { assert } from '../../errors'
+import { assert } from '../../common/errors'
 import { reference } from '../../fileFormats/common'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 export class Button extends Type<ButtonDefinition> {
     private logic: ButtonLogicComponent

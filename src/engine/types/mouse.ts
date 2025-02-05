@@ -1,8 +1,8 @@
 import { Type } from './index'
 import { MouseDefinition } from '../../fileFormats/cnv/types'
 import { FederatedPointerEvent, Point } from 'pixi.js'
-import { NotImplementedError } from '../../errors'
-import { method } from '../../types'
+import { NotImplementedError } from '../../common/errors'
+import { method } from '../../common/types'
 
 type MouseEvent = {
     type: string

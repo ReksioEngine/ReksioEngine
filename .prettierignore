@@ -1,1 +1,2 @@
-src/interpreter/ReksioLang*
+src/interpreter/ReksioLang*.ts
+src/interpreter/ReksioIFExpression*.ts

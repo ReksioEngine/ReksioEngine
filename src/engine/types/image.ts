@@ -1,10 +1,10 @@
 import { DisplayType } from './index'
 import { ImageDefinition } from '../../fileFormats/cnv/types'
-import { assert, NotImplementedError } from '../../errors'
+import { assert, NotImplementedError } from '../../common/errors'
 import { Point } from 'pixi.js'
 import { loadSprite } from '../assetsLoader'
 import { AdvancedSprite } from '../rendering'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 export class Image extends DisplayType<ImageDefinition> {
     public sprite: AdvancedSprite | null = null

@@ -1,7 +1,7 @@
 import { Type } from './index'
 import { TimerDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 export class Timer extends Type<TimerDefinition> {
     private currentTick: number = 0

@@ -1,11 +1,11 @@
 import { Type } from './index'
 import { EpisodeDefinition } from '../../fileFormats/cnv/types'
 import { Scene } from './scene'
-import { assert } from '../../errors'
-import { pathJoin } from '../../utils'
+import { assert } from '../../common/errors'
+import { pathJoin } from '../../common/utils'
 import { loadDefinition } from '../definitionLoader'
 import { FileNotFoundError } from '../filesLoader'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 export class Episode extends Type<EpisodeDefinition> {
     private previousScene?: Scene

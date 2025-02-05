@@ -1,7 +1,6 @@
-import { BinaryBuffer } from '../utils'
+import { BinaryBuffer, stringUntilNull } from '../utils'
 import { CompressedImageHeader, createDescriptors, loadImageWithoutHeader } from '../img'
 import { CompressionType } from '../compression'
-import { stringUntilNull } from '../../utils'
 
 const decoder = new TextDecoder()
 

@@ -10,12 +10,12 @@ import {
     Simple,
     Speaking,
 } from '../../fileFormats/seq'
-import { assert } from '../../errors'
+import { assert } from '../../common/errors'
 import { Animo } from './animo'
 import { loadSound } from '../assetsLoader'
 import { IMediaInstance, Sound } from '@pixi/sound'
 import { createObject } from '../definitionLoader'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~'
 

@@ -1,11 +1,11 @@
 import { Type } from './index'
 import { ApplicationDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
-import { pathJoin } from '../../utils'
+import { pathJoin } from '../../common/utils'
 import { loadDefinition } from '../definitionLoader'
-import { NotImplementedError } from '../../errors'
+import { NotImplementedError } from '../../common/errors'
 import { FileNotFoundError } from '../filesLoader'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 const langCodeMapping: Record<string, string> = {
     '0415': 'POL',

@@ -1,4 +1,4 @@
-import { StackFrame } from './interpreter/script/stacktrace'
+import { StackFrame } from '../interpreter/script/stacktrace'
 
 export class EngineError extends Error {
     public stackTrace: StackFrame[] | null

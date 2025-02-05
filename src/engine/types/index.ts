@@ -2,9 +2,9 @@ import { Engine } from '../index'
 import { DisplayTypeDefinition, TypeDefinition, ValueTypeDefinition } from '../../fileFormats/common'
 import { CallbacksComponent } from '../components/callbacks'
 import { Rectangle, Sprite } from 'pixi.js'
-import { assert, NotImplementedError } from '../../errors'
+import { assert, NotImplementedError } from '../../common/errors'
 import { EventsComponent } from '../components/events'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 export type XRayInfo = {
     type: string

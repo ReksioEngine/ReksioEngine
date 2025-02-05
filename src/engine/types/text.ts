@@ -2,7 +2,7 @@ import { DisplayType, Type } from './index'
 import { TextDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import * as PIXI from 'pixi.js'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 export class Text extends DisplayType<TextDefinition> {
     private readonly text: PIXI.Text

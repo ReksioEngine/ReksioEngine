@@ -1,5 +1,5 @@
 import { boolean, map, string } from '../common'
-import { assert } from '../../errors'
+import { assert } from '../../common/errors'
 
 export interface SequenceFileEntry {
     TYPE: string

@@ -2,7 +2,7 @@ import { DisplayType, Type } from './index'
 import { StaticFilterDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { Animo } from './animo'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 export class StaticFilter extends Type<StaticFilterDefinition> {
     private properties = new Map<string, any>()

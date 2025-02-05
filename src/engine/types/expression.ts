@@ -1,6 +1,6 @@
 import { ValueType } from './index'
 import { ExpressionDefinition } from '../../fileFormats/cnv/types'
-import { NotImplementedError } from '../../errors'
+import { NotImplementedError } from '../../common/errors'
 
 export class Expression extends ValueType<ExpressionDefinition> {
     get value() {

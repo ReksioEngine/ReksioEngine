@@ -1,7 +1,7 @@
 import { Type } from './index'
 import { KeyboardDefinition, MusicDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 const keysMapping = {
     ArrowLeft: 'LEFT',

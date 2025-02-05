@@ -2,9 +2,8 @@ import { DisplayType, Type } from './index'
 import { CanvasObserverDefinition } from '../../fileFormats/cnv/types'
 import { loadTexture } from '../assetsLoader'
 import { Point } from 'pixi.js'
-import { method } from '../../types'
+import { method } from '../../common/types'
 import { AdvancedSprite } from '../rendering'
-import { assert } from '../../errors'
 
 export class CanvasObserver extends Type<CanvasObserverDefinition> {
     @method()

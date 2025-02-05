@@ -1,4 +1,4 @@
-import { parseConstantArgs } from '../../interpreter/constArgs/evaluator'
+import { parseConstantArgs } from '../../interpreter/constArgs'
 
 type FieldTypeProcessor = (object: any, key: string, param: string, value: string) => any
 

@@ -3,14 +3,14 @@ import { Type } from './types'
 import { Engine } from './index'
 import { sound } from '@pixi/sound'
 import { ArchiveOrgFileLoader, GithubFileLoader } from './filesLoader'
-import { drawRectangle } from '../utils'
 import { Container, Graphics, Rectangle, Text } from 'pixi.js'
 import { Animo } from './types/animo'
 import { CNVObject, parseCNV } from '../fileFormats/cnv/parser'
 import { createObject, loadDefinition } from './definitionLoader'
 import { SaveFileManager } from './saveFile'
 import { printStackTrace } from '../interpreter/script/stacktrace'
-import { EngineError } from '../errors'
+import { EngineError } from '../common/errors'
+import { drawRectangle } from './rendering'
 
 export class Debugging {
     private readonly engine: Engine

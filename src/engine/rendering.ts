@@ -1,5 +1,5 @@
-import { IPointData, Sprite } from 'pixi.js'
-import { assert } from '../errors'
+import { Application, Graphics, IPointData, Rectangle, Sprite } from 'pixi.js'
+import { assert } from '../common/errors'
 
 export class AdvancedSprite extends Sprite {
     public hitmap?: Uint8Array
@@ -44,4 +44,25 @@ export const createHitmapFromImageBytes = (bytes: Uint8Array) => {
         hitmap[i] = bytes[i * 4 + 3]
     }
     return hitmap
+}
+
+export const drawRectangle = (
+    graphics: Graphics,
+    dimensions: Rectangle,
+    color: number,
+    alpha?: number,
+    borderWidth?: number,
+    borderColor?: number
+) => {
+    graphics.beginFill(color, alpha)
+    if (borderWidth !== undefined && borderWidth > 0) {
+        graphics.lineStyle(borderWidth, borderColor ?? 0xffa500)
+    }
+    graphics.drawRect(dimensions.x, dimensions.y, dimensions.width, dimensions.height)
+}
+
+export const createColorTexture = (app: Application, dimensions: Rectangle, color: number, alpha?: number) => {
+    const graphics = new Graphics()
+    drawRectangle(graphics, dimensions, color, alpha)
+    return app.renderer.generateTexture(graphics)
 }

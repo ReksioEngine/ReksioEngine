@@ -1,6 +1,6 @@
 import { Type } from './index'
 import { GroupDefinition } from '../../fileFormats/cnv/types'
-import { method } from '../../types'
+import { method } from '../../common/types'
 
 export class Group extends Type<GroupDefinition> {
     private objects: any[] = []

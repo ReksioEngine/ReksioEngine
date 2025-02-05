@@ -1,8 +1,8 @@
 import { Type } from './index'
 import { ConditionDefinition } from '../../fileFormats/cnv/types'
-import { InterruptScriptExecution } from '../../interpreter/script/evaluator'
-import { Compare, method } from '../../types'
-import { UnexpectedError } from '../../errors'
+import { InterruptScriptExecution } from '../../interpreter/script'
+import { Compare, method } from '../../common/types'
+import { UnexpectedError } from '../../common/errors'
 
 export class Condition extends Type<ConditionDefinition> {
     // arg is always true in ReksioIUfo

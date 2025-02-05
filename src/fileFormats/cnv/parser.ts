@@ -1,6 +1,6 @@
 import { structureDefinitions } from './types'
 import { FieldProcessorRecoverableError, FieldTypeEntry } from '../common'
-import { IrrecoverableError, NotImplementedError } from '../../errors'
+import { NotImplementedError } from '../../common/errors'
 
 export interface CNVObject {
     TYPE: string

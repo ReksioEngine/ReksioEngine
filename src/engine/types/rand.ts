@@ -1,6 +1,6 @@
 import { Type } from './index'
 import { RandDefinition } from '../../fileFormats/cnv/types'
-import { method } from '../../types'
+import { method } from '../../common/types'
 import { ArrayObject } from './array'
 
 export class Rand extends Type<RandDefinition> {
