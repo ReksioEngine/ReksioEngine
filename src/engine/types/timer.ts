@@ -54,7 +54,8 @@ export class Timer extends Type<TimerDefinition> {
 
     @method()
     SET(value: number) {
-        this.collectedTime = value
+        // TODO: I don't really see any other effect than reset
+        this.RESET()
     }
 
     @method()
