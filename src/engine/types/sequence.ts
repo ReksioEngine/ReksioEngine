@@ -306,21 +306,27 @@ export class Sequence extends Type<SequenceDefinition> {
         this.activeAnimo?.playEvent(eventName)
     }
 
-    private async getAnimo(source: string): Promise<Animo> {
-        // Get existing ANIMO using that filename
+    private async getAnimo(nameOrFilename: string): Promise<Animo> {
+        // Get object by name
+        const object = this.engine.getObject(nameOrFilename)
+        if (object) {
+            return object
+        }
+
+        // Get existing object by filename
         for (const object of Object.values(this.engine.scope)) {
-            if (object instanceof Animo && object.definition.FILENAME === source) {
+            if (object instanceof Animo && object.definition.FILENAME === nameOrFilename) {
                 return object
             }
         }
 
-        // Create a new ANIMO if no object is using it
+        // Create a new ANIMO if object doesn't exist
         return (await createObject(
             this.engine,
             {
                 TYPE: 'ANIMO',
-                NAME: source,
-                FILENAME: source,
+                NAME: nameOrFilename,
+                FILENAME: nameOrFilename,
                 FPS: 16,
                 MONITORCOLLISION: false,
                 MONITORCOLLISIONALPHA: false,
