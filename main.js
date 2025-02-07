@@ -56023,7 +56023,9 @@ let Sequence = (() => {
                 this.subEntries = new Map();
                 this.parameterSequence = null;
                 this.allAnimoFilenames = new Set();
+                this.allAnimoObjects = new Map();
                 this.sounds = new Map();
+                this.endedSpeakingSoundsQueue = [];
                 this.queue = [];
                 this.activeAnimo = null;
                 this.playingSound = null;
@@ -56041,6 +56043,9 @@ let Sequence = (() => {
                 }
                 this.sequenceFile = await this.engine.fileLoader.getSequenceFile(relativePath);
                 await this.load();
+                for (const animoFilename of this.allAnimoFilenames) {
+                    this.allAnimoObjects.set(animoFilename, await this.getAnimo(animoFilename));
+                }
             }
             ready() {
                 this.callbacks.run('ONINIT');
@@ -56081,9 +56086,27 @@ let Sequence = (() => {
                         this.subEntries.set(definition.ADD, subEntries);
                     }
                 }
-                const sounds = await Promise.all(soundsNames.map((name) => (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/${name}`)));
+                const sounds = await Promise.all(soundsNames.map(async (name) => {
+                    const sound = await (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/${name}`, { preload: true });
+                    return new Promise((resolve) => {
+                        return sound.media.load(() => resolve(sound));
+                    });
+                }));
                 for (let i = 0; i < sounds.length; i++) {
                     this.sounds.set(soundsNames[i], sounds[i]);
+                }
+            }
+            tick(elapsedMS) {
+                while (this.endedSpeakingSoundsQueue.length > 0) {
+                    this.loop = false;
+                    const entry = this.endedSpeakingSoundsQueue.shift();
+                    const stopEvent = entry.PREFIX + '_STOP';
+                    if (entry.ENDING && this.activeAnimo?.hasEvent(stopEvent)) {
+                        this.playAnimoEvent(stopEvent);
+                    }
+                    else {
+                        this.progressNext();
+                    }
                 }
             }
             PLAY(sequenceName) {
@@ -56104,9 +56127,8 @@ let Sequence = (() => {
                 (0, errors_1.assert)(this.sequenceFile !== null);
                 // HIDE() might be called before sequence is playing, so we can't just hide activeAnimo
                 // because activeAnimo would be null at that point, we don't know what sequence is gonna be played
-                for (const filename of this.allAnimoFilenames) {
-                    const animo = this.getExistingAnimo(filename);
-                    animo?.HIDE();
+                for (const object of this.allAnimoObjects.values()) {
+                    object.HIDE();
                 }
             }
             STOP(arg) {
@@ -56135,7 +56157,7 @@ let Sequence = (() => {
                     }
                 }
             }
-            async onAnimoEventFinished(eventName) {
+            onAnimoEventFinished(eventName) {
                 (0, errors_1.assert)(this.activeAnimo !== null);
                 if (this.runningSubSequence?.TYPE === 'SPEAKING') {
                     if (this.runningSubSequence.STARTING && eventName === this.runningSubSequence.PREFIX + '_START') {
@@ -56146,7 +56168,7 @@ let Sequence = (() => {
                         }
                     }
                     else if (this.runningSubSequence.ENDING && eventName === this.runningSubSequence.PREFIX + '_STOP') {
-                        await this.progressNext();
+                        this.progressNext();
                     }
                     else if (this.loop) {
                         let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`;
@@ -56158,10 +56180,10 @@ let Sequence = (() => {
                     }
                 }
                 else if (this.currentAnimoEvent == eventName) {
-                    await this.progressNext();
+                    this.progressNext();
                 }
             }
-            async progressNext() {
+            progressNext() {
                 if (this.sequenceName === null) {
                     return;
                 }
@@ -56173,7 +56195,7 @@ let Sequence = (() => {
                 }
                 const next = this.queue.shift();
                 if (next.TYPE === 'SEQUENCE') {
-                    await this.progressNext();
+                    this.progressNext();
                     return;
                 }
                 if (next.TYPE === 'SPEAKING') {
@@ -56182,14 +56204,15 @@ let Sequence = (() => {
                         if (this.activeAnimo) {
                             this.activeAnimo.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
                         }
-                        this.activeAnimo = await this.getAnimo(speaking.ANIMOFN);
-                        if (this.activeAnimo) {
-                            this.activeAnimo.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                        const animoObject = this.allAnimoObjects.get(speaking.ANIMOFN);
+                        if (animoObject) {
+                            this.activeAnimo = animoObject;
+                            animoObject.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
                         }
                     }
                     if (this.activeAnimo) {
                         const sound = this.sounds.get(speaking.WAVFN);
-                        const instance = await sound.play();
+                        const instance = sound.play();
                         this.playingSound = instance;
                         const startEvent = speaking.PREFIX + '_START';
                         if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
@@ -56201,14 +56224,7 @@ let Sequence = (() => {
                             this.playAnimoEvent(speaking.PREFIX + '_1');
                         }
                         instance.on('end', async () => {
-                            this.loop = false;
-                            const stopEvent = speaking.PREFIX + '_STOP';
-                            if (speaking.ENDING && this.activeAnimo?.hasEvent(stopEvent)) {
-                                this.playAnimoEvent(stopEvent);
-                            }
-                            else {
-                                await this.progressNext();
-                            }
+                            this.endedSpeakingSoundsQueue.push(speaking);
                         });
                         this.runningSubSequence = speaking;
                     }
@@ -56219,9 +56235,10 @@ let Sequence = (() => {
                         if (this.activeAnimo) {
                             this.activeAnimo.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
                         }
-                        this.activeAnimo = await this.getAnimo(simple.FILENAME);
-                        if (this.activeAnimo) {
-                            this.activeAnimo.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                        const animoObject = this.allAnimoObjects.get(simple.FILENAME);
+                        if (animoObject) {
+                            this.activeAnimo = animoObject;
+                            animoObject.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
                         }
                     }
                     if (this.activeAnimo) {
@@ -56229,7 +56246,7 @@ let Sequence = (() => {
                         if (!this.activeAnimo.hasEvent(eventName)) {
                             const defaultEvent = this.activeAnimo.getDefaultEvent();
                             if (defaultEvent == null) {
-                                await this.progressNext();
+                                this.progressNext();
                                 return;
                             }
                             eventName = defaultEvent;
@@ -56244,10 +56261,13 @@ let Sequence = (() => {
                 this.activeAnimo?.playEvent(eventName);
             }
             async getAnimo(source) {
-                const object = this.getExistingAnimo(source);
-                if (object !== null) {
-                    return object;
+                // Get existing ANIMO using that filename
+                for (const object of Object.values(this.engine.scope)) {
+                    if (object instanceof animo_1.Animo && object.definition.FILENAME === source) {
+                        return object;
+                    }
                 }
+                // Create a new ANIMO if no object is using it
                 return (await (0, definitionLoader_1.createObject)(this.engine, {
                     TYPE: 'ANIMO',
                     NAME: source,
@@ -56262,20 +56282,6 @@ let Sequence = (() => {
                     TOINI: false,
                     VISIBLE: true,
                 }, null));
-            }
-            getExistingAnimo(source) {
-                const object = this.engine.getObject(source);
-                if (object) {
-                    return object;
-                }
-                for (const object of Object.values(this.engine.scope)) {
-                    if (object instanceof animo_1.Animo) {
-                        if (object.definition.FILENAME === source) {
-                            return object;
-                        }
-                    }
-                }
-                return null;
             }
         },
         (() => {
