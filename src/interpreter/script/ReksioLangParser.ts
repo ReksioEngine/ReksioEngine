@@ -33,16 +33,15 @@ export default class ReksioLangParser extends Parser {
 	public static readonly TYPO = 13;
 	public static readonly TYPO_QUOTE = 14;
 	public static readonly WHITESPACE = 15;
-	public static readonly AT = 16;
-	public static readonly COMMA = 17;
-	public static readonly IDENTIFIER = 18;
-	public static readonly BRACKET_START = 19;
-	public static readonly BRACKET_END = 20;
-	public static readonly OPERATION_GROUPING_START = 21;
-	public static readonly OPERATION_GROUPING_END = 22;
-	public static readonly STATEMENT_END = 23;
-	public static readonly I_WHITESPACE = 24;
-	public static readonly MISSING_QUOTE_TEXT = 25;
+	public static readonly COMMA = 16;
+	public static readonly IDENTIFIER = 17;
+	public static readonly BRACKET_START = 18;
+	public static readonly BRACKET_END = 19;
+	public static readonly OPERATION_GROUPING_START = 20;
+	public static readonly OPERATION_GROUPING_END = 21;
+	public static readonly STATEMENT_END = 22;
+	public static readonly I_WHITESPACE = 23;
+	public static readonly MISSING_QUOTE_TEXT = 24;
 	public static override readonly EOF = Token.EOF;
 	public static readonly RULE_expr = 0;
 	public static readonly RULE_statement = 1;
@@ -70,7 +69,7 @@ export default class ReksioLangParser extends Parser {
                                                             null, null, 
                                                             null, null, 
                                                             null, null, 
-                                                            null, "';'" ];
+                                                            "';'" ];
 	public static readonly symbolicNames: (string | null)[] = [ null, "TRUE", 
                                                              "FALSE", "NUMBER", 
                                                              "CODE_STRING", 
@@ -80,8 +79,7 @@ export default class ReksioLangParser extends Parser {
                                                              "DIV", "METHOD_CALL_SYMBOL", 
                                                              "TYPO", "TYPO_QUOTE", 
                                                              "WHITESPACE", 
-                                                             "AT", "COMMA", 
-                                                             "IDENTIFIER", 
+                                                             "COMMA", "IDENTIFIER", 
                                                              "BRACKET_START", 
                                                              "BRACKET_END", 
                                                              "OPERATION_GROUPING_START", 
@@ -197,7 +195,7 @@ export default class ReksioLangParser extends Parser {
 			this.state = 44;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case 23:
+			case 22:
 				this.enterOuterAlt(localctx, 1);
 				// tslint:disable-next-line:no-empty
 				{
@@ -210,9 +208,9 @@ export default class ReksioLangParser extends Parser {
 			case 5:
 			case 6:
 			case 8:
-			case 16:
-			case 18:
-			case 21:
+			case 11:
+			case 17:
+			case 20:
 				this.enterOuterAlt(localctx, 2);
 				{
 				this.state = 43;
@@ -248,7 +246,7 @@ export default class ReksioLangParser extends Parser {
 			this.state = 51;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 10813822) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 5376382) !== 0)) {
 				{
 				{
 				this.state = 46;
@@ -298,7 +296,7 @@ export default class ReksioLangParser extends Parser {
 			this.state = 61;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2425214) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 1182078) !== 0)) {
 				{
 				this.state = 60;
 				this.methodCallArguments();
@@ -386,7 +384,7 @@ export default class ReksioLangParser extends Parser {
 			this.state = 74;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while (_la===17) {
+			while (_la===16) {
 				{
 				{
 				this.state = 70;
@@ -424,7 +422,7 @@ export default class ReksioLangParser extends Parser {
 			this.enterOuterAlt(localctx, 1);
 			{
 			this.state = 77;
-			this.match(ReksioLangParser.AT);
+			this.match(ReksioLangParser.DIV);
 			this.state = 78;
 			this.methodName();
 			this.state = 79;
@@ -432,7 +430,7 @@ export default class ReksioLangParser extends Parser {
 			this.state = 81;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2425214) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 1182078) !== 0)) {
 				{
 				this.state = 80;
 				this.methodCallArguments();
@@ -724,7 +722,7 @@ export default class ReksioLangParser extends Parser {
 		return localctx;
 	}
 
-	public static readonly _serializedATN: number[] = [4,1,25,125,2,0,7,0,2,
+	public static readonly _serializedATN: number[] = [4,1,24,125,2,0,7,0,2,
 	1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,
 	10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,14,1,0,3,0,32,8,0,1,0,1,0,
 	1,0,1,0,1,0,1,0,1,0,3,0,41,8,0,1,1,1,1,3,1,45,8,1,1,2,1,2,1,2,5,2,50,8,
@@ -741,16 +739,16 @@ export default class ReksioLangParser extends Parser {
 	12,0,36,41,3,28,14,0,37,41,3,14,7,0,38,41,3,6,3,0,39,41,3,16,8,0,40,33,
 	1,0,0,0,40,34,1,0,0,0,40,35,1,0,0,0,40,36,1,0,0,0,40,37,1,0,0,0,40,38,1,
 	0,0,0,40,39,1,0,0,0,41,1,1,0,0,0,42,45,1,0,0,0,43,45,3,0,0,0,44,42,1,0,
-	0,0,44,43,1,0,0,0,45,3,1,0,0,0,46,47,3,2,1,0,47,48,5,23,0,0,48,50,1,0,0,
+	0,0,44,43,1,0,0,0,45,3,1,0,0,0,46,47,3,2,1,0,47,48,5,22,0,0,48,50,1,0,0,
 	0,49,46,1,0,0,0,50,53,1,0,0,0,51,49,1,0,0,0,51,52,1,0,0,0,52,54,1,0,0,0,
 	53,51,1,0,0,0,54,55,5,0,0,1,55,5,1,0,0,0,56,57,3,8,4,0,57,58,5,12,0,0,58,
-	59,3,10,5,0,59,61,5,19,0,0,60,62,3,12,6,0,61,60,1,0,0,0,61,62,1,0,0,0,62,
-	63,1,0,0,0,63,64,5,20,0,0,64,7,1,0,0,0,65,66,3,28,14,0,66,9,1,0,0,0,67,
-	68,3,28,14,0,68,11,1,0,0,0,69,74,3,0,0,0,70,71,5,17,0,0,71,73,3,0,0,0,72,
+	59,3,10,5,0,59,61,5,18,0,0,60,62,3,12,6,0,61,60,1,0,0,0,61,62,1,0,0,0,62,
+	63,1,0,0,0,63,64,5,19,0,0,64,7,1,0,0,0,65,66,3,28,14,0,66,9,1,0,0,0,67,
+	68,3,28,14,0,68,11,1,0,0,0,69,74,3,0,0,0,70,71,5,16,0,0,71,73,3,0,0,0,72,
 	70,1,0,0,0,73,76,1,0,0,0,74,72,1,0,0,0,74,75,1,0,0,0,75,13,1,0,0,0,76,74,
-	1,0,0,0,77,78,5,16,0,0,78,79,3,10,5,0,79,81,5,19,0,0,80,82,3,12,6,0,81,
-	80,1,0,0,0,81,82,1,0,0,0,82,83,1,0,0,0,83,84,5,20,0,0,84,15,1,0,0,0,85,
-	86,5,21,0,0,86,87,3,18,9,0,87,88,5,22,0,0,88,17,1,0,0,0,89,90,3,0,0,0,90,
+	1,0,0,0,77,78,5,11,0,0,78,79,3,10,5,0,79,81,5,18,0,0,80,82,3,12,6,0,81,
+	80,1,0,0,0,81,82,1,0,0,0,82,83,1,0,0,0,83,84,5,19,0,0,84,15,1,0,0,0,85,
+	86,5,20,0,0,86,87,3,18,9,0,87,88,5,21,0,0,88,17,1,0,0,0,89,90,3,0,0,0,90,
 	91,5,7,0,0,91,92,3,0,0,0,92,110,1,0,0,0,93,94,3,0,0,0,94,95,5,8,0,0,95,
 	96,3,0,0,0,96,110,1,0,0,0,97,98,3,0,0,0,98,99,5,9,0,0,99,100,3,0,0,0,100,
 	110,1,0,0,0,101,102,3,0,0,0,102,103,5,10,0,0,103,104,3,0,0,0,104,110,1,
@@ -759,7 +757,7 @@ export default class ReksioLangParser extends Parser {
 	0,0,0,110,19,1,0,0,0,111,112,5,6,0,0,112,21,1,0,0,0,113,114,5,8,0,0,114,
 	117,5,3,0,0,115,117,5,3,0,0,116,113,1,0,0,0,116,115,1,0,0,0,117,23,1,0,
 	0,0,118,119,7,0,0,0,119,25,1,0,0,0,120,121,7,1,0,0,121,27,1,0,0,0,122,123,
-	5,18,0,0,123,29,1,0,0,0,9,31,40,44,51,61,74,81,109,116];
+	5,17,0,0,123,29,1,0,0,0,9,31,40,44,51,61,74,81,109,116];
 
 	private static __ATN: ATN;
 	public static get _ATN(): ATN {
@@ -991,8 +989,8 @@ export class SpecialCallContext extends ParserRuleContext {
 		super(parent, invokingState);
     	this.parser = parser;
 	}
-	public AT(): TerminalNode {
-		return this.getToken(ReksioLangParser.AT, 0);
+	public DIV(): TerminalNode {
+		return this.getToken(ReksioLangParser.DIV, 0);
 	}
 	public methodName(): MethodNameContext {
 		return this.getTypedRuleContext(MethodNameContext, 0) as MethodNameContext;

@@ -22,7 +22,6 @@ fragment F_OPERATION_GROUPING_START: '[';
 fragment F_OPERATION_GROUPING_END: ']';
 fragment F_BRACKET_START: '(';
 fragment F_BRACKET_END: ')';
-fragment F_AT: '@';
 fragment F_COMMA: ',';
 
 // Inconsistency
@@ -46,7 +45,6 @@ METHOD_CALL_SYMBOL: F_METHOD_CALL_SYMBOL;
 TYPO: F_TYPO;
 TYPO_QUOTE: F_TYPO_QUOTE -> pushMode(MISSING_QUOTE);
 WHITESPACE: F_WHITESPACE -> skip;
-AT: F_AT;
 COMMA: F_COMMA;
 
 // Default mode
@@ -76,7 +74,6 @@ I_DIV: F_DIV -> type(DIV);
 I_METHOD_CALL_SYMBOL: F_METHOD_CALL_SYMBOL -> type(METHOD_CALL_SYMBOL);
 I_TYPO: F_TYPO -> type(TYPO);
 I_WHITESPACE: F_WHITESPACE -> skip;
-I_AT: F_AT -> type(AT);
 I_COMMA: F_COMMA -> type(COMMA);
 
 // Inside mode

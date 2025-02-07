@@ -20,7 +20,7 @@ objectName: identifier;
 methodName: identifier;
 methodCallArguments: expr (COMMA expr)*;
 
-specialCall: AT methodName BRACKET_START methodCallArguments? BRACKET_END;
+specialCall: DIV methodName BRACKET_START methodCallArguments? BRACKET_END;
 
 operationGrouping: OPERATION_GROUPING_START operation OPERATION_GROUPING_END;
 operation
