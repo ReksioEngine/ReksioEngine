@@ -56258,18 +56258,23 @@ let Sequence = (() => {
                 this.currentAnimoEvent = eventName;
                 this.activeAnimo?.playEvent(eventName);
             }
-            async getAnimo(source) {
-                // Get existing ANIMO using that filename
+            async getAnimo(nameOrFilename) {
+                // Get object by name
+                const object = this.engine.getObject(nameOrFilename);
+                if (object) {
+                    return object;
+                }
+                // Get existing object by filename
                 for (const object of Object.values(this.engine.scope)) {
-                    if (object instanceof animo_1.Animo && object.definition.FILENAME === source) {
+                    if (object instanceof animo_1.Animo && object.definition.FILENAME === nameOrFilename) {
                         return object;
                     }
                 }
-                // Create a new ANIMO if no object is using it
+                // Create a new ANIMO if object doesn't exist
                 return (await (0, definitionLoader_1.createObject)(this.engine, {
                     TYPE: 'ANIMO',
-                    NAME: source,
-                    FILENAME: source,
+                    NAME: nameOrFilename,
+                    FILENAME: nameOrFilename,
                     FPS: 16,
                     MONITORCOLLISION: false,
                     MONITORCOLLISIONALPHA: false,
