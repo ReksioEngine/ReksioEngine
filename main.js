@@ -52657,23 +52657,28 @@ let Animo = (() => {
                     console.warn(`Attempted to change to non-existent frame ${frameIdx}`);
                     return;
                 }
-                const imageIndex = event.framesImageMapping[frameIdx];
+                this.sprite.name = `${this.name} (${event.name}) (ANIMO)`; // For PIXI Devtools
+                this.changeImage(event.framesImageMapping[frameIdx]);
+                this.sprite.x += eventFrame.positionX;
+                this.sprite.y += eventFrame.positionY;
+                if (signal) {
+                    this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
+                }
+            }
+            changeImage(imageIndex) {
+                (0, errors_1.assert)(this.annFile !== null);
+                (0, errors_1.assert)(this.sprite !== null);
                 const annImage = this.annFile.annImages[imageIndex];
-                // TODO: refactor it so we don't assign texture and hitmap separately?
                 this.sprite.texture = this.getTexture(imageIndex);
                 this.sprite.hitmap = this.getHitmap(imageIndex);
-                this.sprite.name = `${this.name} (${event.name}) (ANIMO)`; // For PIXI Devtools
-                this.positionOffsetX = annImage.positionX + eventFrame.positionX;
+                this.positionOffsetX = annImage.positionX;
                 this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX;
-                this.positionOffsetY = annImage.positionY + eventFrame.positionY;
+                this.positionOffsetY = annImage.positionY;
                 this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY;
                 this.sprite.width = annImage.width;
                 this.sprite.height = annImage.height;
                 if (this.buttonInteractArea !== null) {
                     this.buttonInteractArea.hitArea = this.sprite.getBounds();
-                }
-                if (signal) {
-                    this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
                 }
             }
             PLAY(name) {
@@ -52726,21 +52731,20 @@ let Animo = (() => {
                 this.isPlaying = true;
             }
             SETFRAME(eventNameOrFrameIdx, frameIdx) {
-                let newFrame;
-                let newEvent = this.currentEvent;
                 if (frameIdx === undefined) {
-                    newFrame = Number(eventNameOrFrameIdx);
+                    const imageIndex = Number(eventNameOrFrameIdx);
+                    (0, errors_1.assert)(!Number.isNaN(imageIndex));
+                    this.changeImage(imageIndex);
+                    return;
                 }
-                else {
-                    newEvent = eventNameOrFrameIdx.toString();
-                    newFrame = Number(frameIdx);
-                }
+                const newEvent = eventNameOrFrameIdx.toString();
+                const newEventFrame = Number(frameIdx);
                 const event = this.getEventByName(newEvent);
                 (0, errors_1.assert)(event !== null);
                 // Necessary in S63_OBOZ
-                if (newFrame < event.framesCount) {
+                if (newEventFrame < event.framesCount) {
                     this.currentEvent = newEvent;
-                    this.currentFrame = newFrame;
+                    this.currentFrame = newEventFrame;
                     // Force render because some animations might not be playing,
                     // but they display something (like a keypad screen in S73_0_KOD in UFO)
                     this.forceRender();
@@ -56921,7 +56925,8 @@ let Timer = (() => {
                 this.elapse = newElapse;
             }
             SET(value) {
-                this.collectedTime = value;
+                // TODO: I don't really see any other effect than reset
+                this.RESET();
             }
             RESET() {
                 this.collectedTime = 0;
