@@ -21,8 +21,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private currentFrame: number = 0
     private currentEvent: string = ''
 
-    private nonEmptyEvents: Event[] = []
-
     private animationEndedLastTick: boolean = false
     private buttonInteractArea: Graphics | null = null
 
@@ -59,8 +57,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async init() {
         this.annFile = await this.loadAnimation()
         this.initSprite()
-
-        this.nonEmptyEvents = this.annFile.events.filter((event) => event.framesCount > 0)
     }
 
     applyDefaults() {
@@ -342,7 +338,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private forceRender() {
         const event = this.getEventByName(this.currentEvent)
         assert(event !== null)
-        this.changeFrame(event, this.currentFrame)
+        this.changeFrame(event, this.currentFrame, false)
     }
 
     private ONFINISHED() {
