@@ -52470,7 +52470,6 @@ let Animo = (() => {
                 this.isPlaying = false;
                 this.currentFrame = 0;
                 this.currentEvent = '';
-                this.nonEmptyEvents = [];
                 this.animationEndedLastTick = false;
                 this.buttonInteractArea = null;
                 this.fps = 16;
@@ -52493,7 +52492,6 @@ let Animo = (() => {
             async init() {
                 this.annFile = await this.loadAnimation();
                 this.initSprite();
-                this.nonEmptyEvents = this.annFile.events.filter((event) => event.framesCount > 0);
             }
             applyDefaults() {
                 this.currentEvent = this.getDefaultEvent() ?? '';
@@ -52716,7 +52714,7 @@ let Animo = (() => {
             forceRender() {
                 const event = this.getEventByName(this.currentEvent);
                 (0, errors_1.assert)(event !== null);
-                this.changeFrame(event, this.currentFrame);
+                this.changeFrame(event, this.currentFrame, false);
             }
             ONFINISHED() {
                 const index = this.currentEvent.toString();
