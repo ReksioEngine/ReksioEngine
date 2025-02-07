@@ -52470,6 +52470,7 @@ let Animo = (() => {
                 this.isPlaying = false;
                 this.currentFrame = 0;
                 this.currentEvent = '';
+                this.nonEmptyEvents = [];
                 this.animationEndedLastTick = false;
                 this.buttonInteractArea = null;
                 this.fps = 16;
@@ -52492,6 +52493,7 @@ let Animo = (() => {
             async init() {
                 this.annFile = await this.loadAnimation();
                 this.initSprite();
+                this.nonEmptyEvents = this.annFile.events.filter((event) => event.framesCount > 0);
             }
             applyDefaults() {
                 this.currentEvent = this.getDefaultEvent() ?? '';
@@ -52657,10 +52659,20 @@ let Animo = (() => {
                     console.warn(`Attempted to change to non-existent frame ${frameIdx}`);
                     return;
                 }
+                const imageIndex = event.framesImageMapping[frameIdx];
+                const annImage = this.annFile.annImages[imageIndex];
+                this.sprite.texture = this.getTexture(imageIndex);
+                this.sprite.hitmap = this.getHitmap(imageIndex);
                 this.sprite.name = `${this.name} (${event.name}) (ANIMO)`; // For PIXI Devtools
-                this.changeImage(event.framesImageMapping[frameIdx]);
-                this.sprite.x += eventFrame.positionX;
-                this.sprite.y += eventFrame.positionY;
+                this.positionOffsetX = annImage.positionX + eventFrame.positionX;
+                this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX;
+                this.positionOffsetY = annImage.positionY + eventFrame.positionY;
+                this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY;
+                this.sprite.width = annImage.width;
+                this.sprite.height = annImage.height;
+                if (this.buttonInteractArea !== null) {
+                    this.buttonInteractArea.hitArea = this.sprite.getBounds();
+                }
                 if (signal) {
                     this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
                 }
