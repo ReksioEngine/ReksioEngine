@@ -24,9 +24,12 @@ export class Sequence extends Type<SequenceDefinition> {
     private parametersMapping: Map<string, number> = new Map()
     private subEntries: Map<string, SequenceFileEntry[]> = new Map<string, SequenceFileEntry[]>()
     private parameterSequence: ParameterSequence | null = null
+
     private allAnimoFilenames: Set<string> = new Set()
+    private allAnimoObjects = new Map<string, Animo>()
 
     private sounds: Map<string, Sound> = new Map()
+    private endedSpeakingSoundsQueue: Speaking[] = []
 
     private queue: SequenceFileEntry[] = []
     private activeAnimo: Animo | null = null
@@ -38,7 +41,7 @@ export class Sequence extends Type<SequenceDefinition> {
     private loop: boolean = false
     private loopIndex: number = 0
 
-    private readonly onAnimoEventFinishedCallback: (eventName: string) => Promise<void>
+    private readonly onAnimoEventFinishedCallback: (eventName: string) => void
 
     constructor(engine: Engine, parent: Type<any> | null, definition: SequenceDefinition) {
         super(engine, parent, definition)
@@ -53,6 +56,10 @@ export class Sequence extends Type<SequenceDefinition> {
 
         this.sequenceFile = await this.engine.fileLoader.getSequenceFile(relativePath)
         await this.load()
+
+        for (const animoFilename of this.allAnimoFilenames) {
+            this.allAnimoObjects.set(animoFilename, await this.getAnimo(animoFilename))
+        }
     }
 
     ready() {
@@ -99,9 +106,27 @@ export class Sequence extends Type<SequenceDefinition> {
             }
         }
 
-        const sounds = await Promise.all(soundsNames.map((name) => loadSound(this.engine.fileLoader, `Wavs/${name}`)))
+        const sounds = await Promise.all(soundsNames.map(async (name: string): Promise<Sound> => {
+            const sound = await loadSound(this.engine.fileLoader, `Wavs/${name}`, { preload: true })
+            return new Promise((resolve) => {
+                return sound.media.load(() => resolve(sound))
+            })
+        }))
         for (let i = 0; i < sounds.length; i++) {
             this.sounds.set(soundsNames[i], sounds[i])
+        }
+    }
+
+    tick(elapsedMS: number) {
+        while (this.endedSpeakingSoundsQueue.length > 0) {
+            this.loop = false
+            const entry = this.endedSpeakingSoundsQueue.shift()!
+            const stopEvent = entry.PREFIX + '_STOP'
+            if (entry.ENDING && this.activeAnimo?.hasEvent(stopEvent)) {
+                this.playAnimoEvent(stopEvent)
+            } else {
+                this.progressNext()
+            }
         }
     }
 
@@ -130,9 +155,8 @@ export class Sequence extends Type<SequenceDefinition> {
 
         // HIDE() might be called before sequence is playing, so we can't just hide activeAnimo
         // because activeAnimo would be null at that point, we don't know what sequence is gonna be played
-        for (const filename of this.allAnimoFilenames) {
-            const animo = this.getExistingAnimo(filename)
-            animo?.HIDE()
+        for (const object of this.allAnimoObjects.values()) {
+            object.HIDE()
         }
     }
 
@@ -166,7 +190,7 @@ export class Sequence extends Type<SequenceDefinition> {
         }
     }
 
-    private async onAnimoEventFinished(eventName: string) {
+    private onAnimoEventFinished(eventName: string) {
         assert(this.activeAnimo !== null)
 
         if (this.runningSubSequence?.TYPE === 'SPEAKING') {
@@ -177,7 +201,7 @@ export class Sequence extends Type<SequenceDefinition> {
                     this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1')
                 }
             } else if (this.runningSubSequence.ENDING && eventName === this.runningSubSequence.PREFIX + '_STOP') {
-                await this.progressNext()
+                this.progressNext()
             } else if (this.loop) {
                 let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`
                 if (!this.activeAnimo.hasEvent(eventName)) {
@@ -187,11 +211,11 @@ export class Sequence extends Type<SequenceDefinition> {
                 this.playAnimoEvent(eventName)
             }
         } else if (this.currentAnimoEvent == eventName) {
-            await this.progressNext()
+            this.progressNext()
         }
     }
 
-    private async progressNext() {
+    private progressNext() {
         if (this.sequenceName === null) {
             return
         }
@@ -205,7 +229,7 @@ export class Sequence extends Type<SequenceDefinition> {
 
         const next = this.queue.shift()!
         if (next.TYPE === 'SEQUENCE') {
-            await this.progressNext()
+            this.progressNext()
             return
         }
 
@@ -217,15 +241,16 @@ export class Sequence extends Type<SequenceDefinition> {
                     this.activeAnimo.events.unregister(Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback)
                 }
 
-                this.activeAnimo = await this.getAnimo(speaking.ANIMOFN)
-                if (this.activeAnimo) {
-                    this.activeAnimo.events.register(Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback)
+                const animoObject = this.allAnimoObjects.get(speaking.ANIMOFN)
+                if (animoObject) {
+                    this.activeAnimo = animoObject
+                    animoObject.events.register(Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback)
                 }
             }
 
             if (this.activeAnimo) {
                 const sound = this.sounds.get(speaking.WAVFN)!
-                const instance = await sound.play()
+                const instance = sound.play() as IMediaInstance
                 this.playingSound = instance
 
                 const startEvent = speaking.PREFIX + '_START'
@@ -238,14 +263,7 @@ export class Sequence extends Type<SequenceDefinition> {
                 }
 
                 instance.on('end', async () => {
-                    this.loop = false
-
-                    const stopEvent = speaking.PREFIX + '_STOP'
-                    if (speaking.ENDING && this.activeAnimo?.hasEvent(stopEvent)) {
-                        this.playAnimoEvent(stopEvent)
-                    } else {
-                        await this.progressNext()
-                    }
+                    this.endedSpeakingSoundsQueue.push(speaking)
                 })
 
                 this.runningSubSequence = speaking
@@ -258,9 +276,10 @@ export class Sequence extends Type<SequenceDefinition> {
                     this.activeAnimo.events.unregister(Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback)
                 }
 
-                this.activeAnimo = await this.getAnimo(simple.FILENAME)
-                if (this.activeAnimo) {
-                    this.activeAnimo.events.register(Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback)
+                const animoObject = this.allAnimoObjects.get(simple.FILENAME)
+                if (animoObject) {
+                    this.activeAnimo = animoObject
+                    animoObject.events.register(Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback)
                 }
             }
 
@@ -270,7 +289,7 @@ export class Sequence extends Type<SequenceDefinition> {
                 if (!this.activeAnimo.hasEvent(eventName)) {
                     const defaultEvent = this.activeAnimo.getDefaultEvent()
                     if (defaultEvent == null) {
-                        await this.progressNext()
+                        this.progressNext()
                         return
                     }
                     eventName = defaultEvent
@@ -288,11 +307,14 @@ export class Sequence extends Type<SequenceDefinition> {
     }
 
     private async getAnimo(source: string): Promise<Animo> {
-        const object = this.getExistingAnimo(source)
-        if (object !== null) {
-            return object
+        // Get existing ANIMO using that filename
+        for (const object of Object.values(this.engine.scope)) {
+            if (object instanceof Animo && object.definition.FILENAME === source) {
+                return object
+            }
         }
 
+        // Create a new ANIMO if no object is using it
         return (await createObject(
             this.engine,
             {
@@ -311,22 +333,5 @@ export class Sequence extends Type<SequenceDefinition> {
             },
             null
         )) as Animo
-    }
-
-    private getExistingAnimo(source: string): Animo | null {
-        const object = this.engine.getObject(source)
-        if (object) {
-            return object
-        }
-
-        for (const object of Object.values(this.engine.scope)) {
-            if (object instanceof Animo) {
-                if (object.definition.FILENAME === source) {
-                    return object
-                }
-            }
-        }
-
-        return null
     }
 }
