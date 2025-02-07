@@ -259,18 +259,29 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
-        const imageIndex = event.framesImageMapping[frameIdx]
-        const annImage = this.annFile.annImages[imageIndex]
-
-        // TODO: refactor it so we don't assign texture and hitmap separately?
-        this.sprite.texture = this.getTexture(imageIndex)
-        this.sprite.hitmap = this.getHitmap(imageIndex)
         this.sprite.name = `${this.name} (${event.name}) (ANIMO)` // For PIXI Devtools
 
-        this.positionOffsetX = annImage.positionX + eventFrame.positionX
+        this.changeImage(event.framesImageMapping[frameIdx])
+        this.sprite.x += eventFrame.positionX
+        this.sprite.y += eventFrame.positionY
+
+        if (signal) {
+            this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
+        }
+    }
+
+    private changeImage(imageIndex: number) {
+        assert(this.annFile !== null)
+        assert(this.sprite !== null)
+
+        const annImage = this.annFile.annImages[imageIndex]
+        this.sprite.texture = this.getTexture(imageIndex)
+        this.sprite.hitmap = this.getHitmap(imageIndex)
+
+        this.positionOffsetX = annImage.positionX
         this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX
 
-        this.positionOffsetY = annImage.positionY + eventFrame.positionY
+        this.positionOffsetY = annImage.positionY
         this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY
 
         this.sprite.width = annImage.width
@@ -278,10 +289,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         if (this.buttonInteractArea !== null) {
             this.buttonInteractArea.hitArea = this.sprite.getBounds()
-        }
-
-        if (signal) {
-            this.callbacks.run('ONFRAMECHANGED', this.currentEvent)
         }
     }
 
@@ -353,23 +360,23 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     @method()
     SETFRAME(eventNameOrFrameIdx: string | number, frameIdx?: number) {
-        let newFrame: number
-        let newEvent = this.currentEvent
-
         if (frameIdx === undefined) {
-            newFrame = Number(eventNameOrFrameIdx)
-        } else {
-            newEvent = eventNameOrFrameIdx.toString()
-            newFrame = Number(frameIdx)
+            const imageIndex = Number(eventNameOrFrameIdx)
+            assert(!Number.isNaN(imageIndex))
+            this.changeImage(imageIndex)
+            return
         }
+
+        const newEvent = eventNameOrFrameIdx.toString()
+        const newEventFrame = Number(frameIdx)
 
         const event = this.getEventByName(newEvent)
         assert(event !== null)
 
         // Necessary in S63_OBOZ
-        if (newFrame < event.framesCount) {
+        if (newEventFrame < event.framesCount) {
             this.currentEvent = newEvent
-            this.currentFrame = newFrame
+            this.currentFrame = newEventFrame
 
             // Force render because some animations might not be playing,
             // but they display something (like a keypad screen in S73_0_KOD in UFO)
