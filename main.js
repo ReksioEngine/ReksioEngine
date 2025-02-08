@@ -51341,6 +51341,7 @@ const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/renderi
 class Debugging {
     constructor(engine, isDebug) {
         this.isDebug = false;
+        this.autoStart = true;
         this.nextSceneOverwrite = null;
         this.muteMusic = false;
         this.xrays = new Map();
@@ -51383,9 +51384,12 @@ class Debugging {
                 this.engine.fileLoader = new filesLoader_1.ArchiveOrgFileLoader(source);
             }
         }
+        if (urlParams.has('autostart')) {
+            this.autoStart = urlParams.get('autostart') === 'true';
+        }
         this.nextSceneOverwrite = urlParams.get('scene');
     }
-    setupSceneSelector() {
+    setupDebugTools() {
         if (!this.isDebug) {
             return;
         }
@@ -51405,6 +51409,13 @@ class Debugging {
         const exportSave = document.querySelector('#exportSave');
         const enableSaveFiles = document.querySelector('#enableSaveFiles');
         const muteMusic = document.querySelector('#muteMusic');
+        const isoInput = document.querySelector('#isoInput');
+        isoInput.addEventListener('change', async (event) => {
+            const fileLoader = new filesLoader_1.IsoFileLoader(event.target.files[0]);
+            await fileLoader.init();
+            this.engine.fileLoader = fileLoader;
+            await this.engine.start();
+        });
         const setSpeed = (speed) => {
             this.engine.speed = speed;
             sound_1.sound.speedAll = speed;
@@ -51449,19 +51460,6 @@ class Debugging {
             const target = e.target;
             this.enableXRayInvisible = target.checked;
         });
-        const episode = Object.values(this.engine.globalScope).find((object) => object.definition.TYPE === 'EPISODE');
-        for (const sceneName of episode.definition.SCENES) {
-            const scene = Object.values(this.engine.globalScope).find((object) => {
-                return object.definition.TYPE === 'SCENE' && object.definition.NAME === sceneName;
-            });
-            const sceneDefPath = scene.getRelativePath(`${sceneName}.cnv`);
-            const canGoTo = this.engine.fileLoader.getFilesListing().includes(sceneDefPath.toLowerCase());
-            const option = document.createElement('option');
-            option.value = sceneName;
-            option.text = sceneName;
-            option.disabled = !canGoTo;
-            sceneSelector.appendChild(option);
-        }
         sceneSelector.addEventListener('change', async () => {
             try {
                 await this.engine.changeScene(sceneSelector.value);
@@ -51530,6 +51528,25 @@ class Debugging {
                 this.engine.saveFile = saveFile_1.SaveFileManager.fromLocalStorage();
             }
         });
+    }
+    fillSceneSelector() {
+        const sceneSelector = document.querySelector('#sceneSelector');
+        const episode = Object.values(this.engine.globalScope).find((object) => object.definition.TYPE === 'EPISODE');
+        if (episode === undefined) {
+            return;
+        }
+        for (const sceneName of episode.definition.SCENES) {
+            const scene = Object.values(this.engine.globalScope).find((object) => {
+                return object.definition.TYPE === 'SCENE' && object.definition.NAME === sceneName;
+            });
+            const sceneDefPath = scene.getRelativePath(`${sceneName}.cnv`);
+            const canGoTo = this.engine.fileLoader.getFilesListing().includes(sceneDefPath.toLowerCase());
+            const option = document.createElement('option');
+            option.value = sceneName;
+            option.text = sceneName;
+            option.disabled = !canGoTo;
+            sceneSelector.appendChild(option);
+        }
     }
     updateCurrentScene() {
         if (this.isDebug) {
@@ -51819,11 +51836,12 @@ exports.createObject = createObject;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
+exports.IsoFileLoader = exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
 const cnv_1 = __webpack_require__(/*! ../fileFormats/cnv */ "./src/fileFormats/cnv/index.ts");
 const img_1 = __webpack_require__(/*! ../fileFormats/img */ "./src/fileFormats/img/index.ts");
 const ann_1 = __webpack_require__(/*! ../fileFormats/ann */ "./src/fileFormats/ann/index.ts");
 const seq_1 = __webpack_require__(/*! ../fileFormats/seq */ "./src/fileFormats/seq/index.ts");
+const iso9660_1 = __webpack_require__(/*! ./iso9660 */ "./src/engine/iso9660.ts");
 class FileNotFoundError extends Error {
     constructor(filename) {
         super(`File '${filename}' not found in files listing`);
@@ -51833,18 +51851,7 @@ exports.FileNotFoundError = FileNotFoundError;
 class FileLoader {
 }
 exports.FileLoader = FileLoader;
-class UrlFileLoader extends FileLoader {
-    constructor() {
-        super(...arguments);
-        this.listing = null;
-        this.history = new Set();
-    }
-    getFilesListing() {
-        return [...this.listing.keys()];
-    }
-    getHistory() {
-        return this.history;
-    }
+class SimpleFileLoader extends FileLoader {
     async getANNFile(filename) {
         const data = await this.getRawFile(filename);
         return (0, ann_1.loadAnn)(data);
@@ -51869,11 +51876,23 @@ class UrlFileLoader extends FileLoader {
         const data = await this.getRawFile(filename);
         return (0, img_1.loadImage)(data);
     }
+    hasFile(filename) {
+        return this.getFilesListing().includes(filename.toLowerCase().replace(/\\/g, '/'));
+    }
+}
+class UrlFileLoader extends SimpleFileLoader {
+    constructor() {
+        super(...arguments);
+        this.listing = null;
+    }
+    async init() {
+        console.debug('Fetching files listing...');
+        this.listing = await this.fetchFilesListing();
+    }
+    getFilesListing() {
+        return [...this.listing.keys()];
+    }
     async getRawFile(filename) {
-        if (this.listing == null) {
-            console.debug('Fetching files listing...');
-            this.listing = await this.fetchFilesListing();
-        }
         const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
         console.debug(`Fetching '${normalizedFilename}'...`);
         const fileUrl = this.listing.get(normalizedFilename);
@@ -51881,7 +51900,6 @@ class UrlFileLoader extends FileLoader {
             throw new FileNotFoundError(normalizedFilename);
         }
         const response = await fetch(fileUrl);
-        this.history.add(normalizedFilename);
         return await response.arrayBuffer();
     }
 }
@@ -51920,6 +51938,28 @@ class ArchiveOrgFileLoader extends UrlFileLoader {
     }
 }
 exports.ArchiveOrgFileLoader = ArchiveOrgFileLoader;
+class IsoFileLoader extends SimpleFileLoader {
+    constructor(file) {
+        super();
+        this.isoReader = new iso9660_1.Iso9660Reader(file);
+    }
+    async init() {
+        await this.isoReader.load();
+    }
+    getFilesListing() {
+        return this.isoReader.getListing();
+    }
+    async getRawFile(filename) {
+        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
+        console.debug(`Loading '${normalizedFilename}'...`);
+        const fileResult = await this.isoReader.getFile(normalizedFilename);
+        if (fileResult == null) {
+            throw new FileNotFoundError(normalizedFilename);
+        }
+        return fileResult;
+    }
+}
+exports.IsoFileLoader = IsoFileLoader;
 
 
 /***/ }),
@@ -51968,24 +52008,39 @@ class Engine {
     async init() {
         try {
             this.debug.applyQueryParams();
+            // @ts-expect-error no engine in globalThis
+            globalThis.engine = this;
+            await (0, devtools_1.initDevtools)({ app: this.app });
             if (saveFile_1.SaveFileManager.areSavesEnabled()) {
                 this.saveFile = saveFile_1.SaveFileManager.fromLocalStorage();
             }
-            const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def');
-            await (0, definitionLoader_1.loadDefinition)(this, this.globalScope, applicationDef, null);
-            this.debug.setupSceneSelector();
             this.app.ticker.maxFPS = 60;
             this.app.stage.interactive = true;
             sound_1.sound.disableAutoPause = true;
             this.app.stage.name = 'Scene'; // For PIXI Devtools
             this.app.stage.addChild(this.canvasBackground);
             this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS));
-            // @ts-expect-error no engine in globalThis
-            globalThis.engine = this;
-            await (0, devtools_1.initDevtools)({ app: this.app });
+            this.app.ticker.stop();
+            this.debug.setupDebugTools();
+            if (this.debug.autoStart) {
+                await this.start();
+            }
         }
         catch (err) {
-            console.error('Unhandled error occurred during initialization\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
+            console.error('Unhandled error occurred during initialization');
+            console.error(err);
+        }
+    }
+    async start() {
+        try {
+            await this.fileLoader.init();
+            const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def');
+            await (0, definitionLoader_1.loadDefinition)(this, this.globalScope, applicationDef, null);
+            this.debug.fillSceneSelector();
+            this.app.ticker.start();
+        }
+        catch (err) {
+            console.error('Unhandled error occurred during start\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
             console.error(err);
         }
     }
@@ -52154,6 +52209,140 @@ exports.Engine = Engine;
 
 /***/ }),
 
+/***/ "./src/engine/iso9660.ts":
+/*!*******************************!*\
+  !*** ./src/engine/iso9660.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Iso9660Reader = void 0;
+const utils_1 = __webpack_require__(/*! ../fileFormats/utils */ "./src/fileFormats/utils.ts");
+class Iso9660Reader {
+    constructor(file) {
+        this.filesMapping = new Map();
+        this.file = file;
+    }
+    readAt(offset, length) {
+        return new Promise((resolve, reject) => {
+            const blob = this.file.slice(offset, offset + length);
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                if (event.target === null) {
+                    reject();
+                    return;
+                }
+                resolve(event.target.result);
+            };
+            reader.readAsArrayBuffer(blob);
+        });
+    }
+    async bufferAt(offset, length) {
+        const data = await this.readAt(offset, length);
+        return new utils_1.BinaryBuffer(new DataView(data));
+    }
+    decodeUTF16BE(arrayBuffer) {
+        const view = new DataView(arrayBuffer);
+        const swappedBuffer = new Uint8Array(arrayBuffer.byteLength);
+        for (let i = 0; i < arrayBuffer.byteLength; i += 2) {
+            swappedBuffer[i] = view.getUint8(i + 1); // High byte
+            swappedBuffer[i + 1] = view.getUint8(i); // Low byte
+        }
+        const decoder = new TextDecoder('utf-16le');
+        return decoder.decode(swappedBuffer);
+    }
+    async processDirectory(position, length, path) {
+        const directory = await this.bufferAt(position * 2048, length);
+        while (directory.offset < length) {
+            const startOffset = directory.offset;
+            const directoryRecordLength = directory.getUint8(); // Length of Directory Record
+            if (directoryRecordLength === 0) {
+                // Didn't fit in the sector
+                directory.skip(2048 - (startOffset % 2048) - 1);
+                continue;
+            }
+            directory.getUint8(); // Extended Attribute Record length.
+            const locationOfExtent = directory.getUint32(); // Location of extent (LBA) in both-endian format.
+            directory.getUint32();
+            const dataLength = directory.getUint32(); // Data length (size of extent) in both-endian format.
+            directory.getUint32();
+            directory.read(7); // Recording date and time.
+            const flags = directory.getUint8(); //  	File flags.
+            directory.getUint8(); // File unit size for files recorded in interleaved mode, zero otherwise.
+            directory.getUint8(); // Interleave gap size for files recorded in interleaved mode, zero otherwise.
+            directory.getUint16(); // Volume sequence number - the volume that this extent is recorded on, in 16 bit both-endian format.
+            directory.getUint16();
+            const identifierLength = directory.getUint8();
+            // Get filename
+            let name = '';
+            if (identifierLength == 1) {
+                const value = directory.getUint8();
+                if (value === 0) {
+                    name = '.';
+                }
+                else if (value === 1) {
+                    name = '..';
+                }
+            }
+            else {
+                name = this.decodeUTF16BE(directory.read(identifierLength));
+            }
+            // Padding
+            if (identifierLength % 2 === 0) {
+                directory.skip(1);
+            }
+            // Some special space
+            const restSize = directoryRecordLength - (directory.offset - startOffset);
+            directory.skip(restSize);
+            if (name == '.' || name == '..') {
+                continue;
+            }
+            // Do something with data
+            const isDirectory = (flags & 2) != 0;
+            if (!isDirectory) {
+                name = name.substring(0, name.indexOf(';')); // Remove version
+            }
+            const fullPathParts = [...path, name];
+            const fullPath = fullPathParts.join('/').toLowerCase();
+            if (isDirectory) {
+                await this.processDirectory(locationOfExtent, dataLength, fullPathParts);
+            }
+            else {
+                this.filesMapping.set(fullPath, {
+                    offset: locationOfExtent * 2048,
+                    size: dataLength,
+                });
+            }
+        }
+    }
+    async load() {
+        const rootDirectoryEntry = await this.bufferAt(17 * 2048 + 156, 34);
+        rootDirectoryEntry.getUint8(); // Length of Directory Record
+        rootDirectoryEntry.getUint8(); // Extended Attribute Record length
+        const rootLocation = rootDirectoryEntry.getUint32(); // Location of extent LSB
+        rootDirectoryEntry.getUint32(); // Location of extent MSB
+        const rootLength = rootDirectoryEntry.getUint32(); // Data length LSB
+        rootDirectoryEntry.getUint32(); // Data length MSB
+        await this.processDirectory(rootLocation, rootLength, []);
+    }
+    async getFile(path) {
+        const entry = this.filesMapping.get(path);
+        if (!entry) {
+            return null;
+        }
+        return this.readAt(entry.offset, entry.size);
+    }
+    getListing() {
+        return [...this.filesMapping.keys()];
+    }
+}
+exports.Iso9660Reader = Iso9660Reader;
+
+
+/***/ }),
+
 /***/ "./src/engine/optimizations.ts":
 /*!*************************************!*\
   !*** ./src/engine/optimizations.ts ***!
@@ -52171,7 +52360,7 @@ const preloadAssets = async (fileLoader, scene) => {
         return;
     }
     await Promise.all(listing.map((filename) => {
-        if (!filename.startsWith(scenePath) || fileLoader.getHistory().has(filename)) {
+        if (!filename.startsWith(scenePath)) {
             return;
         }
         console.debug(`Preloading '${filename}'`);
