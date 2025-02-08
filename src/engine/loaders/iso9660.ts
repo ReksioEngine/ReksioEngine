@@ -1,4 +1,4 @@
-import { BinaryBuffer } from '../fileFormats/utils'
+import { BinaryBuffer } from '../../fileFormats/utils'
 
 export type FileEntry = {
     offset: number

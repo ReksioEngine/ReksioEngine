@@ -3,8 +3,8 @@ import { EpisodeDefinition } from '../../fileFormats/cnv/types'
 import { Scene } from './scene'
 import { assert } from '../../common/errors'
 import { pathJoin } from '../../common/utils'
-import { loadDefinition } from '../definitionLoader'
-import { FileNotFoundError } from '../filesLoader'
+import { loadDefinition } from '../loaders/definitionLoader'
+import { FileNotFoundError } from '../loaders/filesLoader'
 import { method } from '../../common/types'
 
 export class Episode extends Type<EpisodeDefinition> {

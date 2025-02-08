@@ -1,7 +1,7 @@
 import { Type } from './index'
 import { Engine } from '../index'
 import { SequenceDefinition } from '../../fileFormats/cnv/types'
-import { FileNotFoundError } from '../filesLoader'
+import { FileNotFoundError } from '../loaders/filesLoader'
 import {
     ParameterSequence,
     SequenceFile,
@@ -12,9 +12,9 @@ import {
 } from '../../fileFormats/seq'
 import { assert } from '../../common/errors'
 import { Animo } from './animo'
-import { loadSound } from '../assetsLoader'
+import { loadSound } from '../loaders/assetsLoader'
 import { IMediaInstance, Sound } from '@pixi/sound'
-import { createObject } from '../definitionLoader'
+import { createObject } from '../loaders/definitionLoader'
 import { method } from '../../common/types'
 
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~'

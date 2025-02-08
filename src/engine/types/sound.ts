@@ -1,8 +1,8 @@
 import { Type } from './index'
-import { loadSound } from '../assetsLoader'
+import { loadSound } from '../loaders/assetsLoader'
 import { SoundDefinition } from '../../fileFormats/cnv/types'
 import { Sound as PIXISound } from '@pixi/sound'
-import { FileNotFoundError } from '../filesLoader'
+import { FileNotFoundError } from '../loaders/filesLoader'
 import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
 
