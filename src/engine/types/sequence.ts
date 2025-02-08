@@ -106,12 +106,14 @@ export class Sequence extends Type<SequenceDefinition> {
             }
         }
 
-        const sounds = await Promise.all(soundsNames.map(async (name: string): Promise<Sound> => {
-            const sound = await loadSound(this.engine.fileLoader, `Wavs/${name}`, { preload: true })
-            return new Promise((resolve) => {
-                return sound.media.load(() => resolve(sound))
+        const sounds = await Promise.all(
+            soundsNames.map(async (name: string): Promise<Sound> => {
+                const sound = await loadSound(this.engine.fileLoader, `Wavs/${name}`, { preload: true })
+                return new Promise((resolve) => {
+                    return sound.media.load(() => resolve(sound))
+                })
             })
-        }))
+        )
         for (let i = 0; i < sounds.length; i++) {
             this.sounds.set(soundsNames[i], sounds[i])
         }

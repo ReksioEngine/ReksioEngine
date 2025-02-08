@@ -53,14 +53,13 @@ export class Engine {
         try {
             this.debug.applyQueryParams()
 
+            // @ts-expect-error no engine in globalThis
+            globalThis.engine = this
+            await initDevtools({ app: this.app })
+
             if (SaveFileManager.areSavesEnabled()) {
                 this.saveFile = SaveFileManager.fromLocalStorage()
             }
-
-            const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
-            await loadDefinition(this, this.globalScope, applicationDef, null)
-
-            this.debug.setupSceneSelector()
 
             this.app.ticker.maxFPS = 60
             this.app.stage.interactive = true
@@ -69,13 +68,31 @@ export class Engine {
             this.app.stage.name = 'Scene' // For PIXI Devtools
             this.app.stage.addChild(this.canvasBackground)
             this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS))
+            this.app.ticker.stop()
 
-            // @ts-expect-error no engine in globalThis
-            globalThis.engine = this
-            await initDevtools({ app: this.app })
+            this.debug.setupDebugTools()
+
+            if (this.debug.autoStart) {
+                await this.start()
+            }
+        } catch (err) {
+            console.error('Unhandled error occurred during initialization')
+            console.error(err)
+        }
+    }
+
+    async start() {
+        try {
+            await this.fileLoader.init()
+
+            const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
+            await loadDefinition(this, this.globalScope, applicationDef, null)
+
+            this.debug.fillSceneSelector()
+            this.app.ticker.start()
         } catch (err) {
             console.error(
-                'Unhandled error occurred during initialization\n%cScope:%c%O',
+                'Unhandled error occurred during start\n%cScope:%c%O',
                 'font-weight: bold',
                 'font-weight: inherit',
                 this.scope

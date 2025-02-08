@@ -4,6 +4,7 @@ import { ANN, loadAnn } from '../fileFormats/ann'
 import { CNV } from '../fileFormats/cnv/parser'
 import { Image } from '../fileFormats/img'
 import { parseSequence, SequenceFile } from '../fileFormats/seq'
+import { Iso9660Reader } from './iso9660'
 
 export class FileNotFoundError extends Error {
     constructor(filename: string) {
@@ -12,29 +13,17 @@ export class FileNotFoundError extends Error {
 }
 
 export abstract class FileLoader {
+    abstract init(): Promise<void>
     abstract getRawFile(filename: string): Promise<ArrayBuffer>
     abstract getCNVFile(filename: string): Promise<CNV>
     abstract getSequenceFile(filename: string): Promise<SequenceFile>
     abstract getIMGFile(filename: string): Promise<Image>
     abstract getANNFile(filename: string): Promise<ANN>
     abstract getFilesListing(): string[]
-    abstract getHistory(): Set<string>
+    abstract hasFile(filename: string): boolean
 }
 
-export abstract class UrlFileLoader extends FileLoader {
-    private listing: Map<string, string> | null = null
-    private history: Set<string> = new Set<string>()
-
-    protected abstract fetchFilesListing(): Promise<Map<string, string>>
-
-    getFilesListing(): string[] {
-        return [...this.listing!.keys()]
-    }
-
-    getHistory(): Set<string> {
-        return this.history
-    }
-
+abstract class SimpleFileLoader extends FileLoader {
     async getANNFile(filename: string): Promise<ANN> {
         const data = await this.getRawFile(filename)
         return loadAnn(data)
@@ -64,21 +53,34 @@ export abstract class UrlFileLoader extends FileLoader {
         return loadImage(data)
     }
 
-    async getRawFile(filename: string): Promise<ArrayBuffer> {
-        if (this.listing == null) {
-            console.debug('Fetching files listing...')
-            this.listing = await this.fetchFilesListing()
-        }
+    hasFile(filename: string): boolean {
+        return this.getFilesListing().includes(filename.toLowerCase().replace(/\\/g, '/'))
+    }
+}
 
+export abstract class UrlFileLoader extends SimpleFileLoader {
+    protected listing: Map<string, string> | null = null
+
+    protected abstract fetchFilesListing(): Promise<Map<string, string>>
+
+    async init(): Promise<void> {
+        console.debug('Fetching files listing...')
+        this.listing = await this.fetchFilesListing()
+    }
+
+    getFilesListing(): string[] {
+        return [...this.listing!.keys()]
+    }
+
+    async getRawFile(filename: string): Promise<ArrayBuffer> {
         const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/')
         console.debug(`Fetching '${normalizedFilename}'...`)
-        const fileUrl = this.listing.get(normalizedFilename)
+        const fileUrl = this.listing!.get(normalizedFilename)
         if (fileUrl == null) {
             throw new FileNotFoundError(normalizedFilename)
         }
 
         const response = await fetch(fileUrl)
-        this.history.add(normalizedFilename)
         return await response.arrayBuffer()
     }
 }
@@ -128,5 +130,32 @@ export class ArchiveOrgFileLoader extends UrlFileLoader {
         return new Map<string, string>(
             [...links].map((link) => [link.textContent!.toLowerCase(), link.getAttribute('href')!])
         )
+    }
+}
+
+export class IsoFileLoader extends SimpleFileLoader {
+    private isoReader: Iso9660Reader
+
+    constructor(file: File) {
+        super()
+        this.isoReader = new Iso9660Reader(file)
+    }
+
+    async init() {
+        await this.isoReader.load()
+    }
+
+    getFilesListing(): string[] {
+        return this.isoReader.getListing()
+    }
+
+    async getRawFile(filename: string): Promise<ArrayBuffer> {
+        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/')
+        console.debug(`Loading '${normalizedFilename}'...`)
+        const fileResult = await this.isoReader.getFile(normalizedFilename)
+        if (fileResult == null) {
+            throw new FileNotFoundError(normalizedFilename)
+        }
+        return fileResult
     }
 }

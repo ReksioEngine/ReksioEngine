@@ -2,7 +2,7 @@ import { Episode } from './types/episode'
 import { Type } from './types'
 import { Engine } from './index'
 import { sound } from '@pixi/sound'
-import { ArchiveOrgFileLoader, GithubFileLoader } from './filesLoader'
+import { ArchiveOrgFileLoader, GithubFileLoader, IsoFileLoader } from './filesLoader'
 import { Container, Graphics, Rectangle, Text } from 'pixi.js'
 import { Animo } from './types/animo'
 import { CNVObject, parseCNV } from '../fileFormats/cnv/parser'
@@ -15,6 +15,7 @@ import { drawRectangle } from './rendering'
 export class Debugging {
     private readonly engine: Engine
     public isDebug = false
+    public autoStart = true
 
     public nextSceneOverwrite: string | null = null
     public muteMusic = false
@@ -69,11 +70,14 @@ export class Debugging {
                 this.engine.fileLoader = new ArchiveOrgFileLoader(source)
             }
         }
+        if (urlParams.has('autostart')) {
+            this.autoStart = urlParams.get('autostart') === 'true'
+        }
 
         this.nextSceneOverwrite = urlParams.get('scene')
     }
 
-    setupSceneSelector() {
+    setupDebugTools() {
         if (!this.isDebug) {
             return
         }
@@ -96,6 +100,14 @@ export class Debugging {
         const exportSave: any = document.querySelector('#exportSave')!
         const enableSaveFiles: any = document.querySelector('#enableSaveFiles')!
         const muteMusic: any = document.querySelector('#muteMusic')!
+        const isoInput: any = document.querySelector('#isoInput')!
+
+        isoInput.addEventListener('change', async (event: any) => {
+            const fileLoader = new IsoFileLoader(event.target.files[0])
+            await fileLoader.init()
+            this.engine.fileLoader = fileLoader
+            await this.engine.start()
+        })
 
         const setSpeed = (speed: number) => {
             this.engine.speed = speed
@@ -149,24 +161,6 @@ export class Debugging {
             const target = e.target as HTMLInputElement
             this.enableXRayInvisible = target.checked
         })
-
-        const episode: Episode = Object.values(this.engine.globalScope).find(
-            (object: Type<any>) => object.definition.TYPE === 'EPISODE'
-        )
-        for (const sceneName of episode.definition.SCENES) {
-            const scene = Object.values(this.engine.globalScope).find((object: Type<any>) => {
-                return object.definition.TYPE === 'SCENE' && object.definition.NAME === sceneName
-            })
-
-            const sceneDefPath = scene.getRelativePath(`${sceneName}.cnv`)
-            const canGoTo = this.engine.fileLoader.getFilesListing().includes(sceneDefPath.toLowerCase())
-
-            const option = document.createElement('option')
-            option.value = sceneName
-            option.text = sceneName
-            option.disabled = !canGoTo
-            sceneSelector.appendChild(option)
-        }
 
         sceneSelector.addEventListener('change', async () => {
             try {
@@ -243,6 +237,32 @@ export class Debugging {
                 this.engine.saveFile = SaveFileManager.fromLocalStorage()
             }
         })
+    }
+
+    fillSceneSelector() {
+        const sceneSelector: any = document.querySelector('#sceneSelector')!
+
+        const episode: Episode = Object.values(this.engine.globalScope).find(
+            (object: Type<any>) => object.definition.TYPE === 'EPISODE'
+        )
+        if (episode === undefined) {
+            return
+        }
+
+        for (const sceneName of episode.definition.SCENES) {
+            const scene = Object.values(this.engine.globalScope).find((object: Type<any>) => {
+                return object.definition.TYPE === 'SCENE' && object.definition.NAME === sceneName
+            })
+
+            const sceneDefPath = scene.getRelativePath(`${sceneName}.cnv`)
+            const canGoTo = this.engine.fileLoader.getFilesListing().includes(sceneDefPath.toLowerCase())
+
+            const option = document.createElement('option')
+            option.value = sceneName
+            option.text = sceneName
+            option.disabled = !canGoTo
+            sceneSelector.appendChild(option)
+        }
     }
 
     updateCurrentScene() {
