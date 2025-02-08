@@ -1,9 +1,9 @@
-import { decryptCNV, parseCNV } from '../../fileFormats/cnv'
-import { loadImage } from '../../fileFormats/img'
-import { ANN, loadAnn } from '../../fileFormats/ann'
-import { CNV } from '../../fileFormats/cnv/parser'
-import { Image } from '../../fileFormats/img'
-import { parseSequence, SequenceFile } from '../../fileFormats/seq'
+import { decryptCNV, parseCNV } from '../fileFormats/cnv'
+import { loadImage } from '../fileFormats/img'
+import { ANN, loadAnn } from '../fileFormats/ann'
+import { CNV } from '../fileFormats/cnv/parser'
+import { Image } from '../fileFormats/img'
+import { parseSequence, SequenceFile } from '../fileFormats/seq'
 import { Iso9660Reader } from './iso9660'
 
 export class FileNotFoundError extends Error {

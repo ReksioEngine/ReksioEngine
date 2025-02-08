@@ -2,9 +2,9 @@ import { Type } from './index'
 import { ApplicationDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { pathJoin } from '../../common/utils'
-import { loadDefinition } from '../loaders/definitionLoader'
+import { loadDefinition } from '../../loaders/definitionLoader'
 import { NotImplementedError } from '../../common/errors'
-import { FileNotFoundError } from '../loaders/filesLoader'
+import { FileNotFoundError } from '../../loaders/filesLoader'
 import { method } from '../../common/types'
 
 const langCodeMapping: Record<string, string> = {

@@ -1,6 +1,6 @@
 import { DisplayType, Type } from './index'
 import { CanvasObserverDefinition } from '../../fileFormats/cnv/types'
-import { loadTexture } from '../loaders/assetsLoader'
+import { loadTexture } from '../../loaders/assetsLoader'
 import { Point } from 'pixi.js'
 import { method } from '../../common/types'
 import { AdvancedSprite } from '../rendering'

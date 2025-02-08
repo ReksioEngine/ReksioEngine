@@ -1,7 +1,7 @@
 import { Options, Sound } from '@pixi/sound'
 import { FileLoader } from './filesLoader'
 import * as PIXI from 'pixi.js'
-import { AdvancedSprite, createHitmapFromImageBytes } from '../rendering'
+import { AdvancedSprite, createHitmapFromImageBytes } from '../engine/rendering'
 
 export const loadSound = async (fileLoader: FileLoader, filename: string, options?: Options) => {
     return Sound.from({

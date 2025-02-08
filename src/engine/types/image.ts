@@ -2,7 +2,7 @@ import { DisplayType } from './index'
 import { ImageDefinition } from '../../fileFormats/cnv/types'
 import { assert, NotImplementedError } from '../../common/errors'
 import { Point } from 'pixi.js'
-import { loadSprite } from '../loaders/assetsLoader'
+import { loadSprite } from '../../loaders/assetsLoader'
 import { AdvancedSprite } from '../rendering'
 import { method } from '../../common/types'
 
