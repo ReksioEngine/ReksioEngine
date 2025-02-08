@@ -1,12 +1,16 @@
 import { Engine } from './engine'
 import * as PIXI from 'pixi.js'
 
-const main = async () => {
+export const createGamePlayer = (element: HTMLElement | null) => {
+    if (element === null) {
+        return
+    }
+
     const app = new PIXI.Application()
-    document.body.prepend(app.view as unknown as Node)
+    const wrapper = document.createElement('div')
+    wrapper.appendChild(app.view as unknown as Node)
+    element.appendChild(wrapper)
 
-    const engine = new Engine(app)
-    await engine.init()
+    const engine = new Engine(element, app)
+    engine.init()
 }
-
-main()

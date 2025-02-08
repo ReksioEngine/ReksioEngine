@@ -18,6 +18,8 @@ import { createColorTexture } from './rendering'
 
 export class Engine {
     readonly app: Application
+    public parent: HTMLElement
+
     public debug: Debugging
     public speed: number = 1
 
@@ -35,7 +37,8 @@ export class Engine {
 
     private readonly blackTexture
 
-    constructor(app: Application) {
+    constructor(parent: HTMLElement, app: Application) {
+        this.parent = parent
         this.app = app
         this.debug = new Debugging(this, process.env.debug as unknown as boolean)
 
@@ -260,7 +263,7 @@ export class Engine {
                 loop: true,
             })
             this.music.play()
-            if (this.debug.muteMusic) {
+            if (this.debug.mutedMusic) {
                 this.music.muted = true
             }
         }

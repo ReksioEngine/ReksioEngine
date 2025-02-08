@@ -11,14 +11,15 @@ import { SaveFileManager } from './saveFile'
 import { printStackTrace } from '../interpreter/script/stacktrace'
 import { EngineError } from '../common/errors'
 import { drawRectangle } from './rendering'
+import debuggingTemplate from './debugging.html'
 
 export class Debugging {
     private readonly engine: Engine
-    public isDebug = false
+    public enabled = false
     public autoStart = true
 
     public nextSceneOverwrite: string | null = null
-    public muteMusic = false
+    public mutedMusic = false
 
     private xrays: Map<string, Container> = new Map()
     private enableXRay = false
@@ -26,7 +27,7 @@ export class Debugging {
 
     constructor(engine: Engine, isDebug: boolean) {
         this.engine = engine
-        this.isDebug = isDebug
+        this.enabled = isDebug
     }
 
     async createObject(definition: CNVObject) {
@@ -55,7 +56,7 @@ export class Debugging {
     }
 
     applyQueryParams() {
-        if (!this.isDebug) {
+        if (!this.enabled) {
             return
         }
 
@@ -78,29 +79,31 @@ export class Debugging {
     }
 
     setupDebugTools() {
-        if (!this.isDebug) {
+        if (!this.enabled) {
             return
         }
 
-        const debug: any = document.querySelector('#debug')!
-        debug.style.display = 'inline-block'
+        const debugTools = document.createElement('div')
+        debugTools.innerHTML = debuggingTemplate
+        debugTools.style.display = 'inline-block'
+        this.engine.parent.appendChild(debugTools)
 
-        const speedSlider = debug.querySelector('#speed')
-        const speedReset = debug.querySelector('#speedReset')
-        const speedDisplay = debug.querySelector('#speedDisplay')
-        const spaceVelocity = debug.querySelector('#spaceVelocity')
-        const xray = debug.querySelector('#xray')
-        const xrayInvisible = debug.querySelector('#xrayShowInvisible')
+        const speedSlider: HTMLInputElement = debugTools.querySelector('#speed')!
+        const speedReset = debugTools.querySelector('#speedReset')!
+        const speedDisplay = debugTools.querySelector('#speedDisplay')!
+        const spaceVelocity: HTMLInputElement = debugTools.querySelector('#spaceVelocity')!
+        const xray: HTMLInputElement = debugTools.querySelector('#xray')!
+        const xrayInvisible: HTMLInputElement = debugTools.querySelector('#xrayShowInvisible')!
 
-        const sceneSelector: any = document.querySelector('#sceneSelector')!
-        const sceneRestart: any = document.querySelector('#restartButton')!
-        const resetSave: any = document.querySelector('#resetSave')!
-        const resetSaveAndRestart: any = document.querySelector('#resetSaveAndRestart')!
-        const importSave: any = document.querySelector('#importSave')!
-        const exportSave: any = document.querySelector('#exportSave')!
-        const enableSaveFiles: any = document.querySelector('#enableSaveFiles')!
-        const muteMusic: any = document.querySelector('#muteMusic')!
-        const isoInput: any = document.querySelector('#isoInput')!
+        const sceneSelector: HTMLSelectElement = debugTools.querySelector('#sceneSelector')!
+        const sceneRestart = debugTools.querySelector('#restartButton')!
+        const resetSave = debugTools.querySelector('#resetSave')!
+        const resetSaveAndRestart = debugTools.querySelector('#resetSaveAndRestart')!
+        const importSave = debugTools.querySelector('#importSave')!
+        const exportSave = debugTools.querySelector('#exportSave')!
+        const enableSaveFiles: HTMLInputElement = debugTools.querySelector('#enableSaveFiles')!
+        const muteMusic: HTMLInputElement = debugTools.querySelector('#muteMusic')!
+        const isoInput = debugTools.querySelector('#isoInput')!
 
         isoInput.addEventListener('change', async (event: any) => {
             const fileLoader = new IsoFileLoader(event.target.files[0])
@@ -117,7 +120,7 @@ export class Debugging {
             this.engine.app.ticker.maxFPS = speed > 1 ? 0 : 60
         }
 
-        speedSlider.addEventListener('input', (e: InputEvent) => {
+        speedSlider.addEventListener('input', (e: Event) => {
             const target = e.target as HTMLInputElement
 
             let sliderValue = target.value as unknown as number
@@ -129,35 +132,35 @@ export class Debugging {
         })
 
         speedReset.addEventListener('click', () => {
-            speedSlider.value = 1
+            speedSlider.value = String(1)
             setSpeed(1)
         })
 
-        spaceVelocity.addEventListener('change', (e: InputEvent) => {
+        spaceVelocity.addEventListener('change', (e: Event) => {
             const target = e.target as HTMLInputElement
 
             if (target.checked) {
-                speedSlider.max = 9.9
+                speedSlider.max = String(9.9)
             } else {
-                speedSlider.max = 1.9
-                speedSlider.value = 1
+                speedSlider.max = String(1.9)
+                speedSlider.value = String(1)
                 setSpeed(1)
             }
         })
 
-        muteMusic.addEventListener('change', (e: InputEvent) => {
+        muteMusic.addEventListener('change', (e: Event) => {
             const target = e.target as HTMLInputElement
-            this.muteMusic = target.checked
+            this.mutedMusic = target.checked
             if (this.engine.music !== null) {
                 this.engine.music.muted = target.checked
             }
         })
 
-        xray.addEventListener('change', (e: InputEvent) => {
+        xray.addEventListener('change', (e: Event) => {
             const target = e.target as HTMLInputElement
             this.enableXRay = target.checked
         })
-        xrayInvisible.addEventListener('change', (e: InputEvent) => {
+        xrayInvisible.addEventListener('change', (e: Event) => {
             const target = e.target as HTMLInputElement
             this.enableXRayInvisible = target.checked
         })
@@ -266,7 +269,7 @@ export class Debugging {
     }
 
     updateCurrentScene() {
-        if (this.isDebug) {
+        if (this.enabled) {
             const currentScene = document.querySelector('#sceneSelector')! as HTMLInputElement
             currentScene.value = this.engine.currentScene!.definition.NAME
         }

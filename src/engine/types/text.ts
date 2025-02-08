@@ -17,7 +17,7 @@ export class Text extends DisplayType<TextDefinition> {
 
         this.text.x = x
         this.text.y = y
-        this.text.visible = this.engine.debug.isDebug
+        this.text.visible = this.engine.debug.enabled
         this.engine.addToStage(this.text)
     }
 

@@ -1,12 +1,11 @@
 import { Program } from 'typescript'
 
-import CopyWebpackPlugin from 'copy-webpack-plugin'
 import HTMLWebpackPlugin from 'html-webpack-plugin'
 import webpack from 'webpack'
 import { typeGuard } from './transformers'
 
 module.exports = (env: any) => ({
-    entry: './src/index.ts',
+    entry: './src/devPlayer.ts',
     mode: 'development',
     devServer: {
         contentBase: 'dist',
@@ -14,14 +13,6 @@ module.exports = (env: any) => ({
     },
     devtool: 'source-map',
     plugins: [
-        new CopyWebpackPlugin({
-            patterns: [
-                {
-                    from: 'static/assets',
-                    to: 'assets',
-                },
-            ],
-        }),
         new HTMLWebpackPlugin({
             template: 'static/index.html',
             filename: 'index.html',
@@ -41,6 +32,10 @@ module.exports = (env: any) => ({
                         before: [typeGuard(program)],
                     }),
                 },
+            },
+            {
+                test: /\.html$/i,
+                loader: "html-loader",
             },
         ],
     },
