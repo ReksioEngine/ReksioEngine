@@ -61607,22 +61607,20 @@ exports.IsoFileLoader = IsoFileLoader;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Iso9660Reader = void 0;
 const utils_1 = __webpack_require__(/*! ../fileFormats/utils */ "./src/fileFormats/utils.ts");
+const SECTOR_SIZE = 2048;
+const JULIET_SECTOR = 17;
 class Iso9660Reader {
     constructor(file) {
         this.filesMapping = new Map();
+        this.decoder = new TextDecoder('utf-16le');
         this.file = file;
     }
-    readAt(offset, length) {
+    async readAt(offset, length) {
+        const blob = this.file.slice(offset, offset + length);
+        const reader = new FileReader();
         return new Promise((resolve, reject) => {
-            const blob = this.file.slice(offset, offset + length);
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                if (event.target === null) {
-                    reject();
-                    return;
-                }
-                resolve(event.target.result);
-            };
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
             reader.readAsArrayBuffer(blob);
         });
     }
@@ -61637,81 +61635,78 @@ class Iso9660Reader {
             swappedBuffer[i] = view.getUint8(i + 1); // High byte
             swappedBuffer[i + 1] = view.getUint8(i); // Low byte
         }
-        const decoder = new TextDecoder('utf-16le');
-        return decoder.decode(swappedBuffer);
+        return this.decoder.decode(swappedBuffer);
+    }
+    readFileName(directory, identifierLength) {
+        if (identifierLength === 1) {
+            const charCode = directory.getUint8();
+            return charCode === 0 ? '.' : charCode === 1 ? '..' : '';
+        }
+        else {
+            const name = this.decodeUTF16BE(directory.read(identifierLength));
+            // Remove version (if present in name)
+            const semicolonIndex = name.indexOf(';');
+            return semicolonIndex > -1 ? name.substring(0, semicolonIndex) : name;
+        }
     }
     async processDirectory(position, length, path) {
-        const directory = await this.bufferAt(position * 2048, length);
+        const directory = await this.bufferAt(position * SECTOR_SIZE, length);
         while (directory.offset < length) {
             const startOffset = directory.offset;
             const directoryRecordLength = directory.getUint8(); // Length of Directory Record
             if (directoryRecordLength === 0) {
                 // Didn't fit in the sector
-                directory.skip(2048 - (startOffset % 2048) - 1);
+                directory.skip(SECTOR_SIZE - (startOffset % SECTOR_SIZE) - 1);
                 continue;
             }
-            directory.getUint8(); // Extended Attribute Record length.
-            const locationOfExtent = directory.getUint32(); // Location of extent (LBA) in both-endian format.
-            directory.getUint32();
-            const dataLength = directory.getUint32(); // Data length (size of extent) in both-endian format.
-            directory.getUint32();
-            directory.read(7); // Recording date and time.
-            const flags = directory.getUint8(); //  	File flags.
-            directory.getUint8(); // File unit size for files recorded in interleaved mode, zero otherwise.
-            directory.getUint8(); // Interleave gap size for files recorded in interleaved mode, zero otherwise.
-            directory.getUint16(); // Volume sequence number - the volume that this extent is recorded on, in 16 bit both-endian format.
+            directory.getUint8();
+            const locationOfExtent = directory.getUint32(); // LE
+            directory.getUint32(); // BE
+            const dataLength = directory.getUint32(); // LE
+            directory.getUint32(); // BE
+            directory.read(7);
+            const flags = directory.getUint8(); // File flags.
+            directory.getUint8();
+            directory.getUint8();
+            directory.getUint16();
             directory.getUint16();
             const identifierLength = directory.getUint8();
-            // Get filename
-            let name = '';
-            if (identifierLength == 1) {
-                const value = directory.getUint8();
-                if (value === 0) {
-                    name = '.';
-                }
-                else if (value === 1) {
-                    name = '..';
-                }
-            }
-            else {
-                name = this.decodeUTF16BE(directory.read(identifierLength));
-            }
+            // Read filename
+            const name = this.readFileName(directory, identifierLength);
             // Padding
             if (identifierLength % 2 === 0) {
                 directory.skip(1);
             }
             // Some special space
-            const restSize = directoryRecordLength - (directory.offset - startOffset);
-            directory.skip(restSize);
+            directory.skip(directoryRecordLength - (directory.offset - startOffset));
             if (name == '.' || name == '..') {
                 continue;
             }
             // Do something with data
-            const isDirectory = (flags & 2) != 0;
-            if (!isDirectory) {
-                name = name.substring(0, name.indexOf(';')); // Remove version
-            }
             const fullPathParts = [...path, name];
             const fullPath = fullPathParts.join('/').toLowerCase();
+            const isDirectory = (flags & 2) != 0;
             if (isDirectory) {
                 await this.processDirectory(locationOfExtent, dataLength, fullPathParts);
             }
             else {
                 this.filesMapping.set(fullPath, {
-                    offset: locationOfExtent * 2048,
+                    location: locationOfExtent * SECTOR_SIZE,
                     size: dataLength,
+                    name: fullPath,
+                    flags,
                 });
             }
         }
     }
     async load() {
-        const rootDirectoryEntry = await this.bufferAt(17 * 2048 + 156, 34);
-        rootDirectoryEntry.getUint8(); // Length of Directory Record
-        rootDirectoryEntry.getUint8(); // Extended Attribute Record length
-        const rootLocation = rootDirectoryEntry.getUint32(); // Location of extent LSB
-        rootDirectoryEntry.getUint32(); // Location of extent MSB
-        const rootLength = rootDirectoryEntry.getUint32(); // Data length LSB
-        rootDirectoryEntry.getUint32(); // Data length MSB
+        const rootDirectoryEntry = await this.bufferAt(JULIET_SECTOR * SECTOR_SIZE + 156, 34);
+        rootDirectoryEntry.getUint8();
+        rootDirectoryEntry.getUint8();
+        const rootLocation = rootDirectoryEntry.getUint32(); // LE
+        rootDirectoryEntry.getUint32(); // BE
+        const rootLength = rootDirectoryEntry.getUint32(); // LE
+        rootDirectoryEntry.getUint32(); // BE
         await this.processDirectory(rootLocation, rootLength, []);
     }
     async getFile(path) {
@@ -61719,7 +61714,7 @@ class Iso9660Reader {
         if (!entry) {
             return null;
         }
-        return this.readAt(entry.offset, entry.size);
+        return this.readAt(entry.location, entry.size);
     }
     getListing() {
         return [...this.filesMapping.keys()];
