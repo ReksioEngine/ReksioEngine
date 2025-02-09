@@ -289,6 +289,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
         assert(this.sprite !== null)
 
         const annImage = this.annFile.annImages[imageIndex]
+        if (annImage === undefined) {
+            console.warn(`Attempted to change to non-existent frame image ${imageIndex}`)
+            return
+        }
 
         this.sprite.texture = this.getTexture(imageIndex)
         this.sprite.hitmap = this.getHitmap(imageIndex)
