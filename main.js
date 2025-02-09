@@ -51903,6 +51903,9 @@ class Engine {
         else {
             this.canvasBackground.texture = this.blackTexture;
         }
+        // Reset cursor
+        this.app.renderer.events.cursorStyles.default = 'auto';
+        this.app.renderer.events.setCursor('auto');
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
         await (0, definitionLoader_1.loadDefinition)(this, this.scope, sceneDefinition, this.currentScene);
         for (const object of objectsToRemove) {
@@ -55384,10 +55387,12 @@ let Mouse = (() => {
                 this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener);
             }
             SHOW() {
-                throw new errors_1.NotImplementedError();
+                this.engine.app.renderer.events.cursorStyles.default = 'auto';
+                this.engine.app.renderer.events.setCursor('auto');
             }
             HIDE() {
-                throw new errors_1.NotImplementedError();
+                this.engine.app.renderer.events.cursorStyles.default = 'none';
+                this.engine.app.renderer.events.setCursor('none');
             }
             GETPOSX() {
                 return this.mousePosition.x;
