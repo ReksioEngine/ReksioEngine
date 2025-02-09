@@ -20063,6 +20063,132 @@ module.exports = bind.call(call, $hasOwn);
 
 /***/ }),
 
+/***/ "./src/engine/debugging.html":
+/*!***********************************!*\
+  !*** ./src/engine/debugging.html ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// Module
+var code = `<style>
+    .reksioengine-debug {
+        background: #212121;
+        color: #eaeaea;
+        border: 3px solid #2b2b2b;
+        padding: 10px;
+        font-family: sans-serif;
+        border-radius: 5px;
+    }
+
+    .reksioengine-debug .debug-panel {
+        margin-bottom: 5px;
+    }
+
+    .reksioengine-debug .debug-panel-title {
+        display: block;
+        padding: 5px;
+        font-size: 12px;
+        font-weight: bold;
+        background: #303030;
+    }
+
+    .reksioengine-debug .debug-panel-body {
+        padding: 10px;
+        background: #161616;
+        color: #eaeaea;
+        border: 1px solid #2b2b2b;
+        font-family: sans-serif;
+    }
+
+    .reksioengine-debug .option-name {
+        font-weight: bold;
+    }
+
+    .reksioengine-debug button,
+    .reksioengine-debug select {
+        background-color: #2d2d2d;
+        border: 1px solid #3b3b3b;
+        color: #fff;
+        padding: 7px;
+        border-radius: 3px;
+        transition: background-color 0.1s;
+    }
+
+    .reksioengine-debug button:hover,
+    .reksioengine-debug select:hover {
+        background-color: #414141;
+    }
+
+    .reksioengine-debug button:active,
+    .reksioengine-debug select:active {
+        background-color: #5b5b5b;
+    }
+</style>
+<div class="reksioengine-debug">
+    <div class="debug-panel">
+        <div class="debug-panel-title">Gameplay</div>
+        <div class="debug-panel-body">
+            <div>
+                <span class="option-name">Current scene:</span>
+                <select id="sceneSelector"></select>
+                <button id="restartButton">🔄</button>
+            </div>
+
+            <div>
+                <label class="option-name" for="speed">Speed: </label>
+                <span id="speedDisplay">(1x)</span>
+                <input type="range" id="speed" name="speed" min="0" max="1.9" value="1" step="0.1" />
+                <button id="speedReset">Reset</button>
+            </div>
+
+            <div>
+                <input type="checkbox" id="spaceVelocity" name="spaceVelocity" />
+                <label for="spaceVelocity">Unlock space velocity</label>
+            </div>
+
+            <div>
+                <input type="checkbox" id="muteMusic" name="muteMusic" />
+                <label for="muteMusic">Mute music</label>
+            </div>
+        </div>
+    </div>
+    <div class="debug-panel">
+        <span class="debug-panel-title">Rendering</span>
+        <div class="debug-panel-body">
+            <input type="checkbox" id="xray" name="xray" />
+            <label for="xray">X-Ray</label>
+            <input type="checkbox" id="xrayShowInvisible" name="xrayShowInvisible" />
+            <label for="xrayShowInvisible">Show invisible</label>
+        </div>
+    </div>
+    <div class="debug-panel">
+        <span class="debug-panel-title">Save files</span>
+        <div class="debug-panel-body">
+            <button id="resetSave">Reset</button>
+            <button id="resetSaveAndRestart">Reset and reload</button>
+            <button id="importSave">Import</button>
+            <button id="exportSave">Export</button>
+            <br />
+            <input id="enableSaveFiles" type="checkbox" /> <label for="enableSaveFiles">Enable save files</label>
+        </div>
+    </div>
+
+    <div class="debug-panel">
+        <span class="debug-panel-title">File Loader</span>
+        <div class="debug-panel-body">ISO: <input type="file" id="isoInput" multiple /></div>
+    </div>
+</div>
+`;
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (code);
+
+/***/ }),
+
 /***/ "./node_modules/ini/lib/ini.js":
 /*!*************************************!*\
   !*** ./node_modules/ini/lib/ini.js ***!
@@ -50924,71 +51050,6 @@ exports.pathJoin = pathJoin;
 
 /***/ }),
 
-/***/ "./src/engine/assetsLoader.ts":
-/*!************************************!*\
-  !*** ./src/engine/assetsLoader.ts ***!
-  \************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.loadTexture = exports.loadSprite = exports.loadSound = void 0;
-const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
-const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
-const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
-const loadSound = async (fileLoader, filename, options) => {
-    return sound_1.Sound.from({
-        source: await fileLoader.getRawFile(filename),
-        ...options,
-    });
-};
-exports.loadSound = loadSound;
-const loadSprite = async (fileLoader, filename) => {
-    const image = await fileLoader.getIMGFile(filename);
-    const imageBytes = new Uint8Array(image.bytes);
-    const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(image.bytes), image.header.width, image.header.height);
-    const texture = new PIXI.Texture(baseTexture);
-    const sprite = new rendering_1.AdvancedSprite(texture);
-    sprite.x = image.header.positionX;
-    sprite.y = image.header.positionY;
-    sprite.hitmap = (0, rendering_1.createHitmapFromImageBytes)(imageBytes);
-    return sprite;
-};
-exports.loadSprite = loadSprite;
-const loadTexture = async (fileLoader, filename) => {
-    const image = await fileLoader.getIMGFile(filename);
-    const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(image.bytes), image.header.width, image.header.height);
-    return new PIXI.Texture(baseTexture);
-};
-exports.loadTexture = loadTexture;
-
-
-/***/ }),
-
 /***/ "./src/engine/components/button.ts":
 /*!*****************************************!*\
   !*** ./src/engine/components/button.ts ***!
@@ -51322,33 +51383,37 @@ exports.EventsComponent = EventsComponent;
 /*!*********************************!*\
   !*** ./src/engine/debugging.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Debugging = void 0;
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
-const filesLoader_1 = __webpack_require__(/*! ./filesLoader */ "./src/engine/filesLoader.ts");
+const filesLoader_1 = __webpack_require__(/*! ../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/animo.ts");
 const parser_1 = __webpack_require__(/*! ../fileFormats/cnv/parser */ "./src/fileFormats/cnv/parser.ts");
-const definitionLoader_1 = __webpack_require__(/*! ./definitionLoader */ "./src/engine/definitionLoader.ts");
+const definitionLoader_1 = __webpack_require__(/*! ../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
+const debugging_html_1 = __importDefault(__webpack_require__(/*! ./debugging.html */ "./src/engine/debugging.html"));
 class Debugging {
     constructor(engine, isDebug) {
-        this.isDebug = false;
+        this.enabled = false;
         this.autoStart = true;
         this.nextSceneOverwrite = null;
-        this.muteMusic = false;
+        this.mutedMusic = false;
         this.xrays = new Map();
         this.enableXRay = false;
         this.enableXRayInvisible = false;
         this.engine = engine;
-        this.isDebug = isDebug;
+        this.enabled = isDebug;
     }
     async createObject(definition) {
         return await (0, definitionLoader_1.createObject)(this.engine, definition, null);
@@ -51370,7 +51435,7 @@ class Debugging {
         this.engine.app.ticker.start();
     }
     applyQueryParams() {
-        if (!this.isDebug) {
+        if (!this.enabled) {
             return;
         }
         const urlParams = new URLSearchParams(window.location.search);
@@ -51390,26 +51455,28 @@ class Debugging {
         this.nextSceneOverwrite = urlParams.get('scene');
     }
     setupDebugTools() {
-        if (!this.isDebug) {
+        if (!this.enabled) {
             return;
         }
-        const debug = document.querySelector('#debug');
-        debug.style.display = 'inline-block';
-        const speedSlider = debug.querySelector('#speed');
-        const speedReset = debug.querySelector('#speedReset');
-        const speedDisplay = debug.querySelector('#speedDisplay');
-        const spaceVelocity = debug.querySelector('#spaceVelocity');
-        const xray = debug.querySelector('#xray');
-        const xrayInvisible = debug.querySelector('#xrayShowInvisible');
-        const sceneSelector = document.querySelector('#sceneSelector');
-        const sceneRestart = document.querySelector('#restartButton');
-        const resetSave = document.querySelector('#resetSave');
-        const resetSaveAndRestart = document.querySelector('#resetSaveAndRestart');
-        const importSave = document.querySelector('#importSave');
-        const exportSave = document.querySelector('#exportSave');
-        const enableSaveFiles = document.querySelector('#enableSaveFiles');
-        const muteMusic = document.querySelector('#muteMusic');
-        const isoInput = document.querySelector('#isoInput');
+        const debugTools = document.createElement('div');
+        debugTools.innerHTML = debugging_html_1.default;
+        debugTools.style.display = 'inline-block';
+        this.engine.parent.appendChild(debugTools);
+        const speedSlider = debugTools.querySelector('#speed');
+        const speedReset = debugTools.querySelector('#speedReset');
+        const speedDisplay = debugTools.querySelector('#speedDisplay');
+        const spaceVelocity = debugTools.querySelector('#spaceVelocity');
+        const xray = debugTools.querySelector('#xray');
+        const xrayInvisible = debugTools.querySelector('#xrayShowInvisible');
+        const sceneSelector = debugTools.querySelector('#sceneSelector');
+        const sceneRestart = debugTools.querySelector('#restartButton');
+        const resetSave = debugTools.querySelector('#resetSave');
+        const resetSaveAndRestart = debugTools.querySelector('#resetSaveAndRestart');
+        const importSave = debugTools.querySelector('#importSave');
+        const exportSave = debugTools.querySelector('#exportSave');
+        const enableSaveFiles = debugTools.querySelector('#enableSaveFiles');
+        const muteMusic = debugTools.querySelector('#muteMusic');
+        const isoInput = debugTools.querySelector('#isoInput');
         isoInput.addEventListener('change', async (event) => {
             const fileLoader = new filesLoader_1.IsoFileLoader(event.target.files[0]);
             await fileLoader.init();
@@ -51431,23 +51498,23 @@ class Debugging {
             setSpeed(sliderValue);
         });
         speedReset.addEventListener('click', () => {
-            speedSlider.value = 1;
+            speedSlider.value = String(1);
             setSpeed(1);
         });
         spaceVelocity.addEventListener('change', (e) => {
             const target = e.target;
             if (target.checked) {
-                speedSlider.max = 9.9;
+                speedSlider.max = String(9.9);
             }
             else {
-                speedSlider.max = 1.9;
-                speedSlider.value = 1;
+                speedSlider.max = String(1.9);
+                speedSlider.value = String(1);
                 setSpeed(1);
             }
         });
         muteMusic.addEventListener('change', (e) => {
             const target = e.target;
-            this.muteMusic = target.checked;
+            this.mutedMusic = target.checked;
             if (this.engine.music !== null) {
                 this.engine.music.muted = target.checked;
             }
@@ -51549,7 +51616,7 @@ class Debugging {
         }
     }
     updateCurrentScene() {
-        if (this.isDebug) {
+        if (this.enabled) {
             const currentScene = document.querySelector('#sceneSelector');
             currentScene.value = this.engine.currentScene.definition.NAME;
         }
@@ -51647,323 +51714,6 @@ exports.Debugging = Debugging;
 
 /***/ }),
 
-/***/ "./src/engine/definitionLoader.ts":
-/*!****************************************!*\
-  !*** ./src/engine/definitionLoader.ts ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createObject = exports.loadDefinition = void 0;
-const integer_1 = __webpack_require__(/*! ./types/integer */ "./src/engine/types/integer.ts");
-const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/animo.ts");
-const music_1 = __webpack_require__(/*! ./types/music */ "./src/engine/types/music.ts");
-const timer_1 = __webpack_require__(/*! ./types/timer */ "./src/engine/types/timer.ts");
-const behaviour_1 = __webpack_require__(/*! ./types/behaviour */ "./src/engine/types/behaviour.ts");
-const image_1 = __webpack_require__(/*! ./types/image */ "./src/engine/types/image.ts");
-const mouse_1 = __webpack_require__(/*! ./types/mouse */ "./src/engine/types/mouse.ts");
-const keyboard_1 = __webpack_require__(/*! ./types/keyboard */ "./src/engine/types/keyboard.ts");
-const cnvloader_1 = __webpack_require__(/*! ./types/cnvloader */ "./src/engine/types/cnvloader.ts");
-const canvasObserver_1 = __webpack_require__(/*! ./types/canvasObserver */ "./src/engine/types/canvasObserver.ts");
-const condition_1 = __webpack_require__(/*! ./types/condition */ "./src/engine/types/condition.ts");
-const episode_1 = __webpack_require__(/*! ./types/episode */ "./src/engine/types/episode.ts");
-const application_1 = __webpack_require__(/*! ./types/application */ "./src/engine/types/application.ts");
-const scene_1 = __webpack_require__(/*! ./types/scene */ "./src/engine/types/scene.ts");
-const sound_1 = __webpack_require__(/*! ./types/sound */ "./src/engine/types/sound.ts");
-const string_1 = __webpack_require__(/*! ./types/string */ "./src/engine/types/string.ts");
-const bool_1 = __webpack_require__(/*! ./types/bool */ "./src/engine/types/bool.ts");
-const array_1 = __webpack_require__(/*! ./types/array */ "./src/engine/types/array.ts");
-const button_1 = __webpack_require__(/*! ./types/button */ "./src/engine/types/button.ts");
-const sequence_1 = __webpack_require__(/*! ./types/sequence */ "./src/engine/types/sequence.ts");
-const group_1 = __webpack_require__(/*! ./types/group */ "./src/engine/types/group.ts");
-const text_1 = __webpack_require__(/*! ./types/text */ "./src/engine/types/text.ts");
-const types_1 = __webpack_require__(/*! ./types */ "./src/engine/types/index.ts");
-const font_1 = __webpack_require__(/*! ./types/font */ "./src/engine/types/font.ts");
-const complexCondition_1 = __webpack_require__(/*! ./types/complexCondition */ "./src/engine/types/complexCondition.ts");
-const rand_1 = __webpack_require__(/*! ./types/rand */ "./src/engine/types/rand.ts");
-const double_1 = __webpack_require__(/*! ./types/double */ "./src/engine/types/double.ts");
-const expression_1 = __webpack_require__(/*! ./types/expression */ "./src/engine/types/expression.ts");
-const vector_1 = __webpack_require__(/*! ./types/vector */ "./src/engine/types/vector.ts");
-const staticFilter_1 = __webpack_require__(/*! ./types/staticFilter */ "./src/engine/types/staticFilter.ts");
-const filter_1 = __webpack_require__(/*! ./types/filter */ "./src/engine/types/filter.ts");
-const multiArray_1 = __webpack_require__(/*! ./types/multiArray */ "./src/engine/types/multiArray.ts");
-const system_1 = __webpack_require__(/*! ./types/system */ "./src/engine/types/system.ts");
-const createTypeInstance = (engine, parent, definition) => {
-    switch (definition.TYPE) {
-        case 'ANIMO':
-            return new animo_1.Animo(engine, parent, definition);
-        case 'APPLICATION':
-            return new application_1.Application(engine, parent, definition);
-        case 'ARRAY':
-            return new array_1.ArrayObject(engine, parent, definition);
-        case 'BEHAVIOUR':
-            return new behaviour_1.Behaviour(engine, parent, definition);
-        case 'BOOL':
-            return new bool_1.Bool(engine, parent, definition);
-        case 'BUTTON':
-            return new button_1.Button(engine, parent, definition);
-        case 'CANVAS_OBSERVER':
-            return new canvasObserver_1.CanvasObserver(engine, parent, definition);
-        case 'CANVASOBSERVER':
-            return new canvasObserver_1.CanvasObserver(engine, parent, definition);
-        case 'CNVLOADER':
-            return new cnvloader_1.CNVLoader(engine, parent, definition);
-        case 'CONDITION':
-            return new condition_1.Condition(engine, parent, definition);
-        case 'COMPLEXCONDITION':
-            return new complexCondition_1.ComplexCondition(engine, parent, definition);
-        case 'DOUBLE':
-            return new double_1.Double(engine, parent, definition);
-        case 'EPISODE':
-            return new episode_1.Episode(engine, parent, definition);
-        case 'EXPRESSION':
-            return new expression_1.Expression(engine, parent, definition);
-        case 'FILTER':
-            return new filter_1.Filter(engine, parent, definition);
-        case 'FONT':
-            return new font_1.Font(engine, parent, definition);
-        case 'GROUP':
-            return new group_1.Group(engine, parent, definition);
-        case 'IMAGE':
-            return new image_1.Image(engine, parent, definition);
-        case 'INTEGER':
-            return new integer_1.Integer(engine, parent, definition);
-        case 'KEYBOARD':
-            return new keyboard_1.Keyboard(engine, parent, definition);
-        case 'MOUSE':
-            return new mouse_1.Mouse(engine, parent, definition);
-        case 'MULTIARRAY':
-            return new multiArray_1.MultiArray(engine, parent, definition);
-        case 'MUSIC':
-            return new music_1.Music(engine, parent, definition);
-        case 'RAND':
-            return new rand_1.Rand(engine, parent, definition);
-        case 'SCENE':
-            return new scene_1.Scene(engine, parent, definition);
-        case 'SEQUENCE':
-            return new sequence_1.Sequence(engine, parent, definition);
-        case 'SOUND':
-            return new sound_1.Sound(engine, parent, definition);
-        case 'STATICFILTER':
-            return new staticFilter_1.StaticFilter(engine, parent, definition);
-        case 'STRING':
-            return new string_1.String(engine, parent, definition);
-        case 'SYSTEM':
-            return new system_1.System(engine, parent, definition);
-        case 'TEXT':
-            return new text_1.Text(engine, parent, definition);
-        case 'TIMER':
-            return new timer_1.Timer(engine, parent, definition);
-        case 'VECTOR':
-            return new vector_1.Vector(engine, parent, definition);
-        default:
-            console.error(definition);
-            throw new Error(`Unknown object type '${definition.TYPE}'`);
-    }
-};
-const initializationPriorities = [
-    ['BEHAVIOUR'],
-    ['INTEGER', 'STRING', 'BOOL', 'DOUBLE'],
-    ['ARRAY', 'CONDITION'],
-    ['ANIMO', 'IMAGE', 'SOUND', 'VECTOR'],
-    ['TIMER', 'SEQUENCE', 'GROUP', 'BUTTON'],
-].reduce((acc, currentValue, currentIndex) => {
-    currentValue.forEach((entry) => acc.set(entry, currentIndex));
-    return acc;
-}, new Map());
-const loadDefinition = async (engine, scope, definition, parent) => {
-    engine.app.ticker.stop();
-    const entries = [];
-    for (const [key, value] of Object.entries(definition)) {
-        const instance = createTypeInstance(engine, parent, value);
-        scope[key] = instance;
-        entries.push(instance);
-        if (instance instanceof types_1.DisplayType) {
-            engine.displayObjectsInDefinitionOrder.push(instance);
-        }
-    }
-    const orderedScope = entries.sort((a, b) => {
-        const aPriority = a.name === '__INIT__' ? 99999 : (initializationPriorities.get(a.definition.TYPE) ?? 9999);
-        const bPriority = b.name === '__INIT__' ? 99999 : (initializationPriorities.get(b.definition.TYPE) ?? 9999);
-        return aPriority - bPriority;
-    });
-    const promisesResults = await Promise.allSettled(orderedScope.map((entry) => entry.init()));
-    const failedObjects = [];
-    for (let i = 0; i < promisesResults.length; i++) {
-        const result = promisesResults[i];
-        const object = orderedScope[i];
-        if (result.status === 'rejected') {
-            delete scope[object.name];
-            failedObjects.push(object);
-            console.error(`Failed to initialize object ${object.name}`, result.reason);
-        }
-    }
-    const goodObjects = orderedScope.filter((entry) => !failedObjects.includes(entry));
-    goodObjects.forEach((entry) => entry.applyDefaults());
-    goodObjects.forEach((entry) => {
-        entry.isReady = true;
-        entry.ready();
-    });
-    engine.app.ticker.start();
-};
-exports.loadDefinition = loadDefinition;
-const createObject = async (engine, definition, parent) => {
-    engine.app.ticker.stop();
-    const instance = createTypeInstance(engine, parent, definition);
-    engine.scope[definition.NAME] = instance;
-    if (instance instanceof types_1.DisplayType) {
-        engine.displayObjectsInDefinitionOrder.push(instance);
-    }
-    await instance.init();
-    instance.isReady = true;
-    instance.ready();
-    engine.app.ticker.start();
-    return instance;
-};
-exports.createObject = createObject;
-
-
-/***/ }),
-
-/***/ "./src/engine/filesLoader.ts":
-/*!***********************************!*\
-  !*** ./src/engine/filesLoader.ts ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.IsoFileLoader = exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
-const cnv_1 = __webpack_require__(/*! ../fileFormats/cnv */ "./src/fileFormats/cnv/index.ts");
-const img_1 = __webpack_require__(/*! ../fileFormats/img */ "./src/fileFormats/img/index.ts");
-const ann_1 = __webpack_require__(/*! ../fileFormats/ann */ "./src/fileFormats/ann/index.ts");
-const seq_1 = __webpack_require__(/*! ../fileFormats/seq */ "./src/fileFormats/seq/index.ts");
-const iso9660_1 = __webpack_require__(/*! ./iso9660 */ "./src/engine/iso9660.ts");
-class FileNotFoundError extends Error {
-    constructor(filename) {
-        super(`File '${filename}' not found in files listing`);
-    }
-}
-exports.FileNotFoundError = FileNotFoundError;
-class FileLoader {
-}
-exports.FileLoader = FileLoader;
-class SimpleFileLoader extends FileLoader {
-    async getANNFile(filename) {
-        const data = await this.getRawFile(filename);
-        return (0, ann_1.loadAnn)(data);
-    }
-    async getCNVFile(filename) {
-        const data = await this.getRawFile(filename);
-        const text = (0, cnv_1.decryptCNV)(data);
-        console.debug(text);
-        return (0, cnv_1.parseCNV)(text);
-    }
-    async getSequenceFile(filename) {
-        const data = await this.getRawFile(filename);
-        const decoder = new TextDecoder();
-        const text = decoder.decode(data);
-        console.debug(text);
-        return (0, seq_1.parseSequence)(text);
-    }
-    async getIMGFile(filename) {
-        if (!filename.toLowerCase().endsWith('.img')) {
-            filename = filename + '.img';
-        }
-        const data = await this.getRawFile(filename);
-        return (0, img_1.loadImage)(data);
-    }
-    hasFile(filename) {
-        return this.getFilesListing().includes(filename.toLowerCase().replace(/\\/g, '/'));
-    }
-}
-class UrlFileLoader extends SimpleFileLoader {
-    constructor() {
-        super(...arguments);
-        this.listing = null;
-    }
-    async init() {
-        console.debug('Fetching files listing...');
-        this.listing = await this.fetchFilesListing();
-    }
-    getFilesListing() {
-        return [...this.listing.keys()];
-    }
-    async getRawFile(filename) {
-        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
-        console.debug(`Fetching '${normalizedFilename}'...`);
-        const fileUrl = this.listing.get(normalizedFilename);
-        if (fileUrl == null) {
-            throw new FileNotFoundError(normalizedFilename);
-        }
-        const response = await fetch(fileUrl);
-        return await response.arrayBuffer();
-    }
-}
-exports.UrlFileLoader = UrlFileLoader;
-class GithubFileLoader extends UrlFileLoader {
-    constructor(gameName) {
-        super();
-        this.filesListUrl = `https://api.github.com/repos/ReksioEngine/GamesFiles/git/trees/${gameName}?recursive=1/`;
-        this.filesBaseUrl = `https://raw.githubusercontent.com/ReksioEngine/GamesFiles/${gameName}/`;
-    }
-    // Windows case-insensitive filenames moment
-    async fetchFilesListing() {
-        const response = await fetch(this.filesListUrl);
-        const data = await response.json();
-        return new Map(data.tree.map((entry) => [entry.path.toLowerCase(), this.filesBaseUrl + entry.path]));
-    }
-}
-exports.GithubFileLoader = GithubFileLoader;
-class ArchiveOrgFileLoader extends UrlFileLoader {
-    constructor(baseUrl) {
-        super();
-        this.baseUrl = baseUrl;
-    }
-    // Windows case-insensitive filenames moment
-    async fetchFilesListing() {
-        const response = await fetch(this.baseUrl);
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const table = doc.querySelector('.archext');
-        if (table == null) {
-            throw new Error('Failed to fetch files listing table');
-        }
-        const links = table.querySelectorAll('a');
-        return new Map([...links].map((link) => [link.textContent.toLowerCase(), link.getAttribute('href')]));
-    }
-}
-exports.ArchiveOrgFileLoader = ArchiveOrgFileLoader;
-class IsoFileLoader extends SimpleFileLoader {
-    constructor(file) {
-        super();
-        this.isoReader = new iso9660_1.Iso9660Reader(file);
-    }
-    async init() {
-        await this.isoReader.load();
-    }
-    getFilesListing() {
-        return this.isoReader.getListing();
-    }
-    async getRawFile(filename) {
-        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
-        console.debug(`Loading '${normalizedFilename}'...`);
-        const fileResult = await this.isoReader.getFile(normalizedFilename);
-        if (fileResult == null) {
-            throw new FileNotFoundError(normalizedFilename);
-        }
-        return fileResult;
-    }
-}
-exports.IsoFileLoader = IsoFileLoader;
-
-
-/***/ }),
-
 /***/ "./src/engine/index.ts":
 /*!*****************************!*\
   !*** ./src/engine/index.ts ***!
@@ -51975,11 +51725,11 @@ exports.IsoFileLoader = IsoFileLoader;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Engine = void 0;
 const script_1 = __webpack_require__(/*! ../interpreter/script */ "./src/interpreter/script/index.ts");
-const definitionLoader_1 = __webpack_require__(/*! ./definitionLoader */ "./src/engine/definitionLoader.ts");
+const definitionLoader_1 = __webpack_require__(/*! ../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
-const filesLoader_1 = __webpack_require__(/*! ./filesLoader */ "./src/engine/filesLoader.ts");
+const filesLoader_1 = __webpack_require__(/*! ../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
-const assetsLoader_1 = __webpack_require__(/*! ./assetsLoader */ "./src/engine/assetsLoader.ts");
+const assetsLoader_1 = __webpack_require__(/*! ../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
 const optimizations_1 = __webpack_require__(/*! ./optimizations */ "./src/engine/optimizations.ts");
 const debugging_1 = __webpack_require__(/*! ./debugging */ "./src/engine/debugging.ts");
@@ -51989,7 +51739,7 @@ const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */
 const devtools_1 = __webpack_require__(/*! @pixi/devtools */ "./node_modules/@pixi/devtools/dist/index.cjs");
 const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
 class Engine {
-    constructor(app) {
+    constructor(parent, app) {
         this.speed = 1;
         this.thisQueue = [];
         this.globalScope = {};
@@ -51998,6 +51748,7 @@ class Engine {
         this.saveFile = saveFile_1.SaveFileManager.empty(false);
         this.fileLoader = new filesLoader_1.GithubFileLoader('reksioiufo');
         this.music = null;
+        this.parent = parent;
         this.app = app;
         this.debug = new debugging_1.Debugging(this, true);
         this.blackTexture = (0, rendering_1.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0);
@@ -52163,7 +51914,7 @@ class Engine {
                 loop: true,
             });
             this.music.play();
-            if (this.debug.muteMusic) {
+            if (this.debug.mutedMusic) {
                 this.music.muted = true;
             }
         }
@@ -52205,140 +51956,6 @@ class Engine {
     }
 }
 exports.Engine = Engine;
-
-
-/***/ }),
-
-/***/ "./src/engine/iso9660.ts":
-/*!*******************************!*\
-  !*** ./src/engine/iso9660.ts ***!
-  \*******************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Iso9660Reader = void 0;
-const utils_1 = __webpack_require__(/*! ../fileFormats/utils */ "./src/fileFormats/utils.ts");
-class Iso9660Reader {
-    constructor(file) {
-        this.filesMapping = new Map();
-        this.file = file;
-    }
-    readAt(offset, length) {
-        return new Promise((resolve, reject) => {
-            const blob = this.file.slice(offset, offset + length);
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                if (event.target === null) {
-                    reject();
-                    return;
-                }
-                resolve(event.target.result);
-            };
-            reader.readAsArrayBuffer(blob);
-        });
-    }
-    async bufferAt(offset, length) {
-        const data = await this.readAt(offset, length);
-        return new utils_1.BinaryBuffer(new DataView(data));
-    }
-    decodeUTF16BE(arrayBuffer) {
-        const view = new DataView(arrayBuffer);
-        const swappedBuffer = new Uint8Array(arrayBuffer.byteLength);
-        for (let i = 0; i < arrayBuffer.byteLength; i += 2) {
-            swappedBuffer[i] = view.getUint8(i + 1); // High byte
-            swappedBuffer[i + 1] = view.getUint8(i); // Low byte
-        }
-        const decoder = new TextDecoder('utf-16le');
-        return decoder.decode(swappedBuffer);
-    }
-    async processDirectory(position, length, path) {
-        const directory = await this.bufferAt(position * 2048, length);
-        while (directory.offset < length) {
-            const startOffset = directory.offset;
-            const directoryRecordLength = directory.getUint8(); // Length of Directory Record
-            if (directoryRecordLength === 0) {
-                // Didn't fit in the sector
-                directory.skip(2048 - (startOffset % 2048) - 1);
-                continue;
-            }
-            directory.getUint8(); // Extended Attribute Record length.
-            const locationOfExtent = directory.getUint32(); // Location of extent (LBA) in both-endian format.
-            directory.getUint32();
-            const dataLength = directory.getUint32(); // Data length (size of extent) in both-endian format.
-            directory.getUint32();
-            directory.read(7); // Recording date and time.
-            const flags = directory.getUint8(); //  	File flags.
-            directory.getUint8(); // File unit size for files recorded in interleaved mode, zero otherwise.
-            directory.getUint8(); // Interleave gap size for files recorded in interleaved mode, zero otherwise.
-            directory.getUint16(); // Volume sequence number - the volume that this extent is recorded on, in 16 bit both-endian format.
-            directory.getUint16();
-            const identifierLength = directory.getUint8();
-            // Get filename
-            let name = '';
-            if (identifierLength == 1) {
-                const value = directory.getUint8();
-                if (value === 0) {
-                    name = '.';
-                }
-                else if (value === 1) {
-                    name = '..';
-                }
-            }
-            else {
-                name = this.decodeUTF16BE(directory.read(identifierLength));
-            }
-            // Padding
-            if (identifierLength % 2 === 0) {
-                directory.skip(1);
-            }
-            // Some special space
-            const restSize = directoryRecordLength - (directory.offset - startOffset);
-            directory.skip(restSize);
-            if (name == '.' || name == '..') {
-                continue;
-            }
-            // Do something with data
-            const isDirectory = (flags & 2) != 0;
-            if (!isDirectory) {
-                name = name.substring(0, name.indexOf(';')); // Remove version
-            }
-            const fullPathParts = [...path, name];
-            const fullPath = fullPathParts.join('/').toLowerCase();
-            if (isDirectory) {
-                await this.processDirectory(locationOfExtent, dataLength, fullPathParts);
-            }
-            else {
-                this.filesMapping.set(fullPath, {
-                    offset: locationOfExtent * 2048,
-                    size: dataLength,
-                });
-            }
-        }
-    }
-    async load() {
-        const rootDirectoryEntry = await this.bufferAt(17 * 2048 + 156, 34);
-        rootDirectoryEntry.getUint8(); // Length of Directory Record
-        rootDirectoryEntry.getUint8(); // Extended Attribute Record length
-        const rootLocation = rootDirectoryEntry.getUint32(); // Location of extent LSB
-        rootDirectoryEntry.getUint32(); // Location of extent MSB
-        const rootLength = rootDirectoryEntry.getUint32(); // Data length LSB
-        rootDirectoryEntry.getUint32(); // Data length MSB
-        await this.processDirectory(rootLocation, rootLength, []);
-    }
-    async getFile(path) {
-        const entry = this.filesMapping.get(path);
-        if (!entry) {
-            return null;
-        }
-        return this.readAt(entry.offset, entry.size);
-    }
-    getListing() {
-        return [...this.filesMapping.keys()];
-    }
-}
-exports.Iso9660Reader = Iso9660Reader;
 
 
 /***/ }),
@@ -52613,8 +52230,8 @@ const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/er
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/components/button.ts");
-const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
-const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
+const assetsLoader_1 = __webpack_require__(/*! ../../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
+const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const collisions_1 = __webpack_require__(/*! ../components/collisions */ "./src/engine/components/collisions.ts");
@@ -53285,9 +52902,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Application = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const utils_1 = __webpack_require__(/*! ../../common/utils */ "./src/common/utils.ts");
-const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
+const definitionLoader_1 = __webpack_require__(/*! ../../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
-const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
+const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const langCodeMapping = {
     '0415': 'POL',
@@ -54134,7 +53751,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CanvasObserver = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
+const assetsLoader_1 = __webpack_require__(/*! ../../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
@@ -54713,8 +54330,8 @@ exports.Episode = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const utils_1 = __webpack_require__(/*! ../../common/utils */ "./src/common/utils.ts");
-const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
-const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
+const definitionLoader_1 = __webpack_require__(/*! ../../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
+const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Episode = (() => {
     var _a;
@@ -55006,7 +54623,7 @@ exports.Image = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
-const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
+const assetsLoader_1 = __webpack_require__(/*! ../../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Image = (() => {
     var _a;
@@ -56187,11 +55804,11 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Sequence = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
+const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts");
-const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
-const definitionLoader_1 = __webpack_require__(/*! ../definitionLoader */ "./src/engine/definitionLoader.ts");
+const assetsLoader_1 = __webpack_require__(/*! ../../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
+const definitionLoader_1 = __webpack_require__(/*! ../../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~';
 let Sequence = (() => {
@@ -56540,8 +56157,8 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Sound = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const assetsLoader_1 = __webpack_require__(/*! ../assetsLoader */ "./src/engine/assetsLoader.ts");
-const filesLoader_1 = __webpack_require__(/*! ../filesLoader */ "./src/engine/filesLoader.ts");
+const assetsLoader_1 = __webpack_require__(/*! ../../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
+const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Sound = (() => {
@@ -57017,7 +56634,7 @@ let Text = (() => {
                 const [x, y, width, height] = this.definition.RECT;
                 this.text.x = x;
                 this.text.y = y;
-                this.text.visible = this.engine.debug.isDebug;
+                this.text.visible = this.engine.debug.enabled;
                 this.engine.addToStage(this.text);
             }
             destroy() {
@@ -58637,15 +58254,21 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createGamePlayer = void 0;
 const engine_1 = __webpack_require__(/*! ./engine */ "./src/engine/index.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
-const main = async () => {
+const createGamePlayer = (element) => {
+    if (element === null) {
+        return;
+    }
     const app = new PIXI.Application();
-    document.body.prepend(app.view);
-    const engine = new engine_1.Engine(app);
-    await engine.init();
+    const wrapper = document.createElement('div');
+    wrapper.appendChild(app.view);
+    element.appendChild(wrapper);
+    const engine = new engine_1.Engine(element, app);
+    engine.init();
 };
-main();
+exports.createGamePlayer = createGamePlayer;
 
 
 /***/ }),
@@ -61582,6 +61205,522 @@ exports.printStackTrace = printStackTrace;
 
 /***/ }),
 
+/***/ "./src/loaders/assetsLoader.ts":
+/*!*************************************!*\
+  !*** ./src/loaders/assetsLoader.ts ***!
+  \*************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.loadTexture = exports.loadSprite = exports.loadSound = void 0;
+const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
+const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
+const rendering_1 = __webpack_require__(/*! ../engine/rendering */ "./src/engine/rendering.ts");
+const loadSound = async (fileLoader, filename, options) => {
+    return sound_1.Sound.from({
+        source: await fileLoader.getRawFile(filename),
+        ...options,
+    });
+};
+exports.loadSound = loadSound;
+const loadSprite = async (fileLoader, filename) => {
+    const image = await fileLoader.getIMGFile(filename);
+    const imageBytes = new Uint8Array(image.bytes);
+    const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(image.bytes), image.header.width, image.header.height);
+    const texture = new PIXI.Texture(baseTexture);
+    const sprite = new rendering_1.AdvancedSprite(texture);
+    sprite.x = image.header.positionX;
+    sprite.y = image.header.positionY;
+    sprite.hitmap = (0, rendering_1.createHitmapFromImageBytes)(imageBytes);
+    return sprite;
+};
+exports.loadSprite = loadSprite;
+const loadTexture = async (fileLoader, filename) => {
+    const image = await fileLoader.getIMGFile(filename);
+    const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(image.bytes), image.header.width, image.header.height);
+    return new PIXI.Texture(baseTexture);
+};
+exports.loadTexture = loadTexture;
+
+
+/***/ }),
+
+/***/ "./src/loaders/definitionLoader.ts":
+/*!*****************************************!*\
+  !*** ./src/loaders/definitionLoader.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createObject = exports.loadDefinition = void 0;
+const integer_1 = __webpack_require__(/*! ../engine/types/integer */ "./src/engine/types/integer.ts");
+const animo_1 = __webpack_require__(/*! ../engine/types/animo */ "./src/engine/types/animo.ts");
+const music_1 = __webpack_require__(/*! ../engine/types/music */ "./src/engine/types/music.ts");
+const timer_1 = __webpack_require__(/*! ../engine/types/timer */ "./src/engine/types/timer.ts");
+const behaviour_1 = __webpack_require__(/*! ../engine/types/behaviour */ "./src/engine/types/behaviour.ts");
+const image_1 = __webpack_require__(/*! ../engine/types/image */ "./src/engine/types/image.ts");
+const mouse_1 = __webpack_require__(/*! ../engine/types/mouse */ "./src/engine/types/mouse.ts");
+const keyboard_1 = __webpack_require__(/*! ../engine/types/keyboard */ "./src/engine/types/keyboard.ts");
+const cnvloader_1 = __webpack_require__(/*! ../engine/types/cnvloader */ "./src/engine/types/cnvloader.ts");
+const canvasObserver_1 = __webpack_require__(/*! ../engine/types/canvasObserver */ "./src/engine/types/canvasObserver.ts");
+const condition_1 = __webpack_require__(/*! ../engine/types/condition */ "./src/engine/types/condition.ts");
+const episode_1 = __webpack_require__(/*! ../engine/types/episode */ "./src/engine/types/episode.ts");
+const application_1 = __webpack_require__(/*! ../engine/types/application */ "./src/engine/types/application.ts");
+const scene_1 = __webpack_require__(/*! ../engine/types/scene */ "./src/engine/types/scene.ts");
+const sound_1 = __webpack_require__(/*! ../engine/types/sound */ "./src/engine/types/sound.ts");
+const string_1 = __webpack_require__(/*! ../engine/types/string */ "./src/engine/types/string.ts");
+const bool_1 = __webpack_require__(/*! ../engine/types/bool */ "./src/engine/types/bool.ts");
+const array_1 = __webpack_require__(/*! ../engine/types/array */ "./src/engine/types/array.ts");
+const button_1 = __webpack_require__(/*! ../engine/types/button */ "./src/engine/types/button.ts");
+const sequence_1 = __webpack_require__(/*! ../engine/types/sequence */ "./src/engine/types/sequence.ts");
+const group_1 = __webpack_require__(/*! ../engine/types/group */ "./src/engine/types/group.ts");
+const text_1 = __webpack_require__(/*! ../engine/types/text */ "./src/engine/types/text.ts");
+const types_1 = __webpack_require__(/*! ../engine/types */ "./src/engine/types/index.ts");
+const font_1 = __webpack_require__(/*! ../engine/types/font */ "./src/engine/types/font.ts");
+const complexCondition_1 = __webpack_require__(/*! ../engine/types/complexCondition */ "./src/engine/types/complexCondition.ts");
+const rand_1 = __webpack_require__(/*! ../engine/types/rand */ "./src/engine/types/rand.ts");
+const double_1 = __webpack_require__(/*! ../engine/types/double */ "./src/engine/types/double.ts");
+const expression_1 = __webpack_require__(/*! ../engine/types/expression */ "./src/engine/types/expression.ts");
+const vector_1 = __webpack_require__(/*! ../engine/types/vector */ "./src/engine/types/vector.ts");
+const staticFilter_1 = __webpack_require__(/*! ../engine/types/staticFilter */ "./src/engine/types/staticFilter.ts");
+const filter_1 = __webpack_require__(/*! ../engine/types/filter */ "./src/engine/types/filter.ts");
+const multiArray_1 = __webpack_require__(/*! ../engine/types/multiArray */ "./src/engine/types/multiArray.ts");
+const system_1 = __webpack_require__(/*! ../engine/types/system */ "./src/engine/types/system.ts");
+const createTypeInstance = (engine, parent, definition) => {
+    switch (definition.TYPE) {
+        case 'ANIMO':
+            return new animo_1.Animo(engine, parent, definition);
+        case 'APPLICATION':
+            return new application_1.Application(engine, parent, definition);
+        case 'ARRAY':
+            return new array_1.ArrayObject(engine, parent, definition);
+        case 'BEHAVIOUR':
+            return new behaviour_1.Behaviour(engine, parent, definition);
+        case 'BOOL':
+            return new bool_1.Bool(engine, parent, definition);
+        case 'BUTTON':
+            return new button_1.Button(engine, parent, definition);
+        case 'CANVAS_OBSERVER':
+            return new canvasObserver_1.CanvasObserver(engine, parent, definition);
+        case 'CANVASOBSERVER':
+            return new canvasObserver_1.CanvasObserver(engine, parent, definition);
+        case 'CNVLOADER':
+            return new cnvloader_1.CNVLoader(engine, parent, definition);
+        case 'CONDITION':
+            return new condition_1.Condition(engine, parent, definition);
+        case 'COMPLEXCONDITION':
+            return new complexCondition_1.ComplexCondition(engine, parent, definition);
+        case 'DOUBLE':
+            return new double_1.Double(engine, parent, definition);
+        case 'EPISODE':
+            return new episode_1.Episode(engine, parent, definition);
+        case 'EXPRESSION':
+            return new expression_1.Expression(engine, parent, definition);
+        case 'FILTER':
+            return new filter_1.Filter(engine, parent, definition);
+        case 'FONT':
+            return new font_1.Font(engine, parent, definition);
+        case 'GROUP':
+            return new group_1.Group(engine, parent, definition);
+        case 'IMAGE':
+            return new image_1.Image(engine, parent, definition);
+        case 'INTEGER':
+            return new integer_1.Integer(engine, parent, definition);
+        case 'KEYBOARD':
+            return new keyboard_1.Keyboard(engine, parent, definition);
+        case 'MOUSE':
+            return new mouse_1.Mouse(engine, parent, definition);
+        case 'MULTIARRAY':
+            return new multiArray_1.MultiArray(engine, parent, definition);
+        case 'MUSIC':
+            return new music_1.Music(engine, parent, definition);
+        case 'RAND':
+            return new rand_1.Rand(engine, parent, definition);
+        case 'SCENE':
+            return new scene_1.Scene(engine, parent, definition);
+        case 'SEQUENCE':
+            return new sequence_1.Sequence(engine, parent, definition);
+        case 'SOUND':
+            return new sound_1.Sound(engine, parent, definition);
+        case 'STATICFILTER':
+            return new staticFilter_1.StaticFilter(engine, parent, definition);
+        case 'STRING':
+            return new string_1.String(engine, parent, definition);
+        case 'SYSTEM':
+            return new system_1.System(engine, parent, definition);
+        case 'TEXT':
+            return new text_1.Text(engine, parent, definition);
+        case 'TIMER':
+            return new timer_1.Timer(engine, parent, definition);
+        case 'VECTOR':
+            return new vector_1.Vector(engine, parent, definition);
+        default:
+            console.error(definition);
+            throw new Error(`Unknown object type '${definition.TYPE}'`);
+    }
+};
+const initializationPriorities = [
+    ['BEHAVIOUR'],
+    ['INTEGER', 'STRING', 'BOOL', 'DOUBLE'],
+    ['ARRAY', 'CONDITION'],
+    ['ANIMO', 'IMAGE', 'SOUND', 'VECTOR'],
+    ['TIMER', 'SEQUENCE', 'GROUP', 'BUTTON'],
+].reduce((acc, currentValue, currentIndex) => {
+    currentValue.forEach((entry) => acc.set(entry, currentIndex));
+    return acc;
+}, new Map());
+const loadDefinition = async (engine, scope, definition, parent) => {
+    engine.app.ticker.stop();
+    const entries = [];
+    for (const [key, value] of Object.entries(definition)) {
+        const instance = createTypeInstance(engine, parent, value);
+        scope[key] = instance;
+        entries.push(instance);
+        if (instance instanceof types_1.DisplayType) {
+            engine.displayObjectsInDefinitionOrder.push(instance);
+        }
+    }
+    const orderedScope = entries.sort((a, b) => {
+        const aPriority = a.name === '__INIT__' ? 99999 : (initializationPriorities.get(a.definition.TYPE) ?? 9999);
+        const bPriority = b.name === '__INIT__' ? 99999 : (initializationPriorities.get(b.definition.TYPE) ?? 9999);
+        return aPriority - bPriority;
+    });
+    const promisesResults = await Promise.allSettled(orderedScope.map((entry) => entry.init()));
+    const failedObjects = [];
+    for (let i = 0; i < promisesResults.length; i++) {
+        const result = promisesResults[i];
+        const object = orderedScope[i];
+        if (result.status === 'rejected') {
+            delete scope[object.name];
+            failedObjects.push(object);
+            console.error(`Failed to initialize object ${object.name}`, result.reason);
+        }
+    }
+    const goodObjects = orderedScope.filter((entry) => !failedObjects.includes(entry));
+    goodObjects.forEach((entry) => entry.applyDefaults());
+    goodObjects.forEach((entry) => {
+        entry.isReady = true;
+        entry.ready();
+    });
+    engine.app.ticker.start();
+};
+exports.loadDefinition = loadDefinition;
+const createObject = async (engine, definition, parent) => {
+    engine.app.ticker.stop();
+    const instance = createTypeInstance(engine, parent, definition);
+    engine.scope[definition.NAME] = instance;
+    if (instance instanceof types_1.DisplayType) {
+        engine.displayObjectsInDefinitionOrder.push(instance);
+    }
+    await instance.init();
+    instance.isReady = true;
+    instance.ready();
+    engine.app.ticker.start();
+    return instance;
+};
+exports.createObject = createObject;
+
+
+/***/ }),
+
+/***/ "./src/loaders/filesLoader.ts":
+/*!************************************!*\
+  !*** ./src/loaders/filesLoader.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.IsoFileLoader = exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
+const cnv_1 = __webpack_require__(/*! ../fileFormats/cnv */ "./src/fileFormats/cnv/index.ts");
+const img_1 = __webpack_require__(/*! ../fileFormats/img */ "./src/fileFormats/img/index.ts");
+const ann_1 = __webpack_require__(/*! ../fileFormats/ann */ "./src/fileFormats/ann/index.ts");
+const seq_1 = __webpack_require__(/*! ../fileFormats/seq */ "./src/fileFormats/seq/index.ts");
+const iso9660_1 = __webpack_require__(/*! ./iso9660 */ "./src/loaders/iso9660.ts");
+class FileNotFoundError extends Error {
+    constructor(filename) {
+        super(`File '${filename}' not found in files listing`);
+    }
+}
+exports.FileNotFoundError = FileNotFoundError;
+class FileLoader {
+}
+exports.FileLoader = FileLoader;
+class SimpleFileLoader extends FileLoader {
+    async getANNFile(filename) {
+        const data = await this.getRawFile(filename);
+        return (0, ann_1.loadAnn)(data);
+    }
+    async getCNVFile(filename) {
+        const data = await this.getRawFile(filename);
+        const text = (0, cnv_1.decryptCNV)(data);
+        console.debug(text);
+        return (0, cnv_1.parseCNV)(text);
+    }
+    async getSequenceFile(filename) {
+        const data = await this.getRawFile(filename);
+        const decoder = new TextDecoder();
+        const text = decoder.decode(data);
+        console.debug(text);
+        return (0, seq_1.parseSequence)(text);
+    }
+    async getIMGFile(filename) {
+        if (!filename.toLowerCase().endsWith('.img')) {
+            filename = filename + '.img';
+        }
+        const data = await this.getRawFile(filename);
+        return (0, img_1.loadImage)(data);
+    }
+    hasFile(filename) {
+        return this.getFilesListing().includes(filename.toLowerCase().replace(/\\/g, '/'));
+    }
+}
+class UrlFileLoader extends SimpleFileLoader {
+    constructor() {
+        super(...arguments);
+        this.listing = null;
+    }
+    async init() {
+        console.debug('Fetching files listing...');
+        this.listing = await this.fetchFilesListing();
+    }
+    getFilesListing() {
+        return [...this.listing.keys()];
+    }
+    async getRawFile(filename) {
+        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
+        console.debug(`Fetching '${normalizedFilename}'...`);
+        const fileUrl = this.listing.get(normalizedFilename);
+        if (fileUrl == null) {
+            throw new FileNotFoundError(normalizedFilename);
+        }
+        const response = await fetch(fileUrl);
+        return await response.arrayBuffer();
+    }
+}
+exports.UrlFileLoader = UrlFileLoader;
+class GithubFileLoader extends UrlFileLoader {
+    constructor(gameName) {
+        super();
+        this.filesListUrl = `https://api.github.com/repos/ReksioEngine/GamesFiles/git/trees/${gameName}?recursive=1/`;
+        this.filesBaseUrl = `https://raw.githubusercontent.com/ReksioEngine/GamesFiles/${gameName}/`;
+    }
+    // Windows case-insensitive filenames moment
+    async fetchFilesListing() {
+        const response = await fetch(this.filesListUrl);
+        const data = await response.json();
+        return new Map(data.tree.map((entry) => [entry.path.toLowerCase(), this.filesBaseUrl + entry.path]));
+    }
+}
+exports.GithubFileLoader = GithubFileLoader;
+class ArchiveOrgFileLoader extends UrlFileLoader {
+    constructor(baseUrl) {
+        super();
+        this.baseUrl = baseUrl;
+    }
+    // Windows case-insensitive filenames moment
+    async fetchFilesListing() {
+        const response = await fetch(this.baseUrl);
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const table = doc.querySelector('.archext');
+        if (table == null) {
+            throw new Error('Failed to fetch files listing table');
+        }
+        const links = table.querySelectorAll('a');
+        return new Map([...links].map((link) => [link.textContent.toLowerCase(), link.getAttribute('href')]));
+    }
+}
+exports.ArchiveOrgFileLoader = ArchiveOrgFileLoader;
+class IsoFileLoader extends SimpleFileLoader {
+    constructor(file) {
+        super();
+        this.isoReader = new iso9660_1.Iso9660Reader(file);
+    }
+    async init() {
+        await this.isoReader.load();
+    }
+    getFilesListing() {
+        return this.isoReader.getListing();
+    }
+    async getRawFile(filename) {
+        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
+        console.debug(`Loading '${normalizedFilename}'...`);
+        const fileResult = await this.isoReader.getFile(normalizedFilename);
+        if (fileResult == null) {
+            throw new FileNotFoundError(normalizedFilename);
+        }
+        return fileResult;
+    }
+}
+exports.IsoFileLoader = IsoFileLoader;
+
+
+/***/ }),
+
+/***/ "./src/loaders/iso9660.ts":
+/*!********************************!*\
+  !*** ./src/loaders/iso9660.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Iso9660Reader = void 0;
+const utils_1 = __webpack_require__(/*! ../fileFormats/utils */ "./src/fileFormats/utils.ts");
+class Iso9660Reader {
+    constructor(file) {
+        this.filesMapping = new Map();
+        this.file = file;
+    }
+    readAt(offset, length) {
+        return new Promise((resolve, reject) => {
+            const blob = this.file.slice(offset, offset + length);
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                if (event.target === null) {
+                    reject();
+                    return;
+                }
+                resolve(event.target.result);
+            };
+            reader.readAsArrayBuffer(blob);
+        });
+    }
+    async bufferAt(offset, length) {
+        const data = await this.readAt(offset, length);
+        return new utils_1.BinaryBuffer(new DataView(data));
+    }
+    decodeUTF16BE(arrayBuffer) {
+        const view = new DataView(arrayBuffer);
+        const swappedBuffer = new Uint8Array(arrayBuffer.byteLength);
+        for (let i = 0; i < arrayBuffer.byteLength; i += 2) {
+            swappedBuffer[i] = view.getUint8(i + 1); // High byte
+            swappedBuffer[i + 1] = view.getUint8(i); // Low byte
+        }
+        const decoder = new TextDecoder('utf-16le');
+        return decoder.decode(swappedBuffer);
+    }
+    async processDirectory(position, length, path) {
+        const directory = await this.bufferAt(position * 2048, length);
+        while (directory.offset < length) {
+            const startOffset = directory.offset;
+            const directoryRecordLength = directory.getUint8(); // Length of Directory Record
+            if (directoryRecordLength === 0) {
+                // Didn't fit in the sector
+                directory.skip(2048 - (startOffset % 2048) - 1);
+                continue;
+            }
+            directory.getUint8(); // Extended Attribute Record length.
+            const locationOfExtent = directory.getUint32(); // Location of extent (LBA) in both-endian format.
+            directory.getUint32();
+            const dataLength = directory.getUint32(); // Data length (size of extent) in both-endian format.
+            directory.getUint32();
+            directory.read(7); // Recording date and time.
+            const flags = directory.getUint8(); //  	File flags.
+            directory.getUint8(); // File unit size for files recorded in interleaved mode, zero otherwise.
+            directory.getUint8(); // Interleave gap size for files recorded in interleaved mode, zero otherwise.
+            directory.getUint16(); // Volume sequence number - the volume that this extent is recorded on, in 16 bit both-endian format.
+            directory.getUint16();
+            const identifierLength = directory.getUint8();
+            // Get filename
+            let name = '';
+            if (identifierLength == 1) {
+                const value = directory.getUint8();
+                if (value === 0) {
+                    name = '.';
+                }
+                else if (value === 1) {
+                    name = '..';
+                }
+            }
+            else {
+                name = this.decodeUTF16BE(directory.read(identifierLength));
+            }
+            // Padding
+            if (identifierLength % 2 === 0) {
+                directory.skip(1);
+            }
+            // Some special space
+            const restSize = directoryRecordLength - (directory.offset - startOffset);
+            directory.skip(restSize);
+            if (name == '.' || name == '..') {
+                continue;
+            }
+            // Do something with data
+            const isDirectory = (flags & 2) != 0;
+            if (!isDirectory) {
+                name = name.substring(0, name.indexOf(';')); // Remove version
+            }
+            const fullPathParts = [...path, name];
+            const fullPath = fullPathParts.join('/').toLowerCase();
+            if (isDirectory) {
+                await this.processDirectory(locationOfExtent, dataLength, fullPathParts);
+            }
+            else {
+                this.filesMapping.set(fullPath, {
+                    offset: locationOfExtent * 2048,
+                    size: dataLength,
+                });
+            }
+        }
+    }
+    async load() {
+        const rootDirectoryEntry = await this.bufferAt(17 * 2048 + 156, 34);
+        rootDirectoryEntry.getUint8(); // Length of Directory Record
+        rootDirectoryEntry.getUint8(); // Extended Attribute Record length
+        const rootLocation = rootDirectoryEntry.getUint32(); // Location of extent LSB
+        rootDirectoryEntry.getUint32(); // Location of extent MSB
+        const rootLength = rootDirectoryEntry.getUint32(); // Data length LSB
+        rootDirectoryEntry.getUint32(); // Data length MSB
+        await this.processDirectory(rootLocation, rootLength, []);
+    }
+    async getFile(path) {
+        const entry = this.filesMapping.get(path);
+        if (!entry) {
+            return null;
+        }
+        return this.readAt(entry.offset, entry.size);
+    }
+    getListing() {
+        return [...this.filesMapping.keys()];
+    }
+}
+exports.Iso9660Reader = Iso9660Reader;
+
+
+/***/ }),
+
 /***/ "./node_modules/url/node_modules/punycode/punycode.js":
 /*!************************************************************!*\
   !*** ./node_modules/url/node_modules/punycode/punycode.js ***!
@@ -63196,12 +63335,21 @@ var r=Object.create;var t=Object.defineProperty;var s=Object.getOwnPropertyDescr
 /******/ 	})();
 /******/ 	
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __webpack_require__("./src/index.ts");
-/******/ 	
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+var exports = __webpack_exports__;
+/*!**************************!*\
+  !*** ./src/devPlayer.ts ***!
+  \**************************/
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const index_1 = __webpack_require__(/*! ./index */ "./src/index.ts");
+(0, index_1.createGamePlayer)(document.getElementById('game'));
+
+})();
+
 /******/ })()
 ;
 //# sourceMappingURL=main.js.map
