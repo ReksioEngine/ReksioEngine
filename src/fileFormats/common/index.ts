@@ -135,8 +135,8 @@ export const createCallback = (value: string): callback | undefined => {
             isSingleStatement: false,
         }
     } else {
-        const pattern = /(?<name>[a-zA-Z0-9_]+)(?:\((?<args>.*)\))?/g
-        const argParsed = pattern.exec(value)
+        const pattern = /^(?<name>[a-zA-Z0-9_]+)(?:\((?<args>.*)\))?$/g
+        const argParsed = pattern.exec(value.trim())
 
         const groups = argParsed?.groups
         if (groups) {
