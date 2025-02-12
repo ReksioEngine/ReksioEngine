@@ -255,6 +255,8 @@ export class Sequence extends Type<SequenceDefinition> {
                 const instance = sound.play() as IMediaInstance
                 this.playingSound = instance
 
+                console.debug(`Playing sound '${speaking.WAVFN}'`)
+
                 const startEvent = speaking.PREFIX + '_START'
                 if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
                     this.playAnimoEvent(startEvent)
