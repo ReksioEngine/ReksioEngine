@@ -251,11 +251,18 @@ export class Sequence extends Type<SequenceDefinition> {
             }
 
             if (this.activeAnimo) {
-                const sound = this.sounds.get(speaking.WAVFN)!
-                const instance = sound.play() as IMediaInstance
-                this.playingSound = instance
+                if (this.playingSound) {
+                    this.playingSound.stop()
+                    this.playingSound = null
+                }
 
                 console.debug(`Playing sound '${speaking.WAVFN}'`)
+                const sound = this.sounds.get(speaking.WAVFN)!
+                const instance = sound.play() as IMediaInstance
+                instance.on('end', async () => {
+                    this.endedSpeakingSoundsQueue.push(speaking)
+                })
+                this.playingSound = instance
 
                 const startEvent = speaking.PREFIX + '_START'
                 if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
@@ -265,10 +272,6 @@ export class Sequence extends Type<SequenceDefinition> {
                     this.loopIndex = 1
                     this.playAnimoEvent(speaking.PREFIX + '_1')
                 }
-
-                instance.on('end', async () => {
-                    this.endedSpeakingSoundsQueue.push(speaking)
-                })
 
                 this.runningSubSequence = speaking
             }
