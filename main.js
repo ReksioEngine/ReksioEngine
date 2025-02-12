@@ -52387,7 +52387,9 @@ let Animo = (() => {
                 this.sprite.eventMode = 'none';
                 this.sprite.visible = this.definition.VISIBLE;
                 this.SETPRIORITY(this.definition.PRIORITY ?? 0);
-                this.engine.addToStage(this.sprite);
+                if (this.definition.TOCANVAS) {
+                    this.engine.addToStage(this.sprite);
+                }
             }
             getTexture(imageIndex) {
                 (0, errors_1.assert)(this.annFile != null);
@@ -53498,6 +53500,9 @@ let Button = (() => {
                 }
             }
             applyDefaults() {
+                this.prepareGraphic(this.gfxStandard);
+                this.prepareGraphic(this.gfxOnClick);
+                this.prepareGraphic(this.gfxOnMove);
                 if (this.definition.RECT) {
                     this.setRect(this.definition.RECT);
                 }
@@ -53668,6 +53673,16 @@ let Button = (() => {
                     if (renderObject) {
                         renderObject.alpha = alpha;
                     }
+                }
+            }
+            prepareGraphic(object) {
+                const renderObject = object?.getRenderObject() ?? null;
+                if (renderObject === null) {
+                    return;
+                }
+                // Add object to stage if it had TOCANVAS=FALSE, and wasn't added
+                if (renderObject.parent === null) {
+                    this.engine.app.stage.addChild(renderObject);
                 }
             }
             __getXRayInfo() {
@@ -56027,6 +56042,7 @@ let Sequence = (() => {
                         const sound = this.sounds.get(speaking.WAVFN);
                         const instance = sound.play();
                         this.playingSound = instance;
+                        console.debug(`Playing sound '${speaking.WAVFN}'`);
                         const startEvent = speaking.PREFIX + '_START';
                         if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
                             this.playAnimoEvent(startEvent);
@@ -57640,8 +57656,8 @@ const createCallback = (value) => {
         };
     }
     else {
-        const pattern = /(?<name>[a-zA-Z0-9_]+)(?:\((?<args>.*)\))?/g;
-        const argParsed = pattern.exec(value);
+        const pattern = /^(?<name>[a-zA-Z0-9_]+)(?:\((?<args>.*)\))?$/g;
+        const argParsed = pattern.exec(value.trim());
         const groups = argParsed?.groups;
         if (groups) {
             const name = groups['name'];
