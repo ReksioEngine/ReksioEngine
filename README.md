@@ -6,16 +6,16 @@ While the game is not fully playable yet - you can have a look at the current pr
 [Play Reksio i Ufo](https://reksioengine.github.io/ReksioEngine?loader=github&source=reksioiufo)\
 [Play Reksio i Skarb Piratów](https://reksioengine.github.io/ReksioEngine?loader=github&source=reksioiskarbpiratow)
 
-## Current state (2025-01-29)
+## Current state (2025-02-12)
 
 ### Reksio i Skarb Piratów
-**Breaking point**: At around 20% of play time. You can't go through doors. \
-**Progress**: Around 80% of the game scenes appear to work. \
+**Breaking point**: At around 73% of play time. You can't play minigame with teleports. \
+**Progress**: Around 92% of the game scenes appear to work. \
 **Detailed progress**: https://github.com/orgs/ReksioEngine/projects/2
 
 ### Reksio i Ufo
-**Breaking point**: At around 16% of play time. It's impossible to finish minigame where you control the rocket, as you can't refuel. \
-**Progress**: Around 82% of the game scenes appear to work. \
+**Breaking point**: At around 30% of play time. You can't start digging minigame. \
+**Progress**: Around 85% of the game scenes appear to work. \
 **Detailed progress**: https://github.com/orgs/ReksioEngine/projects/1
 
 ![Reksio Engine](https://github.com/user-attachments/assets/3e6c1ef5-4a5f-4c6a-b6f3-ac56ab2a347b)
