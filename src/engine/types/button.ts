@@ -37,6 +37,10 @@ export class Button extends Type<ButtonDefinition> {
     }
 
     applyDefaults() {
+        this.prepareGraphic(this.gfxStandard)
+        this.prepareGraphic(this.gfxOnClick)
+        this.prepareGraphic(this.gfxOnMove)
+
         if (this.definition.RECT) {
             this.setRect(this.definition.RECT)
         }
@@ -233,6 +237,18 @@ export class Button extends Type<ButtonDefinition> {
             if (renderObject) {
                 renderObject.alpha = alpha
             }
+        }
+    }
+
+    private prepareGraphic(object: Image | Animo | null) {
+        const renderObject = object?.getRenderObject() ?? null
+        if (renderObject === null) {
+            return
+        }
+
+        // Add object to stage if it had TOCANVAS=FALSE, and wasn't added
+        if (renderObject.parent === null) {
+            this.engine.app.stage.addChild(renderObject)
         }
     }
 

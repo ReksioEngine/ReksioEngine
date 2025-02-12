@@ -158,7 +158,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.visible = this.definition.VISIBLE
         this.SETPRIORITY(this.definition.PRIORITY ?? 0)
 
-        this.engine.addToStage(this.sprite)
+        if (this.definition.TOCANVAS) {
+            this.engine.addToStage(this.sprite)
+        }
     }
 
     private getTexture(imageIndex: number): Texture {
