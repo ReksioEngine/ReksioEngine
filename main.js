@@ -56039,10 +56039,17 @@ let Sequence = (() => {
                         }
                     }
                     if (this.activeAnimo) {
+                        if (this.playingSound) {
+                            this.playingSound.stop();
+                            this.playingSound = null;
+                        }
+                        console.debug(`Playing sound '${speaking.WAVFN}'`);
                         const sound = this.sounds.get(speaking.WAVFN);
                         const instance = sound.play();
+                        instance.on('end', async () => {
+                            this.endedSpeakingSoundsQueue.push(speaking);
+                        });
                         this.playingSound = instance;
-                        console.debug(`Playing sound '${speaking.WAVFN}'`);
                         const startEvent = speaking.PREFIX + '_START';
                         if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
                             this.playAnimoEvent(startEvent);
@@ -56052,9 +56059,6 @@ let Sequence = (() => {
                             this.loopIndex = 1;
                             this.playAnimoEvent(speaking.PREFIX + '_1');
                         }
-                        instance.on('end', async () => {
-                            this.endedSpeakingSoundsQueue.push(speaking);
-                        });
                         this.runningSubSequence = speaking;
                     }
                 }
