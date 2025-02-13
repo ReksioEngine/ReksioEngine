@@ -27,6 +27,14 @@ export class Timer extends Type<TimerDefinition> {
         this.DISABLE()
     }
 
+    onPause() {
+        this.DISABLE()
+    }
+
+    onResume() {
+        this.ENABLE()
+    }
+
     tick(elapsedMS: number) {
         if (!this.enabled) {
             return

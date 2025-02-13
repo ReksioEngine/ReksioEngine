@@ -10,7 +10,6 @@ import { loadSound, loadTexture } from '../loaders/assetsLoader'
 import { SaveFile, SaveFileManager } from './saveFile'
 import { preloadAssets } from './optimizations'
 import { Debugging } from './debugging'
-import { Timer } from './types/timer'
 import { IrrecoverableError } from '../common/errors'
 import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
 import { initDevtools } from '@pixi/devtools'
@@ -296,9 +295,7 @@ export class Engine {
     resume() {
         sound.resumeAll()
         for (const object of Object.values(this.scope)) {
-            if (object instanceof Timer) {
-                object.ENABLE()
-            }
+            object.resume()
         }
         this.app.ticker.start()
     }
@@ -307,9 +304,7 @@ export class Engine {
         this.app.ticker.stop()
         sound.pauseAll()
         for (const object of Object.values(this.scope)) {
-            if (object instanceof Timer) {
-                object.DISABLE()
-            }
+            object.pause()
         }
     }
 }
