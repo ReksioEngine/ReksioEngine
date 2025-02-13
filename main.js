@@ -52278,7 +52278,7 @@ let Animo = (() => {
                 this.buttonLogic = (__runInitializers(this, _instanceExtraInitializers), void 0);
                 this.isPlaying = false;
                 this.currentFrame = 0;
-                this.currentEvent = '';
+                this.currentEvent = null;
                 this.animationEndedLastTick = false;
                 this.buttonInteractArea = null;
                 this.fps = 16;
@@ -52303,10 +52303,9 @@ let Animo = (() => {
                 this.initSprite();
             }
             applyDefaults() {
-                this.currentEvent = this.getDefaultEvent() ?? '';
-                const event = this.getEventByName(this.currentEvent);
-                if (event) {
-                    this.changeFrame(event, 0, false);
+                this.currentEvent = this.getEventByName(this.getDefaultEvent() ?? '');
+                if (this.currentEvent) {
+                    this.changeFrame(this.currentEvent, 0, false);
                 }
             }
             ready() {
@@ -52413,7 +52412,7 @@ let Animo = (() => {
             }
             tickAnimation() {
                 (0, errors_1.assert)(this.annFile !== null && this.sprite !== null);
-                const event = this.getEventByName(this.currentEvent);
+                const event = this.currentEvent;
                 if (!event) {
                     return;
                 }
@@ -52434,7 +52433,7 @@ let Animo = (() => {
                 }
                 // Event might be changed in ONFRAMECHANGED or ONSTARTED
                 // event.name might be lowercase
-                if (event.name.toUpperCase() !== this.currentEvent.toUpperCase()) {
+                if (event !== this.currentEvent) {
                     return;
                 }
                 // Random sound out of them?
@@ -52483,7 +52482,7 @@ let Animo = (() => {
                     this.buttonInteractArea.hitArea = this.sprite.getBounds();
                 }
                 if (signal) {
-                    this.callbacks.run('ONFRAMECHANGED', this.currentEvent);
+                    this.callbacks.run('ONFRAMECHANGED', event.name);
                 }
             }
             changeImage(imageIndex) {
@@ -52522,22 +52521,23 @@ let Animo = (() => {
                 (0, errors_1.assert)(this.sprite !== null);
                 this.sprite.visible = true;
                 this.currentFrame = 0;
-                this.currentEvent = name.toString().toUpperCase();
+                this.currentEvent = this.getEventByName(name);
                 // Animation could be paused before next tick, and it wouldn't render new frame
                 this.forceRender();
             }
             forceRender() {
-                const event = this.getEventByName(this.currentEvent);
-                (0, errors_1.assert)(event !== null);
-                this.changeFrame(event, this.currentFrame, false);
+                (0, errors_1.assert)(this.currentEvent !== null);
+                this.changeFrame(this.currentEvent, this.currentFrame, false);
             }
             ONFINISHED() {
-                const index = this.currentEvent.toString();
+                (0, errors_1.assert)(this.currentEvent !== null);
+                const index = this.currentEvent.name.toUpperCase();
                 this.callbacks.run('ONFINISHED', index);
                 this.events?.trigger('ONFINISHED', index);
             }
             ONSTARTED() {
-                const index = this.currentEvent.toString();
+                (0, errors_1.assert)(this.currentEvent !== null);
+                const index = this.currentEvent.name.toUpperCase();
                 this.callbacks.run('ONSTARTED', index);
                 this.events?.trigger('ONSTARTED', index);
             }
@@ -52568,7 +52568,7 @@ let Animo = (() => {
                 (0, errors_1.assert)(event !== null);
                 // Necessary in S63_OBOZ
                 if (newEventFrame < event.framesCount) {
-                    this.currentEvent = newEvent;
+                    this.currentEvent = event;
                     this.currentFrame = newEventFrame;
                     // Force render because some animations might not be playing,
                     // but they display something (like a keypad screen in S73_0_KOD in UFO)
@@ -52672,26 +52672,24 @@ let Animo = (() => {
                 return this.sprite.getGlobalPosition().y;
             }
             GETFRAMENAME() {
-                const event = this.getEventByName(this.currentEvent);
-                (0, errors_1.assert)(event !== null);
-                return event.frames[this.currentFrame].name;
+                (0, errors_1.assert)(this.currentEvent !== null);
+                return this.currentEvent.frames[this.currentFrame].name;
             }
             GETMAXWIDTH() {
                 (0, errors_1.assert)(this.annFile !== null);
                 return Math.max(...this.annFile.annImages.map((e) => e.width));
             }
             GETNOFINEVENT() {
-                const event = this.getEventByName(this.currentEvent);
-                (0, errors_1.assert)(event !== null);
-                return event.framesCount;
+                (0, errors_1.assert)(this.currentEvent !== null);
+                return this.currentEvent.framesCount;
             }
             GETEVENTNAME() {
-                return this.currentEvent;
+                (0, errors_1.assert)(this.currentEvent !== null);
+                return this.currentEvent.name.toUpperCase();
             }
             GETFRAME() {
-                const event = this.getEventByName(this.currentEvent);
-                (0, errors_1.assert)(event !== null);
-                return event.framesImageMapping[this.currentFrame];
+                (0, errors_1.assert)(this.currentEvent !== null);
+                return this.currentEvent.framesImageMapping[this.currentFrame];
             }
             GETCFRAMEINEVENT() {
                 return this.currentFrame;
@@ -52701,21 +52699,16 @@ let Animo = (() => {
                 return this.annFile.header.framesCount;
             }
             GETCURRFRAMEPOSX() {
-                const event = this.getEventByName(this.currentEvent);
-                (0, errors_1.assert)(event !== null);
-                return event.frames[this.currentFrame].positionX;
+                (0, errors_1.assert)(this.currentEvent !== null);
+                return this.currentEvent.frames[this.currentFrame].positionX;
             }
             GETCURRFRAMEPOSY() {
-                const event = this.getEventByName(this.currentEvent);
-                (0, errors_1.assert)(event !== null);
-                return event.frames[this.currentFrame].positionY;
+                (0, errors_1.assert)(this.currentEvent !== null);
+                return this.currentEvent.frames[this.currentFrame].positionY;
             }
             ISPLAYING(animName) {
-                if (animName === undefined) {
-                    return this.isPlaying;
-                }
                 (0, errors_1.assert)(this.currentEvent !== null);
-                return this.isPlaying && this.currentEvent == animName;
+                return this.isPlaying && this.currentEvent.name.toUpperCase() == animName;
             }
             ISNEAR(objectName, percentage) {
                 const otherObject = this.engine.getObject(objectName);
