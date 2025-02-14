@@ -20177,11 +20177,6 @@ var code = `<style>
             <input id="enableSaveFiles" type="checkbox" /> <label for="enableSaveFiles">Enable save files</label>
         </div>
     </div>
-
-    <div class="debug-panel">
-        <span class="debug-panel-title">File Loader</span>
-        <div class="debug-panel-body">ISO: <input type="file" id="isoInput" multiple /></div>
-    </div>
 </div>
 `;
 // Exports
@@ -51244,10 +51239,10 @@ class CallbacksComponent {
             if (param !== null && param !== undefined && callbackGroup.parametrized.has(param)) {
                 const callback = callbackGroup.parametrized.get(param);
                 (0, errors_1.assert)(callback !== undefined, 'Callbacks should not happen to be undefined values');
-                this.engine.executeCallback(thisReference, callback);
+                this.engine.scripting.executeCallback(thisReference, callback);
             }
             else if (callbackGroup.nonParametrized) {
-                this.engine.executeCallback(thisReference, callbackGroup.nonParametrized);
+                this.engine.scripting.executeCallback(thisReference, callbackGroup.nonParametrized);
             }
         }
         catch (err) {
@@ -51323,7 +51318,7 @@ class CollisionsComponent {
         }
     }
     findCollisions() {
-        return this.engine.displayObjectsInDefinitionOrder
+        return this.engine.rendering.displayObjectsInDefinitionOrder
             .filter((obj) => obj !== this.object && obj.definition.TYPE == 'ANIMO')
             .filter((obj) => this.hasCollisionWith(obj))
             .map((obj) => obj);
@@ -51393,7 +51388,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Debugging = void 0;
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
-const filesLoader_1 = __webpack_require__(/*! ../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/animo.ts");
 const parser_1 = __webpack_require__(/*! ../fileFormats/cnv/parser */ "./src/fileFormats/cnv/parser.ts");
@@ -51406,8 +51400,6 @@ const debugging_html_1 = __importDefault(__webpack_require__(/*! ./debugging.htm
 class Debugging {
     constructor(engine, isDebug) {
         this.enabled = false;
-        this.autoStart = true;
-        this.nextSceneOverwrite = null;
         this.mutedMusic = false;
         this.xrays = new Map();
         this.enableXRay = false;
@@ -51434,26 +51426,6 @@ class Debugging {
         }
         this.engine.app.ticker.start();
     }
-    applyQueryParams() {
-        if (!this.enabled) {
-            return;
-        }
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('loader') && urlParams.has('source')) {
-            const loader = urlParams.get('loader');
-            const source = urlParams.get('source');
-            if (loader === 'github') {
-                this.engine.fileLoader = new filesLoader_1.GithubFileLoader(source);
-            }
-            else if (loader === 'archiveorg') {
-                this.engine.fileLoader = new filesLoader_1.ArchiveOrgFileLoader(source);
-            }
-        }
-        if (urlParams.has('autostart')) {
-            this.autoStart = urlParams.get('autostart') === 'true';
-        }
-        this.nextSceneOverwrite = urlParams.get('scene');
-    }
     setupDebugTools() {
         if (!this.enabled) {
             return;
@@ -51461,7 +51433,7 @@ class Debugging {
         const debugTools = document.createElement('div');
         debugTools.innerHTML = debugging_html_1.default;
         debugTools.style.display = 'inline-block';
-        this.engine.parent.appendChild(debugTools);
+        this.engine.parentElement.appendChild(debugTools);
         const speedSlider = debugTools.querySelector('#speed');
         const speedReset = debugTools.querySelector('#speedReset');
         const speedDisplay = debugTools.querySelector('#speedDisplay');
@@ -51476,13 +51448,6 @@ class Debugging {
         const exportSave = debugTools.querySelector('#exportSave');
         const enableSaveFiles = debugTools.querySelector('#enableSaveFiles');
         const muteMusic = debugTools.querySelector('#muteMusic');
-        const isoInput = debugTools.querySelector('#isoInput');
-        isoInput.addEventListener('change', async (event) => {
-            const fileLoader = new filesLoader_1.IsoFileLoader(event.target.files[0]);
-            await fileLoader.init();
-            this.engine.fileLoader = fileLoader;
-            await this.engine.start();
-        });
         const setSpeed = (speed) => {
             this.engine.speed = speed;
             sound_1.sound.speedAll = speed;
@@ -51724,58 +51689,48 @@ exports.Debugging = Debugging;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Engine = void 0;
-const script_1 = __webpack_require__(/*! ../interpreter/script */ "./src/interpreter/script/index.ts");
+const scripting_1 = __webpack_require__(/*! ./scripting */ "./src/engine/scripting.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
-const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const filesLoader_1 = __webpack_require__(/*! ../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const assetsLoader_1 = __webpack_require__(/*! ../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
 const optimizations_1 = __webpack_require__(/*! ./optimizations */ "./src/engine/optimizations.ts");
 const debugging_1 = __webpack_require__(/*! ./debugging */ "./src/engine/debugging.ts");
-const timer_1 = __webpack_require__(/*! ./types/timer */ "./src/engine/types/timer.ts");
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
-const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const devtools_1 = __webpack_require__(/*! @pixi/devtools */ "./node_modules/@pixi/devtools/dist/index.cjs");
 const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
 class Engine {
-    constructor(parent, app) {
+    constructor(parentElement, app, options) {
+        this.parentElement = parentElement;
+        this.app = app;
+        this.options = options;
         this.speed = 1;
-        this.thisQueue = [];
         this.globalScope = {};
         this.scope = {};
-        this.displayObjectsInDefinitionOrder = [];
+        this.currentScene = null;
+        this.previousScene = null;
         this.saveFile = saveFile_1.SaveFileManager.empty(false);
-        this.fileLoader = new filesLoader_1.GithubFileLoader('reksioiufo');
         this.music = null;
-        this.parent = parent;
-        this.app = app;
-        this.debug = new debugging_1.Debugging(this, true);
-        this.blackTexture = (0, rendering_1.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0);
-        this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
-        this.canvasBackground.zIndex = -99999;
-        this.canvasBackground.name = 'Scene Background'; // For PIXI Devtools
+        this.rendering = new rendering_1.RenderingManager(app);
+        this.scripting = new scripting_1.ScriptingManager(this);
+        this.debug = new debugging_1.Debugging(this, this.options.debug ?? false);
+        this.fileLoader = this.options.fileLoader;
     }
     async init() {
         try {
-            this.debug.applyQueryParams();
             // @ts-expect-error no engine in globalThis
             globalThis.engine = this;
             await (0, devtools_1.initDevtools)({ app: this.app });
             if (saveFile_1.SaveFileManager.areSavesEnabled()) {
                 this.saveFile = saveFile_1.SaveFileManager.fromLocalStorage();
             }
-            this.app.ticker.maxFPS = 60;
-            this.app.stage.interactive = true;
+            this.rendering.init();
             sound_1.sound.disableAutoPause = true;
-            this.app.stage.name = 'Scene'; // For PIXI Devtools
-            this.app.stage.addChild(this.canvasBackground);
             this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS));
             this.app.ticker.stop();
             this.debug.setupDebugTools();
-            if (this.debug.autoStart) {
-                await this.start();
-            }
+            await this.start();
         }
         catch (err) {
             console.error('Unhandled error occurred during initialization');
@@ -51787,6 +51742,7 @@ class Engine {
             await this.fileLoader.init();
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def');
             await (0, definitionLoader_1.loadDefinition)(this, this.globalScope, applicationDef, null);
+            await this.changeScene(this.options.startScene ?? this.episode.definition.STARTWITH);
             this.debug.fillSceneSelector();
             this.app.ticker.start();
         }
@@ -51802,10 +51758,16 @@ class Engine {
             }
             catch (err) {
                 if (err instanceof errors_1.IrrecoverableError) {
-                    console.error('Irrecoverable error occurred. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
+                    console.error('Irrecoverable error occurred. Execution paused\n' +
+                        'Call "engine.resume()" to resume\n' +
+                        '\n' +
+                        '%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
                 }
                 else {
-                    console.error('Unhandled error occurred during tick. Execution paused\nCall "engine.resume()" to resume\n\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
+                    console.error('Unhandled error occurred during tick. Execution paused\n' +
+                        'Call "engine.resume()" to resume\n' +
+                        '\n' +
+                        '%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
                     console.error(err);
                 }
                 this.pause();
@@ -51813,74 +51775,13 @@ class Engine {
         }
         this.debug.updateXRay();
     }
-    executeCallback(caller, callback, args) {
-        if (caller !== null) {
-            this.thisQueue.push(caller);
-        }
-        let stackFrame = null;
-        try {
-            if (callback.code) {
-                return (0, script_1.runScript)(this, callback.code, args, callback.isSingleStatement);
-            }
-            else if (callback.behaviourReference) {
-                if (!this.scope[callback.behaviourReference]) {
-                    console.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`, 'font-weight: bold', 'font-weight: inherit', callback, 'font-weight: bold', 'font-weight: inherit', caller);
-                    return;
-                }
-                stackFrame = stacktrace_1.StackFrame.builder()
-                    .type('behaviour')
-                    .behaviour(callback.behaviourReference)
-                    .args(...(args !== undefined ? args : []))
-                    .build();
-                stacktrace_1.stackTrace.push(stackFrame);
-                return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments);
-            }
-        }
-        finally {
-            if (caller !== null) {
-                this.thisQueue.pop();
-            }
-            if (stackFrame !== null) {
-                stacktrace_1.stackTrace.pop();
-            }
-        }
-    }
-    runScript(code, args, isSingleStatement, printDebug) {
-        return (0, script_1.runScript)(this, code, args, isSingleStatement, printDebug);
-    }
-    addToStage(sprite) {
-        this.app.stage.addChild(sprite);
-        this.sortObjects();
-    }
-    removeFromStage(sprite) {
-        this.app.stage.removeChild(sprite);
-        this.sortObjects();
-    }
-    sortObjects() {
-        // Sort by zIndex + the order of creation if zIndex is the same.
-        // Default PIXI.js sorting have problem with equal zIndex case.
-        this.app.stage.children.sort((a, b) => {
-            if (a.zIndex !== b.zIndex) {
-                return a.zIndex - b.zIndex;
-            }
-            const objectA = this.displayObjectsInDefinitionOrder.find((e) => e.getRenderObject() === a);
-            const objectB = this.displayObjectsInDefinitionOrder.find((e) => e.getRenderObject() === b);
-            if (objectA === undefined || objectB === undefined) {
-                return 0;
-            }
-            const renderingOrderA = this.displayObjectsInDefinitionOrder.indexOf(objectA);
-            const renderingOrderB = this.displayObjectsInDefinitionOrder.indexOf(objectB);
-            const orderA = a.zIndex + renderingOrderA;
-            const orderB = b.zIndex + renderingOrderB;
-            return orderA - orderB;
-        });
-    }
     async changeScene(sceneName) {
         this.app.ticker.stop();
         sound_1.sound.stopAll();
         if (this.music !== null) {
             this.music.stop();
         }
+        this.rendering.onSceneChange();
         // Remove non-global objects from scope
         // but keep for later destroying
         // to prevent screen flickering
@@ -51889,23 +51790,15 @@ class Engine {
             objectsToRemove.push(object);
             delete this.scope[key];
         }
-        this.displayObjectsInDefinitionOrder = [];
-        // Load new scene
-        if (this.debug.nextSceneOverwrite) {
-            sceneName = this.debug.nextSceneOverwrite;
-            this.debug.nextSceneOverwrite = null;
-        }
+        this.previousScene = this.currentScene;
         this.currentScene = this.getObject(sceneName);
         // Set background image
         if (this.currentScene.definition.BACKGROUND) {
-            this.canvasBackground.texture = await (0, assetsLoader_1.loadTexture)(this.fileLoader, this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND));
+            this.rendering.setBackground(await (0, assetsLoader_1.loadTexture)(this.fileLoader, this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)));
         }
         else {
-            this.canvasBackground.texture = this.blackTexture;
+            this.rendering.clearBackground();
         }
-        // Reset cursor
-        this.app.renderer.events.cursorStyles.default = 'auto';
-        this.app.renderer.events.setCursor('auto');
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
         await (0, definitionLoader_1.loadDefinition)(this, this.scope, sceneDefinition, this.currentScene);
         for (const object of objectsToRemove) {
@@ -51931,7 +51824,7 @@ class Engine {
     getObject(name) {
         if (typeof name == 'string') {
             if (name === 'THIS') {
-                return this.thisQueue[this.thisQueue.length - 1];
+                return this.scripting.currentThis;
             }
             return this.scope[name] ?? this.globalScope[name] ?? null;
         }
@@ -51939,12 +51832,13 @@ class Engine {
             return this.getObject(name.objectName);
         }
     }
+    get episode() {
+        return Object.values(this.globalScope).find((object) => object.definition.TYPE === 'EPISODE');
+    }
     resume() {
         sound_1.sound.resumeAll();
         for (const object of Object.values(this.scope)) {
-            if (object instanceof timer_1.Timer) {
-                object.ENABLE();
-            }
+            object.resume();
         }
         this.app.ticker.start();
     }
@@ -51952,9 +51846,7 @@ class Engine {
         this.app.ticker.stop();
         sound_1.sound.pauseAll();
         for (const object of Object.values(this.scope)) {
-            if (object instanceof timer_1.Timer) {
-                object.DISABLE();
-            }
+            object.pause();
         }
     }
 }
@@ -52001,9 +51893,67 @@ exports.preloadAssets = preloadAssets;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createColorTexture = exports.drawRectangle = exports.createHitmapFromImageBytes = exports.AdvancedSprite = void 0;
+exports.createColorTexture = exports.drawRectangle = exports.createHitmapFromImageBytes = exports.AdvancedSprite = exports.RenderingManager = void 0;
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
+class RenderingManager {
+    constructor(app) {
+        this.app = app;
+        this.displayObjectsInDefinitionOrder = [];
+        this.blackTexture = (0, exports.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0);
+        this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
+        this.canvasBackground.zIndex = -99999;
+        this.canvasBackground.name = 'Scene Background'; // For PIXI Devtools
+    }
+    init() {
+        this.app.ticker.maxFPS = 60;
+        this.app.stage.interactive = true;
+        this.app.stage.name = 'Scene'; // For PIXI Devtools
+        this.app.stage.addChild(this.canvasBackground);
+    }
+    onSceneChange() {
+        this.displayObjectsInDefinitionOrder = [];
+        this.resetCursor();
+    }
+    setBackground(texture) {
+        this.canvasBackground.texture = texture;
+    }
+    clearBackground() {
+        this.canvasBackground.texture = this.blackTexture;
+    }
+    resetCursor() {
+        this.app.renderer.events.cursorStyles.default = 'auto';
+        this.app.renderer.events.setCursor('auto');
+    }
+    addToStage(sprite) {
+        this.app.stage.addChild(sprite);
+        this.sortObjects();
+    }
+    removeFromStage(sprite) {
+        this.app.stage.removeChild(sprite);
+        this.sortObjects();
+    }
+    sortObjects() {
+        // Sort by zIndex + the order of creation if zIndex is the same.
+        // Default PIXI.js sorting have problem with equal zIndex case.
+        this.app.stage.children.sort((a, b) => {
+            if (a.zIndex !== b.zIndex) {
+                return a.zIndex - b.zIndex;
+            }
+            const objectA = this.displayObjectsInDefinitionOrder.find((e) => e.getRenderObject() === a);
+            const objectB = this.displayObjectsInDefinitionOrder.find((e) => e.getRenderObject() === b);
+            if (objectA === undefined || objectB === undefined) {
+                return 0;
+            }
+            const renderingOrderA = this.displayObjectsInDefinitionOrder.indexOf(objectA);
+            const renderingOrderB = this.displayObjectsInDefinitionOrder.indexOf(objectB);
+            const orderA = a.zIndex + renderingOrderA;
+            const orderB = b.zIndex + renderingOrderB;
+            return orderA - orderB;
+        });
+    }
+}
+exports.RenderingManager = RenderingManager;
 class AdvancedSprite extends pixi_js_1.Sprite {
     constructor() {
         super(...arguments);
@@ -52161,6 +52111,67 @@ exports.SaveFileManager = SaveFileManager;
 
 /***/ }),
 
+/***/ "./src/engine/scripting.ts":
+/*!*********************************!*\
+  !*** ./src/engine/scripting.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ScriptingManager = void 0;
+const script_1 = __webpack_require__(/*! ../interpreter/script */ "./src/interpreter/script/index.ts");
+const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
+class ScriptingManager {
+    constructor(engine) {
+        this.thisQueue = [];
+        this.engine = engine;
+    }
+    get currentThis() {
+        return this.thisQueue[this.thisQueue.length - 1];
+    }
+    executeCallback(caller, callback, args) {
+        if (caller !== null) {
+            this.thisQueue.push(caller);
+        }
+        let stackFrame = null;
+        try {
+            if (callback.code) {
+                return (0, script_1.runScript)(this.engine, callback.code, args, callback.isSingleStatement, true);
+            }
+            else if (callback.behaviourReference) {
+                if (!this.engine.scope[callback.behaviourReference]) {
+                    console.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`, 'font-weight: bold', 'font-weight: inherit', callback, 'font-weight: bold', 'font-weight: inherit', caller);
+                    return;
+                }
+                stackFrame = stacktrace_1.StackFrame.builder()
+                    .type('behaviour')
+                    .behaviour(callback.behaviourReference)
+                    .args(...(args !== undefined ? args : []))
+                    .build();
+                stacktrace_1.stackTrace.push(stackFrame);
+                return this.engine.scope[callback.behaviourReference].RUNC(...callback.constantArguments);
+            }
+        }
+        finally {
+            if (caller !== null) {
+                this.thisQueue.pop();
+            }
+            if (stackFrame !== null) {
+                stacktrace_1.stackTrace.pop();
+            }
+        }
+    }
+    runScript(code, args, isSingleStatement, printDebug) {
+        return (0, script_1.runScript)(this.engine, code, args, isSingleStatement, printDebug);
+    }
+}
+exports.ScriptingManager = ScriptingManager;
+
+
+/***/ }),
+
 /***/ "./src/engine/types/animo.ts":
 /*!***********************************!*\
   !*** ./src/engine/types/animo.ts ***!
@@ -52313,10 +52324,10 @@ let Animo = (() => {
             }
             destroy() {
                 if (this.sprite !== null) {
-                    this.engine.removeFromStage(this.sprite);
+                    this.engine.rendering.removeFromStage(this.sprite);
                 }
                 if (this.buttonInteractArea !== null) {
-                    this.engine.removeFromStage(this.buttonInteractArea);
+                    this.engine.rendering.removeFromStage(this.buttonInteractArea);
                 }
             }
             tick(elapsedMS) {
@@ -52343,7 +52354,7 @@ let Animo = (() => {
                 return null;
             }
             async loadAnimation() {
-                (0, errors_1.assert)(this.engine.currentScene !== undefined);
+                (0, errors_1.assert)(this.engine.currentScene !== null);
                 try {
                     const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME);
                     const annFile = await this.engine.fileLoader.getANNFile(relativePath);
@@ -52387,7 +52398,7 @@ let Animo = (() => {
                 this.sprite.visible = this.definition.VISIBLE;
                 this.SETPRIORITY(this.definition.PRIORITY ?? 0);
                 if (this.definition.TOCANVAS) {
-                    this.engine.addToStage(this.sprite);
+                    this.engine.rendering.addToStage(this.sprite);
                 }
             }
             getTexture(imageIndex) {
@@ -53253,7 +53264,7 @@ let Behaviour = (() => {
             RUN(...args) {
                 try {
                     // Don't resolve args, it will fail in S33_METEORY
-                    return this.engine.executeCallback(null, this.definition.CODE, args);
+                    return this.engine.scripting.executeCallback(null, this.definition.CODE, args);
                 }
                 catch (err) {
                     if (!(err instanceof script_1.InterruptScriptExecution)) {
@@ -53272,7 +53283,7 @@ let Behaviour = (() => {
                 for (let i = start; i < start + len; i += step) {
                     try {
                         if (this.shouldRun()) {
-                            this.engine.executeCallback(null, this.definition.CODE, [i, step, ...resolvedArgs]);
+                            this.engine.scripting.executeCallback(null, this.definition.CODE, [i, step, ...resolvedArgs]);
                         }
                     }
                     catch (err) {
@@ -53293,7 +53304,7 @@ let Behaviour = (() => {
                     if (typeof arg !== 'string') {
                         return arg;
                     }
-                    const result = this.engine.runScript(arg.toString(), [], true, false);
+                    const result = this.engine.scripting.runScript(arg.toString(), [], true, false);
                     return result !== null && result !== undefined ? result : arg;
                 });
             }
@@ -53784,7 +53795,7 @@ let CanvasObserver = (() => {
                 if (texture == null) {
                     throw new Error(`Cannot load image '${filename}'`);
                 }
-                this.engine.canvasBackground.texture = texture;
+                this.engine.rendering.setBackground(texture);
             }
             REFRESH() { }
             GETGRAPHICSAT(x, y, onlyVisible = false, minZ = Number.MIN_SAFE_INTEGER, maxZ = Number.MAX_SAFE_INTEGER, includeAlpha = false) {
@@ -54098,8 +54109,8 @@ let Condition = (() => {
                 }
             }
             CHECK(shouldSignal) {
-                const operand1 = this.engine.executeCallback(null, this.definition.OPERAND1);
-                const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2);
+                const operand1 = this.engine.scripting.executeCallback(null, this.definition.OPERAND1);
+                const operand2 = this.engine.scripting.executeCallback(null, this.definition.OPERAND2);
                 if (operand1 === undefined || operand2 === undefined) {
                     return false;
                 }
@@ -54306,13 +54317,6 @@ exports.Double = Double;
 
 "use strict";
 
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -54340,6 +54344,13 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Episode = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
@@ -54356,10 +54367,6 @@ let Episode = (() => {
     let _GETLATESTSCENE_decorators;
     let _BACK_decorators;
     return _a = class Episode extends _classSuper {
-            constructor() {
-                super(...arguments);
-                this.previousScene = (__runInitializers(this, _instanceExtraInitializers), void 0);
-            }
             async init() {
                 if (this.definition.PATH) {
                     try {
@@ -54373,24 +54380,24 @@ let Episode = (() => {
                     }
                 }
             }
-            ready() {
-                this.GOTO(this.definition.STARTWITH);
-            }
             async GOTO(sceneName) {
                 (0, errors_1.assert)(this.definition.SCENES.includes(sceneName));
-                this.previousScene = this.engine.currentScene;
                 await this.engine.changeScene(sceneName);
             }
             GETLATESTSCENE() {
-                return this.previousScene?.definition.NAME ?? null;
+                return this.engine.previousScene?.definition.NAME ?? null;
             }
             async BACK() {
-                if (this.previousScene) {
-                    await this.GOTO(this.previousScene.definition.NAME);
+                if (this.engine.previousScene) {
+                    await this.GOTO(this.engine.previousScene.definition.NAME);
                 }
                 else {
                     console.warn('Attempted EPISODE^BACK() but there is no previous scene');
                 }
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
             }
         },
         (() => {
@@ -54424,8 +54431,8 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 class Expression extends index_1.ValueType {
     get value() {
-        const operand1 = this.engine.executeCallback(this, this.definition.OPERAND1);
-        const operand2 = this.engine.executeCallback(this, this.definition.OPERAND2);
+        const operand1 = this.engine.scripting.executeCallback(this, this.definition.OPERAND1);
+        const operand2 = this.engine.scripting.executeCallback(this, this.definition.OPERAND2);
         let result;
         switch (this.definition.OPERATOR) {
             case 'ADD':
@@ -54667,18 +54674,18 @@ let Image = (() => {
                 this.SETPRIORITY(this.definition.PRIORITY ?? 0);
             }
             async load() {
-                (0, errors_1.assert)(this.engine.currentScene !== undefined);
+                (0, errors_1.assert)(this.engine.currentScene !== null);
                 const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME);
                 return await (0, assetsLoader_1.loadSprite)(this.engine.fileLoader, relativePath);
             }
             ready() {
                 (0, errors_1.assert)(this.sprite !== null);
-                this.engine.addToStage(this.sprite);
+                this.engine.rendering.addToStage(this.sprite);
                 this.callbacks.run('ONINIT');
             }
             destroy() {
                 (0, errors_1.assert)(this.sprite !== null);
-                this.engine.removeFromStage(this.sprite);
+                this.engine.rendering.removeFromStage(this.sprite);
             }
             SETOPACITY(opacity) {
                 throw new errors_1.NotImplementedError();
@@ -54835,6 +54842,8 @@ let Type = (() => {
             ready() { }
             destroy() { }
             tick(elapsedMS) { }
+            onPause() { }
+            onResume() { }
             __getXRayInfo() {
                 return null;
             }
@@ -54880,7 +54889,7 @@ let DisplayType = (() => {
                 (0, errors_1.assert)(this.getRenderObject() !== null);
                 this.priority = priority;
                 this.getRenderObject().zIndex = priority;
-                this.engine.sortObjects();
+                this.engine.rendering.sortObjects();
             }
             getRenderObject() {
                 throw new errors_1.NotImplementedError();
@@ -56657,10 +56666,10 @@ let Text = (() => {
                 this.text.x = x;
                 this.text.y = y;
                 this.text.visible = this.engine.debug.enabled;
-                this.engine.addToStage(this.text);
+                this.engine.rendering.addToStage(this.text);
             }
             destroy() {
-                this.engine.removeFromStage(this.text);
+                this.engine.rendering.removeFromStage(this.text);
             }
             SETTEXT(content) {
                 this.text.text = content;
@@ -56753,6 +56762,12 @@ let Timer = (() => {
             }
             destroy() {
                 this.DISABLE();
+            }
+            onPause() {
+                this.DISABLE();
+            }
+            onResume() {
+                this.ENABLE();
             }
             tick(elapsedMS) {
                 if (!this.enabled) {
@@ -58279,7 +58294,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createGamePlayer = void 0;
 const engine_1 = __webpack_require__(/*! ./engine */ "./src/engine/index.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
-const createGamePlayer = (element) => {
+const createGamePlayer = (element, options) => {
     if (element === null) {
         return;
     }
@@ -58287,7 +58302,7 @@ const createGamePlayer = (element) => {
     const wrapper = document.createElement('div');
     wrapper.appendChild(app.view);
     element.appendChild(wrapper);
-    const engine = new engine_1.Engine(element, app);
+    const engine = new engine_1.Engine(element, app, options);
     engine.init();
 };
 exports.createGamePlayer = createGamePlayer;
@@ -61426,7 +61441,7 @@ const loadDefinition = async (engine, scope, definition, parent) => {
         scope[key] = instance;
         entries.push(instance);
         if (instance instanceof types_1.DisplayType) {
-            engine.displayObjectsInDefinitionOrder.push(instance);
+            engine.rendering.displayObjectsInDefinitionOrder.push(instance);
         }
     }
     const orderedScope = entries.sort((a, b) => {
@@ -61459,7 +61474,7 @@ const createObject = async (engine, definition, parent) => {
     const instance = createTypeInstance(engine, parent, definition);
     engine.scope[definition.NAME] = instance;
     if (instance instanceof types_1.DisplayType) {
-        engine.displayObjectsInDefinitionOrder.push(instance);
+        engine.rendering.displayObjectsInDefinitionOrder.push(instance);
     }
     await instance.init();
     instance.isReady = true;
@@ -63363,7 +63378,45 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const index_1 = __webpack_require__(/*! ./index */ "./src/index.ts");
-(0, index_1.createGamePlayer)(document.getElementById('game'));
+const filesLoader_1 = __webpack_require__(/*! ./loaders/filesLoader */ "./src/loaders/filesLoader.ts");
+const urlParams = new URLSearchParams(window.location.search);
+const gameContainer = document.getElementById('game');
+const baseOptions = {
+    startScene: urlParams.get('scene') ?? undefined,
+    debug: true,
+};
+if (urlParams.get('loader') === 'iso-local') {
+    const controls = document.getElementById('controls');
+    const fileSelector = document.createElement('input');
+    fileSelector.type = 'file';
+    fileSelector.addEventListener('change', async (event) => {
+        controls.removeChild(fileSelector);
+        (0, index_1.createGamePlayer)(gameContainer, {
+            ...baseOptions,
+            fileLoader: new filesLoader_1.IsoFileLoader(event.target.files[0]),
+        });
+    });
+    controls.appendChild(fileSelector);
+}
+else {
+    const getFileLoader = () => {
+        const loader = urlParams.get('loader');
+        const source = urlParams.get('source');
+        if (loader && source) {
+            if (loader === 'github') {
+                return new filesLoader_1.GithubFileLoader(source);
+            }
+            else if (loader === 'archiveorg') {
+                return new filesLoader_1.ArchiveOrgFileLoader(source);
+            }
+        }
+        return new filesLoader_1.GithubFileLoader('reksioiskarbpiratow');
+    };
+    (0, index_1.createGamePlayer)(gameContainer, {
+        ...baseOptions,
+        fileLoader: getFileLoader(),
+    });
+}
 
 })();
 
