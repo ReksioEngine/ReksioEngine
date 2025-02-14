@@ -107,7 +107,7 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
         this.priority = priority
 
         this.getRenderObject()!.zIndex = priority
-        this.engine.sortObjects()
+        this.engine.rendering.sortObjects()
     }
 
     getRenderObject(): Sprite | null {

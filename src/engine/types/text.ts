@@ -18,11 +18,11 @@ export class Text extends DisplayType<TextDefinition> {
         this.text.x = x
         this.text.y = y
         this.text.visible = this.engine.debug.enabled
-        this.engine.addToStage(this.text)
+        this.engine.rendering.addToStage(this.text)
     }
 
     destroy() {
-        this.engine.removeFromStage(this.text)
+        this.engine.rendering.removeFromStage(this.text)
     }
 
     @method()

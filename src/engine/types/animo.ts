@@ -72,10 +72,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     destroy() {
         if (this.sprite !== null) {
-            this.engine.removeFromStage(this.sprite)
+            this.engine.rendering.removeFromStage(this.sprite)
         }
         if (this.buttonInteractArea !== null) {
-            this.engine.removeFromStage(this.buttonInteractArea)
+            this.engine.rendering.removeFromStage(this.buttonInteractArea)
         }
     }
 
@@ -158,7 +158,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.SETPRIORITY(this.definition.PRIORITY ?? 0)
 
         if (this.definition.TOCANVAS) {
-            this.engine.addToStage(this.sprite)
+            this.engine.rendering.addToStage(this.sprite)
         }
     }
 

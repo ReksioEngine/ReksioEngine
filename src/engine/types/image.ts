@@ -29,13 +29,13 @@ export class Image extends DisplayType<ImageDefinition> {
 
     ready() {
         assert(this.sprite !== null)
-        this.engine.addToStage(this.sprite)
+        this.engine.rendering.addToStage(this.sprite)
         this.callbacks.run('ONINIT')
     }
 
     destroy() {
         assert(this.sprite !== null)
-        this.engine.removeFromStage(this.sprite)
+        this.engine.rendering.removeFromStage(this.sprite)
     }
 
     @method()

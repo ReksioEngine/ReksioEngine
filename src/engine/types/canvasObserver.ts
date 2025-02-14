@@ -14,7 +14,7 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
             throw new Error(`Cannot load image '${filename}'`)
         }
 
-        this.engine.canvasBackground.texture = texture
+        this.engine.rendering.setBackground(texture)
     }
 
     @method()

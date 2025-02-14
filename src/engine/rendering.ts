@@ -1,5 +1,85 @@
-import { Application, Graphics, IPointData, Rectangle, Sprite } from 'pixi.js'
+import { Application, DisplayObject, Graphics, IPointData, Rectangle, Sprite, Texture } from 'pixi.js'
 import { assert } from '../common/errors'
+import { DisplayType } from './types'
+
+export class RenderingManager {
+    public displayObjectsInDefinitionOrder: DisplayType<any>[] = []
+
+    public canvasBackground: Sprite
+    private readonly blackTexture
+
+    constructor(private app: Application) {
+        this.blackTexture = createColorTexture(
+            this.app,
+            new Rectangle(0, 0, this.app.view.width, this.app.view.height),
+            0
+        )
+        this.canvasBackground = new Sprite(this.blackTexture)
+        this.canvasBackground.zIndex = -99999
+        this.canvasBackground.name = 'Scene Background' // For PIXI Devtools
+    }
+
+    init() {
+        this.app.ticker.maxFPS = 60
+        this.app.stage.interactive = true
+
+        this.app.stage.name = 'Scene' // For PIXI Devtools
+        this.app.stage.addChild(this.canvasBackground)
+    }
+
+    onSceneChange() {
+        this.displayObjectsInDefinitionOrder = []
+        this.resetCursor()
+    }
+
+    setBackground(texture: Texture) {
+        this.canvasBackground.texture = texture
+    }
+
+    clearBackground() {
+        this.canvasBackground.texture = this.blackTexture
+    }
+
+    resetCursor() {
+        this.app.renderer.events.cursorStyles.default = 'auto'
+        this.app.renderer.events.setCursor('auto')
+    }
+
+    addToStage(sprite: DisplayObject) {
+        this.app.stage.addChild(sprite)
+        this.sortObjects()
+    }
+
+    removeFromStage(sprite: DisplayObject) {
+        this.app.stage.removeChild(sprite)
+        this.sortObjects()
+    }
+
+    sortObjects() {
+        // Sort by zIndex + the order of creation if zIndex is the same.
+        // Default PIXI.js sorting have problem with equal zIndex case.
+        this.app.stage.children.sort((a, b) => {
+            if (a.zIndex !== b.zIndex) {
+                return a.zIndex - b.zIndex
+            }
+
+            const objectA = this.displayObjectsInDefinitionOrder.find((e) => e.getRenderObject() === a)
+            const objectB = this.displayObjectsInDefinitionOrder.find((e) => e.getRenderObject() === b)
+
+            if (objectA === undefined || objectB === undefined) {
+                return 0
+            }
+
+            const renderingOrderA = this.displayObjectsInDefinitionOrder.indexOf(objectA)
+            const renderingOrderB = this.displayObjectsInDefinitionOrder.indexOf(objectB)
+
+            const orderA = a.zIndex + renderingOrderA
+            const orderB = b.zIndex + renderingOrderB
+
+            return orderA - orderB
+        })
+    }
+}
 
 export class AdvancedSprite extends Sprite {
     public hitmap?: Uint8Array

@@ -86,7 +86,7 @@ export class Debugging {
         const debugTools = document.createElement('div')
         debugTools.innerHTML = debuggingTemplate
         debugTools.style.display = 'inline-block'
-        this.engine.parent.appendChild(debugTools)
+        this.engine.parentElement.appendChild(debugTools)
 
         const speedSlider: HTMLInputElement = debugTools.querySelector('#speed')!
         const speedReset = debugTools.querySelector('#speedReset')!

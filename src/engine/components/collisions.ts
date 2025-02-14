@@ -44,7 +44,7 @@ export class CollisionsComponent {
     }
 
     findCollisions() {
-        return this.engine.displayObjectsInDefinitionOrder
+        return this.engine.rendering.displayObjectsInDefinitionOrder
             .filter((obj) => obj !== this.object && obj.definition.TYPE == 'ANIMO')
             .filter((obj) => this.hasCollisionWith(obj as Animo))
             .map((obj) => obj as Animo)
