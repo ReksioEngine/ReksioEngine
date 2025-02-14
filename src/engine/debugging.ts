@@ -2,7 +2,6 @@ import { Episode } from './types/episode'
 import { Type } from './types'
 import { Engine } from './index'
 import { sound } from '@pixi/sound'
-import { ArchiveOrgFileLoader, GithubFileLoader, IsoFileLoader } from '../loaders/filesLoader'
 import { Container, Graphics, Rectangle, Text } from 'pixi.js'
 import { Animo } from './types/animo'
 import { CNVObject, parseCNV } from '../fileFormats/cnv/parser'
@@ -16,9 +15,6 @@ import debuggingTemplate from './debugging.html'
 export class Debugging {
     private readonly engine: Engine
     public enabled = false
-    public autoStart = true
-
-    public nextSceneOverwrite: string | null = null
     public mutedMusic = false
 
     private xrays: Map<string, Container> = new Map()
@@ -55,29 +51,6 @@ export class Debugging {
         this.engine.app.ticker.start()
     }
 
-    applyQueryParams() {
-        if (!this.enabled) {
-            return
-        }
-
-        const urlParams = new URLSearchParams(window.location.search)
-        if (urlParams.has('loader') && urlParams.has('source')) {
-            const loader = urlParams.get('loader')!
-            const source = urlParams.get('source')!
-
-            if (loader === 'github') {
-                this.engine.fileLoader = new GithubFileLoader(source)
-            } else if (loader === 'archiveorg') {
-                this.engine.fileLoader = new ArchiveOrgFileLoader(source)
-            }
-        }
-        if (urlParams.has('autostart')) {
-            this.autoStart = urlParams.get('autostart') === 'true'
-        }
-
-        this.nextSceneOverwrite = urlParams.get('scene')
-    }
-
     setupDebugTools() {
         if (!this.enabled) {
             return
@@ -103,14 +76,6 @@ export class Debugging {
         const exportSave = debugTools.querySelector('#exportSave')!
         const enableSaveFiles: HTMLInputElement = debugTools.querySelector('#enableSaveFiles')!
         const muteMusic: HTMLInputElement = debugTools.querySelector('#muteMusic')!
-        const isoInput = debugTools.querySelector('#isoInput')!
-
-        isoInput.addEventListener('change', async (event: any) => {
-            const fileLoader = new IsoFileLoader(event.target.files[0])
-            await fileLoader.init()
-            this.engine.fileLoader = fileLoader
-            await this.engine.start()
-        })
 
         const setSpeed = (speed: number) => {
             this.engine.speed = speed

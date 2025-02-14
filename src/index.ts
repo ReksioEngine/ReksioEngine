@@ -1,7 +1,13 @@
 import { Engine } from './engine'
 import * as PIXI from 'pixi.js'
+import { FileLoader } from './loaders/filesLoader'
 
-export const createGamePlayer = (element: HTMLElement | null) => {
+export type GamePlayerOptions = {
+    fileLoader: FileLoader
+    startScene?: string
+}
+
+export const createGamePlayer = (element: HTMLElement | null, options: GamePlayerOptions) => {
     if (element === null) {
         return
     }
@@ -11,6 +17,6 @@ export const createGamePlayer = (element: HTMLElement | null) => {
     wrapper.appendChild(app.view as unknown as Node)
     element.appendChild(wrapper)
 
-    const engine = new Engine(element, app)
+    const engine = new Engine(element, app, options)
     engine.init()
 }

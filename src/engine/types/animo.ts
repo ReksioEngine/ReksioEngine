@@ -108,7 +108,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     private async loadAnimation() {
-        assert(this.engine.currentScene !== undefined)
+        assert(this.engine.currentScene !== null)
 
         try {
             const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME)

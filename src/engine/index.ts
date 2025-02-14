@@ -3,7 +3,7 @@ import { ScriptingManager } from './scripting'
 import { loadDefinition } from '../loaders/definitionLoader'
 import { Application } from 'pixi.js'
 import { Scene } from './types/scene'
-import { FileLoader, GithubFileLoader, UrlFileLoader } from '../loaders/filesLoader'
+import { FileLoader, UrlFileLoader } from '../loaders/filesLoader'
 import { sound, Sound } from '@pixi/sound'
 import { loadSound, loadTexture } from '../loaders/assetsLoader'
 import { SaveFile, SaveFileManager } from './saveFile'
@@ -12,11 +12,10 @@ import { Debugging } from './debugging'
 import { IrrecoverableError } from '../common/errors'
 import { initDevtools } from '@pixi/devtools'
 import { RenderingManager } from './rendering'
+import { GamePlayerOptions } from '../index'
+import { Type } from './types'
 
 export class Engine {
-    public readonly app: Application
-    public parentElement: HTMLElement
-
     public debug: Debugging
     public speed: number = 1
 
@@ -26,24 +25,27 @@ export class Engine {
     public rendering: RenderingManager
     public scripting: ScriptingManager
 
-    public currentScene?: Scene
+    public currentScene: Scene | null = null
+    public previousScene: Scene | null = null
+
     public saveFile: SaveFile = SaveFileManager.empty(false)
 
-    public fileLoader: FileLoader = new GithubFileLoader('reksioiufo')
+    public fileLoader: FileLoader
     public music: Sound | null = null
 
-    constructor(parent: HTMLElement, app: Application) {
-        this.parentElement = parent
-        this.app = app
+    constructor(
+        public parentElement: HTMLElement,
+        public readonly app: Application,
+        private options: GamePlayerOptions
+    ) {
         this.rendering = new RenderingManager(app)
         this.scripting = new ScriptingManager(this)
         this.debug = new Debugging(this, process.env.debug as unknown as boolean)
+        this.fileLoader = this.options.fileLoader
     }
 
     async init() {
         try {
-            this.debug.applyQueryParams()
-
             // @ts-expect-error no engine in globalThis
             globalThis.engine = this
             await initDevtools({ app: this.app })
@@ -59,9 +61,7 @@ export class Engine {
             this.app.ticker.stop()
 
             this.debug.setupDebugTools()
-            if (this.debug.autoStart) {
-                await this.start()
-            }
+            await this.start()
         } catch (err) {
             console.error('Unhandled error occurred during initialization')
             console.error(err)
@@ -74,6 +74,7 @@ export class Engine {
 
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
             await loadDefinition(this, this.globalScope, applicationDef, null)
+            await this.changeScene(this.options.startScene ?? this.episode.definition.STARTWITH)
 
             this.debug.fillSceneSelector()
             this.app.ticker.start()
@@ -140,12 +141,7 @@ export class Engine {
             delete this.scope[key]
         }
 
-        // Load new scene
-        if (this.debug.nextSceneOverwrite) {
-            sceneName = this.debug.nextSceneOverwrite
-            this.debug.nextSceneOverwrite = null
-        }
-
+        this.previousScene = this.currentScene
         this.currentScene = this.getObject(sceneName) as Scene
 
         // Set background image
@@ -197,6 +193,10 @@ export class Engine {
         } else {
             return this.getObject(name.objectName)
         }
+    }
+
+    get episode() {
+        return Object.values(this.globalScope).find((object: Type<any>) => object.definition.TYPE === 'EPISODE')
     }
 
     resume() {
