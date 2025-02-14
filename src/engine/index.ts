@@ -1,5 +1,5 @@
-import { callback, reference } from '../fileFormats/common'
-import { runScript } from '../interpreter/script'
+import { reference } from '../fileFormats/common'
+import { ScriptingManager } from './scripting'
 import { loadDefinition } from '../loaders/definitionLoader'
 import { Application } from 'pixi.js'
 import { Scene } from './types/scene'
@@ -12,8 +12,6 @@ import { Debugging } from './debugging'
 import { IrrecoverableError } from '../common/errors'
 import { initDevtools } from '@pixi/devtools'
 import { RenderingManager } from './rendering'
-import { Type } from './types'
-import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
 
 export class Engine {
     public readonly app: Application
@@ -22,11 +20,11 @@ export class Engine {
     public debug: Debugging
     public speed: number = 1
 
-    private thisQueue: Type<any>[] = []
     public globalScope: Record<string, any> = {}
     public scope: Record<string, any> = {}
 
     public rendering: RenderingManager
+    public scripting: ScriptingManager
 
     public currentScene?: Scene
     public saveFile: SaveFile = SaveFileManager.empty(false)
@@ -38,6 +36,7 @@ export class Engine {
         this.parentElement = parent
         this.app = app
         this.rendering = new RenderingManager(app)
+        this.scripting = new ScriptingManager(this)
         this.debug = new Debugging(this, process.env.debug as unknown as boolean)
     }
 
@@ -123,54 +122,6 @@ export class Engine {
         this.debug.updateXRay()
     }
 
-    executeCallback(caller: Type<any> | null, callback: callback, args?: any[]) {
-        if (caller !== null) {
-            this.thisQueue.push(caller)
-        }
-
-        let stackFrame = null
-
-        try {
-            if (callback.code) {
-                return runScript(this, callback.code, args, callback.isSingleStatement, true)
-            } else if (callback.behaviourReference) {
-                if (!this.scope[callback.behaviourReference]) {
-                    console.error(
-                        `Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`,
-                        'font-weight: bold',
-                        'font-weight: inherit',
-                        callback,
-                        'font-weight: bold',
-                        'font-weight: inherit',
-                        caller
-                    )
-                    return
-                }
-
-                stackFrame = StackFrame.builder()
-                    .type('behaviour')
-                    .behaviour(callback.behaviourReference)
-                    .args(...(args !== undefined ? args : []))
-                    .build()
-
-                stackTrace.push(stackFrame)
-                return this.scope[callback.behaviourReference].RUNC(...callback.constantArguments)
-            }
-        } finally {
-            if (caller !== null) {
-                this.thisQueue.pop()
-            }
-
-            if (stackFrame !== null) {
-                stackTrace.pop()
-            }
-        }
-    }
-
-    runScript(code: string, args: any[], isSingleStatement: boolean, printDebug: boolean) {
-        return runScript(this, code, args, isSingleStatement, printDebug)
-    }
-
     async changeScene(sceneName: string) {
         this.app.ticker.stop()
         sound.stopAll()
@@ -239,7 +190,7 @@ export class Engine {
     getObject(name: string | reference): any {
         if (typeof name == 'string') {
             if (name === 'THIS') {
-                return this.thisQueue[this.thisQueue.length - 1]
+                return this.scripting.currentThis
             }
 
             return this.scope[name] ?? this.globalScope[name] ?? null

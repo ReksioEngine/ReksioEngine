@@ -25,8 +25,8 @@ export class Condition extends Type<ConditionDefinition> {
 
     @method()
     CHECK(shouldSignal: boolean): boolean {
-        const operand1 = this.engine.executeCallback(null, this.definition.OPERAND1)
-        const operand2 = this.engine.executeCallback(null, this.definition.OPERAND2)
+        const operand1 = this.engine.scripting.executeCallback(null, this.definition.OPERAND1)
+        const operand2 = this.engine.scripting.executeCallback(null, this.definition.OPERAND2)
 
         if (operand1 === undefined || operand2 === undefined) {
             return false

@@ -4,8 +4,8 @@ import { NotImplementedError } from '../../common/errors'
 
 export class Expression extends ValueType<ExpressionDefinition> {
     get value() {
-        const operand1 = this.engine.executeCallback(this, this.definition.OPERAND1)
-        const operand2 = this.engine.executeCallback(this, this.definition.OPERAND2)
+        const operand1 = this.engine.scripting.executeCallback(this, this.definition.OPERAND1)
+        const operand2 = this.engine.scripting.executeCallback(this, this.definition.OPERAND2)
 
         let result
         switch (this.definition.OPERATOR) {
