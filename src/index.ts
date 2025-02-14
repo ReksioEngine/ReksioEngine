@@ -5,6 +5,7 @@ import { FileLoader } from './loaders/filesLoader'
 export type GamePlayerOptions = {
     fileLoader: FileLoader
     startScene?: string
+    debug?: boolean
 }
 
 export const createGamePlayer = (element: HTMLElement | null, options: GamePlayerOptions) => {

@@ -5,6 +5,7 @@ const urlParams = new URLSearchParams(window.location.search)
 const gameContainer = document.getElementById('game')
 const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
+    debug: process.env.debug as unknown as boolean,
 }
 
 if (urlParams.get('loader') === 'iso-local') {

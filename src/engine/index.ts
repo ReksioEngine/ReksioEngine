@@ -40,7 +40,7 @@ export class Engine {
     ) {
         this.rendering = new RenderingManager(app)
         this.scripting = new ScriptingManager(this)
-        this.debug = new Debugging(this, process.env.debug as unknown as boolean)
+        this.debug = new Debugging(this, this.options.debug ?? false)
         this.fileLoader = this.options.fileLoader
     }
 
