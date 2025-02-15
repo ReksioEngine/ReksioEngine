@@ -3,8 +3,8 @@ import { Type } from './types'
 export class ScopeManager {
     public scopes: Array<Scope> = []
 
-    public newScope() {
-        const newScope = new Scope()
+    public newScope(type: string) {
+        const newScope = new Scope(type)
         this.scopes.push(newScope)
         return newScope
     }
@@ -17,8 +17,18 @@ export class ScopeManager {
         return this.scopes.pop()
     }
 
-    public getScope(level: number = 0) {
-        return this.scopes[this.scopes.length - 1 - level]
+    public getScope(level: number | string = 0) {
+        if (typeof level === 'string') {
+            for (let i = this.scopes.length - 1; i >= 0; i--) {
+                const scope = this.scopes[i]
+                if (scope.type === level) {
+                    return scope
+                }
+            }
+            return null
+        } else {
+            return this.scopes[this.scopes.length - 1 - level]
+        }
     }
 
     public findByName(name: string) {
@@ -45,7 +55,10 @@ export class ScopeManager {
 }
 
 export class Scope {
-    constructor(public entries: Record<string, any> = {}) {}
+    constructor(
+        public type: string,
+        public entries: Record<string, any> = {}
+    ) {}
 
     public get(name: string): Type<any> | null {
         return this.entries[name] ?? null

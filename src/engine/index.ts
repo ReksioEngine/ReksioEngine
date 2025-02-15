@@ -9,7 +9,7 @@ import { loadSound, loadTexture } from '../loaders/assetsLoader'
 import { SaveFile, SaveFileManager } from './saveFile'
 import { preloadAssets } from './optimizations'
 import { Debugging } from './debugging'
-import { IgnorableError, IrrecoverableError } from '../common/errors'
+import { assert, IgnorableError, IrrecoverableError } from '../common/errors'
 import { initDevtools } from '@pixi/devtools'
 import { RenderingManager } from './rendering'
 import { GamePlayerOptions } from '../index'
@@ -73,7 +73,7 @@ export class Engine {
             await this.fileLoader.init()
 
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
-            await loadDefinition(this, this.scopeManager.newScope(), applicationDef, null)
+            await loadDefinition(this, this.scopeManager.newScope('root'), applicationDef, null)
 
             const episode: Episode | null = this.scopeManager.findByType('EPISODE')
             if (episode === null) {
@@ -96,7 +96,12 @@ export class Engine {
     }
 
     tick(elapsedMS: number) {
-        for (const object of this.scopeManager.getScope().objects.filter((object) => object.isReady)) {
+        const sceneScope = this.scopeManager.getScope('scene')
+        if (sceneScope === null) {
+            return
+        }
+
+        for (const object of sceneScope.objects.filter((object) => object.isReady)) {
             try {
                 object.tick(elapsedMS)
             } catch (err) {
@@ -151,7 +156,7 @@ export class Engine {
         if (scopeToClear) {
             for (const object of scopeToClear.objects) {
                 objectsToRemove.push(object)
-                this.scopeManager.getScope().remove(object.name)
+                this.scopeManager.getScope('scene')?.remove(object.name)
             }
         }
 
@@ -171,7 +176,7 @@ export class Engine {
         }
 
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'))
-        await loadDefinition(this, this.scopeManager.newScope(), sceneDefinition, this.currentScene)
+        await loadDefinition(this, this.scopeManager.newScope('scene'), sceneDefinition, this.currentScene)
 
         for (const object of objectsToRemove) {
             object.destroy()
@@ -204,17 +209,23 @@ export class Engine {
     }
 
     resume() {
+        const sceneScope = this.scopeManager.getScope('scene')
+        assert(sceneScope != null)
+
         sound.resumeAll()
-        for (const object of Object.values(this.scopeManager.getScope())) {
+        for (const object of Object.values(sceneScope)) {
             object.resume()
         }
         this.app.ticker.start()
     }
 
     pause() {
+        const sceneScope = this.scopeManager.getScope('scene')
+        assert(sceneScope != null)
+
         this.app.ticker.stop()
         sound.pauseAll()
-        for (const object of Object.values(this.scopeManager.getScope())) {
+        for (const object of Object.values(sceneScope)) {
             object.pause()
         }
     }

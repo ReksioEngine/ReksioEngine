@@ -27,7 +27,12 @@ export class Application extends Type<ApplicationDefinition> {
                 const applicationDefinition = await this.engine.fileLoader.getCNVFile(
                     pathJoin('DANE', this.definition.PATH, this.name + '.cnv')
                 )
-                await loadDefinition(this.engine, this.engine.scopeManager.newScope(), applicationDefinition, this)
+                await loadDefinition(
+                    this.engine,
+                    this.engine.scopeManager.newScope('application'),
+                    applicationDefinition,
+                    this
+                )
             } catch (err) {
                 if (err! instanceof FileNotFoundError) {
                     throw err

@@ -8,7 +8,7 @@ import { CNVObject, parseCNV } from '../fileFormats/cnv/parser'
 import { createObject, loadDefinition } from '../loaders/definitionLoader'
 import { SaveFileManager } from './saveFile'
 import { printStackTrace } from '../interpreter/script/stacktrace'
-import { EngineError } from '../common/errors'
+import { assert, EngineError } from '../common/errors'
 import { drawRectangle } from './rendering'
 import debuggingTemplate from './debugging.html'
 import { Scene } from './types/scene'
@@ -255,7 +255,10 @@ export class Debugging {
             return
         }
 
-        for (const object of Object.values(this.engine.scopeManager.getScope())) {
+        const sceneScope = this.engine.scopeManager.getScope('scene')
+        assert(sceneScope != null)
+
+        for (const object of Object.values(sceneScope)) {
             const info = object.__getXRayInfo()
             if (info == null || (!this.enableXRayInvisible && !info.visible)) {
                 this.xrays.get(object.name)?.destroy({

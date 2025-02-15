@@ -18,14 +18,14 @@ export class ScriptingManager {
         args?: any[],
         localScopeEntries?: Record<string, any>
     ) {
-        const localScope = new Scope(localScopeEntries)
-        if (caller !== null) {
-            localScope.set('THIS', caller)
-        }
-
         let stackFrame = null
         try {
+            const localScope = new Scope('local', localScopeEntries)
+            if (caller !== null) {
+                localScope.set('THIS', caller)
+            }
             this.engine.scopeManager.pushScope(localScope)
+
             if (callback.code) {
                 return runScript(this.engine, callback.code, args, callback.isSingleStatement, true)
             } else if (callback.behaviourReference) {

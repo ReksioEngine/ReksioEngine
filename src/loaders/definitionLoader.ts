@@ -169,7 +169,7 @@ export const createObject = async (engine: Engine, definition: CNVObject, parent
     engine.app.ticker.stop()
 
     const instance = createTypeInstance(engine, parent, definition)
-    engine.scopeManager.getScope().set(definition.NAME, instance)
+    engine.scopeManager.getScope('scene')?.set(definition.NAME, instance)
 
     if (instance instanceof DisplayType) {
         engine.rendering.displayObjectsInDefinitionOrder.push(instance)
