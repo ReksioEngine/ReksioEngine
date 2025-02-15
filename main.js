@@ -51604,7 +51604,9 @@ class Debugging {
             }
             return;
         }
-        for (const object of Object.values(this.engine.scopeManager.getScope())) {
+        const sceneScope = this.engine.scopeManager.getScope('scene');
+        (0, errors_1.assert)(sceneScope != null);
+        for (const object of Object.values(sceneScope)) {
             const info = object.__getXRayInfo();
             if (info == null || (!this.enableXRayInvisible && !info.visible)) {
                 this.xrays.get(object.name)?.destroy({
@@ -51741,7 +51743,7 @@ class Engine {
         try {
             await this.fileLoader.init();
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def');
-            await (0, definitionLoader_1.loadDefinition)(this, this.scopeManager.newScope(), applicationDef, null);
+            await (0, definitionLoader_1.loadDefinition)(this, this.scopeManager.newScope('root'), applicationDef, null);
             const episode = this.scopeManager.findByType('EPISODE');
             if (episode === null) {
                 throw new errors_1.IrrecoverableError("Starting episode doesn't exist");
@@ -51756,7 +51758,11 @@ class Engine {
         }
     }
     tick(elapsedMS) {
-        for (const object of this.scopeManager.getScope().objects.filter((object) => object.isReady)) {
+        const sceneScope = this.scopeManager.getScope('scene');
+        if (sceneScope === null) {
+            return;
+        }
+        for (const object of sceneScope.objects.filter((object) => object.isReady)) {
             try {
                 object.tick(elapsedMS);
             }
@@ -51800,7 +51806,7 @@ class Engine {
         if (scopeToClear) {
             for (const object of scopeToClear.objects) {
                 objectsToRemove.push(object);
-                this.scopeManager.getScope().remove(object.name);
+                this.scopeManager.getScope('scene')?.remove(object.name);
             }
         }
         this.previousScene = this.currentScene;
@@ -51813,7 +51819,7 @@ class Engine {
             this.rendering.clearBackground();
         }
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
-        await (0, definitionLoader_1.loadDefinition)(this, this.scopeManager.newScope(), sceneDefinition, this.currentScene);
+        await (0, definitionLoader_1.loadDefinition)(this, this.scopeManager.newScope('scene'), sceneDefinition, this.currentScene);
         for (const object of objectsToRemove) {
             object.destroy();
         }
@@ -51841,16 +51847,20 @@ class Engine {
         }
     }
     resume() {
+        const sceneScope = this.scopeManager.getScope('scene');
+        (0, errors_1.assert)(sceneScope != null);
         sound_1.sound.resumeAll();
-        for (const object of Object.values(this.scopeManager.getScope())) {
+        for (const object of Object.values(sceneScope)) {
             object.resume();
         }
         this.app.ticker.start();
     }
     pause() {
+        const sceneScope = this.scopeManager.getScope('scene');
+        (0, errors_1.assert)(sceneScope != null);
         this.app.ticker.stop();
         sound_1.sound.pauseAll();
-        for (const object of Object.values(this.scopeManager.getScope())) {
+        for (const object of Object.values(sceneScope)) {
             object.pause();
         }
     }
@@ -52144,8 +52154,8 @@ class ScopeManager {
     constructor() {
         this.scopes = [];
     }
-    newScope() {
-        const newScope = new Scope();
+    newScope(type) {
+        const newScope = new Scope(type);
         this.scopes.push(newScope);
         return newScope;
     }
@@ -52156,7 +52166,18 @@ class ScopeManager {
         return this.scopes.pop();
     }
     getScope(level = 0) {
-        return this.scopes[this.scopes.length - 1 - level];
+        if (typeof level === 'string') {
+            for (let i = this.scopes.length - 1; i >= 0; i--) {
+                const scope = this.scopes[i];
+                if (scope.type === level) {
+                    return scope;
+                }
+            }
+            return null;
+        }
+        else {
+            return this.scopes[this.scopes.length - 1 - level];
+        }
     }
     findByName(name) {
         return this.find((key, object) => key === name);
@@ -52180,7 +52201,8 @@ class ScopeManager {
 }
 exports.ScopeManager = ScopeManager;
 class Scope {
-    constructor(entries = {}) {
+    constructor(type, entries = {}) {
+        this.type = type;
         this.entries = entries;
     }
     get(name) {
@@ -52219,12 +52241,12 @@ class ScriptingManager {
         this.engine = engine;
     }
     executeCallback(caller, callback, args, localScopeEntries) {
-        const localScope = new scope_1.Scope(localScopeEntries);
-        if (caller !== null) {
-            localScope.set('THIS', caller);
-        }
         let stackFrame = null;
         try {
+            const localScope = new scope_1.Scope('local', localScopeEntries);
+            if (caller !== null) {
+                localScope.set('THIS', caller);
+            }
             this.engine.scopeManager.pushScope(localScope);
             if (callback.code) {
                 return (0, script_1.runScript)(this.engine, callback.code, args, callback.isSingleStatement, true);
@@ -53030,7 +53052,7 @@ let Application = (() => {
                 if (this.definition.PATH) {
                     try {
                         const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
-                        await (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.scopeManager.newScope(), applicationDefinition, this);
+                        await (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.scopeManager.newScope('application'), applicationDefinition, this);
                     }
                     catch (err) {
                         if (err instanceof filesLoader_1.FileNotFoundError) {
@@ -54463,7 +54485,7 @@ let Episode = (() => {
                 if (this.definition.PATH) {
                     try {
                         const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
-                        await (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.scopeManager.newScope(), applicationDefinition, this);
+                        await (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.scopeManager.newScope('episode'), applicationDefinition, this);
                     }
                     catch (err) {
                         if (err instanceof filesLoader_1.FileNotFoundError) {
@@ -54926,7 +54948,8 @@ let Type = (() => {
                 object.clones.push(clone);
                 clone.name = `${object.definition.NAME}_${object.clones.length}`;
                 clone.isReady = object.isReady;
-                this.engine.scopeManager.getScope().set(clone.name, clone);
+                console.log(clone.name, this.engine.scopeManager.getScope('scene'));
+                this.engine.scopeManager.getScope('scene')?.set(clone.name, clone);
                 return clone;
             }
             init() { }
@@ -61668,7 +61691,7 @@ exports.loadDefinition = loadDefinition;
 const createObject = async (engine, definition, parent) => {
     engine.app.ticker.stop();
     const instance = createTypeInstance(engine, parent, definition);
-    engine.scopeManager.getScope().set(definition.NAME, instance);
+    engine.scopeManager.getScope('scene')?.set(definition.NAME, instance);
     if (instance instanceof types_1.DisplayType) {
         engine.rendering.displayObjectsInDefinitionOrder.push(instance);
     }
