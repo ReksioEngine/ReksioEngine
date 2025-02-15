@@ -62,7 +62,6 @@ export class Type<DefinitionType extends TypeDefinition> {
         clone.name = `${object.definition.NAME}_${object.clones.length}`
         clone.isReady = object.isReady
 
-        console.log(clone.name, this.engine.scopeManager.getScope('scene'))
         this.engine.scopeManager.getScope('scene')?.set(clone.name, clone)
         return clone
     }
