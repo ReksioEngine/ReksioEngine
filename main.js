@@ -50740,7 +50740,7 @@ module.exports = function getSideChannel() {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.assert = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.IrrecoverableError = exports.EngineError = void 0;
+exports.assert = exports.IgnorableError = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.IrrecoverableError = exports.EngineError = void 0;
 class EngineError extends Error {
     constructor(message, stackTrace = null) {
         super(message);
@@ -50766,6 +50766,9 @@ class NotImplementedError extends EngineError {
     }
 }
 exports.NotImplementedError = NotImplementedError;
+class IgnorableError {
+}
+exports.IgnorableError = IgnorableError;
 function assert(expr, message) {
     if (!expr) {
         throw new UnexpectedError('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''));
@@ -51077,6 +51080,7 @@ var Event;
 })(Event || (exports.Event = Event = {}));
 class ButtonLogicComponent {
     constructor(onStateChange) {
+        this.eventsQueue = [];
         this.onStateChangeCallback = onStateChange;
         this.onMouseOverCallback = this.onMouseOver.bind(this);
         this.onMouseOutCallback = this.onMouseOut.bind(this);
@@ -51142,25 +51146,25 @@ class ButtonLogicComponent {
         const state = this.stateMachine.getState();
         return state != State.DISABLED && state != State.DISABLED_BUT_VISIBLE;
     }
-    onMouseOver() {
-        if (this.stateMachine.can(Event.OVER)) {
-            this.stateMachine.dispatch(Event.OVER);
+    tick() {
+        while (this.eventsQueue.length > 0) {
+            const event = this.eventsQueue.shift();
+            if (this.stateMachine.can(event)) {
+                this.stateMachine.dispatch(event);
+            }
         }
+    }
+    onMouseOver() {
+        this.eventsQueue.push(Event.OVER);
     }
     onMouseUp() {
-        if (this.stateMachine.can(Event.UP)) {
-            this.stateMachine.dispatch(Event.UP);
-        }
+        this.eventsQueue.push(Event.UP);
     }
     onMouseOut() {
-        if (this.stateMachine.can(Event.OUT)) {
-            this.stateMachine.dispatch(Event.OUT);
-        }
+        this.eventsQueue.push(Event.OUT);
     }
     onMouseDown() {
-        if (this.stateMachine.can(Event.DOWN)) {
-            this.stateMachine.dispatch(Event.DOWN);
-        }
+        this.eventsQueue.push(Event.DOWN);
     }
 }
 exports.ButtonLogicComponent = ButtonLogicComponent;
@@ -51411,21 +51415,9 @@ class Debugging {
     async createObject(definition) {
         return await (0, definitionLoader_1.createObject)(this.engine, definition, null);
     }
-    async loadCNV(definition, scope = this.engine.scope) {
+    async loadCNV(definition, scope) {
         await (0, definitionLoader_1.loadDefinition)(this.engine, scope, (0, parser_1.parseCNV)(definition), null);
         return scope;
-    }
-    clearScope() {
-        this.engine.app.ticker.stop();
-        sound_1.sound.stopAll();
-        if (this.engine.music !== null) {
-            this.engine.music.stop();
-        }
-        for (const [key, object] of Object.entries(this.engine.scope)) {
-            object.destroy();
-            delete this.engine.scope[key];
-        }
-        this.engine.app.ticker.start();
     }
     setupDebugTools() {
         if (!this.enabled || !this.debugContainer) {
@@ -51567,14 +51559,17 @@ class Debugging {
             return;
         }
         const sceneSelector = document.querySelector('#sceneSelector');
-        const episode = Object.values(this.engine.globalScope).find((object) => object.definition.TYPE === 'EPISODE');
-        if (episode === undefined) {
+        const episode = this.engine.scopeManager.findByType('EPISODE');
+        if (episode === null) {
             return;
         }
         for (const sceneName of episode.definition.SCENES) {
-            const scene = Object.values(this.engine.globalScope).find((object) => {
-                return object.definition.TYPE === 'SCENE' && object.definition.NAME === sceneName;
+            const scene = this.engine.scopeManager.find((key, object) => {
+                return object.definition.TYPE === 'SCENE' && object.name === sceneName;
             });
+            if (!scene) {
+                continue;
+            }
             const sceneDefPath = scene.getRelativePath(`${sceneName}.cnv`);
             const canGoTo = this.engine.fileLoader.hasFile(sceneDefPath.toLowerCase());
             const option = document.createElement('option');
@@ -51609,7 +51604,7 @@ class Debugging {
             }
             return;
         }
-        for (const object of Object.values(this.engine.scope)) {
+        for (const object of Object.values(this.engine.scopeManager.getScope())) {
             const info = object.__getXRayInfo();
             if (info == null || (!this.enableXRayInvisible && !info.visible)) {
                 this.xrays.get(object.name)?.destroy({
@@ -51695,7 +51690,7 @@ exports.Debugging = Debugging;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Engine = void 0;
+exports.CancelTick = exports.Engine = void 0;
 const scripting_1 = __webpack_require__(/*! ./scripting */ "./src/engine/scripting.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
@@ -51706,19 +51701,19 @@ const debugging_1 = __webpack_require__(/*! ./debugging */ "./src/engine/debuggi
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 const devtools_1 = __webpack_require__(/*! @pixi/devtools */ "./node_modules/@pixi/devtools/dist/index.cjs");
 const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
+const scope_1 = __webpack_require__(/*! ./scope */ "./src/engine/scope.ts");
 class Engine {
     constructor(app, options) {
         this.app = app;
         this.options = options;
         this.speed = 1;
-        this.globalScope = {};
-        this.scope = {};
         this.currentScene = null;
         this.previousScene = null;
         this.saveFile = saveFile_1.SaveFileManager.empty(false);
         this.music = null;
         this.rendering = new rendering_1.RenderingManager(app);
         this.scripting = new scripting_1.ScriptingManager(this);
+        this.scopeManager = new scope_1.ScopeManager();
         this.debug = new debugging_1.Debugging(this, this.options.debug ?? false, options.debugContainer);
         this.fileLoader = this.options.fileLoader;
     }
@@ -51746,33 +51741,43 @@ class Engine {
         try {
             await this.fileLoader.init();
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def');
-            await (0, definitionLoader_1.loadDefinition)(this, this.globalScope, applicationDef, null);
-            await this.changeScene(this.options.startScene ?? this.episode.definition.STARTWITH);
+            await (0, definitionLoader_1.loadDefinition)(this, this.scopeManager.newScope(), applicationDef, null);
+            const episode = this.scopeManager.findByType('EPISODE');
+            if (episode === null) {
+                throw new errors_1.IrrecoverableError("Starting episode doesn't exist");
+            }
+            await this.changeScene(this.options.startScene ?? episode.definition.STARTWITH);
             this.debug.fillSceneSelector();
             this.app.ticker.start();
         }
         catch (err) {
-            console.error('Unhandled error occurred during start\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
+            console.error('Unhandled error occurred during start\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scopeManager.scopes);
             console.error(err);
         }
     }
     tick(elapsedMS) {
-        for (const object of Object.values(this.scope).filter((object) => object.isReady)) {
+        for (const object of this.scopeManager.getScope().objects.filter((object) => object.isReady)) {
             try {
                 object.tick(elapsedMS);
             }
             catch (err) {
-                if (err instanceof errors_1.IrrecoverableError) {
+                if (err instanceof CancelTick) {
+                    if (err.callback) {
+                        err.callback();
+                    }
+                    return;
+                }
+                else if (err instanceof errors_1.IrrecoverableError) {
                     console.error('Irrecoverable error occurred. Execution paused\n' +
                         'Call "engine.resume()" to resume\n' +
                         '\n' +
-                        '%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
+                        '%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scopeManager.scopes);
                 }
                 else {
                     console.error('Unhandled error occurred during tick. Execution paused\n' +
                         'Call "engine.resume()" to resume\n' +
                         '\n' +
-                        '%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scope);
+                        '%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scopeManager.scopes);
                     console.error(err);
                 }
                 this.pause();
@@ -51791,9 +51796,12 @@ class Engine {
         // but keep for later destroying
         // to prevent screen flickering
         const objectsToRemove = [];
-        for (const [key, object] of Object.entries(this.scope)) {
-            objectsToRemove.push(object);
-            delete this.scope[key];
+        const scopeToClear = this.currentScene !== null ? (this.scopeManager.popScope() ?? null) : null;
+        if (scopeToClear) {
+            for (const object of scopeToClear.objects) {
+                objectsToRemove.push(object);
+                this.scopeManager.getScope().remove(object.name);
+            }
         }
         this.previousScene = this.currentScene;
         this.currentScene = this.getObject(sceneName);
@@ -51805,7 +51813,7 @@ class Engine {
             this.rendering.clearBackground();
         }
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
-        await (0, definitionLoader_1.loadDefinition)(this, this.scope, sceneDefinition, this.currentScene);
+        await (0, definitionLoader_1.loadDefinition)(this, this.scopeManager.newScope(), sceneDefinition, this.currentScene);
         for (const object of objectsToRemove) {
             object.destroy();
         }
@@ -51826,21 +51834,15 @@ class Engine {
     }
     getObject(name) {
         if (typeof name == 'string') {
-            if (name === 'THIS') {
-                return this.scripting.currentThis;
-            }
-            return this.scope[name] ?? this.globalScope[name] ?? null;
+            return this.scopeManager.findByName(name);
         }
         else {
             return this.getObject(name.objectName);
         }
     }
-    get episode() {
-        return Object.values(this.globalScope).find((object) => object.definition.TYPE === 'EPISODE');
-    }
     resume() {
         sound_1.sound.resumeAll();
-        for (const object of Object.values(this.scope)) {
+        for (const object of Object.values(this.scopeManager.getScope())) {
             object.resume();
         }
         this.app.ticker.start();
@@ -51848,12 +51850,19 @@ class Engine {
     pause() {
         this.app.ticker.stop();
         sound_1.sound.pauseAll();
-        for (const object of Object.values(this.scope)) {
+        for (const object of Object.values(this.scopeManager.getScope())) {
             object.pause();
         }
     }
 }
 exports.Engine = Engine;
+class CancelTick extends errors_1.IgnorableError {
+    constructor(callback) {
+        super();
+        this.callback = callback;
+    }
+}
+exports.CancelTick = CancelTick;
 
 
 /***/ }),
@@ -52121,6 +52130,77 @@ exports.SaveFileManager = SaveFileManager;
 
 /***/ }),
 
+/***/ "./src/engine/scope.ts":
+/*!*****************************!*\
+  !*** ./src/engine/scope.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Scope = exports.ScopeManager = void 0;
+class ScopeManager {
+    constructor() {
+        this.scopes = [];
+    }
+    newScope() {
+        const newScope = new Scope();
+        this.scopes.push(newScope);
+        return newScope;
+    }
+    pushScope(scope) {
+        this.scopes.push(scope);
+    }
+    popScope() {
+        return this.scopes.pop();
+    }
+    getScope(level = 0) {
+        return this.scopes[this.scopes.length - 1 - level];
+    }
+    findByName(name) {
+        return this.find((key, object) => key === name);
+    }
+    findByType(type) {
+        return this.find((key, object) => object.definition.TYPE === type);
+    }
+    find(callback, level = 0) {
+        const scope = this.getScope(level);
+        if (!scope) {
+            return null;
+        }
+        const result = Object.entries(scope.entries).find(([key, value]) => callback(key, value));
+        if (result) {
+            return result[1];
+        }
+        else {
+            return this.find(callback, level + 1);
+        }
+    }
+}
+exports.ScopeManager = ScopeManager;
+class Scope {
+    constructor(entries = {}) {
+        this.entries = entries;
+    }
+    get(name) {
+        return this.entries[name] ?? null;
+    }
+    set(name, value) {
+        this.entries[name] = value;
+    }
+    remove(name) {
+        delete this.entries[name];
+    }
+    get objects() {
+        return Object.values(this.entries);
+    }
+}
+exports.Scope = Scope;
+
+
+/***/ }),
+
 /***/ "./src/engine/scripting.ts":
 /*!*********************************!*\
   !*** ./src/engine/scripting.ts ***!
@@ -52133,25 +52213,24 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ScriptingManager = void 0;
 const script_1 = __webpack_require__(/*! ../interpreter/script */ "./src/interpreter/script/index.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
+const scope_1 = __webpack_require__(/*! ./scope */ "./src/engine/scope.ts");
 class ScriptingManager {
     constructor(engine) {
-        this.thisQueue = [];
         this.engine = engine;
     }
-    get currentThis() {
-        return this.thisQueue[this.thisQueue.length - 1];
-    }
     executeCallback(caller, callback, args) {
+        const localScope = new scope_1.Scope();
         if (caller !== null) {
-            this.thisQueue.push(caller);
+            localScope.set('THIS', caller);
         }
         let stackFrame = null;
         try {
+            this.engine.scopeManager.pushScope(localScope);
             if (callback.code) {
                 return (0, script_1.runScript)(this.engine, callback.code, args, callback.isSingleStatement, true);
             }
             else if (callback.behaviourReference) {
-                if (!this.engine.scope[callback.behaviourReference]) {
+                if (!this.engine.getObject(callback.behaviourReference)) {
                     console.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`, 'font-weight: bold', 'font-weight: inherit', callback, 'font-weight: bold', 'font-weight: inherit', caller);
                     return;
                 }
@@ -52161,13 +52240,11 @@ class ScriptingManager {
                     .args(...(args !== undefined ? args : []))
                     .build();
                 stacktrace_1.stackTrace.push(stackFrame);
-                return this.engine.scope[callback.behaviourReference].RUNC(...callback.constantArguments);
+                return this.engine.getObject(callback.behaviourReference).RUNC(...callback.constantArguments);
             }
         }
         finally {
-            if (caller !== null) {
-                this.thisQueue.pop();
-            }
+            this.engine.scopeManager.popScope();
             if (stackFrame !== null) {
                 stacktrace_1.stackTrace.pop();
             }
@@ -52341,6 +52418,7 @@ let Animo = (() => {
                 }
             }
             tick(elapsedMS) {
+                this.buttonLogic.tick();
                 this.collisions.handle((object) => {
                     this.callbacks.run('ONCOLLISION', object.name);
                 });
@@ -52952,7 +53030,7 @@ let Application = (() => {
                 if (this.definition.PATH) {
                     try {
                         const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
-                        await (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.globalScope, applicationDefinition, this);
+                        await (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.scopeManager.newScope(), applicationDefinition, this);
                     }
                     catch (err) {
                         if (err instanceof filesLoader_1.FileNotFoundError) {
@@ -53530,6 +53608,9 @@ let Button = (() => {
             ready() {
                 this.callbacks.run('ONINIT');
             }
+            tick() {
+                this.logic.tick();
+            }
             setRect(rect) {
                 if (this.gfxStandard) {
                     // this won't be registered ever again as the original engine prefers RECT over GFXSTANDARD
@@ -53834,8 +53915,8 @@ let CanvasObserver = (() => {
                                 point.y < position.y + renderObject.height;
                     }
                     if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
-                        const object = Object.values(this.engine.scope).find((obj) => obj instanceof index_1.DisplayType && obj.getRenderObject() === renderObject);
-                        if (object === undefined) {
+                        const object = this.engine.scopeManager.find((key, obj) => obj instanceof index_1.DisplayType && obj.getRenderObject() === renderObject);
+                        if (object === null) {
                             continue;
                         }
                         return object.name;
@@ -54369,6 +54450,7 @@ const utils_1 = __webpack_require__(/*! ../../common/utils */ "./src/common/util
 const definitionLoader_1 = __webpack_require__(/*! ../../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const index_2 = __webpack_require__(/*! ../index */ "./src/engine/index.ts");
 let Episode = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -54381,7 +54463,7 @@ let Episode = (() => {
                 if (this.definition.PATH) {
                     try {
                         const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
-                        await (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.globalScope, applicationDefinition, this);
+                        await (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.scopeManager.newScope(), applicationDefinition, this);
                     }
                     catch (err) {
                         if (err instanceof filesLoader_1.FileNotFoundError) {
@@ -54390,16 +54472,16 @@ let Episode = (() => {
                     }
                 }
             }
-            async GOTO(sceneName) {
+            GOTO(sceneName) {
                 (0, errors_1.assert)(this.definition.SCENES.includes(sceneName));
-                await this.engine.changeScene(sceneName);
+                throw new index_2.CancelTick(async () => await this.engine.changeScene(sceneName));
             }
             GETLATESTSCENE() {
                 return this.engine.previousScene?.definition.NAME ?? null;
             }
-            async BACK() {
+            BACK() {
                 if (this.engine.previousScene) {
-                    await this.GOTO(this.engine.previousScene.definition.NAME);
+                    this.GOTO(this.engine.previousScene.definition.NAME);
                 }
                 else {
                     console.warn('Attempted EPISODE^BACK() but there is no previous scene');
@@ -54844,7 +54926,7 @@ let Type = (() => {
                 object.clones.push(clone);
                 clone.name = `${object.definition.NAME}_${object.clones.length}`;
                 clone.isReady = object.isReady;
-                this.engine.scope[clone.name] = clone;
+                this.engine.scopeManager.getScope().set(clone.name, clone);
                 return clone;
             }
             init() { }
@@ -56110,10 +56192,9 @@ let Sequence = (() => {
                     return object;
                 }
                 // Get existing object by filename
-                for (const object of Object.values(this.engine.scope)) {
-                    if (object instanceof animo_1.Animo && object.definition.FILENAME === nameOrFilename) {
-                        return object;
-                    }
+                const existingObject = this.engine.scopeManager.find((key, object) => object instanceof animo_1.Animo && object.definition.FILENAME === nameOrFilename);
+                if (existingObject != null) {
+                    return existingObject;
                 }
                 // Create a new ANIMO if object doesn't exist
                 return (await (0, definitionLoader_1.createObject)(this.engine, {
@@ -56215,6 +56296,7 @@ let Sound = (() => {
             constructor() {
                 super(...arguments);
                 this.sound = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.callbacksQueue = [];
             }
             async init() {
                 // We don't respect 'PRELOAD' false on purpose, because network download might be slow
@@ -56222,6 +56304,11 @@ let Sound = (() => {
             }
             ready() {
                 this.callbacks.run('ONINIT');
+            }
+            tick() {
+                while (this.callbacksQueue.length > 0) {
+                    this.callbacks.run(this.callbacksQueue.shift());
+                }
             }
             destroy() {
                 // assert(this.sound !== null) // Why does it even happen?
@@ -56276,11 +56363,11 @@ let Sound = (() => {
             }
             onStart() {
                 console.debug(`Playing sound '${this.definition.FILENAME}'`);
-                this.callbacks.run('ONSTARTED');
+                this.callbacksQueue.push('ONSTARTED');
             }
             onEnd() {
                 console.debug(`Finished playing sound '${this.definition.FILENAME}'`);
-                this.callbacks.run('ONFINISHED');
+                this.callbacksQueue.push('ONFINISHED');
             }
         },
         (() => {
@@ -60762,8 +60849,9 @@ const stacktrace_1 = __webpack_require__(/*! ./stacktrace */ "./src/interpreter/
 const ifExpression_1 = __webpack_require__(/*! ../ifExpression */ "./src/interpreter/ifExpression/index.ts");
 const rand_1 = __webpack_require__(/*! ../../engine/types/rand */ "./src/engine/types/rand.ts");
 const system_1 = __webpack_require__(/*! ../../engine/types/system */ "./src/engine/types/system.ts");
-class InterruptScriptExecution {
+class InterruptScriptExecution extends errors_1.IgnorableError {
     constructor(one = false) {
+        super();
         this.one = one;
     }
 }
@@ -60877,7 +60965,7 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                 return result === null ? 'NULL' : result;
             }
             catch (err) {
-                if (err instanceof InterruptScriptExecution) {
+                if (err instanceof errors_1.IgnorableError) {
                     throw err;
                 }
                 if (this.printDebug) {
@@ -60895,7 +60983,7 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                         ? ['font-weight: bold', 'font-weight: inherit', argsVariables]
                         : []), ...(Object.keys(this.scriptUsedVariables).length > 0
                         ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables]
-                        : []), 'font-weight: bold', 'font-weight: inherit', this.engine.scope);
+                        : []), 'font-weight: bold', 'font-weight: inherit', this.engine.scopeManager.scopes);
                     console.error(err);
                     (0, stacktrace_1.printStackTrace)();
                 }
@@ -60989,7 +61077,7 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                         '\n' +
                         `%cCode:%c\n${code}\n\n` +
                         '%cUsed variables:%c %O\n' +
-                        '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables, 'font-weight: bold', 'font-weight: inherit', this.engine.scope);
+                        '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables, 'font-weight: bold', 'font-weight: inherit', this.engine.scopeManager.scopes);
                 }
                 // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
                 return null;
@@ -61123,7 +61211,7 @@ const runScript = (engine, script, args = [], singleStatement = false, printDebu
         return tree.accept(evaluator);
     }
     catch (err) {
-        if (err instanceof InterruptScriptExecution) {
+        if (err instanceof errors_1.IgnorableError) {
             throw err;
         }
         else if (!(err instanceof AlreadyDisplayedError)) {
@@ -61444,7 +61532,7 @@ const loadDefinition = async (engine, scope, definition, parent) => {
     const entries = [];
     for (const [key, value] of Object.entries(definition)) {
         const instance = createTypeInstance(engine, parent, value);
-        scope[key] = instance;
+        scope.set(key, instance);
         entries.push(instance);
         if (instance instanceof types_1.DisplayType) {
             engine.rendering.displayObjectsInDefinitionOrder.push(instance);
@@ -61461,7 +61549,7 @@ const loadDefinition = async (engine, scope, definition, parent) => {
         const result = promisesResults[i];
         const object = orderedScope[i];
         if (result.status === 'rejected') {
-            delete scope[object.name];
+            scope.remove(object.name);
             failedObjects.push(object);
             console.error(`Failed to initialize object ${object.name}`, result.reason);
         }
@@ -61478,7 +61566,7 @@ exports.loadDefinition = loadDefinition;
 const createObject = async (engine, definition, parent) => {
     engine.app.ticker.stop();
     const instance = createTypeInstance(engine, parent, definition);
-    engine.scope[definition.NAME] = instance;
+    engine.scopeManager.getScope().set(definition.NAME, instance);
     if (instance instanceof types_1.DisplayType) {
         engine.rendering.displayObjectsInDefinitionOrder.push(instance);
     }
