@@ -583,7 +583,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     @method()
     ISPLAYING(animName?: string) {
         assert(this.currentEvent !== null)
-        return this.isPlaying && this.currentEvent.name.toUpperCase() == animName
+        return this.isPlaying && (animName === undefined || this.currentEvent.name.toUpperCase() == animName)
     }
 
     @method()
