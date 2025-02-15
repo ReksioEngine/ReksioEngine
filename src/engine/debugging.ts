@@ -11,6 +11,8 @@ import { printStackTrace } from '../interpreter/script/stacktrace'
 import { EngineError } from '../common/errors'
 import { drawRectangle } from './rendering'
 import debuggingTemplate from './debugging.html'
+import { Scene } from './types/scene'
+import { Scope } from './scope'
 
 export class Debugging {
     private readonly engine: Engine
@@ -33,25 +35,9 @@ export class Debugging {
         return await createObject(this.engine, definition, null)
     }
 
-    async loadCNV(definition: string, scope: Record<string, any> = this.engine.scope) {
+    async loadCNV(definition: string, scope: Scope) {
         await loadDefinition(this.engine, scope, parseCNV(definition), null)
         return scope
-    }
-
-    clearScope() {
-        this.engine.app.ticker.stop()
-
-        sound.stopAll()
-        if (this.engine.music !== null) {
-            this.engine.music.stop()
-        }
-
-        for (const [key, object] of Object.entries(this.engine.scope)) {
-            object.destroy()
-            delete this.engine.scope[key]
-        }
-
-        this.engine.app.ticker.start()
     }
 
     setupDebugTools() {
@@ -216,17 +202,18 @@ export class Debugging {
         }
 
         const sceneSelector: any = document.querySelector('#sceneSelector')!
-        const episode: Episode = Object.values(this.engine.globalScope).find(
-            (object: Type<any>) => object.definition.TYPE === 'EPISODE'
-        )
-        if (episode === undefined) {
+        const episode: Episode | null = this.engine.scopeManager.findByType('EPISODE')
+        if (episode === null) {
             return
         }
 
         for (const sceneName of episode.definition.SCENES) {
-            const scene = Object.values(this.engine.globalScope).find((object: Type<any>) => {
-                return object.definition.TYPE === 'SCENE' && object.definition.NAME === sceneName
+            const scene: Scene | null = this.engine.scopeManager.find((key: string, object: Type<any>) => {
+                return object.definition.TYPE === 'SCENE' && object.name === sceneName
             })
+            if (!scene) {
+                continue
+            }
 
             const sceneDefPath = scene.getRelativePath(`${sceneName}.cnv`)
             const canGoTo = this.engine.fileLoader.hasFile(sceneDefPath.toLowerCase())
@@ -268,7 +255,7 @@ export class Debugging {
             return
         }
 
-        for (const object of Object.values(this.engine.scope)) {
+        for (const object of Object.values(this.engine.scopeManager.getScope())) {
             const info = object.__getXRayInfo()
             if (info == null || (!this.enableXRayInvisible && !info.visible)) {
                 this.xrays.get(object.name)?.destroy({

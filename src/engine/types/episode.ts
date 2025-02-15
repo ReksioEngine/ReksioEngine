@@ -5,6 +5,7 @@ import { pathJoin } from '../../common/utils'
 import { loadDefinition } from '../../loaders/definitionLoader'
 import { FileNotFoundError } from '../../loaders/filesLoader'
 import { method } from '../../common/types'
+import { CancelTick } from '../index'
 
 export class Episode extends Type<EpisodeDefinition> {
     async init() {
@@ -13,7 +14,7 @@ export class Episode extends Type<EpisodeDefinition> {
                 const applicationDefinition = await this.engine.fileLoader.getCNVFile(
                     pathJoin('DANE', this.definition.PATH, this.name + '.cnv')
                 )
-                await loadDefinition(this.engine, this.engine.globalScope, applicationDefinition, this)
+                await loadDefinition(this.engine, this.engine.scopeManager.newScope(), applicationDefinition, this)
             } catch (err) {
                 if (err! instanceof FileNotFoundError) {
                     throw err
@@ -23,9 +24,9 @@ export class Episode extends Type<EpisodeDefinition> {
     }
 
     @method()
-    async GOTO(sceneName: string) {
+    GOTO(sceneName: string) {
         assert(this.definition.SCENES.includes(sceneName))
-        await this.engine.changeScene(sceneName)
+        throw new CancelTick(async () => await this.engine.changeScene(sceneName))
     }
 
     @method()
@@ -34,9 +35,9 @@ export class Episode extends Type<EpisodeDefinition> {
     }
 
     @method()
-    async BACK() {
+    BACK() {
         if (this.engine.previousScene) {
-            await this.GOTO(this.engine.previousScene.definition.NAME)
+            this.GOTO(this.engine.previousScene.definition.NAME)
         } else {
             console.warn('Attempted EPISODE^BACK() but there is no previous scene')
         }

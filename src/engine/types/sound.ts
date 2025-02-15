@@ -8,6 +8,7 @@ import { method } from '../../common/types'
 
 export class Sound extends Type<SoundDefinition> {
     private sound: PIXISound | null = null
+    private callbacksQueue: string[] = []
 
     async init() {
         // We don't respect 'PRELOAD' false on purpose, because network download might be slow
@@ -16,6 +17,12 @@ export class Sound extends Type<SoundDefinition> {
 
     ready() {
         this.callbacks.run('ONINIT')
+    }
+
+    tick() {
+        while (this.callbacksQueue.length > 0) {
+            this.callbacks.run(this.callbacksQueue.shift()!)
+        }
     }
 
     destroy() {
@@ -86,11 +93,11 @@ export class Sound extends Type<SoundDefinition> {
 
     private onStart() {
         console.debug(`Playing sound '${this.definition.FILENAME}'`)
-        this.callbacks.run('ONSTARTED')
+        this.callbacksQueue.push('ONSTARTED')
     }
 
     private onEnd() {
         console.debug(`Finished playing sound '${this.definition.FILENAME}'`)
-        this.callbacks.run('ONFINISHED')
+        this.callbacksQueue.push('ONFINISHED')
     }
 }

@@ -31,6 +31,8 @@ export class ButtonLogicComponent {
     private readonly onMouseDownCallback
     private readonly onMouseUpCallback
 
+    private eventsQueue: Event[] = []
+
     constructor(onStateChange: stateChangeCallback) {
         this.onStateChangeCallback = onStateChange
 
@@ -114,27 +116,28 @@ export class ButtonLogicComponent {
         return state != State.DISABLED && state != State.DISABLED_BUT_VISIBLE
     }
 
-    private onMouseOver() {
-        if (this.stateMachine.can(Event.OVER)) {
-            this.stateMachine.dispatch(Event.OVER)
+    tick() {
+        while (this.eventsQueue.length > 0) {
+            const event = this.eventsQueue.shift()!
+            if (this.stateMachine.can(event)) {
+                this.stateMachine.dispatch(event)
+            }
         }
+    }
+
+    private onMouseOver() {
+        this.eventsQueue.push(Event.OVER)
     }
 
     private onMouseUp() {
-        if (this.stateMachine.can(Event.UP)) {
-            this.stateMachine.dispatch(Event.UP)
-        }
+        this.eventsQueue.push(Event.UP)
     }
 
     private onMouseOut() {
-        if (this.stateMachine.can(Event.OUT)) {
-            this.stateMachine.dispatch(Event.OUT)
-        }
+        this.eventsQueue.push(Event.OUT)
     }
 
     private onMouseDown() {
-        if (this.stateMachine.can(Event.DOWN)) {
-            this.stateMachine.dispatch(Event.DOWN)
-        }
+        this.eventsQueue.push(Event.DOWN)
     }
 }

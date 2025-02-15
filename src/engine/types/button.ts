@@ -56,6 +56,10 @@ export class Button extends Type<ButtonDefinition> {
         this.callbacks.run('ONINIT')
     }
 
+    tick() {
+        this.logic.tick()
+    }
+
     private setRect(rect: number[] | reference) {
         if (this.gfxStandard) {
             // this won't be registered ever again as the original engine prefers RECT over GFXSTANDARD

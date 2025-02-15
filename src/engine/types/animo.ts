@@ -80,6 +80,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     tick(elapsedMS: number) {
+        this.buttonLogic.tick()
+
         this.collisions.handle((object: Animo) => {
             this.callbacks.run('ONCOLLISION', object.name)
         })

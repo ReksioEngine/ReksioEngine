@@ -33,6 +33,7 @@ import { StaticFilter } from '../engine/types/staticFilter'
 import { Filter } from '../engine/types/filter'
 import { MultiArray } from '../engine/types/multiArray'
 import { System } from '../engine/types/system'
+import { Scope } from '../engine/scope'
 
 const createTypeInstance = (engine: Engine, parent: Type<any> | null, definition: any) => {
     switch (definition.TYPE) {
@@ -119,18 +120,13 @@ const initializationPriorities = [
     return acc
 }, new Map())
 
-export const loadDefinition = async (
-    engine: Engine,
-    scope: Record<string, any>,
-    definition: CNV,
-    parent: Type<any> | null
-) => {
+export const loadDefinition = async (engine: Engine, scope: Scope, definition: CNV, parent: Type<any> | null) => {
     engine.app.ticker.stop()
 
     const entries = []
     for (const [key, value] of Object.entries(definition)) {
         const instance = createTypeInstance(engine, parent, value)
-        scope[key] = instance
+        scope.set(key, instance)
 
         entries.push(instance)
 
@@ -152,7 +148,7 @@ export const loadDefinition = async (
         const object = orderedScope[i]
 
         if (result.status === 'rejected') {
-            delete scope[object.name]
+            scope.remove(object.name)
             failedObjects.push(object)
 
             console.error(`Failed to initialize object ${object.name}`, result.reason)
@@ -173,7 +169,7 @@ export const createObject = async (engine: Engine, definition: CNVObject, parent
     engine.app.ticker.stop()
 
     const instance = createTypeInstance(engine, parent, definition)
-    engine.scope[definition.NAME] = instance
+    engine.scopeManager.getScope().set(definition.NAME, instance)
 
     if (instance instanceof DisplayType) {
         engine.rendering.displayObjectsInDefinitionOrder.push(instance)

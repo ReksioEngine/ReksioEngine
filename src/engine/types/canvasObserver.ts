@@ -58,10 +58,10 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
             }
 
             if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
-                const object = Object.values(this.engine.scope).find(
-                    (obj) => obj instanceof DisplayType && obj.getRenderObject() === renderObject
+                const object: DisplayType<any> | null = this.engine.scopeManager.find(
+                    (key: string, obj) => obj instanceof DisplayType && obj.getRenderObject() === renderObject
                 )
-                if (object === undefined) {
+                if (object === null) {
                     continue
                 }
                 return object.name

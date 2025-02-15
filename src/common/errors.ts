@@ -21,6 +21,8 @@ export class NotImplementedError extends EngineError {
     }
 }
 
+export class IgnorableError {}
+
 export function assert(expr: any, message?: string): asserts expr {
     if (!expr) {
         throw new UnexpectedError('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''))

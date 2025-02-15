@@ -321,10 +321,11 @@ export class Sequence extends Type<SequenceDefinition> {
         }
 
         // Get existing object by filename
-        for (const object of Object.values(this.engine.scope)) {
-            if (object instanceof Animo && object.definition.FILENAME === nameOrFilename) {
-                return object
-            }
+        const existingObject: Animo | null = this.engine.scopeManager.find(
+            (key: string, object) => object instanceof Animo && object.definition.FILENAME === nameOrFilename
+        )
+        if (existingObject != null) {
+            return existingObject
         }
 
         // Create a new ANIMO if object doesn't exist

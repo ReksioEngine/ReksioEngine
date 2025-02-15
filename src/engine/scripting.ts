@@ -3,30 +3,28 @@ import { runScript } from '../interpreter/script'
 import { Type } from './types'
 import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
 import { Engine } from './index'
+import { Scope } from './scope'
 
 export class ScriptingManager {
     private readonly engine: Engine
-    private thisQueue: Type<any>[] = []
 
     constructor(engine: Engine) {
         this.engine = engine
     }
 
-    get currentThis() {
-        return this.thisQueue[this.thisQueue.length - 1]
-    }
-
     executeCallback(caller: Type<any> | null, callback: callback, args?: any[]) {
+        const localScope = new Scope()
         if (caller !== null) {
-            this.thisQueue.push(caller)
+            localScope.set('THIS', caller)
         }
 
         let stackFrame = null
         try {
+            this.engine.scopeManager.pushScope(localScope)
             if (callback.code) {
                 return runScript(this.engine, callback.code, args, callback.isSingleStatement, true)
             } else if (callback.behaviourReference) {
-                if (!this.engine.scope[callback.behaviourReference]) {
+                if (!this.engine.getObject(callback.behaviourReference)) {
                     console.error(
                         `Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`,
                         'font-weight: bold',
@@ -46,13 +44,10 @@ export class ScriptingManager {
                     .build()
 
                 stackTrace.push(stackFrame)
-                return this.engine.scope[callback.behaviourReference].RUNC(...callback.constantArguments)
+                return this.engine.getObject(callback.behaviourReference).RUNC(...callback.constantArguments)
             }
         } finally {
-            if (caller !== null) {
-                this.thisQueue.pop()
-            }
-
+            this.engine.scopeManager.popScope()
             if (stackFrame !== null) {
                 stackTrace.pop()
             }

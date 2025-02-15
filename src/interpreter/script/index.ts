@@ -18,7 +18,7 @@ import ReksioLangLexer from './ReksioLangLexer'
 import antlr4, { ParserRuleContext, RecognitionException, Recognizer, Token } from 'antlr4'
 import { Engine } from '../../engine'
 import { Behaviour } from '../../engine/types/behaviour'
-import { assert, NotImplementedError } from '../../common/errors'
+import { assert, IgnorableError, NotImplementedError } from '../../common/errors'
 import { Compare, ForceNumber, valueAsString } from '../../common/types'
 import { Type } from '../../engine/types'
 import { String } from '../../engine/types/string'
@@ -27,9 +27,10 @@ import { evaluateExpression } from '../ifExpression'
 import { Rand } from '../../engine/types/rand'
 import { System } from '../../engine/types/system'
 
-export class InterruptScriptExecution {
+export class InterruptScriptExecution extends IgnorableError {
     public one: boolean
     constructor(one: boolean = false) {
+        super()
         this.one = one
     }
 }
@@ -223,7 +224,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             const result = method.bind(object)(...args)
             return result === null ? 'NULL' : result
         } catch (err) {
-            if (err instanceof InterruptScriptExecution) {
+            if (err instanceof IgnorableError) {
                 throw err
             }
 
@@ -257,7 +258,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
                         : []),
                     'font-weight: bold',
                     'font-weight: inherit',
-                    this.engine.scope
+                    this.engine.scopeManager.scopes
                 )
                 console.error(err)
                 printStackTrace()
@@ -375,7 +376,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
                     this.scriptUsedVariables,
                     'font-weight: bold',
                     'font-weight: inherit',
-                    this.engine.scope
+                    this.engine.scopeManager.scopes
                 )
             }
 
@@ -498,7 +499,7 @@ export const runScript = (
     try {
         return tree.accept(evaluator)
     } catch (err) {
-        if (err instanceof InterruptScriptExecution) {
+        if (err instanceof IgnorableError) {
             throw err
         } else if (!(err instanceof AlreadyDisplayedError)) {
             if (evaluator.lastContext) {

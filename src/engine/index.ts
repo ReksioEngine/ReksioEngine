@@ -9,18 +9,18 @@ import { loadSound, loadTexture } from '../loaders/assetsLoader'
 import { SaveFile, SaveFileManager } from './saveFile'
 import { preloadAssets } from './optimizations'
 import { Debugging } from './debugging'
-import { IrrecoverableError } from '../common/errors'
+import { IgnorableError, IrrecoverableError } from '../common/errors'
 import { initDevtools } from '@pixi/devtools'
 import { RenderingManager } from './rendering'
 import { GamePlayerOptions } from '../index'
-import { Type } from './types'
+import { Scope, ScopeManager } from './scope'
+import { Episode } from './types/episode'
 
 export class Engine {
     public debug: Debugging
     public speed: number = 1
 
-    public globalScope: Record<string, any> = {}
-    public scope: Record<string, any> = {}
+    public scopeManager: ScopeManager
 
     public rendering: RenderingManager
     public scripting: ScriptingManager
@@ -39,6 +39,7 @@ export class Engine {
     ) {
         this.rendering = new RenderingManager(app)
         this.scripting = new ScriptingManager(this)
+        this.scopeManager = new ScopeManager()
         this.debug = new Debugging(this, this.options.debug ?? false, options.debugContainer)
         this.fileLoader = this.options.fileLoader
     }
@@ -72,8 +73,14 @@ export class Engine {
             await this.fileLoader.init()
 
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
-            await loadDefinition(this, this.globalScope, applicationDef, null)
-            await this.changeScene(this.options.startScene ?? this.episode.definition.STARTWITH)
+            await loadDefinition(this, this.scopeManager.newScope(), applicationDef, null)
+
+            const episode: Episode | null = this.scopeManager.findByType('EPISODE')
+            if (episode === null) {
+                throw new IrrecoverableError("Starting episode doesn't exist")
+            }
+
+            await this.changeScene(this.options.startScene ?? episode.definition.STARTWITH)
 
             this.debug.fillSceneSelector()
             this.app.ticker.start()
@@ -82,18 +89,23 @@ export class Engine {
                 'Unhandled error occurred during start\n%cScope:%c%O',
                 'font-weight: bold',
                 'font-weight: inherit',
-                this.scope
+                this.scopeManager.scopes
             )
             console.error(err)
         }
     }
 
     tick(elapsedMS: number) {
-        for (const object of Object.values(this.scope).filter((object) => object.isReady)) {
+        for (const object of this.scopeManager.getScope().objects.filter((object) => object.isReady)) {
             try {
                 object.tick(elapsedMS)
             } catch (err) {
-                if (err instanceof IrrecoverableError) {
+                if (err instanceof CancelTick) {
+                    if (err.callback) {
+                        err.callback()
+                    }
+                    return
+                } else if (err instanceof IrrecoverableError) {
                     console.error(
                         'Irrecoverable error occurred. Execution paused\n' +
                             'Call "engine.resume()" to resume\n' +
@@ -101,7 +113,7 @@ export class Engine {
                             '%cScope:%c%O',
                         'font-weight: bold',
                         'font-weight: inherit',
-                        this.scope
+                        this.scopeManager.scopes
                     )
                 } else {
                     console.error(
@@ -111,7 +123,7 @@ export class Engine {
                             '%cScope:%c%O',
                         'font-weight: bold',
                         'font-weight: inherit',
-                        this.scope
+                        this.scopeManager.scopes
                     )
                     console.error(err)
                 }
@@ -135,9 +147,12 @@ export class Engine {
         // but keep for later destroying
         // to prevent screen flickering
         const objectsToRemove = []
-        for (const [key, object] of Object.entries(this.scope)) {
-            objectsToRemove.push(object)
-            delete this.scope[key]
+        const scopeToClear: Scope | null = this.currentScene !== null ? (this.scopeManager.popScope() ?? null) : null
+        if (scopeToClear) {
+            for (const object of scopeToClear.objects) {
+                objectsToRemove.push(object)
+                this.scopeManager.getScope().remove(object.name)
+            }
         }
 
         this.previousScene = this.currentScene
@@ -156,7 +171,7 @@ export class Engine {
         }
 
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'))
-        await loadDefinition(this, this.scope, sceneDefinition, this.currentScene)
+        await loadDefinition(this, this.scopeManager.newScope(), sceneDefinition, this.currentScene)
 
         for (const object of objectsToRemove) {
             object.destroy()
@@ -182,23 +197,15 @@ export class Engine {
 
     getObject(name: string | reference): any {
         if (typeof name == 'string') {
-            if (name === 'THIS') {
-                return this.scripting.currentThis
-            }
-
-            return this.scope[name] ?? this.globalScope[name] ?? null
+            return this.scopeManager.findByName(name)
         } else {
             return this.getObject(name.objectName)
         }
     }
 
-    get episode() {
-        return Object.values(this.globalScope).find((object: Type<any>) => object.definition.TYPE === 'EPISODE')
-    }
-
     resume() {
         sound.resumeAll()
-        for (const object of Object.values(this.scope)) {
+        for (const object of Object.values(this.scopeManager.getScope())) {
             object.resume()
         }
         this.app.ticker.start()
@@ -207,8 +214,14 @@ export class Engine {
     pause() {
         this.app.ticker.stop()
         sound.pauseAll()
-        for (const object of Object.values(this.scope)) {
+        for (const object of Object.values(this.scopeManager.getScope())) {
             object.pause()
         }
+    }
+}
+
+export class CancelTick extends IgnorableError {
+    constructor(public callback?: () => void) {
+        super()
     }
 }
