@@ -51398,7 +51398,7 @@ const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/error
 const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
 const debugging_html_1 = __importDefault(__webpack_require__(/*! ./debugging.html */ "./src/engine/debugging.html"));
 class Debugging {
-    constructor(engine, isDebug) {
+    constructor(engine, isDebug, debugContainer = null) {
         this.enabled = false;
         this.mutedMusic = false;
         this.xrays = new Map();
@@ -51406,6 +51406,7 @@ class Debugging {
         this.enableXRayInvisible = false;
         this.engine = engine;
         this.enabled = isDebug;
+        this.debugContainer = debugContainer;
     }
     async createObject(definition) {
         return await (0, definitionLoader_1.createObject)(this.engine, definition, null);
@@ -51427,13 +51428,13 @@ class Debugging {
         this.engine.app.ticker.start();
     }
     setupDebugTools() {
-        if (!this.enabled) {
+        if (!this.enabled || !this.debugContainer) {
             return;
         }
         const debugTools = document.createElement('div');
         debugTools.innerHTML = debugging_html_1.default;
         debugTools.style.display = 'inline-block';
-        this.engine.parentElement.appendChild(debugTools);
+        this.debugContainer.appendChild(debugTools);
         const speedSlider = debugTools.querySelector('#speed');
         const speedReset = debugTools.querySelector('#speedReset');
         const speedDisplay = debugTools.querySelector('#speedDisplay');
@@ -51562,6 +51563,9 @@ class Debugging {
         });
     }
     fillSceneSelector() {
+        if (!this.debugContainer) {
+            return;
+        }
         const sceneSelector = document.querySelector('#sceneSelector');
         const episode = Object.values(this.engine.globalScope).find((object) => object.definition.TYPE === 'EPISODE');
         if (episode === undefined) {
@@ -51572,7 +51576,7 @@ class Debugging {
                 return object.definition.TYPE === 'SCENE' && object.definition.NAME === sceneName;
             });
             const sceneDefPath = scene.getRelativePath(`${sceneName}.cnv`);
-            const canGoTo = this.engine.fileLoader.getFilesListing().includes(sceneDefPath.toLowerCase());
+            const canGoTo = this.engine.fileLoader.hasFile(sceneDefPath.toLowerCase());
             const option = document.createElement('option');
             option.value = sceneName;
             option.text = sceneName;
@@ -51581,6 +51585,9 @@ class Debugging {
         }
     }
     updateCurrentScene() {
+        if (!this.debugContainer) {
+            return;
+        }
         if (this.enabled) {
             const currentScene = document.querySelector('#sceneSelector');
             currentScene.value = this.engine.currentScene.definition.NAME;
@@ -51691,7 +51698,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Engine = void 0;
 const scripting_1 = __webpack_require__(/*! ./scripting */ "./src/engine/scripting.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
-const filesLoader_1 = __webpack_require__(/*! ../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const assetsLoader_1 = __webpack_require__(/*! ../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
@@ -51701,8 +51707,7 @@ const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/error
 const devtools_1 = __webpack_require__(/*! @pixi/devtools */ "./node_modules/@pixi/devtools/dist/index.cjs");
 const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
 class Engine {
-    constructor(parentElement, app, options) {
-        this.parentElement = parentElement;
+    constructor(app, options) {
         this.app = app;
         this.options = options;
         this.speed = 1;
@@ -51714,7 +51719,7 @@ class Engine {
         this.music = null;
         this.rendering = new rendering_1.RenderingManager(app);
         this.scripting = new scripting_1.ScriptingManager(this);
-        this.debug = new debugging_1.Debugging(this, this.options.debug ?? false);
+        this.debug = new debugging_1.Debugging(this, this.options.debug ?? false, options.debugContainer);
         this.fileLoader = this.options.fileLoader;
     }
     async init() {
@@ -51815,9 +51820,7 @@ class Engine {
             }
         }
         // Wait for assets to load
-        if (this.fileLoader instanceof filesLoader_1.UrlFileLoader) {
-            await (0, optimizations_1.preloadAssets)(this.fileLoader, this.currentScene);
-        }
+        await (0, optimizations_1.preloadAssets)(this.fileLoader, this.currentScene);
         this.app.ticker.start();
         this.debug.updateCurrentScene();
     }
@@ -51859,13 +51862,17 @@ exports.Engine = Engine;
 /*!*************************************!*\
   !*** ./src/engine/optimizations.ts ***!
   \*************************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.preloadAssets = void 0;
+const filesLoader_1 = __webpack_require__(/*! ../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const preloadAssets = async (fileLoader, scene) => {
+    if (!(fileLoader instanceof filesLoader_1.UrlFileLoader)) {
+        return;
+    }
     const scenePath = scene.getRelativePath('').toLowerCase();
     const listing = fileLoader.getFilesListing();
     if (!listing) {
@@ -51921,9 +51928,12 @@ class RenderingManager {
     clearBackground() {
         this.canvasBackground.texture = this.blackTexture;
     }
+    setCursor(mode) {
+        this.app.renderer.events.cursorStyles.default = mode;
+        this.app.renderer.events.setCursor(mode);
+    }
     resetCursor() {
-        this.app.renderer.events.cursorStyles.default = 'auto';
-        this.app.renderer.events.setCursor('auto');
+        this.setCursor('auto');
     }
     addToStage(sprite) {
         this.app.stage.addChild(sprite);
@@ -52622,7 +52632,7 @@ let Animo = (() => {
                     this.buttonInteractArea.name = `${this.name} (ANIMO Button)`; // For PIXI Devtools
                     this.buttonInteractArea.hitArea = this.sprite.getBounds();
                     this.buttonInteractArea.zIndex = this.sprite.zIndex;
-                    this.engine.app.stage.addChild(this.buttonInteractArea);
+                    this.engine.rendering.addToStage(this.buttonInteractArea);
                     this.buttonLogic.registerInteractive(this.buttonInteractArea, showPointer);
                     this.buttonLogic.enable();
                     this.playEvent('ONNOEVENT');
@@ -52630,7 +52640,7 @@ let Animo = (() => {
                 else {
                     if (this.buttonInteractArea) {
                         this.buttonLogic.unregisterInteractive(this.buttonInteractArea);
-                        this.engine.app.stage.removeChild(this.buttonInteractArea);
+                        this.engine.rendering.removeFromStage(this.buttonInteractArea);
                         this.buttonInteractArea = null;
                     }
                     this.buttonLogic?.disable();
@@ -53542,7 +53552,7 @@ let Button = (() => {
                     this.interactArea = new pixi_js_1.Graphics();
                     this.interactArea.visible = this.definition.ENABLE;
                     this.interactArea.name = `${this.name} (Button)`; // For PIXI Devtools
-                    this.engine.app.stage.addChild(this.interactArea);
+                    this.engine.rendering.addToStage(this.interactArea);
                 }
                 this.rect = rectangle;
                 this.interactArea.hitArea = rectangle;
@@ -53551,7 +53561,7 @@ let Button = (() => {
             destroy() {
                 if (this.interactArea) {
                     this.logic.unregisterInteractive(this.interactArea);
-                    this.engine.app.stage.removeChild(this.interactArea);
+                    this.engine.rendering.removeFromStage(this.interactArea);
                 }
                 else if (this.gfxStandard) {
                     this.unregisterInteractive(this.gfxStandard);
@@ -53686,7 +53696,7 @@ let Button = (() => {
                 }
                 // Add object to stage if it had TOCANVAS=FALSE, and wasn't added
                 if (renderObject.parent === null) {
-                    this.engine.app.stage.addChild(renderObject);
+                    this.engine.rendering.addToStage(renderObject);
                 }
             }
             __getXRayInfo() {
@@ -55404,12 +55414,10 @@ let Mouse = (() => {
                 this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener);
             }
             SHOW() {
-                this.engine.app.renderer.events.cursorStyles.default = 'auto';
-                this.engine.app.renderer.events.setCursor('auto');
+                this.engine.rendering.setCursor('auto');
             }
             HIDE() {
-                this.engine.app.renderer.events.cursorStyles.default = 'none';
-                this.engine.app.renderer.events.setCursor('none');
+                this.engine.rendering.setCursor('none');
             }
             GETPOSX() {
                 return this.mousePosition.x;
@@ -58299,10 +58307,8 @@ const createGamePlayer = (element, options) => {
         return;
     }
     const app = new PIXI.Application();
-    const wrapper = document.createElement('div');
-    wrapper.appendChild(app.view);
-    element.appendChild(wrapper);
-    const engine = new engine_1.Engine(element, app, options);
+    element.appendChild(app.view);
+    const engine = new engine_1.Engine(app, options);
     engine.init();
 };
 exports.createGamePlayer = createGamePlayer;
@@ -63381,9 +63387,11 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/index.ts");
 const filesLoader_1 = __webpack_require__(/*! ./loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const urlParams = new URLSearchParams(window.location.search);
 const gameContainer = document.getElementById('game');
+const debugContainer = document.getElementById('debug');
 const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
     debug: true,
+    debugContainer: debugContainer,
 };
 if (urlParams.get('loader') === 'iso-local') {
     const controls = document.getElementById('controls');
