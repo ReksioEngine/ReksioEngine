@@ -34,13 +34,12 @@ export class Engine {
     public music: Sound | null = null
 
     constructor(
-        public parentElement: HTMLElement,
         public readonly app: Application,
         private options: GamePlayerOptions
     ) {
         this.rendering = new RenderingManager(app)
         this.scripting = new ScriptingManager(this)
-        this.debug = new Debugging(this, this.options.debug ?? false)
+        this.debug = new Debugging(this, this.options.debug ?? false, options.debugContainer)
         this.fileLoader = this.options.fileLoader
     }
 

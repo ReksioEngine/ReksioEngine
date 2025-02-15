@@ -90,14 +90,12 @@ export class Mouse extends Type<MouseDefinition> {
 
     @method()
     SHOW() {
-        this.engine.app.renderer.events.cursorStyles.default = 'auto'
-        this.engine.app.renderer.events.setCursor('auto')
+        this.engine.rendering.setCursor('auto')
     }
 
     @method()
     HIDE() {
-        this.engine.app.renderer.events.cursorStyles.default = 'none'
-        this.engine.app.renderer.events.setCursor('none')
+        this.engine.rendering.setCursor('none')
     }
 
     @method()

@@ -81,7 +81,7 @@ export class Button extends Type<ButtonDefinition> {
             this.interactArea = new Graphics()
             this.interactArea.visible = this.definition.ENABLE
             this.interactArea.name = `${this.name} (Button)` // For PIXI Devtools
-            this.engine.app.stage.addChild(this.interactArea)
+            this.engine.rendering.addToStage(this.interactArea)
         }
 
         this.rect = rectangle
@@ -92,7 +92,7 @@ export class Button extends Type<ButtonDefinition> {
     destroy() {
         if (this.interactArea) {
             this.logic.unregisterInteractive(this.interactArea)
-            this.engine.app.stage.removeChild(this.interactArea)
+            this.engine.rendering.removeFromStage(this.interactArea)
         } else if (this.gfxStandard) {
             this.unregisterInteractive(this.gfxStandard)
         }
@@ -248,7 +248,7 @@ export class Button extends Type<ButtonDefinition> {
 
         // Add object to stage if it had TOCANVAS=FALSE, and wasn't added
         if (renderObject.parent === null) {
-            this.engine.app.stage.addChild(renderObject)
+            this.engine.rendering.addToStage(renderObject)
         }
     }
 

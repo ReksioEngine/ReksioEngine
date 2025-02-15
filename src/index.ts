@@ -6,6 +6,7 @@ export type GamePlayerOptions = {
     fileLoader: FileLoader
     startScene?: string
     debug?: boolean
+    debugContainer: HTMLElement | null
 }
 
 export const createGamePlayer = (element: HTMLElement | null, options: GamePlayerOptions) => {
@@ -14,10 +15,8 @@ export const createGamePlayer = (element: HTMLElement | null, options: GamePlaye
     }
 
     const app = new PIXI.Application()
-    const wrapper = document.createElement('div')
-    wrapper.appendChild(app.view as unknown as Node)
-    element.appendChild(wrapper)
+    element.appendChild(app.view as unknown as Node)
 
-    const engine = new Engine(element, app, options)
+    const engine = new Engine(app, options)
     engine.init()
 }

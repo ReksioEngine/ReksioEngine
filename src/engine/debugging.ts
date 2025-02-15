@@ -17,13 +17,16 @@ export class Debugging {
     public enabled = false
     public mutedMusic = false
 
+    private readonly debugContainer: HTMLElement | null
+
     private xrays: Map<string, Container> = new Map()
     private enableXRay = false
     private enableXRayInvisible = false
 
-    constructor(engine: Engine, isDebug: boolean) {
+    constructor(engine: Engine, isDebug: boolean, debugContainer: HTMLElement | null = null) {
         this.engine = engine
         this.enabled = isDebug
+        this.debugContainer = debugContainer
     }
 
     async createObject(definition: CNVObject) {
@@ -52,14 +55,14 @@ export class Debugging {
     }
 
     setupDebugTools() {
-        if (!this.enabled) {
+        if (!this.enabled || !this.debugContainer) {
             return
         }
 
         const debugTools = document.createElement('div')
         debugTools.innerHTML = debuggingTemplate
         debugTools.style.display = 'inline-block'
-        this.engine.parentElement.appendChild(debugTools)
+        this.debugContainer.appendChild(debugTools)
 
         const speedSlider: HTMLInputElement = debugTools.querySelector('#speed')!
         const speedReset = debugTools.querySelector('#speedReset')!
@@ -208,8 +211,11 @@ export class Debugging {
     }
 
     fillSceneSelector() {
-        const sceneSelector: any = document.querySelector('#sceneSelector')!
+        if (!this.debugContainer) {
+            return
+        }
 
+        const sceneSelector: any = document.querySelector('#sceneSelector')!
         const episode: Episode = Object.values(this.engine.globalScope).find(
             (object: Type<any>) => object.definition.TYPE === 'EPISODE'
         )
@@ -223,7 +229,7 @@ export class Debugging {
             })
 
             const sceneDefPath = scene.getRelativePath(`${sceneName}.cnv`)
-            const canGoTo = this.engine.fileLoader.getFilesListing().includes(sceneDefPath.toLowerCase())
+            const canGoTo = this.engine.fileLoader.hasFile(sceneDefPath.toLowerCase())
 
             const option = document.createElement('option')
             option.value = sceneName
@@ -234,6 +240,10 @@ export class Debugging {
     }
 
     updateCurrentScene() {
+        if (!this.debugContainer) {
+            return
+        }
+
         if (this.enabled) {
             const currentScene = document.querySelector('#sceneSelector')! as HTMLInputElement
             currentScene.value = this.engine.currentScene!.definition.NAME

@@ -456,7 +456,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.buttonInteractArea.name = `${this.name} (ANIMO Button)` // For PIXI Devtools
             this.buttonInteractArea.hitArea = this.sprite.getBounds()
             this.buttonInteractArea.zIndex = this.sprite.zIndex
-            this.engine.app.stage.addChild(this.buttonInteractArea)
+            this.engine.rendering.addToStage(this.buttonInteractArea)
 
             this.buttonLogic.registerInteractive(this.buttonInteractArea, showPointer)
             this.buttonLogic.enable()
@@ -464,7 +464,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         } else {
             if (this.buttonInteractArea) {
                 this.buttonLogic.unregisterInteractive(this.buttonInteractArea)
-                this.engine.app.stage.removeChild(this.buttonInteractArea)
+                this.engine.rendering.removeFromStage(this.buttonInteractArea)
                 this.buttonInteractArea = null
             }
             this.buttonLogic?.disable()

@@ -3,9 +3,11 @@ import { ArchiveOrgFileLoader, GithubFileLoader, IsoFileLoader } from './loaders
 
 const urlParams = new URLSearchParams(window.location.search)
 const gameContainer = document.getElementById('game')
+const debugContainer = document.getElementById('debug')
 const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
     debug: process.env.debug as unknown as boolean,
+    debugContainer: debugContainer,
 }
 
 if (urlParams.get('loader') === 'iso-local') {

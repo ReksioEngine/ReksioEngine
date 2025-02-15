@@ -5,7 +5,7 @@ import { DisplayType } from './types'
 export class RenderingManager {
     public displayObjectsInDefinitionOrder: DisplayType<any>[] = []
 
-    public canvasBackground: Sprite
+    private readonly canvasBackground: Sprite
     private readonly blackTexture
 
     constructor(private app: Application) {
@@ -40,9 +40,13 @@ export class RenderingManager {
         this.canvasBackground.texture = this.blackTexture
     }
 
+    setCursor(mode: string) {
+        this.app.renderer.events.cursorStyles.default = mode
+        this.app.renderer.events.setCursor(mode)
+    }
+
     resetCursor() {
-        this.app.renderer.events.cursorStyles.default = 'auto'
-        this.app.renderer.events.setCursor('auto')
+        this.setCursor('auto')
     }
 
     addToStage(sprite: DisplayObject) {
