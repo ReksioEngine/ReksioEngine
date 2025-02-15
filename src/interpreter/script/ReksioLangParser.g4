@@ -6,7 +6,7 @@ expr :
         string
         | number
         | bool
-        | identifier
+        | objectValueReference
         | specialCall
         | methodCall
         | operationGrouping
@@ -20,20 +20,21 @@ objectName: identifier;
 methodName: identifier;
 methodCallArguments: expr (COMMA expr)*;
 
-specialCall: DIV methodName BRACKET_START methodCallArguments? BRACKET_END;
+specialCall: AT methodName BRACKET_START methodCallArguments? BRACKET_END;
 
 operationGrouping: OPERATION_GROUPING_START operation OPERATION_GROUPING_END;
 operation
-  : left=expr operator=ADD right=expr
-  | left=expr operator=SUB right=expr
-  | left=expr operator=MUL right=expr
-  | left=expr operator=MOD right=expr
-  | left=expr operator=DIV right=expr
+  : left=expr operator=PLUS right=expr
+  | left=expr operator=MINUS right=expr
+  | left=expr operator=ASTERISK right=expr
+  | left=expr operator=PERCENTAGE right=expr
+  | left=expr operator=AT right=expr
   ;
 
 comment: COMMENT_START;
-number: SUB NUMBER | NUMBER;
+number: MINUS NUMBER | NUMBER;
 bool: TRUE | FALSE;
 string: CODE_STRING | STRING;
-identifier: IDENTIFIER;
 
+objectValueReference: identifier;
+identifier: dereference=ASTERISK? IDENTIFIER;

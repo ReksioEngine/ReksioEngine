@@ -18,11 +18,11 @@ export default class ReksioLangLexer extends Lexer {
 	public static readonly CODE_STRING = 4;
 	public static readonly STRING = 5;
 	public static readonly COMMENT_START = 6;
-	public static readonly ADD = 7;
-	public static readonly SUB = 8;
-	public static readonly MUL = 9;
-	public static readonly MOD = 10;
-	public static readonly DIV = 11;
+	public static readonly PLUS = 7;
+	public static readonly MINUS = 8;
+	public static readonly ASTERISK = 9;
+	public static readonly PERCENTAGE = 10;
+	public static readonly AT = 11;
 	public static readonly METHOD_CALL_SYMBOL = 12;
 	public static readonly TYPO = 13;
 	public static readonly TYPO_QUOTE = 14;
@@ -57,9 +57,10 @@ export default class ReksioLangLexer extends Lexer {
                                                              "FALSE", "NUMBER", 
                                                              "CODE_STRING", 
                                                              "STRING", "COMMENT_START", 
-                                                             "ADD", "SUB", 
-                                                             "MUL", "MOD", 
-                                                             "DIV", "METHOD_CALL_SYMBOL", 
+                                                             "PLUS", "MINUS", 
+                                                             "ASTERISK", 
+                                                             "PERCENTAGE", 
+                                                             "AT", "METHOD_CALL_SYMBOL", 
                                                              "TYPO", "TYPO_QUOTE", 
                                                              "WHITESPACE", 
                                                              "COMMA", "IDENTIFIER", 
@@ -75,16 +76,18 @@ export default class ReksioLangLexer extends Lexer {
 
 	public static readonly ruleNames: string[] = [
 		"F_TRUE", "F_FALSE", "F_NUMBER", "F_CODE_STRING", "F_STRING", "F_COMMENT_START", 
-		"F_ADD", "F_SUB", "F_MUL", "F_MOD", "F_DIV", "F_METHOD_CALL_SYMBOL", "F_OPERATION_GROUPING_START", 
-		"F_OPERATION_GROUPING_END", "F_BRACKET_START", "F_BRACKET_END", "F_COMMA", 
-		"F_TYPO", "F_TYPO_QUOTE", "F_WHITESPACE", "TRUE", "FALSE", "NUMBER", "CODE_STRING", 
-		"STRING", "COMMENT_START", "ADD", "SUB", "MUL", "MOD", "DIV", "METHOD_CALL_SYMBOL", 
-		"TYPO", "TYPO_QUOTE", "WHITESPACE", "COMMA", "IDENTIFIER", "BRACKET_START", 
-		"BRACKET_END", "OPERATION_GROUPING_START", "OPERATION_GROUPING_END", "STATEMENT_END", 
+		"F_PLUS", "F_MINUS", "F_ASTERISK", "F_PERCENTAGE", "F_AT", "F_METHOD_CALL_SYMBOL", 
+		"F_OPERATION_GROUPING_START", "F_OPERATION_GROUPING_END", "F_BRACKET_START", 
+		"F_BRACKET_END", "F_COMMA", "F_TYPO", "F_TYPO_QUOTE", "F_WHITESPACE", 
+		"TRUE", "FALSE", "NUMBER", "CODE_STRING", "STRING", "COMMENT_START", "PLUS", 
+		"MINUS", "ASTERISK", "PERCENTAGE", "AT", "METHOD_CALL_SYMBOL", "TYPO", 
+		"TYPO_QUOTE", "WHITESPACE", "COMMA", "IDENTIFIER", "BRACKET_START", "BRACKET_END", 
+		"OPERATION_GROUPING_START", "OPERATION_GROUPING_END", "STATEMENT_END", 
 		"I_TRUE", "I_FALSE", "I_NUMBER", "I_CODE_STRING", "I_STRING", "I_COMMENT_START", 
-		"I_ADD", "I_SUB", "I_MUL", "I_MOD", "I_DIV", "I_METHOD_CALL_SYMBOL", "I_TYPO", 
-		"I_WHITESPACE", "I_COMMA", "I_IDENTIFIER", "I_BRACKET_START", "I_BRACKET_END", 
-		"I_OPERATION_GROUPING_START", "I_OPERATION_GROUPING_END", "MISSING_QUOTE_TEXT",
+		"I_PLUS", "I_MINUS", "I_ASTERISK", "I_PERCENTAGE", "I_AT", "I_METHOD_CALL_SYMBOL", 
+		"I_TYPO", "I_WHITESPACE", "I_COMMA", "I_IDENTIFIER", "I_BRACKET_START", 
+		"I_BRACKET_END", "I_OPERATION_GROUPING_START", "I_OPERATION_GROUPING_END", 
+		"MISSING_QUOTE_TEXT",
 	];
 
 

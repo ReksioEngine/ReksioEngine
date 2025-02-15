@@ -7,6 +7,7 @@ import ReksioLangParser, {
     MethodCallContext,
     NumberContext,
     ObjectNameContext,
+    ObjectValueReferenceContext,
     OperationContext,
     OperationGroupingContext,
     SpecialCallContext,
@@ -112,9 +113,24 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
     }
 
     visitIdentifier = (ctx: IdentifierContext): any => {
-        const identifier = ctx.IDENTIFIER().getText()
-        if (identifier.startsWith('$') && this.args) {
-            const argIdx = parseInt(identifier.substring(1)) - 1
+        const name = this.replaceParameters(ctx.IDENTIFIER().getText())
+        if (ctx._dereference == null) {
+            return name
+        }
+
+        const object = this.engine.getObject(name)
+        if (object != null) {
+            return object.value
+        }
+
+        return null
+    }
+
+    visitObjectValueReference = (ctx: ObjectValueReferenceContext): any => {
+        const identifier = ctx.identifier().getText()
+        const argMatch = identifier.match(/^\$(?<idx>\d+)$/)
+        if (argMatch != null && argMatch.groups != null) {
+            const argIdx = parseInt(argMatch.groups['idx']) - 1
             assert(this.args.length >= argIdx + 1)
 
             const arg = this.args[argIdx]
@@ -139,7 +155,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             if (this.printDebug) {
                 const code = this.markInCode(ctx)
                 console.error(
-                    'Unknown identifier\n' + '\n' + `%cCode:%c\n${code}\n\n` + '%cUsed variables:%c%O',
+                    `Unknown identifier "${identifier}"` + '\n' + `%cCode:%c\n${code}\n\n` + '%cUsed variables:%c%O',
                     'font-weight: bold',
                     'font-weight: inherit',
                     'color: red',
@@ -370,7 +386,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
     visitObjectName = (ctx: ObjectNameContext): any => {
         this.lastContext = ctx
 
-        const objectName = this.replaceParameters(ctx.getText())
+        const objectName = this.visitIdentifier(ctx.identifier())
         const object = this.engine.getObject(objectName)
         this.methodCallUsedVariables[objectName] = object
         this.scriptUsedVariables[objectName] = object
@@ -383,7 +399,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             if (this.printDebug) {
                 const code = this.markInCode(ctx)
                 console.error(
-                    'Unknown identifier\n' +
+                    `Unknown identifier "${objectName}"\n` +
                         '\n' +
                         `%cCode:%c\n${code}\n\n` +
                         '%cUsed variables:%c %O\n' +
@@ -424,15 +440,15 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         }
 
         let result = undefined
-        if (ctx._operator.type == ReksioLangParser.ADD) {
+        if (ctx._operator.type == ReksioLangParser.PLUS) {
             result = left + right
-        } else if (ctx._operator.type == ReksioLangParser.SUB) {
+        } else if (ctx._operator.type == ReksioLangParser.MINUS) {
             result = left - right
-        } else if (ctx._operator.type == ReksioLangParser.MUL) {
+        } else if (ctx._operator.type == ReksioLangParser.ASTERISK) {
             result = left * right
-        } else if (ctx._operator.type == ReksioLangParser.MOD) {
+        } else if (ctx._operator.type == ReksioLangParser.PERCENTAGE) {
             result = left % right
-        } else if (ctx._operator.type == ReksioLangParser.DIV) {
+        } else if (ctx._operator.type == ReksioLangParser.AT) {
             result = left / right
         }
 

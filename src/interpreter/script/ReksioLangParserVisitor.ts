@@ -17,6 +17,7 @@ import { CommentContext } from "./ReksioLangParser.js";
 import { NumberContext } from "./ReksioLangParser.js";
 import { BoolContext } from "./ReksioLangParser.js";
 import { StringContext } from "./ReksioLangParser.js";
+import { ObjectValueReferenceContext } from "./ReksioLangParser.js";
 import { IdentifierContext } from "./ReksioLangParser.js";
 
 
@@ -112,6 +113,12 @@ export default class ReksioLangParserVisitor<Result> extends ParseTreeVisitor<Re
 	 * @return the visitor result
 	 */
 	visitString?: (ctx: StringContext) => Result;
+	/**
+	 * Visit a parse tree produced by `ReksioLangParser.objectValueReference`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitObjectValueReference?: (ctx: ObjectValueReferenceContext) => Result;
 	/**
 	 * Visit a parse tree produced by `ReksioLangParser.identifier`.
 	 * @param ctx the parse tree

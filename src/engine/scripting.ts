@@ -12,7 +12,12 @@ export class ScriptingManager {
         this.engine = engine
     }
 
-    executeCallback(caller: Type<any> | null, callback: callback, args?: any[], localScopeEntries?: Record<string, any>) {
+    executeCallback(
+        caller: Type<any> | null,
+        callback: callback,
+        args?: any[],
+        localScopeEntries?: Record<string, any>
+    ) {
         const localScope = new Scope(localScopeEntries)
         if (caller !== null) {
             localScope.set('THIS', caller)
