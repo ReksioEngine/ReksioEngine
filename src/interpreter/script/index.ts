@@ -18,7 +18,7 @@ import ReksioLangLexer from './ReksioLangLexer'
 import antlr4, { ParserRuleContext, RecognitionException, Recognizer, Token } from 'antlr4'
 import { Engine } from '../../engine'
 import { Behaviour } from '../../engine/types/behaviour'
-import { assert, IgnorableError, NotImplementedError } from '../../common/errors'
+import { assert, IgnorableError, IrrecoverableError, NotImplementedError } from '../../common/errors'
 import { Compare, ForceNumber, valueAsString } from '../../common/types'
 import { Type } from '../../engine/types'
 import { String } from '../../engine/types/string'
@@ -26,6 +26,8 @@ import { printStackTrace, StackFrame, stackTrace } from './stacktrace'
 import { evaluateExpression } from '../ifExpression'
 import { Rand } from '../../engine/types/rand'
 import { System } from '../../engine/types/system'
+import { createCallback } from '../../fileFormats/common'
+import { Integer } from '../../engine/types/integer'
 
 export class InterruptScriptExecution extends IgnorableError {
     public one: boolean
@@ -325,6 +327,25 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             }
         } else if (methodName === 'BREAK') {
             throw new InterruptScriptExecution(false)
+        } else if (methodName === 'LOOP') {
+            const [codeOrBehaviour, start, len, step] = args
+
+            const callback = createCallback(codeOrBehaviour)
+            if (callback === undefined) {
+                throw new IrrecoverableError('Invalid @LOOP callback')
+            }
+
+            const counter = new Integer(this.engine, null, {
+                NAME: '_I_',
+                TYPE: 'INTEGER',
+                TOINI: false,
+            })
+            for (let i = start; i < start + len; i += step) {
+                counter.value = i
+                this.engine.scripting.executeCallback(null, callback, [], {
+                    _I_: counter,
+                })
+            }
         } else if (this.printDebug) {
             const code = this.markInCode(ctx)
             console.error(
