@@ -3,7 +3,7 @@ import { ScriptingManager } from './scripting'
 import { loadDefinition } from '../loaders/definitionLoader'
 import { Application } from 'pixi.js'
 import { Scene } from './types/scene'
-import { FileLoader, UrlFileLoader } from '../loaders/filesLoader'
+import { FileLoader } from '../loaders/filesLoader'
 import { sound, Sound } from '@pixi/sound'
 import { loadSound, loadTexture } from '../loaders/assetsLoader'
 import { SaveFile, SaveFileManager } from './saveFile'
@@ -174,9 +174,7 @@ export class Engine {
         }
 
         // Wait for assets to load
-        if (this.fileLoader instanceof UrlFileLoader) {
-            await preloadAssets(this.fileLoader, this.currentScene)
-        }
+        await preloadAssets(this.fileLoader, this.currentScene)
 
         this.app.ticker.start()
         this.debug.updateCurrentScene()

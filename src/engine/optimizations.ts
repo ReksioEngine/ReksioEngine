@@ -1,9 +1,12 @@
 import { Scene } from './types/scene'
-import { UrlFileLoader } from '../loaders/filesLoader'
+import { FileLoader, UrlFileLoader } from '../loaders/filesLoader'
 
-export const preloadAssets = async (fileLoader: UrlFileLoader, scene: Scene) => {
+export const preloadAssets = async (fileLoader: FileLoader, scene: Scene) => {
+    if (!(fileLoader instanceof UrlFileLoader)) {
+        return
+    }
+
     const scenePath = scene.getRelativePath('').toLowerCase()
-
     const listing = fileLoader.getFilesListing()
     if (!listing) {
         return
