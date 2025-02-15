@@ -52807,7 +52807,7 @@ let Animo = (() => {
             }
             ISPLAYING(animName) {
                 (0, errors_1.assert)(this.currentEvent !== null);
-                return this.isPlaying && this.currentEvent.name.toUpperCase() == animName;
+                return this.isPlaying && (animName === undefined || this.currentEvent.name.toUpperCase() == animName);
             }
             ISNEAR(objectName, percentage) {
                 const otherObject = this.engine.getObject(objectName);
