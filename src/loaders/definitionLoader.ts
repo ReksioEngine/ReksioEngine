@@ -34,6 +34,7 @@ import { Filter } from '../engine/types/filter'
 import { MultiArray } from '../engine/types/multiArray'
 import { System } from '../engine/types/system'
 import { Scope } from '../engine/scope'
+import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
 
 const createTypeInstance = (engine: Engine, parent: Type<any> | null, definition: any) => {
     switch (definition.TYPE) {
@@ -141,7 +142,16 @@ export const loadDefinition = async (engine: Engine, scope: Scope, definition: C
         return aPriority - bPriority
     })
 
-    const promisesResults = await Promise.allSettled(orderedScope.map((entry) => entry.init()))
+    const promisesResults = await Promise.allSettled(
+        orderedScope.map((entry) => {
+            try {
+                stackTrace.push(StackFrame.builder().type('stage').object(entry).method('init').build())
+                return entry.init()
+            } finally {
+                stackTrace.pop()
+            }
+        })
+    )
     const failedObjects: Type<any>[] = []
     for (let i = 0; i < promisesResults.length; i++) {
         const result = promisesResults[i]
@@ -156,10 +166,23 @@ export const loadDefinition = async (engine: Engine, scope: Scope, definition: C
     }
 
     const goodObjects = orderedScope.filter((entry) => !failedObjects.includes(entry))
-    goodObjects.forEach((entry) => entry.applyDefaults())
+    goodObjects.forEach((entry) => {
+        try {
+            stackTrace.push(StackFrame.builder().type('stage').object(entry).method('applyDefaults').build())
+            entry.applyDefaults()
+        } finally {
+            stackTrace.pop()
+        }
+    })
     goodObjects.forEach((entry) => {
         entry.isReady = true
-        entry.ready()
+
+        try {
+            stackTrace.push(StackFrame.builder().type('stage').object(entry).method('ready').build())
+            entry.ready()
+        } finally {
+            stackTrace.pop()
+        }
     })
 
     engine.app.ticker.start()
