@@ -21,7 +21,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private currentFrame: number = 0
     private currentEvent: Event | null = null
 
-    private animationEndedLastTick: boolean = false
+    private eventEndedLastTick: Event | null = null
     private buttonInteractArea: Graphics | null = null
 
     private fps: number = 16
@@ -203,8 +203,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
-        if (this.animationEndedLastTick) {
-            this.animationEndedLastTick = false
+        if (this.eventEndedLastTick == this.currentEvent) {
+            this.eventEndedLastTick = null
             this.STOP(true)
             return
         }
@@ -245,7 +245,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.currentFrame = 0
         } else if (this.currentFrame + 1 >= event.framesCount) {
             this.currentFrame = 0
-            this.animationEndedLastTick = true
+            this.eventEndedLastTick = this.currentEvent
         } else {
             this.currentFrame++
         }
@@ -330,6 +330,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
+        this.eventEndedLastTick = null
         this.isPlaying = true
 
         assert(this.sprite !== null)
