@@ -52399,7 +52399,7 @@ let Animo = (() => {
                 this.isPlaying = false;
                 this.currentFrame = 0;
                 this.currentEvent = null;
-                this.animationEndedLastTick = false;
+                this.eventEndedLastTick = null;
                 this.buttonInteractArea = null;
                 this.fps = 16;
                 this.timeSinceLastFrame = 0;
@@ -52537,8 +52537,8 @@ let Animo = (() => {
                 if (!event) {
                     return;
                 }
-                if (this.animationEndedLastTick) {
-                    this.animationEndedLastTick = false;
+                if (this.eventEndedLastTick == this.currentEvent) {
+                    this.eventEndedLastTick = null;
                     this.STOP(true);
                     return;
                 }
@@ -52573,7 +52573,7 @@ let Animo = (() => {
                 }
                 else if (this.currentFrame + 1 >= event.framesCount) {
                     this.currentFrame = 0;
-                    this.animationEndedLastTick = true;
+                    this.eventEndedLastTick = this.currentEvent;
                 }
                 else {
                     this.currentFrame++;
@@ -52638,6 +52638,7 @@ let Animo = (() => {
                 if (!this.hasEvent(name.toString())) {
                     return;
                 }
+                this.eventEndedLastTick = null;
                 this.isPlaying = true;
                 (0, errors_1.assert)(this.sprite !== null);
                 this.sprite.visible = true;
@@ -54964,7 +54965,7 @@ let Type = (() => {
             // Called when trying to call a method that is not existing for a type
             __call(methodName, args) {
                 const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
-                console.error(`Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.\nArguments: %O`, args);
+                console.error(`Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.\nArguments: %O\nObject: %O`, args, this);
             }
             clone() {
                 // @ts-expect-error Dynamically constructing object
@@ -57310,7 +57311,7 @@ const parseCNV = (content) => {
             continue;
         }
         const [key, value] = parts;
-        if (key === 'OBJECT') {
+        if (key === 'OBJECT' && !objects[value]) {
             objects[value] = {
                 TYPE: 'unknown',
                 NAME: value,
@@ -61439,6 +61440,9 @@ const generateStackTrace = (stackTraceSource) => {
             case 'method':
                 lines.push(`at ${frame.object?.name ?? '<unknown>'}^${frame.methodName}(${argsString})`);
                 break;
+            case 'stage':
+                lines.push(`at ${frame.object?.name ?? '<unknown>'}::${frame.methodName}()`);
+                break;
             case 'behaviour':
                 lines.push(`at ${frame.behaviour}(${argsString})`);
                 break;
@@ -61568,6 +61572,7 @@ const staticFilter_1 = __webpack_require__(/*! ../engine/types/staticFilter */ "
 const filter_1 = __webpack_require__(/*! ../engine/types/filter */ "./src/engine/types/filter.ts");
 const multiArray_1 = __webpack_require__(/*! ../engine/types/multiArray */ "./src/engine/types/multiArray.ts");
 const system_1 = __webpack_require__(/*! ../engine/types/system */ "./src/engine/types/system.ts");
+const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const createTypeInstance = (engine, parent, definition) => {
     switch (definition.TYPE) {
         case 'ANIMO':
@@ -61667,7 +61672,15 @@ const loadDefinition = async (engine, scope, definition, parent) => {
         const bPriority = b.name === '__INIT__' ? 99999 : (initializationPriorities.get(b.definition.TYPE) ?? 9999);
         return aPriority - bPriority;
     });
-    const promisesResults = await Promise.allSettled(orderedScope.map((entry) => entry.init()));
+    const promisesResults = await Promise.allSettled(orderedScope.map((entry) => {
+        try {
+            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(entry).method('init').build());
+            return entry.init();
+        }
+        finally {
+            stacktrace_1.stackTrace.pop();
+        }
+    }));
     const failedObjects = [];
     for (let i = 0; i < promisesResults.length; i++) {
         const result = promisesResults[i];
@@ -61679,10 +61692,24 @@ const loadDefinition = async (engine, scope, definition, parent) => {
         }
     }
     const goodObjects = orderedScope.filter((entry) => !failedObjects.includes(entry));
-    goodObjects.forEach((entry) => entry.applyDefaults());
+    goodObjects.forEach((entry) => {
+        try {
+            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(entry).method('applyDefaults').build());
+            entry.applyDefaults();
+        }
+        finally {
+            stacktrace_1.stackTrace.pop();
+        }
+    });
     goodObjects.forEach((entry) => {
         entry.isReady = true;
-        entry.ready();
+        try {
+            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(entry).method('ready').build());
+            entry.ready();
+        }
+        finally {
+            stacktrace_1.stackTrace.pop();
+        }
     });
     engine.app.ticker.start();
 };
