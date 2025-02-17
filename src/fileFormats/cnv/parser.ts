@@ -30,7 +30,7 @@ export const parseCNV = (content: string) => {
         }
 
         const [key, value] = parts
-        if (key === 'OBJECT') {
+        if (key === 'OBJECT' && !objects[value]) {
             objects[value] = {
                 TYPE: 'unknown',
                 NAME: value,
