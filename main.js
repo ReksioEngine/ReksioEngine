@@ -51560,7 +51560,7 @@ class Debugging {
         });
     }
     fillSceneSelector() {
-        if (!this.debugContainer) {
+        if (!this.enabled || !this.debugContainer) {
             return;
         }
         const sceneSelector = document.querySelector('#sceneSelector');
@@ -51585,7 +51585,7 @@ class Debugging {
         }
     }
     updateCurrentScene() {
-        if (!this.debugContainer) {
+        if (!this.enabled || !this.debugContainer) {
             return;
         }
         if (this.enabled) {
@@ -51600,6 +51600,9 @@ class Debugging {
         }
     }
     updateXRay() {
+        if (!this.enabled) {
+            return;
+        }
         if (!this.enableXRay) {
             for (const [name, container] of this.xrays) {
                 container.destroy({
@@ -63721,8 +63724,14 @@ const gameContainer = document.getElementById('game');
 const debugContainer = document.getElementById('debug');
 const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
-    debug: true,
+    debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : true,
     debugContainer: debugContainer,
+};
+let config = {};
+const start = () => {
+    gameContainer.removeEventListener('click', start);
+    gameContainer.classList.remove('notready');
+    (0, index_1.createGamePlayer)(gameContainer, config);
 };
 if (urlParams.get('loader') === 'iso-local') {
     const controls = document.getElementById('controls');
@@ -63730,10 +63739,12 @@ if (urlParams.get('loader') === 'iso-local') {
     fileSelector.type = 'file';
     fileSelector.addEventListener('change', async (event) => {
         controls.removeChild(fileSelector);
-        (0, index_1.createGamePlayer)(gameContainer, {
+        config = {
             ...baseOptions,
             fileLoader: new filesLoader_1.IsoFileLoader(event.target.files[0]),
-        });
+        };
+        gameContainer.classList.add('notready');
+        gameContainer.addEventListener('click', start);
     });
     controls.appendChild(fileSelector);
 }
@@ -63751,10 +63762,12 @@ else {
         }
         return new filesLoader_1.GithubFileLoader('reksioiskarbpiratow');
     };
-    (0, index_1.createGamePlayer)(gameContainer, {
+    config = {
         ...baseOptions,
         fileLoader: getFileLoader(),
-    });
+    };
+    gameContainer.classList.add('notready');
+    gameContainer.addEventListener('click', start);
 }
 
 })();
