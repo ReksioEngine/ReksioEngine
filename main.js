@@ -52420,9 +52420,18 @@ let Animo = (() => {
             }
             async init() {
                 this.annFile = await this.loadAnimation();
-                this.initSprite();
             }
             applyDefaults() {
+                const existingObjectWithFilename = this.engine.scopeManager.find((key, object) => object != this &&
+                    object instanceof _a &&
+                    object.definition.FILENAME === this.definition.FILENAME &&
+                    object.sprite != null);
+                if (existingObjectWithFilename != null) {
+                    this.sprite = existingObjectWithFilename.sprite;
+                }
+                else {
+                    this.initSprite();
+                }
                 this.currentEvent = this.getEventByName(this.getDefaultEvent() ?? '');
                 if (this.currentEvent) {
                     this.changeFrame(this.currentEvent, 0, false);
@@ -61722,6 +61731,7 @@ const createObject = async (engine, definition, parent) => {
         engine.rendering.displayObjectsInDefinitionOrder.push(instance);
     }
     await instance.init();
+    instance.applyDefaults();
     instance.isReady = true;
     instance.ready();
     engine.app.ticker.start();
