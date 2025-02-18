@@ -52450,9 +52450,6 @@ let Animo = (() => {
             }
             tick(elapsedMS) {
                 this.buttonLogic.tick();
-                this.collisions.handle((object) => {
-                    this.callbacks.run('ONCOLLISION', object.name);
-                });
                 if (!this.isPlaying) {
                     return;
                 }
@@ -52727,6 +52724,7 @@ let Animo = (() => {
                 this.positionY += yOffset;
                 this.sprite.x += xOffset;
                 this.sprite.y += yOffset;
+                this.onMove();
             }
             SETPOSITION(x, y) {
                 (0, errors_1.assert)(this.sprite !== null);
@@ -52734,6 +52732,7 @@ let Animo = (() => {
                 this.positionY = y;
                 this.sprite.x = x + this.positionOffsetX + this.anchorOffsetX;
                 this.sprite.y = y + this.positionOffsetY + this.anchorOffsetY;
+                this.onMove();
             }
             SETASBUTTON(enabled, showPointer) {
                 (0, errors_1.assert)(this.sprite !== null);
@@ -52872,6 +52871,14 @@ let Animo = (() => {
             REMOVEMONITORCOLLISION() {
                 this.collisions.enabled = false;
             }
+            // Only triggered on explicit position change
+            // Animation offset change doesn't trigger it
+            onMove() {
+                this.collisions.handle((object) => {
+                    this.callbacks.run('ONCOLLISION', object.name);
+                });
+                this.events.trigger('MOVE', this.GETPOSITIONX(), this.GETPOSITIONY());
+            }
             getEventByName(name) {
                 (0, errors_1.assert)(this.annFile !== null);
                 return this.annFile.events.find((event) => event.name.toUpperCase() === name.toUpperCase()) ?? null;
@@ -52981,6 +52988,7 @@ let Animo = (() => {
         _a.Events = {
             ONFINISHED: 'ONFINISHED',
             ONSTARTED: 'ONSTARTED',
+            MOVE: 'MOVE',
         },
         _a;
 })();
