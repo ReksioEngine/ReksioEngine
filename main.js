@@ -52667,7 +52667,7 @@ let Animo = (() => {
             }
             forceRender() {
                 (0, errors_1.assert)(this.currentEvent !== null);
-                this.changeFrame(this.currentEvent, this.currentFrame, false);
+                this.changeFrame(this.currentEvent, this.currentFrame, true);
             }
             ONFINISHED() {
                 (0, errors_1.assert)(this.currentEvent !== null);
