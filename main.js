@@ -51614,7 +51614,7 @@ class Debugging {
         }
         const sceneScope = this.engine.scopeManager.getScope('scene');
         (0, errors_1.assert)(sceneScope != null);
-        for (const object of Object.values(sceneScope)) {
+        for (const object of sceneScope.objects) {
             const info = object.__getXRayInfo();
             if (info == null || (!this.enableXRayInvisible && !info.visible)) {
                 this.xrays.get(object.name)?.destroy({
