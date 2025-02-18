@@ -52437,7 +52437,7 @@ let Animo = (() => {
                 else {
                     this.initSprite();
                 }
-                this.currentEvent = this.getEventByName(this.getDefaultEvent() ?? '');
+                this.currentEvent = this.getEvent(this.getDefaultEvent() ?? '');
                 if (this.currentEvent) {
                     this.changeFrame(this.currentEvent, 0, false);
                 }
@@ -52650,12 +52650,18 @@ let Animo = (() => {
                 if (!this.hasEvent(name.toString())) {
                     return;
                 }
+                const event = this.getEvent(name);
+                (0, errors_1.assert)(event !== null);
+                if (event.framesCount === 0) {
+                    this.ONFINISHED();
+                    return;
+                }
                 this.eventEndedLastTick = null;
                 this.isPlaying = true;
                 (0, errors_1.assert)(this.sprite !== null);
                 this.sprite.visible = true;
                 this.currentFrame = 0;
-                this.currentEvent = this.getEventByName(name);
+                this.currentEvent = this.getEvent(name);
                 // Animation could be paused before next tick, and it wouldn't render new frame
                 this.forceRender();
             }
@@ -52698,7 +52704,7 @@ let Animo = (() => {
                 }
                 const newEvent = eventNameOrFrameIdx.toString();
                 const newEventFrame = Number(frameIdx);
-                const event = this.getEventByName(newEvent);
+                const event = this.getEvent(newEvent);
                 (0, errors_1.assert)(event !== null);
                 // Necessary in S63_OBOZ
                 if (newEventFrame < event.framesCount) {
@@ -52884,12 +52890,16 @@ let Animo = (() => {
                     this.callbacks.run('ONCOLLISION', object.name);
                 });
             }
-            getEventByName(name) {
+            getEvent(name) {
                 (0, errors_1.assert)(this.annFile !== null);
                 return this.annFile.events.find((event) => event.name.toUpperCase() === name.toUpperCase()) ?? null;
             }
             hasEvent(name) {
-                return this.getEventByName(name) !== null;
+                return this.getEvent(name) !== null;
+            }
+            getAllEvents() {
+                (0, errors_1.assert)(this.annFile !== null);
+                return this.annFile.events;
             }
             getRenderObject() {
                 return this.sprite;
@@ -56271,13 +56281,14 @@ let Sequence = (() => {
                     }
                     if (this.activeAnimo) {
                         let eventName = simple.EVENT;
+                        // Play first event if event name is incorrect
                         if (!this.activeAnimo.hasEvent(eventName)) {
-                            const defaultEvent = this.activeAnimo.getDefaultEvent();
-                            if (defaultEvent == null) {
+                            const allEvents = this.activeAnimo.getAllEvents();
+                            if (allEvents.length === 0) {
                                 this.progressNext();
                                 return;
                             }
-                            eventName = defaultEvent;
+                            eventName = allEvents[0].name;
                         }
                         this.runningSubSequence = simple;
                         this.playAnimoEvent(eventName);
