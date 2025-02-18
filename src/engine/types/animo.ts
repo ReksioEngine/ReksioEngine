@@ -361,7 +361,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     private forceRender() {
         assert(this.currentEvent !== null)
-        this.changeFrame(this.currentEvent, this.currentFrame, false)
+        this.changeFrame(this.currentEvent, this.currentFrame, true)
     }
 
     private ONFINISHED() {
