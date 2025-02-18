@@ -54738,6 +54738,22 @@ exports.Group = Group;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
     var useValue = arguments.length > 2;
     for (var i = 0; i < initializers.length; i++) {
@@ -54772,6 +54788,13 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Image = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
@@ -54779,6 +54802,7 @@ const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/er
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const assetsLoader_1 = __webpack_require__(/*! ../../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 let Image = (() => {
     var _a;
     let _classSuper = index_1.DisplayType;
@@ -54795,6 +54819,8 @@ let Image = (() => {
             constructor() {
                 super(...arguments);
                 this.sprite = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.maskContainer = null;
+                this.otherObjectsAlphaSpriteCache = new Map();
             }
             async init() {
                 this.sprite = await this.load();
@@ -54849,7 +54875,40 @@ let Image = (() => {
                 return this.sprite.getAlphaAt(new pixi_js_1.Point(x, y));
             }
             MERGEALPHA(x, y, name) {
-                throw new errors_1.NotImplementedError();
+                (0, errors_1.assert)(this.sprite !== null);
+                if (this.maskContainer === null) {
+                    const maskGraphics = new pixi_js_1.Graphics();
+                    maskGraphics.beginTextureFill({
+                        texture: this.generateMaskTexture(this.sprite),
+                        color: 0xffffff,
+                    });
+                    maskGraphics.drawRect(0, 0, this.sprite.width, this.sprite.height);
+                    maskGraphics.endFill();
+                    this.maskContainer = new pixi_js_1.Container();
+                    this.maskContainer.addChild(maskGraphics);
+                }
+                const object = this.engine.getObject(name);
+                let otherObjectAlphaSprite = this.otherObjectsAlphaSpriteCache.get(name);
+                if (!otherObjectAlphaSprite) {
+                    otherObjectAlphaSprite = new pixi_js_1.Sprite(this.generateMaskTexture(object.getRenderObject()));
+                    this.otherObjectsAlphaSpriteCache.set(name, otherObjectAlphaSprite);
+                    this.maskContainer.addChild(otherObjectAlphaSprite);
+                }
+                otherObjectAlphaSprite.x = x;
+                otherObjectAlphaSprite.y = y;
+                this.sprite.mask = new pixi_js_1.Sprite(this.engine.app.renderer.generateTexture(this.maskContainer));
+            }
+            generateMaskTexture(sprite) {
+                (0, errors_1.assert)(sprite.hitmap !== undefined);
+                const textureBytes = new Uint8Array(sprite.hitmap.length * 4);
+                let newPos = 0;
+                for (let i = 0; i < sprite.hitmap.length; i++) {
+                    textureBytes[newPos++] = sprite.hitmap[i];
+                    textureBytes[newPos++] = sprite.hitmap[i];
+                    textureBytes[newPos++] = sprite.hitmap[i];
+                    textureBytes[newPos++] = 255;
+                }
+                return new PIXI.Texture(PIXI.BaseTexture.fromBuffer(new Uint8Array(textureBytes), sprite.width, sprite.height));
             }
             getRenderObject() {
                 return this.sprite;
