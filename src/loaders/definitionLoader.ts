@@ -199,6 +199,7 @@ export const createObject = async (engine: Engine, definition: CNVObject, parent
     }
 
     await instance.init()
+    instance.applyDefaults()
     instance.isReady = true
     instance.ready()
     engine.app.ticker.start()
