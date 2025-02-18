@@ -197,7 +197,7 @@ export class Debugging {
     }
 
     fillSceneSelector() {
-        if (!this.debugContainer) {
+        if (!this.enabled || !this.debugContainer) {
             return
         }
 
@@ -227,7 +227,7 @@ export class Debugging {
     }
 
     updateCurrentScene() {
-        if (!this.debugContainer) {
+        if (!this.enabled || !this.debugContainer) {
             return
         }
 
@@ -245,6 +245,10 @@ export class Debugging {
     }
 
     updateXRay() {
+        if (!this.enabled) {
+            return
+        }
+
         if (!this.enableXRay) {
             for (const [name, container] of this.xrays) {
                 container.destroy({

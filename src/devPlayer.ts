@@ -6,7 +6,7 @@ const gameContainer = document.getElementById('game')
 const debugContainer = document.getElementById('debug')
 const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
-    debug: process.env.debug as unknown as boolean,
+    debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : (process.env.debug as unknown as boolean),
     debugContainer: debugContainer,
 }
 
