@@ -1,10 +1,11 @@
 import { DisplayType } from './index'
 import { ImageDefinition } from '../../fileFormats/cnv/types'
 import { assert, NotImplementedError } from '../../common/errors'
-import { Point } from 'pixi.js'
+import { Container, Graphics, Point, Sprite, Texture } from 'pixi.js'
 import { loadSprite } from '../../loaders/assetsLoader'
 import { AdvancedSprite } from '../rendering'
 import { method } from '../../common/types'
+import * as PIXI from 'pixi.js'
 
 export class Image extends DisplayType<ImageDefinition> {
     public sprite: AdvancedSprite | null = null
@@ -80,9 +81,54 @@ export class Image extends DisplayType<ImageDefinition> {
         return this.sprite.getAlphaAt(new Point(x, y))
     }
 
+    private maskContainer: Container | null = null
+    private otherObjectsAlphaSpriteCache = new Map<string, Sprite>()
+
     @method()
     MERGEALPHA(x: number, y: number, name: string) {
-        throw new NotImplementedError()
+        assert(this.sprite !== null)
+
+        if (this.maskContainer === null) {
+            const maskGraphics = new Graphics()
+
+            maskGraphics.beginTextureFill({
+                texture: this.generateMaskTexture(this.sprite),
+                color: 0xffffff,
+            })
+            maskGraphics.drawRect(0, 0, this.sprite.width, this.sprite.height)
+            maskGraphics.endFill()
+
+            this.maskContainer = new Container()
+            this.maskContainer.addChild(maskGraphics)
+        }
+
+        const object = this.engine.getObject(name)
+
+        let otherObjectAlphaSprite = this.otherObjectsAlphaSpriteCache.get(name)
+        if (!otherObjectAlphaSprite) {
+            otherObjectAlphaSprite = new Sprite(this.generateMaskTexture(object.getRenderObject()))
+            this.otherObjectsAlphaSpriteCache.set(name, otherObjectAlphaSprite)
+            this.maskContainer.addChild(otherObjectAlphaSprite)
+        }
+
+        otherObjectAlphaSprite.x = x
+        otherObjectAlphaSprite.y = y
+        this.sprite.mask = new Sprite(this.engine.app.renderer.generateTexture(this.maskContainer))
+    }
+
+    private generateMaskTexture(sprite: AdvancedSprite) {
+        assert(sprite.hitmap !== undefined)
+        const textureBytes = new Uint8Array(sprite.hitmap.length * 4)
+
+        let newPos = 0
+        for (let i = 0; i < sprite.hitmap.length; i++) {
+            textureBytes[newPos++] = sprite.hitmap[i]
+            textureBytes[newPos++] = sprite.hitmap[i]
+            textureBytes[newPos++] = sprite.hitmap[i]
+            textureBytes[newPos++] = 255
+        }
+
+        return new PIXI.Texture(PIXI.BaseTexture.fromBuffer(new Uint8Array(textureBytes), sprite.width, sprite.height))
     }
 
     getRenderObject() {
