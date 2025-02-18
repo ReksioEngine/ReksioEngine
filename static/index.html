@@ -3,6 +3,23 @@
     <head>
         <meta charset="UTF-8" />
         <title>Reksio Engine</title>
+
+        <style>
+            .notready {
+                width: 800px;
+                height: 600px;
+                background-color: #000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+            }
+            .notready:before {
+                content: 'Press here to start';
+                font-family: sans-serif;
+                font-size: 24px;
+            }
+        </style>
     </head>
     <body>
         <div id="game"></div>

@@ -1,4 +1,4 @@
-import { createGamePlayer } from './index'
+import { createGamePlayer, GamePlayerOptions } from './index'
 import { ArchiveOrgFileLoader, GithubFileLoader, IsoFileLoader } from './loaders/filesLoader'
 
 const urlParams = new URLSearchParams(window.location.search)
@@ -10,6 +10,13 @@ const baseOptions = {
     debugContainer: debugContainer,
 }
 
+let config = {}
+const start = () => {
+    gameContainer!.removeEventListener('click', start)
+    gameContainer!.classList.remove('notready')
+    createGamePlayer(gameContainer, config as GamePlayerOptions)
+}
+
 if (urlParams.get('loader') === 'iso-local') {
     const controls = document.getElementById('controls')!
 
@@ -17,10 +24,13 @@ if (urlParams.get('loader') === 'iso-local') {
     fileSelector.type = 'file'
     fileSelector.addEventListener('change', async (event: any) => {
         controls.removeChild(fileSelector)
-        createGamePlayer(gameContainer, {
+
+        config = {
             ...baseOptions,
             fileLoader: new IsoFileLoader(event.target.files[0]),
-        })
+        }
+        gameContainer!.classList.add('notready')
+        gameContainer!.addEventListener('click', start)
     })
 
     controls.appendChild(fileSelector)
@@ -38,8 +48,10 @@ if (urlParams.get('loader') === 'iso-local') {
         return new GithubFileLoader('reksioiskarbpiratow')
     }
 
-    createGamePlayer(gameContainer, {
+    config = {
         ...baseOptions,
         fileLoader: getFileLoader(),
-    })
+    }
+    gameContainer!.classList.add('notready')
+    gameContainer!.addEventListener('click', start)
 }
