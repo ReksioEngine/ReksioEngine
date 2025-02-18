@@ -56,10 +56,22 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     async init() {
         this.annFile = await this.loadAnimation()
-        this.initSprite()
     }
 
     applyDefaults() {
+        const existingObjectWithFilename: Animo | null = this.engine.scopeManager.find(
+            (key: string, object) =>
+                object != this &&
+                object instanceof Animo &&
+                object.definition.FILENAME === this.definition.FILENAME &&
+                object.sprite != null
+        )
+        if (existingObjectWithFilename != null) {
+            this.sprite = existingObjectWithFilename.sprite
+        } else {
+            this.initSprite()
+        }
+
         this.currentEvent = this.getEventByName(this.getDefaultEvent() ?? '')
         if (this.currentEvent) {
             this.changeFrame(this.currentEvent, 0, false)
