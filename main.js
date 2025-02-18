@@ -51309,14 +51309,19 @@ const testAABB = (a, b) => {
 class CollisionsComponent {
     constructor(engine, object) {
         this.enabled = false;
+        this.collisionTestedThisTick = false;
         this.engine = engine;
         this.object = object;
         this.enabled = object.definition.MONITORCOLLISION ?? false;
     }
+    tick() {
+        this.collisionTestedThisTick = false;
+    }
     handle(callback) {
-        if (!this.enabled) {
+        if (!this.enabled || this.collisionTestedThisTick) {
             return;
         }
+        this.collisionTestedThisTick = true;
         for (const object of this.findCollisions()) {
             callback(object);
         }
@@ -52450,6 +52455,7 @@ let Animo = (() => {
             }
             tick(elapsedMS) {
                 this.buttonLogic.tick();
+                this.collisions.tick();
                 if (!this.isPlaying) {
                     return;
                 }
@@ -52877,7 +52883,6 @@ let Animo = (() => {
                 this.collisions.handle((object) => {
                     this.callbacks.run('ONCOLLISION', object.name);
                 });
-                this.events.trigger('MOVE', this.GETPOSITIONX(), this.GETPOSITIONY());
             }
             getEventByName(name) {
                 (0, errors_1.assert)(this.annFile !== null);
@@ -52988,7 +52993,6 @@ let Animo = (() => {
         _a.Events = {
             ONFINISHED: 'ONFINISHED',
             ONSTARTED: 'ONSTARTED',
-            MOVE: 'MOVE',
         },
         _a;
 })();
