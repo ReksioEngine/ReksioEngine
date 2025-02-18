@@ -27,17 +27,24 @@ export class CollisionsComponent {
     private readonly object: Animo
     public enabled: boolean = false
 
+    private collisionTestedThisTick = false
+
     constructor(engine: Engine, object: Animo) {
         this.engine = engine
         this.object = object
         this.enabled = object.definition.MONITORCOLLISION ?? false
     }
 
+    tick() {
+        this.collisionTestedThisTick = false
+    }
+
     handle(callback: CollisionCallback) {
-        if (!this.enabled) {
+        if (!this.enabled || this.collisionTestedThisTick) {
             return
         }
 
+        this.collisionTestedThisTick = true
         for (const object of this.findCollisions()) {
             callback(object)
         }

@@ -45,7 +45,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
     public static Events = {
         ONFINISHED: 'ONFINISHED',
         ONSTARTED: 'ONSTARTED',
-        MOVE: 'MOVE',
     }
 
     constructor(engine: Engine, parent: Type<any> | null, definition: AnimoDefinition) {
@@ -94,6 +93,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     tick(elapsedMS: number) {
         this.buttonLogic.tick()
+        this.collisions.tick()
 
         if (!this.isPlaying) {
             return
@@ -448,6 +448,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.positionY += yOffset
         this.sprite.x += xOffset
         this.sprite.y += yOffset
+
         this.onMove()
     }
 
@@ -459,6 +460,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.positionY = y
         this.sprite.x = x + this.positionOffsetX + this.anchorOffsetX
         this.sprite.y = y + this.positionOffsetY + this.anchorOffsetY
+
         this.onMove()
     }
 
@@ -649,7 +651,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.collisions.handle((object: Animo) => {
             this.callbacks.run('ONCOLLISION', object.name)
         })
-        this.events.trigger('MOVE', this.GETPOSITIONX(), this.GETPOSITIONY())
     }
 
     public getEventByName(name: string): Event | null {

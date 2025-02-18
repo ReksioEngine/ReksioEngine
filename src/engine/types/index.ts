@@ -83,7 +83,8 @@ export class Type<DefinitionType extends TypeDefinition> {
         const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : ''
         console.error(
             `Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.\nArguments: %O\nObject: %O`,
-            args, this
+            args,
+            this
         )
     }
 
