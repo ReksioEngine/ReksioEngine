@@ -293,13 +293,14 @@ export class Sequence extends Type<SequenceDefinition> {
             if (this.activeAnimo) {
                 let eventName = simple.EVENT
 
+                // Play first event if event name is incorrect
                 if (!this.activeAnimo.hasEvent(eventName)) {
-                    const defaultEvent = this.activeAnimo.getDefaultEvent()
-                    if (defaultEvent == null) {
+                    const allEvents = this.activeAnimo.getAllEvents()
+                    if (allEvents.length === 0) {
                         this.progressNext()
                         return
                     }
-                    eventName = defaultEvent
+                    eventName = allEvents[0].name
                 }
 
                 this.runningSubSequence = simple

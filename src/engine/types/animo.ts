@@ -72,7 +72,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.initSprite()
         }
 
-        this.currentEvent = this.getEventByName(this.getDefaultEvent() ?? '')
+        this.currentEvent = this.getEvent(this.getDefaultEvent() ?? '')
         if (this.currentEvent) {
             this.changeFrame(this.currentEvent, 0, false)
         }
@@ -339,6 +339,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
+        const event = this.getEvent(name)
+        assert(event !== null)
+        if (event.framesCount === 0) {
+            this.ONFINISHED()
+            return
+        }
+
         this.eventEndedLastTick = null
         this.isPlaying = true
 
@@ -346,7 +353,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.visible = true
 
         this.currentFrame = 0
-        this.currentEvent = this.getEventByName(name)
+        this.currentEvent = this.getEvent(name)
 
         // Animation could be paused before next tick, and it wouldn't render new frame
         this.forceRender()
@@ -403,7 +410,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const newEvent = eventNameOrFrameIdx.toString()
         const newEventFrame = Number(frameIdx)
 
-        const event = this.getEventByName(newEvent)
+        const event = this.getEvent(newEvent)
         assert(event !== null)
 
         // Necessary in S63_OBOZ
@@ -653,13 +660,18 @@ export class Animo extends DisplayType<AnimoDefinition> {
         })
     }
 
-    public getEventByName(name: string): Event | null {
+    public getEvent(name: string): Event | null {
         assert(this.annFile !== null)
         return this.annFile.events.find((event) => event.name.toUpperCase() === name.toUpperCase()) ?? null
     }
 
     public hasEvent(name: string): boolean {
-        return this.getEventByName(name) !== null
+        return this.getEvent(name) !== null
+    }
+
+    public getAllEvents(): Event[] {
+        assert(this.annFile !== null)
+        return this.annFile.events
     }
 
     getRenderObject() {
