@@ -53061,7 +53061,6 @@ exports.Application = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const utils_1 = __webpack_require__(/*! ../../common/utils */ "./src/common/utils.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
-const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const langCodeMapping = {
@@ -53115,7 +53114,9 @@ let Application = (() => {
                 }
             }
             EXIT() {
-                throw new errors_1.NotImplementedError();
+                if (this.engine.options.onExit) {
+                    this.engine.options.onExit();
+                }
             }
         },
         (() => {
@@ -63722,10 +63723,12 @@ const filesLoader_1 = __webpack_require__(/*! ./loaders/filesLoader */ "./src/lo
 const urlParams = new URLSearchParams(window.location.search);
 const gameContainer = document.getElementById('game');
 const debugContainer = document.getElementById('debug');
+const controls = document.getElementById('controls');
 const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
     debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : true,
     debugContainer: debugContainer,
+    onExit: () => document.exitFullscreen()
 };
 let config = {};
 const start = () => {
@@ -63734,7 +63737,6 @@ const start = () => {
     (0, index_1.createGamePlayer)(gameContainer, config);
 };
 if (urlParams.get('loader') === 'iso-local') {
-    const controls = document.getElementById('controls');
     const fileSelector = document.createElement('input');
     fileSelector.type = 'file';
     fileSelector.addEventListener('change', async (event) => {
@@ -63769,6 +63771,10 @@ else {
     gameContainer.classList.add('notready');
     gameContainer.addEventListener('click', start);
 }
+const enterFullscreen = document.querySelector('#enterFullscreen');
+enterFullscreen.addEventListener('click', () => {
+    gameContainer.requestFullscreen();
+});
 
 })();
 
