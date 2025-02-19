@@ -35,7 +35,7 @@ export class Engine {
 
     constructor(
         public readonly app: Application,
-        private options: GamePlayerOptions
+        public readonly options: GamePlayerOptions
     ) {
         this.rendering = new RenderingManager(app)
         this.scripting = new ScriptingManager(this)

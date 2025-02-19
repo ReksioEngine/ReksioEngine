@@ -67,6 +67,8 @@ export class Application extends Type<ApplicationDefinition> {
 
     @method()
     EXIT() {
-        throw new NotImplementedError()
+        if (this.engine.options.onExit) {
+            this.engine.options.onExit()
+        }
     }
 }

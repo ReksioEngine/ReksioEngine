@@ -14,16 +14,24 @@
                 justify-content: center;
                 color: #fff;
             }
+
             .notready:before {
                 content: 'Press here to start';
                 font-family: sans-serif;
                 font-size: 24px;
             }
+
+            #game:fullscreen {
+                display: flex;
+                justify-content: center;
+            }
         </style>
     </head>
     <body>
         <div id="game"></div>
+        <div id="controls">
+            <button id="enterFullscreen">Fullscreen</button>
+        </div>
         <div id="debug"></div>
-        <div id="controls"></div>
     </body>
 </html>

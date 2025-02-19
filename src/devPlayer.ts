@@ -2,24 +2,24 @@ import { createGamePlayer, GamePlayerOptions } from './index'
 import { ArchiveOrgFileLoader, GithubFileLoader, IsoFileLoader } from './loaders/filesLoader'
 
 const urlParams = new URLSearchParams(window.location.search)
-const gameContainer = document.getElementById('game')
+const gameContainer = document.getElementById('game')!
 const debugContainer = document.getElementById('debug')
+const controls = document.getElementById('controls')!
 const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
     debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : (process.env.debug as unknown as boolean),
     debugContainer: debugContainer,
+    onExit: () => document.exitFullscreen()
 }
 
 let config = {}
 const start = () => {
-    gameContainer!.removeEventListener('click', start)
-    gameContainer!.classList.remove('notready')
+    gameContainer.removeEventListener('click', start)
+    gameContainer.classList.remove('notready')
     createGamePlayer(gameContainer, config as GamePlayerOptions)
 }
 
 if (urlParams.get('loader') === 'iso-local') {
-    const controls = document.getElementById('controls')!
-
     const fileSelector = document.createElement('input')
     fileSelector.type = 'file'
     fileSelector.addEventListener('change', async (event: any) => {
@@ -29,8 +29,8 @@ if (urlParams.get('loader') === 'iso-local') {
             ...baseOptions,
             fileLoader: new IsoFileLoader(event.target.files[0]),
         }
-        gameContainer!.classList.add('notready')
-        gameContainer!.addEventListener('click', start)
+        gameContainer.classList.add('notready')
+        gameContainer.addEventListener('click', start)
     })
 
     controls.appendChild(fileSelector)
@@ -55,3 +55,8 @@ if (urlParams.get('loader') === 'iso-local') {
     gameContainer!.classList.add('notready')
     gameContainer!.addEventListener('click', start)
 }
+
+const enterFullscreen = document.querySelector('#enterFullscreen')!
+enterFullscreen.addEventListener('click', () => {
+    gameContainer!.requestFullscreen()
+})

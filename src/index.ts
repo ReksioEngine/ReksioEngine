@@ -7,6 +7,7 @@ export type GamePlayerOptions = {
     startScene?: string
     debug?: boolean
     debugContainer: HTMLElement | null
+    onExit?: () => void
 }
 
 export const createGamePlayer = (element: HTMLElement | null, options: GamePlayerOptions) => {
