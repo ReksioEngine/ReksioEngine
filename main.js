@@ -51706,7 +51706,6 @@ const definitionLoader_1 = __webpack_require__(/*! ../loaders/definitionLoader *
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const assetsLoader_1 = __webpack_require__(/*! ../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
-const optimizations_1 = __webpack_require__(/*! ./optimizations */ "./src/engine/optimizations.ts");
 const debugging_1 = __webpack_require__(/*! ./debugging */ "./src/engine/debugging.ts");
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 const devtools_1 = __webpack_require__(/*! @pixi/devtools */ "./node_modules/@pixi/devtools/dist/index.cjs");
@@ -51841,8 +51840,6 @@ class Engine {
                 this.music.muted = true;
             }
         }
-        // Wait for assets to load
-        await (0, optimizations_1.preloadAssets)(this.fileLoader, this.currentScene);
         this.app.ticker.start();
         this.debug.updateCurrentScene();
     }
@@ -51881,39 +51878,6 @@ class CancelTick extends errors_1.IgnorableError {
     }
 }
 exports.CancelTick = CancelTick;
-
-
-/***/ }),
-
-/***/ "./src/engine/optimizations.ts":
-/*!*************************************!*\
-  !*** ./src/engine/optimizations.ts ***!
-  \*************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.preloadAssets = void 0;
-const filesLoader_1 = __webpack_require__(/*! ../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
-const preloadAssets = async (fileLoader, scene) => {
-    if (!(fileLoader instanceof filesLoader_1.UrlFileLoader)) {
-        return;
-    }
-    const scenePath = scene.getRelativePath('').toLowerCase();
-    const listing = fileLoader.getFilesListing();
-    if (!listing) {
-        return;
-    }
-    await Promise.all(listing.map((filename) => {
-        if (!filename.startsWith(scenePath)) {
-            return;
-        }
-        console.debug(`Preloading '${filename}'`);
-        return fileLoader.getRawFile(filename);
-    }));
-};
-exports.preloadAssets = preloadAssets;
 
 
 /***/ }),
