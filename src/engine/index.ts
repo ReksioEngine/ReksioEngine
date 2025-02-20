@@ -7,7 +7,6 @@ import { FileLoader } from '../loaders/filesLoader'
 import { sound, Sound } from '@pixi/sound'
 import { loadSound, loadTexture } from '../loaders/assetsLoader'
 import { SaveFile, SaveFileManager } from './saveFile'
-import { preloadAssets } from './optimizations'
 import { Debugging } from './debugging'
 import { assert, IgnorableError, IrrecoverableError } from '../common/errors'
 import { initDevtools } from '@pixi/devtools'
@@ -192,9 +191,6 @@ export class Engine {
                 this.music.muted = true
             }
         }
-
-        // Wait for assets to load
-        await preloadAssets(this.fileLoader, this.currentScene)
 
         this.app.ticker.start()
         this.debug.updateCurrentScene()
