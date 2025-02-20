@@ -61837,7 +61837,7 @@ exports.createObject = createObject;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.IsoFileLoader = exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
+exports.ListingJSONUrlFileLoader = exports.IsoFileLoader = exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
 const cnv_1 = __webpack_require__(/*! ../fileFormats/cnv */ "./src/fileFormats/cnv/index.ts");
 const img_1 = __webpack_require__(/*! ../fileFormats/img */ "./src/fileFormats/img/index.ts");
 const ann_1 = __webpack_require__(/*! ../fileFormats/ann */ "./src/fileFormats/ann/index.ts");
@@ -61961,6 +61961,18 @@ class IsoFileLoader extends SimpleFileLoader {
     }
 }
 exports.IsoFileLoader = IsoFileLoader;
+class ListingJSONUrlFileLoader extends UrlFileLoader {
+    constructor(listingUrl) {
+        super();
+        this.listingUrl = listingUrl;
+    }
+    async fetchFilesListing() {
+        const response = await fetch(this.listingUrl);
+        const data = await response.json();
+        return new Map(Object.entries(data));
+    }
+}
+exports.ListingJSONUrlFileLoader = ListingJSONUrlFileLoader;
 
 
 /***/ }),
@@ -63728,7 +63740,7 @@ const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
     debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : true,
     debugContainer: debugContainer,
-    onExit: () => document.exitFullscreen()
+    onExit: () => document.exitFullscreen(),
 };
 let config = {};
 const start = () => {
@@ -63761,8 +63773,11 @@ else {
             else if (loader === 'archiveorg') {
                 return new filesLoader_1.ArchiveOrgFileLoader(source);
             }
+            else if (loader === 'listingjson') {
+                return new filesLoader_1.ListingJSONUrlFileLoader(source);
+            }
         }
-        return new filesLoader_1.GithubFileLoader('reksioiskarbpiratow');
+        return new filesLoader_1.ListingJSONUrlFileLoader('https://iso.zagrajwreksia.pl/game-assets/reksioiskarbpiratow/listing.json');
     };
     config = {
         ...baseOptions,
