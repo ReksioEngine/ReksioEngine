@@ -159,3 +159,15 @@ export class IsoFileLoader extends SimpleFileLoader {
         return fileResult
     }
 }
+
+export class ListingJSONUrlFileLoader extends UrlFileLoader {
+    constructor(private readonly listingUrl: string) {
+        super()
+    }
+
+    protected async fetchFilesListing() {
+        const response = await fetch(this.listingUrl)
+        const data = await response.json()
+        return new Map<string, string>(Object.entries(data))
+    }
+}

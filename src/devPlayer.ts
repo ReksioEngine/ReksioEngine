@@ -1,5 +1,5 @@
 import { createGamePlayer, GamePlayerOptions } from './index'
-import { ArchiveOrgFileLoader, GithubFileLoader, IsoFileLoader } from './loaders/filesLoader'
+import { ArchiveOrgFileLoader, ListingJSONUrlFileLoader, GithubFileLoader, IsoFileLoader } from './loaders/filesLoader'
 
 const urlParams = new URLSearchParams(window.location.search)
 const gameContainer = document.getElementById('game')!
@@ -9,7 +9,7 @@ const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
     debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : (process.env.debug as unknown as boolean),
     debugContainer: debugContainer,
-    onExit: () => document.exitFullscreen()
+    onExit: () => document.exitFullscreen(),
 }
 
 let config = {}
@@ -43,9 +43,11 @@ if (urlParams.get('loader') === 'iso-local') {
                 return new GithubFileLoader(source)
             } else if (loader === 'archiveorg') {
                 return new ArchiveOrgFileLoader(source)
+            } else if (loader === 'listingjson') {
+                return new ListingJSONUrlFileLoader(source)
             }
         }
-        return new GithubFileLoader('reksioiskarbpiratow')
+        return new ListingJSONUrlFileLoader('https://iso.zagrajwreksia.pl/game-assets/reksioiskarbpiratow/listing.json')
     }
 
     config = {
