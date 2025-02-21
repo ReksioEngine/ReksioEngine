@@ -418,6 +418,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.anchorOffsetX = this.positionOffsetX + this.sprite.width
             this.anchorOffsetY = this.positionOffsetY + this.sprite.height
         } else {
+            console.warn('Invalid anchor specifier - resetting anchor values.')
             this.anchorOffsetX = 0
             this.anchorOffsetY = 0
         }
