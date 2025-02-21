@@ -52338,6 +52338,7 @@ let Animo = (() => {
     let _STOP_decorators;
     let _PAUSE_decorators;
     let _RESUME_decorators;
+    let _SETANCHOR_decorators;
     let _SETFRAME_decorators;
     let _SETFPS_decorators;
     let _SHOW_decorators;
@@ -52573,9 +52574,9 @@ let Animo = (() => {
                 this.sprite.hitmap = this.getHitmap(imageIndex);
                 this.sprite.name = `${this.name} (${event.name}) (ANIMO)`; // For PIXI Devtools
                 this.positionOffsetX = annImage.positionX + eventFrame.positionX;
-                this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX;
+                this.sprite.x = this.positionX + this.positionOffsetX - this.anchorOffsetX;
                 this.positionOffsetY = annImage.positionY + eventFrame.positionY;
-                this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY;
+                this.sprite.y = this.positionY + this.positionOffsetY - this.anchorOffsetY;
                 this.sprite.width = annImage.width;
                 this.sprite.height = annImage.height;
                 if (this.buttonInteractArea !== null) {
@@ -52596,9 +52597,9 @@ let Animo = (() => {
                 this.sprite.texture = this.getTexture(imageIndex);
                 this.sprite.hitmap = this.getHitmap(imageIndex);
                 this.positionOffsetX = annImage.positionX;
-                this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX;
+                this.sprite.x = this.positionX + this.positionOffsetX - this.anchorOffsetX;
                 this.positionOffsetY = annImage.positionY;
-                this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY;
+                this.sprite.y = this.positionY + this.positionOffsetY - this.anchorOffsetY;
                 this.sprite.width = annImage.width;
                 this.sprite.height = annImage.height;
                 if (this.buttonInteractArea !== null) {
@@ -52662,6 +52663,36 @@ let Animo = (() => {
             RESUME() {
                 this.isPlaying = true;
             }
+            SETANCHOR(anchor) {
+                (0, errors_1.assert)(this.sprite !== null);
+                switch (anchor) {
+                    case 'CENTER':
+                        this.anchorOffsetX = this.positionOffsetX + Math.round(this.sprite.width / 2);
+                        this.anchorOffsetY = this.positionOffsetY + Math.round(this.sprite.height / 2);
+                        break;
+                    case 'LEFTUPPER':
+                        this.anchorOffsetX = this.positionOffsetX;
+                        this.anchorOffsetY = this.positionOffsetY;
+                        break;
+                    case 'LEFTLOWER':
+                        this.anchorOffsetX = this.positionOffsetX;
+                        this.anchorOffsetY = this.positionOffsetY + this.sprite.height;
+                        break;
+                    case 'RIGHTUPPER':
+                        this.anchorOffsetX = this.positionOffsetX + this.sprite.width;
+                        this.anchorOffsetY = this.positionOffsetY;
+                        break;
+                    case 'RIGHTLOWER':
+                        this.anchorOffsetX = this.positionOffsetX + this.sprite.width;
+                        this.anchorOffsetY = this.positionOffsetY + this.sprite.height;
+                        break;
+                    default:
+                        console.warn('Invalid anchor specifier - resetting anchor values.');
+                        this.anchorOffsetX = 0;
+                        this.anchorOffsetY = 0;
+                        break;
+                }
+            }
             SETFRAME(eventNameOrFrameIdx, frameIdx) {
                 if (frameIdx === undefined) {
                     const imageIndex = Number(eventNameOrFrameIdx);
@@ -52709,8 +52740,8 @@ let Animo = (() => {
                 (0, errors_1.assert)(this.sprite !== null);
                 this.positionX = x;
                 this.positionY = y;
-                this.sprite.x = x + this.positionOffsetX + this.anchorOffsetX;
-                this.sprite.y = y + this.positionOffsetY + this.anchorOffsetY;
+                this.sprite.x = x + this.positionOffsetX - this.anchorOffsetX;
+                this.sprite.y = y + this.positionOffsetY - this.anchorOffsetY;
                 this.onMove();
             }
             SETASBUTTON(enabled, showPointer) {
@@ -52909,6 +52940,7 @@ let Animo = (() => {
             _STOP_decorators = [(0, types_1.method)({ name: "shouldSignal", types: [{ name: "boolean", literal: null, isArray: false }, { name: "string", literal: null, isArray: false }], optional: true, rest: false })];
             _PAUSE_decorators = [(0, types_1.method)()];
             _RESUME_decorators = [(0, types_1.method)()];
+            _SETANCHOR_decorators = [(0, types_1.method)({ name: "anchor", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _SETFRAME_decorators = [(0, types_1.method)({ name: "eventNameOrFrameIdx", types: [{ name: "string", literal: null, isArray: false }, { name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "frameIdx", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _SETFPS_decorators = [(0, types_1.method)({ name: "fps", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SHOW_decorators = [(0, types_1.method)()];
@@ -52939,6 +52971,7 @@ let Animo = (() => {
             __esDecorate(_a, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _PAUSE_decorators, { kind: "method", name: "PAUSE", static: false, private: false, access: { has: obj => "PAUSE" in obj, get: obj => obj.PAUSE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _RESUME_decorators, { kind: "method", name: "RESUME", static: false, private: false, access: { has: obj => "RESUME" in obj, get: obj => obj.RESUME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETANCHOR_decorators, { kind: "method", name: "SETANCHOR", static: false, private: false, access: { has: obj => "SETANCHOR" in obj, get: obj => obj.SETANCHOR }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SETFRAME_decorators, { kind: "method", name: "SETFRAME", static: false, private: false, access: { has: obj => "SETFRAME" in obj, get: obj => obj.SETFRAME }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SETFPS_decorators, { kind: "method", name: "SETFPS", static: false, private: false, access: { has: obj => "SETFPS" in obj, get: obj => obj.SETFPS }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
