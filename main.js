@@ -52212,7 +52212,7 @@ class ScriptingManager {
     constructor(engine) {
         this.engine = engine;
     }
-    executeCallback(caller, callback, args, localScopeEntries) {
+    executeCallback(caller, callback, args, localScopeEntries, forwardInterrupts = false) {
         let stackFrame = null;
         try {
             const localScope = new scope_1.Scope('local', localScopeEntries);
@@ -52234,7 +52234,8 @@ class ScriptingManager {
                     .args(...(args !== undefined ? args : []))
                     .build();
                 stacktrace_1.stackTrace.push(stackFrame);
-                return this.engine.getObject(callback.behaviourReference).RUNC(...callback.constantArguments);
+                const behaviour = this.engine.getObject(callback.behaviourReference);
+                return behaviour.executeConditionalCallback(callback.constantArguments, forwardInterrupts);
             }
         }
         finally {
@@ -53405,21 +53406,12 @@ let Behaviour = (() => {
                 }
             }
             RUN(...args) {
-                try {
-                    // Don't resolve args, it will fail in S33_METEORY
-                    return this.engine.scripting.executeCallback(null, this.definition.CODE, args);
-                }
-                catch (err) {
-                    if (!(err instanceof script_1.InterruptScriptExecution)) {
-                        throw err;
-                    }
-                }
+                this.executeCallback(args, false);
             }
             RUNC(...args) {
-                if (!this.shouldRun()) {
-                    return;
+                if (this.shouldRun()) {
+                    this.executeCallback(args, false);
                 }
-                return this.RUN(...args);
             }
             RUNLOOPED(start, len, step = 1, ...args) {
                 const resolvedArgs = this.resolveArgs(args);
@@ -53450,6 +53442,22 @@ let Behaviour = (() => {
                     const result = this.engine.scripting.runScript(arg.toString(), [], true, false);
                     return result !== null && result !== undefined ? result : arg;
                 });
+            }
+            executeCallback(args, forwardInterrupts = false) {
+                try {
+                    // Don't resolve args, it will fail in S33_METEORY
+                    return this.engine.scripting.executeCallback(null, this.definition.CODE, args);
+                }
+                catch (err) {
+                    if (!(err instanceof script_1.InterruptScriptExecution) || forwardInterrupts) {
+                        throw err;
+                    }
+                }
+            }
+            executeConditionalCallback(args, forwardInterrupts = false) {
+                if (this.shouldRun()) {
+                    this.executeCallback(args, forwardInterrupts);
+                }
             }
             shouldRun() {
                 if (this.definition.CONDITION) {
@@ -61263,9 +61271,20 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                 });
                 for (let i = start; i < start + len; i += step) {
                     counter.value = i;
-                    this.engine.scripting.executeCallback(null, callback, [], {
-                        _I_: counter,
-                    });
+                    try {
+                        this.engine.scripting.executeCallback(null, callback, [], {
+                            _I_: counter,
+                        }, true);
+                    }
+                    catch (err) {
+                        if (err instanceof InterruptScriptExecution) {
+                            if (err.one) {
+                                continue;
+                            }
+                            break;
+                        }
+                        throw err;
+                    }
                 }
             }
             else if (this.printDebug) {
