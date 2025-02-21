@@ -279,10 +279,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.name = `${this.name} (${event.name}) (ANIMO)` // For PIXI Devtools
 
         this.positionOffsetX = annImage.positionX + eventFrame.positionX
-        this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX
+        this.sprite.x = this.positionX + this.positionOffsetX - this.anchorOffsetX
 
         this.positionOffsetY = annImage.positionY + eventFrame.positionY
-        this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY
+        this.sprite.y = this.positionY + this.positionOffsetY - this.anchorOffsetY
 
         this.sprite.width = annImage.width
         this.sprite.height = annImage.height
@@ -310,10 +310,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.hitmap = this.getHitmap(imageIndex)
 
         this.positionOffsetX = annImage.positionX
-        this.sprite.x = this.positionX + this.positionOffsetX + this.anchorOffsetX
+        this.sprite.x = this.positionX + this.positionOffsetX - this.anchorOffsetX
 
         this.positionOffsetY = annImage.positionY
-        this.sprite.y = this.positionY + this.positionOffsetY + this.anchorOffsetY
+        this.sprite.y = this.positionY + this.positionOffsetY - this.anchorOffsetY
 
         this.sprite.width = annImage.width
         this.sprite.height = annImage.height
@@ -399,6 +399,31 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
+    SETANCHOR(anchor: string) {
+        assert(this.sprite !== null)
+
+        if (anchor === 'CENTER') {
+            this.anchorOffsetX = this.positionOffsetX + Math.round(this.sprite.width / 2)
+            this.anchorOffsetY = this.positionOffsetY + Math.round(this.sprite.height / 2)
+        } else if (anchor === 'LEFTUPPER') {
+            this.anchorOffsetX = this.positionOffsetX
+            this.anchorOffsetY = this.positionOffsetY
+        } else if (anchor === 'LEFTLOWER') {
+            this.anchorOffsetX = this.positionOffsetX
+            this.anchorOffsetY = this.positionOffsetY + this.sprite.height
+        } else if (anchor === 'RIGHTUPPER') {
+            this.anchorOffsetX = this.positionOffsetX + this.sprite.width
+            this.anchorOffsetY = this.positionOffsetY
+        } else if (anchor === 'RIGHTLOWER') {
+            this.anchorOffsetX = this.positionOffsetX + this.sprite.width
+            this.anchorOffsetY = this.positionOffsetY + this.sprite.height
+        } else {
+            this.anchorOffsetX = 0
+            this.anchorOffsetY = 0
+        }
+    }
+
+    @method()
     SETFRAME(eventNameOrFrameIdx: string | number, frameIdx?: number) {
         if (frameIdx === undefined) {
             const imageIndex = Number(eventNameOrFrameIdx)
@@ -465,8 +490,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         this.positionX = x
         this.positionY = y
-        this.sprite.x = x + this.positionOffsetX + this.anchorOffsetX
-        this.sprite.y = y + this.positionOffsetY + this.anchorOffsetY
+        this.sprite.x = x + this.positionOffsetX - this.anchorOffsetX
+        this.sprite.y = y + this.positionOffsetY - this.anchorOffsetY
 
         this.onMove()
     }
