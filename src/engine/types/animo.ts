@@ -402,25 +402,32 @@ export class Animo extends DisplayType<AnimoDefinition> {
     SETANCHOR(anchor: string) {
         assert(this.sprite !== null)
 
-        if (anchor === 'CENTER') {
-            this.anchorOffsetX = this.positionOffsetX + Math.round(this.sprite.width / 2)
-            this.anchorOffsetY = this.positionOffsetY + Math.round(this.sprite.height / 2)
-        } else if (anchor === 'LEFTUPPER') {
-            this.anchorOffsetX = this.positionOffsetX
-            this.anchorOffsetY = this.positionOffsetY
-        } else if (anchor === 'LEFTLOWER') {
-            this.anchorOffsetX = this.positionOffsetX
-            this.anchorOffsetY = this.positionOffsetY + this.sprite.height
-        } else if (anchor === 'RIGHTUPPER') {
-            this.anchorOffsetX = this.positionOffsetX + this.sprite.width
-            this.anchorOffsetY = this.positionOffsetY
-        } else if (anchor === 'RIGHTLOWER') {
-            this.anchorOffsetX = this.positionOffsetX + this.sprite.width
-            this.anchorOffsetY = this.positionOffsetY + this.sprite.height
-        } else {
-            console.warn('Invalid anchor specifier - resetting anchor values.')
-            this.anchorOffsetX = 0
-            this.anchorOffsetY = 0
+        switch (anchor) {
+            case 'CENTER':
+                this.anchorOffsetX = this.positionOffsetX + Math.round(this.sprite.width / 2)
+                this.anchorOffsetY = this.positionOffsetY + Math.round(this.sprite.height / 2)
+                break
+            case 'LEFTUPPER':
+                this.anchorOffsetX = this.positionOffsetX
+                this.anchorOffsetY = this.positionOffsetY
+                break
+            case 'LEFTLOWER':
+                this.anchorOffsetX = this.positionOffsetX
+                this.anchorOffsetY = this.positionOffsetY + this.sprite.height
+                break
+            case 'RIGHTUPPER':
+                this.anchorOffsetX = this.positionOffsetX + this.sprite.width
+                this.anchorOffsetY = this.positionOffsetY
+                break
+            case 'RIGHTLOWER':
+                this.anchorOffsetX = this.positionOffsetX + this.sprite.width
+                this.anchorOffsetY = this.positionOffsetY + this.sprite.height
+                break
+            default:
+                console.warn('Invalid anchor specifier - resetting anchor values.')
+                this.anchorOffsetX = 0
+                this.anchorOffsetY = 0
+                break
         }
     }
 
