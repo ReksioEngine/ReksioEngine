@@ -52235,7 +52235,12 @@ class ScriptingManager {
                     .build();
                 stacktrace_1.stackTrace.push(stackFrame);
                 const behaviour = this.engine.getObject(callback.behaviourReference);
-                return behaviour.executeConditionalCallback(callback.constantArguments, forwardInterrupts);
+                if (forwardInterrupts) {
+                    return behaviour.executeConditionalCallback(callback.constantArguments);
+                }
+                else {
+                    return behaviour.RUNC(...callback.constantArguments);
+                }
             }
         }
         finally {
@@ -53406,11 +53411,18 @@ let Behaviour = (() => {
                 }
             }
             RUN(...args) {
-                this.executeCallback(args, false);
+                try {
+                    this.executeCallback(args);
+                }
+                catch (err) {
+                    if (!(err instanceof script_1.InterruptScriptExecution)) {
+                        throw err;
+                    }
+                }
             }
             RUNC(...args) {
                 if (this.shouldRun()) {
-                    this.executeCallback(args, false);
+                    this.RUN(...args);
                 }
             }
             RUNLOOPED(start, len, step = 1, ...args) {
@@ -53443,20 +53455,13 @@ let Behaviour = (() => {
                     return result !== null && result !== undefined ? result : arg;
                 });
             }
-            executeCallback(args, forwardInterrupts = false) {
-                try {
-                    // Don't resolve args, it will fail in S33_METEORY
-                    return this.engine.scripting.executeCallback(null, this.definition.CODE, args);
-                }
-                catch (err) {
-                    if (!(err instanceof script_1.InterruptScriptExecution) || forwardInterrupts) {
-                        throw err;
-                    }
-                }
+            executeCallback(args = []) {
+                // Don't resolve args, it will fail in S33_METEORY
+                return this.engine.scripting.executeCallback(null, this.definition.CODE, args);
             }
-            executeConditionalCallback(args, forwardInterrupts = false) {
+            executeConditionalCallback(args = []) {
                 if (this.shouldRun()) {
-                    this.executeCallback(args, forwardInterrupts);
+                    this.executeCallback(args);
                 }
             }
             shouldRun() {
@@ -61240,10 +61245,10 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                     const onTrue = this.engine.getObject(ifTrue);
                     const onFalse = this.engine.getObject(ifFalse);
                     if (result && onTrue !== null) {
-                        onTrue.RUNC();
+                        onTrue.executeConditionalCallback();
                     }
                     else if (!result && onFalse !== null) {
-                        onFalse.RUNC();
+                        onFalse.executeConditionalCallback();
                     }
                 }
                 else if (args.length == 3) {
@@ -61252,10 +61257,10 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                     const onTrue = this.engine.getObject(ifTrue);
                     const onFalse = this.engine.getObject(ifFalse);
                     if (result && onTrue !== null) {
-                        onTrue.RUNC();
+                        onTrue.executeConditionalCallback();
                     }
                     else if (!result && onFalse !== null) {
-                        onFalse.RUNC();
+                        onFalse.executeConditionalCallback();
                     }
                 }
             }
