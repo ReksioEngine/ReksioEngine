@@ -61212,8 +61212,12 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
             if (methodName === 'IF') {
                 if (args.length == 5) {
                     const [a, operator, b, ifTrue, ifFalse] = args;
-                    const left = this.engine.getObject((0, types_1.valueAsString)(a))?.value ?? a;
-                    const right = this.engine.getObject((0, types_1.valueAsString)(b))?.value ?? b;
+                    const left = a.toString().startsWith('"')
+                        ? a.toString().replace(/^"|"$/g, '')
+                        : (this.engine.getObject((0, types_1.valueAsString)(a))?.value ?? a);
+                    const right = b.toString().startsWith('"')
+                        ? b.toString().replace(/^"|"$/g, '')
+                        : (this.engine.getObject((0, types_1.valueAsString)(b))?.value ?? b);
                     let result = false;
                     if (operator == '_') {
                         result = types_1.Compare.Equal(left, right);
