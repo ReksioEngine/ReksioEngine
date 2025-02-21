@@ -16,7 +16,8 @@ export class ScriptingManager {
         caller: Type<any> | null,
         callback: callback,
         args?: any[],
-        localScopeEntries?: Record<string, any>
+        localScopeEntries?: Record<string, any>,
+        forwardInterrupts: boolean = false
     ) {
         let stackFrame = null
         try {
@@ -47,9 +48,10 @@ export class ScriptingManager {
                     .behaviour(callback.behaviourReference)
                     .args(...(args !== undefined ? args : []))
                     .build()
-
                 stackTrace.push(stackFrame)
-                return this.engine.getObject(callback.behaviourReference).RUNC(...callback.constantArguments)
+
+                const behaviour = this.engine.getObject(callback.behaviourReference)
+                return behaviour.executeConditionalCallback(callback.constantArguments, forwardInterrupts)
             }
         } finally {
             this.engine.scopeManager.popScope()

@@ -358,9 +358,25 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             })
             for (let i = start; i < start + len; i += step) {
                 counter.value = i
-                this.engine.scripting.executeCallback(null, callback, [], {
-                    _I_: counter,
-                })
+                try {
+                    this.engine.scripting.executeCallback(
+                        null,
+                        callback,
+                        [],
+                        {
+                            _I_: counter,
+                        },
+                        true
+                    )
+                } catch (err) {
+                    if (err instanceof InterruptScriptExecution) {
+                        if (err.one) {
+                            continue
+                        }
+                        break
+                    }
+                    throw err
+                }
             }
         } else if (this.printDebug) {
             const code = this.markInCode(ctx)

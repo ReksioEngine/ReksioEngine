@@ -13,23 +13,14 @@ export class Behaviour extends Type<BehaviourDefinition> {
 
     @method()
     RUN(...args: any[]) {
-        try {
-            // Don't resolve args, it will fail in S33_METEORY
-            return this.engine.scripting.executeCallback(null, this.definition.CODE, args)
-        } catch (err) {
-            if (!(err instanceof InterruptScriptExecution)) {
-                throw err
-            }
-        }
+        this.executeCallback(args, false)
     }
 
     @method()
     RUNC(...args: any[]) {
-        if (!this.shouldRun()) {
-            return
+        if (this.shouldRun()) {
+            this.executeCallback(args, false)
         }
-
-        return this.RUN(...args)
     }
 
     @method()
@@ -65,7 +56,24 @@ export class Behaviour extends Type<BehaviourDefinition> {
         })
     }
 
-    private shouldRun() {
+    executeCallback(args: any[], forwardInterrupts = false) {
+        try {
+            // Don't resolve args, it will fail in S33_METEORY
+            return this.engine.scripting.executeCallback(null, this.definition.CODE, args)
+        } catch (err) {
+            if (!(err instanceof InterruptScriptExecution) || forwardInterrupts) {
+                throw err
+            }
+        }
+    }
+
+    executeConditionalCallback(args: any[], forwardInterrupts = false) {
+        if (this.shouldRun()) {
+            this.executeCallback(args, forwardInterrupts)
+        }
+    }
+
+    shouldRun() {
         if (this.definition.CONDITION) {
             const condition: Condition = this.engine.getObject(this.definition.CONDITION.objectName)
             return condition.CHECK(true)
