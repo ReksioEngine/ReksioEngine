@@ -13,13 +13,19 @@ export class Behaviour extends Type<BehaviourDefinition> {
 
     @method()
     RUN(...args: any[]) {
-        this.executeCallback(args, false)
+        try {
+            this.executeCallback(args)
+        } catch (err) {
+            if (!(err instanceof InterruptScriptExecution)) {
+                throw err
+            }
+        }
     }
 
     @method()
     RUNC(...args: any[]) {
         if (this.shouldRun()) {
-            this.executeCallback(args, false)
+            this.RUN(...args)
         }
     }
 
@@ -56,20 +62,14 @@ export class Behaviour extends Type<BehaviourDefinition> {
         })
     }
 
-    executeCallback(args: any[], forwardInterrupts = false) {
-        try {
-            // Don't resolve args, it will fail in S33_METEORY
-            return this.engine.scripting.executeCallback(null, this.definition.CODE, args)
-        } catch (err) {
-            if (!(err instanceof InterruptScriptExecution) || forwardInterrupts) {
-                throw err
-            }
-        }
+    executeCallback(args: any[] = []) {
+        // Don't resolve args, it will fail in S33_METEORY
+        return this.engine.scripting.executeCallback(null, this.definition.CODE, args)
     }
 
-    executeConditionalCallback(args: any[], forwardInterrupts = false) {
+    executeConditionalCallback(args: any[] = []) {
         if (this.shouldRun()) {
-            this.executeCallback(args, forwardInterrupts)
+            this.executeCallback(args)
         }
     }
 

@@ -51,7 +51,11 @@ export class ScriptingManager {
                 stackTrace.push(stackFrame)
 
                 const behaviour = this.engine.getObject(callback.behaviourReference)
-                return behaviour.executeConditionalCallback(callback.constantArguments, forwardInterrupts)
+                if (forwardInterrupts) {
+                    return behaviour.executeConditionalCallback(callback.constantArguments)
+                } else {
+                    return behaviour.RUNC(...callback.constantArguments)
+                }
             }
         } finally {
             this.engine.scopeManager.popScope()

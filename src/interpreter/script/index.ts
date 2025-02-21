@@ -329,9 +329,9 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
                 const onFalse: Behaviour | null = this.engine.getObject(ifFalse)
 
                 if (result && onTrue !== null) {
-                    onTrue.RUNC()
+                    onTrue.executeConditionalCallback()
                 } else if (!result && onFalse !== null) {
-                    onFalse.RUNC()
+                    onFalse.executeConditionalCallback()
                 }
             } else if (args.length == 3) {
                 const [expression, ifTrue, ifFalse] = args
@@ -340,9 +340,9 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
                 const onFalse: Behaviour | null = this.engine.getObject(ifFalse)
 
                 if (result && onTrue !== null) {
-                    onTrue.RUNC()
+                    onTrue.executeConditionalCallback()
                 } else if (!result && onFalse !== null) {
-                    onFalse.RUNC()
+                    onFalse.executeConditionalCallback()
                 }
             }
         } else if (methodName === 'BREAK') {
