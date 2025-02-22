@@ -51835,7 +51835,8 @@ class Engine {
             this.music = await (0, assetsLoader_1.loadSound)(this.fileLoader, this.currentScene.definition.MUSIC, {
                 loop: true,
             });
-            this.music.play();
+            const instance = this.music.play();
+            (0, errors_1.assert)(!(instance instanceof Promise), 'Sound should already be preloaded');
             if (this.debug.mutedMusic) {
                 this.music.muted = true;
             }
@@ -52551,7 +52552,8 @@ let Animo = (() => {
                     if (this.sounds.has(randomFilename)) {
                         console.debug(`Playing sound '${randomFilename}'`);
                         const sound = this.sounds.get(randomFilename);
-                        sound.play();
+                        const instance = sound.play();
+                        (0, errors_1.assert)(!(instance instanceof Promise), 'Sound should already be preloaded');
                     }
                 }
                 if (event.loopAfterFrame != 0 && this.currentFrame >= event.loopAfterFrame) {
@@ -56136,10 +56138,8 @@ let Sequence = (() => {
                     }
                 }
                 const sounds = await Promise.all(soundsNames.map(async (name) => {
-                    const sound = await (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/${name}`, { preload: true });
-                    return new Promise((resolve) => {
-                        return sound.media.load(() => resolve(sound));
-                    });
+                    console.debug(`Preloading sound ${name}...`);
+                    return (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/${name}`);
                 }));
                 for (let i = 0; i < sounds.length; i++) {
                     this.sounds.set(soundsNames[i], sounds[i]);
@@ -56267,6 +56267,7 @@ let Sequence = (() => {
                         console.debug(`Playing sound '${speaking.WAVFN}'`);
                         const sound = this.sounds.get(speaking.WAVFN);
                         const instance = sound.play();
+                        (0, errors_1.assert)(!(instance instanceof Promise), 'Sound should already be preloaded');
                         instance.on('end', async () => {
                             this.endedSpeakingSoundsQueue.push(speaking);
                         });
@@ -56447,9 +56448,10 @@ let Sound = (() => {
                 }
             }
             // This argument is "PLAY" for kurator in intro for some reason
-            async PLAY(arg) {
+            PLAY(arg) {
                 (0, errors_1.assert)(this.sound !== null);
-                const instance = await this.sound.play();
+                const instance = this.sound.play();
+                (0, errors_1.assert)(!(instance instanceof Promise), 'Sound should already be preloaded');
                 this.onStart();
                 instance.on('end', this.onEnd.bind(this));
             }
@@ -61627,9 +61629,21 @@ const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sou
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 const rendering_1 = __webpack_require__(/*! ../engine/rendering */ "./src/engine/rendering.ts");
 const loadSound = async (fileLoader, filename, options) => {
-    return sound_1.Sound.from({
-        source: await fileLoader.getRawFile(filename),
-        ...options,
+    const buffer = await fileLoader.getRawFile(filename);
+    return new Promise((resolve, reject) => {
+        sound_1.Sound.from({
+            source: buffer,
+            preload: true,
+            loaded: (err, sound) => {
+                if (err || !sound) {
+                    reject(err);
+                }
+                else {
+                    resolve(sound);
+                }
+            },
+            ...options,
+        });
     });
 };
 exports.loadSound = loadSound;
