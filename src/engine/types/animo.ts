@@ -356,7 +356,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.currentEvent = this.getEvent(name)
 
         // Animation could be paused before next tick, and it wouldn't render new frame
-        this.forceRender()
+        // Tick animation so that it's not signaling twice for 0 frame
+        // + it has to call ONSTARTED instantly
+        this.tickAnimation()
     }
 
     private forceRender() {
