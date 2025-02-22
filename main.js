@@ -51755,8 +51755,8 @@ class Engine {
             if (episode === null) {
                 throw new errors_1.IrrecoverableError("Starting episode doesn't exist");
             }
-            await this.changeScene(this.options.startScene ?? episode.definition.STARTWITH);
             this.debug.fillSceneSelector();
+            await this.changeScene(this.options.startScene ?? episode.definition.STARTWITH);
             this.app.ticker.start();
         }
         catch (err) {
