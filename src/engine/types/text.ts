@@ -12,13 +12,17 @@ export class Text extends DisplayType<TextDefinition> {
         this.text = new PIXI.Text('', { fontFamily: 'Arial' })
     }
 
-    ready() {
+    init() {
         const [x, y, width, height] = this.definition.RECT
 
         this.text.x = x
         this.text.y = y
         this.text.visible = this.engine.debug.enabled
         this.engine.rendering.addToStage(this.text)
+    }
+
+    ready() {
+        this.callbacks.run('ONINIT')
     }
 
     destroy() {

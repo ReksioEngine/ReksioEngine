@@ -452,6 +452,7 @@ export type TextDefinition = TypeDefinition & {
     MONITORCOLLISIONALPHA: boolean
     MONITORCOLLISION: boolean
     FONT: string
+    ONINIT?: callback
 }
 
 const TextDefinitionStructure = {
@@ -463,6 +464,7 @@ const TextDefinitionStructure = {
     MONITORCOLLISIONALPHA: boolean,
     MONITORCOLLISION: boolean,
     FONT: string,
+    ONINIT: optional(callback),
 }
 
 export type TimerDefinition = TypeDefinition & {
