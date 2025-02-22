@@ -209,7 +209,7 @@ export class Engine {
         assert(sceneScope != null)
 
         sound.resumeAll()
-        for (const object of Object.values(sceneScope)) {
+        for (const object of sceneScope.objects) {
             object.resume()
         }
         this.app.ticker.start()
@@ -221,7 +221,7 @@ export class Engine {
 
         this.app.ticker.stop()
         sound.pauseAll()
-        for (const object of Object.values(sceneScope)) {
+        for (const object of sceneScope.objects) {
             object.pause()
         }
     }

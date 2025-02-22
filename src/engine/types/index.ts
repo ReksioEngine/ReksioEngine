@@ -71,8 +71,8 @@ export class Type<DefinitionType extends TypeDefinition> {
     ready() {}
     destroy() {}
     tick(elapsedMS: number) {}
-    onPause() {}
-    onResume() {}
+    pause() {}
+    resume() {}
 
     __getXRayInfo(): XRayInfo | null {
         return null
