@@ -26,9 +26,8 @@ export class Sound extends Type<SoundDefinition> {
     }
 
     destroy() {
-        // assert(this.sound !== null) // Why does it even happen?
         if (this.sound !== null) {
-            this.sound.stop()
+            this.sound.destroy()
         }
     }
 

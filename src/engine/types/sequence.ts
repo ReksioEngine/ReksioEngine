@@ -67,7 +67,7 @@ export class Sequence extends Type<SequenceDefinition> {
     }
 
     destroy() {
-        this.playingSound?.stop()
+        this.playingSound?.destroy()
     }
 
     private async load() {

@@ -89,6 +89,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
         if (this.buttonInteractArea !== null) {
             this.engine.rendering.removeFromStage(this.buttonInteractArea)
         }
+        for (const sound of this.sounds.values()) {
+            sound.destroy()
+        }
     }
 
     tick(elapsedMS: number) {

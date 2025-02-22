@@ -1,7 +1,7 @@
 import { reference } from '../fileFormats/common'
 import { ScriptingManager } from './scripting'
 import { loadDefinition } from '../loaders/definitionLoader'
-import { Application } from 'pixi.js'
+import { Application, Rectangle, Sprite } from 'pixi.js'
 import { Scene } from './types/scene'
 import { FileLoader } from '../loaders/filesLoader'
 import { sound, Sound } from '@pixi/sound'
@@ -147,14 +147,22 @@ export class Engine {
 
         this.rendering.onSceneChange()
 
-        // Remove non-global objects from scope
-        // but keep for later destroying
-        // to prevent screen flickering
-        const objectsToRemove = []
+        const loadingFreezeOverlay = Sprite.from(
+            await this.app.renderer.extract.image(
+                this.app.stage,
+                undefined,
+                undefined,
+                new Rectangle(0, 0, this.app.view.width, this.app.view.height)
+            )
+        )
+        loadingFreezeOverlay.zIndex = 9999999
+        this.app.stage.addChild(loadingFreezeOverlay)
+        this.app.renderer.render(this.app.stage)
+
         const scopeToClear: Scope | null = this.currentScene !== null ? (this.scopeManager.popScope() ?? null) : null
         if (scopeToClear) {
             for (const object of scopeToClear.objects) {
-                objectsToRemove.push(object)
+                object.destroy()
                 this.scopeManager.getScope('scene')?.remove(object.name)
             }
         }
@@ -177,10 +185,6 @@ export class Engine {
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'))
         await loadDefinition(this, this.scopeManager.newScope('scene'), sceneDefinition, this.currentScene)
 
-        for (const object of objectsToRemove) {
-            object.destroy()
-        }
-
         // Play new scene background music
         if (this.currentScene.definition.MUSIC) {
             this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
@@ -193,6 +197,7 @@ export class Engine {
             }
         }
 
+        this.app.stage.removeChild(loadingFreezeOverlay)
         this.app.ticker.start()
         this.debug.updateCurrentScene()
     }
