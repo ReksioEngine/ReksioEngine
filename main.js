@@ -51703,6 +51703,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CancelTick = exports.Engine = void 0;
 const scripting_1 = __webpack_require__(/*! ./scripting */ "./src/engine/scripting.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
+const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const assetsLoader_1 = __webpack_require__(/*! ../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
@@ -51805,14 +51806,14 @@ class Engine {
             this.music.stop();
         }
         this.rendering.onSceneChange();
-        // Remove non-global objects from scope
-        // but keep for later destroying
-        // to prevent screen flickering
-        const objectsToRemove = [];
+        const loadingFreezeOverlay = pixi_js_1.Sprite.from(await this.app.renderer.extract.image(this.app.stage, undefined, undefined, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height)));
+        loadingFreezeOverlay.zIndex = 9999999;
+        this.app.stage.addChild(loadingFreezeOverlay);
+        this.app.renderer.render(this.app.stage);
         const scopeToClear = this.currentScene !== null ? (this.scopeManager.popScope() ?? null) : null;
         if (scopeToClear) {
             for (const object of scopeToClear.objects) {
-                objectsToRemove.push(object);
+                object.destroy();
                 this.scopeManager.getScope('scene')?.remove(object.name);
             }
         }
@@ -51827,9 +51828,6 @@ class Engine {
         }
         const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
         await (0, definitionLoader_1.loadDefinition)(this, this.scopeManager.newScope('scene'), sceneDefinition, this.currentScene);
-        for (const object of objectsToRemove) {
-            object.destroy();
-        }
         // Play new scene background music
         if (this.currentScene.definition.MUSIC) {
             this.music = await (0, assetsLoader_1.loadSound)(this.fileLoader, this.currentScene.definition.MUSIC, {
@@ -51841,6 +51839,7 @@ class Engine {
                 this.music.muted = true;
             }
         }
+        this.app.stage.removeChild(loadingFreezeOverlay);
         this.app.ticker.start();
         this.debug.updateCurrentScene();
     }
@@ -52427,6 +52426,9 @@ let Animo = (() => {
                 }
                 if (this.buttonInteractArea !== null) {
                     this.engine.rendering.removeFromStage(this.buttonInteractArea);
+                }
+                for (const sound of this.sounds.values()) {
+                    sound.destroy();
                 }
             }
             tick(elapsedMS) {
@@ -56103,7 +56105,7 @@ let Sequence = (() => {
                 this.callbacks.run('ONINIT');
             }
             destroy() {
-                this.playingSound?.stop();
+                this.playingSound?.destroy();
             }
             async load() {
                 (0, errors_1.assert)(this.sequenceFile !== null);
@@ -56443,9 +56445,8 @@ let Sound = (() => {
                 }
             }
             destroy() {
-                // assert(this.sound !== null) // Why does it even happen?
                 if (this.sound !== null) {
-                    this.sound.stop();
+                    this.sound.destroy();
                 }
             }
             // This argument is "PLAY" for kurator in intro for some reason
