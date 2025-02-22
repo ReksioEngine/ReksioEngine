@@ -91,7 +91,8 @@ export class SaveFileManager {
     }
 
     static areSavesEnabled() {
-        return localStorage.getItem('savesEnabled') == 'true'
+        const savesEnabled: string | null = localStorage.getItem('savesEnabled')
+        return savesEnabled == 'true' || savesEnabled === null
     }
 
     private static syncWithLocalStorageHandler(object: any) {
