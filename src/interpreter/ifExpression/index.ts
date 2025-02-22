@@ -39,8 +39,8 @@ export class ExpressionEvaluator extends ReksioIFExpressionVisitor<any> {
     }
 
     visitExpr = (ctx: ExprContext): any => {
-        const left = this.visit(ctx._left)
-        const right = this.visit(ctx._right)
+        const left = this.visit(ctx._left)[0]
+        const right = this.visit(ctx._right)[0]
 
         if (ctx._operator.type == ReksioIFExpressionParser.EQUAL) {
             return left == right
