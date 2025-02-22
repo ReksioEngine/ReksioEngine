@@ -51855,7 +51855,7 @@ class Engine {
         const sceneScope = this.scopeManager.getScope('scene');
         (0, errors_1.assert)(sceneScope != null);
         sound_1.sound.resumeAll();
-        for (const object of Object.values(sceneScope)) {
+        for (const object of sceneScope.objects) {
             object.resume();
         }
         this.app.ticker.start();
@@ -51865,7 +51865,7 @@ class Engine {
         (0, errors_1.assert)(sceneScope != null);
         this.app.ticker.stop();
         sound_1.sound.pauseAll();
-        for (const object of Object.values(sceneScope)) {
+        for (const object of sceneScope.objects) {
             object.pause();
         }
     }
@@ -55063,8 +55063,8 @@ let Type = (() => {
             ready() { }
             destroy() { }
             tick(elapsedMS) { }
-            onPause() { }
-            onResume() { }
+            pause() { }
+            resume() { }
             __getXRayInfo() {
                 return null;
             }
@@ -56991,10 +56991,10 @@ let Timer = (() => {
             destroy() {
                 this.DISABLE();
             }
-            onPause() {
+            pause() {
                 this.DISABLE();
             }
-            onResume() {
+            resume() {
                 this.ENABLE();
             }
             tick(elapsedMS) {
