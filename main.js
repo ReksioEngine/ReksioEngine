@@ -52097,7 +52097,8 @@ class SaveFileManager {
         return ini_1.default.stringify(saveFile.toObject());
     }
     static areSavesEnabled() {
-        return localStorage.getItem('savesEnabled') == 'true';
+        const savesEnabled = localStorage.getItem('savesEnabled');
+        return savesEnabled == 'true' || savesEnabled === null;
     }
     static syncWithLocalStorageHandler(object) {
         if (object == null) {
