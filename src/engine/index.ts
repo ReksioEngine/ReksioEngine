@@ -79,9 +79,9 @@ export class Engine {
                 throw new IrrecoverableError("Starting episode doesn't exist")
             }
 
+            this.debug.fillSceneSelector()
             await this.changeScene(this.options.startScene ?? episode.definition.STARTWITH)
 
-            this.debug.fillSceneSelector()
             this.app.ticker.start()
         } catch (err) {
             console.error(
