@@ -34,10 +34,11 @@ export class Sound extends Type<SoundDefinition> {
 
     // This argument is "PLAY" for kurator in intro for some reason
     @method()
-    async PLAY(arg?: any) {
+    PLAY(arg?: any) {
         assert(this.sound !== null)
 
-        const instance = await this.sound.play()
+        const instance = this.sound.play()
+        assert(!(instance instanceof Promise), 'Sound should already be preloaded')
         this.onStart()
         instance.on('end', this.onEnd.bind(this))
     }

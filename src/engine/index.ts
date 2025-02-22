@@ -186,7 +186,8 @@ export class Engine {
             this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
                 loop: true,
             })
-            this.music.play()
+            const instance = this.music.play()
+            assert(!(instance instanceof Promise), 'Sound should already be preloaded')
             if (this.debug.mutedMusic) {
                 this.music.muted = true
             }

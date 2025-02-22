@@ -108,10 +108,8 @@ export class Sequence extends Type<SequenceDefinition> {
 
         const sounds = await Promise.all(
             soundsNames.map(async (name: string): Promise<Sound> => {
-                const sound = await loadSound(this.engine.fileLoader, `Wavs/${name}`, { preload: true })
-                return new Promise((resolve) => {
-                    return sound.media.load(() => resolve(sound))
-                })
+                console.debug(`Preloading sound ${name}...`)
+                return loadSound(this.engine.fileLoader, `Wavs/${name}`)
             })
         )
         for (let i = 0; i < sounds.length; i++) {
@@ -258,7 +256,8 @@ export class Sequence extends Type<SequenceDefinition> {
 
                 console.debug(`Playing sound '${speaking.WAVFN}'`)
                 const sound = this.sounds.get(speaking.WAVFN)!
-                const instance = sound.play() as IMediaInstance
+                const instance = sound.play()
+                assert(!(instance instanceof Promise), 'Sound should already be preloaded')
                 instance.on('end', async () => {
                     this.endedSpeakingSoundsQueue.push(speaking)
                 })

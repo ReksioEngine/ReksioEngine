@@ -3,10 +3,21 @@ import { FileLoader } from './filesLoader'
 import * as PIXI from 'pixi.js'
 import { AdvancedSprite, createHitmapFromImageBytes } from '../engine/rendering'
 
-export const loadSound = async (fileLoader: FileLoader, filename: string, options?: Options) => {
-    return Sound.from({
-        source: await fileLoader.getRawFile(filename),
-        ...options,
+export const loadSound = async (fileLoader: FileLoader, filename: string, options?: Options): Promise<Sound> => {
+    const buffer = await fileLoader.getRawFile(filename)
+    return new Promise((resolve, reject) => {
+        Sound.from({
+            source: buffer,
+            preload: true,
+            loaded: (err, sound) => {
+                if (err || !sound) {
+                    reject(err)
+                } else {
+                    resolve(sound)
+                }
+            },
+            ...options,
+        })
     })
 }
 
