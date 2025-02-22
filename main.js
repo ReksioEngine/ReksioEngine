@@ -56886,12 +56886,15 @@ let Text = (() => {
                 this.text = (__runInitializers(this, _instanceExtraInitializers), void 0);
                 this.text = new PIXI.Text('', { fontFamily: 'Arial' });
             }
-            ready() {
+            init() {
                 const [x, y, width, height] = this.definition.RECT;
                 this.text.x = x;
                 this.text.y = y;
                 this.text.visible = this.engine.debug.enabled;
                 this.engine.rendering.addToStage(this.text);
+            }
+            ready() {
+                this.callbacks.run('ONINIT');
             }
             destroy() {
                 this.engine.rendering.removeFromStage(this.text);
@@ -57714,6 +57717,7 @@ const TextDefinitionStructure = {
     MONITORCOLLISIONALPHA: common_1.boolean,
     MONITORCOLLISION: common_1.boolean,
     FONT: common_1.string,
+    ONINIT: (0, common_1.optional)(common_1.callback),
 };
 const TimerStructure = {
     ENABLED: (0, common_1.optional)(common_1.boolean),
