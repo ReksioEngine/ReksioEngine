@@ -52428,7 +52428,9 @@ let Animo = (() => {
                     this.engine.rendering.removeFromStage(this.buttonInteractArea);
                 }
                 for (const sound of this.sounds.values()) {
-                    sound.destroy();
+                    if (sound.instances != null) {
+                        sound.destroy();
+                    }
                 }
             }
             tick(elapsedMS) {
@@ -56445,7 +56447,7 @@ let Sound = (() => {
                 }
             }
             destroy() {
-                if (this.sound !== null) {
+                if (this.sound !== null && this.sound.instances != null) {
                     this.sound.destroy();
                 }
             }
