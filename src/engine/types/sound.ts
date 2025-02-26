@@ -26,7 +26,7 @@ export class Sound extends Type<SoundDefinition> {
     }
 
     destroy() {
-        if (this.sound !== null) {
+        if (this.sound !== null && this.sound.instances != null) {
             this.sound.destroy()
         }
     }
