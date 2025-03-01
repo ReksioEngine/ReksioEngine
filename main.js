@@ -51396,7 +51396,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Debugging = void 0;
-const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/animo.ts");
 const parser_1 = __webpack_require__(/*! ../fileFormats/cnv/parser */ "./src/fileFormats/cnv/parser.ts");
@@ -51406,6 +51405,7 @@ const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
 const debugging_html_1 = __importDefault(__webpack_require__(/*! ./debugging.html */ "./src/engine/debugging.html"));
+const sounds_1 = __webpack_require__(/*! ./sounds */ "./src/engine/sounds.ts");
 class Debugging {
     constructor(engine, isDebug, debugContainer = null) {
         this.enabled = false;
@@ -51448,7 +51448,7 @@ class Debugging {
         const muteMusic = debugTools.querySelector('#muteMusic');
         const setSpeed = (speed) => {
             this.engine.speed = speed;
-            sound_1.sound.speedAll = speed;
+            sounds_1.soundLibrary.speedAll = speed;
             speedDisplay.textContent = `(${speed}x)`;
             this.engine.app.ticker.maxFPS = speed > 1 ? 0 : 60;
         };
@@ -51704,14 +51704,15 @@ exports.CancelTick = exports.Engine = void 0;
 const scripting_1 = __webpack_require__(/*! ./scripting */ "./src/engine/scripting.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
-const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const assetsLoader_1 = __webpack_require__(/*! ../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
 const debugging_1 = __webpack_require__(/*! ./debugging */ "./src/engine/debugging.ts");
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 const devtools_1 = __webpack_require__(/*! @pixi/devtools */ "./node_modules/@pixi/devtools/dist/index.cjs");
 const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
+const index_1 = __webpack_require__(/*! ../index */ "./src/index.ts");
 const scope_1 = __webpack_require__(/*! ./scope */ "./src/engine/scope.ts");
+const sounds_1 = __webpack_require__(/*! ./sounds */ "./src/engine/sounds.ts");
 class Engine {
     constructor(app, options) {
         this.app = app;
@@ -51736,8 +51737,10 @@ class Engine {
                 this.saveFile = saveFile_1.SaveFileManager.fromLocalStorage();
             }
             this.rendering.init();
-            sound_1.sound.disableAutoPause = true;
-            this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS));
+            sounds_1.soundLibrary.disableAutoPause = true;
+            if (!index_1.BUILD_VARS.manualTick) {
+                this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS));
+            }
             this.app.ticker.stop();
             this.debug.setupDebugTools();
             await this.start();
@@ -51801,7 +51804,7 @@ class Engine {
     }
     async changeScene(sceneName) {
         this.app.ticker.stop();
-        sound_1.sound.stopAll();
+        sounds_1.soundLibrary.stopAll();
         if (this.music !== null) {
             this.music.stop();
         }
@@ -51854,7 +51857,7 @@ class Engine {
     resume() {
         const sceneScope = this.scopeManager.getScope('scene');
         (0, errors_1.assert)(sceneScope != null);
-        sound_1.sound.resumeAll();
+        sounds_1.soundLibrary.resumeAll();
         for (const object of sceneScope.objects) {
             object.resume();
         }
@@ -51864,7 +51867,7 @@ class Engine {
         const sceneScope = this.scopeManager.getScope('scene');
         (0, errors_1.assert)(sceneScope != null);
         this.app.ticker.stop();
-        sound_1.sound.pauseAll();
+        sounds_1.soundLibrary.pauseAll();
         for (const object of sceneScope.objects) {
             object.pause();
         }
@@ -52256,6 +52259,223 @@ class ScriptingManager {
     }
 }
 exports.ScriptingManager = ScriptingManager;
+
+
+/***/ }),
+
+/***/ "./src/engine/sounds.ts":
+/*!******************************!*\
+  !*** ./src/engine/sounds.ts ***!
+  \******************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SimulatedMediaInstance = exports.SimulatedSound = exports.soundLibrary = void 0;
+const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
+class UniversalSoundLibrary {
+    constructor() {
+        this.entries = [];
+        this._speed = 1;
+        this._muted = false;
+        this._volume = 1;
+    }
+    get speedAll() {
+        return this._speed;
+    }
+    set speedAll(speed) {
+        this._speed = speed;
+        sound_1.sound.speedAll = speed;
+        this.entries.forEach((entry) => entry.speed = speed);
+    }
+    set disableAutoPause(value) {
+        sound_1.sound.disableAutoPause = value;
+    }
+    stopAll() {
+        sound_1.sound.stopAll();
+        this.entries.forEach((entry) => entry.stop());
+    }
+    resumeAll() {
+        sound_1.sound.resumeAll();
+        this.entries.forEach((entry) => entry.resume());
+    }
+    pauseAll() {
+        sound_1.sound.pauseAll();
+        this.entries.forEach((entry) => entry.pause());
+    }
+    muteAll() {
+        this._muted = true;
+        sound_1.sound.muteAll();
+        this.entries.forEach((entry) => entry.muted = true);
+    }
+    unmuteAll() {
+        this._muted = false;
+        sound_1.sound.unmuteAll();
+        this.entries.forEach((entry) => entry.muted = false);
+    }
+    get muted() {
+        return this._muted;
+    }
+    get volumeAll() {
+        return this._volume;
+    }
+    set volumeAll(volume) {
+        this._volume = volume;
+        sound_1.sound.volumeAll = volume;
+        this.entries.forEach((entry) => entry.volume = volume);
+    }
+    addSimulated(sound) {
+        this.entries.push(sound);
+    }
+}
+exports.soundLibrary = new UniversalSoundLibrary();
+class SimulatedSound {
+    constructor(realSound) {
+        this.realSound = realSound;
+        this._speed = 1;
+        this._volume = 1;
+        this._muted = false;
+        this._instances = [];
+        this._duration = realSound.duration;
+        this._muted = exports.soundLibrary.muted;
+        this._speed = exports.soundLibrary.speedAll;
+        this._volume = exports.soundLibrary.volumeAll;
+        exports.soundLibrary.addSimulated(this);
+    }
+    tick(elapsedMS) {
+        for (const instance of this._instances) {
+            if (instance instanceof SimulatedMediaInstance) {
+                instance.tick(elapsedMS);
+            }
+        }
+    }
+    play(source, callback) {
+        const instance = new SimulatedMediaInstance(this, this._speed, this._muted, this._volume);
+        instance.play({});
+        this._instances.push(instance);
+        return instance;
+    }
+    stop() {
+        this._instances.forEach((instance) => instance.stop());
+        return this;
+    }
+    get muted() {
+        return this._muted;
+    }
+    set muted(muted) {
+        this._muted = muted;
+        this._instances.forEach((instance) => (instance.muted = muted));
+    }
+    get instances() {
+        return this._instances;
+    }
+    destroy() { }
+    get volume() {
+        return this._volume;
+    }
+    set volume(volume) {
+        this._volume = volume;
+        this._instances.forEach((instance) => (instance.volume = this._volume));
+    }
+    pause() {
+        this._instances.forEach((instance) => (instance.paused = true));
+        return this;
+    }
+    resume() {
+        this._instances.forEach((instance) => (instance.paused = false));
+        return this;
+    }
+    get speed() {
+        return this._speed;
+    }
+    set speed(speed) {
+        this._speed = speed;
+        this._instances.forEach((instance) => (instance.speed = this._speed));
+    }
+    get duration() {
+        return this._duration;
+    }
+}
+exports.SimulatedSound = SimulatedSound;
+class SimulatedMediaInstance {
+    constructor(sound, speed, muted, volume) {
+        this.sound = sound;
+        this.id = 0;
+        this.progress = 0;
+        this.paused = false;
+        this.volume = 1;
+        this.speed = 1;
+        this.loop = false;
+        this.muted = false;
+        this.events = {
+            resumed: [],
+            paused: [],
+            start: [],
+            end: [],
+            progress: [],
+            pause: [],
+            stop: [],
+        };
+        this.timeCounter = 0;
+        this.running = false;
+        this.speed = speed;
+        this.muted = muted;
+        this.volume = volume;
+    }
+    tick(elapsedMS) {
+        if (!this.running || this.paused) {
+            return;
+        }
+        this.timeCounter += elapsedMS * this.speed;
+        if (this.timeCounter >= this.sound.duration * 1000) {
+            for (const endEvent of this.events['end']) {
+                endEvent();
+            }
+            this.timeCounter = 0;
+            this.running = false;
+        }
+    }
+    stop() {
+        this.running = false;
+    }
+    refresh() {
+        throw new Error('Method not implemented.');
+    }
+    refreshPaused() {
+        throw new Error('Method not implemented.');
+    }
+    init(parent) {
+        throw new Error('Method not implemented.');
+    }
+    play(options) {
+        this.running = true;
+        for (const playEvent of this.events['start']) {
+            playEvent();
+        }
+    }
+    destroy() {
+        this.stop();
+    }
+    toString() {
+        throw new Error('Method not implemented.');
+    }
+    once(event, fn, context) {
+        throw new Error('Method not implemented.');
+    }
+    on(event, fn, context) {
+        this.events[event].push(fn);
+        return this;
+    }
+    off(event, fn, context, once) {
+        this.events[event] = this.events[event].filter((event) => event !== fn);
+        return this;
+    }
+    set(name, value) {
+        throw new Error('Method not implemented.');
+    }
+}
+exports.SimulatedMediaInstance = SimulatedMediaInstance;
 
 
 /***/ }),
@@ -56062,6 +56282,7 @@ const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts"
 const assetsLoader_1 = __webpack_require__(/*! ../../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const sounds_1 = __webpack_require__(/*! ../sounds */ "./src/engine/sounds.ts");
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~';
 let Sequence = (() => {
     var _a;
@@ -56151,6 +56372,9 @@ let Sequence = (() => {
                 }
             }
             tick(elapsedMS) {
+                if (this.playingSound instanceof sounds_1.SimulatedMediaInstance) {
+                    this.playingSound.tick(elapsedMS);
+                }
                 while (this.endedSpeakingSoundsQueue.length > 0) {
                     this.loop = false;
                     const entry = this.endedSpeakingSoundsQueue.shift();
@@ -56417,6 +56641,7 @@ const assetsLoader_1 = __webpack_require__(/*! ../../loaders/assetsLoader */ "./
 const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const sounds_1 = __webpack_require__(/*! ../sounds */ "./src/engine/sounds.ts");
 let Sound = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -56441,7 +56666,10 @@ let Sound = (() => {
             ready() {
                 this.callbacks.run('ONINIT');
             }
-            tick() {
+            tick(elapsedMS) {
+                if (this.sound instanceof sounds_1.SimulatedSound) {
+                    this.sound.tick(elapsedMS);
+                }
                 while (this.callbacksQueue.length > 0) {
                     this.callbacks.run(this.callbacksQueue.shift());
                 }
@@ -58526,9 +58754,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createGamePlayer = void 0;
+exports.createGamePlayer = exports.BUILD_VARS = void 0;
 const engine_1 = __webpack_require__(/*! ./engine */ "./src/engine/index.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
+exports.BUILD_VARS = {
+    manualTick: undefined,
+    debug: true,
+};
 const createGamePlayer = (element, options) => {
     if (element === null) {
         return;
@@ -61632,9 +61864,11 @@ exports.loadTexture = exports.loadSprite = exports.loadSound = void 0;
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 const rendering_1 = __webpack_require__(/*! ../engine/rendering */ "./src/engine/rendering.ts");
+const sounds_1 = __webpack_require__(/*! ../engine/sounds */ "./src/engine/sounds.ts");
+const index_1 = __webpack_require__(/*! ../index */ "./src/index.ts");
 const loadSound = async (fileLoader, filename, options) => {
     const buffer = await fileLoader.getRawFile(filename);
-    return new Promise((resolve, reject) => {
+    const sound = new Promise((resolve, reject) => {
         sound_1.Sound.from({
             source: buffer,
             preload: true,
@@ -61649,6 +61883,12 @@ const loadSound = async (fileLoader, filename, options) => {
             ...options,
         });
     });
+    if (index_1.BUILD_VARS.manualTick) {
+        return new sounds_1.SimulatedSound(await sound);
+    }
+    else {
+        return sound;
+    }
 };
 exports.loadSound = loadSound;
 const loadSprite = async (fileLoader, filename) => {
@@ -63787,7 +64027,7 @@ const debugContainer = document.getElementById('debug');
 const controls = document.getElementById('controls');
 const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
-    debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : true,
+    debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : index_1.BUILD_VARS.debug,
     debugContainer: debugContainer,
     onExit: () => document.exitFullscreen(),
 };
