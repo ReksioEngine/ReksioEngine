@@ -4,16 +4,16 @@ import { loadDefinition } from '../loaders/definitionLoader'
 import { Application, Rectangle, Sprite } from 'pixi.js'
 import { Scene } from './types/scene'
 import { FileLoader } from '../loaders/filesLoader'
-import { sound, Sound } from '@pixi/sound'
 import { loadSound, loadTexture } from '../loaders/assetsLoader'
 import { SaveFile, SaveFileManager } from './saveFile'
 import { Debugging } from './debugging'
 import { assert, IgnorableError, IrrecoverableError } from '../common/errors'
 import { initDevtools } from '@pixi/devtools'
 import { RenderingManager } from './rendering'
-import { GamePlayerOptions } from '../index'
+import { BUILD_VARS, GamePlayerOptions } from '../index'
 import { Scope, ScopeManager } from './scope'
 import { Episode } from './types/episode'
+import { ISound, soundLibrary } from './sounds'
 
 export class Engine {
     public debug: Debugging
@@ -30,7 +30,7 @@ export class Engine {
     public saveFile: SaveFile = SaveFileManager.empty(false)
 
     public fileLoader: FileLoader
-    public music: Sound | null = null
+    public music: ISound | null = null
 
     constructor(
         public readonly app: Application,
@@ -54,9 +54,11 @@ export class Engine {
             }
 
             this.rendering.init()
-            sound.disableAutoPause = true
+            soundLibrary.disableAutoPause = true
 
-            this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS))
+            if (!BUILD_VARS.manualTick) {
+                this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS))
+            }
             this.app.ticker.stop()
 
             this.debug.setupDebugTools()
@@ -140,7 +142,7 @@ export class Engine {
 
     async changeScene(sceneName: string) {
         this.app.ticker.stop()
-        sound.stopAll()
+        soundLibrary.stopAll()
         if (this.music !== null) {
             this.music.stop()
         }
@@ -214,7 +216,7 @@ export class Engine {
         const sceneScope = this.scopeManager.getScope('scene')
         assert(sceneScope != null)
 
-        sound.resumeAll()
+        soundLibrary.resumeAll()
         for (const object of sceneScope.objects) {
             object.resume()
         }
@@ -226,7 +228,7 @@ export class Engine {
         assert(sceneScope != null)
 
         this.app.ticker.stop()
-        sound.pauseAll()
+        soundLibrary.pauseAll()
         for (const object of sceneScope.objects) {
             object.pause()
         }

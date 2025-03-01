@@ -1,4 +1,4 @@
-import { createGamePlayer, GamePlayerOptions } from './index'
+import { BUILD_VARS, createGamePlayer, GamePlayerOptions } from './index'
 import { ArchiveOrgFileLoader, ListingJSONUrlFileLoader, GithubFileLoader, IsoFileLoader } from './loaders/filesLoader'
 
 const urlParams = new URLSearchParams(window.location.search)
@@ -7,7 +7,7 @@ const debugContainer = document.getElementById('debug')
 const controls = document.getElementById('controls')!
 const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
-    debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : (process.env.debug as unknown as boolean),
+    debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : BUILD_VARS.debug,
     debugContainer: debugContainer,
     onExit: () => document.exitFullscreen(),
 }

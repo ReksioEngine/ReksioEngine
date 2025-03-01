@@ -13,9 +13,10 @@ import {
 import { assert } from '../../common/errors'
 import { Animo } from './animo'
 import { loadSound } from '../../loaders/assetsLoader'
-import { IMediaInstance, Sound } from '@pixi/sound'
+import { IMediaInstance } from '@pixi/sound'
 import { createObject } from '../../loaders/definitionLoader'
 import { method } from '../../common/types'
+import { ISound, SimulatedMediaInstance } from '../sounds'
 
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~'
 
@@ -28,7 +29,7 @@ export class Sequence extends Type<SequenceDefinition> {
     private allAnimoFilenames: Set<string> = new Set()
     private allAnimoObjects = new Map<string, Animo>()
 
-    private sounds: Map<string, Sound> = new Map()
+    private sounds: Map<string, ISound> = new Map()
     private endedSpeakingSoundsQueue: Speaking[] = []
 
     private queue: SequenceFileEntry[] = []
@@ -107,7 +108,7 @@ export class Sequence extends Type<SequenceDefinition> {
         }
 
         const sounds = await Promise.all(
-            soundsNames.map(async (name: string): Promise<Sound> => {
+            soundsNames.map(async (name: string): Promise<ISound> => {
                 console.debug(`Preloading sound ${name}...`)
                 return loadSound(this.engine.fileLoader, `Wavs/${name}`)
             })
@@ -118,6 +119,10 @@ export class Sequence extends Type<SequenceDefinition> {
     }
 
     tick(elapsedMS: number) {
+        if (this.playingSound instanceof SimulatedMediaInstance) {
+            this.playingSound.tick(elapsedMS)
+        }
+
         while (this.endedSpeakingSoundsQueue.length > 0) {
             this.loop = false
             const entry = this.endedSpeakingSoundsQueue.shift()!

@@ -1,7 +1,6 @@
 import { Episode } from './types/episode'
 import { Type } from './types'
 import { Engine } from './index'
-import { sound } from '@pixi/sound'
 import { Container, Graphics, Rectangle, Text } from 'pixi.js'
 import { Animo } from './types/animo'
 import { CNVObject, parseCNV } from '../fileFormats/cnv/parser'
@@ -13,6 +12,7 @@ import { drawRectangle } from './rendering'
 import debuggingTemplate from './debugging.html'
 import { Scene } from './types/scene'
 import { Scope } from './scope'
+import { soundLibrary } from './sounds'
 
 export class Debugging {
     private readonly engine: Engine
@@ -68,7 +68,7 @@ export class Debugging {
 
         const setSpeed = (speed: number) => {
             this.engine.speed = speed
-            sound.speedAll = speed
+            soundLibrary.speedAll = speed
             speedDisplay.textContent = `(${speed}x)`
 
             this.engine.app.ticker.maxFPS = speed > 1 ? 0 : 60

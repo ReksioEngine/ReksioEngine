@@ -1,13 +1,13 @@
 import { Type } from './index'
 import { loadSound } from '../../loaders/assetsLoader'
 import { SoundDefinition } from '../../fileFormats/cnv/types'
-import { Sound as PIXISound } from '@pixi/sound'
 import { FileNotFoundError } from '../../loaders/filesLoader'
 import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
+import { ISound, SimulatedSound } from '../sounds'
 
 export class Sound extends Type<SoundDefinition> {
-    private sound: PIXISound | null = null
+    private sound: ISound | null = null
     private callbacksQueue: string[] = []
 
     async init() {
@@ -19,7 +19,11 @@ export class Sound extends Type<SoundDefinition> {
         this.callbacks.run('ONINIT')
     }
 
-    tick() {
+    tick(elapsedMS: number) {
+        if (this.sound instanceof SimulatedSound) {
+            this.sound.tick(elapsedMS)
+        }
+
         while (this.callbacksQueue.length > 0) {
             this.callbacks.run(this.callbacksQueue.shift()!)
         }

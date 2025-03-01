@@ -7,11 +7,11 @@ import { Graphics, Rectangle, Sprite, Texture } from 'pixi.js'
 import { ANN, Event } from '../../fileFormats/ann'
 import { ButtonLogicComponent, Event as FSMEvent, State } from '../components/button'
 import { loadSound } from '../../loaders/assetsLoader'
-import { Sound as PIXISound } from '@pixi/sound'
 import { FileNotFoundError } from '../../loaders/filesLoader'
 import { AdvancedSprite, createHitmapFromImageBytes } from '../rendering'
 import { method } from '../../common/types'
 import { CollisionsComponent } from '../components/collisions'
+import { ISound } from '../sounds'
 
 export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent
@@ -40,7 +40,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     private textures = new Map<number, PIXI.Texture>()
     private hitmaps = new Map<number, Uint8Array>()
-    private sounds = new Map<string, PIXISound>()
+    private sounds = new Map<string, ISound>()
 
     public static Events = {
         ONFINISHED: 'ONFINISHED',
