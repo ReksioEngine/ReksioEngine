@@ -51984,6 +51984,9 @@ class AdvancedSprite extends pixi_js_1.Sprite {
         if (!this.checkPixelPerfect || !this.hitmap) {
             return super.containsPoint(point);
         }
+        return this.containsPointWithAlpha(point);
+    }
+    containsPointWithAlpha(point) {
         const alpha = this.getAlphaAt(point);
         return alpha !== null && alpha > 0;
     }
@@ -54201,8 +54204,8 @@ let CanvasObserver = (() => {
                         continue;
                     }
                     let containsPoint = false;
-                    if (includeAlpha) {
-                        containsPoint = renderObject.containsPoint(point);
+                    if (!includeAlpha) {
+                        containsPoint = renderObject.containsPointWithAlpha(point);
                     }
                     else {
                         containsPoint =
