@@ -55977,6 +55977,7 @@ let MultiArray = (() => {
                 (0, errors_1.assert)(this.definition.DIMENSIONS === 2, 'Piklib supports only 2 dimensions. Other number of dimensions causes unexpected behavior');
             }
             SET(y, x, value) {
+                (0, errors_1.assert)(x >= 0 && y >= 0, "MULTIARRAY indexes can't be negative");
                 while (y >= this.value.length) {
                     this.value.push([]);
                 }
@@ -55986,7 +55987,7 @@ let MultiArray = (() => {
                 this.value[y][x] = value;
             }
             GET(y, x) {
-                if (y < this.value.length && x < this.value[y].length) {
+                if (y >= 0 && y < this.value.length && x >= 0 && x < this.value[y].length) {
                     return this.value[y][x];
                 }
                 return null;
