@@ -47,8 +47,8 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
             }
 
             let containsPoint = false
-            if (includeAlpha) {
-                containsPoint = renderObject.containsPoint(point)
+            if (!includeAlpha) {
+                containsPoint = renderObject.containsPointWithAlpha(point)
             } else {
                 containsPoint =
                     point.x > position.x &&
