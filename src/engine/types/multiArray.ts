@@ -18,6 +18,8 @@ export class MultiArray extends ValueType<MultiArrayDefinition> {
 
     @method()
     SET(y: number, x: number, value: any) {
+        assert(x >= 0 && y >= 0, "MULTIARRAY indexes can't be negative")
+
         while (y >= this.value.length) {
             this.value.push([])
         }
@@ -29,7 +31,7 @@ export class MultiArray extends ValueType<MultiArrayDefinition> {
 
     @method()
     GET(y: number, x: number) {
-        if (y < this.value.length && x < this.value[y].length) {
+        if (y >= 0 && y < this.value.length && x >= 0 && x < this.value[y].length) {
             return this.value[y][x]
         }
         return null
