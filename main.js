@@ -580,7 +580,8 @@ class CacheClass {
     if (keys.forEach((key2) => {
       this._cacheMap.set(key2, cachedAssets);
     }), cacheKeys.forEach((key2) => {
-      this._cache.has(key2) && this._cache.get(key2) !== value && console.warn("[Cache] already has key:", key2), this._cache.set(key2, cacheableAssets[key2]);
+      const val = cacheableAssets ? cacheableAssets[key2] : value;
+      this._cache.has(key2) && this._cache.get(key2) !== val && console.warn("[Cache] already has key:", key2), this._cache.set(key2, cacheableAssets[key2]);
     }), value instanceof core.Texture) {
       const texture = value;
       keys.forEach((key2) => {
@@ -5664,7 +5665,7 @@ function _interopNamespaceDefault(e) {
   }), n.default = e, n;
 }
 var utils__namespace = /* @__PURE__ */ _interopNamespaceDefault(utils$1);
-const VERSION = "7.4.2";
+const VERSION = "7.4.3";
 exports.utils = utils__namespace;
 exports.autoDetectRenderer = autoDetectRenderer.autoDetectRenderer;
 exports.BackgroundSystem = BackgroundSystem.BackgroundSystem;
@@ -8649,7 +8650,7 @@ class StartupSystem {
    */
   run(options) {
     const { renderer } = this;
-    renderer.runners.init.emit(renderer.options), options.hello && console.log(`PixiJS 7.4.2 - ${renderer.rendererLogId} - https://pixijs.com`), renderer.resize(renderer.screen.width, renderer.screen.height);
+    renderer.runners.init.emit(renderer.options), options.hello && console.log(`PixiJS 7.4.3 - ${renderer.rendererLogId} - https://pixijs.com`), renderer.resize(renderer.screen.width, renderer.screen.height);
   }
   destroy() {
   }
@@ -51398,7 +51399,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Debugging = void 0;
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/animo.ts");
-const parser_1 = __webpack_require__(/*! ../fileFormats/cnv/parser */ "./src/fileFormats/cnv/parser.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
@@ -51419,10 +51419,6 @@ class Debugging {
     }
     async createObject(definition) {
         return await (0, definitionLoader_1.createObject)(this.engine, definition, null);
-    }
-    async loadCNV(definition, scope) {
-        await (0, definitionLoader_1.loadDefinition)(this.engine, scope, (0, parser_1.parseCNV)(definition), null);
-        return scope;
     }
     setupDebugTools() {
         if (!this.enabled || !this.debugContainer) {
@@ -51754,7 +51750,9 @@ class Engine {
         try {
             await this.fileLoader.init();
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def');
-            await (0, definitionLoader_1.loadDefinition)(this, this.scopeManager.newScope('root'), applicationDef, null);
+            const rootScope = this.scopeManager.newScope('root');
+            await (0, definitionLoader_1.loadDefinition)(this, rootScope, applicationDef, null);
+            (0, definitionLoader_1.doReady)(rootScope);
             const episode = this.scopeManager.findByType('EPISODE');
             if (episode === null) {
                 throw new errors_1.IrrecoverableError("Starting episode doesn't exist");
@@ -51823,24 +51821,44 @@ class Engine {
         this.previousScene = this.currentScene;
         this.currentScene = this.getObject(sceneName);
         // Set background image
+        let texturePromise = null;
         if (this.currentScene.definition.BACKGROUND) {
-            this.rendering.setBackground(await (0, assetsLoader_1.loadTexture)(this.fileLoader, this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)));
+            texturePromise = (0, assetsLoader_1.loadTexture)(this.fileLoader, this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND));
         }
         else {
             this.rendering.clearBackground();
         }
-        const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
-        await (0, definitionLoader_1.loadDefinition)(this, this.scopeManager.newScope('scene'), sceneDefinition, this.currentScene);
         // Play new scene background music
+        let musicPromise = null;
         if (this.currentScene.definition.MUSIC) {
-            this.music = await (0, assetsLoader_1.loadSound)(this.fileLoader, this.currentScene.definition.MUSIC, {
+            musicPromise = (0, assetsLoader_1.loadSound)(this.fileLoader, this.currentScene.definition.MUSIC, {
                 loop: true,
             });
+        }
+        const newScopePromise = new Promise((resolve, reject) => {
+            const sceneDefinitionPromise = this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
+            sceneDefinitionPromise.then(sceneDefinition => {
+                const newScope = this.scopeManager.newScope('scene');
+                const newScopePromise = (0, definitionLoader_1.loadDefinition)(this, newScope, sceneDefinition, this.currentScene);
+                newScopePromise.then(() => {
+                    resolve(newScope);
+                }).catch(reject);
+            }).catch(reject);
+        });
+        const [texture, music, newScope] = await Promise.all([texturePromise, musicPromise, newScopePromise]);
+        if (texture) {
+            this.rendering.setBackground(texture);
+        }
+        if (music) {
+            this.music = music;
             const instance = this.music.play();
             (0, errors_1.assert)(!(instance instanceof Promise), 'Sound should already be preloaded');
             if (this.debug.mutedMusic) {
                 this.music.muted = true;
             }
+        }
+        if (newScope) {
+            (0, definitionLoader_1.doReady)(newScope);
         }
         this.app.stage.removeChild(loadingFreezeOverlay);
         this.app.ticker.start();
@@ -52169,7 +52187,7 @@ class ScopeManager {
         if (!scope) {
             return null;
         }
-        const result = Object.entries(scope.entries).find(([key, value]) => callback(key, value));
+        const result = [...scope.content.entries()].find(([key, value]) => callback(key, value));
         if (result) {
             return result[1];
         }
@@ -52180,21 +52198,21 @@ class ScopeManager {
 }
 exports.ScopeManager = ScopeManager;
 class Scope {
-    constructor(type, entries = {}) {
+    constructor(type, content = new Map()) {
         this.type = type;
-        this.entries = entries;
+        this.content = content;
     }
     get(name) {
-        return this.entries[name] ?? null;
+        return this.content.get(name) ?? null;
     }
     set(name, value) {
-        this.entries[name] = value;
+        this.content.set(name, value);
     }
     remove(name) {
-        delete this.entries[name];
+        this.content.delete(name);
     }
     get objects() {
-        return Object.values(this.entries);
+        return [...this.content.values()];
     }
 }
 exports.Scope = Scope;
@@ -52222,7 +52240,7 @@ class ScriptingManager {
     executeCallback(caller, callback, args, localScopeEntries, forwardInterrupts = false) {
         let stackFrame = null;
         try {
-            const localScope = new scope_1.Scope('local', localScopeEntries);
+            const localScope = new scope_1.Scope('local', localScopeEntries ? new Map(Object.entries(localScopeEntries)) : undefined);
             if (caller !== null) {
                 localScope.set('THIS', caller);
             }
@@ -53321,7 +53339,11 @@ let Application = (() => {
                 if (this.definition.PATH) {
                     try {
                         const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
-                        await (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.scopeManager.newScope('application'), applicationDefinition, this);
+                        this.engine.app.ticker.stop();
+                        const applicationScope = this.engine.scopeManager.newScope('application');
+                        await (0, definitionLoader_1.loadDefinition)(this.engine, applicationScope, applicationDefinition, this);
+                        (0, definitionLoader_1.doReady)(applicationScope);
+                        this.engine.app.ticker.start();
                     }
                     catch (err) {
                         if (err instanceof filesLoader_1.FileNotFoundError) {
@@ -54763,7 +54785,11 @@ let Episode = (() => {
                 if (this.definition.PATH) {
                     try {
                         const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
-                        await (0, definitionLoader_1.loadDefinition)(this.engine, this.engine.scopeManager.newScope('episode'), applicationDefinition, this);
+                        this.engine.app.ticker.stop();
+                        const episodeScope = this.engine.scopeManager.newScope('episode');
+                        await (0, definitionLoader_1.loadDefinition)(this.engine, episodeScope, applicationDefinition, this);
+                        (0, definitionLoader_1.doReady)(episodeScope);
+                        this.engine.app.ticker.start();
                     }
                     catch (err) {
                         if (err instanceof filesLoader_1.FileNotFoundError) {
@@ -61926,7 +61952,7 @@ exports.loadTexture = loadTexture;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createObject = exports.loadDefinition = void 0;
+exports.createObject = exports.doReady = exports.loadDefinition = void 0;
 const integer_1 = __webpack_require__(/*! ../engine/types/integer */ "./src/engine/types/integer.ts");
 const animo_1 = __webpack_require__(/*! ../engine/types/animo */ "./src/engine/types/animo.ts");
 const music_1 = __webpack_require__(/*! ../engine/types/music */ "./src/engine/types/music.ts");
@@ -62045,7 +62071,6 @@ const initializationPriorities = [
     return acc;
 }, new Map());
 const loadDefinition = async (engine, scope, definition, parent) => {
-    engine.app.ticker.stop();
     const entries = [];
     for (const [key, value] of Object.entries(definition)) {
         const instance = createTypeInstance(engine, parent, value);
@@ -62089,7 +62114,10 @@ const loadDefinition = async (engine, scope, definition, parent) => {
             stacktrace_1.stackTrace.pop();
         }
     });
-    goodObjects.forEach((entry) => {
+};
+exports.loadDefinition = loadDefinition;
+const doReady = (scope) => {
+    scope.objects.forEach((entry) => {
         entry.isReady = true;
         try {
             stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(entry).method('ready').build());
@@ -62099,9 +62127,8 @@ const loadDefinition = async (engine, scope, definition, parent) => {
             stacktrace_1.stackTrace.pop();
         }
     });
-    engine.app.ticker.start();
 };
-exports.loadDefinition = loadDefinition;
+exports.doReady = doReady;
 const createObject = async (engine, definition, parent) => {
     engine.app.ticker.stop();
     const instance = createTypeInstance(engine, parent, definition);
