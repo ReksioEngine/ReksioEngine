@@ -17,12 +17,7 @@ export class Episode extends Type<EpisodeDefinition> {
 
                 this.engine.app.ticker.stop()
                 const episodeScope = this.engine.scopeManager.newScope('episode')
-                await loadDefinition(
-                    this.engine,
-                    episodeScope,
-                    applicationDefinition,
-                    this
-                )
+                await loadDefinition(this.engine, episodeScope, applicationDefinition, this)
                 doReady(episodeScope)
                 this.engine.app.ticker.start()
             } catch (err) {

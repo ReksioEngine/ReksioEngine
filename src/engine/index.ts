@@ -1,7 +1,7 @@
 import { reference } from '../fileFormats/common'
 import { ScriptingManager } from './scripting'
 import { loadDefinition, doReady } from '../loaders/definitionLoader'
-import { Application, Rectangle, Sprite, Texture } from 'pixi.js'
+import { Application, Rectangle, Sprite, Texture, Text, TextStyle, Point, DisplayObject } from 'pixi.js'
 import { Scene } from './types/scene'
 import { FileLoader } from '../loaders/filesLoader'
 import { loadSound, loadTexture } from '../loaders/assetsLoader'
@@ -9,7 +9,7 @@ import { SaveFile, SaveFileManager } from './saveFile'
 import { Debugging } from './debugging'
 import { assert, IgnorableError, IrrecoverableError } from '../common/errors'
 import { initDevtools } from '@pixi/devtools'
-import { RenderingManager } from './rendering'
+import { createColorTexture, RenderingManager } from './rendering'
 import { BUILD_VARS, GamePlayerOptions } from '../index'
 import { Scope, ScopeManager } from './scope'
 import { Episode } from './types/episode'
@@ -151,6 +151,10 @@ export class Engine {
 
         this.rendering.onSceneChange()
 
+        this.app.stage.addChild(this.rendering.loadingDarkOverlay)
+        this.app.stage.addChild(this.rendering.loadingText)
+        this.app.renderer.render(this.app.stage)
+
         const loadingFreezeOverlay = Sprite.from(
             await this.app.renderer.extract.image(
                 this.app.stage,
@@ -194,14 +198,20 @@ export class Engine {
         }
 
         const newScopePromise: Promise<Scope> = new Promise((resolve, reject) => {
-            const sceneDefinitionPromise = this.fileLoader.getCNVFile(this.currentScene!.getRelativePath(sceneName + '.cnv'))
-            sceneDefinitionPromise.then(sceneDefinition => {
-                const newScope = this.scopeManager.newScope('scene')
-                const newScopePromise = loadDefinition(this, newScope, sceneDefinition, this.currentScene)
-                newScopePromise.then(() => {
-                    resolve(newScope)
-                }).catch(reject)
-            }).catch(reject)
+            const sceneDefinitionPromise = this.fileLoader.getCNVFile(
+                this.currentScene!.getRelativePath(sceneName + '.cnv')
+            )
+            sceneDefinitionPromise
+                .then((sceneDefinition) => {
+                    const newScope = this.scopeManager.newScope('scene')
+                    const newScopePromise = loadDefinition(this, newScope, sceneDefinition, this.currentScene)
+                    newScopePromise
+                        .then(() => {
+                            resolve(newScope)
+                        })
+                        .catch(reject)
+                })
+                .catch(reject)
         })
 
         const [texture, music, newScope] = await Promise.all([texturePromise, musicPromise, newScopePromise])
@@ -221,6 +231,9 @@ export class Engine {
         }
 
         this.app.stage.removeChild(loadingFreezeOverlay)
+        this.app.stage.removeChild(this.rendering.loadingDarkOverlay)
+        this.app.stage.removeChild(this.rendering.loadingText)
+
         this.app.ticker.start()
         this.debug.updateCurrentScene()
     }

@@ -29,12 +29,7 @@ export class Application extends Type<ApplicationDefinition> {
 
                 this.engine.app.ticker.stop()
                 const applicationScope = this.engine.scopeManager.newScope('application')
-                await loadDefinition(
-                    this.engine,
-                    applicationScope,
-                    applicationDefinition,
-                    this
-                )
+                await loadDefinition(this.engine, applicationScope, applicationDefinition, this)
                 doReady(applicationScope)
                 this.engine.app.ticker.start()
             } catch (err) {

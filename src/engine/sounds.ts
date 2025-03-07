@@ -15,7 +15,7 @@ class UniversalSoundLibrary {
     set speedAll(speed: number) {
         this._speed = speed
         pixiSound.speedAll = speed
-        this.entries.forEach((entry: ISound) => entry.speed = speed)
+        this.entries.forEach((entry: ISound) => (entry.speed = speed))
     }
 
     set disableAutoPause(value: boolean) {
@@ -40,13 +40,13 @@ class UniversalSoundLibrary {
     muteAll() {
         this._muted = true
         pixiSound.muteAll()
-        this.entries.forEach((entry: ISound) => entry.muted = true)
+        this.entries.forEach((entry: ISound) => (entry.muted = true))
     }
 
     unmuteAll() {
         this._muted = false
         pixiSound.unmuteAll()
-        this.entries.forEach((entry: ISound) => entry.muted = false)
+        this.entries.forEach((entry: ISound) => (entry.muted = false))
     }
 
     get muted(): boolean {
@@ -60,7 +60,7 @@ class UniversalSoundLibrary {
     set volumeAll(volume: number) {
         this._volume = volume
         pixiSound.volumeAll = volume
-        this.entries.forEach((entry: ISound) => entry.volume = volume)
+        this.entries.forEach((entry: ISound) => (entry.volume = volume))
     }
 
     addSimulated(sound: ISound) {
@@ -206,7 +206,12 @@ export class SimulatedMediaInstance implements IMediaInstance {
     private timeCounter: number = 0
     private running: boolean = false
 
-    constructor(private sound: SimulatedSound, speed: number, muted: boolean, volume: number) {
+    constructor(
+        private sound: SimulatedSound,
+        speed: number,
+        muted: boolean,
+        volume: number
+    ) {
         this.speed = speed
         this.muted = muted
         this.volume = volume
