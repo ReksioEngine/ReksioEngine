@@ -2,8 +2,7 @@ import { Type } from './index'
 import { ApplicationDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { pathJoin } from '../../common/utils'
-import { loadDefinition } from '../../loaders/definitionLoader'
-import { NotImplementedError } from '../../common/errors'
+import { loadDefinition, doReady } from '../../loaders/definitionLoader'
 import { FileNotFoundError } from '../../loaders/filesLoader'
 import { method } from '../../common/types'
 
@@ -27,12 +26,17 @@ export class Application extends Type<ApplicationDefinition> {
                 const applicationDefinition = await this.engine.fileLoader.getCNVFile(
                     pathJoin('DANE', this.definition.PATH, this.name + '.cnv')
                 )
+
+                this.engine.app.ticker.stop()
+                const applicationScope = this.engine.scopeManager.newScope('application')
                 await loadDefinition(
                     this.engine,
-                    this.engine.scopeManager.newScope('application'),
+                    applicationScope,
                     applicationDefinition,
                     this
                 )
+                doReady(applicationScope)
+                this.engine.app.ticker.start()
             } catch (err) {
                 if (err! instanceof FileNotFoundError) {
                     throw err

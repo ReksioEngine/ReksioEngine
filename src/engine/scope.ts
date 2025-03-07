@@ -45,7 +45,7 @@ export class ScopeManager {
             return null
         }
 
-        const result = Object.entries(scope.entries).find(([key, value]) => callback(key, value))
+        const result = [...scope.content.entries()].find(([key, value]) => callback(key, value))
         if (result) {
             return result[1]
         } else {
@@ -57,22 +57,22 @@ export class ScopeManager {
 export class Scope {
     constructor(
         public type: string,
-        public entries: Record<string, any> = {}
+        public content: Map<string, any> = new Map()
     ) {}
 
     public get(name: string): Type<any> | null {
-        return this.entries[name] ?? null
+        return this.content.get(name) ?? null
     }
 
     public set(name: string, value: Type<any>): void {
-        this.entries[name] = value
+        this.content.set(name, value)
     }
 
     public remove(name: string): void {
-        delete this.entries[name]
+        this.content.delete(name)
     }
 
     public get objects() {
-        return Object.values(this.entries)
+        return [...this.content.values()]
     }
 }

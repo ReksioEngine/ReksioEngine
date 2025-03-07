@@ -3,15 +3,14 @@ import { Type } from './types'
 import { Engine } from './index'
 import { Container, Graphics, Rectangle, Text } from 'pixi.js'
 import { Animo } from './types/animo'
-import { CNVObject, parseCNV } from '../fileFormats/cnv/parser'
-import { createObject, loadDefinition } from '../loaders/definitionLoader'
+import { CNVObject } from '../fileFormats/cnv/parser'
+import { createObject } from '../loaders/definitionLoader'
 import { SaveFileManager } from './saveFile'
 import { printStackTrace } from '../interpreter/script/stacktrace'
 import { assert, EngineError } from '../common/errors'
 import { drawRectangle } from './rendering'
 import debuggingTemplate from './debugging.html'
 import { Scene } from './types/scene'
-import { Scope } from './scope'
 import { soundLibrary } from './sounds'
 
 export class Debugging {
@@ -33,11 +32,6 @@ export class Debugging {
 
     async createObject(definition: CNVObject) {
         return await createObject(this.engine, definition, null)
-    }
-
-    async loadCNV(definition: string, scope: Scope) {
-        await loadDefinition(this.engine, scope, parseCNV(definition), null)
-        return scope
     }
 
     setupDebugTools() {

@@ -122,13 +122,10 @@ const initializationPriorities = [
 }, new Map())
 
 export const loadDefinition = async (engine: Engine, scope: Scope, definition: CNV, parent: Type<any> | null) => {
-    engine.app.ticker.stop()
-
     const entries = []
     for (const [key, value] of Object.entries(definition)) {
         const instance = createTypeInstance(engine, parent, value)
         scope.set(key, instance)
-
         entries.push(instance)
 
         if (instance instanceof DisplayType) {
@@ -174,7 +171,10 @@ export const loadDefinition = async (engine: Engine, scope: Scope, definition: C
             stackTrace.pop()
         }
     })
-    goodObjects.forEach((entry) => {
+}
+
+export const doReady = (scope: Scope) => {
+    scope.objects.forEach((entry) => {
         entry.isReady = true
 
         try {
@@ -184,8 +184,6 @@ export const loadDefinition = async (engine: Engine, scope: Scope, definition: C
             stackTrace.pop()
         }
     })
-
-    engine.app.ticker.start()
 }
 
 export const createObject = async (engine: Engine, definition: CNVObject, parent: Type<any> | null) => {

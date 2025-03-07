@@ -21,7 +21,7 @@ export class ScriptingManager {
     ) {
         let stackFrame = null
         try {
-            const localScope = new Scope('local', localScopeEntries)
+            const localScope = new Scope('local', localScopeEntries ? new Map(Object.entries(localScopeEntries)) : undefined)
             if (caller !== null) {
                 localScope.set('THIS', caller)
             }

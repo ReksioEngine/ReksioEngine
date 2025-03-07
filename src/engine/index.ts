@@ -1,7 +1,7 @@
 import { reference } from '../fileFormats/common'
 import { ScriptingManager } from './scripting'
-import { loadDefinition } from '../loaders/definitionLoader'
-import { Application, Rectangle, Sprite } from 'pixi.js'
+import { loadDefinition, doReady } from '../loaders/definitionLoader'
+import { Application, Rectangle, Sprite, Texture } from 'pixi.js'
 import { Scene } from './types/scene'
 import { FileLoader } from '../loaders/filesLoader'
 import { loadSound, loadTexture } from '../loaders/assetsLoader'
@@ -74,7 +74,9 @@ export class Engine {
             await this.fileLoader.init()
 
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
-            await loadDefinition(this, this.scopeManager.newScope('root'), applicationDef, null)
+            const rootScope = this.scopeManager.newScope('root')
+            await loadDefinition(this, rootScope, applicationDef, null)
+            doReady(rootScope)
 
             const episode: Episode | null = this.scopeManager.findByType('EPISODE')
             if (episode === null) {
@@ -173,30 +175,49 @@ export class Engine {
         this.currentScene = this.getObject(sceneName) as Scene
 
         // Set background image
+        let texturePromise: Promise<Texture> | null = null
         if (this.currentScene.definition.BACKGROUND) {
-            this.rendering.setBackground(
-                await loadTexture(
-                    this.fileLoader,
-                    this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)
-                )
+            texturePromise = loadTexture(
+                this.fileLoader,
+                this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)
             )
         } else {
             this.rendering.clearBackground()
         }
 
-        const sceneDefinition = await this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'))
-        await loadDefinition(this, this.scopeManager.newScope('scene'), sceneDefinition, this.currentScene)
-
         // Play new scene background music
+        let musicPromise = null
         if (this.currentScene.definition.MUSIC) {
-            this.music = await loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
+            musicPromise = loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
                 loop: true,
             })
+        }
+
+        const newScopePromise: Promise<Scope> = new Promise((resolve, reject) => {
+            const sceneDefinitionPromise = this.fileLoader.getCNVFile(this.currentScene!.getRelativePath(sceneName + '.cnv'))
+            sceneDefinitionPromise.then(sceneDefinition => {
+                const newScope = this.scopeManager.newScope('scene')
+                const newScopePromise = loadDefinition(this, newScope, sceneDefinition, this.currentScene)
+                newScopePromise.then(() => {
+                    resolve(newScope)
+                }).catch(reject)
+            }).catch(reject)
+        })
+
+        const [texture, music, newScope] = await Promise.all([texturePromise, musicPromise, newScopePromise])
+        if (texture) {
+            this.rendering.setBackground(texture)
+        }
+        if (music) {
+            this.music = music
             const instance = this.music.play()
             assert(!(instance instanceof Promise), 'Sound should already be preloaded')
             if (this.debug.mutedMusic) {
                 this.music.muted = true
             }
+        }
+        if (newScope) {
+            doReady(newScope)
         }
 
         this.app.stage.removeChild(loadingFreezeOverlay)
