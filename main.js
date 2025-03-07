@@ -51807,6 +51807,9 @@ class Engine {
             this.music.stop();
         }
         this.rendering.onSceneChange();
+        this.app.stage.addChild(this.rendering.loadingDarkOverlay);
+        this.app.stage.addChild(this.rendering.loadingText);
+        this.app.renderer.render(this.app.stage);
         const loadingFreezeOverlay = pixi_js_1.Sprite.from(await this.app.renderer.extract.image(this.app.stage, undefined, undefined, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height)));
         loadingFreezeOverlay.zIndex = 9999999;
         this.app.stage.addChild(loadingFreezeOverlay);
@@ -51837,13 +51840,17 @@ class Engine {
         }
         const newScopePromise = new Promise((resolve, reject) => {
             const sceneDefinitionPromise = this.fileLoader.getCNVFile(this.currentScene.getRelativePath(sceneName + '.cnv'));
-            sceneDefinitionPromise.then(sceneDefinition => {
+            sceneDefinitionPromise
+                .then((sceneDefinition) => {
                 const newScope = this.scopeManager.newScope('scene');
                 const newScopePromise = (0, definitionLoader_1.loadDefinition)(this, newScope, sceneDefinition, this.currentScene);
-                newScopePromise.then(() => {
+                newScopePromise
+                    .then(() => {
                     resolve(newScope);
-                }).catch(reject);
-            }).catch(reject);
+                })
+                    .catch(reject);
+            })
+                .catch(reject);
         });
         const [texture, music, newScope] = await Promise.all([texturePromise, musicPromise, newScopePromise]);
         if (texture) {
@@ -51861,6 +51868,8 @@ class Engine {
             (0, definitionLoader_1.doReady)(newScope);
         }
         this.app.stage.removeChild(loadingFreezeOverlay);
+        this.app.stage.removeChild(this.rendering.loadingDarkOverlay);
+        this.app.stage.removeChild(this.rendering.loadingText);
         this.app.ticker.start();
         this.debug.updateCurrentScene();
     }
@@ -51923,6 +51932,26 @@ class RenderingManager {
         this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
         this.canvasBackground.zIndex = -99999;
         this.canvasBackground.name = 'Scene Background'; // For PIXI Devtools
+        this.loadingDarkOverlay = pixi_js_1.Sprite.from((0, exports.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0x000000, 0.5));
+        this.loadingText = new pixi_js_1.Text('Loading..', new pixi_js_1.TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 36,
+            fontWeight: 'bold',
+            fill: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 5,
+            dropShadow: true,
+            dropShadowColor: '#000000',
+            dropShadowBlur: 4,
+            dropShadowAngle: Math.PI / 6,
+            dropShadowDistance: 6,
+            wordWrap: true,
+            wordWrapWidth: 440,
+            lineJoin: 'round',
+        }));
+        this.loadingText.x = this.app.view.width / 2;
+        this.loadingText.y = this.app.view.height / 2;
+        this.loadingText.anchor.set(0.5, 0.5);
     }
     init() {
         this.app.ticker.maxFPS = 60;
@@ -52308,7 +52337,7 @@ class UniversalSoundLibrary {
     set speedAll(speed) {
         this._speed = speed;
         sound_1.sound.speedAll = speed;
-        this.entries.forEach((entry) => entry.speed = speed);
+        this.entries.forEach((entry) => (entry.speed = speed));
     }
     set disableAutoPause(value) {
         sound_1.sound.disableAutoPause = value;
@@ -52328,12 +52357,12 @@ class UniversalSoundLibrary {
     muteAll() {
         this._muted = true;
         sound_1.sound.muteAll();
-        this.entries.forEach((entry) => entry.muted = true);
+        this.entries.forEach((entry) => (entry.muted = true));
     }
     unmuteAll() {
         this._muted = false;
         sound_1.sound.unmuteAll();
-        this.entries.forEach((entry) => entry.muted = false);
+        this.entries.forEach((entry) => (entry.muted = false));
     }
     get muted() {
         return this._muted;
@@ -52344,7 +52373,7 @@ class UniversalSoundLibrary {
     set volumeAll(volume) {
         this._volume = volume;
         sound_1.sound.volumeAll = volume;
-        this.entries.forEach((entry) => entry.volume = volume);
+        this.entries.forEach((entry) => (entry.volume = volume));
     }
     addSimulated(sound) {
         this.entries.push(sound);
