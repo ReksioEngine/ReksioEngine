@@ -56740,11 +56740,14 @@ let Sound = (() => {
             }
             // This argument is "PLAY" for kurator in intro for some reason
             PLAY(arg) {
-                (0, errors_1.assert)(this.sound !== null);
-                const instance = this.sound.play();
-                (0, errors_1.assert)(!(instance instanceof Promise), 'Sound should already be preloaded');
-                this.onStart();
-                instance.on('end', this.onEnd.bind(this));
+                // Temporary hack, idk why it's needed for fanfary to run in Piraci:MAPA
+                setTimeout(() => {
+                    (0, errors_1.assert)(this.sound !== null);
+                    const instance = this.sound.play();
+                    (0, errors_1.assert)(!(instance instanceof Promise), 'Sound should already be preloaded');
+                    this.onStart();
+                    instance.on('end', this.onEnd.bind(this));
+                }, 0);
             }
             STOP(arg) {
                 (0, errors_1.assert)(this.sound !== null);
