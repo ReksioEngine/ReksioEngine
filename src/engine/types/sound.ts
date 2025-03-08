@@ -38,12 +38,14 @@ export class Sound extends Type<SoundDefinition> {
     // This argument is "PLAY" for kurator in intro for some reason
     @method()
     PLAY(arg?: any) {
-        assert(this.sound !== null)
-
-        const instance = this.sound.play()
-        assert(!(instance instanceof Promise), 'Sound should already be preloaded')
-        this.onStart()
-        instance.on('end', this.onEnd.bind(this))
+        // Temporary hack, idk why it's needed for fanfary to run in Piraci:MAPA
+        setTimeout(() => {
+            assert(this.sound !== null)
+            const instance = this.sound.play()
+            assert(!(instance instanceof Promise), 'Sound should already be preloaded')
+            this.onStart()
+            instance.on('end', this.onEnd.bind(this))
+        }, 0)
     }
 
     @method()
