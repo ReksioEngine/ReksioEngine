@@ -60,7 +60,7 @@ export class Mouse extends Type<MouseDefinition> {
     @method()
     ENABLE() {
         this.registerCallbacks()
-        this.engine.app.stage.eventMode = 'passive'
+        this.engine.app.stage.eventMode = 'static'
     }
 
     private registerCallbacks() {

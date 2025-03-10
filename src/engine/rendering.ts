@@ -75,6 +75,7 @@ export class RenderingManager {
     }
 
     resetCursor() {
+        this.app.stage.eventMode = 'static'
         this.setCursor('auto')
     }
 
