@@ -6,11 +6,10 @@ While the game is not fully playable yet - you can have a look at the current pr
 [Play Reksio i Ufo](https://reksioengine.github.io/ReksioEngine?loader=github&source=reksioiufo)\
 [Play Reksio i Skarb Piratów](https://reksioengine.github.io/ReksioEngine?loader=github&source=reksioiskarbpiratow)
 
-## Current state (2025-02-12)
+## Current state (2025-03-12)
 
 ### Reksio i Skarb Piratów
-**Breaking point**: At around 73% of play time. You can't play minigame with teleports. \
-**Progress**: Around 92% of the game scenes appear to work. \
+**Progress**: 100% of the game scenes appear to work, but we are still testing. \
 **Detailed progress**: https://github.com/orgs/ReksioEngine/projects/2
 
 ### Reksio i Ufo
