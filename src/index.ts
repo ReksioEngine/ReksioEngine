@@ -24,5 +24,5 @@ export const createGamePlayer = (element: HTMLElement | null, options: GamePlaye
     element.appendChild(app.view as unknown as Node)
 
     const engine = new Engine(app, options)
-    engine.init()
+    void engine.init()
 }

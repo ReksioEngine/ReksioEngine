@@ -22,7 +22,7 @@ const start = () => {
 if (urlParams.get('loader') === 'iso-local') {
     const fileSelector = document.createElement('input')
     fileSelector.type = 'file'
-    fileSelector.addEventListener('change', async (event: any) => {
+    fileSelector.addEventListener('change', (event: any) => {
         controls.removeChild(fileSelector)
 
         config = {
@@ -59,6 +59,6 @@ if (urlParams.get('loader') === 'iso-local') {
 }
 
 const enterFullscreen = document.querySelector('#enterFullscreen')!
-enterFullscreen.addEventListener('click', () => {
-    gameContainer!.requestFullscreen()
+enterFullscreen.addEventListener('click', async () => {
+    await gameContainer!.requestFullscreen()
 })

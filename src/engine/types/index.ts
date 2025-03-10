@@ -44,7 +44,7 @@ export class Type<DefinitionType extends TypeDefinition> {
     }
 
     @method()
-    async CLONE(count: number) {
+    CLONE(count: number) {
         for (let i = 0; i < count; i++) {
             this.cloneObject(this)
         }

@@ -263,7 +263,7 @@ export class Sequence extends Type<SequenceDefinition> {
                 const sound = this.sounds.get(speaking.WAVFN)!
                 const instance = sound.play()
                 assert(!(instance instanceof Promise), 'Sound should already be preloaded')
-                instance.on('end', async () => {
+                instance.on('end', () => {
                     this.endedSpeakingSoundsQueue.push(speaking)
                 })
                 this.playingSound = instance
