@@ -51974,6 +51974,7 @@ class RenderingManager {
         this.app.renderer.events.setCursor(mode);
     }
     resetCursor() {
+        this.app.stage.eventMode = 'static';
         this.setCursor('auto');
     }
     addToStage(sprite) {
@@ -55887,7 +55888,7 @@ let Mouse = (() => {
             }
             ENABLE() {
                 this.registerCallbacks();
-                this.engine.app.stage.eventMode = 'passive';
+                this.engine.app.stage.eventMode = 'static';
             }
             registerCallbacks() {
                 this.mouseMoveListener = this.onMouseMove.bind(this);
