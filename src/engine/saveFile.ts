@@ -10,11 +10,10 @@ export class SaveFile {
             this.content = this.fromObject(initialContent)
         }
 
+        this.onChange = onChange
         if (this.onChange) {
             this.onChange(this.toObject())
         }
-
-        this.onChange = onChange
     }
 
     get(group: string, key: string) {
