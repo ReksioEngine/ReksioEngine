@@ -52086,10 +52086,10 @@ class SaveFile {
         if (initialContent !== null) {
             this.content = this.fromObject(initialContent);
         }
+        this.onChange = onChange;
         if (this.onChange) {
             this.onChange(this.toObject());
         }
-        this.onChange = onChange;
     }
     get(group, key) {
         if (!this.content.has(group) || !this.content.get(group)?.has(key)) {
@@ -55328,7 +55328,7 @@ let Type = (() => {
             GETNAME() {
                 return this.name;
             }
-            async CLONE(count) {
+            CLONE(count) {
                 for (let i = 0; i < count; i++) {
                     this.cloneObject(this);
                 }
@@ -56557,7 +56557,7 @@ let Sequence = (() => {
                         const sound = this.sounds.get(speaking.WAVFN);
                         const instance = sound.play();
                         (0, errors_1.assert)(!(instance instanceof Promise), 'Sound should already be preloaded');
-                        instance.on('end', async () => {
+                        instance.on('end', () => {
                             this.endedSpeakingSoundsQueue.push(speaking);
                         });
                         this.playingSound = instance;
@@ -58831,7 +58831,7 @@ const createGamePlayer = (element, options) => {
     const app = new PIXI.Application();
     element.appendChild(app.view);
     const engine = new engine_1.Engine(app, options);
-    engine.init();
+    void engine.init();
 };
 exports.createGamePlayer = createGamePlayer;
 
@@ -64104,7 +64104,7 @@ const start = () => {
 if (urlParams.get('loader') === 'iso-local') {
     const fileSelector = document.createElement('input');
     fileSelector.type = 'file';
-    fileSelector.addEventListener('change', async (event) => {
+    fileSelector.addEventListener('change', (event) => {
         controls.removeChild(fileSelector);
         config = {
             ...baseOptions,
@@ -64140,8 +64140,8 @@ else {
     gameContainer.addEventListener('click', start);
 }
 const enterFullscreen = document.querySelector('#enterFullscreen');
-enterFullscreen.addEventListener('click', () => {
-    gameContainer.requestFullscreen();
+enterFullscreen.addEventListener('click', async () => {
+    await gameContainer.requestFullscreen();
 });
 
 })();
