@@ -4,7 +4,7 @@ import { ANN, loadAnn } from '../fileFormats/ann'
 import { CNV } from '../fileFormats/cnv/parser'
 import { Image } from '../fileFormats/img'
 import { parseSequence, SequenceFile } from '../fileFormats/seq'
-import { Iso9660Reader } from './iso9660'
+import { Iso9660Reader, LocalIso9660Reader, RemoteIso9660Reader } from './iso9660'
 
 export class FileNotFoundError extends Error {
     constructor(filename: string) {
@@ -138,7 +138,34 @@ export class IsoFileLoader extends SimpleFileLoader {
 
     constructor(file: File) {
         super()
-        this.isoReader = new Iso9660Reader(file)
+        this.isoReader = new LocalIso9660Reader(file)
+    }
+
+    async init() {
+        await this.isoReader.load()
+    }
+
+    getFilesListing(): string[] {
+        return this.isoReader.getListing()
+    }
+
+    async getRawFile(filename: string): Promise<ArrayBuffer> {
+        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/')
+        console.debug(`Loading '${normalizedFilename}'...`)
+        const fileResult = await this.isoReader.getFile(normalizedFilename)
+        if (fileResult == null) {
+            throw new FileNotFoundError(normalizedFilename)
+        }
+        return fileResult
+    }
+}
+
+export class RemoteIsoFileLoader extends SimpleFileLoader {
+    private isoReader: Iso9660Reader
+
+    constructor(url: string) {
+        super()
+        this.isoReader = new RemoteIso9660Reader(url)
     }
 
     async init() {

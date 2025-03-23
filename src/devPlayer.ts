@@ -1,5 +1,5 @@
 import { BUILD_VARS, createGamePlayer, GamePlayerOptions } from './index'
-import { ArchiveOrgFileLoader, ListingJSONUrlFileLoader, GithubFileLoader, IsoFileLoader } from './loaders/filesLoader'
+import { ArchiveOrgFileLoader, ListingJSONUrlFileLoader, GithubFileLoader, IsoFileLoader, RemoteIsoFileLoader } from './loaders/filesLoader'
 
 const urlParams = new URLSearchParams(window.location.search)
 const gameContainer = document.getElementById('game')!
@@ -45,6 +45,8 @@ if (urlParams.get('loader') === 'iso-local') {
                 return new ArchiveOrgFileLoader(source)
             } else if (loader === 'listingjson') {
                 return new ListingJSONUrlFileLoader(source)
+            } else if (loader === 'iso-remote') {
+                return new RemoteIsoFileLoader(source)
             }
         }
         return new ListingJSONUrlFileLoader('https://iso.zagrajwreksia.pl/game-assets/reksioiskarbpiratow/listing.json')

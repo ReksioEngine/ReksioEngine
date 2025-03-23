@@ -10,26 +10,11 @@ export type FileEntry = {
     flags: number
 }
 
-export class Iso9660Reader {
-    private file: File
+export abstract class Iso9660Reader {
     private filesMapping: Map<string, FileEntry> = new Map()
-
     private decoder = new TextDecoder('utf-16le')
 
-    constructor(file: File) {
-        this.file = file
-    }
-
-    private async readAt(offset: number, length: number): Promise<ArrayBuffer> {
-        const blob = this.file.slice(offset, offset + length)
-        const reader = new FileReader()
-
-        return new Promise<ArrayBuffer>((resolve, reject) => {
-            reader.onload = () => resolve(reader.result as ArrayBuffer)
-            reader.onerror = () => reject(reader.error)
-            reader.readAsArrayBuffer(blob)
-        })
-    }
+    protected abstract readAt(offset: number, length: number): Promise<ArrayBuffer>
 
     private async bufferAt(offset: number, length: number) {
         const data = await this.readAt(offset, length)
@@ -141,5 +126,43 @@ export class Iso9660Reader {
 
     getListing() {
         return [...this.filesMapping.keys()]
+    }
+}
+
+export class LocalIso9660Reader extends Iso9660Reader {
+    protected file: File
+
+    constructor(file: File) {
+        super()
+        this.file = file
+    }
+
+    protected async readAt(offset: number, length: number): Promise<ArrayBuffer> {
+        const blob = this.file.slice(offset, offset + length)
+        const reader = new FileReader()
+
+        return new Promise<ArrayBuffer>((resolve, reject) => {
+            reader.onload = () => resolve(reader.result as ArrayBuffer)
+            reader.onerror = () => reject(reader.error)
+            reader.readAsArrayBuffer(blob)
+        })
+    }
+}
+
+export class RemoteIso9660Reader extends Iso9660Reader{
+    private readonly url: string
+
+    constructor(url: string) {
+        super()
+        this.url = url
+    }
+
+    protected async readAt(offset: number, length: number): Promise<ArrayBuffer> {
+        const response = await fetch(this.url, {
+            headers: {
+                'Range': `bytes=${offset}-${offset + length}`
+            }
+        })
+        return response.arrayBuffer()
     }
 }
