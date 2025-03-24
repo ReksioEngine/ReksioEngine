@@ -62190,7 +62190,7 @@ exports.createObject = createObject;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ListingJSONUrlFileLoader = exports.IsoFileLoader = exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
+exports.ListingJSONUrlFileLoader = exports.RemoteIsoFileLoader = exports.IsoFileLoader = exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
 const cnv_1 = __webpack_require__(/*! ../fileFormats/cnv */ "./src/fileFormats/cnv/index.ts");
 const img_1 = __webpack_require__(/*! ../fileFormats/img */ "./src/fileFormats/img/index.ts");
 const ann_1 = __webpack_require__(/*! ../fileFormats/ann */ "./src/fileFormats/ann/index.ts");
@@ -62295,7 +62295,7 @@ exports.ArchiveOrgFileLoader = ArchiveOrgFileLoader;
 class IsoFileLoader extends SimpleFileLoader {
     constructor(file) {
         super();
-        this.isoReader = new iso9660_1.Iso9660Reader(file);
+        this.isoReader = new iso9660_1.LocalIso9660Reader(file);
     }
     async init() {
         await this.isoReader.load();
@@ -62314,6 +62314,28 @@ class IsoFileLoader extends SimpleFileLoader {
     }
 }
 exports.IsoFileLoader = IsoFileLoader;
+class RemoteIsoFileLoader extends SimpleFileLoader {
+    constructor(url) {
+        super();
+        this.isoReader = new iso9660_1.RemoteIso9660Reader(url);
+    }
+    async init() {
+        await this.isoReader.load();
+    }
+    getFilesListing() {
+        return this.isoReader.getListing();
+    }
+    async getRawFile(filename) {
+        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
+        console.debug(`Loading '${normalizedFilename}'...`);
+        const fileResult = await this.isoReader.getFile(normalizedFilename);
+        if (fileResult == null) {
+            throw new FileNotFoundError(normalizedFilename);
+        }
+        return fileResult;
+    }
+}
+exports.RemoteIsoFileLoader = RemoteIsoFileLoader;
 class ListingJSONUrlFileLoader extends UrlFileLoader {
     constructor(listingUrl) {
         super();
@@ -62339,24 +62361,14 @@ exports.ListingJSONUrlFileLoader = ListingJSONUrlFileLoader;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Iso9660Reader = void 0;
+exports.RemoteIso9660Reader = exports.LocalIso9660Reader = exports.Iso9660Reader = void 0;
 const utils_1 = __webpack_require__(/*! ../fileFormats/utils */ "./src/fileFormats/utils.ts");
 const SECTOR_SIZE = 2048;
 const JULIET_SECTOR = 17;
 class Iso9660Reader {
-    constructor(file) {
+    constructor() {
         this.filesMapping = new Map();
         this.decoder = new TextDecoder('utf-16le');
-        this.file = file;
-    }
-    async readAt(offset, length) {
-        const blob = this.file.slice(offset, offset + length);
-        const reader = new FileReader();
-        return new Promise((resolve, reject) => {
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = () => reject(reader.error);
-            reader.readAsArrayBuffer(blob);
-        });
     }
     async bufferAt(offset, length) {
         const data = await this.readAt(offset, length);
@@ -62455,6 +62467,37 @@ class Iso9660Reader {
     }
 }
 exports.Iso9660Reader = Iso9660Reader;
+class LocalIso9660Reader extends Iso9660Reader {
+    constructor(file) {
+        super();
+        this.file = file;
+    }
+    async readAt(offset, length) {
+        const blob = this.file.slice(offset, offset + length);
+        const reader = new FileReader();
+        return new Promise((resolve, reject) => {
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsArrayBuffer(blob);
+        });
+    }
+}
+exports.LocalIso9660Reader = LocalIso9660Reader;
+class RemoteIso9660Reader extends Iso9660Reader {
+    constructor(url) {
+        super();
+        this.url = url;
+    }
+    async readAt(offset, length) {
+        const response = await fetch(this.url, {
+            headers: {
+                'Range': `bytes=${offset}-${offset + length}`
+            }
+        });
+        return response.arrayBuffer();
+    }
+}
+exports.RemoteIso9660Reader = RemoteIso9660Reader;
 
 
 /***/ }),
@@ -64128,6 +64171,9 @@ else {
             }
             else if (loader === 'listingjson') {
                 return new filesLoader_1.ListingJSONUrlFileLoader(source);
+            }
+            else if (loader === 'iso-remote') {
+                return new filesLoader_1.RemoteIsoFileLoader(source);
             }
         }
         return new filesLoader_1.ListingJSONUrlFileLoader('https://iso.zagrajwreksia.pl/game-assets/reksioiskarbpiratow/listing.json');
