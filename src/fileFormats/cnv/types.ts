@@ -346,6 +346,24 @@ const KeyboardStructure = {
     ONKEYUP: optional(callbacks(string)),
 }
 
+export type MatrixDefinition = TypeDefinition & {
+    BASEPOS: Array<number>
+    CELLHEIGHT: number
+    CELLWIDTH: number
+    SIZE: Array<number>
+    ONNEXT?: callbacks<string>
+    ONLATEST?: callbacks<string>
+}
+
+const MatrixDefinitionStructure = {
+    BASEPOS: array(number),
+    CELLHEIGHT: number,
+    CELLWIDTH: number,
+    SIZE: array(number),
+    ONNEXT: optional(callbacks(string)),
+    ONLATEST: optional(callbacks(string)),
+}
+
 export type MouseDefinition = TypeDefinition & {
     ONCLICK?: callbacks<string>
     ONDBLCLICK?: callbacks<string>
@@ -564,6 +582,7 @@ export const structureDefinitions = {
     IMAGE: ImageStructure,
     INTEGER: IntegerStructure,
     KEYBOARD: KeyboardStructure,
+    MATRIX: MatrixDefinitionStructure,
     MOUSE: MouseStructure,
     MULTIARRAY: MultiArrayDefinitionStructure,
     MUSIC: MusicStructure,

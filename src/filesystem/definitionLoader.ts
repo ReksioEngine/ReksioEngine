@@ -40,6 +40,7 @@ import { Class } from '../engine/types/class'
 import { logger } from '../engine/logging'
 import { World } from '../engine/types/world'
 import { StackFrame, stackTrace } from '../interpreter/stacktrace'
+import { Matrix } from '../engine/types/matrix'
 
 const createTypeInstance = (engine: Engine, parent: ParentType<any> | null, definition: any) => {
     switch (definition.TYPE) {
@@ -87,6 +88,8 @@ const createTypeInstance = (engine: Engine, parent: ParentType<any> | null, defi
             return new Integer(engine, parent, definition)
         case 'KEYBOARD':
             return new Keyboard(engine, parent, definition)
+        case 'MATRIX':
+            return new Matrix(engine, parent, definition)
         case 'MOUSE':
             return new Mouse(engine, parent, definition)
         case 'MULTIARRAY':
