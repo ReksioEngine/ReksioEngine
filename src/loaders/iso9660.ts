@@ -149,7 +149,7 @@ export class LocalIso9660Reader extends Iso9660Reader {
     }
 }
 
-export class RemoteIso9660Reader extends Iso9660Reader{
+export class RemoteIso9660Reader extends Iso9660Reader {
     private readonly url: string
 
     constructor(url: string) {
@@ -160,8 +160,8 @@ export class RemoteIso9660Reader extends Iso9660Reader{
     protected async readAt(offset: number, length: number): Promise<ArrayBuffer> {
         const response = await fetch(this.url, {
             headers: {
-                'Range': `bytes=${offset}-${offset + length}`
-            }
+                Range: `bytes=${offset}-${offset + length}`,
+            },
         })
         return response.arrayBuffer()
     }

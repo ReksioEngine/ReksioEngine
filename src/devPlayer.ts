@@ -1,5 +1,11 @@
 import { BUILD_VARS, createGamePlayer, GamePlayerOptions } from './index'
-import { ArchiveOrgFileLoader, ListingJSONUrlFileLoader, GithubFileLoader, IsoFileLoader, RemoteIsoFileLoader } from './loaders/filesLoader'
+import {
+    ArchiveOrgFileLoader,
+    ListingJSONUrlFileLoader,
+    GithubFileLoader,
+    IsoFileLoader,
+    RemoteIsoFileLoader,
+} from './loaders/filesLoader'
 
 const urlParams = new URLSearchParams(window.location.search)
 const gameContainer = document.getElementById('game')!
