@@ -39,7 +39,7 @@ export class Engine {
         this.rendering = new RenderingManager(app)
         this.scripting = new ScriptingManager(this)
         this.scopeManager = new ScopeManager()
-        this.debug = new Debugging(this, this.options.debug ?? false, options.debugContainer)
+        this.debug = new Debugging(this, this.options.debug ?? false, options.debugContainer ?? null)
         this.fileLoader = this.options.fileLoader
     }
 

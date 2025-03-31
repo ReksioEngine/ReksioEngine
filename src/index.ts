@@ -1,6 +1,7 @@
 import { Engine } from './engine'
 import * as PIXI from 'pixi.js'
 import { FileLoader } from './loaders/filesLoader'
+export * as FileLoaders from './loaders/filesLoader'
 
 export const BUILD_VARS = {
     manualTick: process.env.manualTick as unknown as boolean,
@@ -11,7 +12,7 @@ export type GamePlayerOptions = {
     fileLoader: FileLoader
     startScene?: string
     debug?: boolean
-    debugContainer: HTMLElement | null
+    debugContainer?: HTMLElement | null
     onExit?: () => void
 }
 

@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "target": "es2021",
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "declaration": true,
+        "outDir": "./dist/types",
+        "rootDir": "src",
+    },
+    "include": ["src/**/*"],
+    "exclude": ["src/engine/debugging/debugging.html"]
+}

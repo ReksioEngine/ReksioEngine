@@ -3,6 +3,7 @@ import { Program } from 'typescript'
 import HTMLWebpackPlugin from 'html-webpack-plugin'
 import webpack from 'webpack'
 import { typeGuard } from './transformers'
+import path from 'path'
 
 module.exports = (env: any) => ({
     entry: './src/devPlayer.ts',
@@ -29,6 +30,7 @@ module.exports = (env: any) => ({
                 loader: 'ts-loader',
                 exclude: /node_modules/,
                 options: {
+                    configFile: path.resolve(__dirname, 'tsconfig.json'),
                     getCustomTransformers: (program: Program) => ({
                         before: [typeGuard(program)],
                     }),
