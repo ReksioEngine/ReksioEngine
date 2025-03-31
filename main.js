@@ -51721,7 +51721,7 @@ class Engine {
         this.rendering = new rendering_1.RenderingManager(app);
         this.scripting = new scripting_1.ScriptingManager(this);
         this.scopeManager = new scope_1.ScopeManager();
-        this.debug = new debugging_1.Debugging(this, this.options.debug ?? false, options.debugContainer);
+        this.debug = new debugging_1.Debugging(this, this.options.debug ?? false, options.debugContainer ?? null);
         this.fileLoader = this.options.fileLoader;
     }
     async init() {
@@ -58817,9 +58817,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createGamePlayer = exports.BUILD_VARS = void 0;
+exports.createGamePlayer = exports.BUILD_VARS = exports.FileLoaders = void 0;
 const engine_1 = __webpack_require__(/*! ./engine */ "./src/engine/index.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
+exports.FileLoaders = __importStar(__webpack_require__(/*! ./loaders/filesLoader */ "./src/loaders/filesLoader.ts"));
 exports.BUILD_VARS = {
     manualTick: undefined,
     debug: true,
@@ -62491,8 +62492,8 @@ class RemoteIso9660Reader extends Iso9660Reader {
     async readAt(offset, length) {
         const response = await fetch(this.url, {
             headers: {
-                'Range': `bytes=${offset}-${offset + length}`
-            }
+                Range: `bytes=${offset}-${offset + length}`,
+            },
         });
         return response.arrayBuffer();
     }
