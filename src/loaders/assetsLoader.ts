@@ -2,12 +2,12 @@ import { Options, Sound } from '@pixi/sound'
 import { FileLoader } from './filesLoader'
 import * as PIXI from 'pixi.js'
 import { AdvancedSprite, createHitmapFromImageBytes } from '../engine/rendering'
-import { ISound, SimulatedSound } from '../engine/sounds'
+import { ISound, SimulatedSound, soundLibrary } from '../engine/sounds'
 import { BUILD_VARS } from '../index'
 
 export const loadSound = async (fileLoader: FileLoader, filename: string, options?: Options): Promise<ISound> => {
     const buffer = await fileLoader.getRawFile(filename)
-    const sound = new Promise<Sound>((resolve, reject) => {
+    const sound = await (new Promise<Sound>((resolve, reject) => {
         Sound.from({
             source: buffer,
             preload: true,
@@ -20,13 +20,11 @@ export const loadSound = async (fileLoader: FileLoader, filename: string, option
             },
             ...options,
         })
-    })
+    }))
 
-    if (BUILD_VARS.manualTick) {
-        return new SimulatedSound(await sound)
-    } else {
-        return sound
-    }
+    const result = BUILD_VARS.manualTick ? new SimulatedSound(sound) : sound
+    soundLibrary.register(result)
+    return result
 }
 
 export const loadSprite = async (fileLoader: FileLoader, filename: string) => {

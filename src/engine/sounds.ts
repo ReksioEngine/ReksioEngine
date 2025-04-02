@@ -3,7 +3,7 @@ import { CompleteCallback, PlayOptions } from '@pixi/sound/lib/Sound'
 import { Sound, sound as pixiSound } from '@pixi/sound'
 
 class UniversalSoundLibrary {
-    private entries: ISound[] = []
+    private entries: Set<ISound> = new Set()
     private _speed: number = 1
     private _muted: boolean = false
     private _volume: number = 1
@@ -63,8 +63,8 @@ class UniversalSoundLibrary {
         this.entries.forEach((entry: ISound) => (entry.volume = volume))
     }
 
-    addSimulated(sound: ISound) {
-        this.entries.push(sound)
+    register(sound: ISound) {
+        this.entries.add(sound)
     }
 }
 
@@ -110,7 +110,7 @@ export class SimulatedSound implements ISound {
         this._muted = soundLibrary.muted
         this._speed = soundLibrary.speedAll
         this._volume = soundLibrary.volumeAll
-        soundLibrary.addSimulated(this)
+        soundLibrary.register(this)
     }
 
     tick(elapsedMS: number) {
