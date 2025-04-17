@@ -130,6 +130,7 @@ export class Sequence extends Type<SequenceDefinition> {
             if (entry.ENDING && this.activeAnimo?.hasEvent(stopEvent)) {
                 this.playAnimoEvent(stopEvent)
             } else {
+                this.activeAnimo?.STOP(true)
                 this.progressNext()
             }
         }
@@ -199,19 +200,22 @@ export class Sequence extends Type<SequenceDefinition> {
         assert(this.activeAnimo !== null)
 
         if (this.runningSubSequence?.TYPE === 'SPEAKING') {
-            if (this.runningSubSequence.STARTING && eventName === this.runningSubSequence.PREFIX + '_START') {
-                if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
+            const prefix = this.runningSubSequence.PREFIX;
+            if (this.runningSubSequence.STARTING && eventName === `${prefix}_START`) {
+                if (this.activeAnimo.hasEvent(eventName = `${prefix}_1`) || this.activeAnimo.hasEvent(eventName = prefix)) {
                     this.loop = true
-                    this.loopIndex = 1
-                    this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1')
+                    this.loopIndex = eventName === prefix ? 0 : 1
+                    this.playAnimoEvent(eventName)
                 }
-            } else if (this.runningSubSequence.ENDING && eventName === this.runningSubSequence.PREFIX + '_STOP') {
+            } else if (this.runningSubSequence.ENDING && eventName === prefix + '_STOP') {
                 this.progressNext()
-            } else if (this.loop) {
-                let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`
+            } else if (this.loop && this.loopIndex === 0) {
+                this.playAnimoEvent(eventName)
+            } else if (this.loop && this.loopIndex !== 0) {
+                let eventName = `${prefix}_${this.loopIndex++}`
                 if (!this.activeAnimo.hasEvent(eventName)) {
                     this.loopIndex = 1
-                    eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`
+                    eventName = `${prefix}_${this.loopIndex}`
                 }
                 this.playAnimoEvent(eventName)
             }
@@ -268,13 +272,14 @@ export class Sequence extends Type<SequenceDefinition> {
                 })
                 this.playingSound = instance
 
-                const startEvent = speaking.PREFIX + '_START'
-                if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
-                    this.playAnimoEvent(startEvent)
-                } else if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
+                let eventName;
+                const prefix = speaking.PREFIX;
+                if (speaking.STARTING && this.activeAnimo.hasEvent(eventName = `${prefix}_START`)) {
+                    this.playAnimoEvent(eventName)
+                } else if (this.activeAnimo.hasEvent(eventName = `${prefix}_1`) || this.activeAnimo.hasEvent(eventName = prefix)) {
                     this.loop = true
-                    this.loopIndex = 1
-                    this.playAnimoEvent(speaking.PREFIX + '_1')
+                    this.loopIndex = eventName === eventName ? 0 : 1
+                    this.playAnimoEvent(eventName)
                 }
 
                 this.runningSubSequence = speaking
