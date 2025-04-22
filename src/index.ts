@@ -14,11 +14,20 @@ export type GamePlayerOptions = {
     debug?: boolean
     debugContainer?: HTMLElement | null
     onExit?: () => void
+    onSceneChange?: (next: string, previous?: string) => void
+}
+
+export class GamePlayerInstance {
+    constructor(private readonly engine: Engine) {}
+
+    destroy() {
+        this.engine.destroy()
+    }
 }
 
 export const createGamePlayer = (element: HTMLElement | null, options: GamePlayerOptions) => {
     if (element === null) {
-        return
+        return null
     }
 
     const app = new PIXI.Application()
@@ -26,4 +35,6 @@ export const createGamePlayer = (element: HTMLElement | null, options: GamePlaye
 
     const engine = new Engine(app, options)
     void engine.init()
+
+    return new GamePlayerInstance(engine)
 }

@@ -98,6 +98,14 @@ export class Engine {
         }
     }
 
+    destroy() {
+        this.app.destroy(true)
+        if (this.music !== null) {
+            this.music.stop()
+        }
+        soundLibrary.stopAll()
+    }
+
     tick(elapsedMS: number) {
         const sceneScope = this.scopeManager.getScope('scene')
         if (sceneScope === null) {
@@ -143,6 +151,10 @@ export class Engine {
     }
 
     async changeScene(sceneName: string) {
+        if (this.options.onSceneChange) {
+            this.options.onSceneChange(sceneName, this.currentScene?.name)
+        }
+
         this.app.ticker.stop()
         soundLibrary.stopAll()
         if (this.music !== null) {
