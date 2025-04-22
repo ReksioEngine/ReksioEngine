@@ -1,8 +1,15 @@
 {
-  "name": "reksioengine",
+  "name": "@reksioengine/reksioengine",
   "version": "0.0.1",
   "main": "reksioengine.js",
   "types": "types/index.d.ts",
   "author": "Adikso",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ReksioEngine/ReksioEngine.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
 }

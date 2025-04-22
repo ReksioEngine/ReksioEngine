@@ -7,7 +7,8 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "cross-env NODE_OPTIONS=\"$(node -h | grep -q 'no-experimental-strip-types' && echo '--no-experimental-strip-types')\" webpack --config ./webpack.config.ts",
         "build-lib": "cross-env NODE_OPTIONS=\"$(node -h | grep -q 'no-experimental-strip-types' && echo '--no-experimental-strip-types')\" webpack --config ./webpack.config.library.ts",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "prepublishOnly": "yarn run build-lib"
     },
     "private": true,
     "dependencies": {

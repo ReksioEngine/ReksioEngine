@@ -6,7 +6,7 @@ import * as fs from 'node:fs'
 
 module.exports = (env: any) => ({
     entry: './src/index.ts',
-    mode: 'development',
+    mode: 'production',
     devtool: 'source-map',
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -33,7 +33,6 @@ module.exports = (env: any) => ({
 
                         const libraryManifest = JSON.parse(input.toString())
                         libraryManifest.dependencies = pkg.dependencies || {}
-                        libraryManifest.name = pkg.name || {}
                         libraryManifest.version = pkg.version || {}
 
                         return JSON.stringify(libraryManifest, null, "    ")
