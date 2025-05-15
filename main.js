@@ -51812,10 +51812,7 @@ class Engine {
             this.options.onSceneChange(sceneName, this.currentScene?.name);
         }
         this.app.ticker.stop();
-        sounds_1.soundLibrary.stopAll();
-        if (this.music !== null) {
-            this.music.stop();
-        }
+        sounds_1.soundLibrary.stopAll([this.music]);
         this.rendering.onSceneChange();
         this.app.stage.addChild(this.rendering.loadingDarkOverlay);
         this.app.stage.addChild(this.rendering.loadingText);
@@ -51833,6 +51830,10 @@ class Engine {
         }
         this.previousScene = this.currentScene;
         this.currentScene = this.getObject(sceneName);
+        if (this.music !== null && this.currentScene.definition.MUSIC !== this.previousScene?.definition.MUSIC) {
+            this.music.stop();
+            this.music = null;
+        }
         // Set background image
         let texturePromise = null;
         if (this.currentScene.definition.BACKGROUND) {
@@ -51841,9 +51842,10 @@ class Engine {
         else {
             this.rendering.clearBackground();
         }
-        // Play new scene background music
+        // Play new scene background music.
+        // We keep playing the same music if it was the same in previous scene
         let musicPromise = null;
-        if (this.currentScene.definition.MUSIC) {
+        if (this.music == null && this.currentScene.definition.MUSIC) {
             musicPromise = (0, assetsLoader_1.loadSound)(this.fileLoader, this.currentScene.definition.MUSIC, {
                 loop: true,
             });
@@ -52353,9 +52355,13 @@ class UniversalSoundLibrary {
     set disableAutoPause(value) {
         sound_1.sound.disableAutoPause = value;
     }
-    stopAll() {
+    stopAll(exclude = []) {
         sound_1.sound.stopAll();
-        this.entries.forEach((entry) => entry.stop());
+        this.entries.forEach((entry) => {
+            if (!exclude.includes(entry)) {
+                entry.stop();
+            }
+        });
     }
     resumeAll() {
         sound_1.sound.resumeAll();
