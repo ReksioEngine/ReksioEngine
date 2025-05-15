@@ -51766,6 +51766,13 @@ class Engine {
             console.error(err);
         }
     }
+    destroy() {
+        this.app.destroy(true);
+        if (this.music !== null) {
+            this.music.stop();
+        }
+        sounds_1.soundLibrary.stopAll();
+    }
     tick(elapsedMS) {
         const sceneScope = this.scopeManager.getScope('scene');
         if (sceneScope === null) {
@@ -51801,6 +51808,9 @@ class Engine {
         this.debug.updateXRay();
     }
     async changeScene(sceneName) {
+        if (this.options.onSceneChange) {
+            this.options.onSceneChange(sceneName, this.currentScene?.name);
+        }
         this.app.ticker.stop();
         sounds_1.soundLibrary.stopAll();
         if (this.music !== null) {
@@ -52327,7 +52337,7 @@ exports.SimulatedMediaInstance = exports.SimulatedSound = exports.soundLibrary =
 const sound_1 = __webpack_require__(/*! @pixi/sound */ "./node_modules/@pixi/sound/lib/index.js");
 class UniversalSoundLibrary {
     constructor() {
-        this.entries = [];
+        this.entries = new Set();
         this._speed = 1;
         this._muted = false;
         this._volume = 1;
@@ -52376,8 +52386,8 @@ class UniversalSoundLibrary {
         sound_1.sound.volumeAll = volume;
         this.entries.forEach((entry) => (entry.volume = volume));
     }
-    addSimulated(sound) {
-        this.entries.push(sound);
+    register(sound) {
+        this.entries.add(sound);
     }
 }
 exports.soundLibrary = new UniversalSoundLibrary();
@@ -52392,7 +52402,7 @@ class SimulatedSound {
         this._muted = exports.soundLibrary.muted;
         this._speed = exports.soundLibrary.speedAll;
         this._volume = exports.soundLibrary.volumeAll;
-        exports.soundLibrary.addSimulated(this);
+        exports.soundLibrary.register(this);
     }
     tick(elapsedMS) {
         for (const instance of this._instances) {
@@ -58817,7 +58827,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createGamePlayer = exports.BUILD_VARS = exports.FileLoaders = void 0;
+exports.createGamePlayer = exports.GamePlayerInstance = exports.BUILD_VARS = exports.FileLoaders = void 0;
 const engine_1 = __webpack_require__(/*! ./engine */ "./src/engine/index.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 exports.FileLoaders = __importStar(__webpack_require__(/*! ./loaders/filesLoader */ "./src/loaders/filesLoader.ts"));
@@ -58825,14 +58835,24 @@ exports.BUILD_VARS = {
     manualTick: undefined,
     debug: true,
 };
+class GamePlayerInstance {
+    constructor(engine) {
+        this.engine = engine;
+    }
+    destroy() {
+        this.engine.destroy();
+    }
+}
+exports.GamePlayerInstance = GamePlayerInstance;
 const createGamePlayer = (element, options) => {
     if (element === null) {
-        return;
+        return null;
     }
     const app = new PIXI.Application();
     element.appendChild(app.view);
     const engine = new engine_1.Engine(app, options);
     void engine.init();
+    return new GamePlayerInstance(engine);
 };
 exports.createGamePlayer = createGamePlayer;
 
@@ -61932,7 +61952,7 @@ const sounds_1 = __webpack_require__(/*! ../engine/sounds */ "./src/engine/sound
 const index_1 = __webpack_require__(/*! ../index */ "./src/index.ts");
 const loadSound = async (fileLoader, filename, options) => {
     const buffer = await fileLoader.getRawFile(filename);
-    const sound = new Promise((resolve, reject) => {
+    const sound = await (new Promise((resolve, reject) => {
         sound_1.Sound.from({
             source: buffer,
             preload: true,
@@ -61946,13 +61966,10 @@ const loadSound = async (fileLoader, filename, options) => {
             },
             ...options,
         });
-    });
-    if (index_1.BUILD_VARS.manualTick) {
-        return new sounds_1.SimulatedSound(await sound);
-    }
-    else {
-        return sound;
-    }
+    }));
+    const result = index_1.BUILD_VARS.manualTick ? new sounds_1.SimulatedSound(sound) : sound;
+    sounds_1.soundLibrary.register(result);
+    return result;
 };
 exports.loadSound = loadSound;
 const loadSprite = async (fileLoader, filename) => {
