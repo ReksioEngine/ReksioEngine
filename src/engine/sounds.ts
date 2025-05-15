@@ -22,9 +22,13 @@ class UniversalSoundLibrary {
         pixiSound.disableAutoPause = value
     }
 
-    stopAll() {
+    stopAll(exclude: (ISound | null)[] = []) {
         pixiSound.stopAll()
-        this.entries.forEach((entry: ISound) => entry.stop())
+        this.entries.forEach((entry: ISound) => {
+            if (!exclude.includes(entry)) {
+                entry.stop()
+            }
+        })
     }
 
     resumeAll() {

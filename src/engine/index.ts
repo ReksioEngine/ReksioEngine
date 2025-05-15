@@ -156,10 +156,7 @@ export class Engine {
         }
 
         this.app.ticker.stop()
-        soundLibrary.stopAll()
-        if (this.music !== null) {
-            this.music.stop()
-        }
+        soundLibrary.stopAll([this.music])
 
         this.rendering.onSceneChange()
 
@@ -190,6 +187,11 @@ export class Engine {
         this.previousScene = this.currentScene
         this.currentScene = this.getObject(sceneName) as Scene
 
+        if (this.music !== null && this.currentScene.definition.MUSIC !== this.previousScene?.definition.MUSIC) {
+            this.music.stop()
+            this.music = null
+        }
+
         // Set background image
         let texturePromise: Promise<Texture> | null = null
         if (this.currentScene.definition.BACKGROUND) {
@@ -201,9 +203,10 @@ export class Engine {
             this.rendering.clearBackground()
         }
 
-        // Play new scene background music
+        // Play new scene background music.
+        // We keep playing the same music if it was the same in previous scene
         let musicPromise = null
-        if (this.currentScene.definition.MUSIC) {
+        if (this.music == null && this.currentScene.definition.MUSIC) {
             musicPromise = loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
                 loop: true,
             })
