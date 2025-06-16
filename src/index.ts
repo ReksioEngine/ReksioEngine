@@ -3,6 +3,7 @@ import * as PIXI from 'pixi.js'
 import { FileLoader } from './loaders/filesLoader'
 import { SaveFile, SaveFileManager } from './engine/saveFile'
 export * as FileLoaders from './loaders/filesLoader'
+export { SaveFile, SaveFileManager, createSaveFileLocalStorageHandler } from './engine/saveFile'
 
 export const BUILD_VARS = {
     manualTick: process.env.manualTick as unknown as boolean,
@@ -50,6 +51,10 @@ export class GamePlayerInstance {
         this.restart({
             saveFile: SaveFileManager.fromINI(content, this.engine.saveFile.onChange)
         } as GamePlayerOptions)
+    }
+
+    get currentScene() {
+        return this.engine.currentScene?.name ?? null
     }
 }
 
