@@ -6,6 +6,7 @@ import {
     IsoFileLoader,
     RemoteIsoFileLoader,
 } from './loaders/filesLoader'
+import { SaveFileManager } from './engine/saveFile'
 
 const urlParams = new URLSearchParams(window.location.search)
 const gameContainer = document.getElementById('game')!
@@ -16,13 +17,18 @@ const baseOptions = {
     debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : BUILD_VARS.debug,
     debugContainer: debugContainer,
     onExit: () => document.exitFullscreen(),
+    saveFile: SaveFileManager.areSavesEnabled() ? SaveFileManager.fromLocalStorage() : undefined,
 }
 
 let config = {}
 const start = () => {
     gameContainer.removeEventListener('click', start)
     gameContainer.classList.remove('notready')
-    createGamePlayer(gameContainer, config as GamePlayerOptions)
+
+    const player = createGamePlayer(gameContainer, config as GamePlayerOptions)
+    if (player) {
+        void player.start()
+    }
 }
 
 if (urlParams.get('loader') === 'iso-local') {

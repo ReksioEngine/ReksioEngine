@@ -39,7 +39,9 @@ export class Debugging {
             return
         }
 
-        const debugTools = document.createElement('div')
+        const existingDebugTool = document.getElementById('reksioengine-debug')
+        const debugTools = existingDebugTool ?? document.createElement('div')
+
         debugTools.innerHTML = debuggingTemplate
         debugTools.style.display = 'inline-block'
         this.debugContainer.appendChild(debugTools)

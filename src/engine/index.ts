@@ -27,7 +27,7 @@ export class Engine {
     public currentScene: Scene | null = null
     public previousScene: Scene | null = null
 
-    public saveFile: SaveFile = SaveFileManager.empty(false)
+    public saveFile: SaveFile
 
     public fileLoader: FileLoader
     public music: ISound | null = null
@@ -41,6 +41,7 @@ export class Engine {
         this.scopeManager = new ScopeManager()
         this.debug = new Debugging(this, this.options.debug ?? false, options.debugContainer ?? null)
         this.fileLoader = this.options.fileLoader
+        this.saveFile = this.options.saveFile ?? SaveFileManager.empty(false)
     }
 
     async init() {
@@ -48,10 +49,6 @@ export class Engine {
             // @ts-expect-error no engine in globalThis
             globalThis.engine = this
             await initDevtools({ app: this.app })
-
-            if (SaveFileManager.areSavesEnabled()) {
-                this.saveFile = SaveFileManager.fromLocalStorage()
-            }
 
             this.rendering.init()
             soundLibrary.disableAutoPause = true
@@ -62,7 +59,6 @@ export class Engine {
             this.app.ticker.stop()
 
             this.debug.setupDebugTools()
-            await this.start()
         } catch (err) {
             console.error('Unhandled error occurred during initialization')
             console.error(err)
@@ -99,7 +95,7 @@ export class Engine {
     }
 
     destroy() {
-        this.app.destroy(true)
+        this.app.destroy()
         if (this.music !== null) {
             this.music.stop()
         }
