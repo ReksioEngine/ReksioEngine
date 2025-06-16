@@ -12,12 +12,16 @@ const urlParams = new URLSearchParams(window.location.search)
 const gameContainer = document.getElementById('game')!
 const debugContainer = document.getElementById('debug')
 const controls = document.getElementById('controls')!
+
+const savesEnabledEntry: string | null = localStorage.getItem('savesEnabled')
+const areSavesEnabled = savesEnabledEntry == 'true' || savesEnabledEntry === null
+
 const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
     debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : BUILD_VARS.debug,
     debugContainer: debugContainer,
     onExit: () => document.exitFullscreen(),
-    saveFile: SaveFileManager.areSavesEnabled() ? SaveFileManager.fromLocalStorage() : undefined,
+    saveFile: areSavesEnabled ? SaveFileManager.fromLocalStorage() : undefined,
 }
 
 let config = {}

@@ -161,7 +161,7 @@ export class Debugging {
                     const content: any = readerEvent.target?.result
 
                     this.engine.pause()
-                    this.engine.saveFile = SaveFileManager.fromINI(content, true)
+                    this.engine.saveFile = SaveFileManager.fromINI(content, this.engine.saveFile.onChange)
                     window.location.reload()
                 }
             }
@@ -180,12 +180,13 @@ export class Debugging {
             URL.revokeObjectURL(fileURL)
         })
 
-        enableSaveFiles.checked = SaveFileManager.areSavesEnabled()
+        const savesEnabled: string | null = localStorage.getItem('savesEnabled')
+        enableSaveFiles.checked = savesEnabled == 'true' || savesEnabled === null
         enableSaveFiles.addEventListener('change', () => {
             localStorage.setItem('savesEnabled', JSON.stringify(enableSaveFiles.checked))
 
             if (!enableSaveFiles.checked) {
-                this.engine.saveFile = SaveFileManager.empty(false)
+                this.engine.saveFile = SaveFileManager.empty(undefined)
             } else {
                 this.engine.saveFile = SaveFileManager.fromLocalStorage()
             }

@@ -41,7 +41,7 @@ export class Engine {
         this.scopeManager = new ScopeManager()
         this.debug = new Debugging(this, this.options.debug ?? false, options.debugContainer ?? null)
         this.fileLoader = this.options.fileLoader
-        this.saveFile = this.options.saveFile ?? SaveFileManager.empty(false)
+        this.saveFile = this.options.saveFile ?? SaveFileManager.empty(undefined)
     }
 
     async init() {

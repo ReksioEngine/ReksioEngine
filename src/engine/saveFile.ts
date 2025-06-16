@@ -1,18 +1,20 @@
 import { ValueType } from './types'
 import INI from 'ini'
 
+export type GameFileUpdateCallback = (saveFile: SaveFile) => void
+
 export class SaveFile {
     private content: Map<string, Map<string, any>> = new Map()
-    private readonly onChange?: (value: any) => void
+    public readonly onChange?: (value: any) => void
 
-    constructor(initialContent: object | null, onChange?: (value: any) => void) {
+    constructor(initialContent: object | null, onChange?: GameFileUpdateCallback) {
         if (initialContent !== null) {
             this.content = this.fromObject(initialContent)
         }
 
         this.onChange = onChange
         if (this.onChange) {
-            this.onChange(this.toObject())
+            this.onChange(this)
         }
     }
 
@@ -30,7 +32,7 @@ export class SaveFile {
         this.content.get(group)!.set(key, value)
 
         if (this.onChange) {
-            this.onChange(this.toObject())
+            this.onChange(this)
         }
     }
 
@@ -51,7 +53,7 @@ export class SaveFile {
     reset() {
         this.content.clear()
         if (this.onChange) {
-            this.onChange(null)
+            this.onChange(this)
         }
     }
 
@@ -71,34 +73,31 @@ export class SaveFile {
     }
 }
 
+export const createSaveFileLocalStorageHandler = (key: string) => {
+    return (saveFile: SaveFile): void => {
+        if (saveFile == null) {
+            localStorage.removeItem(key)
+        } else {
+            localStorage.setItem(key, JSON.stringify(saveFile.toObject()))
+        }
+    }
+}
+
 export class SaveFileManager {
-    static empty(syncWithLocalStorage: boolean = false) {
-        return new SaveFile(null, syncWithLocalStorage ? this.syncWithLocalStorageHandler : undefined)
+    static empty(updateCallback?: GameFileUpdateCallback) {
+        return new SaveFile(null, updateCallback)
     }
 
-    static fromLocalStorage() {
-        const content = localStorage.getItem('saveFile')
-        return new SaveFile(content ? JSON.parse(content) : null, this.syncWithLocalStorageHandler)
+    static fromLocalStorage(key = 'saveFile') {
+        const content = localStorage.getItem(key)
+        return new SaveFile(content ? JSON.parse(content) : null, createSaveFileLocalStorageHandler(key))
     }
 
-    static fromINI(content: string, syncWithLocalStorage: boolean = false) {
-        return new SaveFile(INI.parse(content), syncWithLocalStorage ? this.syncWithLocalStorageHandler : undefined)
+    static fromINI(content: string, updateCallback?: GameFileUpdateCallback) {
+        return new SaveFile(INI.parse(content), updateCallback)
     }
 
     static toINI(saveFile: SaveFile) {
         return INI.stringify(saveFile.toObject())
-    }
-
-    static areSavesEnabled() {
-        const savesEnabled: string | null = localStorage.getItem('savesEnabled')
-        return savesEnabled == 'true' || savesEnabled === null
-    }
-
-    private static syncWithLocalStorageHandler(object: any) {
-        if (object == null) {
-            localStorage.removeItem('saveFile')
-        } else {
-            localStorage.setItem('saveFile', JSON.stringify(object))
-        }
     }
 }

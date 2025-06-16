@@ -17,6 +17,7 @@ export type GamePlayerOptions = {
     debugContainer?: HTMLElement | null
     onExit?: () => void
     onSceneChange?: (next: string, previous?: string) => void
+    onSaveFileUpdate?: (saveFile: SaveFile) => void
 }
 
 export class GamePlayerInstance {
@@ -47,7 +48,7 @@ export class GamePlayerInstance {
 
     importSaveFile(content: string) {
         this.restart({
-            saveFile: SaveFileManager.fromINI(content, true)
+            saveFile: SaveFileManager.fromINI(content, this.engine.saveFile.onChange)
         } as GamePlayerOptions)
     }
 }
