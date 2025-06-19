@@ -90,7 +90,6 @@ export class RenderingManager {
     }
 
     sortObjects() {
-        // Sort by zIndex + the order of creation if zIndex is the same.
         // Default PIXI.js sorting have problem with equal zIndex case.
         this.app.stage.children.sort((a, b) => {
             if (a.zIndex !== b.zIndex) {
@@ -107,10 +106,7 @@ export class RenderingManager {
             const renderingOrderA = this.displayObjectsInDefinitionOrder.indexOf(objectA)
             const renderingOrderB = this.displayObjectsInDefinitionOrder.indexOf(objectB)
 
-            const orderA = a.zIndex + renderingOrderA
-            const orderB = b.zIndex + renderingOrderB
-
-            return orderA - orderB
+            return renderingOrderB - renderingOrderA
         })
     }
 }
