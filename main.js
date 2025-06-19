@@ -56944,8 +56944,7 @@ let StaticFilter = (() => {
                 }
                 if (properties.has('anchor')) {
                     renderObject.anchor = properties.get('anchor');
-                    object.rotationAnchorOffsetX = 0;
-                    object.rotationAnchorOffsetY = 0;
+                    object.syncPosition();
                 }
             }
         },
