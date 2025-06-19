@@ -52853,6 +52853,11 @@ let Animo = (() => {
                     this.currentFrame++;
                 }
             }
+            syncPosition() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.x = this.positionX + this.positionOffsetX - this.anchorOffsetX + this.sprite.width * this.sprite.anchor.x;
+                this.sprite.y = this.positionY + this.positionOffsetY - this.anchorOffsetY + this.sprite.height * this.sprite.anchor.y;
+            }
             changeFrame(event, frameIdx, signal = true) {
                 (0, errors_1.assert)(this.annFile !== null);
                 (0, errors_1.assert)(this.sprite !== null);
@@ -52868,9 +52873,8 @@ let Animo = (() => {
                 this.sprite.hitmap = this.getHitmap(imageIndex);
                 this.sprite.name = `${this.name} (${event.name}) (ANIMO)`; // For PIXI Devtools
                 this.positionOffsetX = annImage.positionX + eventFrame.positionX;
-                this.sprite.x = this.positionX + this.positionOffsetX - this.anchorOffsetX;
                 this.positionOffsetY = annImage.positionY + eventFrame.positionY;
-                this.sprite.y = this.positionY + this.positionOffsetY - this.anchorOffsetY;
+                this.syncPosition();
                 this.sprite.width = annImage.width;
                 this.sprite.height = annImage.height;
                 if (this.buttonInteractArea !== null) {
@@ -52891,9 +52895,8 @@ let Animo = (() => {
                 this.sprite.texture = this.getTexture(imageIndex);
                 this.sprite.hitmap = this.getHitmap(imageIndex);
                 this.positionOffsetX = annImage.positionX;
-                this.sprite.x = this.positionX + this.positionOffsetX - this.anchorOffsetX;
                 this.positionOffsetY = annImage.positionY;
-                this.sprite.y = this.positionY + this.positionOffsetY - this.anchorOffsetY;
+                this.syncPosition();
                 this.sprite.width = annImage.width;
                 this.sprite.height = annImage.height;
                 if (this.buttonInteractArea !== null) {
@@ -53036,8 +53039,7 @@ let Animo = (() => {
                 (0, errors_1.assert)(this.sprite !== null);
                 this.positionX = x;
                 this.positionY = y;
-                this.sprite.x = x + this.positionOffsetX - this.anchorOffsetX;
-                this.sprite.y = y + this.positionOffsetY - this.anchorOffsetY;
+                this.syncPosition();
                 this.onMove();
             }
             SETASBUTTON(enabled, showPointer) {
@@ -56902,35 +56904,49 @@ let StaticFilter = (() => {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition);
                 this.properties = (__runInitializers(this, _instanceExtraInitializers), new Map());
-                this.linked = [];
+                this.linked = new Map();
+                this.linked = new Map();
             }
             SETPROPERTY(name, value) {
                 this.properties.set(name, value);
             }
             LINK(arg) {
                 const object = this.engine.getObject(arg);
-                this.linked.push(object);
-                for (const linkedObject of this.linked) {
-                    if (!(linkedObject instanceof index_1.DisplayType)) {
-                        continue;
-                    }
-                    const object = linkedObject.getRenderObject();
-                    if (object === null) {
-                        continue;
-                    }
-                    if (this.definition.ACTION === 'ROTATE') {
-                        object.anchor.set(0.5, 0.5);
-                        if (linkedObject instanceof animo_1.Animo) {
-                            linkedObject.anchorOffsetX = object.width / 2;
-                            linkedObject.anchorOffsetY = object.height / 2;
-                        }
-                        object.angle = this.properties.get('ANGLE');
+                const renderObject = object.getRenderObject();
+                if (renderObject === null) {
+                    return;
+                }
+                const newProperties = new Map();
+                if (this.definition.ACTION === 'ROTATE') {
+                    newProperties.set('angle', renderObject.angle);
+                    newProperties.set('anchor', renderObject.anchor);
+                    renderObject.anchor.set(0.5, 0.5);
+                    renderObject.angle = this.properties.get('ANGLE');
+                    if (object instanceof animo_1.Animo) {
+                        object.syncPosition();
                     }
                 }
+                this.linked.set(object, newProperties);
             }
             UNLINK(arg) {
                 const object = this.engine.getObject(arg);
-                this.linked = this.linked.filter((x) => x !== object);
+                const properties = this.linked.get(object);
+                if (!properties) {
+                    return;
+                }
+                this.linked.delete(object);
+                const renderObject = object.getRenderObject();
+                if (renderObject === null) {
+                    return;
+                }
+                if (properties.has('angle')) {
+                    renderObject.angle = properties.get('angle');
+                }
+                if (properties.has('anchor')) {
+                    renderObject.anchor = properties.get('anchor');
+                    object.rotationAnchorOffsetX = 0;
+                    object.rotationAnchorOffsetY = 0;
+                }
             }
         },
         (() => {
