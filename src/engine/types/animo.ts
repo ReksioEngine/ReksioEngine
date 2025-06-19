@@ -266,6 +266,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
     }
 
+    public syncPosition() {
+        assert(this.sprite !== null)
+        this.sprite.x = this.positionX + this.positionOffsetX - this.anchorOffsetX + this.sprite.width * this.sprite.anchor.x
+        this.sprite.y = this.positionY + this.positionOffsetY - this.anchorOffsetY + this.sprite.height * this.sprite.anchor.y
+    }
+
     private changeFrame(event: Event, frameIdx: number, signal = true) {
         assert(this.annFile !== null)
         assert(this.sprite !== null)
@@ -285,10 +291,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.name = `${this.name} (${event.name}) (ANIMO)` // For PIXI Devtools
 
         this.positionOffsetX = annImage.positionX + eventFrame.positionX
-        this.sprite.x = this.positionX + this.positionOffsetX - this.anchorOffsetX
-
         this.positionOffsetY = annImage.positionY + eventFrame.positionY
-        this.sprite.y = this.positionY + this.positionOffsetY - this.anchorOffsetY
+        this.syncPosition()
 
         this.sprite.width = annImage.width
         this.sprite.height = annImage.height
@@ -316,10 +320,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.hitmap = this.getHitmap(imageIndex)
 
         this.positionOffsetX = annImage.positionX
-        this.sprite.x = this.positionX + this.positionOffsetX - this.anchorOffsetX
-
         this.positionOffsetY = annImage.positionY
-        this.sprite.y = this.positionY + this.positionOffsetY - this.anchorOffsetY
+        this.syncPosition()
 
         this.sprite.width = annImage.width
         this.sprite.height = annImage.height
@@ -506,9 +508,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         this.positionX = x
         this.positionY = y
-        this.sprite.x = x + this.positionOffsetX - this.anchorOffsetX
-        this.sprite.y = y + this.positionOffsetY - this.anchorOffsetY
-
+        this.syncPosition()
         this.onMove()
     }
 
