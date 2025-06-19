@@ -27,7 +27,7 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
         onlyVisible: boolean = false,
         minZ: number = Number.MIN_SAFE_INTEGER,
         maxZ: number = Number.MAX_SAFE_INTEGER,
-        includeAlpha: boolean = false
+        ignoreAlpha: boolean = false
     ) {
         const point = new Point(x, y)
 
@@ -47,14 +47,14 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
             }
 
             let containsPoint = false
-            if (!includeAlpha) {
-                containsPoint = renderObject.containsPointWithAlpha(point)
-            } else {
+            if (ignoreAlpha) {
                 containsPoint =
                     point.x > position.x &&
                     point.x < position?.x + renderObject.width &&
                     point.y > position.y &&
                     point.y < position.y + renderObject.height
+            } else {
+                containsPoint = renderObject.containsPoint(point)
             }
 
             if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
