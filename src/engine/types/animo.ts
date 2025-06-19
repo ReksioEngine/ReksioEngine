@@ -721,13 +721,27 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     clone() {
         const clone = super.clone() as Animo
+        clone.isReady = this.isReady
         clone.isPlaying = this.isPlaying
         clone.currentFrame = this.currentFrame
         clone.currentEvent = this.currentEvent
         clone.annFile = this.annFile
         clone.textures = this.textures
         clone.sounds = this.sounds
+
+        clone.fps = this.fps
+        clone.positionX = this.positionX
+        clone.positionOffsetX = this.positionOffsetX
+        clone.positionY = this.positionY
+        clone.positionOffsetY = this.positionOffsetY
+        clone.anchorOffsetX = this.anchorOffsetX
+        clone.anchorOffsetY = this.anchorOffsetY
+
         clone.initSprite()
+        clone.sprite!.visible = this.sprite!.visible
+        if (clone.currentEvent) {
+            clone.changeFrame(clone.currentEvent, 0, false)
+        }
         return clone
     }
 
