@@ -20130,7 +20130,7 @@ var code = `<style>
         background-color: #5b5b5b;
     }
 </style>
-<div class="reksioengine-debug">
+<div id="reksioengine-debug" class="reksioengine-debug">
     <div class="debug-panel">
         <div class="debug-panel-title">Gameplay</div>
         <div class="debug-panel-body">
@@ -51424,7 +51424,8 @@ class Debugging {
         if (!this.enabled || !this.debugContainer) {
             return;
         }
-        const debugTools = document.createElement('div');
+        const existingDebugTool = document.getElementById('reksioengine-debug');
+        const debugTools = existingDebugTool ?? document.createElement('div');
         debugTools.innerHTML = debugging_html_1.default;
         debugTools.style.display = 'inline-block';
         this.debugContainer.appendChild(debugTools);
@@ -51528,7 +51529,7 @@ class Debugging {
                 reader.onload = (readerEvent) => {
                     const content = readerEvent.target?.result;
                     this.engine.pause();
-                    this.engine.saveFile = saveFile_1.SaveFileManager.fromINI(content, true);
+                    this.engine.saveFile = saveFile_1.SaveFileManager.fromINI(content, this.engine.saveFile.onChange);
                     window.location.reload();
                 };
             };
@@ -51544,11 +51545,12 @@ class Debugging {
             downloadLink.click();
             URL.revokeObjectURL(fileURL);
         });
-        enableSaveFiles.checked = saveFile_1.SaveFileManager.areSavesEnabled();
+        const savesEnabled = localStorage.getItem('savesEnabled');
+        enableSaveFiles.checked = savesEnabled == 'true' || savesEnabled === null;
         enableSaveFiles.addEventListener('change', () => {
             localStorage.setItem('savesEnabled', JSON.stringify(enableSaveFiles.checked));
             if (!enableSaveFiles.checked) {
-                this.engine.saveFile = saveFile_1.SaveFileManager.empty(false);
+                this.engine.saveFile = saveFile_1.SaveFileManager.empty(undefined);
             }
             else {
                 this.engine.saveFile = saveFile_1.SaveFileManager.fromLocalStorage();
@@ -51716,22 +51718,19 @@ class Engine {
         this.speed = 1;
         this.currentScene = null;
         this.previousScene = null;
-        this.saveFile = saveFile_1.SaveFileManager.empty(false);
         this.music = null;
         this.rendering = new rendering_1.RenderingManager(app);
         this.scripting = new scripting_1.ScriptingManager(this);
         this.scopeManager = new scope_1.ScopeManager();
         this.debug = new debugging_1.Debugging(this, this.options.debug ?? false, options.debugContainer ?? null);
         this.fileLoader = this.options.fileLoader;
+        this.saveFile = this.options.saveFile ?? saveFile_1.SaveFileManager.empty(undefined);
     }
     async init() {
         try {
             // @ts-expect-error no engine in globalThis
             globalThis.engine = this;
             await (0, devtools_1.initDevtools)({ app: this.app });
-            if (saveFile_1.SaveFileManager.areSavesEnabled()) {
-                this.saveFile = saveFile_1.SaveFileManager.fromLocalStorage();
-            }
             this.rendering.init();
             sounds_1.soundLibrary.disableAutoPause = true;
             if (!index_1.BUILD_VARS.manualTick) {
@@ -51739,7 +51738,6 @@ class Engine {
             }
             this.app.ticker.stop();
             this.debug.setupDebugTools();
-            await this.start();
         }
         catch (err) {
             console.error('Unhandled error occurred during initialization');
@@ -51767,7 +51765,7 @@ class Engine {
         }
     }
     destroy() {
-        this.app.destroy(true);
+        this.app.destroy();
         if (this.music !== null) {
             this.music.stop();
         }
@@ -52090,7 +52088,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.SaveFileManager = exports.SaveFile = void 0;
+exports.SaveFileManager = exports.createSaveFileLocalStorageHandler = exports.SaveFile = void 0;
 const ini_1 = __importDefault(__webpack_require__(/*! ini */ "./node_modules/ini/lib/ini.js"));
 class SaveFile {
     constructor(initialContent, onChange) {
@@ -52100,7 +52098,7 @@ class SaveFile {
         }
         this.onChange = onChange;
         if (this.onChange) {
-            this.onChange(this.toObject());
+            this.onChange(this);
         }
     }
     get(group, key) {
@@ -52115,7 +52113,7 @@ class SaveFile {
         }
         this.content.get(group).set(key, value);
         if (this.onChange) {
-            this.onChange(this.toObject());
+            this.onChange(this);
         }
     }
     loadValue(object) {
@@ -52133,7 +52131,7 @@ class SaveFile {
     reset() {
         this.content.clear();
         if (this.onChange) {
-            this.onChange(null);
+            this.onChange(this);
         }
     }
     toObject() {
@@ -52147,31 +52145,30 @@ class SaveFile {
     }
 }
 exports.SaveFile = SaveFile;
+const createSaveFileLocalStorageHandler = (key) => {
+    return (saveFile) => {
+        if (saveFile == null) {
+            localStorage.removeItem(key);
+        }
+        else {
+            localStorage.setItem(key, JSON.stringify(saveFile.toObject()));
+        }
+    };
+};
+exports.createSaveFileLocalStorageHandler = createSaveFileLocalStorageHandler;
 class SaveFileManager {
-    static empty(syncWithLocalStorage = false) {
-        return new SaveFile(null, syncWithLocalStorage ? this.syncWithLocalStorageHandler : undefined);
+    static empty(updateCallback) {
+        return new SaveFile(null, updateCallback);
     }
-    static fromLocalStorage() {
-        const content = localStorage.getItem('saveFile');
-        return new SaveFile(content ? JSON.parse(content) : null, this.syncWithLocalStorageHandler);
+    static fromLocalStorage(key = 'saveFile') {
+        const content = localStorage.getItem(key);
+        return new SaveFile(content ? JSON.parse(content) : null, (0, exports.createSaveFileLocalStorageHandler)(key));
     }
-    static fromINI(content, syncWithLocalStorage = false) {
-        return new SaveFile(ini_1.default.parse(content), syncWithLocalStorage ? this.syncWithLocalStorageHandler : undefined);
+    static fromINI(content, updateCallback) {
+        return new SaveFile(ini_1.default.parse(content), updateCallback);
     }
     static toINI(saveFile) {
         return ini_1.default.stringify(saveFile.toObject());
-    }
-    static areSavesEnabled() {
-        const savesEnabled = localStorage.getItem('savesEnabled');
-        return savesEnabled == 'true' || savesEnabled === null;
-    }
-    static syncWithLocalStorageHandler(object) {
-        if (object == null) {
-            localStorage.removeItem('saveFile');
-        }
-        else {
-            localStorage.setItem('saveFile', JSON.stringify(object));
-        }
     }
 }
 exports.SaveFileManager = SaveFileManager;
@@ -54257,7 +54254,7 @@ let CanvasObserver = (() => {
                 this.engine.rendering.setBackground(texture);
             }
             REFRESH() { }
-            GETGRAPHICSAT(x, y, onlyVisible = false, minZ = Number.MIN_SAFE_INTEGER, maxZ = Number.MAX_SAFE_INTEGER, includeAlpha = false) {
+            GETGRAPHICSAT(x, y, onlyVisible = false, minZ = Number.MIN_SAFE_INTEGER, maxZ = Number.MAX_SAFE_INTEGER, ignoreAlpha = false) {
                 const point = new pixi_js_1.Point(x, y);
                 for (let i = this.engine.app.stage.children.length - 1; i >= 0; i--) {
                     const renderObject = this.engine.app.stage.children[i];
@@ -54272,15 +54269,15 @@ let CanvasObserver = (() => {
                         continue;
                     }
                     let containsPoint = false;
-                    if (!includeAlpha) {
-                        containsPoint = renderObject.containsPointWithAlpha(point);
-                    }
-                    else {
+                    if (ignoreAlpha) {
                         containsPoint =
                             point.x > position.x &&
                                 point.x < position?.x + renderObject.width &&
                                 point.y > position.y &&
                                 point.y < position.y + renderObject.height;
+                    }
+                    else {
+                        containsPoint = renderObject.containsPoint(point);
                     }
                     if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
                         const object = this.engine.scopeManager.find((key, obj) => obj instanceof index_1.DisplayType && obj.getRenderObject() === renderObject);
@@ -54301,7 +54298,7 @@ let CanvasObserver = (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SETBACKGROUND_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _REFRESH_decorators = [(0, types_1.method)()];
-            _GETGRAPHICSAT_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "onlyVisible", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false }, { name: "minZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "maxZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "includeAlpha", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            _GETGRAPHICSAT_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "onlyVisible", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false }, { name: "minZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "maxZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "ignoreAlpha", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
             __esDecorate(_a, null, _SETBACKGROUND_decorators, { kind: "method", name: "SETBACKGROUND", static: false, private: false, access: { has: obj => "SETBACKGROUND" in obj, get: obj => obj.SETBACKGROUND }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _REFRESH_decorators, { kind: "method", name: "REFRESH", static: false, private: false, access: { has: obj => "REFRESH" in obj, get: obj => obj.REFRESH }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETGRAPHICSAT_decorators, { kind: "method", name: "GETGRAPHICSAT", static: false, private: false, access: { has: obj => "GETGRAPHICSAT" in obj, get: obj => obj.GETGRAPHICSAT }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -58833,10 +58830,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createGamePlayer = exports.GamePlayerInstance = exports.BUILD_VARS = exports.FileLoaders = void 0;
+exports.createGamePlayer = exports.GamePlayerInstance = exports.BUILD_VARS = exports.createSaveFileLocalStorageHandler = exports.SaveFileManager = exports.SaveFile = exports.FileLoaders = void 0;
 const engine_1 = __webpack_require__(/*! ./engine */ "./src/engine/index.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
+const saveFile_1 = __webpack_require__(/*! ./engine/saveFile */ "./src/engine/saveFile.ts");
 exports.FileLoaders = __importStar(__webpack_require__(/*! ./loaders/filesLoader */ "./src/loaders/filesLoader.ts"));
+var saveFile_2 = __webpack_require__(/*! ./engine/saveFile */ "./src/engine/saveFile.ts");
+Object.defineProperty(exports, "SaveFile", ({ enumerable: true, get: function () { return saveFile_2.SaveFile; } }));
+Object.defineProperty(exports, "SaveFileManager", ({ enumerable: true, get: function () { return saveFile_2.SaveFileManager; } }));
+Object.defineProperty(exports, "createSaveFileLocalStorageHandler", ({ enumerable: true, get: function () { return saveFile_2.createSaveFileLocalStorageHandler; } }));
 exports.BUILD_VARS = {
     manualTick: undefined,
     debug: true,
@@ -58845,8 +58847,31 @@ class GamePlayerInstance {
     constructor(engine) {
         this.engine = engine;
     }
+    start() {
+        void this.engine.start();
+    }
+    restart(extraOptions) {
+        const app = new PIXI.Application({
+            view: this.engine.app.view
+        });
+        this.destroy();
+        this.engine = new engine_1.Engine(app, { ...this.engine.options, ...(extraOptions ?? {}) });
+        void this.engine.init();
+        void this.engine.start();
+    }
     destroy() {
         this.engine.destroy();
+    }
+    exportSaveFile() {
+        return saveFile_1.SaveFileManager.toINI(this.engine.saveFile);
+    }
+    importSaveFile(content) {
+        this.restart({
+            saveFile: saveFile_1.SaveFileManager.fromINI(content, this.engine.saveFile.onChange)
+        });
+    }
+    get currentScene() {
+        return this.engine.currentScene?.name ?? null;
     }
 }
 exports.GamePlayerInstance = GamePlayerInstance;
@@ -64152,21 +64177,28 @@ var exports = __webpack_exports__;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const index_1 = __webpack_require__(/*! ./index */ "./src/index.ts");
 const filesLoader_1 = __webpack_require__(/*! ./loaders/filesLoader */ "./src/loaders/filesLoader.ts");
+const saveFile_1 = __webpack_require__(/*! ./engine/saveFile */ "./src/engine/saveFile.ts");
 const urlParams = new URLSearchParams(window.location.search);
 const gameContainer = document.getElementById('game');
 const debugContainer = document.getElementById('debug');
 const controls = document.getElementById('controls');
+const savesEnabledEntry = localStorage.getItem('savesEnabled');
+const areSavesEnabled = savesEnabledEntry == 'true' || savesEnabledEntry === null;
 const baseOptions = {
     startScene: urlParams.get('scene') ?? undefined,
     debug: urlParams.has('debug') ? urlParams.get('debug') == 'true' : index_1.BUILD_VARS.debug,
     debugContainer: debugContainer,
     onExit: () => document.exitFullscreen(),
+    saveFile: areSavesEnabled ? saveFile_1.SaveFileManager.fromLocalStorage() : undefined,
 };
 let config = {};
 const start = () => {
     gameContainer.removeEventListener('click', start);
     gameContainer.classList.remove('notready');
-    (0, index_1.createGamePlayer)(gameContainer, config);
+    const player = (0, index_1.createGamePlayer)(gameContainer, config);
+    if (player) {
+        void player.start();
+    }
 };
 if (urlParams.get('loader') === 'iso-local') {
     const fileSelector = document.createElement('input');
