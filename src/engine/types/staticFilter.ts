@@ -63,8 +63,7 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
         }
         if (properties.has('anchor')) {
             renderObject.anchor = properties.get('anchor')
-            object.rotationAnchorOffsetX = 0
-            object.rotationAnchorOffsetY = 0
+            object.syncPosition()
         }
     }
 }
