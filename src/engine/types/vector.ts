@@ -53,7 +53,7 @@ export class Vector extends ValueType<VectorDefinition> {
 
         // Perform the reflection calculation for each dimension
         for (let i = 0; i < this.value.length; i++) {
-            result[i] = this.value[i] - 2 * dotProduct * normal[i]
+            result[i] = 2 * dotProduct * normal[i] - this.value[i]
         }
     }
 
