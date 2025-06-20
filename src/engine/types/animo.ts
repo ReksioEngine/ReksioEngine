@@ -494,11 +494,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
     MOVE(xOffset: number, yOffset: number) {
         assert(this.sprite !== null)
 
-        this.positionX += xOffset
-        this.positionY += yOffset
-        this.sprite.x += xOffset
-        this.sprite.y += yOffset
-
+        this.positionX += Math.floor(xOffset)
+        this.positionY += Math.floor(yOffset)
+        this.syncPosition()
         this.onMove()
     }
 
@@ -506,8 +504,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     SETPOSITION(x: number, y: number) {
         assert(this.sprite !== null)
 
-        this.positionX = x
-        this.positionY = y
+        this.positionX = Math.floor(x)
+        this.positionY = Math.floor(y)
         this.syncPosition()
         this.onMove()
     }
