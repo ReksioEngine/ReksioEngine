@@ -53029,16 +53029,15 @@ let Animo = (() => {
             }
             MOVE(xOffset, yOffset) {
                 (0, errors_1.assert)(this.sprite !== null);
-                this.positionX += xOffset;
-                this.positionY += yOffset;
-                this.sprite.x += xOffset;
-                this.sprite.y += yOffset;
+                this.positionX += Math.floor(xOffset);
+                this.positionY += Math.floor(yOffset);
+                this.syncPosition();
                 this.onMove();
             }
             SETPOSITION(x, y) {
                 (0, errors_1.assert)(this.sprite !== null);
-                this.positionX = x;
-                this.positionY = y;
+                this.positionX = Math.floor(x);
+                this.positionY = Math.floor(y);
                 this.syncPosition();
                 this.onMove();
             }
@@ -57481,7 +57480,7 @@ let Vector = (() => {
                 }
                 // Perform the reflection calculation for each dimension
                 for (let i = 0; i < this.value.length; i++) {
-                    result[i] = this.value[i] - 2 * dotProduct * normal[i];
+                    result[i] = 2 * dotProduct * normal[i] - this.value[i];
                 }
             }
             LEN() {
