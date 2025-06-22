@@ -53,11 +53,17 @@ export class Double extends ValueType<DoubleDefinition> {
     // Source: https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=1909841994#gid=1909841994
     @method()
     ARCTANEX(y: number, x: number, summand?: number) {
-        let newValue = Math.atan2(y, x)
-        if (summand !== undefined) {
-            newValue = Math.floor(newValue) + summand
+        let value = Math.atan2(y, x) / radianMultiplier
+
+        if (value < 0) {
+            value += 360
         }
-        this.value = newValue
+
+        if (summand !== undefined) {
+            value = Math.floor(value) + summand
+        }
+
+        this.value = value
         return this.value
     }
 
