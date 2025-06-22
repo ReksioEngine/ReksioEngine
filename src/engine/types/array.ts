@@ -2,7 +2,7 @@ import { Type, ValueType } from './index'
 import { Engine } from '../index'
 import { ArrayDefinition } from '../../fileFormats/cnv/types'
 import { assert } from '../../common/errors'
-import { method } from '../../common/types'
+import { method, valueAsString } from '../../common/types'
 
 const generateMessage = (action: string, position: number, value: any[]) => {
     return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`
@@ -48,7 +48,7 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
 
     @method()
     CONTAINS(value: any) {
-        return this.value.includes(value)
+        return this.value.includes(value) || this.value.includes(valueAsString(value))
     }
 
     @method()
@@ -98,12 +98,20 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
 
     @method()
     FIND(value: any) {
-        return this.value.indexOf(value)
+        let position = this.value.indexOf(value)
+        if (position == -1) {
+            position = this.value.indexOf(valueAsString(value))
+        }
+        return position
     }
 
     @method()
     REVERSEFIND(value: any) {
-        return this.value.lastIndexOf(value)
+        let position = this.value.lastIndexOf(value)
+        if (position == -1) {
+            position = this.value.lastIndexOf(valueAsString(value))
+        }
+        return position
     }
 
     @method()
