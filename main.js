@@ -62185,6 +62185,13 @@ const initializationPriorities = [
     currentValue.forEach((entry) => acc.set(entry, currentIndex));
     return acc;
 }, new Map());
+const sortByPriority = (entries) => {
+    return entries.sort((a, b) => {
+        const aPriority = a.name === '__INIT__' ? 99999 : (initializationPriorities.get(a.definition.TYPE) ?? 9999);
+        const bPriority = b.name === '__INIT__' ? 99999 : (initializationPriorities.get(b.definition.TYPE) ?? 9999);
+        return aPriority - bPriority;
+    });
+};
 const loadDefinition = async (engine, scope, definition, parent) => {
     const entries = [];
     for (const [key, value] of Object.entries(definition)) {
@@ -62195,11 +62202,7 @@ const loadDefinition = async (engine, scope, definition, parent) => {
             engine.rendering.displayObjectsInDefinitionOrder.push(instance);
         }
     }
-    const orderedScope = entries.sort((a, b) => {
-        const aPriority = a.name === '__INIT__' ? 99999 : (initializationPriorities.get(a.definition.TYPE) ?? 9999);
-        const bPriority = b.name === '__INIT__' ? 99999 : (initializationPriorities.get(b.definition.TYPE) ?? 9999);
-        return aPriority - bPriority;
-    });
+    const orderedScope = sortByPriority(entries);
     const promisesResults = await Promise.allSettled(orderedScope.map((entry) => {
         try {
             stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(entry).method('init').build());
@@ -62232,7 +62235,7 @@ const loadDefinition = async (engine, scope, definition, parent) => {
 };
 exports.loadDefinition = loadDefinition;
 const doReady = (scope) => {
-    scope.objects.forEach((entry) => {
+    sortByPriority(scope.objects).forEach((entry) => {
         entry.isReady = true;
         try {
             stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(entry).method('ready').build());
