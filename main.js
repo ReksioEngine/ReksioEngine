@@ -53548,7 +53548,7 @@ let ArrayObject = (() => {
                 this.value[position] *= value;
             }
             CONTAINS(value) {
-                return this.value.includes(value);
+                return this.value.includes(value) || this.value.includes((0, types_1.valueAsString)(value));
             }
             SUM(arg) {
                 this.value = this.value.map((value) => value + arg);
@@ -53580,10 +53580,18 @@ let ArrayObject = (() => {
                 this.value = [];
             }
             FIND(value) {
-                return this.value.indexOf(value);
+                let position = this.value.indexOf(value);
+                if (position == -1) {
+                    position = this.value.indexOf((0, types_1.valueAsString)(value));
+                }
+                return position;
             }
             REVERSEFIND(value) {
-                return this.value.lastIndexOf(value);
+                let position = this.value.lastIndexOf(value);
+                if (position == -1) {
+                    position = this.value.lastIndexOf((0, types_1.valueAsString)(value));
+                }
+                return position;
             }
             SAVEINI() {
                 this.saveToINI();
