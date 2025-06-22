@@ -121,6 +121,14 @@ const initializationPriorities = [
     return acc
 }, new Map())
 
+const sortByPriority = (entries: Type<any>[]) => {
+    return entries.sort((a: Type<any>, b: Type<any>) => {
+        const aPriority = a.name === '__INIT__' ? 99999 : (initializationPriorities.get(a.definition.TYPE) ?? 9999)
+        const bPriority = b.name === '__INIT__' ? 99999 : (initializationPriorities.get(b.definition.TYPE) ?? 9999)
+        return aPriority - bPriority
+    })
+}
+
 export const loadDefinition = async (engine: Engine, scope: Scope, definition: CNV, parent: Type<any> | null) => {
     const entries = []
     for (const [key, value] of Object.entries(definition)) {
@@ -133,12 +141,7 @@ export const loadDefinition = async (engine: Engine, scope: Scope, definition: C
         }
     }
 
-    const orderedScope = entries.sort((a: Type<any>, b: Type<any>) => {
-        const aPriority = a.name === '__INIT__' ? 99999 : (initializationPriorities.get(a.definition.TYPE) ?? 9999)
-        const bPriority = b.name === '__INIT__' ? 99999 : (initializationPriorities.get(b.definition.TYPE) ?? 9999)
-        return aPriority - bPriority
-    })
-
+    const orderedScope = sortByPriority(entries)
     const promisesResults = await Promise.allSettled(
         orderedScope.map((entry) => {
             try {
@@ -174,7 +177,7 @@ export const loadDefinition = async (engine: Engine, scope: Scope, definition: C
 }
 
 export const doReady = (scope: Scope) => {
-    scope.objects.forEach((entry) => {
+    sortByPriority(scope.objects).forEach((entry) => {
         entry.isReady = true
 
         try {
