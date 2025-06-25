@@ -21,6 +21,8 @@ export class Mouse extends Type<MouseDefinition> {
     private mouseReleaseListener: any
 
     private clicksQueue: MouseEvent[] = []
+    private lastClicksTime: Record<string, number> = {}
+
     private mousePosition: Point = new Point(0, 0)
     private moved = false
 
@@ -39,6 +41,9 @@ export class Mouse extends Type<MouseDefinition> {
             switch (event.type) {
                 case 'click':
                     this.callbacks.run('ONCLICK', event.key)
+                    break
+                case 'dblclick':
+                    this.callbacks.run('ONDBLCLICK', event.key)
                     break
                 case 'release':
                     this.callbacks.run('ONRELEASE', event.key)
@@ -69,7 +74,7 @@ export class Mouse extends Type<MouseDefinition> {
         this.mouseReleaseListener = this.onMouseRelease.bind(this)
 
         this.engine.app.stage.addListener('pointermove', this.mouseMoveListener)
-        if (this.callbacks.has('ONCLICK')) {
+        if (this.callbacks.has('ONCLICK') || this.callbacks.has('ONDBLCLICK')) {
             this.engine.app.stage.addListener('pointerdown', this.mouseClickListener)
         }
         if (this.callbacks.has('ONRELEASE')) {
@@ -126,10 +131,23 @@ export class Mouse extends Type<MouseDefinition> {
             return
         }
 
-        this.clicksQueue.push({
-            type,
-            key: keysMapping.get(event.button)!,
-        })
+        const key = keysMapping.get(event.button)!
+        const clickEvent = { type, key };
+
+        this.clicksQueue.push(clickEvent)
+        if (type === 'click') {
+            const dateNow = Date.now()
+            const previousClick = this.lastClicksTime[key]
+            if (previousClick && dateNow - previousClick < 200) {
+                this.clicksQueue.push({
+                    type: 'dblclick',
+                    key,
+                })
+                delete this.lastClicksTime[key];
+            } else {
+                this.lastClicksTime[key] = dateNow
+            }
+        }
 
         this.onMouseMove(event)
     }

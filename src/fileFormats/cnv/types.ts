@@ -326,6 +326,7 @@ const KeyboardStructure = {
 
 export type MouseDefinition = TypeDefinition & {
     ONCLICK?: callbacks<string>
+    ONDBLCLICK?: callbacks<string>
     ONRELEASE?: callbacks<string>
     ONINIT?: callback
     ONMOVE?: callback
@@ -333,6 +334,7 @@ export type MouseDefinition = TypeDefinition & {
 
 const MouseStructure = {
     ONCLICK: optional(callbacks(string)),
+    ONDBLCLICK: optional(callbacks(string)),
     ONRELEASE: optional(callbacks(string)),
     ONINIT: optional(callback),
     ONMOVE: optional(callback),
