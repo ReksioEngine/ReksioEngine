@@ -61485,10 +61485,10 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
             if (object === null) {
                 return identifier;
             }
-            else if (object.value) {
+            else if (object instanceof types_2.ValueType) {
                 return object.value;
             }
-            else if (object.definition) {
+            else if (object instanceof types_2.Type) {
                 return object;
             }
         };
