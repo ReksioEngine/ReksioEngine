@@ -51938,6 +51938,7 @@ class RenderingManager {
     constructor(app) {
         this.app = app;
         this.displayObjectsInDefinitionOrder = [];
+        this.sameZIndexUpdateOrder = new Map(); // The later in array the higher zindex
         this.blackTexture = (0, exports.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0);
         this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
         this.canvasBackground.zIndex = -99999;
@@ -51995,6 +51996,16 @@ class RenderingManager {
         this.app.stage.removeChild(sprite);
         this.sortObjects();
     }
+    putAtZindex(sprite, zIndex) {
+        let objects = this.sameZIndexUpdateOrder.get(zIndex);
+        if (!objects) {
+            objects = [];
+            this.sameZIndexUpdateOrder.set(zIndex, objects);
+        }
+        objects = objects.filter((obj) => obj != sprite);
+        objects.push(sprite);
+        this.sameZIndexUpdateOrder.set(zIndex, objects);
+    }
     sortObjects() {
         // Default PIXI.js sorting have problem with equal zIndex case.
         this.app.stage.children.sort((a, b) => {
@@ -52006,9 +52017,17 @@ class RenderingManager {
             if (objectA === undefined || objectB === undefined) {
                 return 0;
             }
+            const objectsAtZIndex = this.sameZIndexUpdateOrder.get(a.zIndex);
+            if (objectsAtZIndex) {
+                const sameZIndexA = objectsAtZIndex?.indexOf(a);
+                const sameZIndexB = objectsAtZIndex?.indexOf(b);
+                if (sameZIndexA != -1 || sameZIndexB != -1) {
+                    return sameZIndexA - sameZIndexB;
+                }
+            }
             const renderingOrderA = this.displayObjectsInDefinitionOrder.indexOf(objectA);
             const renderingOrderB = this.displayObjectsInDefinitionOrder.indexOf(objectB);
-            return renderingOrderB - renderingOrderA;
+            return renderingOrderA - renderingOrderB;
         });
     }
 }
@@ -55429,9 +55448,11 @@ let DisplayType = (() => {
                 return this.priority;
             }
             SETPRIORITY(priority) {
-                (0, errors_1.assert)(this.getRenderObject() !== null);
+                const renderObject = this.getRenderObject();
+                (0, errors_1.assert)(renderObject !== null);
                 this.priority = priority;
-                this.getRenderObject().zIndex = priority;
+                renderObject.zIndex = priority;
+                this.engine.rendering.putAtZindex(renderObject, priority);
                 this.engine.rendering.sortObjects();
             }
             getRenderObject() {
@@ -55892,6 +55913,7 @@ let Mouse = (() => {
                 super(...arguments);
                 this.mouseMoveListener = (__runInitializers(this, _instanceExtraInitializers), void 0);
                 this.clicksQueue = [];
+                this.lastClicksTime = {};
                 this.mousePosition = new pixi_js_1.Point(0, 0);
                 this.moved = false;
             }
@@ -55908,6 +55930,9 @@ let Mouse = (() => {
                     switch (event.type) {
                         case 'click':
                             this.callbacks.run('ONCLICK', event.key);
+                            break;
+                        case 'dblclick':
+                            this.callbacks.run('ONDBLCLICK', event.key);
                             break;
                         case 'release':
                             this.callbacks.run('ONRELEASE', event.key);
@@ -55931,7 +55956,7 @@ let Mouse = (() => {
                 this.mouseClickListener = this.onMouseClick.bind(this);
                 this.mouseReleaseListener = this.onMouseRelease.bind(this);
                 this.engine.app.stage.addListener('pointermove', this.mouseMoveListener);
-                if (this.callbacks.has('ONCLICK')) {
+                if (this.callbacks.has('ONCLICK') || this.callbacks.has('ONDBLCLICK')) {
                     this.engine.app.stage.addListener('pointerdown', this.mouseClickListener);
                 }
                 if (this.callbacks.has('ONRELEASE')) {
@@ -55972,10 +55997,23 @@ let Mouse = (() => {
                 if (!keysMapping.has(event.button)) {
                     return;
                 }
-                this.clicksQueue.push({
-                    type,
-                    key: keysMapping.get(event.button),
-                });
+                const key = keysMapping.get(event.button);
+                const clickEvent = { type, key };
+                this.clicksQueue.push(clickEvent);
+                if (type === 'click') {
+                    const dateNow = Date.now();
+                    const previousClick = this.lastClicksTime[key];
+                    if (previousClick && dateNow - previousClick < 200) {
+                        this.clicksQueue.push({
+                            type: 'dblclick',
+                            key,
+                        });
+                        delete this.lastClicksTime[key];
+                    }
+                    else {
+                        this.lastClicksTime[key] = dateNow;
+                    }
+                }
                 this.onMouseMove(event);
             }
             getMousePosition(event) {
@@ -58006,6 +58044,7 @@ const KeyboardStructure = {
 };
 const MouseStructure = {
     ONCLICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONDBLCLICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONRELEASE: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONINIT: (0, common_1.optional)(common_1.callback),
     ONMOVE: (0, common_1.optional)(common_1.callback),
