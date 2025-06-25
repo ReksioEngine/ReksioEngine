@@ -5,6 +5,10 @@ export const valueAsString = (value: any) => {
         return value
     }
 
+    if (value?.name) {
+        return value.name
+    }
+
     if (typeof value === 'boolean') {
         return value ? 'TRUE' : 'FALSE'
     }

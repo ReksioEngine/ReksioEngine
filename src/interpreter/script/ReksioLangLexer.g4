@@ -7,7 +7,7 @@ fragment F_FALSE: 'FALSE';
 // Literals
 fragment F_NUMBER: [0-9]+ ('.' [0-9]+)? ;
 fragment F_CODE_STRING: '"{' ~[{]* '}"';
-fragment F_STRING: '"' ~[,)]* '"';
+fragment F_STRING: '"' ~[,)+]* '"';
 fragment F_COMMENT_START: '!'+;
 
 // Arthmetic operators

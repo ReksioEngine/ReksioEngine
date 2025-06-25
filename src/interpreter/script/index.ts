@@ -113,7 +113,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
     }
 
     visitIdentifier = (ctx: IdentifierContext): any => {
-        const name = this.replaceParameters(ctx.IDENTIFIER().getText())
+        const name = ctx.IDENTIFIER().getText()
         if (ctx._dereference == null) {
             return name
         }
@@ -128,48 +128,16 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
 
     visitObjectValueReference = (ctx: ObjectValueReferenceContext): any => {
         const identifier = ctx.identifier().getText()
-        const argMatch = identifier.match(/^\$(?<idx>\d+)$/)
-        if (argMatch != null && argMatch.groups != null) {
-            const argIdx = parseInt(argMatch.groups['idx']) - 1
-            assert(this.args.length >= argIdx + 1)
-
-            const arg = this.args[argIdx]
-
-            this.methodCallUsedVariables[identifier] = arg
-            this.scriptUsedVariables[identifier] = arg
-
-            if (typeof arg === 'string') {
-                const object = this.engine.getObject(arg)
-                if (object !== null && object instanceof String) {
-                    return object.value
-                }
-            }
-
-            return this.args[argIdx]
-        }
-
         const object = this.engine.getObject(identifier)
         this.methodCallUsedVariables[identifier] = object
         this.scriptUsedVariables[identifier] = object
         if (object === null) {
-            if (this.printDebug) {
-                const code = this.markInCode(ctx)
-                console.error(
-                    `Unknown identifier "${identifier}"` + '\n' + `%cCode:%c\n${code}\n\n` + '%cUsed variables:%c%O',
-                    'font-weight: bold',
-                    'font-weight: inherit',
-                    'color: red',
-                    'color: inherit',
-                    'font-weight: bold',
-                    'font-weight: inherit',
-                    this.scriptUsedVariables
-                )
-            }
-
-            // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
-            return null
+            return identifier
+        } else if (object.value) {
+            return object.value
+        } else if (object.definition) {
+            return object
         }
-        return object.value
     }
 
     visitBool = (ctx: BoolContext): any => {
@@ -188,27 +156,8 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         if (ctx.CODE_STRING() != null) {
             return ctx.CODE_STRING().getText().replace(/^"|"$/g, '')
         } else if (ctx.STRING() != null) {
-            return this.replaceParameters(ctx.STRING().getText().replace(/^"|"$/g, ''))
+            return ctx.STRING().getText().replace(/^"|"$/g, '')
         }
-    }
-
-    replaceParameters(str: string): string {
-        return str.replace(/\$(\d+)/g, (match, index) => {
-            const valueIndex = parseInt(index, 10) - 1
-
-            if (valueIndex >= 0 && valueIndex < this.args.length) {
-                const arg = this.args[valueIndex]
-                if (arg instanceof String) {
-                    return arg.value
-                } else if (arg instanceof Type) {
-                    return arg.name
-                } else {
-                    return arg
-                }
-            } else {
-                return match
-            }
-        })
     }
 
     visitMethodCall = (ctx: MethodCallContext): any => {
@@ -495,6 +444,22 @@ export const runScript = (
     singleStatement: boolean = false,
     printDebug = true
 ) => {
+    script = script.replace(/\$(\d+)/g, (match, index) => {
+        const valueIndex = parseInt(index, 10) - 1
+        if (valueIndex >= 0 && valueIndex < args.length) {
+            const arg = args[valueIndex]
+            if (arg instanceof String) {
+                return arg.value
+            } else if (arg instanceof Type) {
+                return arg.name
+            } else {
+                return arg
+            }
+        } else {
+            return match
+        }
+    })
+
     const initialLexer = new ReksioLangLexer(new antlr4.CharStream(script))
     initialLexer.removeErrorListeners()
 

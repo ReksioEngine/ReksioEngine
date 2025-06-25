@@ -1,5 +1,3 @@
-import { parseConstantArgs } from '../../interpreter/constArgs'
-
 type FieldTypeProcessor = (object: any, key: string, param: string, value: string) => any
 
 export type FieldTypeEntry = {
@@ -141,7 +139,7 @@ export const createCallback = (value: string): callback | undefined => {
         const groups = argParsed?.groups
         if (groups) {
             const name = groups['name']
-            const args = groups['args'] ? parseConstantArgs(groups['args']) : []
+            const args = groups['args'] ? groups['args'].split(',') : []
             return {
                 behaviourReference: name,
                 constantArguments: args,
