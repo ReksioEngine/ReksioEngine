@@ -21,7 +21,7 @@ import { Engine } from '../../engine'
 import { Behaviour } from '../../engine/types/behaviour'
 import { assert, IgnorableError, IrrecoverableError, NotImplementedError } from '../../common/errors'
 import { Compare, ForceNumber, valueAsString } from '../../common/types'
-import { Type } from '../../engine/types'
+import { Type, ValueType } from '../../engine/types'
 import { String } from '../../engine/types/string'
 import { printStackTrace, StackFrame, stackTrace } from './stacktrace'
 import { evaluateExpression } from '../ifExpression'
@@ -133,9 +133,9 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         this.scriptUsedVariables[identifier] = object
         if (object === null) {
             return identifier
-        } else if (object.value) {
+        } else if (object instanceof ValueType) {
             return object.value
-        } else if (object.definition) {
+        } else if (object instanceof Type) {
             return object
         }
     }
