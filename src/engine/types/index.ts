@@ -104,10 +104,12 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
 
     @method()
     SETPRIORITY(priority: number) {
-        assert(this.getRenderObject() !== null)
+        const renderObject = this.getRenderObject()
+        assert(renderObject !== null)
         this.priority = priority
 
-        this.getRenderObject()!.zIndex = priority
+        renderObject.zIndex = priority
+        this.engine.rendering.putAtZindex(renderObject, priority)
         this.engine.rendering.sortObjects()
     }
 

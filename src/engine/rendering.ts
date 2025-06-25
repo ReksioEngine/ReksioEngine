@@ -4,6 +4,7 @@ import { DisplayType } from './types'
 
 export class RenderingManager {
     public displayObjectsInDefinitionOrder: DisplayType<any>[] = []
+    public sameZIndexUpdateOrder = new Map<number, DisplayObject[]>() // The later in array the higher zindex
 
     private readonly canvasBackground: Sprite
     private readonly blackTexture
@@ -89,6 +90,18 @@ export class RenderingManager {
         this.sortObjects()
     }
 
+    putAtZindex(sprite: DisplayObject, zIndex: number) {
+        let objects = this.sameZIndexUpdateOrder.get(zIndex)
+        if (!objects) {
+            objects = []
+            this.sameZIndexUpdateOrder.set(zIndex, objects)
+        }
+
+        objects = objects.filter((obj) => obj != sprite)
+        objects.push(sprite)
+        this.sameZIndexUpdateOrder.set(zIndex, objects)
+    }
+
     sortObjects() {
         // Default PIXI.js sorting have problem with equal zIndex case.
         this.app.stage.children.sort((a, b) => {
@@ -103,10 +116,20 @@ export class RenderingManager {
                 return 0
             }
 
+            const objectsAtZIndex = this.sameZIndexUpdateOrder.get(a.zIndex)
+            if (objectsAtZIndex) {
+                const sameZIndexA = objectsAtZIndex?.indexOf(a)
+                const sameZIndexB = objectsAtZIndex?.indexOf(b)
+
+                if (sameZIndexA != -1 || sameZIndexB != -1) {
+                    return sameZIndexA - sameZIndexB
+                }
+            }
+
             const renderingOrderA = this.displayObjectsInDefinitionOrder.indexOf(objectA)
             const renderingOrderB = this.displayObjectsInDefinitionOrder.indexOf(objectB)
 
-            return renderingOrderB - renderingOrderA
+            return renderingOrderA - renderingOrderB
         })
     }
 }
