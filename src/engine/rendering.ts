@@ -161,11 +161,11 @@ export class AdvancedSprite extends Sprite {
         return this.hitmap[pixelOffset]
     }
 
-    containsPoint(point: IPointData) {
-        if (!this.checkPixelPerfect || !this.hitmap) {
-            return super.containsPoint(point)
+    containsPoint(point: IPointData, checkAlpha=false) {
+        if (checkAlpha || (this.checkPixelPerfect && this.hitmap)) {
+            return this.containsPointWithAlpha(point)
         }
-        return this.containsPointWithAlpha(point)
+        return super.containsPoint(point)
     }
 
     containsPointWithAlpha(point: IPointData) {

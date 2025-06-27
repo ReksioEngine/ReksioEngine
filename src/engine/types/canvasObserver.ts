@@ -46,17 +46,7 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
                 continue
             }
 
-            let containsPoint = false
-            if (ignoreAlpha) {
-                containsPoint =
-                    point.x > position.x &&
-                    point.x < position?.x + renderObject.width &&
-                    point.y > position.y &&
-                    point.y < position.y + renderObject.height
-            } else {
-                containsPoint = renderObject.containsPoint(point)
-            }
-
+            const containsPoint = renderObject.containsPoint(point, !ignoreAlpha)
             if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
                 const object: DisplayType<any> | null = this.engine.scopeManager.find(
                     (key: string, obj) => obj instanceof DisplayType && obj.getRenderObject() === renderObject
