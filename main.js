@@ -52057,11 +52057,11 @@ class AdvancedSprite extends pixi_js_1.Sprite {
         }
         return this.hitmap[pixelOffset];
     }
-    containsPoint(point) {
-        if (!this.checkPixelPerfect || !this.hitmap) {
-            return super.containsPoint(point);
+    containsPoint(point, checkAlpha = false) {
+        if (checkAlpha || (this.checkPixelPerfect && this.hitmap)) {
+            return this.containsPointWithAlpha(point);
         }
-        return this.containsPointWithAlpha(point);
+        return super.containsPoint(point);
     }
     containsPointWithAlpha(point) {
         const alpha = this.getAlphaAt(point);
@@ -54297,17 +54297,7 @@ let CanvasObserver = (() => {
                     if (position === null) {
                         continue;
                     }
-                    let containsPoint = false;
-                    if (ignoreAlpha) {
-                        containsPoint =
-                            point.x > position.x &&
-                                point.x < position?.x + renderObject.width &&
-                                point.y > position.y &&
-                                point.y < position.y + renderObject.height;
-                    }
-                    else {
-                        containsPoint = renderObject.containsPoint(point);
-                    }
+                    const containsPoint = renderObject.containsPoint(point, !ignoreAlpha);
                     if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
                         const object = this.engine.scopeManager.find((key, obj) => obj instanceof index_1.DisplayType && obj.getRenderObject() === renderObject);
                         if (object === null) {
