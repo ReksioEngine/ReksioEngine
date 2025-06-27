@@ -56959,17 +56959,21 @@ let StaticFilter = (() => {
                 if (renderObject === null) {
                     return;
                 }
-                const newProperties = new Map();
+                const savedProperties = new Map();
                 if (this.definition.ACTION === 'ROTATE') {
-                    newProperties.set('angle', renderObject.angle);
-                    newProperties.set('anchor', renderObject.anchor);
-                    renderObject.anchor.set(0.5, 0.5);
-                    renderObject.angle = this.properties.get('ANGLE');
-                    if (object instanceof animo_1.Animo) {
-                        object.syncPosition();
+                    savedProperties.set('angle', renderObject.angle);
+                    savedProperties.set('anchor', renderObject.anchor);
+                    // Todo: Handle CANUNDO, CURRENTFRAME, CANUNDO parameters
+                    const angle = this.properties.get('ANGLE');
+                    if (angle !== undefined) {
+                        renderObject.anchor.set(0.5, 0.5);
+                        renderObject.angle = angle;
+                        if (object instanceof animo_1.Animo) {
+                            object.syncPosition();
+                        }
                     }
                 }
-                this.linked.set(object, newProperties);
+                this.linked.set(object, savedProperties);
             }
             UNLINK(arg) {
                 const object = this.engine.getObject(arg);
