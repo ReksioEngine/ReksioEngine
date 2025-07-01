@@ -52199,12 +52199,13 @@ exports.SaveFileManager = SaveFileManager;
 /*!*****************************!*\
   !*** ./src/engine/scope.ts ***!
   \*****************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Scope = exports.ScopeManager = void 0;
+const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 class ScopeManager {
     constructor() {
         this.scopes = [];
@@ -52252,6 +52253,11 @@ class ScopeManager {
         else {
             return this.find(callback, level + 1);
         }
+    }
+    get APPLICATION() {
+        const application = this.findByType('APPLICATION');
+        (0, errors_1.assert)(application != null);
+        return application;
     }
 }
 exports.ScopeManager = ScopeManager;
@@ -52777,8 +52783,9 @@ let Animo = (() => {
             async loadSfx(annFile) {
                 const loadSoundIfNotExists = async (filename) => {
                     const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '');
+                    const resolvedPath = this.engine.fileLoader.getLangPath('Wavs/SFX', normalizedSFXFilename, this.engine.scopeManager.APPLICATION.GETLANGUAGE());
                     try {
-                        const sound = await (0, assetsLoader_1.loadSound)(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`);
+                        const sound = await (0, assetsLoader_1.loadSound)(this.engine.fileLoader, resolvedPath);
                         this.sounds.set(filename, sound);
                     }
                     catch (err) {
@@ -53392,9 +53399,12 @@ const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./sr
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const langCodeMapping = {
     '0415': 'POL',
-    '040E': 'HUN',
     '0405': 'CZE',
-    '0418': 'ROU',
+    '0402': 'BUL',
+    '0418': 'ROM',
+    '0419': 'RUS',
+    '040E': 'HUN',
+    '041B': 'SLO',
 };
 let Application = (() => {
     var _a;
@@ -56322,7 +56332,8 @@ let Scene = (() => {
                 }
             }
             getRelativePath(filename) {
-                return (0, utils_1.pathJoin)('DANE', this.definition.PATH, filename);
+                const scenePath = (0, utils_1.pathJoin)('DANE', this.definition.PATH);
+                return this.engine.fileLoader.getLangPath(scenePath, filename, this.engine.scopeManager.APPLICATION.GETLANGUAGE());
             }
             constructor() {
                 super(...arguments);
@@ -56778,7 +56789,7 @@ let Sound = (() => {
             }
             async init() {
                 // We don't respect 'PRELOAD' false on purpose, because network download might be slow
-                await this.loadSound(`Wavs/${this.definition.FILENAME}`);
+                await this.loadSound(this.engine.fileLoader.getLangPath('Wavs', this.definition.FILENAME, this.engine.scopeManager.APPLICATION.GETLANGUAGE()));
             }
             ready() {
                 this.callbacks.run('ONINIT');
@@ -62242,6 +62253,7 @@ const img_1 = __webpack_require__(/*! ../fileFormats/img */ "./src/fileFormats/i
 const ann_1 = __webpack_require__(/*! ../fileFormats/ann */ "./src/fileFormats/ann/index.ts");
 const seq_1 = __webpack_require__(/*! ../fileFormats/seq */ "./src/fileFormats/seq/index.ts");
 const iso9660_1 = __webpack_require__(/*! ./iso9660 */ "./src/loaders/iso9660.ts");
+const utils_1 = __webpack_require__(/*! ../common/utils */ "./src/common/utils.ts");
 class FileNotFoundError extends Error {
     constructor(filename) {
         super(`File '${filename}' not found in files listing`);
@@ -62249,6 +62261,16 @@ class FileNotFoundError extends Error {
 }
 exports.FileNotFoundError = FileNotFoundError;
 class FileLoader {
+    getLangPath(base, filename, language) {
+        const langPath = (0, utils_1.pathJoin)(base, language, filename);
+        const noLangPath = (0, utils_1.pathJoin)(base, filename);
+        if (this.hasFile(langPath)) {
+            return langPath;
+        }
+        else {
+            return noLangPath;
+        }
+    }
 }
 exports.FileLoader = FileLoader;
 class SimpleFileLoader extends FileLoader {
