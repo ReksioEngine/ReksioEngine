@@ -1,4 +1,6 @@
 import { Type } from './types'
+import { Application } from './types/application'
+import { assert } from '../common/errors'
 
 export class ScopeManager {
     public scopes: Array<Scope> = []
@@ -51,6 +53,12 @@ export class ScopeManager {
         } else {
             return this.find(callback, level + 1)
         }
+    }
+
+    public get APPLICATION() {
+        const application: Application | null = this.findByType('APPLICATION')
+        assert(application != null)
+        return application
     }
 }
 

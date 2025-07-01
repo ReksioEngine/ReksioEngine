@@ -5,6 +5,7 @@ import { CNV } from '../fileFormats/cnv/parser'
 import { Image } from '../fileFormats/img'
 import { parseSequence, SequenceFile } from '../fileFormats/seq'
 import { Iso9660Reader, LocalIso9660Reader, RemoteIso9660Reader } from './iso9660'
+import { pathJoin } from '../common/utils'
 
 export class FileNotFoundError extends Error {
     constructor(filename: string) {
@@ -21,6 +22,17 @@ export abstract class FileLoader {
     abstract getANNFile(filename: string): Promise<ANN>
     abstract getFilesListing(): string[]
     abstract hasFile(filename: string): boolean
+
+    getLangPath(base: string, filename: string, language: string): string {
+        const langPath = pathJoin(base, language, filename)
+        const noLangPath = pathJoin(base, filename)
+
+        if (this.hasFile(langPath)) {
+            return langPath
+        } else {
+            return noLangPath
+        }
+    }
 }
 
 abstract class SimpleFileLoader extends FileLoader {

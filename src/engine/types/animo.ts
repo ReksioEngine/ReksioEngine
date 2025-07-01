@@ -144,8 +144,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private async loadSfx(annFile: ANN) {
         const loadSoundIfNotExists = async (filename: string) => {
             const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '')
+            const resolvedPath = this.engine.fileLoader.getLangPath(
+                'Wavs/SFX',
+                normalizedSFXFilename,
+                this.engine.scopeManager.APPLICATION.GETLANGUAGE()
+            )
             try {
-                const sound = await loadSound(this.engine.fileLoader, `Wavs/SFX/${normalizedSFXFilename}`)
+                const sound = await loadSound(this.engine.fileLoader, resolvedPath)
                 this.sounds.set(filename, sound)
             } catch (err) {
                 console.warn(err)

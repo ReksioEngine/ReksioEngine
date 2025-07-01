@@ -12,7 +12,13 @@ export class Sound extends Type<SoundDefinition> {
 
     async init() {
         // We don't respect 'PRELOAD' false on purpose, because network download might be slow
-        await this.loadSound(`Wavs/${this.definition.FILENAME}`)
+        await this.loadSound(
+            this.engine.fileLoader.getLangPath(
+                'Wavs',
+                this.definition.FILENAME,
+                this.engine.scopeManager.APPLICATION.GETLANGUAGE()
+            )
+        )
     }
 
     ready() {

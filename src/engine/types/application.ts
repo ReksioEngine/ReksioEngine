@@ -8,9 +8,12 @@ import { method } from '../../common/types'
 
 const langCodeMapping: Record<string, string> = {
     '0415': 'POL',
-    '040E': 'HUN',
     '0405': 'CZE',
-    '0418': 'ROU',
+    '0402': 'BUL',
+    '0418': 'ROM',
+    '0419': 'RUS',
+    '040E': 'HUN',
+    '041B': 'SLO',
 }
 
 export class Application extends Type<ApplicationDefinition> {
