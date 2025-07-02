@@ -51819,6 +51819,7 @@ class Engine {
         this.app.stage.addChild(this.rendering.loadingText);
         this.app.renderer.render(this.app.stage);
         const loadingFreezeOverlay = pixi_js_1.Sprite.from(await this.app.renderer.extract.image(this.app.stage, undefined, undefined, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height)));
+        loadingFreezeOverlay.name = 'Loading freeze overlay';
         loadingFreezeOverlay.zIndex = 9999999;
         this.app.stage.addChild(loadingFreezeOverlay);
         this.app.renderer.render(this.app.stage);
@@ -51828,6 +51829,17 @@ class Engine {
                 object.destroy();
                 this.scopeManager.getScope('scene')?.remove(object.name);
             }
+        }
+        // Alert when rendering stage wasn't completely cleared after all destroys.
+        // For debugging purposes.
+        const leakedObjects = this.app.stage.children.filter(obj => ![
+            loadingFreezeOverlay,
+            this.rendering.loadingDarkOverlay,
+            this.rendering.loadingText,
+            this.rendering.canvasBackground
+        ].includes(obj));
+        if (leakedObjects.length > 0) {
+            console.error('Display objects leak detected', leakedObjects);
         }
         this.previousScene = this.currentScene;
         this.currentScene = this.getObject(sceneName);
@@ -52734,6 +52746,7 @@ let Animo = (() => {
                     this.engine.rendering.removeFromStage(this.sprite);
                 }
                 if (this.buttonInteractArea !== null) {
+                    this.buttonLogic.unregisterInteractive(this.buttonInteractArea);
                     this.engine.rendering.removeFromStage(this.buttonInteractArea);
                 }
                 for (const sound of this.sounds.values()) {
@@ -53073,12 +53086,14 @@ let Animo = (() => {
             SETASBUTTON(enabled, showPointer) {
                 (0, errors_1.assert)(this.sprite !== null);
                 if (enabled) {
-                    this.buttonInteractArea = new pixi_js_1.Graphics();
+                    if (this.buttonInteractArea === null) {
+                        this.buttonInteractArea = new pixi_js_1.Graphics();
+                        this.engine.rendering.addToStage(this.buttonInteractArea);
+                        this.buttonLogic.registerInteractive(this.buttonInteractArea, showPointer);
+                    }
                     this.buttonInteractArea.name = `${this.name} (ANIMO Button)`; // For PIXI Devtools
                     this.buttonInteractArea.hitArea = this.sprite.getBounds();
                     this.buttonInteractArea.zIndex = this.sprite.zIndex;
-                    this.engine.rendering.addToStage(this.buttonInteractArea);
-                    this.buttonLogic.registerInteractive(this.buttonInteractArea, showPointer);
                     this.buttonLogic.enable();
                     this.playEvent('ONNOEVENT');
                 }
