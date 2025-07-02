@@ -6,7 +6,7 @@ export class RenderingManager {
     public displayObjectsInDefinitionOrder: DisplayType<any>[] = []
     public sameZIndexUpdateOrder = new Map<number, DisplayObject[]>() // The later in array the higher zindex
 
-    private readonly canvasBackground: Sprite
+    public readonly canvasBackground: Sprite
     private readonly blackTexture
 
     public readonly loadingDarkOverlay: Sprite

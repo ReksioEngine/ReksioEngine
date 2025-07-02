@@ -168,6 +168,7 @@ export class Engine {
                 new Rectangle(0, 0, this.app.view.width, this.app.view.height)
             )
         )
+        loadingFreezeOverlay.name = 'Loading freeze overlay'
         loadingFreezeOverlay.zIndex = 9999999
         this.app.stage.addChild(loadingFreezeOverlay)
         this.app.renderer.render(this.app.stage)
@@ -178,6 +179,18 @@ export class Engine {
                 object.destroy()
                 this.scopeManager.getScope('scene')?.remove(object.name)
             }
+        }
+
+        // Alert when rendering stage wasn't completely cleared after all destroys.
+        // For debugging purposes.
+        const leakedObjects = this.app.stage.children.filter(obj => ![
+            loadingFreezeOverlay,
+            this.rendering.loadingDarkOverlay,
+            this.rendering.loadingText,
+            this.rendering.canvasBackground
+        ].includes(obj as any))
+        if (leakedObjects.length > 0) {
+            console.error('Display objects leak detected', leakedObjects)
         }
 
         this.previousScene = this.currentScene
