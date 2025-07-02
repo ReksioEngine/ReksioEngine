@@ -87,6 +87,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.engine.rendering.removeFromStage(this.sprite)
         }
         if (this.buttonInteractArea !== null) {
+            this.buttonLogic.unregisterInteractive(this.buttonInteractArea)
             this.engine.rendering.removeFromStage(this.buttonInteractArea)
         }
         for (const sound of this.sounds.values()) {
@@ -519,13 +520,16 @@ export class Animo extends DisplayType<AnimoDefinition> {
     SETASBUTTON(enabled: boolean, showPointer: boolean) {
         assert(this.sprite !== null)
         if (enabled) {
-            this.buttonInteractArea = new Graphics()
+            if (this.buttonInteractArea === null) {
+                this.buttonInteractArea = new Graphics()
+                this.engine.rendering.addToStage(this.buttonInteractArea)
+                this.buttonLogic.registerInteractive(this.buttonInteractArea, showPointer)
+            }
+
             this.buttonInteractArea.name = `${this.name} (ANIMO Button)` // For PIXI Devtools
             this.buttonInteractArea.hitArea = this.sprite.getBounds()
             this.buttonInteractArea.zIndex = this.sprite.zIndex
-            this.engine.rendering.addToStage(this.buttonInteractArea)
 
-            this.buttonLogic.registerInteractive(this.buttonInteractArea, showPointer)
             this.buttonLogic.enable()
             this.playEvent('ONNOEVENT')
         } else {
