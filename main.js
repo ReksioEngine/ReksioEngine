@@ -58215,6 +58215,9 @@ exports.createCallback = exports.callbacks = exports.map = exports.array = expor
 class FieldProcessorRecoverableError extends Error {
 }
 exports.FieldProcessorRecoverableError = FieldProcessorRecoverableError;
+const fieldAssignmentAsString = (object, key, param, value) => {
+    return `${object.NAME}:${key}${param ? '^' + param : ''}=${value}`;
+};
 const optional = (subType) => ({
     ...subType,
     flags: {
@@ -58237,7 +58240,8 @@ exports.number = {
     processor: (object, key, param, value) => {
         const result = Number(value.startsWith('"') ? value.slice(1, -1) : value);
         if (isNaN(result)) {
-            throw new FieldProcessorRecoverableError('Value references in CNV are not supported yet');
+            console.warn(`NaN value was provided for number field.\n${fieldAssignmentAsString(object, key, param, value)}`);
+            return 0;
         }
         return result;
     },
@@ -58246,7 +58250,8 @@ exports.boolean = {
     name: 'boolean',
     processor: (object, key, param, value) => {
         if (value !== 'TRUE' && value !== 'FALSE' && value !== '0' && value !== '1') {
-            throw new FieldProcessorRecoverableError('Expected TRUE, FALSE, 0 or 1');
+            console.warn(`Expected TRUE, FALSE, 0 or 1.\n${fieldAssignmentAsString(object, key, param, value)}`);
+            return false;
         }
         if (value === '0' || value === '1') {
             return Number(value);
