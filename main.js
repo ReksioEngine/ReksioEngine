@@ -51832,11 +51832,11 @@ class Engine {
         }
         // Alert when rendering stage wasn't completely cleared after all destroys.
         // For debugging purposes.
-        const leakedObjects = this.app.stage.children.filter(obj => ![
+        const leakedObjects = this.app.stage.children.filter((obj) => ![
             loadingFreezeOverlay,
             this.rendering.loadingDarkOverlay,
             this.rendering.loadingText,
-            this.rendering.canvasBackground
+            this.rendering.canvasBackground,
         ].includes(obj));
         if (leakedObjects.length > 0) {
             console.error('Display objects leak detected', leakedObjects);
@@ -52897,8 +52897,10 @@ let Animo = (() => {
             }
             syncPosition() {
                 (0, errors_1.assert)(this.sprite !== null);
-                this.sprite.x = this.positionX + this.positionOffsetX - this.anchorOffsetX + this.sprite.width * this.sprite.anchor.x;
-                this.sprite.y = this.positionY + this.positionOffsetY - this.anchorOffsetY + this.sprite.height * this.sprite.anchor.y;
+                this.sprite.x =
+                    this.positionX + this.positionOffsetX - this.anchorOffsetX + this.sprite.width * this.sprite.anchor.x;
+                this.sprite.y =
+                    this.positionY + this.positionOffsetY - this.anchorOffsetY + this.sprite.height * this.sprite.anchor.y;
             }
             changeFrame(event, frameIdx, signal = true) {
                 (0, errors_1.assert)(this.annFile !== null);
@@ -55001,7 +55003,28 @@ exports.Filter = Filter;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Font = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
+const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 class Font extends index_1.Type {
+    constructor() {
+        super(...arguments);
+        this.bitmapFont = null;
+    }
+    async init() {
+        (0, errors_1.assert)(this.engine.currentScene !== null);
+        try {
+            const relativePath = this.engine.currentScene.getRelativePath(this.definition['DEF_%s_%s_%d']);
+            this.bitmapFont = await this.engine.fileLoader.getFNTFile(relativePath);
+        }
+        catch (err) {
+            if (err instanceof filesLoader_1.FileNotFoundError) {
+                console.warn('FNT file not found');
+            }
+        }
+    }
+    ready() {
+        this.callbacks.run('ONINIT');
+    }
 }
 exports.Font = Font;
 
@@ -57210,22 +57233,6 @@ exports.System = System;
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
 var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
     var useValue = arguments.length > 2;
     for (var i = 0; i < initializers.length; i++) {
@@ -57260,47 +57267,48 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Text = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 let Text = (() => {
     var _a;
-    let _classSuper = index_1.DisplayType;
+    let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _SETTEXT_decorators;
     return _a = class Text extends _classSuper {
-            constructor(engine, parent, definition) {
-                super(engine, parent, definition);
-                this.text = (__runInitializers(this, _instanceExtraInitializers), void 0);
-                this.text = new PIXI.Text('', { fontFamily: 'Arial' });
+            constructor() {
+                super(...arguments);
+                this.text = (__runInitializers(this, _instanceExtraInitializers), null);
             }
-            init() {
-                const [x, y, width, height] = this.definition.RECT;
-                this.text.x = x;
-                this.text.y = y;
-                this.text.visible = this.engine.debug.enabled;
+            applyDefaults() {
+                const font = this.engine.getObject(this.definition.FONT);
+                if (font === null || font.bitmapFont === null) {
+                    return;
+                }
+                this.text = new pixi_js_1.BitmapText(this.definition.TEXT ?? '', {
+                    fontName: font.bitmapFont.font,
+                });
+                const [x1, y1, x2, y2] = this.definition.RECT;
+                this.text.x = x1;
+                this.text.y = y1;
+                this.text.anchor.set(0.5, 0);
+                this.text.visible = this.definition.VISIBLE;
                 this.engine.rendering.addToStage(this.text);
             }
             ready() {
                 this.callbacks.run('ONINIT');
             }
             destroy() {
-                this.engine.rendering.removeFromStage(this.text);
+                if (this.text) {
+                    this.engine.rendering.removeFromStage(this.text);
+                }
             }
             SETTEXT(content) {
-                this.text.text = content;
-            }
-            getRenderObject() {
-                return this.text;
+                if (this.text) {
+                    this.text.text = content;
+                }
             }
         },
         (() => {
@@ -57840,13 +57848,38 @@ const parseCNV = (content) => {
                 throw new errors_1.NotImplementedError(`Objects of type ${object.TYPE} are not supported`);
             }
             const definition = types_1.structureDefinitions[object.TYPE];
-            if (definition && variableName in definition) {
-                const fieldTypeDefinition = definition[variableName];
+            const supportedVariablesRaw = definition ? Object.keys(definition) : [];
+            const supportedVariables = supportedVariablesRaw.map((name) => {
+                if (!name.includes('%')) {
+                    return {
+                        pattern: name,
+                        name: name,
+                    };
+                }
+                const regexName = name.replaceAll('%s', '([a-zA-Z]+)').replaceAll('%d', '([0-9]+)');
+                const pattern = new RegExp(`^${regexName}$`, 'g');
+                return {
+                    pattern,
+                    name,
+                };
+            });
+            const supportedVariable = supportedVariables.find((entry) => {
+                const { pattern } = entry;
+                if (pattern instanceof RegExp) {
+                    return pattern.test(variableName);
+                }
+                else {
+                    return pattern === variableName;
+                }
+            });
+            if (definition && supportedVariable) {
+                const fieldName = supportedVariable.name;
+                const fieldTypeDefinition = definition[fieldName];
                 try {
                     const cleanedValue = value.trim();
-                    const processedValue = fieldTypeDefinition.processor(object, variableName, param, cleanedValue);
+                    const processedValue = fieldTypeDefinition.processor(object, fieldName, param, cleanedValue);
                     if (processedValue !== undefined) {
-                        object[variableName] = processedValue;
+                        object[fieldName] = processedValue;
                     }
                 }
                 catch (err) {
@@ -57855,7 +57888,7 @@ const parseCNV = (content) => {
                             `%cError%c: ${err.message}\n` +
                             `%cObject name:%c ${objectName}\n` +
                             `%cObject type:%c ${object.TYPE}\n` +
-                            `%cField name:%c ${variableName}\n` +
+                            `%cField name:%c ${fieldName}\n` +
                             `%cParam:%c ${param}\n` +
                             '%cValue:%c %O', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', value);
                         continue;
@@ -57863,7 +57896,7 @@ const parseCNV = (content) => {
                     console.error('Failed to process CNV field\n' +
                         `%cObject name:%c ${objectName}\n` +
                         `%cObject type:%c ${object.TYPE}\n` +
-                        `%cField name:%c ${variableName}\n` +
+                        `%cField name:%c ${fieldName}\n` +
                         `%cParam:%c ${param}\n` +
                         '%cValue:%c %O', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', value);
                     throw err;
@@ -58026,7 +58059,8 @@ const FilterDefinitionStructure = {
     ACTION: common_1.string,
 };
 const FontDefinitionStructure = {
-    DEF_ARIAL_STANDARD_14: common_1.string, // wtf
+    ONINIT: (0, common_1.optional)(common_1.callback),
+    'DEF_%s_%s_%d': common_1.string,
 };
 const GroupDefinitionStructure = {
     ONINIT: (0, common_1.optional)(common_1.callback),
@@ -58110,6 +58144,7 @@ const TextDefinitionStructure = {
     VISIBLE: common_1.boolean,
     VJUSTIFY: (0, common_1.optional)(common_1.boolean),
     TOCANVAS: common_1.boolean,
+    TEXT: (0, common_1.optional)(common_1.string),
     RECT: (0, common_1.array)(common_1.number),
     PRIORITY: common_1.number,
     MONITORCOLLISIONALPHA: common_1.boolean,
@@ -58488,6 +58523,132 @@ var CompressionType;
     CompressionType[CompressionType["CRLE"] = 3] = "CRLE";
     CompressionType[CompressionType["JPEG"] = 4] = "JPEG";
 })(CompressionType || (exports.CompressionType = CompressionType = {}));
+
+
+/***/ }),
+
+/***/ "./src/fileFormats/fnt/index.ts":
+/*!**************************************!*\
+  !*** ./src/fileFormats/fnt/index.ts ***!
+  \**************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.loadFont = void 0;
+const utils_1 = __webpack_require__(/*! ../utils */ "./src/fileFormats/utils.ts");
+const img_1 = __webpack_require__(/*! ../img */ "./src/fileFormats/img/index.ts");
+const compression_1 = __webpack_require__(/*! ../compression */ "./src/fileFormats/compression/index.ts");
+const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
+const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
+const decoder = new TextDecoder('windows-1250');
+const parse = (view) => {
+    const magic = view.getUint32();
+    if (magic != 0x544e46) {
+        throw new Error('Not a font');
+    }
+    const font = {};
+    font.pixelsInLine = view.getUint32();
+    font.charHeight = view.getUint32();
+    font.charWidth = view.getUint32();
+    font.charsCount = view.getUint32();
+    font.charsAscii = decoder.decode(new Uint8Array(view.read(font.charsCount)));
+    font.kerning = Array.from(new Int8Array(view.read(font.charsCount * font.charsCount)));
+    font.cutFromLeft = Array.from(new Uint8Array(view.read(font.charsCount)));
+    font.cutFromRight = Array.from(new Uint8Array(view.read(font.charsCount)));
+    return font;
+};
+const loadFont = (data) => {
+    const buffer = new utils_1.BinaryBuffer(new DataView(data));
+    const header = parse(buffer);
+    const image = (0, img_1.loadImageWithoutHeader)(buffer, {
+        compressionType: compression_1.CompressionType.NONE,
+        compressedLen: 2 * header.pixelsInLine * header.charHeight,
+        decompressedLen: 2 * header.pixelsInLine * header.charHeight,
+        pixelLen: 2,
+    }, {
+        compressionType: compression_1.CompressionType.NONE,
+        compressedLen: header.pixelsInLine * header.charHeight,
+        decompressedLen: header.pixelsInLine * header.charHeight,
+        pixelLen: 1,
+    });
+    const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(image), header.pixelsInLine, header.charHeight);
+    const texture = new PIXI.Texture(baseTexture);
+    const chars = [];
+    const actualCharWidth = header.pixelsInLine / header.charsCount;
+    for (let i = 0; i < header.charsCount; i++) {
+        const charCode = header.charsAscii[i].charCodeAt(0);
+        chars.push({
+            id: charCode,
+            page: 0,
+            x: actualCharWidth * i,
+            y: 0,
+            width: actualCharWidth,
+            height: header.charHeight,
+            xoffset: -header.cutFromLeft[i],
+            yoffset: 0,
+            xadvance: actualCharWidth - header.cutFromRight[i] - header.cutFromLeft[i],
+        });
+    }
+    const kerning = [];
+    for (let first = 0; first < header.charsCount; first++) {
+        const charRange = header.kerning.slice(first * header.charsCount, first * header.charsCount + header.charsCount);
+        for (let second = 0; second < header.charsCount; second++) {
+            kerning.push({
+                first: header.charsAscii[first].charCodeAt(0),
+                second: header.charsAscii[second].charCodeAt(0),
+                amount: 2 - charRange[second],
+            });
+        }
+    }
+    const fontData = new pixi_js_1.BitmapFontData();
+    fontData.info = [
+        {
+            face: crypto.randomUUID(),
+            size: header.charHeight,
+        },
+    ];
+    fontData.common = [
+        {
+            lineHeight: header.charHeight,
+        },
+    ];
+    fontData.distanceField = [];
+    fontData.page = [
+        {
+            id: 0,
+            file: '',
+        },
+    ];
+    fontData.char = chars;
+    fontData.kerning = kerning;
+    return pixi_js_1.BitmapFont.install(fontData, [texture], true);
+};
+exports.loadFont = loadFont;
 
 
 /***/ }),
@@ -58939,7 +59100,7 @@ class GamePlayerInstance {
     }
     restart(extraOptions) {
         const app = new PIXI.Application({
-            view: this.engine.app.view
+            view: this.engine.app.view,
         });
         this.destroy();
         this.engine = new engine_1.Engine(app, { ...this.engine.options, ...(extraOptions ?? {}) });
@@ -58954,7 +59115,7 @@ class GamePlayerInstance {
     }
     importSaveFile(content) {
         this.restart({
-            saveFile: saveFile_1.SaveFileManager.fromINI(content, this.engine.saveFile.onChange)
+            saveFile: saveFile_1.SaveFileManager.fromINI(content, this.engine.saveFile.onChange),
         });
     }
     get currentScene() {
@@ -62003,7 +62164,7 @@ const sounds_1 = __webpack_require__(/*! ../engine/sounds */ "./src/engine/sound
 const index_1 = __webpack_require__(/*! ../index */ "./src/index.ts");
 const loadSound = async (fileLoader, filename, options) => {
     const buffer = await fileLoader.getRawFile(filename);
-    const sound = await (new Promise((resolve, reject) => {
+    const sound = await new Promise((resolve, reject) => {
         sound_1.Sound.from({
             source: buffer,
             preload: true,
@@ -62017,7 +62178,7 @@ const loadSound = async (fileLoader, filename, options) => {
             },
             ...options,
         });
-    }));
+    });
     const result = index_1.BUILD_VARS.manualTick ? new sounds_1.SimulatedSound(sound) : sound;
     sounds_1.soundLibrary.register(result);
     return result;
@@ -62168,6 +62329,8 @@ const initializationPriorities = [
     ['ARRAY', 'CONDITION'],
     ['ANIMO', 'IMAGE', 'SOUND', 'VECTOR'],
     ['TIMER', 'SEQUENCE', 'GROUP', 'BUTTON'],
+    ['FONT'], // todo: this was just placed at random priority
+    ['TEXT'],
 ].reduce((acc, currentValue, currentIndex) => {
     currentValue.forEach((entry) => acc.set(entry, currentIndex));
     return acc;
@@ -62269,6 +62432,7 @@ const ann_1 = __webpack_require__(/*! ../fileFormats/ann */ "./src/fileFormats/a
 const seq_1 = __webpack_require__(/*! ../fileFormats/seq */ "./src/fileFormats/seq/index.ts");
 const iso9660_1 = __webpack_require__(/*! ./iso9660 */ "./src/loaders/iso9660.ts");
 const utils_1 = __webpack_require__(/*! ../common/utils */ "./src/common/utils.ts");
+const fnt_1 = __webpack_require__(/*! ../fileFormats/fnt */ "./src/fileFormats/fnt/index.ts");
 class FileNotFoundError extends Error {
     constructor(filename) {
         super(`File '${filename}' not found in files listing`);
@@ -62292,6 +62456,10 @@ class SimpleFileLoader extends FileLoader {
     async getANNFile(filename) {
         const data = await this.getRawFile(filename);
         return (0, ann_1.loadAnn)(data);
+    }
+    async getFNTFile(filename) {
+        const data = await this.getRawFile(filename);
+        return (0, fnt_1.loadFont)(data);
     }
     async getCNVFile(filename) {
         const data = await this.getRawFile(filename);
