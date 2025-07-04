@@ -255,11 +255,13 @@ const FilterDefinitionStructure = {
 }
 
 export type FontDefinition = TypeDefinition & {
-    DEF_ARIAL_STANDARD_14: string // wtf
+    ONINIT?: callback
+    'DEF_%s_%s_%d': string
 }
 
 const FontDefinitionStructure = {
-    DEF_ARIAL_STANDARD_14: string, // wtf
+    ONINIT: optional(callback),
+    'DEF_%s_%s_%d': string
 }
 
 export type GroupDefinition = TypeDefinition & {
@@ -449,6 +451,7 @@ export type TextDefinition = TypeDefinition & {
     VISIBLE: boolean
     VJUSTIFY?: boolean
     TOCANVAS: boolean
+    TEXT?: string
     RECT: Array<number>
     PRIORITY?: number
     MONITORCOLLISIONALPHA: boolean
@@ -461,6 +464,7 @@ const TextDefinitionStructure = {
     VISIBLE: boolean,
     VJUSTIFY: optional(boolean),
     TOCANVAS: boolean,
+    TEXT: optional(string),
     RECT: array(number),
     PRIORITY: number,
     MONITORCOLLISIONALPHA: boolean,

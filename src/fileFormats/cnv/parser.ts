@@ -55,13 +55,43 @@ export const parseCNV = (content: string) => {
             }
 
             const definition = structureDefinitions[object.TYPE]
-            if (definition && variableName in definition) {
-                const fieldTypeDefinition: FieldTypeEntry = definition[variableName]
+            const supportedVariablesRaw = definition ? Object.keys(definition) : []
+            const supportedVariables = supportedVariablesRaw.map(name => {
+                if (!name.includes('%')) {
+                    return {
+                        pattern: name,
+                        name: name
+                    }
+                }
+
+                const regexName = name
+                    .replaceAll('%s', '([a-zA-Z]+)')
+                    .replaceAll('%d', '([0-9]+)')
+
+                const pattern = new RegExp(`^${regexName}$`, 'g')
+                return {
+                    pattern,
+                    name,
+                }
+            })
+
+            const supportedVariable = supportedVariables.find(entry => {
+                const {pattern} = entry
+                if (pattern instanceof RegExp) {
+                    return pattern.test(variableName)
+                } else {
+                    return pattern === variableName
+                }
+            })
+
+            if (definition && supportedVariable) {
+                const fieldName = supportedVariable.name
+                const fieldTypeDefinition: FieldTypeEntry = definition[fieldName]
                 try {
                     const cleanedValue = value.trim()
-                    const processedValue = fieldTypeDefinition.processor(object, variableName, param, cleanedValue)
+                    const processedValue = fieldTypeDefinition.processor(object, fieldName, param, cleanedValue)
                     if (processedValue !== undefined) {
-                        object[variableName] = processedValue
+                        object[fieldName] = processedValue
                     }
                 } catch (err) {
                     if (err instanceof FieldProcessorRecoverableError) {
@@ -70,7 +100,7 @@ export const parseCNV = (content: string) => {
                                 `%cError%c: ${err.message}\n` +
                                 `%cObject name:%c ${objectName}\n` +
                                 `%cObject type:%c ${object.TYPE}\n` +
-                                `%cField name:%c ${variableName}\n` +
+                                `%cField name:%c ${fieldName}\n` +
                                 `%cParam:%c ${param}\n` +
                                 '%cValue:%c %O',
                             'font-weight: bold',
@@ -94,7 +124,7 @@ export const parseCNV = (content: string) => {
                         'Failed to process CNV field\n' +
                             `%cObject name:%c ${objectName}\n` +
                             `%cObject type:%c ${object.TYPE}\n` +
-                            `%cField name:%c ${variableName}\n` +
+                            `%cField name:%c ${fieldName}\n` +
                             `%cParam:%c ${param}\n` +
                             '%cValue:%c %O',
                         'font-weight: bold',

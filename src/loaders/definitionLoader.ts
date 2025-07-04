@@ -116,6 +116,8 @@ const initializationPriorities = [
     ['ARRAY', 'CONDITION'],
     ['ANIMO', 'IMAGE', 'SOUND', 'VECTOR'],
     ['TIMER', 'SEQUENCE', 'GROUP', 'BUTTON'],
+    ['FONT'], // todo: this was just placed at random priority
+    ['TEXT'],
 ].reduce((acc: Map<string, number>, currentValue, currentIndex) => {
     currentValue.forEach((entry) => acc.set(entry, currentIndex))
     return acc
