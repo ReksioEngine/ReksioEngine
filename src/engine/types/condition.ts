@@ -70,7 +70,9 @@ export class Condition extends Type<ConditionDefinition> {
             }
         } else {
             result = false
-            console.warn(`Condition ${this.name} has an operand that resolved to undefined. operand1=${operand1}, operand2=${operand2}`)
+            console.warn(
+                `Condition ${this.name} has an operand that resolved to undefined. operand1=${operand1}, operand2=${operand2}`
+            )
         }
 
         if (shouldSignal) {

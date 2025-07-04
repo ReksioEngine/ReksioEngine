@@ -7,7 +7,7 @@ import { BUILD_VARS } from '../index'
 
 export const loadSound = async (fileLoader: FileLoader, filename: string, options?: Options): Promise<ISound> => {
     const buffer = await fileLoader.getRawFile(filename)
-    const sound = await (new Promise<Sound>((resolve, reject) => {
+    const sound = await new Promise<Sound>((resolve, reject) => {
         Sound.from({
             source: buffer,
             preload: true,
@@ -20,7 +20,7 @@ export const loadSound = async (fileLoader: FileLoader, filename: string, option
             },
             ...options,
         })
-    }))
+    })
 
     const result = BUILD_VARS.manualTick ? new SimulatedSound(sound) : sound
     soundLibrary.register(result)

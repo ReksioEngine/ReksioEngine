@@ -39,23 +39,23 @@ export const loadFont = (data: ArrayBuffer) => {
     const buffer = new BinaryBuffer(new DataView(data))
     const header = parse(buffer)
 
-    const image = loadImageWithoutHeader(buffer, {
-        compressionType: CompressionType.NONE,
-        compressedLen: 2 * header.pixelsInLine * header.charHeight,
-        decompressedLen: 2 * header.pixelsInLine * header.charHeight,
-        pixelLen: 2,
-    }, {
-        compressionType: CompressionType.NONE,
-        compressedLen: header.pixelsInLine * header.charHeight,
-        decompressedLen: header.pixelsInLine * header.charHeight,
-        pixelLen: 1,
-    })
-
-    const baseTexture = PIXI.BaseTexture.fromBuffer(
-        new Uint8Array(image),
-        header.pixelsInLine,
-        header.charHeight
+    const image = loadImageWithoutHeader(
+        buffer,
+        {
+            compressionType: CompressionType.NONE,
+            compressedLen: 2 * header.pixelsInLine * header.charHeight,
+            decompressedLen: 2 * header.pixelsInLine * header.charHeight,
+            pixelLen: 2,
+        },
+        {
+            compressionType: CompressionType.NONE,
+            compressedLen: header.pixelsInLine * header.charHeight,
+            decompressedLen: header.pixelsInLine * header.charHeight,
+            pixelLen: 1,
+        }
     )
+
+    const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(image), header.pixelsInLine, header.charHeight)
     const texture = new PIXI.Texture(baseTexture)
 
     const chars: PIXI.IBitmapFontDataChar[] = []
@@ -71,7 +71,7 @@ export const loadFont = (data: ArrayBuffer) => {
             height: header.charHeight,
             xoffset: -header.cutFromLeft[i],
             yoffset: 0,
-            xadvance: actualCharWidth - header.cutFromRight[i] - header.cutFromLeft[i]
+            xadvance: actualCharWidth - header.cutFromRight[i] - header.cutFromLeft[i],
         })
     }
 
@@ -82,24 +82,30 @@ export const loadFont = (data: ArrayBuffer) => {
             kerning.push({
                 first: header.charsAscii[first].charCodeAt(0),
                 second: header.charsAscii[second].charCodeAt(0),
-                amount: 2-charRange[second]
+                amount: 2 - charRange[second],
             })
         }
     }
 
     const fontData = new BitmapFontData()
-    fontData.info = [{
-        face: crypto.randomUUID(),
-        size: header.charHeight
-    }]
-    fontData.common = [{
-        lineHeight: header.charHeight,
-    }]
+    fontData.info = [
+        {
+            face: crypto.randomUUID(),
+            size: header.charHeight,
+        },
+    ]
+    fontData.common = [
+        {
+            lineHeight: header.charHeight,
+        },
+    ]
     fontData.distanceField = []
-    fontData.page = [{
-        id: 0,
-        file: ""
-    }]
+    fontData.page = [
+        {
+            id: 0,
+            file: '',
+        },
+    ]
     fontData.char = chars
     fontData.kerning = kerning
 

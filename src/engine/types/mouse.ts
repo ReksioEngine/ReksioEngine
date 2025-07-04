@@ -132,7 +132,7 @@ export class Mouse extends Type<MouseDefinition> {
         }
 
         const key = keysMapping.get(event.button)!
-        const clickEvent = { type, key };
+        const clickEvent = { type, key }
 
         this.clicksQueue.push(clickEvent)
         if (type === 'click') {
@@ -143,7 +143,7 @@ export class Mouse extends Type<MouseDefinition> {
                     type: 'dblclick',
                     key,
                 })
-                delete this.lastClicksTime[key];
+                delete this.lastClicksTime[key]
             } else {
                 this.lastClicksTime[key] = dateNow
             }

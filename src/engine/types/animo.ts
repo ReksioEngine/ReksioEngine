@@ -274,8 +274,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     public syncPosition() {
         assert(this.sprite !== null)
-        this.sprite.x = this.positionX + this.positionOffsetX - this.anchorOffsetX + this.sprite.width * this.sprite.anchor.x
-        this.sprite.y = this.positionY + this.positionOffsetY - this.anchorOffsetY + this.sprite.height * this.sprite.anchor.y
+        this.sprite.x =
+            this.positionX + this.positionOffsetX - this.anchorOffsetX + this.sprite.width * this.sprite.anchor.x
+        this.sprite.y =
+            this.positionY + this.positionOffsetY - this.anchorOffsetY + this.sprite.height * this.sprite.anchor.y
     }
 
     private changeFrame(event: Event, frameIdx: number, signal = true) {

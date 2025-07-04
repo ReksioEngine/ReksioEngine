@@ -183,12 +183,15 @@ export class Engine {
 
         // Alert when rendering stage wasn't completely cleared after all destroys.
         // For debugging purposes.
-        const leakedObjects = this.app.stage.children.filter(obj => ![
-            loadingFreezeOverlay,
-            this.rendering.loadingDarkOverlay,
-            this.rendering.loadingText,
-            this.rendering.canvasBackground
-        ].includes(obj as any))
+        const leakedObjects = this.app.stage.children.filter(
+            (obj) =>
+                ![
+                    loadingFreezeOverlay,
+                    this.rendering.loadingDarkOverlay,
+                    this.rendering.loadingText,
+                    this.rendering.canvasBackground,
+                ].includes(obj as any)
+        )
         if (leakedObjects.length > 0) {
             console.error('Display objects leak detected', leakedObjects)
         }

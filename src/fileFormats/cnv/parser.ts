@@ -56,17 +56,15 @@ export const parseCNV = (content: string) => {
 
             const definition = structureDefinitions[object.TYPE]
             const supportedVariablesRaw = definition ? Object.keys(definition) : []
-            const supportedVariables = supportedVariablesRaw.map(name => {
+            const supportedVariables = supportedVariablesRaw.map((name) => {
                 if (!name.includes('%')) {
                     return {
                         pattern: name,
-                        name: name
+                        name: name,
                     }
                 }
 
-                const regexName = name
-                    .replaceAll('%s', '([a-zA-Z]+)')
-                    .replaceAll('%d', '([0-9]+)')
+                const regexName = name.replaceAll('%s', '([a-zA-Z]+)').replaceAll('%d', '([0-9]+)')
 
                 const pattern = new RegExp(`^${regexName}$`, 'g')
                 return {
@@ -75,8 +73,8 @@ export const parseCNV = (content: string) => {
                 }
             })
 
-            const supportedVariable = supportedVariables.find(entry => {
-                const {pattern} = entry
+            const supportedVariable = supportedVariables.find((entry) => {
+                const { pattern } = entry
                 if (pattern instanceof RegExp) {
                     return pattern.test(variableName)
                 } else {

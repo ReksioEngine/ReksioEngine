@@ -30,11 +30,11 @@ export class GamePlayerInstance {
 
     restart(extraOptions?: GamePlayerOptions) {
         const app = new PIXI.Application({
-            view: this.engine.app.view
+            view: this.engine.app.view,
         })
 
         this.destroy()
-        this.engine = new Engine(app, {...this.engine.options, ...(extraOptions ?? {})})
+        this.engine = new Engine(app, { ...this.engine.options, ...(extraOptions ?? {}) })
         void this.engine.init()
         void this.engine.start()
     }
@@ -49,7 +49,7 @@ export class GamePlayerInstance {
 
     importSaveFile(content: string) {
         this.restart({
-            saveFile: SaveFileManager.fromINI(content, this.engine.saveFile.onChange)
+            saveFile: SaveFileManager.fromINI(content, this.engine.saveFile.onChange),
         } as GamePlayerOptions)
     }
 

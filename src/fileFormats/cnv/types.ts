@@ -261,7 +261,7 @@ export type FontDefinition = TypeDefinition & {
 
 const FontDefinitionStructure = {
     ONINIT: optional(callback),
-    'DEF_%s_%s_%d': string
+    'DEF_%s_%s_%d': string,
 }
 
 export type GroupDefinition = TypeDefinition & {
