@@ -50802,14 +50802,14 @@ class StateMachine {
     can(event) {
         return this.transitions.some((transition) => transition.from === this.currentState && transition.event === event);
     }
-    dispatch(event) {
+    async dispatch(event) {
         const transition = this.transitions.find((transition) => transition.from === this.currentState && transition.event === event);
         if (transition === undefined) {
             throw new Error('No transition found for event from current state');
         }
         const previousState = this.currentState;
         this.currentState = transition.to;
-        this.onStateChange(previousState, event, this.currentState);
+        await this.onStateChange(previousState, event, this.currentState);
     }
 }
 exports.StateMachine = StateMachine;
@@ -51119,19 +51119,19 @@ class ButtonLogicComponent {
         sprite.removeListener('pointerdown', this.onMouseDownCallback);
         sprite.removeListener('pointerup', this.onMouseUpCallback);
     }
-    disable() {
+    async disable() {
         if (this.stateMachine.can(Event.DISABLE)) {
-            this.stateMachine.dispatch(Event.DISABLE);
+            await this.stateMachine.dispatch(Event.DISABLE);
         }
     }
-    disableButVisible() {
+    async disableButVisible() {
         if (this.stateMachine.can(Event.DISABLE_BUT_VISIBLE)) {
-            this.stateMachine.dispatch(Event.DISABLE_BUT_VISIBLE);
+            await this.stateMachine.dispatch(Event.DISABLE_BUT_VISIBLE);
         }
     }
-    enable() {
+    async enable() {
         if (this.stateMachine.can(Event.ENABLE)) {
-            this.stateMachine.dispatch(Event.ENABLE);
+            await this.stateMachine.dispatch(Event.ENABLE);
         }
     }
     get state() {
@@ -51141,11 +51141,11 @@ class ButtonLogicComponent {
         const state = this.stateMachine.getState();
         return state != State.DISABLED && state != State.DISABLED_BUT_VISIBLE;
     }
-    tick() {
+    async tick() {
         while (this.eventsQueue.length > 0) {
             const event = this.eventsQueue.shift();
             if (this.stateMachine.can(event)) {
-                this.stateMachine.dispatch(event);
+                await this.stateMachine.dispatch(event);
             }
         }
     }
@@ -51220,7 +51220,7 @@ class CallbacksComponent {
         (0, errors_1.assert)(callbacks !== undefined);
         return callbacks.nonParametrized !== null || callbacks.parametrized.size > 0;
     }
-    run(type, param, thisOverride) {
+    async run(type, param, thisOverride) {
         if (!this.has(type)) {
             return;
         }
@@ -51238,10 +51238,10 @@ class CallbacksComponent {
             if (param !== null && param !== undefined && callbackGroup.parametrized.has(param)) {
                 const callback = callbackGroup.parametrized.get(param);
                 (0, errors_1.assert)(callback !== undefined, 'Callbacks should not happen to be undefined values');
-                this.engine.scripting.executeCallback(thisReference, callback);
+                await this.engine.scripting.executeCallback(thisReference, callback);
             }
             else if (callbackGroup.nonParametrized) {
-                this.engine.scripting.executeCallback(thisReference, callbackGroup.nonParametrized);
+                await this.engine.scripting.executeCallback(thisReference, callbackGroup.nonParametrized);
             }
         }
         catch (err) {
@@ -51312,13 +51312,13 @@ class CollisionsComponent {
     tick() {
         this.collisionTestedThisTick = false;
     }
-    handle(callback) {
+    async handle(callback) {
         if (!this.enabled || this.collisionTestedThisTick) {
             return;
         }
         this.collisionTestedThisTick = true;
         for (const object of this.findCollisions()) {
-            callback(object);
+            await callback(object);
         }
     }
     findCollisions() {
@@ -51366,10 +51366,10 @@ class EventsComponent {
         callbacks = callbacks.filter((cb) => cb !== callback);
         this.listeners.set(eventName, callbacks);
     }
-    trigger(eventName, ...args) {
+    async trigger(eventName, ...args) {
         const callbacks = this.listeners.get(eventName) ?? [];
         for (const listener of callbacks) {
-            listener(...args);
+            await listener(...args);
         }
     }
 }
@@ -51745,7 +51745,7 @@ class Engine {
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def');
             const rootScope = this.scopeManager.newScope('root');
             await (0, definitionLoader_1.loadDefinition)(this, rootScope, applicationDef, null);
-            (0, definitionLoader_1.doReady)(rootScope);
+            await (0, definitionLoader_1.doReady)(rootScope);
             const episode = this.scopeManager.findByType('EPISODE');
             if (episode === null) {
                 throw new errors_1.IrrecoverableError("Starting episode doesn't exist");
@@ -51766,19 +51766,19 @@ class Engine {
         }
         sounds_1.soundLibrary.stopAll();
     }
-    tick(elapsedMS) {
+    async tick(elapsedMS) {
         const sceneScope = this.scopeManager.getScope('scene');
         if (sceneScope === null) {
             return;
         }
         for (const object of sceneScope.objects.filter((object) => object.isReady)) {
             try {
-                object.tick(elapsedMS);
+                await object.tick(elapsedMS);
             }
             catch (err) {
                 if (err instanceof CancelTick) {
                     if (err.callback) {
-                        err.callback();
+                        await err.callback();
                     }
                     return;
                 }
@@ -51882,7 +51882,7 @@ class Engine {
             }
         }
         if (newScope) {
-            (0, definitionLoader_1.doReady)(newScope);
+            await (0, definitionLoader_1.doReady)(newScope);
         }
         this.app.stage.removeChild(loadingFreezeOverlay);
         this.app.stage.removeChild(this.rendering.loadingDarkOverlay);
@@ -52320,7 +52320,7 @@ class ScriptingManager {
     constructor(engine) {
         this.engine = engine;
     }
-    executeCallback(caller, callback, args, localScopeEntries, forwardInterrupts = false) {
+    async executeCallback(caller, callback, args, localScopeEntries, forwardInterrupts = false) {
         let stackFrame = null;
         try {
             const localScope = new scope_1.Scope('local', localScopeEntries ? new Map(Object.entries(localScopeEntries)) : undefined);
@@ -52329,7 +52329,7 @@ class ScriptingManager {
             }
             this.engine.scopeManager.pushScope(localScope);
             if (callback.code) {
-                return (0, script_1.runScript)(this.engine, callback.code, args, callback.isSingleStatement, true);
+                return await (0, script_1.runScript)(this.engine, callback.code, args, callback.isSingleStatement, true);
             }
             else if (callback.behaviourReference) {
                 if (!this.engine.getObject(callback.behaviourReference)) {
@@ -52344,10 +52344,10 @@ class ScriptingManager {
                 stacktrace_1.stackTrace.push(stackFrame);
                 const behaviour = this.engine.getObject(callback.behaviourReference);
                 if (forwardInterrupts) {
-                    return behaviour.executeConditionalCallback(callback.constantArguments);
+                    return await behaviour.executeConditionalCallback(callback.constantArguments);
                 }
                 else {
-                    return behaviour.RUNC(...callback.constantArguments);
+                    return await behaviour.RUNC(...callback.constantArguments);
                 }
             }
         }
@@ -52700,6 +52700,7 @@ let Animo = (() => {
     let _ADDBEHAVIOUR_decorators;
     let _MONITORCOLLISION_decorators;
     let _REMOVEMONITORCOLLISION_decorators;
+    let _LOAD_decorators;
     return _a = class Animo extends _classSuper {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition);
@@ -52727,9 +52728,9 @@ let Animo = (() => {
                 this.buttonLogic = new button_1.ButtonLogicComponent(this.onButtonStateChange.bind(this));
             }
             async init() {
-                this.annFile = await this.loadAnimation();
+                this.annFile = await this.loadAnimation(this.definition.FILENAME);
             }
-            applyDefaults() {
+            async applyDefaults() {
                 const existingObjectWithFilename = this.engine.scopeManager.find((key, object) => object != this &&
                     object instanceof _a &&
                     object.definition.FILENAME === this.definition.FILENAME &&
@@ -52738,15 +52739,11 @@ let Animo = (() => {
                     this.sprite = existingObjectWithFilename.sprite;
                 }
                 else {
-                    this.initSprite();
-                }
-                this.currentEvent = this.getEvent(this.getDefaultEvent() ?? '');
-                if (this.currentEvent) {
-                    this.changeFrame(this.currentEvent, 0, false);
+                    await this.initSprite();
                 }
             }
-            ready() {
-                this.callbacks.run('ONINIT');
+            async ready() {
+                await this.callbacks.run('ONINIT');
             }
             destroy() {
                 if (this.sprite !== null) {
@@ -52762,8 +52759,8 @@ let Animo = (() => {
                     }
                 }
             }
-            tick(elapsedMS) {
-                this.buttonLogic.tick();
+            async tick(elapsedMS) {
+                await this.buttonLogic.tick();
                 this.collisions.tick();
                 if (!this.isPlaying) {
                     return;
@@ -52771,7 +52768,7 @@ let Animo = (() => {
                 this.timeSinceLastFrame += elapsedMS * this.engine.speed;
                 const frameLength = (1 / this.fps) * 1000;
                 while (this.isPlaying && this.timeSinceLastFrame >= frameLength) {
-                    this.tickAnimation();
+                    await this.tickAnimation();
                     this.timeSinceLastFrame -= frameLength;
                 }
             }
@@ -52784,13 +52781,13 @@ let Animo = (() => {
                 }
                 return null;
             }
-            async loadAnimation() {
+            async loadAnimation(path) {
                 (0, errors_1.assert)(this.engine.currentScene !== null);
                 try {
-                    const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME);
+                    const relativePath = this.engine.currentScene.getRelativePath(path);
                     const annFile = await this.engine.fileLoader.getANNFile(relativePath);
                     await this.loadSfx(annFile);
-                    console.debug(`File '${this.definition.FILENAME}' loaded successfully!`);
+                    console.debug(`File '${path}' loaded successfully!`);
                     return annFile;
                 }
                 catch (err) {
@@ -52822,7 +52819,7 @@ let Animo = (() => {
                 }
                 await Promise.all([...soundsNames].map(loadSoundIfNotExists));
             }
-            initSprite() {
+            async initSprite() {
                 (0, errors_1.assert)(this.annFile !== null);
                 this.sprite = new rendering_1.AdvancedSprite();
                 this.sprite.name = `${this.name} [ANIMO]`; // For PIXI Devtools
@@ -52831,6 +52828,10 @@ let Animo = (() => {
                 this.SETPRIORITY(this.definition.PRIORITY ?? 0);
                 if (this.definition.TOCANVAS) {
                     this.engine.rendering.addToStage(this.sprite);
+                }
+                this.currentEvent = this.getEvent(this.getDefaultEvent() ?? '');
+                if (this.currentEvent) {
+                    await this.changeFrame(this.currentEvent, 0, false);
                 }
             }
             getTexture(imageIndex) {
@@ -52853,7 +52854,7 @@ let Animo = (() => {
                 this.hitmaps.set(imageIndex, hitmap);
                 return hitmap;
             }
-            tickAnimation() {
+            async tickAnimation() {
                 (0, errors_1.assert)(this.annFile !== null && this.sprite !== null);
                 const event = this.currentEvent;
                 if (!event) {
@@ -52861,12 +52862,12 @@ let Animo = (() => {
                 }
                 if (this.eventEndedLastTick == this.currentEvent) {
                     this.eventEndedLastTick = null;
-                    this.STOP(true);
+                    await this.STOP(true);
                     return;
                 }
-                this.changeFrame(event, this.currentFrame);
+                await this.changeFrame(event, this.currentFrame);
                 if (this.currentFrame === 0) {
-                    this.ONSTARTED();
+                    await this.ONSTARTED();
                 }
                 // Animation might get stopped in ONFRAMECHANGED callback like in UFO:S65_ZAMEK
                 // If we wouldn't return there then if ONFINISHED has PLAY then it will never stop running
@@ -52909,7 +52910,7 @@ let Animo = (() => {
                 this.sprite.y =
                     this.positionY + this.positionOffsetY - this.anchorOffsetY + this.sprite.height * this.sprite.anchor.y;
             }
-            changeFrame(event, frameIdx, signal = true) {
+            async changeFrame(event, frameIdx, signal = true) {
                 (0, errors_1.assert)(this.annFile !== null);
                 (0, errors_1.assert)(this.sprite !== null);
                 (0, errors_1.assert)(event !== null);
@@ -52932,7 +52933,7 @@ let Animo = (() => {
                     this.buttonInteractArea.hitArea = this.sprite.getBounds();
                 }
                 if (signal) {
-                    this.callbacks.run('ONFRAMECHANGED', event.name);
+                    await this.callbacks.run('ONFRAMECHANGED', event.name);
                 }
             }
             changeImage(imageIndex) {
@@ -52954,22 +52955,22 @@ let Animo = (() => {
                     this.buttonInteractArea.hitArea = this.sprite.getBounds();
                 }
             }
-            PLAY(name) {
+            async PLAY(name) {
                 if (name === undefined) {
                     this.SHOW();
                     this.RESUME();
                     return;
                 }
-                this.playEvent(name);
+                await this.playEvent(name);
             }
-            playEvent(name) {
+            async playEvent(name) {
                 if (!this.hasEvent(name.toString())) {
                     return;
                 }
                 const event = this.getEvent(name);
                 (0, errors_1.assert)(event !== null);
                 if (event.framesCount === 0) {
-                    this.ONFINISHED();
+                    await this.ONFINISHED();
                     return;
                 }
                 this.eventEndedLastTick = null;
@@ -52981,30 +52982,30 @@ let Animo = (() => {
                 // Animation could be paused before next tick, and it wouldn't render new frame
                 // Tick animation so that it's not signaling twice for 0 frame
                 // + it has to call ONSTARTED instantly
-                this.tickAnimation();
+                await this.tickAnimation();
             }
-            forceRender() {
+            async forceRender() {
                 (0, errors_1.assert)(this.currentEvent !== null);
-                this.changeFrame(this.currentEvent, this.currentFrame, true);
+                await this.changeFrame(this.currentEvent, this.currentFrame, true);
             }
-            ONFINISHED() {
-                (0, errors_1.assert)(this.currentEvent !== null);
-                const index = this.currentEvent.name.toUpperCase();
-                this.callbacks.run('ONFINISHED', index);
-                this.events?.trigger('ONFINISHED', index);
-            }
-            ONSTARTED() {
+            async ONFINISHED() {
                 (0, errors_1.assert)(this.currentEvent !== null);
                 const index = this.currentEvent.name.toUpperCase();
-                this.callbacks.run('ONSTARTED', index);
-                this.events?.trigger('ONSTARTED', index);
+                await this.callbacks.run('ONFINISHED', index);
+                await this.events?.trigger('ONFINISHED', index);
+            }
+            async ONSTARTED() {
+                (0, errors_1.assert)(this.currentEvent !== null);
+                const index = this.currentEvent.name.toUpperCase();
+                await this.callbacks.run('ONSTARTED', index);
+                await this.events?.trigger('ONSTARTED', index);
             }
             // For some reason there is sometimes a string passed
-            STOP(shouldSignal) {
+            async STOP(shouldSignal) {
                 this.isPlaying = false;
                 this.currentFrame = 0;
                 if (shouldSignal !== false) {
-                    this.ONFINISHED();
+                    await this.ONFINISHED();
                 }
             }
             PAUSE() {
@@ -53043,7 +53044,7 @@ let Animo = (() => {
                         break;
                 }
             }
-            SETFRAME(eventNameOrFrameIdx, frameIdx) {
+            async SETFRAME(eventNameOrFrameIdx, frameIdx) {
                 if (frameIdx === undefined) {
                     const imageIndex = Number(eventNameOrFrameIdx);
                     (0, errors_1.assert)(!Number.isNaN(imageIndex));
@@ -53060,7 +53061,7 @@ let Animo = (() => {
                     this.currentFrame = newEventFrame;
                     // Force render because some animations might not be playing,
                     // but they display something (like a keypad screen in S73_0_KOD in UFO)
-                    this.forceRender();
+                    await this.forceRender();
                 }
             }
             SETFPS(fps) {
@@ -53078,21 +53079,21 @@ let Animo = (() => {
                 (0, errors_1.assert)(this.sprite !== null);
                 return this.sprite.visible;
             }
-            MOVE(xOffset, yOffset) {
+            async MOVE(xOffset, yOffset) {
                 (0, errors_1.assert)(this.sprite !== null);
                 this.positionX += Math.floor(xOffset);
                 this.positionY += Math.floor(yOffset);
                 this.syncPosition();
-                this.onMove();
+                await this.onMove();
             }
-            SETPOSITION(x, y) {
+            async SETPOSITION(x, y) {
                 (0, errors_1.assert)(this.sprite !== null);
                 this.positionX = Math.floor(x);
                 this.positionY = Math.floor(y);
                 this.syncPosition();
-                this.onMove();
+                await this.onMove();
             }
-            SETASBUTTON(enabled, showPointer) {
+            async SETASBUTTON(enabled, showPointer) {
                 (0, errors_1.assert)(this.sprite !== null);
                 if (enabled) {
                     if (this.buttonInteractArea === null) {
@@ -53103,8 +53104,8 @@ let Animo = (() => {
                     this.buttonInteractArea.name = `${this.name} (ANIMO Button)`; // For PIXI Devtools
                     this.buttonInteractArea.hitArea = this.sprite.getBounds();
                     this.buttonInteractArea.zIndex = this.sprite.zIndex;
-                    this.buttonLogic.enable();
-                    this.playEvent('ONNOEVENT');
+                    await this.buttonLogic.enable();
+                    await this.playEvent('ONNOEVENT');
                 }
                 else {
                     if (this.buttonInteractArea) {
@@ -53112,36 +53113,36 @@ let Animo = (() => {
                         this.engine.rendering.removeFromStage(this.buttonInteractArea);
                         this.buttonInteractArea = null;
                     }
-                    this.buttonLogic?.disable();
+                    await this.buttonLogic?.disable();
                 }
             }
-            onButtonStateChange(prevState, event, newState) {
-                const playEventIfExists = (eventName) => {
+            async onButtonStateChange(prevState, event, newState) {
+                const playEventIfExists = async (eventName) => {
                     if (this.hasEvent(eventName)) {
-                        this.playEvent(eventName);
+                        await this.playEvent(eventName);
                     }
                     else if (this.hasEvent('PLAY')) {
-                        this.playEvent('PLAY');
+                        await this.playEvent('PLAY');
                     }
                 };
                 switch (newState) {
                     case button_1.State.HOVERED:
-                        playEventIfExists('ONFOCUSON');
-                        this.callbacks.run(event === button_1.Event.UP ? 'ONRELEASE' : 'ONFOCUSON');
+                        await playEventIfExists('ONFOCUSON');
+                        await this.callbacks.run(event === button_1.Event.UP ? 'ONRELEASE' : 'ONFOCUSON');
                         break;
                     case button_1.State.STANDARD:
                         if (event === button_1.Event.ENABLE) {
-                            playEventIfExists('ONNOEVENT');
+                            await playEventIfExists('ONNOEVENT');
                         }
                         else {
-                            playEventIfExists('ONFOCUSOFF');
-                            this.callbacks.run('ONFOCUSOFF');
+                            await playEventIfExists('ONFOCUSOFF');
+                            await this.callbacks.run('ONFOCUSOFF');
                         }
                         break;
                     case button_1.State.PRESSED:
-                        playEventIfExists('ONCLICK');
-                        this.callbacks.run('ONCLICKED');
-                        this.callbacks.run('ONCLICK');
+                        await playEventIfExists('ONCLICK');
+                        await this.callbacks.run('ONCLICKED');
+                        await this.callbacks.run('ONCLICK');
                         break;
                 }
             }
@@ -53238,11 +53239,16 @@ let Animo = (() => {
             REMOVEMONITORCOLLISION() {
                 this.collisions.enabled = false;
             }
+            async LOAD(path) {
+                this.destroy();
+                this.annFile = await this.loadAnimation(path);
+                await this.initSprite();
+            }
             // Only triggered on explicit position change
             // Animation offset change doesn't trigger it
-            onMove() {
-                this.collisions.handle((object) => {
-                    this.callbacks.run('ONCOLLISION', object.name);
+            async onMove() {
+                await this.collisions.handle(async (object) => {
+                    await this.callbacks.run('ONCOLLISION', object.name);
                 });
             }
             getEvent(name) {
@@ -53259,8 +53265,8 @@ let Animo = (() => {
             getRenderObject() {
                 return this.sprite;
             }
-            clone() {
-                const clone = super.clone();
+            async clone() {
+                const clone = await super.clone();
                 clone.isPlaying = this.isPlaying;
                 clone.currentFrame = this.currentFrame;
                 clone.currentEvent = this.currentEvent;
@@ -53274,11 +53280,8 @@ let Animo = (() => {
                 clone.positionOffsetY = this.positionOffsetY;
                 clone.anchorOffsetX = this.anchorOffsetX;
                 clone.anchorOffsetY = this.anchorOffsetY;
-                clone.initSprite();
+                await clone.initSprite();
                 clone.sprite.visible = this.sprite.visible;
-                if (clone.currentEvent) {
-                    clone.changeFrame(clone.currentEvent, 0, false);
-                }
                 return clone;
             }
             __getXRayInfo() {
@@ -53335,6 +53338,7 @@ let Animo = (() => {
             _ADDBEHAVIOUR_decorators = [(0, types_1.method)({ name: "callbackString", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _MONITORCOLLISION_decorators = [(0, types_1.method)({ name: "newState", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             _REMOVEMONITORCOLLISION_decorators = [(0, types_1.method)()];
+            _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _PAUSE_decorators, { kind: "method", name: "PAUSE", static: false, private: false, access: { has: obj => "PAUSE" in obj, get: obj => obj.PAUSE }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -53366,6 +53370,7 @@ let Animo = (() => {
             __esDecorate(_a, null, _ADDBEHAVIOUR_decorators, { kind: "method", name: "ADDBEHAVIOUR", static: false, private: false, access: { has: obj => "ADDBEHAVIOUR" in obj, get: obj => obj.ADDBEHAVIOUR }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _MONITORCOLLISION_decorators, { kind: "method", name: "MONITORCOLLISION", static: false, private: false, access: { has: obj => "MONITORCOLLISION" in obj, get: obj => obj.MONITORCOLLISION }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _REMOVEMONITORCOLLISION_decorators, { kind: "method", name: "REMOVEMONITORCOLLISION", static: false, private: false, access: { has: obj => "REMOVEMONITORCOLLISION" in obj, get: obj => obj.REMOVEMONITORCOLLISION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a.Events = {
@@ -53456,7 +53461,7 @@ let Application = (() => {
                         this.engine.app.ticker.stop();
                         const applicationScope = this.engine.scopeManager.newScope('application');
                         await (0, definitionLoader_1.loadDefinition)(this.engine, applicationScope, applicationDefinition, this);
-                        (0, definitionLoader_1.doReady)(applicationScope);
+                        await (0, definitionLoader_1.doReady)(applicationScope);
                         this.engine.app.ticker.start();
                     }
                     catch (err) {
@@ -53588,8 +53593,8 @@ let ArrayObject = (() => {
                 super(engine, parent, definition, [], false);
                 __runInitializers(this, _instanceExtraInitializers);
             }
-            ready() {
-                this.callbacks.run('ONINIT');
+            async ready() {
+                await this.callbacks.run('ONINIT');
             }
             ADD(...args) {
                 this.value.push(...args);
@@ -53668,8 +53673,8 @@ let ArrayObject = (() => {
                 this.value = this.getFromINI() ?? [];
             }
             MSGBOX() { }
-            clone() {
-                const cloned = super.clone();
+            async clone() {
+                const cloned = await super.clone();
                 cloned.value = [...this.value];
                 return cloned;
             }
@@ -53789,14 +53794,14 @@ let Behaviour = (() => {
     let _RUNC_decorators;
     let _RUNLOOPED_decorators;
     return _a = class Behaviour extends _classSuper {
-            ready() {
+            async ready() {
                 if (this.definition.NAME === '__INIT__') {
-                    this.RUN();
+                    await this.RUN();
                 }
             }
-            RUN(...args) {
+            async RUN(...args) {
                 try {
-                    this.executeCallback(args);
+                    await this.executeCallback(args);
                 }
                 catch (err) {
                     if (!(err instanceof script_1.InterruptScriptExecution)) {
@@ -53804,16 +53809,16 @@ let Behaviour = (() => {
                     }
                 }
             }
-            RUNC(...args) {
-                if (this.shouldRun()) {
-                    this.RUN(...args);
+            async RUNC(...args) {
+                if (await this.shouldRun()) {
+                    await this.RUN(...args);
                 }
             }
-            RUNLOOPED(start, len, step = 1, ...args) {
+            async RUNLOOPED(start, len, step = 1, ...args) {
                 for (let i = start; i < start + len; i += step) {
                     try {
-                        if (this.shouldRun()) {
-                            this.engine.scripting.executeCallback(null, this.definition.CODE, [i, step, ...args]);
+                        if (await this.shouldRun()) {
+                            await this.engine.scripting.executeCallback(null, this.definition.CODE, [i, step, ...args]);
                         }
                     }
                     catch (err) {
@@ -53833,15 +53838,15 @@ let Behaviour = (() => {
                 // Don't resolve args, it will fail in S33_METEORY
                 return this.engine.scripting.executeCallback(null, this.definition.CODE, args);
             }
-            executeConditionalCallback(args = []) {
-                if (this.shouldRun()) {
-                    this.executeCallback(args);
+            async executeConditionalCallback(args = []) {
+                if (await this.shouldRun()) {
+                    await this.executeCallback(args);
                 }
             }
-            shouldRun() {
+            async shouldRun() {
                 if (this.definition.CONDITION) {
                     const condition = this.engine.getObject(this.definition.CONDITION.objectName);
-                    return condition.CHECK(true);
+                    return await condition.CHECK(true);
                 }
                 return true;
             }
@@ -53924,17 +53929,18 @@ let Bool = (() => {
                 super(engine, parent, definition, false);
                 __runInitializers(this, _instanceExtraInitializers);
             }
-            SWITCH(arg1, arg2) {
-                this.value = !this.value;
+            // The arguments don't seem to matter
+            async SWITCH(arg1, arg2) {
+                await this.setValue(!this.value);
             }
-            SET(newValue) {
-                this.value = newValue;
+            async SET(newValue) {
+                await this.setValue(newValue);
             }
-            valueChanged(oldValue, newValue) {
+            async valueChanged(oldValue, newValue) {
                 if (oldValue !== newValue) {
-                    this.callbacks.run('ONCHANGED', newValue);
+                    await this.callbacks.run('ONCHANGED', newValue);
                 }
-                this.callbacks.run('ONBRUTALCHANGED', newValue);
+                await this.callbacks.run('ONBRUTALCHANGED', newValue);
             }
         },
         (() => {
@@ -54033,7 +54039,7 @@ let Button = (() => {
                     this.gfxOnMove = this.engine.getObject(this.definition.GFXONMOVE);
                 }
             }
-            applyDefaults() {
+            async applyDefaults() {
                 this.prepareGraphic(this.gfxStandard);
                 this.prepareGraphic(this.gfxOnClick);
                 this.prepareGraphic(this.gfxOnMove);
@@ -54041,17 +54047,17 @@ let Button = (() => {
                     this.setRect(this.definition.RECT);
                 }
                 if (this.definition.ENABLE) {
-                    this.logic.enable();
+                    await this.logic.enable();
                 }
                 else {
-                    this.logic.disable();
+                    await this.logic.disable();
                 }
             }
-            ready() {
-                this.callbacks.run('ONINIT');
+            async ready() {
+                await this.callbacks.run('ONINIT');
             }
-            tick() {
-                this.logic.tick();
+            async tick() {
+                await this.logic.tick();
             }
             setRect(rect) {
                 if (this.gfxStandard) {
@@ -54090,7 +54096,7 @@ let Button = (() => {
                     this.unregisterInteractive(this.gfxStandard);
                 }
             }
-            onStateChange(prevState, event, state) {
+            async onStateChange(prevState, event, state) {
                 if (this.interactArea) {
                     // For area button
                     this.interactArea.visible = state != button_1.State.DISABLED;
@@ -54156,27 +54162,27 @@ let Button = (() => {
                     }
                 }
                 else if (event == button_1.Event.DOWN) {
-                    this.callbacks.run('ONCLICKED');
+                    await this.callbacks.run('ONCLICKED');
                 }
                 else if (event == button_1.Event.UP) {
-                    this.callbacks.run('ONRELEASED');
-                    this.callbacks.run('ONACTION');
+                    await this.callbacks.run('ONRELEASED');
+                    await this.callbacks.run('ONACTION');
                 }
                 else if (event == button_1.Event.OVER) {
-                    this.callbacks.run('ONFOCUSON');
+                    await this.callbacks.run('ONFOCUSON');
                 }
                 else if (event == button_1.Event.OUT) {
-                    this.callbacks.run('ONFOCUSOFF');
+                    await this.callbacks.run('ONFOCUSOFF');
                 }
             }
-            ENABLE() {
-                this.logic.enable();
+            async ENABLE() {
+                await this.logic.enable();
             }
-            DISABLE() {
-                this.logic.disable();
+            async DISABLE() {
+                await this.logic.disable();
             }
-            DISABLEBUTVISIBLE() {
-                this.logic.disableButVisible();
+            async DISABLEBUTVISIBLE() {
+                await this.logic.disableButVisible();
             }
             SETPRIORITY(priority) {
                 this.gfxStandard?.SETPRIORITY(priority);
@@ -54508,18 +54514,18 @@ let ComplexCondition = (() => {
     let _CHECK_decorators;
     return _a = class ComplexCondition extends _classSuper {
             // In loops its like 'break'
-            BREAK(arg) {
-                if (this.CHECK(arg)) {
+            async BREAK(arg) {
+                if (await this.CHECK(arg)) {
                     throw new script_1.InterruptScriptExecution(false);
                 }
             }
             // In loops its like 'continue'
-            ONE_BREAK(arg) {
-                if (this.CHECK(arg)) {
+            async ONE_BREAK(arg) {
+                if (await this.CHECK(arg)) {
                     throw new script_1.InterruptScriptExecution(true);
                 }
             }
-            CHECK(arg) {
+            async CHECK(arg) {
                 const condition1 = this.engine.getObject(this.definition.CONDITION1);
                 const condition2 = this.engine.getObject(this.definition.CONDITION2);
                 let result;
@@ -54532,10 +54538,10 @@ let ComplexCondition = (() => {
                         break;
                 }
                 if (result) {
-                    this.callbacks.run('ONRUNTIMESUCCESS');
+                    await this.callbacks.run('ONRUNTIMESUCCESS');
                 }
                 else {
-                    this.callbacks.run('ONRUNTIMEFAILED');
+                    await this.callbacks.run('ONRUNTIMEFAILED');
                 }
                 return result;
             }
@@ -54619,21 +54625,21 @@ let Condition = (() => {
     return _a = class Condition extends _classSuper {
             // arg is always true in ReksioIUfo
             // In loops its like 'break'
-            BREAK(arg) {
-                if (this.CHECK(arg)) {
+            async BREAK(arg) {
+                if (await this.CHECK(arg)) {
                     throw new script_1.InterruptScriptExecution(false);
                 }
             }
             // arg is always true in ReksioIUfo
             // In loops its like 'continue'
-            ONE_BREAK(arg) {
-                if (this.CHECK(arg)) {
+            async ONE_BREAK(arg) {
+                if (await this.CHECK(arg)) {
                     throw new script_1.InterruptScriptExecution(true);
                 }
             }
-            CHECK(shouldSignal) {
-                const operand1 = this.engine.scripting.executeCallback(null, this.definition.OPERAND1);
-                const operand2 = this.engine.scripting.executeCallback(null, this.definition.OPERAND2);
+            async CHECK(shouldSignal) {
+                const operand1 = await this.engine.scripting.executeCallback(null, this.definition.OPERAND1);
+                const operand2 = await this.engine.scripting.executeCallback(null, this.definition.OPERAND2);
                 let result;
                 if (operand1 !== undefined && operand2 !== undefined) {
                     try {
@@ -54671,10 +54677,10 @@ let Condition = (() => {
                 }
                 if (shouldSignal) {
                     if (result) {
-                        this.callbacks.run('ONRUNTIMESUCCESS', null, null);
+                        await this.callbacks.run('ONRUNTIMESUCCESS', null, null);
                     }
                     else {
-                        this.callbacks.run('ONRUNTIMEFAILED', null, null);
+                        await this.callbacks.run('ONRUNTIMEFAILED', null, null);
                     }
                 }
                 return result;
@@ -54767,32 +54773,32 @@ let Double = (() => {
                 super(engine, parent, definition, 0.0);
                 __runInitializers(this, _instanceExtraInitializers);
             }
-            MUL(value) {
-                return (this.value *= value);
+            async MUL(value) {
+                return await this.setValue(this.value * value);
             }
-            ADD(value) {
-                return (this.value += value);
+            async ADD(value) {
+                return await this.setValue(this.value + value);
             }
-            SUB(value) {
-                return (this.value -= value);
+            async SUB(value) {
+                return await this.setValue(this.value - value);
             }
-            SET(newValue) {
-                this.value = newValue;
+            async SET(newValue) {
+                await this.setValue(newValue);
             }
-            MAXA(...values) {
-                return (this.value = Math.max(...values));
+            async MAXA(...values) {
+                return await this.setValue(Math.max(...values));
             }
-            MINA(...values) {
-                return (this.value = Math.min(...values));
+            async MINA(...values) {
+                return await this.setValue(Math.min(...values));
             }
-            SINUS(angle) {
-                return (this.value = Math.sin(angle * radianMultiplier));
+            async SINUS(angle) {
+                return await this.setValue(Math.sin(angle * radianMultiplier));
             }
-            COSINUS(angle) {
-                return (this.value = Math.cos(angle * radianMultiplier));
+            async COSINUS(angle) {
+                return await this.setValue(Math.cos(angle * radianMultiplier));
             }
             // Source: https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=1909841994#gid=1909841994
-            ARCTANEX(y, x, summand) {
+            async ARCTANEX(y, x, summand) {
                 let value = Math.atan2(y, x) / radianMultiplier;
                 if (value < 0) {
                     value += 360;
@@ -54800,8 +54806,7 @@ let Double = (() => {
                 if (summand !== undefined) {
                     value = Math.floor(value) + summand;
                 }
-                this.value = value;
-                return this.value;
+                return await this.setValue(value);
             }
             GET() {
                 return this.value;
@@ -54904,7 +54909,7 @@ let Episode = (() => {
                         this.engine.app.ticker.stop();
                         const episodeScope = this.engine.scopeManager.newScope('episode');
                         await (0, definitionLoader_1.loadDefinition)(this.engine, episodeScope, applicationDefinition, this);
-                        (0, definitionLoader_1.doReady)(episodeScope);
+                        await (0, definitionLoader_1.doReady)(episodeScope);
                         this.engine.app.ticker.start();
                     }
                     catch (err) {
@@ -54969,9 +54974,9 @@ exports.Expression = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 class Expression extends index_1.ValueType {
-    get value() {
-        const operand1 = this.engine.scripting.executeCallback(this, this.definition.OPERAND1);
-        const operand2 = this.engine.scripting.executeCallback(this, this.definition.OPERAND2);
+    async getValue() {
+        const operand1 = await this.engine.scripting.executeCallback(this, this.definition.OPERAND1);
+        const operand2 = await this.engine.scripting.executeCallback(this, this.definition.OPERAND2);
         let result;
         switch (this.definition.OPERATOR) {
             case 'ADD':
@@ -55048,8 +55053,8 @@ class Font extends index_1.Type {
             }
         }
     }
-    ready() {
-        this.callbacks.run('ONINIT');
+    async ready() {
+        await this.callbacks.run('ONINIT');
     }
 }
 exports.Font = Font;
@@ -55114,8 +55119,8 @@ let Group = (() => {
                 super(...arguments);
                 this.objects = (__runInitializers(this, _instanceExtraInitializers), []);
             }
-            ready() {
-                this.callbacks.run('ONINIT');
+            async ready() {
+                await this.callbacks.run('ONINIT');
             }
             ADD(...objectsNames) {
                 objectsNames.forEach((objectName) => {
@@ -55243,6 +55248,7 @@ let Image = (() => {
     let _GETPOSITIONY_decorators;
     let _GETALPHA_decorators;
     let _MERGEALPHA_decorators;
+    let _LOAD_decorators;
     return _a = class Image extends _classSuper {
             constructor() {
                 super(...arguments);
@@ -55251,23 +55257,26 @@ let Image = (() => {
                 this.otherObjectsAlphaSpriteCache = new Map();
             }
             async init() {
-                this.sprite = await this.load();
+                await this.initSprite(this.definition.FILENAME);
+            }
+            async applyDefaults() {
+                this.SETPRIORITY(this.definition.PRIORITY ?? 0);
+            }
+            async initSprite(path) {
+                this.sprite = await this.load(path);
                 this.sprite.visible = this.definition.VISIBLE;
                 this.sprite.eventMode = 'none';
                 this.sprite.name = `${this.name} (IMAGE)`; // For PIXI Devtools
             }
-            applyDefaults() {
-                this.SETPRIORITY(this.definition.PRIORITY ?? 0);
-            }
-            async load() {
+            async load(path) {
                 (0, errors_1.assert)(this.engine.currentScene !== null);
-                const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME);
+                const relativePath = this.engine.currentScene.getRelativePath(path);
                 return await (0, assetsLoader_1.loadSprite)(this.engine.fileLoader, relativePath);
             }
-            ready() {
+            async ready() {
                 (0, errors_1.assert)(this.sprite !== null);
                 this.engine.rendering.addToStage(this.sprite);
-                this.callbacks.run('ONINIT');
+                await this.callbacks.run('ONINIT');
             }
             destroy() {
                 (0, errors_1.assert)(this.sprite !== null);
@@ -55326,6 +55335,12 @@ let Image = (() => {
                 otherObjectAlphaSprite.y = y;
                 this.sprite.mask = new pixi_js_1.Sprite(this.engine.app.renderer.generateTexture(this.maskContainer));
             }
+            async LOAD(path) {
+                this.destroy();
+                await this.initSprite(path);
+                (0, errors_1.assert)(this.sprite !== null);
+                this.engine.rendering.addToStage(this.sprite);
+            }
             generateMaskTexture(sprite) {
                 (0, errors_1.assert)(sprite.hitmap !== undefined);
                 const textureBytes = new Uint8Array(sprite.hitmap.length * 4);
@@ -55352,6 +55367,7 @@ let Image = (() => {
             _GETPOSITIONY_decorators = [(0, types_1.method)()];
             _GETALPHA_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _MERGEALPHA_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _SETOPACITY_decorators, { kind: "method", name: "SETOPACITY", static: false, private: false, access: { has: obj => "SETOPACITY" in obj, get: obj => obj.SETOPACITY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -55360,6 +55376,7 @@ let Image = (() => {
             __esDecorate(_a, null, _GETPOSITIONY_decorators, { kind: "method", name: "GETPOSITIONY", static: false, private: false, access: { has: obj => "GETPOSITIONY" in obj, get: obj => obj.GETPOSITIONY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETALPHA_decorators, { kind: "method", name: "GETALPHA", static: false, private: false, access: { has: obj => "GETALPHA" in obj, get: obj => obj.GETALPHA }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _MERGEALPHA_decorators, { kind: "method", name: "MERGEALPHA", static: false, private: false, access: { has: obj => "MERGEALPHA" in obj, get: obj => obj.MERGEALPHA }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
@@ -55440,16 +55457,16 @@ let Type = (() => {
             GETNAME() {
                 return this.name;
             }
-            CLONE(count) {
+            async CLONE(count) {
                 for (let i = 0; i < count; i++) {
-                    this.cloneObject(this);
+                    await this.cloneObject(this);
                 }
             }
             GETCLONEINDEX() {
                 return this.engine.getObject(this.definition.NAME).clones.indexOf(this) + 1;
             }
-            cloneObject(object) {
-                const clone = object.clone();
+            async cloneObject(object) {
+                const clone = await object.clone();
                 object.clones.push(clone);
                 clone.name = `${object.definition.NAME}_${object.clones.length}`;
                 clone.isReady = true;
@@ -55457,8 +55474,8 @@ let Type = (() => {
                 return clone;
             }
             init() { }
-            applyDefaults() { }
-            ready() { }
+            async applyDefaults() { }
+            async ready() { }
             destroy() { }
             tick(elapsedMS) { }
             pause() { }
@@ -55471,7 +55488,7 @@ let Type = (() => {
                 const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
                 console.error(`Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.\nArguments: %O\nObject: %O`, args, this);
             }
-            clone() {
+            async clone() {
                 // @ts-expect-error Dynamically constructing object
                 return new this.constructor(this.engine, this.parent, this.definition);
             }
@@ -55547,36 +55564,37 @@ let ValueType = (() => {
     return _a = class ValueType extends _classSuper {
             constructor(engine, parent, definition, defaultValue, autoSave = true) {
                 super(engine, parent, definition);
-                this._value = (__runInitializers(this, _instanceExtraInitializers), void 0);
+                this.value = (__runInitializers(this, _instanceExtraInitializers), void 0);
                 this.defaultValue = defaultValue;
-                this._value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue;
+                this.value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue;
                 this.autoSave = autoSave;
             }
-            RESETINI() {
+            async RESETINI() {
                 if (this.definition.TOINI) {
-                    this.value = this.definition.DEFAULT ?? this.definition.VALUE ?? this.defaultValue;
+                    await this.setValue(this.definition.DEFAULT ?? this.definition.VALUE ?? this.defaultValue);
                     this.saveToINI();
                 }
             }
             valueOf() {
-                return this._value;
+                return this.value;
             }
-            get value() {
-                return this._value;
+            getValue() {
+                return this.value;
             }
-            set value(newValue) {
+            async setValue(newValue) {
                 (0, errors_1.assert)(typeof newValue != 'number' || !isNaN(newValue), 'Attempted to assign NaN');
                 (0, errors_1.assert)(newValue !== undefined, 'Attempted to assign undefined');
                 (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some((e) => Number.isNaN(e)), 'Attempted to assign array with NaN values');
                 (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some((e) => e === undefined), 'Attempted to assign array with undefined values');
-                const oldValue = this._value;
-                this._value = newValue;
-                this.valueChanged(oldValue, newValue);
+                const oldValue = this.value;
+                this.value = newValue;
+                await this.valueChanged(oldValue, newValue);
                 if (this.autoSave && this.definition.TOINI) {
                     this.saveToINI();
                 }
+                return newValue;
             }
-            valueChanged(oldValue, newValue) { }
+            async valueChanged(oldValue, newValue) { }
             getFromINI() {
                 const loadedValue = this.engine.saveFile.loadValue(this);
                 if (loadedValue !== null) {
@@ -55675,72 +55693,73 @@ let Integer = (() => {
                 super(engine, parent, definition, 0);
                 __runInitializers(this, _instanceExtraInitializers);
             }
-            ready() {
-                this.callbacks.run('ONINIT');
+            async ready() {
+                await this.callbacks.run('ONINIT');
             }
-            INC() {
-                return ++this.value;
+            async INC() {
+                return this.setValue(this.value + 1);
             }
-            DEC() {
-                return --this.value;
+            async DEC() {
+                return this.setValue(this.value - 1);
             }
-            ADD(value) {
-                return (this.value += value);
+            async ADD(value) {
+                return this.setValue(this.value + value);
             }
-            SUB(value) {
-                return (this.value -= value);
+            async SUB(value) {
+                return this.setValue(this.value - value);
             }
-            MUL(value) {
-                return (this.value *= value);
+            async MUL(value) {
+                return this.setValue(this.value * value);
             }
-            DIV(value) {
-                return (this.value /= value);
+            async DIV(value) {
+                return this.setValue(this.value / value);
             }
-            MOD(value) {
-                return (this.value %= value);
+            async MOD(value) {
+                return this.setValue(this.value % value);
             }
-            CLAMP(min, max) {
-                return (this.value = Math.min(max, Math.max(this.value, min)));
+            async CLAMP(min, max) {
+                return this.setValue(Math.min(max, Math.max(this.value, min)));
             }
-            AND(value) {
-                return (this.value &= value);
+            async AND(value) {
+                return this.setValue(this.value & value);
             }
-            SET(newValue) {
+            // TODO: Maybe type guard could try to resolve references
+            async SET(newValue) {
                 if (typeof newValue == 'string') {
                     const possibleInteger = this.engine.getObject(newValue);
                     if (possibleInteger instanceof _a) {
-                        this.value = possibleInteger.value;
+                        await this.setValue(possibleInteger.getValue());
                         return;
                     }
                 }
                 // That's how the game works
                 if (newValue === undefined) {
-                    this.value = 0;
+                    await this.setValue(0);
                     return;
                 }
-                this.value = (0, types_1.ForceNumber)(newValue);
+                await this.setValue((0, types_1.ForceNumber)(newValue));
             }
-            GET() {
+            async GET() {
                 return this.value;
             }
-            SWITCH(first, second) {
-                return (this.value = this.value == first ? second : first);
+            async SWITCH(first, second) {
+                return this.setValue(this.value == first ? second : first);
             }
-            ABS(value) {
-                return (this.value = Math.abs(value));
+            async ABS(value) {
+                return this.setValue(Math.abs(value));
             }
-            valueChanged(oldValue, newValue) {
+            async valueChanged(oldValue, newValue) {
                 if (oldValue !== newValue) {
-                    this.callbacks.run('ONCHANGED', newValue);
+                    await this.callbacks.run('ONCHANGED', newValue);
                 }
-                this.callbacks.run('ONBRUTALCHANGED', newValue);
+                await this.callbacks.run('ONBRUTALCHANGED', newValue);
             }
-            get value() {
-                return super.value;
+            async getValue() {
+                return super.getValue();
             }
             // Force always flooring values
-            set value(newValue) {
-                super.value = Math.floor(newValue);
+            async setValue(newValue) {
+                await super.setValue(Math.floor(newValue));
             }
         },
         (() => {
@@ -55848,7 +55867,7 @@ let Keyboard = (() => {
                 this.onKeyDownCallback = this.onKeyDown.bind(this);
                 this.onKeyUpCallback = this.onKeyUp.bind(this);
             }
-            ready() {
+            async ready() {
                 window.addEventListener('keydown', this.onKeyDownCallback);
                 window.addEventListener('keyup', this.onKeyUpCallback);
             }
@@ -55856,13 +55875,13 @@ let Keyboard = (() => {
                 window.removeEventListener('keydown', this.onKeyDownCallback);
                 window.removeEventListener('keyup', this.onKeyUpCallback);
             }
-            tick() {
+            async tick() {
                 for (const change of this.changeQueue) {
                     if (change.state) {
-                        this.callbacks.run('ONKEYDOWN', change.name);
+                        await this.callbacks.run('ONKEYDOWN', change.name);
                     }
                     else {
-                        this.callbacks.run('ONKEYUP', change.name);
+                        await this.callbacks.run('ONKEYUP', change.name);
                     }
                 }
                 this.changeQueue = [];
@@ -55974,30 +55993,30 @@ let Mouse = (() => {
                 this.mousePosition = new pixi_js_1.Point(0, 0);
                 this.moved = false;
             }
-            ready() {
+            async ready() {
                 this.registerCallbacks();
-                this.callbacks.run('ONINIT');
+                await this.callbacks.run('ONINIT');
             }
             destroy() {
                 this.unregisterCallbacks();
             }
-            tick(elapsedMS) {
+            async tick(elapsedMS) {
                 while (this.clicksQueue.length > 0) {
                     const event = this.clicksQueue.shift();
                     switch (event.type) {
                         case 'click':
-                            this.callbacks.run('ONCLICK', event.key);
+                            await this.callbacks.run('ONCLICK', event.key);
                             break;
                         case 'dblclick':
-                            this.callbacks.run('ONDBLCLICK', event.key);
+                            await this.callbacks.run('ONDBLCLICK', event.key);
                             break;
                         case 'release':
-                            this.callbacks.run('ONRELEASE', event.key);
+                            await this.callbacks.run('ONRELEASE', event.key);
                             break;
                     }
                 }
                 if (this.moved) {
-                    this.callbacks.run('ONMOVE');
+                    await this.callbacks.run('ONMOVE');
                     this.moved = false;
                 }
             }
@@ -56368,7 +56387,7 @@ let Scene = (() => {
             SETMINHSPRIORITY(arg) {
                 throw new errors_1.NotImplementedError();
             }
-            RUNCLONES(baseObjectName, startingIdx, endingIdx, behaviourName) {
+            async RUNCLONES(baseObjectName, startingIdx, endingIdx, behaviourName) {
                 const baseObject = this.engine.getObject(baseObjectName);
                 const behaviour = this.engine.getObject(behaviourName);
                 if (startingIdx < 1) {
@@ -56379,7 +56398,7 @@ let Scene = (() => {
                 }
                 for (let i = startingIdx - 1; i <= endingIdx - 1; i++) {
                     const clone = baseObject.clones[i];
-                    behaviour.RUN(clone);
+                    await behaviour.RUN(clone);
                 }
             }
             RUN(objectName, methodName, ...args) {
@@ -56516,8 +56535,8 @@ let Sequence = (() => {
                     this.allAnimoObjects.set(animoFilename, await this.getAnimo(animoFilename));
                 }
             }
-            ready() {
-                this.callbacks.run('ONINIT');
+            async ready() {
+                await this.callbacks.run('ONINIT');
             }
             destroy() {
                 this.playingSound?.destroy();
@@ -56563,7 +56582,7 @@ let Sequence = (() => {
                     this.sounds.set(soundsNames[i], sounds[i]);
                 }
             }
-            tick(elapsedMS) {
+            async tick(elapsedMS) {
                 if (this.playingSound instanceof sounds_1.SimulatedMediaInstance) {
                     this.playingSound.tick(elapsedMS);
                 }
@@ -56572,14 +56591,14 @@ let Sequence = (() => {
                     const entry = this.endedSpeakingSoundsQueue.shift();
                     const stopEvent = entry.PREFIX + '_STOP';
                     if (entry.ENDING && this.activeAnimo?.hasEvent(stopEvent)) {
-                        this.playAnimoEvent(stopEvent);
+                        await this.playAnimoEvent(stopEvent);
                     }
                     else {
-                        this.progressNext();
+                        await this.progressNext();
                     }
                 }
             }
-            PLAY(sequenceName) {
+            async PLAY(sequenceName) {
                 (0, errors_1.assert)(this.parameterSequence !== null && this.subEntries !== null);
                 const subEntries = this.subEntries.get(this.parameterSequence.NAME);
                 if (subEntries !== undefined && this.parametersMapping.has(sequenceName)) {
@@ -56587,7 +56606,7 @@ let Sequence = (() => {
                     const entry = subEntries[entryIndex];
                     this.sequenceName = sequenceName;
                     this.fillQueue(entry);
-                    this.progressNext();
+                    await this.progressNext();
                 }
             }
             ISPLAYING() {
@@ -56627,18 +56646,18 @@ let Sequence = (() => {
                     }
                 }
             }
-            onAnimoEventFinished(eventName) {
+            async onAnimoEventFinished(eventName) {
                 (0, errors_1.assert)(this.activeAnimo !== null);
                 if (this.runningSubSequence?.TYPE === 'SPEAKING') {
                     if (this.runningSubSequence.STARTING && eventName === this.runningSubSequence.PREFIX + '_START') {
                         if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
                             this.loop = true;
                             this.loopIndex = 1;
-                            this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1');
+                            await this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1');
                         }
                     }
                     else if (this.runningSubSequence.ENDING && eventName === this.runningSubSequence.PREFIX + '_STOP') {
-                        this.progressNext();
+                        await this.progressNext();
                     }
                     else if (this.loop) {
                         let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`;
@@ -56646,26 +56665,26 @@ let Sequence = (() => {
                             this.loopIndex = 1;
                             eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`;
                         }
-                        this.playAnimoEvent(eventName);
+                        await this.playAnimoEvent(eventName);
                     }
                 }
                 else if (this.currentAnimoEvent == eventName) {
-                    this.progressNext();
+                    await this.progressNext();
                 }
             }
-            progressNext() {
+            async progressNext() {
                 if (this.sequenceName === null) {
                     return;
                 }
                 if (this.queue.length === 0) {
                     const finishedName = this.sequenceName;
                     this.sequenceName = null;
-                    this.callbacks.run('ONFINISHED', finishedName);
+                    await this.callbacks.run('ONFINISHED', finishedName);
                     return;
                 }
                 const next = this.queue.shift();
                 if (next.TYPE === 'SEQUENCE') {
-                    this.progressNext();
+                    await this.progressNext();
                     return;
                 }
                 if (next.TYPE === 'SPEAKING') {
@@ -56695,12 +56714,12 @@ let Sequence = (() => {
                         this.playingSound = instance;
                         const startEvent = speaking.PREFIX + '_START';
                         if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
-                            this.playAnimoEvent(startEvent);
+                            await this.playAnimoEvent(startEvent);
                         }
                         else if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
                             this.loop = true;
                             this.loopIndex = 1;
-                            this.playAnimoEvent(speaking.PREFIX + '_1');
+                            await this.playAnimoEvent(speaking.PREFIX + '_1');
                         }
                         this.runningSubSequence = speaking;
                     }
@@ -56723,19 +56742,19 @@ let Sequence = (() => {
                         if (!this.activeAnimo.hasEvent(eventName)) {
                             const allEvents = this.activeAnimo.getAllEvents();
                             if (allEvents.length === 0) {
-                                this.progressNext();
+                                await this.progressNext();
                                 return;
                             }
                             eventName = allEvents[0].name;
                         }
                         this.runningSubSequence = simple;
-                        this.playAnimoEvent(eventName);
+                        await this.playAnimoEvent(eventName);
                     }
                 }
             }
-            playAnimoEvent(eventName) {
+            async playAnimoEvent(eventName) {
                 this.currentAnimoEvent = eventName;
-                this.activeAnimo?.playEvent(eventName);
+                await this.activeAnimo?.playEvent(eventName);
             }
             async getAnimo(nameOrFilename) {
                 // Get object by name
@@ -56854,15 +56873,15 @@ let Sound = (() => {
             async init() {
                 await this.loadSound(this.engine.resolvePath(this.definition.FILENAME, 'Wavs'));
             }
-            ready() {
-                this.callbacks.run('ONINIT');
+            async ready() {
+                await this.callbacks.run('ONINIT');
             }
-            tick(elapsedMS) {
+            async tick(elapsedMS) {
                 if (this.sound instanceof sounds_1.SimulatedSound) {
                     this.sound.tick(elapsedMS);
                 }
                 while (this.callbacksQueue.length > 0) {
-                    this.callbacks.run(this.callbacksQueue.shift());
+                    await this.callbacks.run(this.callbacksQueue.shift());
                 }
             }
             destroy() {
@@ -57136,29 +57155,29 @@ let String = (() => {
                 super(engine, parent, definition, '');
                 __runInitializers(this, _instanceExtraInitializers);
             }
-            ready() {
-                this.callbacks.run('ONINIT');
+            async ready() {
+                await this.callbacks.run('ONINIT');
             }
-            ADD(text) {
-                this.value += text;
+            async ADD(text) {
+                await this.setValue(this.value + text);
             }
-            SET(text) {
-                this.value = text;
+            async SET(text) {
+                await this.setValue(text);
             }
-            SUB(index, length) {
-                this.value = this.value.substring(0, index) + this.value.substring(index + length);
+            async SUB(index, length) {
+                await this.setValue(this.value.substring(0, index) + this.value.substring(index + length));
             }
-            GET(index, length) {
+            GET(index = 0, length) {
                 return this.value.substring(index, length !== undefined ? index + length : this.value.length);
             }
             FIND(needle, start) {
                 return this.value.indexOf(needle, start);
             }
-            valueChanged(oldValue, newValue) {
+            async valueChanged(oldValue, newValue) {
                 if (oldValue !== newValue) {
-                    this.callbacks.run('ONCHANGED', newValue);
+                    await this.callbacks.run('ONCHANGED', newValue);
                 }
-                this.callbacks.run('ONBRUTALCHANGED', newValue);
+                await this.callbacks.run('ONBRUTALCHANGED', newValue);
             }
         },
         (() => {
@@ -57166,7 +57185,7 @@ let String = (() => {
             _ADD_decorators = [(0, types_1.method)({ name: "text", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _SET_decorators = [(0, types_1.method)({ name: "text", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _SUB_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "length", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GET_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "length", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
+            _GET_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "length", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _FIND_decorators = [(0, types_1.method)({ name: "needle", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "start", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -57313,7 +57332,7 @@ let Text = (() => {
                 super(...arguments);
                 this.text = (__runInitializers(this, _instanceExtraInitializers), null);
             }
-            applyDefaults() {
+            async applyDefaults() {
                 const font = this.engine.getObject(this.definition.FONT);
                 if (font === null || font.bitmapFont === null) {
                     return;
@@ -57328,8 +57347,8 @@ let Text = (() => {
                 this.text.visible = this.definition.VISIBLE;
                 this.engine.rendering.addToStage(this.text);
             }
-            ready() {
-                this.callbacks.run('ONINIT');
+            async ready() {
+                await this.callbacks.run('ONINIT');
             }
             destroy() {
                 if (this.text) {
@@ -57418,9 +57437,9 @@ let Timer = (() => {
                 this.elapse = definition.ELAPSE;
                 this.enabled = definition.ENABLED ?? true;
             }
-            ready() {
+            async ready() {
                 if (this.enabled) {
-                    this.callbacks.run('ONINIT');
+                    await this.callbacks.run('ONINIT');
                 }
                 this.RESET();
             }
@@ -57433,14 +57452,14 @@ let Timer = (() => {
             resume() {
                 this.ENABLE();
             }
-            tick(elapsedMS) {
+            async tick(elapsedMS) {
                 if (!this.enabled) {
                     return;
                 }
                 this.collectedTime += elapsedMS * this.engine.speed;
                 while (this.collectedTime >= this.elapse) {
                     this.currentTick++;
-                    this.callbacks.run('ONTICK', this.currentTick);
+                    await this.callbacks.run('ONTICK', this.currentTick);
                     this.collectedTime -= this.elapse;
                     const ticksLimit = this.definition.TICKS ?? 0;
                     if (ticksLimit > 0 && this.currentTick >= ticksLimit) {
@@ -57553,30 +57572,30 @@ let Vector = (() => {
                 __runInitializers(this, _instanceExtraInitializers);
                 this.value = this.definition.VALUE;
             }
-            ASSIGN(...values) {
+            async ASSIGN(...values) {
                 const newValue = this.value;
                 for (let i = 0; i < values.length; i++) {
                     newValue[i] = values[i];
                 }
-                this.value = newValue;
+                await this.setValue(newValue);
             }
-            ADD(otherVector) {
-                this.value = this.value.map((val, idx) => val + otherVector[idx]);
+            async ADD(otherVector) {
+                await this.setValue(this.value.map((val, idx) => val + otherVector[idx]));
             }
-            MUL(scalar) {
-                this.value = this.value.map((val) => val * scalar);
+            async MUL(scalar) {
+                await this.setValue(this.value.map((val) => val * scalar));
             }
             GET(index) {
                 return this.value[index];
             }
-            NORMALIZE() {
+            async NORMALIZE() {
                 const magnitude = this.LEN();
                 (0, errors_1.assert)(magnitude !== 0, 'Cannot normalize a zero vector');
-                this.value = this.value.map((val) => val / magnitude);
+                await this.setValue(this.value.map((val) => val / magnitude));
             }
             // any[] to prevent typeGuard creating new array
             // result param is a reference
-            REFLECT(normal, result) {
+            async REFLECT(normal, result) {
                 // Calculate the dot product between this.value and the normal vector
                 let dotProduct = 0;
                 for (let i = 0; i < this.value.length; i++) {
@@ -60054,8 +60073,14 @@ const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/type
 class ExpressionEvaluator extends ReksioIFExpressionVisitor_1.default {
     constructor(engine) {
         super();
-        this.visitExprList = (ctx) => {
-            const subResults = this.visitChildren(ctx).filter((x) => x !== undefined);
+        this.visitExprList = async (ctx) => {
+            const subResults = [];
+            for (const entry of this.visitChildren(ctx)) {
+                const value = await entry;
+                if (value !== undefined) {
+                    subResults.push(value);
+                }
+            }
             let result = subResults[0];
             for (let i = 1; i < subResults.length - 1; i += 2) {
                 const operator = subResults[i];
@@ -60069,9 +60094,9 @@ class ExpressionEvaluator extends ReksioIFExpressionVisitor_1.default {
             }
             return result;
         };
-        this.visitExpr = (ctx) => {
-            const left = this.visit(ctx._left)[0];
-            const right = this.visit(ctx._right)[0];
+        this.visitExpr = async (ctx) => {
+            const left = await this.visit(ctx._left)[0];
+            const right = await this.visit(ctx._right)[0];
             if (ctx._operator.type == ReksioIFExpressionParser_1.default.EQUAL) {
                 return left == right;
             }
@@ -60097,9 +60122,9 @@ class ExpressionEvaluator extends ReksioIFExpressionVisitor_1.default {
         this.visitNumber = (ctx) => {
             return (0, types_1.ForceNumber)(ctx.getText());
         };
-        this.visitIdentifier = (ctx) => {
+        this.visitIdentifier = async (ctx) => {
             const object = this.engine.getObject(ctx.getText());
-            return object.value;
+            return await object.getValue();
         };
         this.visitLogicOperator = (ctx) => {
             return ctx.getText();
@@ -60108,13 +60133,13 @@ class ExpressionEvaluator extends ReksioIFExpressionVisitor_1.default {
     }
 }
 exports.ExpressionEvaluator = ExpressionEvaluator;
-const evaluateExpression = (engine, script) => {
+const evaluateExpression = async (engine, script) => {
     const lexer = new ReksioIFExpressionLexer_1.default(new antlr4_1.default.CharStream(script));
     const tokens = new antlr4_1.default.CommonTokenStream(lexer);
     const parser = new ReksioIFExpressionParser_1.default(tokens);
     const tree = parser.exprList();
     const evaluator = new ExpressionEvaluator(engine);
-    return tree.accept(evaluator);
+    return await tree.accept(evaluator);
 };
 exports.evaluateExpression = evaluateExpression;
 
@@ -61795,27 +61820,27 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
         this.methodCallUsedVariables = {};
         this.scriptUsedVariables = {};
         this.globalInstances = new Map();
-        this.visitStatementList = (ctx) => {
+        this.visitStatementList = async (ctx) => {
             this.lastContext = ctx;
             let result = null;
-            ctx.statement_list().forEach((statement) => {
-                result = this.visitStatement(statement);
-            });
+            for (const statement of ctx.statement_list()) {
+                result = await this.visitStatement(statement);
+            }
             return result;
         };
-        this.visitStatement = (ctx) => {
+        this.visitStatement = async (ctx) => {
             this.lastContext = ctx;
             if (ctx.expr() == null) {
                 return;
             }
-            return this.visit(ctx.expr());
+            return await this.visit(ctx.expr());
         };
-        this.visitExpr = (ctx) => {
+        this.visitExpr = async (ctx) => {
             this.lastContext = ctx;
             if (ctx.comment() != null) {
                 return;
             }
-            return this.visitChildren(ctx)[0];
+            return await this.visitChildren(ctx)[0];
         };
         this.visitIdentifier = (ctx) => {
             const name = ctx.IDENTIFIER().getText();
@@ -61824,7 +61849,7 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
             }
             const object = this.engine.getObject(name);
             if (object != null) {
-                return object.value;
+                return object.getValue();
             }
             return null;
         };
@@ -61837,7 +61862,7 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                 return identifier;
             }
             else if (object instanceof types_2.ValueType) {
-                return object.value;
+                return object.getValue();
             }
             else if (object instanceof types_2.Type) {
                 return object;
@@ -61862,7 +61887,7 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                 return ctx.STRING().getText().replace(/^"|"$/g, '');
             }
         };
-        this.visitMethodCall = (ctx) => {
+        this.visitMethodCall = async (ctx) => {
             this.lastContext = ctx;
             const object = this.visitObjectName(ctx.objectName());
             if (object == null) {
@@ -61871,7 +61896,7 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
             const methodName = ctx.methodName().getText();
             const method = object[methodName];
             this.methodCallUsedVariables = {};
-            const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : [];
+            const args = ctx.methodCallArguments() != null ? await this.visitMethodCallArguments(ctx.methodCallArguments()) : [];
             const argsVariables = this.methodCallUsedVariables;
             this.methodCallUsedVariables = {};
             try {
@@ -61883,9 +61908,9 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                     .build();
                 stacktrace_1.stackTrace.push(stackFrame);
                 if (method == undefined) {
-                    return object.__call(methodName, args);
+                    return await object.__call(methodName, args);
                 }
-                const result = method.bind(object)(...args);
+                const result = await method.bind(object)(...args);
                 return result === null ? 'NULL' : result;
             }
             catch (err) {
@@ -61922,19 +61947,23 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                 stacktrace_1.stackTrace.pop();
             }
         };
-        this.visitSpecialCall = (ctx) => {
+        this.visitSpecialCall = async (ctx) => {
             this.lastContext = ctx;
             const methodName = ctx.methodName().getText();
-            const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : [];
+            const args = ctx.methodCallArguments() != null ? await this.visitMethodCallArguments(ctx.methodCallArguments()) : [];
             if (methodName === 'IF') {
                 if (args.length == 5) {
                     const [a, operator, b, ifTrue, ifFalse] = args;
-                    const left = typeof a === 'string' ? (a.toString().startsWith('"')
-                        ? a.toString().replace(/^"|"$/g, '')
-                        : (this.engine.getObject((0, types_1.valueAsString)(a))?.value ?? a)) : a;
-                    const right = typeof b === 'string' ? (b.toString().startsWith('"')
-                        ? b.toString().replace(/^"|"$/g, '')
-                        : (this.engine.getObject((0, types_1.valueAsString)(b))?.value ?? b)) : b;
+                    const left = typeof a === 'string'
+                        ? a.toString().startsWith('"')
+                            ? a.toString().replace(/^"|"$/g, '')
+                            : (await this.engine.getObject((0, types_1.valueAsString)(a))?.getValue() ?? a)
+                        : a;
+                    const right = typeof b === 'string'
+                        ? b.toString().startsWith('"')
+                            ? b.toString().replace(/^"|"$/g, '')
+                            : (await this.engine.getObject((0, types_1.valueAsString)(b))?.getValue() ?? b)
+                        : b;
                     let result = false;
                     if (operator == '_') {
                         result = types_1.Compare.Equal(left, right);
@@ -61957,22 +61986,22 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                     const onTrue = this.engine.getObject(ifTrue);
                     const onFalse = this.engine.getObject(ifFalse);
                     if (result && onTrue !== null) {
-                        onTrue.executeConditionalCallback();
+                        await onTrue.executeConditionalCallback();
                     }
                     else if (!result && onFalse !== null) {
-                        onFalse.executeConditionalCallback();
+                        await onFalse.executeConditionalCallback();
                     }
                 }
                 else if (args.length == 3) {
                     const [expression, ifTrue, ifFalse] = args;
-                    const result = (0, ifExpression_1.evaluateExpression)(this.engine, expression);
+                    const result = await (0, ifExpression_1.evaluateExpression)(this.engine, expression);
                     const onTrue = this.engine.getObject(ifTrue);
                     const onFalse = this.engine.getObject(ifFalse);
                     if (result && onTrue !== null) {
-                        onTrue.executeConditionalCallback();
+                        await onTrue.executeConditionalCallback();
                     }
                     else if (!result && onFalse !== null) {
-                        onFalse.executeConditionalCallback();
+                        await onFalse.executeConditionalCallback();
                     }
                 }
             }
@@ -61991,9 +62020,9 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                     TOINI: false,
                 });
                 for (let i = start; i < start + len; i += step) {
-                    counter.value = i;
+                    await counter.setValue(i);
                     try {
-                        this.engine.scripting.executeCallback(null, callback, [], {
+                        await this.engine.scripting.executeCallback(null, callback, [], {
                             _I_: counter,
                         }, true);
                     }
@@ -62014,9 +62043,9 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                 // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
             }
         };
-        this.visitMethodCallArguments = (ctx) => {
+        this.visitMethodCallArguments = async (ctx) => {
             this.lastContext = ctx;
-            return ctx.expr_list().map((expr) => this.visitExpr(expr));
+            return Promise.all(ctx.expr_list().map(async (expr) => await this.visitExpr(expr)));
         };
         this.visitObjectName = (ctx) => {
             this.lastContext = ctx;
@@ -62041,17 +62070,17 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
             }
             return object;
         };
-        this.visitOperationGrouping = (ctx) => {
+        this.visitOperationGrouping = async (ctx) => {
             this.lastContext = ctx;
             return this.visitOperation(ctx.operation());
         };
-        this.visitOperation = (ctx) => {
+        this.visitOperation = async (ctx) => {
             this.lastContext = ctx;
             if (ctx.expr() !== null) {
                 return this.visitExpr(ctx.expr());
             }
-            const left = this.visitOperation(ctx._left);
-            let right = this.visitOperation(ctx._right);
+            const left = await this.visitOperation(ctx._left);
+            let right = await this.visitOperation(ctx._right);
             // It was a problem in S71_DROGA (Ufo)
             if (typeof left === 'number' && typeof right === 'string') {
                 right = (0, types_1.ForceNumber)(right);
@@ -62103,13 +62132,13 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
     }
 }
 exports.ScriptEvaluator = ScriptEvaluator;
-const runScript = (engine, script, args = [], singleStatement = false, printDebug = true) => {
+const runScript = async (engine, script, args = [], singleStatement = false, printDebug = true) => {
     script = script.replace(/\$(\d+)/g, (match, index) => {
         const valueIndex = parseInt(index, 10) - 1;
         if (valueIndex >= 0 && valueIndex < args.length) {
             const arg = args[valueIndex];
             if (arg instanceof string_1.String) {
-                return arg.value;
+                return arg.getValue();
             }
             else if (arg instanceof types_2.Type) {
                 return arg.name;
@@ -62166,7 +62195,7 @@ const runScript = (engine, script, args = [], singleStatement = false, printDebu
     const tree = singleStatement ? parser.statement() : parser.statementList();
     const evaluator = new ScriptEvaluator(engine, script, args, printDebug);
     try {
-        return tree.accept(evaluator);
+        return await tree.accept(evaluator);
     }
     catch (err) {
         if (err instanceof errors_1.IgnorableError) {
@@ -62546,28 +62575,28 @@ const loadDefinition = async (engine, scope, definition, parent) => {
         }
     }
     const goodObjects = orderedScope.filter((entry) => !failedObjects.includes(entry));
-    goodObjects.forEach((entry) => {
+    for (const object of goodObjects) {
         try {
-            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(entry).method('applyDefaults').build());
-            entry.applyDefaults();
+            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(object).method('applyDefaults').build());
+            await object.applyDefaults();
         }
         finally {
             stacktrace_1.stackTrace.pop();
         }
-    });
+    }
 };
 exports.loadDefinition = loadDefinition;
-const doReady = (scope) => {
-    sortByPriority(scope.objects).forEach((entry) => {
-        entry.isReady = true;
+const doReady = async (scope) => {
+    for (const object of sortByPriority(scope.objects)) {
+        object.isReady = true;
         try {
-            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(entry).method('ready').build());
-            entry.ready();
+            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(object).method('ready').build());
+            await object.ready();
         }
         finally {
             stacktrace_1.stackTrace.pop();
         }
-    });
+    }
 };
 exports.doReady = doReady;
 const createObject = async (engine, definition, parent) => {
@@ -62578,9 +62607,9 @@ const createObject = async (engine, definition, parent) => {
         engine.rendering.displayObjectsInDefinitionOrder.push(instance);
     }
     await instance.init();
-    instance.applyDefaults();
+    await instance.applyDefaults();
     instance.isReady = true;
-    instance.ready();
+    await instance.ready();
     engine.app.ticker.start();
     return instance;
 };
