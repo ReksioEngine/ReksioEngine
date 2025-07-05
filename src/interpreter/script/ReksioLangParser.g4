@@ -24,11 +24,12 @@ specialCall: AT methodName BRACKET_START methodCallArguments? BRACKET_END;
 
 operationGrouping: OPERATION_GROUPING_START operation OPERATION_GROUPING_END;
 operation
-  : left=expr operator=PLUS right=expr
-  | left=expr operator=MINUS right=expr
-  | left=expr operator=ASTERISK right=expr
-  | left=expr operator=PERCENTAGE right=expr
-  | left=expr operator=AT right=expr
+  : left=operation operator=PLUS right=operation
+  | left=operation operator=MINUS right=operation
+  | left=operation operator=ASTERISK right=operation
+  | left=operation operator=PERCENTAGE right=operation
+  | left=operation operator=AT right=operation
+  | expr
   ;
 
 comment: COMMENT_START;
