@@ -11,13 +11,8 @@ export class Sound extends Type<SoundDefinition> {
     private callbacksQueue: string[] = []
 
     async init() {
-        // We don't respect 'PRELOAD' false on purpose, because network download might be slow
         await this.loadSound(
-            this.engine.fileLoader.getLangPath(
-                'Wavs',
-                this.definition.FILENAME,
-                this.engine.scopeManager.APPLICATION.GETLANGUAGE()
-            )
+            this.engine.resolvePath(this.definition.FILENAME, 'Wavs')
         )
     }
 
@@ -85,12 +80,15 @@ export class Sound extends Type<SoundDefinition> {
 
     @method()
     async LOAD(filename: string) {
-        await this.loadSound(filename.substring(1))
+        await this.loadSound(filename)
     }
 
     private async loadSound(path: string) {
         try {
-            this.sound = await loadSound(this.engine.fileLoader, path)
+            this.sound = await loadSound(
+                this.engine.fileLoader,
+                this.engine.resolvePath(path),
+            )
         } catch (err) {
             if (err instanceof FileNotFoundError) {
                 // Ignore sound loading errors

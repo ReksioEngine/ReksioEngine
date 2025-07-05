@@ -52,10 +52,6 @@ export class Scene extends Type<SceneDefinition> {
 
     public getRelativePath(filename: string) {
         const scenePath = pathJoin('DANE', this.definition.PATH)
-        return this.engine.fileLoader.getLangPath(
-            scenePath,
-            filename,
-            this.engine.scopeManager.APPLICATION.GETLANGUAGE()
-        )
+        return this.engine.resolvePath(filename, scenePath)
     }
 }

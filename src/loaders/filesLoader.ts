@@ -25,17 +25,6 @@ export abstract class FileLoader {
     abstract getFNTFile(filename: string): Promise<BitmapFont>
     abstract getFilesListing(): string[]
     abstract hasFile(filename: string): boolean
-
-    getLangPath(base: string, filename: string, language: string): string {
-        const langPath = pathJoin(base, language, filename)
-        const noLangPath = pathJoin(base, filename)
-
-        if (this.hasFile(langPath)) {
-            return langPath
-        } else {
-            return noLangPath
-        }
-    }
 }
 
 abstract class SimpleFileLoader extends FileLoader {

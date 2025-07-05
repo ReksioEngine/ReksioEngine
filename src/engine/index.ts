@@ -14,6 +14,7 @@ import { BUILD_VARS, GamePlayerOptions } from '../index'
 import { Scope, ScopeManager } from './scope'
 import { Episode } from './types/episode'
 import { ISound, soundLibrary } from './sounds'
+import { pathJoin } from '../common/utils'
 
 export class Engine {
     public debug: Debugging
@@ -270,6 +271,28 @@ export class Engine {
             return this.scopeManager.findByName(name)
         } else {
             return this.getObject(name.objectName)
+        }
+    }
+
+    resolvePath(path: string, base = '') {
+        const aliases = {
+            'COMMON': 'COMMON',
+            'WAVS': 'WAVS'
+        }
+        for (const [alias, value] of Object.entries(aliases)) {
+            if (path.startsWith(`$${alias}`)) {
+                return path.replace(`$${alias}`, value)
+            }
+        }
+
+        const lang = this.scopeManager.APPLICATION.GETLANGUAGE()
+        const langPath = pathJoin(base, lang, path)
+        const noLangPath = pathJoin(base, path)
+
+        if (this.fileLoader.hasFile(langPath)) {
+            return langPath
+        } else {
+            return noLangPath
         }
     }
 
