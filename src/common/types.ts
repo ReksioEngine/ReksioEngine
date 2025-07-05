@@ -1,4 +1,5 @@
 import { assert, UnexpectedError } from './errors'
+import { printStackTrace } from '../interpreter/script/stacktrace'
 
 export const valueAsString = (value: any) => {
     if (typeof value === 'string') {
@@ -166,9 +167,11 @@ export function method(...types: parameter[]) {
         function typeGuardWrapper(this: any, ...args: any[]) {
             const newArgs = [...args]
 
+            let processedArgs = 0
             for (let i = 0; i < types.length; i++) {
                 const argExpectedTypeInfo = types[i]
                 const subArgsCount = argExpectedTypeInfo.rest ? args.length - i : 1
+                processedArgs += subArgsCount
 
                 for (let subArgIdx = i; subArgIdx < i + subArgsCount; subArgIdx++) {
                     const arg = args[subArgIdx]
@@ -236,6 +239,14 @@ export function method(...types: parameter[]) {
                         )
                     }
                 }
+            }
+
+            if (processedArgs < newArgs.length) {
+                console.warn([
+                    `Function: ${originalMethod.name}`,
+                    `More arguments given than method accepts`
+                ].join('\n'))
+                printStackTrace()
             }
 
             return originalMethod.call(this, ...newArgs)
