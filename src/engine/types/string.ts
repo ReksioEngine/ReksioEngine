@@ -23,8 +23,13 @@ export class String extends ValueType<StringDefinition> {
     }
 
     @method()
-    GET() {
-        return this.value
+    SUB(index: number, length: number) {
+        this.value = this.value.substring(0, index) + this.value.substring(index + length)
+    }
+
+    @method()
+    GET(index: number, length?: number) {
+        return this.value.substring(index, length !== undefined ? index + length : this.value.length)
     }
 
     @method()

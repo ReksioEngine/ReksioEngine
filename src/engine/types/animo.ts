@@ -613,9 +613,15 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    GETEVENTNAME(): string {
-        assert(this.currentEvent !== null)
-        return this.currentEvent.name.toUpperCase()
+    GETEVENTNAME(eventIndex?: number): string {
+        if (eventIndex === undefined) {
+            assert(this.currentEvent !== null)
+            return this.currentEvent.name.toUpperCase()
+        } else {
+            const event = this.getAllEvents()[eventIndex]
+            assert(event !== undefined)
+            return event.name.toUpperCase()
+        }
     }
 
     @method()
