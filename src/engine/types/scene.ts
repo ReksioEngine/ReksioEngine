@@ -1,9 +1,9 @@
 import { Type } from './index'
 import { SceneDefinition } from '../../fileFormats/cnv/types'
-import { pathJoin } from '../../common/utils'
 import { Behaviour } from './behaviour'
 import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
+import { pathJoin } from '../../loaders/filesLoader'
 
 export class Scene extends Type<SceneDefinition> {
     @method()

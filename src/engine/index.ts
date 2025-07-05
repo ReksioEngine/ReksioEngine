@@ -3,7 +3,7 @@ import { ScriptingManager } from './scripting'
 import { loadDefinition, doReady } from '../loaders/definitionLoader'
 import { Application, Rectangle, Sprite, Texture } from 'pixi.js'
 import { Scene } from './types/scene'
-import { FileLoader } from '../loaders/filesLoader'
+import { FileLoader, pathJoin } from '../loaders/filesLoader'
 import { loadSound, loadTexture } from '../loaders/assetsLoader'
 import { SaveFile, SaveFileManager } from './saveFile'
 import { Debugging } from './debugging'
@@ -14,7 +14,6 @@ import { BUILD_VARS, GamePlayerOptions } from '../index'
 import { Scope, ScopeManager } from './scope'
 import { Episode } from './types/episode'
 import { ISound, soundLibrary } from './sounds'
-import { pathJoin } from '../common/utils'
 
 export class Engine {
     public debug: Debugging
@@ -275,14 +274,9 @@ export class Engine {
     }
 
     resolvePath(path: string, base = '') {
-        const aliases = {
-            'COMMON': 'COMMON',
-            'WAVS': 'WAVS'
-        }
-        for (const [alias, value] of Object.entries(aliases)) {
-            if (path.startsWith(`$${alias}`)) {
-                return path.replace(`$${alias}`, value)
-            }
+        if (path.startsWith('$')) {
+            base = ''
+            path = path.substring(1)
         }
 
         const lang = this.scopeManager.APPLICATION.GETLANGUAGE()

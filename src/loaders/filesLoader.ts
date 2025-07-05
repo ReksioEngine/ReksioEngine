@@ -1,11 +1,9 @@
 import { decryptCNV, parseCNV } from '../fileFormats/cnv'
-import { loadImage } from '../fileFormats/img'
+import { Image, loadImage } from '../fileFormats/img'
 import { ANN, loadAnn } from '../fileFormats/ann'
 import { CNV } from '../fileFormats/cnv/parser'
-import { Image } from '../fileFormats/img'
 import { parseSequence, SequenceFile } from '../fileFormats/seq'
 import { Iso9660Reader, LocalIso9660Reader, RemoteIso9660Reader } from './iso9660'
-import { pathJoin } from '../common/utils'
 import { loadFont } from '../fileFormats/fnt'
 import { BitmapFont } from 'pixi.js'
 
@@ -13,6 +11,15 @@ export class FileNotFoundError extends Error {
     constructor(filename: string) {
         super(`File '${filename}' not found in files listing`)
     }
+}
+
+export const normalizePath = (path: string) => {
+    return path.toLowerCase().replace(/\\+/g, '/').replace(/\/+/g, '/').replace(/^\//, '')
+}
+
+export const pathJoin = (...parts: Array<string>) => {
+    const fixedParts = parts.filter((part) => part !== '').map((part) => part.replace(/\\/g, '/'))
+    return normalizePath(fixedParts.join('/'))
 }
 
 export abstract class FileLoader {
@@ -54,7 +61,8 @@ abstract class SimpleFileLoader extends FileLoader {
     }
 
     async getIMGFile(filename: string): Promise<Image> {
-        if (!filename.toLowerCase().endsWith('.img')) {
+        filename = normalizePath(filename)
+        if (!filename.endsWith('.img')) {
             filename = filename + '.img'
         }
 
@@ -63,7 +71,7 @@ abstract class SimpleFileLoader extends FileLoader {
     }
 
     hasFile(filename: string): boolean {
-        return this.getFilesListing().includes(filename.toLowerCase().replace(/\\/g, '/'))
+        return this.getFilesListing().includes(normalizePath(filename))
     }
 }
 
@@ -82,7 +90,7 @@ export abstract class UrlFileLoader extends SimpleFileLoader {
     }
 
     async getRawFile(filename: string): Promise<ArrayBuffer> {
-        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/')
+        const normalizedFilename = normalizePath(filename)
         console.debug(`Fetching '${normalizedFilename}'...`)
         const fileUrl = this.listing!.get(normalizedFilename)
         if (fileUrl == null) {
@@ -159,7 +167,7 @@ export class IsoFileLoader extends SimpleFileLoader {
     }
 
     async getRawFile(filename: string): Promise<ArrayBuffer> {
-        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/')
+        const normalizedFilename = normalizePath(filename)
         console.debug(`Loading '${normalizedFilename}'...`)
         const fileResult = await this.isoReader.getFile(normalizedFilename)
         if (fileResult == null) {
@@ -186,7 +194,7 @@ export class RemoteIsoFileLoader extends SimpleFileLoader {
     }
 
     async getRawFile(filename: string): Promise<ArrayBuffer> {
-        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/')
+        const normalizedFilename = normalizePath(filename)
         console.debug(`Loading '${normalizedFilename}'...`)
         const fileResult = await this.isoReader.getFile(normalizedFilename)
         if (fileResult == null) {

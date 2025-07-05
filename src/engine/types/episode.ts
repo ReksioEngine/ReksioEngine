@@ -1,9 +1,8 @@
 import { Type } from './index'
 import { EpisodeDefinition } from '../../fileFormats/cnv/types'
 import { assert } from '../../common/errors'
-import { pathJoin } from '../../common/utils'
 import { loadDefinition, doReady } from '../../loaders/definitionLoader'
-import { FileNotFoundError } from '../../loaders/filesLoader'
+import { FileNotFoundError, pathJoin } from '../../loaders/filesLoader'
 import { method } from '../../common/types'
 import { CancelTick } from '../index'
 
