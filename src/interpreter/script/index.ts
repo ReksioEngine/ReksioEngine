@@ -252,12 +252,18 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         if (methodName === 'IF') {
             if (args.length == 5) {
                 const [a, operator, b, ifTrue, ifFalse] = args
-                const left = a.toString().startsWith('"')
+
+                const left = typeof a === 'string' ? (
+                    a.toString().startsWith('"')
                     ? a.toString().replace(/^"|"$/g, '')
                     : (this.engine.getObject(valueAsString(a))?.value ?? a)
-                const right = b.toString().startsWith('"')
-                    ? b.toString().replace(/^"|"$/g, '')
-                    : (this.engine.getObject(valueAsString(b))?.value ?? b)
+                ) : a
+
+                const right = typeof b === 'string' ? (
+                    b.toString().startsWith('"')
+                        ? b.toString().replace(/^"|"$/g, '')
+                        : (this.engine.getObject(valueAsString(b))?.value ?? b)
+                ) : b
 
                 let result = false
                 if (operator == '_') {
