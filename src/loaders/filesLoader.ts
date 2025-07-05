@@ -6,6 +6,7 @@ import { parseSequence, SequenceFile } from '../fileFormats/seq'
 import { Iso9660Reader, LocalIso9660Reader, RemoteIso9660Reader } from './iso9660'
 import { loadFont } from '../fileFormats/fnt'
 import { BitmapFont } from 'pixi.js'
+import { parseArray } from '../fileFormats/archive/array'
 
 export class FileNotFoundError extends Error {
     constructor(filename: string) {
@@ -30,6 +31,7 @@ export abstract class FileLoader {
     abstract getIMGFile(filename: string): Promise<Image>
     abstract getANNFile(filename: string): Promise<ANN>
     abstract getFNTFile(filename: string): Promise<BitmapFont>
+    abstract getARRFile(filename: string): Promise<any[]>
     abstract getFilesListing(): string[]
     abstract hasFile(filename: string): boolean
 }
@@ -68,6 +70,11 @@ abstract class SimpleFileLoader extends FileLoader {
 
         const data = await this.getRawFile(filename)
         return loadImage(data)
+    }
+
+    async getARRFile(filename: string): Promise<any[]> {
+        const data = await this.getRawFile(filename)
+        return parseArray(data)
     }
 
     hasFile(filename: string): boolean {

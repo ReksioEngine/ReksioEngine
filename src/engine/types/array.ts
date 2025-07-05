@@ -115,6 +115,13 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     }
 
     @method()
+    async LOAD(path: string) {
+        assert(this.engine.currentScene !== null)
+        // TODO: Fix problem with it being async
+        this.value = await this.engine.fileLoader.getARRFile(this.engine.currentScene.getRelativePath(path))
+    }
+
+    @method()
     SAVEINI() {
         this.saveToINI()
     }
