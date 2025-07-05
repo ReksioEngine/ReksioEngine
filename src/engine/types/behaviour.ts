@@ -5,16 +5,16 @@ import { InterruptScriptExecution } from '../../interpreter/script'
 import { method } from '../../common/types'
 
 export class Behaviour extends Type<BehaviourDefinition> {
-    ready() {
+    async ready() {
         if (this.definition.NAME === '__INIT__') {
-            this.RUN()
+            await this.RUN()
         }
     }
 
     @method()
-    RUN(...args: any[]) {
+    async RUN(...args: any[]) {
         try {
-            this.executeCallback(args)
+            await this.executeCallback(args)
         } catch (err) {
             if (!(err instanceof InterruptScriptExecution)) {
                 throw err
@@ -23,18 +23,18 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     @method()
-    RUNC(...args: any[]) {
-        if (this.shouldRun()) {
-            this.RUN(...args)
+    async RUNC(...args: any[]) {
+        if (await this.shouldRun()) {
+            await this.RUN(...args)
         }
     }
 
     @method()
-    RUNLOOPED(start: number, len: number, step: number = 1, ...args: any[]) {
+    async RUNLOOPED(start: number, len: number, step: number = 1, ...args: any[]) {
         for (let i = start; i < start + len; i += step) {
             try {
-                if (this.shouldRun()) {
-                    this.engine.scripting.executeCallback(null, this.definition.CODE, [i, step, ...args])
+                if (await this.shouldRun()) {
+                    await this.engine.scripting.executeCallback(null, this.definition.CODE, [i, step, ...args])
                 }
             } catch (err) {
                 if (err instanceof InterruptScriptExecution) {
@@ -54,16 +54,16 @@ export class Behaviour extends Type<BehaviourDefinition> {
         return this.engine.scripting.executeCallback(null, this.definition.CODE, args)
     }
 
-    executeConditionalCallback(args: any[] = []) {
-        if (this.shouldRun()) {
-            this.executeCallback(args)
+    async executeConditionalCallback(args: any[] = []) {
+        if (await this.shouldRun()) {
+            await this.executeCallback(args)
         }
     }
 
-    shouldRun() {
+    async shouldRun() {
         if (this.definition.CONDITION) {
             const condition: Condition = this.engine.getObject(this.definition.CONDITION.objectName)
-            return condition.CHECK(true)
+            return await condition.CHECK(true)
         }
         return true
     }

@@ -55,10 +55,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     async init() {
-        this.annFile = await this.loadAnimation()
+        this.annFile = await this.loadAnimation(this.definition.FILENAME)
     }
 
-    applyDefaults() {
+    async applyDefaults() {
         const existingObjectWithFilename: Animo | null = this.engine.scopeManager.find(
             (key: string, object) =>
                 object != this &&
@@ -69,17 +69,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
         if (existingObjectWithFilename != null) {
             this.sprite = existingObjectWithFilename.sprite
         } else {
-            this.initSprite()
-        }
-
-        this.currentEvent = this.getEvent(this.getDefaultEvent() ?? '')
-        if (this.currentEvent) {
-            this.changeFrame(this.currentEvent, 0, false)
+            await this.initSprite()
         }
     }
 
-    ready() {
-        this.callbacks.run('ONINIT')
+    async ready() {
+        await this.callbacks.run('ONINIT')
     }
 
     destroy() {
@@ -97,8 +92,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
     }
 
-    tick(elapsedMS: number) {
-        this.buttonLogic.tick()
+    async tick(elapsedMS: number) {
+        await this.buttonLogic.tick()
         this.collisions.tick()
 
         if (!this.isPlaying) {
@@ -109,7 +104,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         const frameLength = (1 / this.fps) * 1000
         while (this.isPlaying && this.timeSinceLastFrame >= frameLength) {
-            this.tickAnimation()
+            await this.tickAnimation()
             this.timeSinceLastFrame -= frameLength
         }
     }
@@ -124,15 +119,15 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return null
     }
 
-    private async loadAnimation() {
+    private async loadAnimation(path: string) {
         assert(this.engine.currentScene !== null)
 
         try {
-            const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME)
+            const relativePath = this.engine.currentScene.getRelativePath(path)
             const annFile = await this.engine.fileLoader.getANNFile(relativePath)
             await this.loadSfx(annFile)
 
-            console.debug(`File '${this.definition.FILENAME}' loaded successfully!`)
+            console.debug(`File '${path}' loaded successfully!`)
             return annFile
         } catch (err) {
             if (err instanceof FileNotFoundError) {
@@ -166,7 +161,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         await Promise.all([...soundsNames].map(loadSoundIfNotExists))
     }
 
-    private initSprite() {
+    private async initSprite() {
         assert(this.annFile !== null)
 
         this.sprite = new AdvancedSprite()
@@ -177,6 +172,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         if (this.definition.TOCANVAS) {
             this.engine.rendering.addToStage(this.sprite)
+        }
+
+        this.currentEvent = this.getEvent(this.getDefaultEvent() ?? '')
+        if (this.currentEvent) {
+            await this.changeFrame(this.currentEvent, 0, false)
         }
     }
 
@@ -211,7 +211,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return hitmap
     }
 
-    private tickAnimation() {
+    private async tickAnimation() {
         assert(this.annFile !== null && this.sprite !== null)
 
         const event = this.currentEvent
@@ -221,14 +221,14 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         if (this.eventEndedLastTick == this.currentEvent) {
             this.eventEndedLastTick = null
-            this.STOP(true)
+            await this.STOP(true)
             return
         }
 
-        this.changeFrame(event, this.currentFrame)
+        await this.changeFrame(event, this.currentFrame)
 
         if (this.currentFrame === 0) {
-            this.ONSTARTED()
+            await this.ONSTARTED()
         }
 
         // Animation might get stopped in ONFRAMECHANGED callback like in UFO:S65_ZAMEK
@@ -276,7 +276,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.positionY + this.positionOffsetY - this.anchorOffsetY + this.sprite.height * this.sprite.anchor.y
     }
 
-    private changeFrame(event: Event, frameIdx: number, signal = true) {
+    private async changeFrame(event: Event, frameIdx: number, signal = true) {
         assert(this.annFile !== null)
         assert(this.sprite !== null)
         assert(event !== null)
@@ -306,7 +306,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
 
         if (signal) {
-            this.callbacks.run('ONFRAMECHANGED', event.name)
+            await this.callbacks.run('ONFRAMECHANGED', event.name)
         }
     }
 
@@ -336,17 +336,17 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    PLAY(name?: string) {
+    async PLAY(name?: string) {
         if (name === undefined) {
             this.SHOW()
             this.RESUME()
             return
         }
 
-        this.playEvent(name)
+        await this.playEvent(name)
     }
 
-    playEvent(name: string) {
+    async playEvent(name: string) {
         if (!this.hasEvent(name.toString())) {
             return
         }
@@ -354,7 +354,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const event = this.getEvent(name)
         assert(event !== null)
         if (event.framesCount === 0) {
-            this.ONFINISHED()
+            await this.ONFINISHED()
             return
         }
 
@@ -370,35 +370,35 @@ export class Animo extends DisplayType<AnimoDefinition> {
         // Animation could be paused before next tick, and it wouldn't render new frame
         // Tick animation so that it's not signaling twice for 0 frame
         // + it has to call ONSTARTED instantly
-        this.tickAnimation()
+        await this.tickAnimation()
     }
 
-    private forceRender() {
+    private async forceRender() {
         assert(this.currentEvent !== null)
-        this.changeFrame(this.currentEvent, this.currentFrame, true)
+        await this.changeFrame(this.currentEvent, this.currentFrame, true)
     }
 
-    private ONFINISHED() {
-        assert(this.currentEvent !== null)
-        const index = this.currentEvent.name.toUpperCase()
-        this.callbacks.run('ONFINISHED', index)
-        this.events?.trigger('ONFINISHED', index)
-    }
-
-    private ONSTARTED() {
+    private async ONFINISHED() {
         assert(this.currentEvent !== null)
         const index = this.currentEvent.name.toUpperCase()
-        this.callbacks.run('ONSTARTED', index)
-        this.events?.trigger('ONSTARTED', index)
+        await this.callbacks.run('ONFINISHED', index)
+        await this.events?.trigger('ONFINISHED', index)
+    }
+
+    private async ONSTARTED() {
+        assert(this.currentEvent !== null)
+        const index = this.currentEvent.name.toUpperCase()
+        await this.callbacks.run('ONSTARTED', index)
+        await this.events?.trigger('ONSTARTED', index)
     }
 
     // For some reason there is sometimes a string passed
     @method()
-    STOP(shouldSignal?: boolean | string) {
+    async STOP(shouldSignal?: boolean | string) {
         this.isPlaying = false
         this.currentFrame = 0
         if (shouldSignal !== false) {
-            this.ONFINISHED()
+            await this.ONFINISHED()
         }
     }
 
@@ -446,7 +446,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    SETFRAME(eventNameOrFrameIdx: string | number, frameIdx?: number) {
+    async SETFRAME(eventNameOrFrameIdx: string | number, frameIdx?: number) {
         if (frameIdx === undefined) {
             const imageIndex = Number(eventNameOrFrameIdx)
             assert(!Number.isNaN(imageIndex))
@@ -467,7 +467,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
             // Force render because some animations might not be playing,
             // but they display something (like a keypad screen in S73_0_KOD in UFO)
-            this.forceRender()
+            await this.forceRender()
         }
     }
 
@@ -495,27 +495,27 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    MOVE(xOffset: number, yOffset: number) {
+    async MOVE(xOffset: number, yOffset: number) {
         assert(this.sprite !== null)
 
         this.positionX += Math.floor(xOffset)
         this.positionY += Math.floor(yOffset)
         this.syncPosition()
-        this.onMove()
+        await this.onMove()
     }
 
     @method()
-    SETPOSITION(x: number, y: number) {
+    async SETPOSITION(x: number, y: number) {
         assert(this.sprite !== null)
 
         this.positionX = Math.floor(x)
         this.positionY = Math.floor(y)
         this.syncPosition()
-        this.onMove()
+        await this.onMove()
     }
 
     @method()
-    SETASBUTTON(enabled: boolean, showPointer: boolean) {
+    async SETASBUTTON(enabled: boolean, showPointer: boolean) {
         assert(this.sprite !== null)
         if (enabled) {
             if (this.buttonInteractArea === null) {
@@ -528,44 +528,44 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.buttonInteractArea.hitArea = this.sprite.getBounds()
             this.buttonInteractArea.zIndex = this.sprite.zIndex
 
-            this.buttonLogic.enable()
-            this.playEvent('ONNOEVENT')
+            await this.buttonLogic.enable()
+            await this.playEvent('ONNOEVENT')
         } else {
             if (this.buttonInteractArea) {
                 this.buttonLogic.unregisterInteractive(this.buttonInteractArea)
                 this.engine.rendering.removeFromStage(this.buttonInteractArea)
                 this.buttonInteractArea = null
             }
-            this.buttonLogic?.disable()
+            await this.buttonLogic?.disable()
         }
     }
 
-    private onButtonStateChange(prevState: State, event: FSMEvent, newState: State) {
-        const playEventIfExists = (eventName: string) => {
+    private async onButtonStateChange(prevState: State, event: FSMEvent, newState: State) {
+        const playEventIfExists = async (eventName: string) => {
             if (this.hasEvent(eventName)) {
-                this.playEvent(eventName)
+                await this.playEvent(eventName)
             } else if (this.hasEvent('PLAY')) {
-                this.playEvent('PLAY')
+                await this.playEvent('PLAY')
             }
         }
 
         switch (newState) {
             case State.HOVERED:
-                playEventIfExists('ONFOCUSON')
-                this.callbacks.run(event === FSMEvent.UP ? 'ONRELEASE' : 'ONFOCUSON')
+                await playEventIfExists('ONFOCUSON')
+                await this.callbacks.run(event === FSMEvent.UP ? 'ONRELEASE' : 'ONFOCUSON')
                 break
             case State.STANDARD:
                 if (event === FSMEvent.ENABLE) {
-                    playEventIfExists('ONNOEVENT')
+                    await playEventIfExists('ONNOEVENT')
                 } else {
-                    playEventIfExists('ONFOCUSOFF')
-                    this.callbacks.run('ONFOCUSOFF')
+                    await playEventIfExists('ONFOCUSOFF')
+                    await this.callbacks.run('ONFOCUSOFF')
                 }
                 break
             case State.PRESSED:
-                playEventIfExists('ONCLICK')
-                this.callbacks.run('ONCLICKED')
-                this.callbacks.run('ONCLICK')
+                await playEventIfExists('ONCLICK')
+                await this.callbacks.run('ONCLICKED')
+                await this.callbacks.run('ONCLICK')
                 break
         }
     }
@@ -704,11 +704,18 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.collisions.enabled = false
     }
 
+    @method()
+    async LOAD(path: string) {
+        this.destroy()
+        this.annFile = await this.loadAnimation(path)
+        await this.initSprite()
+    }
+
     // Only triggered on explicit position change
     // Animation offset change doesn't trigger it
-    private onMove() {
-        this.collisions.handle((object: Animo) => {
-            this.callbacks.run('ONCOLLISION', object.name)
+    private async onMove() {
+        await this.collisions.handle(async (object: Animo) => {
+            await this.callbacks.run('ONCOLLISION', object.name)
         })
     }
 
@@ -730,8 +737,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         return this.sprite
     }
 
-    clone() {
-        const clone = super.clone() as Animo
+    async clone() {
+        const clone = await super.clone() as Animo
         clone.isPlaying = this.isPlaying
         clone.currentFrame = this.currentFrame
         clone.currentEvent = this.currentEvent
@@ -747,11 +754,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         clone.anchorOffsetX = this.anchorOffsetX
         clone.anchorOffsetY = this.anchorOffsetY
 
-        clone.initSprite()
+        await clone.initSprite()
         clone.sprite!.visible = this.sprite!.visible
-        if (clone.currentEvent) {
-            clone.changeFrame(clone.currentEvent, 0, false)
-        }
         return clone
     }
 

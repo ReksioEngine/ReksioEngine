@@ -1,7 +1,7 @@
 import { DisplayType } from './index'
 import { ImageDefinition } from '../../fileFormats/cnv/types'
 import { assert, NotImplementedError } from '../../common/errors'
-import { Container, Graphics, Point, Sprite, Texture } from 'pixi.js'
+import { Container, Graphics, Point, Sprite } from 'pixi.js'
 import { loadSprite } from '../../loaders/assetsLoader'
 import { AdvancedSprite } from '../rendering'
 import { method } from '../../common/types'
@@ -11,26 +11,30 @@ export class Image extends DisplayType<ImageDefinition> {
     public sprite: AdvancedSprite | null = null
 
     async init() {
-        this.sprite = await this.load()
+        await this.initSprite(this.definition.FILENAME)
+    }
+
+    async applyDefaults() {
+        this.SETPRIORITY(this.definition.PRIORITY ?? 0)
+    }
+
+    private async initSprite(path: string) {
+        this.sprite = await this.load(path)
         this.sprite.visible = this.definition.VISIBLE
         this.sprite.eventMode = 'none'
         this.sprite.name = `${this.name} (IMAGE)` // For PIXI Devtools
     }
 
-    applyDefaults() {
-        this.SETPRIORITY(this.definition.PRIORITY ?? 0)
-    }
-
-    private async load() {
+    private async load(path: string) {
         assert(this.engine.currentScene !== null)
-        const relativePath = this.engine.currentScene.getRelativePath(this.definition.FILENAME)
+        const relativePath = this.engine.currentScene.getRelativePath(path)
         return await loadSprite(this.engine.fileLoader, relativePath)
     }
 
-    ready() {
+    async ready() {
         assert(this.sprite !== null)
         this.engine.rendering.addToStage(this.sprite)
-        this.callbacks.run('ONINIT')
+        await this.callbacks.run('ONINIT')
     }
 
     destroy() {
@@ -114,6 +118,15 @@ export class Image extends DisplayType<ImageDefinition> {
         otherObjectAlphaSprite.x = x
         otherObjectAlphaSprite.y = y
         this.sprite.mask = new Sprite(this.engine.app.renderer.generateTexture(this.maskContainer))
+    }
+
+    @method()
+    async LOAD(path: string) {
+        this.destroy()
+        await this.initSprite(path)
+
+        assert(this.sprite !== null)
+        this.engine.rendering.addToStage(this.sprite)
     }
 
     private generateMaskTexture(sprite: AdvancedSprite) {

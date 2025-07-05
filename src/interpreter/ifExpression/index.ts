@@ -20,8 +20,14 @@ export class ExpressionEvaluator extends ReksioIFExpressionVisitor<any> {
         this.engine = engine
     }
 
-    visitExprList = (ctx: ExprListContext): any => {
-        const subResults = this.visitChildren(ctx).filter((x: any) => x !== undefined)
+    visitExprList = async (ctx: ExprListContext): Promise<any> => {
+        const subResults = []
+        for (const entry of this.visitChildren(ctx)) {
+            const value = await entry
+            if (value !== undefined) {
+                subResults.push(value)
+            }
+        }
 
         let result = subResults[0]
         for (let i = 1; i < subResults.length - 1; i += 2) {
@@ -38,9 +44,9 @@ export class ExpressionEvaluator extends ReksioIFExpressionVisitor<any> {
         return result
     }
 
-    visitExpr = (ctx: ExprContext): any => {
-        const left = this.visit(ctx._left)[0]
-        const right = this.visit(ctx._right)[0]
+    visitExpr = async (ctx: ExprContext): Promise<any> => {
+        const left = await this.visit(ctx._left)[0]
+        const right = await this.visit(ctx._right)[0]
 
         if (ctx._operator.type == ReksioIFExpressionParser.EQUAL) {
             return left == right
@@ -65,9 +71,9 @@ export class ExpressionEvaluator extends ReksioIFExpressionVisitor<any> {
         return ForceNumber(ctx.getText())
     }
 
-    visitIdentifier = (ctx: IdentifierContext): any => {
+    visitIdentifier = async (ctx: IdentifierContext): Promise<any> => {
         const object = this.engine.getObject(ctx.getText())
-        return object.value
+        return await object.getValue()
     }
 
     visitLogicOperator = (ctx: LogicOperatorContext): any => {
@@ -75,12 +81,12 @@ export class ExpressionEvaluator extends ReksioIFExpressionVisitor<any> {
     }
 }
 
-export const evaluateExpression = (engine: Engine, script: string) => {
+export const evaluateExpression = async (engine: Engine, script: string) => {
     const lexer = new ReksioIFExpressionLexer(new antlr4.CharStream(script))
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioIFExpressionParser(tokens)
     const tree = parser.exprList()
 
     const evaluator = new ExpressionEvaluator(engine)
-    return tree.accept(evaluator)
+    return await tree.accept(evaluator)
 }

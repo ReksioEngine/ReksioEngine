@@ -3,9 +3,9 @@ import { ExpressionDefinition } from '../../fileFormats/cnv/types'
 import { NotImplementedError } from '../../common/errors'
 
 export class Expression extends ValueType<ExpressionDefinition> {
-    get value() {
-        const operand1 = this.engine.scripting.executeCallback(this, this.definition.OPERAND1)
-        const operand2 = this.engine.scripting.executeCallback(this, this.definition.OPERAND2)
+    async getValue() {
+        const operand1 = await this.engine.scripting.executeCallback(this, this.definition.OPERAND1)
+        const operand2 = await this.engine.scripting.executeCallback(this, this.definition.OPERAND2)
 
         let result
         switch (this.definition.OPERATOR) {

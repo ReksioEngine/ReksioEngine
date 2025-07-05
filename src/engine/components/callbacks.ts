@@ -56,7 +56,7 @@ export class CallbacksComponent {
         return callbacks.nonParametrized !== null || callbacks.parametrized.size > 0
     }
 
-    run(type: string, param?: any, thisOverride?: Type<any> | null) {
+    async run(type: string, param?: any, thisOverride?: Type<any> | null) {
         if (!this.has(type)) {
             return
         }
@@ -78,9 +78,9 @@ export class CallbacksComponent {
             if (param !== null && param !== undefined && callbackGroup.parametrized.has(param)) {
                 const callback = callbackGroup.parametrized.get(param)
                 assert(callback !== undefined, 'Callbacks should not happen to be undefined values')
-                this.engine.scripting.executeCallback(thisReference, callback)
+                await this.engine.scripting.executeCallback(thisReference, callback)
             } else if (callbackGroup.nonParametrized) {
-                this.engine.scripting.executeCallback(thisReference, callbackGroup.nonParametrized)
+                await this.engine.scripting.executeCallback(thisReference, callbackGroup.nonParametrized)
             }
         } catch (err) {
             if (!(err instanceof InterruptScriptExecution)) {

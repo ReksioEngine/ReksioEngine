@@ -8,7 +8,7 @@ export type Callback<STATE extends number | string, EVENT extends number | strin
     previousState: STATE,
     event: EVENT,
     newState: STATE
-) => void
+) => Promise<void>
 
 export class StateMachine<STATE extends number | string, EVENT extends number | string> {
     private currentState: STATE
@@ -33,7 +33,7 @@ export class StateMachine<STATE extends number | string, EVENT extends number | 
         )
     }
 
-    dispatch(event: EVENT) {
+    async dispatch(event: EVENT) {
         const transition = this.transitions.find(
             (transition) => transition.from === this.currentState && transition.event === event
         )
@@ -45,7 +45,7 @@ export class StateMachine<STATE extends number | string, EVENT extends number | 
         const previousState = this.currentState
         this.currentState = transition.to
 
-        this.onStateChange(previousState, event, this.currentState)
+        await this.onStateChange(previousState, event, this.currentState)
     }
 }
 

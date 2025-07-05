@@ -8,27 +8,27 @@ export class String extends ValueType<StringDefinition> {
         super(engine, parent, definition, '')
     }
 
-    ready() {
-        this.callbacks.run('ONINIT')
+    async ready() {
+        await this.callbacks.run('ONINIT')
     }
 
     @method()
-    ADD(text: string) {
-        this.value += text
+    async ADD(text: string) {
+        await this.setValue(this.value + text)
     }
 
     @method()
-    SET(text: string) {
-        this.value = text
+    async SET(text: string) {
+        await this.setValue(text)
     }
 
     @method()
-    SUB(index: number, length: number) {
-        this.value = this.value.substring(0, index) + this.value.substring(index + length)
+    async SUB(index: number, length: number) {
+        await this.setValue(this.value.substring(0, index) + this.value.substring(index + length))
     }
 
     @method()
-    GET(index: number, length?: number) {
+    GET(index: number = 0, length?: number) {
         return this.value.substring(index, length !== undefined ? index + length : this.value.length)
     }
 
@@ -37,10 +37,10 @@ export class String extends ValueType<StringDefinition> {
         return this.value.indexOf(needle, start)
     }
 
-    protected valueChanged(oldValue: any, newValue: any) {
+    protected async valueChanged(oldValue: any, newValue: any) {
         if (oldValue !== newValue) {
-            this.callbacks.run('ONCHANGED', newValue)
+            await this.callbacks.run('ONCHANGED', newValue)
         }
-        this.callbacks.run('ONBRUTALCHANGED', newValue)
+        await this.callbacks.run('ONBRUTALCHANGED', newValue)
     }
 }

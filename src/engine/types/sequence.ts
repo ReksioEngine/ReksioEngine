@@ -42,7 +42,7 @@ export class Sequence extends Type<SequenceDefinition> {
     private loop: boolean = false
     private loopIndex: number = 0
 
-    private readonly onAnimoEventFinishedCallback: (eventName: string) => void
+    private readonly onAnimoEventFinishedCallback: (eventName: string) => Promise<void>
 
     constructor(engine: Engine, parent: Type<any> | null, definition: SequenceDefinition) {
         super(engine, parent, definition)
@@ -63,8 +63,8 @@ export class Sequence extends Type<SequenceDefinition> {
         }
     }
 
-    ready() {
-        this.callbacks.run('ONINIT')
+    async ready() {
+        await this.callbacks.run('ONINIT')
     }
 
     destroy() {
@@ -118,7 +118,7 @@ export class Sequence extends Type<SequenceDefinition> {
         }
     }
 
-    tick(elapsedMS: number) {
+    async tick(elapsedMS: number) {
         if (this.playingSound instanceof SimulatedMediaInstance) {
             this.playingSound.tick(elapsedMS)
         }
@@ -128,15 +128,15 @@ export class Sequence extends Type<SequenceDefinition> {
             const entry = this.endedSpeakingSoundsQueue.shift()!
             const stopEvent = entry.PREFIX + '_STOP'
             if (entry.ENDING && this.activeAnimo?.hasEvent(stopEvent)) {
-                this.playAnimoEvent(stopEvent)
+                await this.playAnimoEvent(stopEvent)
             } else {
-                this.progressNext()
+                await this.progressNext()
             }
         }
     }
 
     @method()
-    PLAY(sequenceName: string) {
+    async PLAY(sequenceName: string) {
         assert(this.parameterSequence !== null && this.subEntries !== null)
 
         const subEntries = this.subEntries.get(this.parameterSequence.NAME)
@@ -145,7 +145,7 @@ export class Sequence extends Type<SequenceDefinition> {
             const entry = subEntries[entryIndex]
             this.sequenceName = sequenceName
             this.fillQueue(entry)
-            this.progressNext()
+            await this.progressNext()
         }
     }
 
@@ -195,7 +195,7 @@ export class Sequence extends Type<SequenceDefinition> {
         }
     }
 
-    private onAnimoEventFinished(eventName: string) {
+    private async onAnimoEventFinished(eventName: string) {
         assert(this.activeAnimo !== null)
 
         if (this.runningSubSequence?.TYPE === 'SPEAKING') {
@@ -203,24 +203,24 @@ export class Sequence extends Type<SequenceDefinition> {
                 if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
                     this.loop = true
                     this.loopIndex = 1
-                    this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1')
+                    await this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1')
                 }
             } else if (this.runningSubSequence.ENDING && eventName === this.runningSubSequence.PREFIX + '_STOP') {
-                this.progressNext()
+                await this.progressNext()
             } else if (this.loop) {
                 let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`
                 if (!this.activeAnimo.hasEvent(eventName)) {
                     this.loopIndex = 1
                     eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`
                 }
-                this.playAnimoEvent(eventName)
+                await this.playAnimoEvent(eventName)
             }
         } else if (this.currentAnimoEvent == eventName) {
-            this.progressNext()
+            await this.progressNext()
         }
     }
 
-    private progressNext() {
+    private async progressNext() {
         if (this.sequenceName === null) {
             return
         }
@@ -228,13 +228,13 @@ export class Sequence extends Type<SequenceDefinition> {
         if (this.queue.length === 0) {
             const finishedName = this.sequenceName
             this.sequenceName = null
-            this.callbacks.run('ONFINISHED', finishedName)
+            await this.callbacks.run('ONFINISHED', finishedName)
             return
         }
 
         const next = this.queue.shift()!
         if (next.TYPE === 'SEQUENCE') {
-            this.progressNext()
+            await this.progressNext()
             return
         }
 
@@ -270,11 +270,11 @@ export class Sequence extends Type<SequenceDefinition> {
 
                 const startEvent = speaking.PREFIX + '_START'
                 if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
-                    this.playAnimoEvent(startEvent)
+                    await this.playAnimoEvent(startEvent)
                 } else if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
                     this.loop = true
                     this.loopIndex = 1
-                    this.playAnimoEvent(speaking.PREFIX + '_1')
+                    await this.playAnimoEvent(speaking.PREFIX + '_1')
                 }
 
                 this.runningSubSequence = speaking
@@ -301,21 +301,21 @@ export class Sequence extends Type<SequenceDefinition> {
                 if (!this.activeAnimo.hasEvent(eventName)) {
                     const allEvents = this.activeAnimo.getAllEvents()
                     if (allEvents.length === 0) {
-                        this.progressNext()
+                        await this.progressNext()
                         return
                     }
                     eventName = allEvents[0].name
                 }
 
                 this.runningSubSequence = simple
-                this.playAnimoEvent(eventName)
+                await this.playAnimoEvent(eventName)
             }
         }
     }
 
-    private playAnimoEvent(eventName: string) {
+    private async playAnimoEvent(eventName: string) {
         this.currentAnimoEvent = eventName
-        this.activeAnimo?.playEvent(eventName)
+        await this.activeAnimo?.playEvent(eventName)
     }
 
     private async getAnimo(nameOrFilename: string): Promise<Animo> {

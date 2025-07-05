@@ -20,7 +20,7 @@ export class Font extends Type<FontDefinition> {
         }
     }
 
-    ready() {
-        this.callbacks.run('ONINIT')
+    async ready() {
+        await this.callbacks.run('ONINIT')
     }
 }

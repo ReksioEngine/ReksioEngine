@@ -16,17 +16,17 @@ export class Sound extends Type<SoundDefinition> {
         )
     }
 
-    ready() {
-        this.callbacks.run('ONINIT')
+    async ready() {
+        await this.callbacks.run('ONINIT')
     }
 
-    tick(elapsedMS: number) {
+    async tick(elapsedMS: number) {
         if (this.sound instanceof SimulatedSound) {
             this.sound.tick(elapsedMS)
         }
 
         while (this.callbacksQueue.length > 0) {
-            this.callbacks.run(this.callbacksQueue.shift()!)
+            await this.callbacks.run(this.callbacksQueue.shift()!)
         }
     }
 

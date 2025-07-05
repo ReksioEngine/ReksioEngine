@@ -5,8 +5,8 @@ import { method } from '../../common/types'
 export class Group extends Type<GroupDefinition> {
     private objects: any[] = []
 
-    ready() {
-        this.callbacks.run('ONINIT')
+    async ready() {
+        await this.callbacks.run('ONINIT')
     }
 
     @method()

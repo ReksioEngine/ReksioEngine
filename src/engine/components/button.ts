@@ -20,7 +20,7 @@ export enum Event {
     DISABLE_BUT_VISIBLE = 'DISABLE_BUT_VISIBLE',
 }
 
-type stateChangeCallback = (prevState: State, event: Event, newState: State) => void
+type stateChangeCallback = (prevState: State, event: Event, newState: State) => Promise<void>
 
 export class ButtonLogicComponent {
     private stateMachine: StateMachine<State, Event>
@@ -89,21 +89,21 @@ export class ButtonLogicComponent {
         sprite.removeListener('pointerup', this.onMouseUpCallback)
     }
 
-    disable() {
+    async disable() {
         if (this.stateMachine.can(Event.DISABLE)) {
-            this.stateMachine.dispatch(Event.DISABLE)
+            await this.stateMachine.dispatch(Event.DISABLE)
         }
     }
 
-    disableButVisible() {
+    async disableButVisible() {
         if (this.stateMachine.can(Event.DISABLE_BUT_VISIBLE)) {
-            this.stateMachine.dispatch(Event.DISABLE_BUT_VISIBLE)
+            await this.stateMachine.dispatch(Event.DISABLE_BUT_VISIBLE)
         }
     }
 
-    enable() {
+    async enable() {
         if (this.stateMachine.can(Event.ENABLE)) {
-            this.stateMachine.dispatch(Event.ENABLE)
+            await this.stateMachine.dispatch(Event.ENABLE)
         }
     }
 
@@ -116,11 +116,11 @@ export class ButtonLogicComponent {
         return state != State.DISABLED && state != State.DISABLED_BUT_VISIBLE
     }
 
-    tick() {
+    async tick() {
         while (this.eventsQueue.length > 0) {
             const event = this.eventsQueue.shift()!
             if (this.stateMachine.can(event)) {
-                this.stateMachine.dispatch(event)
+                await this.stateMachine.dispatch(event)
             }
         }
     }

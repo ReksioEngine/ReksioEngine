@@ -8,103 +8,103 @@ export class Integer extends ValueType<IntegerDefinition> {
         super(engine, parent, definition, 0)
     }
 
-    ready() {
-        this.callbacks.run('ONINIT')
+    async ready() {
+        await this.callbacks.run('ONINIT')
     }
 
     @method()
-    INC() {
-        return ++this.value
+    async INC() {
+        return this.setValue(this.value + 1)
     }
 
     @method()
-    DEC() {
-        return --this.value
+    async DEC() {
+        return this.setValue(this.value - 1)
     }
 
     @method()
-    ADD(value: number) {
-        return (this.value += value)
+    async ADD(value: number) {
+        return this.setValue(this.value + value)
     }
 
     @method()
-    SUB(value: number) {
-        return (this.value -= value)
+    async SUB(value: number) {
+        return this.setValue(this.value - value)
     }
 
     @method()
-    MUL(value: number) {
-        return (this.value *= value)
+    async MUL(value: number) {
+        return this.setValue(this.value * value)
     }
 
     @method()
-    DIV(value: number) {
-        return (this.value /= value)
+    async DIV(value: number) {
+        return this.setValue(this.value / value)
     }
 
     @method()
-    MOD(value: number) {
-        return (this.value %= value)
+    async MOD(value: number) {
+        return this.setValue(this.value % value)
     }
 
     @method()
-    CLAMP(min: number, max: number) {
-        return (this.value = Math.min(max, Math.max(this.value, min)))
+    async CLAMP(min: number, max: number) {
+        return this.setValue(Math.min(max, Math.max(this.value, min)))
     }
 
     @method()
-    AND(value: number) {
-        return (this.value &= value)
+    async AND(value: number) {
+        return this.setValue(this.value & value)
     }
 
     @method()
     // TODO: Maybe type guard could try to resolve references
-    SET(newValue?: number | string) {
+    async SET(newValue?: number | string) {
         if (typeof newValue == 'string') {
             const possibleInteger = this.engine.getObject(newValue)
             if (possibleInteger instanceof Integer) {
-                this.value = possibleInteger.value
+                await this.setValue(possibleInteger.getValue())
                 return
             }
         }
 
         // That's how the game works
         if (newValue === undefined) {
-            this.value = 0
+            await this.setValue(0)
             return
         }
 
-        this.value = ForceNumber(newValue)
+        await this.setValue(ForceNumber(newValue))
     }
 
     @method()
-    GET() {
+    async GET() {
         return this.value
     }
 
     @method()
-    SWITCH(first: number, second: number) {
-        return (this.value = this.value == first ? second : first)
+    async SWITCH(first: number, second: number) {
+        return this.setValue(this.value == first ? second : first)
     }
 
     @method()
-    ABS(value: number) {
-        return (this.value = Math.abs(value))
+    async ABS(value: number) {
+        return this.setValue(Math.abs(value))
     }
 
-    protected valueChanged(oldValue: any, newValue: any) {
+    protected async valueChanged(oldValue: any, newValue: any) {
         if (oldValue !== newValue) {
-            this.callbacks.run('ONCHANGED', newValue)
+            await this.callbacks.run('ONCHANGED', newValue)
         }
-        this.callbacks.run('ONBRUTALCHANGED', newValue)
+        await this.callbacks.run('ONBRUTALCHANGED', newValue)
     }
 
-    get value() {
-        return super.value
+    async getValue() {
+        return super.getValue()
     }
 
     // Force always flooring values
-    set value(newValue: any) {
-        super.value = Math.floor(newValue)
+    async setValue(newValue: any) {
+        await super.setValue(Math.floor(newValue))
     }
 }

@@ -20,7 +20,7 @@ const testAABB = (a: DisplayType<any>, b: DisplayType<any>) => {
     )
 }
 
-export type CollisionCallback = (object: Animo) => void
+export type CollisionCallback = (object: Animo) => Promise<void>
 
 export class CollisionsComponent {
     private readonly engine: Engine
@@ -39,14 +39,14 @@ export class CollisionsComponent {
         this.collisionTestedThisTick = false
     }
 
-    handle(callback: CollisionCallback) {
+    async handle(callback: CollisionCallback) {
         if (!this.enabled || this.collisionTestedThisTick) {
             return
         }
 
         this.collisionTestedThisTick = true
         for (const object of this.findCollisions()) {
-            callback(object)
+            await callback(object)
         }
     }
 

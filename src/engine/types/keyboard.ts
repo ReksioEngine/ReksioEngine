@@ -28,7 +28,7 @@ export class Keyboard extends Type<KeyboardDefinition> {
         this.onKeyUpCallback = this.onKeyUp.bind(this)
     }
 
-    ready() {
+    async ready() {
         window.addEventListener('keydown', this.onKeyDownCallback)
         window.addEventListener('keyup', this.onKeyUpCallback)
     }
@@ -38,12 +38,12 @@ export class Keyboard extends Type<KeyboardDefinition> {
         window.removeEventListener('keyup', this.onKeyUpCallback)
     }
 
-    tick() {
+    async tick() {
         for (const change of this.changeQueue) {
             if (change.state) {
-                this.callbacks.run('ONKEYDOWN', change.name)
+                await this.callbacks.run('ONKEYDOWN', change.name)
             } else {
-                this.callbacks.run('ONKEYUP', change.name)
+                await this.callbacks.run('ONKEYUP', change.name)
             }
         }
         this.changeQueue = []

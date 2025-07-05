@@ -44,9 +44,9 @@ export class Type<DefinitionType extends TypeDefinition> {
     }
 
     @method()
-    CLONE(count: number) {
+    async CLONE(count: number) {
         for (let i = 0; i < count; i++) {
-            this.cloneObject(this)
+            await this.cloneObject(this)
         }
     }
 
@@ -55,8 +55,8 @@ export class Type<DefinitionType extends TypeDefinition> {
         return this.engine.getObject(this.definition.NAME).clones.indexOf(this) + 1
     }
 
-    private cloneObject(object: Type<any>) {
-        const clone = object.clone()
+    private async cloneObject(object: Type<any>) {
+        const clone = await object.clone()
         object.clones.push(clone)
 
         clone.name = `${object.definition.NAME}_${object.clones.length}`
@@ -67,8 +67,8 @@ export class Type<DefinitionType extends TypeDefinition> {
     }
 
     init() {}
-    applyDefaults() {}
-    ready() {}
+    async applyDefaults() {}
+    async ready() {}
     destroy() {}
     tick(elapsedMS: number) {}
     pause() {}
@@ -88,7 +88,7 @@ export class Type<DefinitionType extends TypeDefinition> {
         )
     }
 
-    clone(): Type<DefinitionType> {
+    async clone(): Promise<Type<DefinitionType>> {
         // @ts-expect-error Dynamically constructing object
         return new this.constructor(this.engine, this.parent, this.definition)
     }
@@ -133,7 +133,7 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
 }
 
 export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<DefinitionType> {
-    protected _value?: any
+    protected value?: any
     private readonly defaultValue?: number | string | boolean | any[]
     private readonly autoSave: boolean
 
@@ -146,27 +146,27 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
     ) {
         super(engine, parent, definition)
         this.defaultValue = defaultValue
-        this._value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue
+        this.value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue
         this.autoSave = autoSave
     }
 
     @method()
-    RESETINI() {
+    async RESETINI() {
         if (this.definition.TOINI) {
-            this.value = this.definition.DEFAULT ?? this.definition.VALUE ?? this.defaultValue
+            await this.setValue(this.definition.DEFAULT ?? this.definition.VALUE ?? this.defaultValue)
             this.saveToINI()
         }
     }
 
     valueOf() {
-        return this._value
+        return this.value
     }
 
-    get value() {
-        return this._value
+    getValue() {
+        return this.value
     }
 
-    set value(newValue: any) {
+    async setValue(newValue: any) {
         assert(typeof newValue != 'number' || !isNaN(newValue), 'Attempted to assign NaN')
         assert(newValue !== undefined, 'Attempted to assign undefined')
         assert(
@@ -178,16 +178,17 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
             'Attempted to assign array with undefined values'
         )
 
-        const oldValue = this._value
-        this._value = newValue
-        this.valueChanged(oldValue, newValue)
+        const oldValue = this.value
+        this.value = newValue
+        await this.valueChanged(oldValue, newValue)
 
         if (this.autoSave && this.definition.TOINI) {
             this.saveToINI()
         }
+        return newValue
     }
 
-    protected valueChanged(oldValue: any, newValue: any) {}
+    protected async valueChanged(oldValue: any, newValue: any) {}
 
     protected getFromINI() {
         const loadedValue = this.engine.saveFile.loadValue(this)

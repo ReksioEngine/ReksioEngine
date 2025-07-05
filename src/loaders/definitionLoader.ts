@@ -168,27 +168,28 @@ export const loadDefinition = async (engine: Engine, scope: Scope, definition: C
     }
 
     const goodObjects = orderedScope.filter((entry) => !failedObjects.includes(entry))
-    goodObjects.forEach((entry) => {
+
+    for (const object of goodObjects) {
         try {
-            stackTrace.push(StackFrame.builder().type('stage').object(entry).method('applyDefaults').build())
-            entry.applyDefaults()
+            stackTrace.push(StackFrame.builder().type('stage').object(object).method('applyDefaults').build())
+            await object.applyDefaults()
         } finally {
             stackTrace.pop()
         }
-    })
+    }
 }
 
-export const doReady = (scope: Scope) => {
-    sortByPriority(scope.objects).forEach((entry) => {
-        entry.isReady = true
+export const doReady = async (scope: Scope) => {
+    for (const object of sortByPriority(scope.objects)) {
+        object.isReady = true
 
         try {
-            stackTrace.push(StackFrame.builder().type('stage').object(entry).method('ready').build())
-            entry.ready()
+            stackTrace.push(StackFrame.builder().type('stage').object(object).method('ready').build())
+            await object.ready()
         } finally {
             stackTrace.pop()
         }
-    })
+    }
 }
 
 export const createObject = async (engine: Engine, definition: CNVObject, parent: Type<any> | null) => {
@@ -202,9 +203,9 @@ export const createObject = async (engine: Engine, definition: CNVObject, parent
     }
 
     await instance.init()
-    instance.applyDefaults()
+    await instance.applyDefaults()
     instance.isReady = true
-    instance.ready()
+    await instance.ready()
     engine.app.ticker.start()
 
     return instance

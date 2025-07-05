@@ -11,22 +11,22 @@ export class Vector extends ValueType<VectorDefinition> {
     }
 
     @method()
-    ASSIGN(...values: number[]) {
+    async ASSIGN(...values: number[]) {
         const newValue = this.value
         for (let i = 0; i < values.length; i++) {
             newValue[i] = values[i]
         }
-        this.value = newValue
+        await this.setValue(newValue)
     }
 
     @method()
-    ADD(otherVector: number[]) {
-        this.value = this.value.map((val: number, idx: number) => val + otherVector[idx])
+    async ADD(otherVector: number[]) {
+        await this.setValue(this.value.map((val: number, idx: number) => val + otherVector[idx]))
     }
 
     @method()
-    MUL(scalar: number) {
-        this.value = this.value.map((val: number) => val * scalar)
+    async MUL(scalar: number) {
+        await this.setValue(this.value.map((val: number) => val * scalar))
     }
 
     @method()
@@ -35,16 +35,16 @@ export class Vector extends ValueType<VectorDefinition> {
     }
 
     @method()
-    NORMALIZE() {
+    async NORMALIZE() {
         const magnitude = this.LEN()
         assert(magnitude !== 0, 'Cannot normalize a zero vector')
-        this.value = this.value.map((val: number) => val / magnitude)
+        await this.setValue(this.value.map((val: number) => val / magnitude))
     }
 
     // any[] to prevent typeGuard creating new array
     // result param is a reference
     @method()
-    REFLECT(normal: number[], result: any[]): void {
+    async REFLECT(normal: number[], result: any[]): Promise<void> {
         // Calculate the dot product between this.value and the normal vector
         let dotProduct = 0
         for (let i = 0; i < this.value.length; i++) {

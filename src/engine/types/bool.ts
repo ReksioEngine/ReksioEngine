@@ -10,19 +10,19 @@ export class Bool extends ValueType<BoolDefinition> {
 
     @method()
     // The arguments don't seem to matter
-    SWITCH(arg1: boolean, arg2: boolean) {
-        this.value = !this.value
+    async SWITCH(arg1: boolean, arg2: boolean) {
+        await this.setValue(!this.value)
     }
 
     @method()
-    SET(newValue: boolean) {
-        this.value = newValue
+    async SET(newValue: boolean) {
+        await this.setValue(newValue)
     }
 
-    protected valueChanged(oldValue: any, newValue: any) {
+    protected async valueChanged(oldValue: any, newValue: any) {
         if (oldValue !== newValue) {
-            this.callbacks.run('ONCHANGED', newValue)
+            await this.callbacks.run('ONCHANGED', newValue)
         }
-        this.callbacks.run('ONBRUTALCHANGED', newValue)
+        await this.callbacks.run('ONBRUTALCHANGED', newValue)
     }
 }

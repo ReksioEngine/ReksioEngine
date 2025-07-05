@@ -12,7 +12,7 @@ export class ScriptingManager {
         this.engine = engine
     }
 
-    executeCallback(
+    async executeCallback(
         caller: Type<any> | null,
         callback: callback,
         args?: any[],
@@ -31,7 +31,7 @@ export class ScriptingManager {
             this.engine.scopeManager.pushScope(localScope)
 
             if (callback.code) {
-                return runScript(this.engine, callback.code, args, callback.isSingleStatement, true)
+                return await runScript(this.engine, callback.code, args, callback.isSingleStatement, true)
             } else if (callback.behaviourReference) {
                 if (!this.engine.getObject(callback.behaviourReference)) {
                     console.error(
@@ -55,9 +55,9 @@ export class ScriptingManager {
 
                 const behaviour = this.engine.getObject(callback.behaviourReference)
                 if (forwardInterrupts) {
-                    return behaviour.executeConditionalCallback(callback.constantArguments)
+                    return await behaviour.executeConditionalCallback(callback.constantArguments)
                 } else {
-                    return behaviour.RUNC(...callback.constantArguments)
+                    return await behaviour.RUNC(...callback.constantArguments)
                 }
             }
         } finally {

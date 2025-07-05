@@ -72,7 +72,7 @@ export class Engine {
             const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
             const rootScope = this.scopeManager.newScope('root')
             await loadDefinition(this, rootScope, applicationDef, null)
-            doReady(rootScope)
+            await doReady(rootScope)
 
             const episode: Episode | null = this.scopeManager.findByType('EPISODE')
             if (episode === null) {
@@ -102,7 +102,7 @@ export class Engine {
         soundLibrary.stopAll()
     }
 
-    tick(elapsedMS: number) {
+    async tick(elapsedMS: number) {
         const sceneScope = this.scopeManager.getScope('scene')
         if (sceneScope === null) {
             return
@@ -110,11 +110,11 @@ export class Engine {
 
         for (const object of sceneScope.objects.filter((object) => object.isReady)) {
             try {
-                object.tick(elapsedMS)
+                await object.tick(elapsedMS)
             } catch (err) {
                 if (err instanceof CancelTick) {
                     if (err.callback) {
-                        err.callback()
+                        await err.callback()
                     }
                     return
                 } else if (err instanceof IrrecoverableError) {
@@ -254,7 +254,7 @@ export class Engine {
             }
         }
         if (newScope) {
-            doReady(newScope)
+            await doReady(newScope)
         }
 
         this.app.stage.removeChild(loadingFreezeOverlay)
@@ -314,7 +314,7 @@ export class Engine {
 }
 
 export class CancelTick extends IgnorableError {
-    constructor(public callback?: () => void) {
+    constructor(public callback?: () => Promise<void>) {
         super()
     }
 }

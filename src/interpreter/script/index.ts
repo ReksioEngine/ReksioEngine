@@ -85,31 +85,32 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         )
     }
 
-    visitStatementList = (ctx: StatementListContext): any => {
+    visitStatementList = async (ctx: StatementListContext): Promise<any> => {
         this.lastContext = ctx
         let result = null
-        ctx.statement_list().forEach((statement) => {
-            result = this.visitStatement(statement)
-        })
+
+        for (const statement of ctx.statement_list()) {
+            result = await this.visitStatement(statement)
+        }
         return result
     }
 
-    visitStatement = (ctx: StatementContext): any => {
+    visitStatement = async (ctx: StatementContext): Promise<any> => {
         this.lastContext = ctx
         if (ctx.expr() == null) {
             return
         }
-        return this.visit(ctx.expr())
+        return await this.visit(ctx.expr())
     }
 
-    visitExpr = (ctx: ExprContext): any => {
+    visitExpr = async (ctx: ExprContext): Promise<any> => {
         this.lastContext = ctx
 
         if (ctx.comment() != null) {
             return
         }
 
-        return this.visitChildren(ctx)[0]
+        return await this.visitChildren(ctx)[0]
     }
 
     visitIdentifier = (ctx: IdentifierContext): any => {
@@ -120,7 +121,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
 
         const object = this.engine.getObject(name)
         if (object != null) {
-            return object.value
+            return object.getValue()
         }
 
         return null
@@ -134,7 +135,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         if (object === null) {
             return identifier
         } else if (object instanceof ValueType) {
-            return object.value
+            return object.getValue()
         } else if (object instanceof Type) {
             return object
         }
@@ -160,7 +161,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         }
     }
 
-    visitMethodCall = (ctx: MethodCallContext): any => {
+    visitMethodCall = async (ctx: MethodCallContext): Promise<any> => {
         this.lastContext = ctx
         const object = this.visitObjectName(ctx.objectName())
         if (object == null) {
@@ -171,7 +172,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         const method = object[methodName]
 
         this.methodCallUsedVariables = {}
-        const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : []
+        const args = ctx.methodCallArguments() != null ? await this.visitMethodCallArguments(ctx.methodCallArguments()) : []
         const argsVariables = this.methodCallUsedVariables
         this.methodCallUsedVariables = {}
 
@@ -185,10 +186,10 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             stackTrace.push(stackFrame)
 
             if (method == undefined) {
-                return object.__call(methodName, args)
+                return await object.__call(methodName, args)
             }
 
-            const result = method.bind(object)(...args)
+            const result = await method.bind(object)(...args)
             return result === null ? 'NULL' : result
         } catch (err) {
             if (err instanceof IgnorableError) {
@@ -244,26 +245,28 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         }
     }
 
-    visitSpecialCall = (ctx: SpecialCallContext) => {
+    visitSpecialCall = async (ctx: SpecialCallContext) => {
         this.lastContext = ctx
         const methodName = ctx.methodName().getText()
-        const args = ctx.methodCallArguments() != null ? this.visitMethodCallArguments(ctx.methodCallArguments()) : []
+        const args = ctx.methodCallArguments() != null ? await this.visitMethodCallArguments(ctx.methodCallArguments()) : []
 
         if (methodName === 'IF') {
             if (args.length == 5) {
                 const [a, operator, b, ifTrue, ifFalse] = args
 
-                const left = typeof a === 'string' ? (
-                    a.toString().startsWith('"')
-                    ? a.toString().replace(/^"|"$/g, '')
-                    : (this.engine.getObject(valueAsString(a))?.value ?? a)
-                ) : a
+                const left =
+                    typeof a === 'string'
+                        ? a.toString().startsWith('"')
+                            ? a.toString().replace(/^"|"$/g, '')
+                            : (await this.engine.getObject(valueAsString(a))?.getValue() ?? a)
+                        : a
 
-                const right = typeof b === 'string' ? (
-                    b.toString().startsWith('"')
-                        ? b.toString().replace(/^"|"$/g, '')
-                        : (this.engine.getObject(valueAsString(b))?.value ?? b)
-                ) : b
+                const right =
+                    typeof b === 'string'
+                        ? b.toString().startsWith('"')
+                            ? b.toString().replace(/^"|"$/g, '')
+                            : (await this.engine.getObject(valueAsString(b))?.getValue() ?? b)
+                        : b
 
                 let result = false
                 if (operator == '_') {
@@ -284,20 +287,20 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
                 const onFalse: Behaviour | null = this.engine.getObject(ifFalse)
 
                 if (result && onTrue !== null) {
-                    onTrue.executeConditionalCallback()
+                    await onTrue.executeConditionalCallback()
                 } else if (!result && onFalse !== null) {
-                    onFalse.executeConditionalCallback()
+                    await onFalse.executeConditionalCallback()
                 }
             } else if (args.length == 3) {
                 const [expression, ifTrue, ifFalse] = args
-                const result = evaluateExpression(this.engine, expression)
+                const result = await evaluateExpression(this.engine, expression)
                 const onTrue: Behaviour | null = this.engine.getObject(ifTrue)
                 const onFalse: Behaviour | null = this.engine.getObject(ifFalse)
 
                 if (result && onTrue !== null) {
-                    onTrue.executeConditionalCallback()
+                    await onTrue.executeConditionalCallback()
                 } else if (!result && onFalse !== null) {
-                    onFalse.executeConditionalCallback()
+                    await onFalse.executeConditionalCallback()
                 }
             }
         } else if (methodName === 'BREAK') {
@@ -316,9 +319,9 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
                 TOINI: false,
             })
             for (let i = start; i < start + len; i += step) {
-                counter.value = i
+                await counter.setValue(i)
                 try {
-                    this.engine.scripting.executeCallback(
+                    await this.engine.scripting.executeCallback(
                         null,
                         callback,
                         [],
@@ -353,9 +356,9 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         }
     }
 
-    visitMethodCallArguments = (ctx: MethodCallArgumentsContext): any => {
+    visitMethodCallArguments = async (ctx: MethodCallArgumentsContext): Promise<any> => {
         this.lastContext = ctx
-        return ctx.expr_list().map((expr) => this.visitExpr(expr))
+        return Promise.all(ctx.expr_list().map(async (expr) => await this.visitExpr(expr)))
     }
 
     visitObjectName = (ctx: ObjectNameContext): any => {
@@ -399,19 +402,19 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         return object
     }
 
-    visitOperationGrouping = (ctx: OperationGroupingContext): any => {
+    visitOperationGrouping = async (ctx: OperationGroupingContext): Promise<any> => {
         this.lastContext = ctx
         return this.visitOperation(ctx.operation())
     }
 
-    visitOperation = (ctx: OperationContext): any => {
+    visitOperation = async (ctx: OperationContext): Promise<any> => {
         this.lastContext = ctx
         if (ctx.expr() !== null) {
             return this.visitExpr(ctx.expr())
         }
 
-        const left = this.visitOperation(ctx._left)
-        let right = this.visitOperation(ctx._right)
+        const left = await this.visitOperation(ctx._left)
+        let right = await this.visitOperation(ctx._right)
 
         // It was a problem in S71_DROGA (Ufo)
         if (typeof left === 'number' && typeof right === 'string') {
@@ -447,7 +450,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
     }
 }
 
-export const runScript = (
+export const runScript = async (
     engine: Engine,
     script: string,
     args: any[] = [],
@@ -459,7 +462,7 @@ export const runScript = (
         if (valueIndex >= 0 && valueIndex < args.length) {
             const arg = args[valueIndex]
             if (arg instanceof String) {
-                return arg.value
+                return arg.getValue()
             } else if (arg instanceof Type) {
                 return arg.name
             } else {
@@ -529,7 +532,7 @@ export const runScript = (
     const tree = singleStatement ? parser.statement() : parser.statementList()
     const evaluator = new ScriptEvaluator(engine, script, args, printDebug)
     try {
-        return tree.accept(evaluator)
+        return await tree.accept(evaluator)
     } catch (err) {
         if (err instanceof IgnorableError) {
             throw err

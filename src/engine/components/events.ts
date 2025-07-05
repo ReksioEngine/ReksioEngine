@@ -1,4 +1,4 @@
-export type EventCallback = (...args: any[]) => any
+export type EventCallback = (...args: any[]) => Promise<any>
 
 export class EventsComponent {
     private listeners: Map<string, EventCallback[]> = new Map()
@@ -23,10 +23,10 @@ export class EventsComponent {
         this.listeners.set(eventName, callbacks)
     }
 
-    public trigger(eventName: string, ...args: any[]) {
+    public async trigger(eventName: string, ...args: any[]) {
         const callbacks = this.listeners.get(eventName) ?? []
         for (const listener of callbacks) {
-            listener(...args)
+            await listener(...args)
         }
     }
 }

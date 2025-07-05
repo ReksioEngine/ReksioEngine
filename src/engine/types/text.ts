@@ -8,7 +8,7 @@ import { Font } from './font'
 export class Text extends Type<TextDefinition> {
     private text: PIXI.BitmapText | null = null
 
-    applyDefaults() {
+    async applyDefaults() {
         const font: Font | null = this.engine.getObject(this.definition.FONT)
         if (font === null || font.bitmapFont === null) {
             return
@@ -26,8 +26,8 @@ export class Text extends Type<TextDefinition> {
         this.engine.rendering.addToStage(this.text)
     }
 
-    ready() {
-        this.callbacks.run('ONINIT')
+    async ready() {
+        await this.callbacks.run('ONINIT')
     }
 
     destroy() {

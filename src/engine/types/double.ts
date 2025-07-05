@@ -11,48 +11,48 @@ export class Double extends ValueType<DoubleDefinition> {
     }
 
     @method()
-    MUL(value: number) {
-        return (this.value *= value)
+    async MUL(value: number) {
+        return await this.setValue(this.value * value)
     }
 
     @method()
-    ADD(value: number) {
-        return (this.value += value)
+    async ADD(value: number) {
+        return await this.setValue(this.value + value)
     }
 
     @method()
-    SUB(value: number) {
-        return (this.value -= value)
+    async SUB(value: number) {
+        return await this.setValue(this.value - value)
     }
 
     @method()
-    SET(newValue: number) {
-        this.value = newValue
+    async SET(newValue: number) {
+        await this.setValue(newValue)
     }
 
     @method()
-    MAXA(...values: number[]) {
-        return (this.value = Math.max(...values))
+    async MAXA(...values: number[]) {
+        return await this.setValue(Math.max(...values))
     }
 
     @method()
-    MINA(...values: number[]) {
-        return (this.value = Math.min(...values))
+    async MINA(...values: number[]) {
+        return await this.setValue(Math.min(...values))
     }
 
     @method()
-    SINUS(angle: number) {
-        return (this.value = Math.sin(angle * radianMultiplier))
+    async SINUS(angle: number) {
+        return await this.setValue(Math.sin(angle * radianMultiplier))
     }
 
     @method()
-    COSINUS(angle: number) {
-        return (this.value = Math.cos(angle * radianMultiplier))
+    async COSINUS(angle: number) {
+        return await this.setValue(Math.cos(angle * radianMultiplier))
     }
 
     // Source: https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=1909841994#gid=1909841994
     @method()
-    ARCTANEX(y: number, x: number, summand?: number) {
+    async ARCTANEX(y: number, x: number, summand?: number) {
         let value = Math.atan2(y, x) / radianMultiplier
 
         if (value < 0) {
@@ -63,8 +63,7 @@ export class Double extends ValueType<DoubleDefinition> {
             value = Math.floor(value) + summand
         }
 
-        this.value = value
-        return this.value
+        return await this.setValue(value)
     }
 
     @method()

@@ -26,33 +26,33 @@ export class Mouse extends Type<MouseDefinition> {
     private mousePosition: Point = new Point(0, 0)
     private moved = false
 
-    ready() {
+    async ready() {
         this.registerCallbacks()
-        this.callbacks.run('ONINIT')
+        await this.callbacks.run('ONINIT')
     }
 
     destroy() {
         this.unregisterCallbacks()
     }
 
-    tick(elapsedMS: number) {
+    async tick(elapsedMS: number) {
         while (this.clicksQueue.length > 0) {
             const event = this.clicksQueue.shift()!
             switch (event.type) {
                 case 'click':
-                    this.callbacks.run('ONCLICK', event.key)
+                    await this.callbacks.run('ONCLICK', event.key)
                     break
                 case 'dblclick':
-                    this.callbacks.run('ONDBLCLICK', event.key)
+                    await this.callbacks.run('ONDBLCLICK', event.key)
                     break
                 case 'release':
-                    this.callbacks.run('ONRELEASE', event.key)
+                    await this.callbacks.run('ONRELEASE', event.key)
                     break
             }
         }
 
         if (this.moved) {
-            this.callbacks.run('ONMOVE')
+            await this.callbacks.run('ONMOVE')
             this.moved = false
         }
     }

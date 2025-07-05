@@ -16,9 +16,9 @@ export class Timer extends Type<TimerDefinition> {
         this.enabled = definition.ENABLED ?? true
     }
 
-    ready() {
+    async ready() {
         if (this.enabled) {
-            this.callbacks.run('ONINIT')
+            await this.callbacks.run('ONINIT')
         }
         this.RESET()
     }
@@ -35,7 +35,7 @@ export class Timer extends Type<TimerDefinition> {
         this.ENABLE()
     }
 
-    tick(elapsedMS: number) {
+    async tick(elapsedMS: number) {
         if (!this.enabled) {
             return
         }
@@ -44,7 +44,7 @@ export class Timer extends Type<TimerDefinition> {
 
         while (this.collectedTime >= this.elapse) {
             this.currentTick++
-            this.callbacks.run('ONTICK', this.currentTick)
+            await this.callbacks.run('ONTICK', this.currentTick)
             this.collectedTime -= this.elapse
 
             const ticksLimit = this.definition.TICKS ?? 0

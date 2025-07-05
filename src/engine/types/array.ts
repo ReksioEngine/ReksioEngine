@@ -13,8 +13,8 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
         super(engine, parent, definition, [], false)
     }
 
-    ready() {
-        this.callbacks.run('ONINIT')
+    async ready() {
+        await this.callbacks.run('ONINIT')
     }
 
     @method()
@@ -134,8 +134,8 @@ export class ArrayObject extends ValueType<ArrayDefinition> {
     @method()
     MSGBOX() {}
 
-    clone() {
-        const cloned = super.clone() as ArrayObject
+    async clone() {
+        const cloned = await super.clone() as ArrayObject
         cloned.value = [...this.value]
         return cloned
     }

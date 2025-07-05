@@ -8,8 +8,8 @@ export class Condition extends Type<ConditionDefinition> {
     // arg is always true in ReksioIUfo
     // In loops its like 'break'
     @method()
-    BREAK(arg: boolean) {
-        if (this.CHECK(arg)) {
+    async BREAK(arg: boolean) {
+        if (await this.CHECK(arg)) {
             throw new InterruptScriptExecution(false)
         }
     }
@@ -17,16 +17,16 @@ export class Condition extends Type<ConditionDefinition> {
     // arg is always true in ReksioIUfo
     // In loops its like 'continue'
     @method()
-    ONE_BREAK(arg: boolean) {
-        if (this.CHECK(arg)) {
+    async ONE_BREAK(arg: boolean) {
+        if (await this.CHECK(arg)) {
             throw new InterruptScriptExecution(true)
         }
     }
 
     @method()
-    CHECK(shouldSignal: boolean): boolean {
-        const operand1 = this.engine.scripting.executeCallback(null, this.definition.OPERAND1)
-        const operand2 = this.engine.scripting.executeCallback(null, this.definition.OPERAND2)
+    async CHECK(shouldSignal: boolean): Promise<boolean> {
+        const operand1 = await this.engine.scripting.executeCallback(null, this.definition.OPERAND1)
+        const operand2 = await this.engine.scripting.executeCallback(null, this.definition.OPERAND2)
 
         let result
         if (operand1 !== undefined && operand2 !== undefined) {
@@ -77,9 +77,9 @@ export class Condition extends Type<ConditionDefinition> {
 
         if (shouldSignal) {
             if (result) {
-                this.callbacks.run('ONRUNTIMESUCCESS', null, null)
+                await this.callbacks.run('ONRUNTIMESUCCESS', null, null)
             } else {
-                this.callbacks.run('ONRUNTIMEFAILED', null, null)
+                await this.callbacks.run('ONRUNTIMEFAILED', null, null)
             }
         }
 

@@ -36,7 +36,7 @@ export class Button extends Type<ButtonDefinition> {
         }
     }
 
-    applyDefaults() {
+    async applyDefaults() {
         this.prepareGraphic(this.gfxStandard)
         this.prepareGraphic(this.gfxOnClick)
         this.prepareGraphic(this.gfxOnMove)
@@ -46,18 +46,18 @@ export class Button extends Type<ButtonDefinition> {
         }
 
         if (this.definition.ENABLE) {
-            this.logic.enable()
+            await this.logic.enable()
         } else {
-            this.logic.disable()
+            await this.logic.disable()
         }
     }
 
-    ready() {
-        this.callbacks.run('ONINIT')
+    async ready() {
+        await this.callbacks.run('ONINIT')
     }
 
-    tick() {
-        this.logic.tick()
+    async tick() {
+        await this.logic.tick()
     }
 
     private setRect(rect: number[] | reference) {
@@ -102,7 +102,7 @@ export class Button extends Type<ButtonDefinition> {
         }
     }
 
-    private onStateChange(prevState: State, event: Event, state: State) {
+    private async onStateChange(prevState: State, event: Event, state: State) {
         if (this.interactArea) {
             // For area button
             this.interactArea.visible = state != State.DISABLED
@@ -173,30 +173,30 @@ export class Button extends Type<ButtonDefinition> {
                 this.logic.unregisterInteractive(this.interactArea)
             }
         } else if (event == Event.DOWN) {
-            this.callbacks.run('ONCLICKED')
+            await this.callbacks.run('ONCLICKED')
         } else if (event == Event.UP) {
-            this.callbacks.run('ONRELEASED')
-            this.callbacks.run('ONACTION')
+            await this.callbacks.run('ONRELEASED')
+            await this.callbacks.run('ONACTION')
         } else if (event == Event.OVER) {
-            this.callbacks.run('ONFOCUSON')
+            await this.callbacks.run('ONFOCUSON')
         } else if (event == Event.OUT) {
-            this.callbacks.run('ONFOCUSOFF')
+            await this.callbacks.run('ONFOCUSOFF')
         }
     }
 
     @method()
-    ENABLE() {
-        this.logic.enable()
+    async ENABLE() {
+        await this.logic.enable()
     }
 
     @method()
-    DISABLE() {
-        this.logic.disable()
+    async DISABLE() {
+        await this.logic.disable()
     }
 
     @method()
-    DISABLEBUTVISIBLE() {
-        this.logic.disableButVisible()
+    async DISABLEBUTVISIBLE() {
+        await this.logic.disableButVisible()
     }
 
     @method()

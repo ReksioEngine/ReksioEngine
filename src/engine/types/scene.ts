@@ -18,7 +18,7 @@ export class Scene extends Type<SceneDefinition> {
     }
 
     @method()
-    RUNCLONES(baseObjectName: string, startingIdx: number, endingIdx: number, behaviourName: string) {
+    async RUNCLONES(baseObjectName: string, startingIdx: number, endingIdx: number, behaviourName: string) {
         const baseObject: Type<any> = this.engine.getObject(baseObjectName)
         const behaviour: Behaviour = this.engine.getObject(behaviourName)
 
@@ -31,7 +31,7 @@ export class Scene extends Type<SceneDefinition> {
 
         for (let i = startingIdx - 1; i <= endingIdx - 1; i++) {
             const clone = baseObject.clones[i]
-            behaviour.RUN(clone)
+            await behaviour.RUN(clone)
         }
     }
 

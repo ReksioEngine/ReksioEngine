@@ -6,22 +6,22 @@ import { method } from '../../common/types'
 export class ComplexCondition extends Type<ComplexConditionDefinition> {
     // In loops its like 'break'
     @method()
-    BREAK(arg: boolean) {
-        if (this.CHECK(arg)) {
+    async BREAK(arg: boolean) {
+        if (await this.CHECK(arg)) {
             throw new InterruptScriptExecution(false)
         }
     }
 
     // In loops its like 'continue'
     @method()
-    ONE_BREAK(arg: boolean) {
-        if (this.CHECK(arg)) {
+    async ONE_BREAK(arg: boolean) {
+        if (await this.CHECK(arg)) {
             throw new InterruptScriptExecution(true)
         }
     }
 
     @method()
-    CHECK(arg: boolean): boolean {
+    async CHECK(arg: boolean): Promise<boolean> {
         const condition1 = this.engine.getObject(this.definition.CONDITION1)
         const condition2 = this.engine.getObject(this.definition.CONDITION2)
 
@@ -36,9 +36,9 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
         }
 
         if (result) {
-            this.callbacks.run('ONRUNTIMESUCCESS')
+            await this.callbacks.run('ONRUNTIMESUCCESS')
         } else {
-            this.callbacks.run('ONRUNTIMEFAILED')
+            await this.callbacks.run('ONRUNTIMEFAILED')
         }
 
         return result
