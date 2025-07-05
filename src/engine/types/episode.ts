@@ -40,6 +40,11 @@ export class Episode extends Type<EpisodeDefinition> {
     }
 
     @method()
+    GETCURRENTSCENE() {
+        return this.engine.currentScene?.name ?? null
+    }
+
+    @method()
     BACK() {
         if (this.engine.previousScene) {
             this.GOTO(this.engine.previousScene.definition.NAME)
