@@ -50836,6 +50836,7 @@ exports.t = t;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.method = exports.InvalidMethodParameter = exports.compareType = exports.isDirectlyConvertible = exports.Compare = exports.ForceNumber = exports.valueAsInteger = exports.valueAsDouble = exports.valueAsBool = exports.valueAsString = void 0;
 const errors_1 = __webpack_require__(/*! ./errors */ "./src/common/errors.ts");
+const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const valueAsString = (value) => {
     if (typeof value === 'string') {
         return value;
@@ -50970,9 +50971,11 @@ function method(...types) {
     return (originalMethod, context) => {
         function typeGuardWrapper(...args) {
             const newArgs = [...args];
+            let processedArgs = 0;
             for (let i = 0; i < types.length; i++) {
                 const argExpectedTypeInfo = types[i];
                 const subArgsCount = argExpectedTypeInfo.rest ? args.length - i : 1;
+                processedArgs += subArgsCount;
                 for (let subArgIdx = i; subArgIdx < i + subArgsCount; subArgIdx++) {
                     const arg = args[subArgIdx];
                     const argRealType = typeof arg;
@@ -51023,31 +51026,19 @@ function method(...types) {
                     }
                 }
             }
+            if (processedArgs < newArgs.length) {
+                console.warn([
+                    `Function: ${originalMethod.name}`,
+                    `More arguments given than method accepts`
+                ].join('\n'));
+                (0, stacktrace_1.printStackTrace)();
+            }
             return originalMethod.call(this, ...newArgs);
         }
         return typeGuardWrapper;
     };
 }
 exports.method = method;
-
-
-/***/ }),
-
-/***/ "./src/common/utils.ts":
-/*!*****************************!*\
-  !*** ./src/common/utils.ts ***!
-  \*****************************/
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.pathJoin = void 0;
-const pathJoin = (...parts) => {
-    const fixedParts = parts.map((part) => part.replace(/\\/g, '/'));
-    return fixedParts.join('/');
-};
-exports.pathJoin = pathJoin;
 
 
 /***/ }),
@@ -51705,6 +51696,7 @@ exports.CancelTick = exports.Engine = void 0;
 const scripting_1 = __webpack_require__(/*! ./scripting */ "./src/engine/scripting.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
+const filesLoader_1 = __webpack_require__(/*! ../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const assetsLoader_1 = __webpack_require__(/*! ../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
 const debugging_1 = __webpack_require__(/*! ./debugging */ "./src/engine/debugging.ts");
@@ -51904,6 +51896,21 @@ class Engine {
         }
         else {
             return this.getObject(name.objectName);
+        }
+    }
+    resolvePath(path, base = '') {
+        if (path.startsWith('$')) {
+            base = '';
+            path = path.substring(1);
+        }
+        const lang = this.scopeManager.APPLICATION.GETLANGUAGE();
+        const langPath = (0, filesLoader_1.pathJoin)(base, lang, path);
+        const noLangPath = (0, filesLoader_1.pathJoin)(base, path);
+        if (this.fileLoader.hasFile(langPath)) {
+            return langPath;
+        }
+        else {
+            return noLangPath;
         }
     }
     resume() {
@@ -52796,7 +52803,7 @@ let Animo = (() => {
             async loadSfx(annFile) {
                 const loadSoundIfNotExists = async (filename) => {
                     const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '');
-                    const resolvedPath = this.engine.fileLoader.getLangPath('Wavs/SFX', normalizedSFXFilename, this.engine.scopeManager.APPLICATION.GETLANGUAGE());
+                    const resolvedPath = this.engine.resolvePath(normalizedSFXFilename, 'wavs/sfx');
                     try {
                         const sound = await (0, assetsLoader_1.loadSound)(this.engine.fileLoader, resolvedPath);
                         this.sounds.set(filename, sound);
@@ -53166,9 +53173,16 @@ let Animo = (() => {
                 (0, errors_1.assert)(this.currentEvent !== null);
                 return this.currentEvent.framesCount;
             }
-            GETEVENTNAME() {
-                (0, errors_1.assert)(this.currentEvent !== null);
-                return this.currentEvent.name.toUpperCase();
+            GETEVENTNAME(eventIndex) {
+                if (eventIndex === undefined) {
+                    (0, errors_1.assert)(this.currentEvent !== null);
+                    return this.currentEvent.name.toUpperCase();
+                }
+                else {
+                    const event = this.getAllEvents()[eventIndex];
+                    (0, errors_1.assert)(event !== undefined);
+                    return event.name.toUpperCase();
+                }
             }
             GETFRAME() {
                 (0, errors_1.assert)(this.currentEvent !== null);
@@ -53310,7 +53324,7 @@ let Animo = (() => {
             _GETFRAMENAME_decorators = [(0, types_1.method)()];
             _GETMAXWIDTH_decorators = [(0, types_1.method)()];
             _GETNOFINEVENT_decorators = [(0, types_1.method)()];
-            _GETEVENTNAME_decorators = [(0, types_1.method)()];
+            _GETEVENTNAME_decorators = [(0, types_1.method)({ name: "eventIndex", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _GETFRAME_decorators = [(0, types_1.method)()];
             _GETCFRAMEINEVENT_decorators = [(0, types_1.method)()];
             _GETNOF_decorators = [(0, types_1.method)()];
@@ -53410,7 +53424,6 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Application = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const utils_1 = __webpack_require__(/*! ../../common/utils */ "./src/common/utils.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
@@ -53439,7 +53452,7 @@ let Application = (() => {
             async init() {
                 if (this.definition.PATH) {
                     try {
-                        const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
+                        const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, filesLoader_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
                         this.engine.app.ticker.stop();
                         const applicationScope = this.engine.scopeManager.newScope('application');
                         await (0, definitionLoader_1.loadDefinition)(this.engine, applicationScope, applicationDefinition, this);
@@ -53566,6 +53579,7 @@ let ArrayObject = (() => {
     let _REMOVEALL_decorators;
     let _FIND_decorators;
     let _REVERSEFIND_decorators;
+    let _LOAD_decorators;
     let _SAVEINI_decorators;
     let _LOADINI_decorators;
     let _MSGBOX_decorators;
@@ -53642,6 +53656,11 @@ let ArrayObject = (() => {
                 }
                 return position;
             }
+            async LOAD(path) {
+                (0, errors_1.assert)(this.engine.currentScene !== null);
+                // TODO: Fix problem with it being async
+                this.value = await this.engine.fileLoader.getARRFile(this.engine.currentScene.getRelativePath(path));
+            }
             SAVEINI() {
                 this.saveToINI();
             }
@@ -53682,6 +53701,7 @@ let ArrayObject = (() => {
             _REMOVEALL_decorators = [(0, types_1.method)()];
             _FIND_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
             _REVERSEFIND_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
+            _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _SAVEINI_decorators = [(0, types_1.method)()];
             _LOADINI_decorators = [(0, types_1.method)()];
             _MSGBOX_decorators = [(0, types_1.method)()];
@@ -53701,6 +53721,7 @@ let ArrayObject = (() => {
             __esDecorate(_a, null, _REMOVEALL_decorators, { kind: "method", name: "REMOVEALL", static: false, private: false, access: { has: obj => "REMOVEALL" in obj, get: obj => obj.REMOVEALL }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _REVERSEFIND_decorators, { kind: "method", name: "REVERSEFIND", static: false, private: false, access: { has: obj => "REVERSEFIND" in obj, get: obj => obj.REVERSEFIND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SAVEINI_decorators, { kind: "method", name: "SAVEINI", static: false, private: false, access: { has: obj => "SAVEINI" in obj, get: obj => obj.SAVEINI }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _LOADINI_decorators, { kind: "method", name: "LOADINI", static: false, private: false, access: { has: obj => "LOADINI" in obj, get: obj => obj.LOADINI }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _MSGBOX_decorators, { kind: "method", name: "MSGBOX", static: false, private: false, access: { has: obj => "MSGBOX" in obj, get: obj => obj.MSGBOX }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -54863,7 +54884,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Episode = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
-const utils_1 = __webpack_require__(/*! ../../common/utils */ "./src/common/utils.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
@@ -54874,12 +54894,13 @@ let Episode = (() => {
     let _instanceExtraInitializers = [];
     let _GOTO_decorators;
     let _GETLATESTSCENE_decorators;
+    let _GETCURRENTSCENE_decorators;
     let _BACK_decorators;
     return _a = class Episode extends _classSuper {
             async init() {
                 if (this.definition.PATH) {
                     try {
-                        const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, utils_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
+                        const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, filesLoader_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
                         this.engine.app.ticker.stop();
                         const episodeScope = this.engine.scopeManager.newScope('episode');
                         await (0, definitionLoader_1.loadDefinition)(this.engine, episodeScope, applicationDefinition, this);
@@ -54900,6 +54921,9 @@ let Episode = (() => {
             GETLATESTSCENE() {
                 return this.engine.previousScene?.definition.NAME ?? null;
             }
+            GETCURRENTSCENE() {
+                return this.engine.currentScene?.name ?? null;
+            }
             BACK() {
                 if (this.engine.previousScene) {
                     this.GOTO(this.engine.previousScene.definition.NAME);
@@ -54917,9 +54941,11 @@ let Episode = (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _GOTO_decorators = [(0, types_1.method)({ name: "sceneName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _GETLATESTSCENE_decorators = [(0, types_1.method)()];
+            _GETCURRENTSCENE_decorators = [(0, types_1.method)()];
             _BACK_decorators = [(0, types_1.method)()];
             __esDecorate(_a, null, _GOTO_decorators, { kind: "method", name: "GOTO", static: false, private: false, access: { has: obj => "GOTO" in obj, get: obj => obj.GOTO }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETLATESTSCENE_decorators, { kind: "method", name: "GETLATESTSCENE", static: false, private: false, access: { has: obj => "GETLATESTSCENE" in obj, get: obj => obj.GETLATESTSCENE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCURRENTSCENE_decorators, { kind: "method", name: "GETCURRENTSCENE", static: false, private: false, access: { has: obj => "GETCURRENTSCENE" in obj, get: obj => obj.GETCURRENTSCENE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _BACK_decorators, { kind: "method", name: "BACK", static: false, private: false, access: { has: obj => "BACK" in obj, get: obj => obj.BACK }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
@@ -56323,9 +56349,9 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Scene = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const utils_1 = __webpack_require__(/*! ../../common/utils */ "./src/common/utils.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 let Scene = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -56370,8 +56396,8 @@ let Scene = (() => {
                 }
             }
             getRelativePath(filename) {
-                const scenePath = (0, utils_1.pathJoin)('DANE', this.definition.PATH);
-                return this.engine.fileLoader.getLangPath(scenePath, filename, this.engine.scopeManager.APPLICATION.GETLANGUAGE());
+                const scenePath = (0, filesLoader_1.pathJoin)('DANE', this.definition.PATH);
+                return this.engine.resolvePath(filename, scenePath);
             }
             constructor() {
                 super(...arguments);
@@ -56826,8 +56852,7 @@ let Sound = (() => {
                 this.callbacksQueue = [];
             }
             async init() {
-                // We don't respect 'PRELOAD' false on purpose, because network download might be slow
-                await this.loadSound(this.engine.fileLoader.getLangPath('Wavs', this.definition.FILENAME, this.engine.scopeManager.APPLICATION.GETLANGUAGE()));
+                await this.loadSound(this.engine.resolvePath(this.definition.FILENAME, 'Wavs'));
             }
             ready() {
                 this.callbacks.run('ONINIT');
@@ -56876,11 +56901,11 @@ let Sound = (() => {
                 throw new errors_1.NotImplementedError();
             }
             async LOAD(filename) {
-                await this.loadSound(filename.substring(1));
+                await this.loadSound(filename);
             }
             async loadSound(path) {
                 try {
-                    this.sound = await (0, assetsLoader_1.loadSound)(this.engine.fileLoader, path);
+                    this.sound = await (0, assetsLoader_1.loadSound)(this.engine.fileLoader, this.engine.resolvePath(path));
                 }
                 catch (err) {
                     if (err instanceof filesLoader_1.FileNotFoundError) {
@@ -57103,6 +57128,7 @@ let String = (() => {
     let _instanceExtraInitializers = [];
     let _ADD_decorators;
     let _SET_decorators;
+    let _SUB_decorators;
     let _GET_decorators;
     let _FIND_decorators;
     return _a = class String extends _classSuper {
@@ -57119,8 +57145,11 @@ let String = (() => {
             SET(text) {
                 this.value = text;
             }
-            GET() {
-                return this.value;
+            SUB(index, length) {
+                this.value = this.value.substring(0, index) + this.value.substring(index + length);
+            }
+            GET(index, length) {
+                return this.value.substring(index, length !== undefined ? index + length : this.value.length);
             }
             FIND(needle, start) {
                 return this.value.indexOf(needle, start);
@@ -57136,10 +57165,12 @@ let String = (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _ADD_decorators = [(0, types_1.method)({ name: "text", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _SET_decorators = [(0, types_1.method)({ name: "text", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _GET_decorators = [(0, types_1.method)()];
+            _SUB_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "length", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _GET_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "length", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _FIND_decorators = [(0, types_1.method)({ name: "needle", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "start", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
@@ -57705,6 +57736,63 @@ const loadAnn = (data) => {
     };
 };
 exports.loadAnn = loadAnn;
+
+
+/***/ }),
+
+/***/ "./src/fileFormats/archive/array.ts":
+/*!******************************************!*\
+  !*** ./src/fileFormats/archive/array.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseArray = void 0;
+const utils_1 = __webpack_require__(/*! ../utils */ "./src/fileFormats/utils.ts");
+const index_1 = __webpack_require__(/*! ./index */ "./src/fileFormats/archive/index.ts");
+const parseArray = (data) => {
+    const buffer = new utils_1.BinaryBuffer(new DataView(data));
+    const count = buffer.getUint32();
+    const entries = [];
+    for (let i = 0; i < count; ++i) {
+        entries.push((0, index_1.deserialize)(buffer));
+    }
+    return entries;
+};
+exports.parseArray = parseArray;
+
+
+/***/ }),
+
+/***/ "./src/fileFormats/archive/index.ts":
+/*!******************************************!*\
+  !*** ./src/fileFormats/archive/index.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.deserialize = void 0;
+const decoder = new TextDecoder('windows-1250');
+const deserialize = (buffer) => {
+    const type = buffer.getUint32();
+    switch (type) {
+        case 1:
+            return buffer.getInt32();
+        case 2: {
+            const length = buffer.getUint32();
+            return decoder.decode(buffer.read(length));
+        }
+        case 3:
+            return buffer.getUint32() === 1;
+        case 4:
+            return buffer.getInt32() * 0.001;
+    }
+};
+exports.deserialize = deserialize;
 
 
 /***/ }),
@@ -60674,7 +60762,7 @@ class ReksioLangParser extends antlr4_1.Parser {
                 this.state = 87;
                 this.match(ReksioLangParser.OPERATION_GROUPING_START);
                 this.state = 88;
-                this.operation();
+                this.operation(0);
                 this.state = 89;
                 this.match(ReksioLangParser.OPERATION_GROUPING_END);
             }
@@ -60695,68 +60783,120 @@ class ReksioLangParser extends antlr4_1.Parser {
         return localctx;
     }
     // @RuleVersion(0)
-    operation() {
-        let localctx = new OperationContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 18, ReksioLangParser.RULE_operation);
+    operation(_p) {
+        if (_p === undefined) {
+            _p = 0;
+        }
+        let _parentctx = this._ctx;
+        let _parentState = this.state;
+        let localctx = new OperationContext(this, this._ctx, _parentState);
+        let _prevctx = localctx;
+        let _startState = 18;
+        this.enterRecursionRule(localctx, 18, ReksioLangParser.RULE_operation, _p);
         try {
-            this.state = 111;
-            this._errHandler.sync(this);
-            switch (this._interp.adaptivePredict(this._input, 7, this._ctx)) {
-                case 1:
-                    this.enterOuterAlt(localctx, 1);
-                    {
-                        this.state = 91;
-                        localctx._left = this.expr();
-                        this.state = 92;
-                        localctx._operator = this.match(ReksioLangParser.PLUS);
-                        this.state = 93;
-                        localctx._right = this.expr();
+            let _alt;
+            this.enterOuterAlt(localctx, 1);
+            {
+                {
+                    this.state = 92;
+                    this.expr();
+                }
+                this._ctx.stop = this._input.LT(-1);
+                this.state = 111;
+                this._errHandler.sync(this);
+                _alt = this._interp.adaptivePredict(this._input, 8, this._ctx);
+                while (_alt !== 2 && _alt !== antlr4_1.ATN.INVALID_ALT_NUMBER) {
+                    if (_alt === 1) {
+                        if (this._parseListeners != null) {
+                            this.triggerExitRuleEvent();
+                        }
+                        _prevctx = localctx;
+                        {
+                            this.state = 109;
+                            this._errHandler.sync(this);
+                            switch (this._interp.adaptivePredict(this._input, 7, this._ctx)) {
+                                case 1:
+                                    {
+                                        localctx = new OperationContext(this, _parentctx, _parentState);
+                                        localctx._left = _prevctx;
+                                        this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
+                                        this.state = 94;
+                                        if (!(this.precpred(this._ctx, 6))) {
+                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 6)");
+                                        }
+                                        this.state = 95;
+                                        localctx._operator = this.match(ReksioLangParser.PLUS);
+                                        this.state = 96;
+                                        localctx._right = this.operation(7);
+                                    }
+                                    break;
+                                case 2:
+                                    {
+                                        localctx = new OperationContext(this, _parentctx, _parentState);
+                                        localctx._left = _prevctx;
+                                        this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
+                                        this.state = 97;
+                                        if (!(this.precpred(this._ctx, 5))) {
+                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 5)");
+                                        }
+                                        this.state = 98;
+                                        localctx._operator = this.match(ReksioLangParser.MINUS);
+                                        this.state = 99;
+                                        localctx._right = this.operation(6);
+                                    }
+                                    break;
+                                case 3:
+                                    {
+                                        localctx = new OperationContext(this, _parentctx, _parentState);
+                                        localctx._left = _prevctx;
+                                        this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
+                                        this.state = 100;
+                                        if (!(this.precpred(this._ctx, 4))) {
+                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 4)");
+                                        }
+                                        this.state = 101;
+                                        localctx._operator = this.match(ReksioLangParser.ASTERISK);
+                                        this.state = 102;
+                                        localctx._right = this.operation(5);
+                                    }
+                                    break;
+                                case 4:
+                                    {
+                                        localctx = new OperationContext(this, _parentctx, _parentState);
+                                        localctx._left = _prevctx;
+                                        this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
+                                        this.state = 103;
+                                        if (!(this.precpred(this._ctx, 3))) {
+                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 3)");
+                                        }
+                                        this.state = 104;
+                                        localctx._operator = this.match(ReksioLangParser.PERCENTAGE);
+                                        this.state = 105;
+                                        localctx._right = this.operation(4);
+                                    }
+                                    break;
+                                case 5:
+                                    {
+                                        localctx = new OperationContext(this, _parentctx, _parentState);
+                                        localctx._left = _prevctx;
+                                        this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
+                                        this.state = 106;
+                                        if (!(this.precpred(this._ctx, 2))) {
+                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 2)");
+                                        }
+                                        this.state = 107;
+                                        localctx._operator = this.match(ReksioLangParser.AT);
+                                        this.state = 108;
+                                        localctx._right = this.operation(3);
+                                    }
+                                    break;
+                            }
+                        }
                     }
-                    break;
-                case 2:
-                    this.enterOuterAlt(localctx, 2);
-                    {
-                        this.state = 95;
-                        localctx._left = this.expr();
-                        this.state = 96;
-                        localctx._operator = this.match(ReksioLangParser.MINUS);
-                        this.state = 97;
-                        localctx._right = this.expr();
-                    }
-                    break;
-                case 3:
-                    this.enterOuterAlt(localctx, 3);
-                    {
-                        this.state = 99;
-                        localctx._left = this.expr();
-                        this.state = 100;
-                        localctx._operator = this.match(ReksioLangParser.ASTERISK);
-                        this.state = 101;
-                        localctx._right = this.expr();
-                    }
-                    break;
-                case 4:
-                    this.enterOuterAlt(localctx, 4);
-                    {
-                        this.state = 103;
-                        localctx._left = this.expr();
-                        this.state = 104;
-                        localctx._operator = this.match(ReksioLangParser.PERCENTAGE);
-                        this.state = 105;
-                        localctx._right = this.expr();
-                    }
-                    break;
-                case 5:
-                    this.enterOuterAlt(localctx, 5);
-                    {
-                        this.state = 107;
-                        localctx._left = this.expr();
-                        this.state = 108;
-                        localctx._operator = this.match(ReksioLangParser.AT);
-                        this.state = 109;
-                        localctx._right = this.expr();
-                    }
-                    break;
+                    this.state = 113;
+                    this._errHandler.sync(this);
+                    _alt = this._interp.adaptivePredict(this._input, 8, this._ctx);
+                }
             }
         }
         catch (re) {
@@ -60770,7 +60910,7 @@ class ReksioLangParser extends antlr4_1.Parser {
             }
         }
         finally {
-            this.exitRule();
+            this.unrollRecursionContexts(_parentctx);
         }
         return localctx;
     }
@@ -60781,7 +60921,7 @@ class ReksioLangParser extends antlr4_1.Parser {
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 113;
+                this.state = 114;
                 this.match(ReksioLangParser.COMMENT_START);
             }
         }
@@ -60805,22 +60945,22 @@ class ReksioLangParser extends antlr4_1.Parser {
         let localctx = new NumberContext(this, this._ctx, this.state);
         this.enterRule(localctx, 22, ReksioLangParser.RULE_number);
         try {
-            this.state = 118;
+            this.state = 119;
             this._errHandler.sync(this);
             switch (this._input.LA(1)) {
                 case 8:
                     this.enterOuterAlt(localctx, 1);
                     {
-                        this.state = 115;
-                        this.match(ReksioLangParser.MINUS);
                         this.state = 116;
+                        this.match(ReksioLangParser.MINUS);
+                        this.state = 117;
                         this.match(ReksioLangParser.NUMBER);
                     }
                     break;
                 case 3:
                     this.enterOuterAlt(localctx, 2);
                     {
-                        this.state = 117;
+                        this.state = 118;
                         this.match(ReksioLangParser.NUMBER);
                     }
                     break;
@@ -60851,7 +60991,7 @@ class ReksioLangParser extends antlr4_1.Parser {
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 120;
+                this.state = 121;
                 _la = this._input.LA(1);
                 if (!(_la === 1 || _la === 2)) {
                     this._errHandler.recoverInline(this);
@@ -60885,7 +61025,7 @@ class ReksioLangParser extends antlr4_1.Parser {
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 122;
+                this.state = 123;
                 _la = this._input.LA(1);
                 if (!(_la === 4 || _la === 5)) {
                     this._errHandler.recoverInline(this);
@@ -60918,7 +61058,7 @@ class ReksioLangParser extends antlr4_1.Parser {
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 124;
+                this.state = 125;
                 this.identifier();
             }
         }
@@ -60945,16 +61085,16 @@ class ReksioLangParser extends antlr4_1.Parser {
         try {
             this.enterOuterAlt(localctx, 1);
             {
-                this.state = 127;
+                this.state = 128;
                 this._errHandler.sync(this);
                 _la = this._input.LA(1);
                 if (_la === 9) {
                     {
-                        this.state = 126;
+                        this.state = 127;
                         localctx._dereference = this.match(ReksioLangParser.ASTERISK);
                     }
                 }
-                this.state = 129;
+                this.state = 130;
                 this.match(ReksioLangParser.IDENTIFIER);
             }
         }
@@ -60972,6 +61112,28 @@ class ReksioLangParser extends antlr4_1.Parser {
             this.exitRule();
         }
         return localctx;
+    }
+    sempred(localctx, ruleIndex, predIndex) {
+        switch (ruleIndex) {
+            case 9:
+                return this.operation_sempred(localctx, predIndex);
+        }
+        return true;
+    }
+    operation_sempred(localctx, predIndex) {
+        switch (predIndex) {
+            case 0:
+                return this.precpred(this._ctx, 6);
+            case 1:
+                return this.precpred(this._ctx, 5);
+            case 2:
+                return this.precpred(this._ctx, 4);
+            case 3:
+                return this.precpred(this._ctx, 3);
+            case 4:
+                return this.precpred(this._ctx, 2);
+        }
+        return true;
     }
     static get _ATN() {
         if (!ReksioLangParser.__ATN) {
@@ -61057,45 +61219,45 @@ ReksioLangParser.ruleNames = [
     "methodCallArguments", "specialCall", "operationGrouping", "operation",
     "comment", "number", "bool", "string", "objectValueReference", "identifier",
 ];
-ReksioLangParser._serializedATN = [4, 1, 24, 132, 2, 0, 7, 0, 2,
+ReksioLangParser._serializedATN = [4, 1, 24, 133, 2, 0, 7, 0, 2,
     1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2,
     10, 7, 10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15, 1, 0, 3, 0, 34, 8,
     0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 3, 0, 43, 8, 0, 1, 1, 1, 1, 3, 1, 47, 8, 1, 1, 2, 1, 2, 1, 2,
     5, 2, 52, 8, 2, 10, 2, 12, 2, 55, 9, 2, 1, 2, 1, 2, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 3, 3, 64, 8, 3, 1, 3,
     1, 3, 1, 4, 1, 4, 1, 5, 1, 5, 1, 6, 1, 6, 1, 6, 5, 6, 75, 8, 6, 10, 6, 12, 6, 78, 9, 6, 1, 7, 1, 7, 1, 7,
     1, 7, 3, 7, 84, 8, 7, 1, 7, 1, 7, 1, 8, 1, 8, 1, 8, 1, 8, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9,
-    1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 3, 9, 112, 8, 9, 1, 10, 1, 10, 1,
-    11, 1, 11, 1, 11, 3, 11, 119, 8, 11, 1, 12, 1, 12, 1, 13, 1, 13, 1, 14, 1, 14, 1, 15, 3, 15, 128,
-    8, 15, 1, 15, 1, 15, 1, 15, 0, 0, 16, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 0,
-    2, 1, 0, 1, 2, 1, 0, 4, 5, 133, 0, 33, 1, 0, 0, 0, 2, 46, 1, 0, 0, 0, 4, 53, 1, 0, 0, 0, 6, 58, 1, 0, 0,
-    0, 8, 67, 1, 0, 0, 0, 10, 69, 1, 0, 0, 0, 12, 71, 1, 0, 0, 0, 14, 79, 1, 0, 0, 0, 16, 87, 1, 0, 0, 0,
-    18, 111, 1, 0, 0, 0, 20, 113, 1, 0, 0, 0, 22, 118, 1, 0, 0, 0, 24, 120, 1, 0, 0, 0, 26, 122, 1, 0,
-    0, 0, 28, 124, 1, 0, 0, 0, 30, 127, 1, 0, 0, 0, 32, 34, 3, 20, 10, 0, 33, 32, 1, 0, 0, 0, 33, 34, 1,
-    0, 0, 0, 34, 42, 1, 0, 0, 0, 35, 43, 3, 26, 13, 0, 36, 43, 3, 22, 11, 0, 37, 43, 3, 24, 12, 0, 38,
-    43, 3, 28, 14, 0, 39, 43, 3, 14, 7, 0, 40, 43, 3, 6, 3, 0, 41, 43, 3, 16, 8, 0, 42, 35, 1, 0, 0, 0,
-    42, 36, 1, 0, 0, 0, 42, 37, 1, 0, 0, 0, 42, 38, 1, 0, 0, 0, 42, 39, 1, 0, 0, 0, 42, 40, 1, 0, 0, 0, 42,
-    41, 1, 0, 0, 0, 43, 1, 1, 0, 0, 0, 44, 47, 1, 0, 0, 0, 45, 47, 3, 0, 0, 0, 46, 44, 1, 0, 0, 0, 46, 45,
-    1, 0, 0, 0, 47, 3, 1, 0, 0, 0, 48, 49, 3, 2, 1, 0, 49, 50, 5, 22, 0, 0, 50, 52, 1, 0, 0, 0, 51, 48, 1,
-    0, 0, 0, 52, 55, 1, 0, 0, 0, 53, 51, 1, 0, 0, 0, 53, 54, 1, 0, 0, 0, 54, 56, 1, 0, 0, 0, 55, 53, 1, 0,
-    0, 0, 56, 57, 5, 0, 0, 1, 57, 5, 1, 0, 0, 0, 58, 59, 3, 8, 4, 0, 59, 60, 5, 12, 0, 0, 60, 61, 3, 10,
-    5, 0, 61, 63, 5, 18, 0, 0, 62, 64, 3, 12, 6, 0, 63, 62, 1, 0, 0, 0, 63, 64, 1, 0, 0, 0, 64, 65, 1, 0,
-    0, 0, 65, 66, 5, 19, 0, 0, 66, 7, 1, 0, 0, 0, 67, 68, 3, 30, 15, 0, 68, 9, 1, 0, 0, 0, 69, 70, 3, 30,
-    15, 0, 70, 11, 1, 0, 0, 0, 71, 76, 3, 0, 0, 0, 72, 73, 5, 16, 0, 0, 73, 75, 3, 0, 0, 0, 74, 72, 1, 0,
-    0, 0, 75, 78, 1, 0, 0, 0, 76, 74, 1, 0, 0, 0, 76, 77, 1, 0, 0, 0, 77, 13, 1, 0, 0, 0, 78, 76, 1, 0, 0,
-    0, 79, 80, 5, 11, 0, 0, 80, 81, 3, 10, 5, 0, 81, 83, 5, 18, 0, 0, 82, 84, 3, 12, 6, 0, 83, 82, 1, 0,
-    0, 0, 83, 84, 1, 0, 0, 0, 84, 85, 1, 0, 0, 0, 85, 86, 5, 19, 0, 0, 86, 15, 1, 0, 0, 0, 87, 88, 5, 20,
-    0, 0, 88, 89, 3, 18, 9, 0, 89, 90, 5, 21, 0, 0, 90, 17, 1, 0, 0, 0, 91, 92, 3, 0, 0, 0, 92, 93, 5, 7,
-    0, 0, 93, 94, 3, 0, 0, 0, 94, 112, 1, 0, 0, 0, 95, 96, 3, 0, 0, 0, 96, 97, 5, 8, 0, 0, 97, 98, 3, 0,
-    0, 0, 98, 112, 1, 0, 0, 0, 99, 100, 3, 0, 0, 0, 100, 101, 5, 9, 0, 0, 101, 102, 3, 0, 0, 0, 102, 112,
-    1, 0, 0, 0, 103, 104, 3, 0, 0, 0, 104, 105, 5, 10, 0, 0, 105, 106, 3, 0, 0, 0, 106, 112, 1, 0, 0,
-    0, 107, 108, 3, 0, 0, 0, 108, 109, 5, 11, 0, 0, 109, 110, 3, 0, 0, 0, 110, 112, 1, 0, 0, 0, 111,
-    91, 1, 0, 0, 0, 111, 95, 1, 0, 0, 0, 111, 99, 1, 0, 0, 0, 111, 103, 1, 0, 0, 0, 111, 107, 1, 0, 0,
-    0, 112, 19, 1, 0, 0, 0, 113, 114, 5, 6, 0, 0, 114, 21, 1, 0, 0, 0, 115, 116, 5, 8, 0, 0, 116, 119,
-    5, 3, 0, 0, 117, 119, 5, 3, 0, 0, 118, 115, 1, 0, 0, 0, 118, 117, 1, 0, 0, 0, 119, 23, 1, 0, 0, 0,
-    120, 121, 7, 0, 0, 0, 121, 25, 1, 0, 0, 0, 122, 123, 7, 1, 0, 0, 123, 27, 1, 0, 0, 0, 124, 125, 3,
-    30, 15, 0, 125, 29, 1, 0, 0, 0, 126, 128, 5, 9, 0, 0, 127, 126, 1, 0, 0, 0, 127, 128, 1, 0, 0, 0,
-    128, 129, 1, 0, 0, 0, 129, 130, 5, 17, 0, 0, 130, 31, 1, 0, 0, 0, 10, 33, 42, 46, 53, 63, 76, 83,
-    111, 118, 127];
+    1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 1, 9, 5, 9, 110, 8, 9, 10, 9, 12, 9, 113, 9, 9, 1,
+    10, 1, 10, 1, 11, 1, 11, 1, 11, 3, 11, 120, 8, 11, 1, 12, 1, 12, 1, 13, 1, 13, 1, 14, 1, 14, 1, 15,
+    3, 15, 129, 8, 15, 1, 15, 1, 15, 1, 15, 0, 1, 18, 16, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24,
+    26, 28, 30, 0, 2, 1, 0, 1, 2, 1, 0, 4, 5, 135, 0, 33, 1, 0, 0, 0, 2, 46, 1, 0, 0, 0, 4, 53, 1, 0, 0, 0,
+    6, 58, 1, 0, 0, 0, 8, 67, 1, 0, 0, 0, 10, 69, 1, 0, 0, 0, 12, 71, 1, 0, 0, 0, 14, 79, 1, 0, 0, 0, 16,
+    87, 1, 0, 0, 0, 18, 91, 1, 0, 0, 0, 20, 114, 1, 0, 0, 0, 22, 119, 1, 0, 0, 0, 24, 121, 1, 0, 0, 0, 26,
+    123, 1, 0, 0, 0, 28, 125, 1, 0, 0, 0, 30, 128, 1, 0, 0, 0, 32, 34, 3, 20, 10, 0, 33, 32, 1, 0, 0, 0,
+    33, 34, 1, 0, 0, 0, 34, 42, 1, 0, 0, 0, 35, 43, 3, 26, 13, 0, 36, 43, 3, 22, 11, 0, 37, 43, 3, 24,
+    12, 0, 38, 43, 3, 28, 14, 0, 39, 43, 3, 14, 7, 0, 40, 43, 3, 6, 3, 0, 41, 43, 3, 16, 8, 0, 42, 35,
+    1, 0, 0, 0, 42, 36, 1, 0, 0, 0, 42, 37, 1, 0, 0, 0, 42, 38, 1, 0, 0, 0, 42, 39, 1, 0, 0, 0, 42, 40, 1,
+    0, 0, 0, 42, 41, 1, 0, 0, 0, 43, 1, 1, 0, 0, 0, 44, 47, 1, 0, 0, 0, 45, 47, 3, 0, 0, 0, 46, 44, 1, 0,
+    0, 0, 46, 45, 1, 0, 0, 0, 47, 3, 1, 0, 0, 0, 48, 49, 3, 2, 1, 0, 49, 50, 5, 22, 0, 0, 50, 52, 1, 0, 0,
+    0, 51, 48, 1, 0, 0, 0, 52, 55, 1, 0, 0, 0, 53, 51, 1, 0, 0, 0, 53, 54, 1, 0, 0, 0, 54, 56, 1, 0, 0, 0,
+    55, 53, 1, 0, 0, 0, 56, 57, 5, 0, 0, 1, 57, 5, 1, 0, 0, 0, 58, 59, 3, 8, 4, 0, 59, 60, 5, 12, 0, 0, 60,
+    61, 3, 10, 5, 0, 61, 63, 5, 18, 0, 0, 62, 64, 3, 12, 6, 0, 63, 62, 1, 0, 0, 0, 63, 64, 1, 0, 0, 0, 64,
+    65, 1, 0, 0, 0, 65, 66, 5, 19, 0, 0, 66, 7, 1, 0, 0, 0, 67, 68, 3, 30, 15, 0, 68, 9, 1, 0, 0, 0, 69,
+    70, 3, 30, 15, 0, 70, 11, 1, 0, 0, 0, 71, 76, 3, 0, 0, 0, 72, 73, 5, 16, 0, 0, 73, 75, 3, 0, 0, 0, 74,
+    72, 1, 0, 0, 0, 75, 78, 1, 0, 0, 0, 76, 74, 1, 0, 0, 0, 76, 77, 1, 0, 0, 0, 77, 13, 1, 0, 0, 0, 78, 76,
+    1, 0, 0, 0, 79, 80, 5, 11, 0, 0, 80, 81, 3, 10, 5, 0, 81, 83, 5, 18, 0, 0, 82, 84, 3, 12, 6, 0, 83,
+    82, 1, 0, 0, 0, 83, 84, 1, 0, 0, 0, 84, 85, 1, 0, 0, 0, 85, 86, 5, 19, 0, 0, 86, 15, 1, 0, 0, 0, 87,
+    88, 5, 20, 0, 0, 88, 89, 3, 18, 9, 0, 89, 90, 5, 21, 0, 0, 90, 17, 1, 0, 0, 0, 91, 92, 6, 9, -1, 0,
+    92, 93, 3, 0, 0, 0, 93, 111, 1, 0, 0, 0, 94, 95, 10, 6, 0, 0, 95, 96, 5, 7, 0, 0, 96, 110, 3, 18, 9,
+    7, 97, 98, 10, 5, 0, 0, 98, 99, 5, 8, 0, 0, 99, 110, 3, 18, 9, 6, 100, 101, 10, 4, 0, 0, 101, 102,
+    5, 9, 0, 0, 102, 110, 3, 18, 9, 5, 103, 104, 10, 3, 0, 0, 104, 105, 5, 10, 0, 0, 105, 110, 3, 18,
+    9, 4, 106, 107, 10, 2, 0, 0, 107, 108, 5, 11, 0, 0, 108, 110, 3, 18, 9, 3, 109, 94, 1, 0, 0, 0, 109,
+    97, 1, 0, 0, 0, 109, 100, 1, 0, 0, 0, 109, 103, 1, 0, 0, 0, 109, 106, 1, 0, 0, 0, 110, 113, 1, 0,
+    0, 0, 111, 109, 1, 0, 0, 0, 111, 112, 1, 0, 0, 0, 112, 19, 1, 0, 0, 0, 113, 111, 1, 0, 0, 0, 114,
+    115, 5, 6, 0, 0, 115, 21, 1, 0, 0, 0, 116, 117, 5, 8, 0, 0, 117, 120, 5, 3, 0, 0, 118, 120, 5, 3,
+    0, 0, 119, 116, 1, 0, 0, 0, 119, 118, 1, 0, 0, 0, 120, 23, 1, 0, 0, 0, 121, 122, 7, 0, 0, 0, 122,
+    25, 1, 0, 0, 0, 123, 124, 7, 1, 0, 0, 124, 27, 1, 0, 0, 0, 125, 126, 3, 30, 15, 0, 126, 29, 1, 0,
+    0, 0, 127, 129, 5, 9, 0, 0, 128, 127, 1, 0, 0, 0, 128, 129, 1, 0, 0, 0, 129, 130, 1, 0, 0, 0, 130,
+    131, 5, 17, 0, 0, 131, 31, 1, 0, 0, 0, 11, 33, 42, 46, 53, 63, 76, 83, 109, 111, 119, 128];
 ReksioLangParser.DecisionsToDFA = ReksioLangParser._ATN.decisionToState.map((ds, index) => new antlr4_1.DFA(ds, index));
 exports["default"] = ReksioLangParser;
 class ExprContext extends antlr4_1.ParserRuleContext {
@@ -61376,11 +61538,14 @@ class OperationContext extends antlr4_1.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
     }
-    expr_list() {
-        return this.getTypedRuleContexts(ExprContext);
+    expr() {
+        return this.getTypedRuleContext(ExprContext, 0);
     }
-    expr(i) {
-        return this.getTypedRuleContext(ExprContext, i);
+    operation_list() {
+        return this.getTypedRuleContexts(OperationContext);
+    }
+    operation(i) {
+        return this.getTypedRuleContext(OperationContext, i);
     }
     PLUS() {
         return this.getToken(ReksioLangParser.PLUS, 0);
@@ -61764,12 +61929,12 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
             if (methodName === 'IF') {
                 if (args.length == 5) {
                     const [a, operator, b, ifTrue, ifFalse] = args;
-                    const left = a.toString().startsWith('"')
+                    const left = typeof a === 'string' ? (a.toString().startsWith('"')
                         ? a.toString().replace(/^"|"$/g, '')
-                        : (this.engine.getObject((0, types_1.valueAsString)(a))?.value ?? a);
-                    const right = b.toString().startsWith('"')
+                        : (this.engine.getObject((0, types_1.valueAsString)(a))?.value ?? a)) : a;
+                    const right = typeof b === 'string' ? (b.toString().startsWith('"')
                         ? b.toString().replace(/^"|"$/g, '')
-                        : (this.engine.getObject((0, types_1.valueAsString)(b))?.value ?? b);
+                        : (this.engine.getObject((0, types_1.valueAsString)(b))?.value ?? b)) : b;
                     let result = false;
                     if (operator == '_') {
                         result = types_1.Compare.Equal(left, right);
@@ -61882,8 +62047,11 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
         };
         this.visitOperation = (ctx) => {
             this.lastContext = ctx;
-            const left = this.visitExpr(ctx._left);
-            let right = this.visitExpr(ctx._right);
+            if (ctx.expr() !== null) {
+                return this.visitExpr(ctx.expr());
+            }
+            const left = this.visitOperation(ctx._left);
+            let right = this.visitOperation(ctx._right);
             // It was a problem in S71_DROGA (Ufo)
             if (typeof left === 'number' && typeof right === 'string') {
                 right = (0, types_1.ForceNumber)(right);
@@ -62430,31 +62598,30 @@ exports.createObject = createObject;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ListingJSONUrlFileLoader = exports.RemoteIsoFileLoader = exports.IsoFileLoader = exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
+exports.ListingJSONUrlFileLoader = exports.RemoteIsoFileLoader = exports.IsoFileLoader = exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.pathJoin = exports.normalizePath = exports.FileNotFoundError = void 0;
 const cnv_1 = __webpack_require__(/*! ../fileFormats/cnv */ "./src/fileFormats/cnv/index.ts");
 const img_1 = __webpack_require__(/*! ../fileFormats/img */ "./src/fileFormats/img/index.ts");
 const ann_1 = __webpack_require__(/*! ../fileFormats/ann */ "./src/fileFormats/ann/index.ts");
 const seq_1 = __webpack_require__(/*! ../fileFormats/seq */ "./src/fileFormats/seq/index.ts");
 const iso9660_1 = __webpack_require__(/*! ./iso9660 */ "./src/loaders/iso9660.ts");
-const utils_1 = __webpack_require__(/*! ../common/utils */ "./src/common/utils.ts");
 const fnt_1 = __webpack_require__(/*! ../fileFormats/fnt */ "./src/fileFormats/fnt/index.ts");
+const array_1 = __webpack_require__(/*! ../fileFormats/archive/array */ "./src/fileFormats/archive/array.ts");
 class FileNotFoundError extends Error {
     constructor(filename) {
         super(`File '${filename}' not found in files listing`);
     }
 }
 exports.FileNotFoundError = FileNotFoundError;
+const normalizePath = (path) => {
+    return path.toLowerCase().replace(/\\+/g, '/').replace(/\/+/g, '/').replace(/^\//, '');
+};
+exports.normalizePath = normalizePath;
+const pathJoin = (...parts) => {
+    const fixedParts = parts.filter((part) => part !== '').map((part) => part.replace(/\\/g, '/'));
+    return (0, exports.normalizePath)(fixedParts.join('/'));
+};
+exports.pathJoin = pathJoin;
 class FileLoader {
-    getLangPath(base, filename, language) {
-        const langPath = (0, utils_1.pathJoin)(base, language, filename);
-        const noLangPath = (0, utils_1.pathJoin)(base, filename);
-        if (this.hasFile(langPath)) {
-            return langPath;
-        }
-        else {
-            return noLangPath;
-        }
-    }
 }
 exports.FileLoader = FileLoader;
 class SimpleFileLoader extends FileLoader {
@@ -62480,14 +62647,19 @@ class SimpleFileLoader extends FileLoader {
         return (0, seq_1.parseSequence)(text);
     }
     async getIMGFile(filename) {
-        if (!filename.toLowerCase().endsWith('.img')) {
+        filename = (0, exports.normalizePath)(filename);
+        if (!filename.endsWith('.img')) {
             filename = filename + '.img';
         }
         const data = await this.getRawFile(filename);
         return (0, img_1.loadImage)(data);
     }
+    async getARRFile(filename) {
+        const data = await this.getRawFile(filename);
+        return (0, array_1.parseArray)(data);
+    }
     hasFile(filename) {
-        return this.getFilesListing().includes(filename.toLowerCase().replace(/\\/g, '/'));
+        return this.getFilesListing().includes((0, exports.normalizePath)(filename));
     }
 }
 class UrlFileLoader extends SimpleFileLoader {
@@ -62503,7 +62675,7 @@ class UrlFileLoader extends SimpleFileLoader {
         return [...this.listing.keys()];
     }
     async getRawFile(filename) {
-        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
+        const normalizedFilename = (0, exports.normalizePath)(filename);
         console.debug(`Fetching '${normalizedFilename}'...`);
         const fileUrl = this.listing.get(normalizedFilename);
         if (fileUrl == null) {
@@ -62560,7 +62732,7 @@ class IsoFileLoader extends SimpleFileLoader {
         return this.isoReader.getListing();
     }
     async getRawFile(filename) {
-        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
+        const normalizedFilename = (0, exports.normalizePath)(filename);
         console.debug(`Loading '${normalizedFilename}'...`);
         const fileResult = await this.isoReader.getFile(normalizedFilename);
         if (fileResult == null) {
@@ -62582,7 +62754,7 @@ class RemoteIsoFileLoader extends SimpleFileLoader {
         return this.isoReader.getListing();
     }
     async getRawFile(filename) {
-        const normalizedFilename = filename.toLowerCase().replace(/\\/g, '/');
+        const normalizedFilename = (0, exports.normalizePath)(filename);
         console.debug(`Loading '${normalizedFilename}'...`);
         const fileResult = await this.isoReader.getFile(normalizedFilename);
         if (fileResult == null) {
