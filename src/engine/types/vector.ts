@@ -4,9 +4,9 @@ import { Engine } from '../index'
 import { assert } from '../../common/errors'
 import { method } from '../../common/types'
 
-export class Vector extends ValueType<VectorDefinition> {
+export class Vector extends ValueType<VectorDefinition, number[]> {
     constructor(engine: Engine, parent: Type<any> | null, definition: VectorDefinition) {
-        super(engine, parent, definition)
+        super(engine, parent, definition, [])
         this.value = this.definition.VALUE
     }
 

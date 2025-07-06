@@ -36,14 +36,14 @@ export class SaveFile {
         }
     }
 
-    loadValue(object: ValueType<any>) {
+    loadValue(object: ValueType<any, any>) {
         if (!object.parent) {
             return null
         }
         return this.get(object.parent.name, object.name) ?? null
     }
 
-    saveValue(object: ValueType<any>, value: any) {
+    saveValue(object: ValueType<any, any>, value: any) {
         if (!object.parent) {
             return
         }

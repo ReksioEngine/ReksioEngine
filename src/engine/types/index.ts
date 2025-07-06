@@ -135,16 +135,16 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
     }
 }
 
-export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<DefinitionType> {
-    protected value?: any
-    private readonly defaultValue?: number | string | boolean | any[]
+export class ValueType<DefinitionType extends ValueTypeDefinition, TypeOfValue> extends Type<DefinitionType> {
+    protected value: TypeOfValue
+    private readonly defaultValue: number | string | boolean | any[]
     private readonly autoSave: boolean
 
     constructor(
         engine: Engine,
         parent: Type<any> | null,
         definition: DefinitionType,
-        defaultValue?: number | string | boolean | any[],
+        defaultValue: number | string | boolean | any[],
         autoSave: boolean = true
     ) {
         super(engine, parent, definition)
@@ -165,11 +165,11 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
         return this.value
     }
 
-    getValue() {
+    getValue(): TypeOfValue | Promise<TypeOfValue> {
         return this.value
     }
 
-    async setValue(newValue: any) {
+    async setValue(newValue: TypeOfValue) {
         assert(typeof newValue != 'number' || !isNaN(newValue), 'Attempted to assign NaN')
         assert(newValue !== undefined, 'Attempted to assign undefined')
         assert(
@@ -206,6 +206,7 @@ export class ValueType<DefinitionType extends ValueTypeDefinition> extends Type<
     }
 
     protected serialize(): string {
+        assert(this.value !== null && this.value !== undefined)
         return this.value.toString()
     }
 

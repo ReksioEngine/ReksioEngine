@@ -3,7 +3,7 @@ import { Engine } from '../index'
 import { StringDefinition } from '../../fileFormats/cnv/types'
 import { method } from '../../common/types'
 
-export class String extends ValueType<StringDefinition> {
+export class String extends ValueType<StringDefinition, string> {
     constructor(engine: Engine, parent: Type<any> | null, definition: StringDefinition) {
         super(engine, parent, definition, '')
     }

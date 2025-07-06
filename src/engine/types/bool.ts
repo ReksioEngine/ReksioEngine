@@ -3,7 +3,7 @@ import { Engine } from '../index'
 import { BoolDefinition } from '../../fileFormats/cnv/types'
 import { method } from '../../common/types'
 
-export class Bool extends ValueType<BoolDefinition> {
+export class Bool extends ValueType<BoolDefinition, boolean> {
     constructor(engine: Engine, parent: Type<any> | null, definition: BoolDefinition) {
         super(engine, parent, definition, false)
     }

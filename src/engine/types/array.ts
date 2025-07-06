@@ -8,7 +8,7 @@ const generateMessage = (action: string, position: number, value: any[]) => {
     return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`
 }
 
-export class ArrayObject extends ValueType<ArrayDefinition> {
+export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
     constructor(engine: Engine, parent: Type<any> | null, definition: ArrayDefinition) {
         super(engine, parent, definition, [], false)
     }

@@ -4,7 +4,7 @@ import { Engine } from '../index'
 import { assert } from '../../common/errors'
 import { method } from '../../common/types'
 
-export class MultiArray extends ValueType<MultiArrayDefinition> {
+export class MultiArray extends ValueType<MultiArrayDefinition, any[]> {
     constructor(engine: Engine, parent: Type<any> | null, definition: MultiArrayDefinition) {
         super(engine, parent, definition, [])
     }

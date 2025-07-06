@@ -3,7 +3,7 @@ import { Engine } from '../index'
 import { IntegerDefinition } from '../../fileFormats/cnv/types'
 import { ForceNumber, method } from '../../common/types'
 
-export class Integer extends ValueType<IntegerDefinition> {
+export class Integer extends ValueType<IntegerDefinition, number> {
     constructor(engine: Engine, parent: Type<any> | null, definition: IntegerDefinition) {
         super(engine, parent, definition, 0)
     }
@@ -63,7 +63,7 @@ export class Integer extends ValueType<IntegerDefinition> {
         if (typeof newValue == 'string') {
             const possibleInteger = this.engine.getObject(newValue)
             if (possibleInteger instanceof Integer) {
-                await this.setValue(possibleInteger.getValue())
+                await this.setValue(possibleInteger.value)
                 return
             }
         }
@@ -104,7 +104,7 @@ export class Integer extends ValueType<IntegerDefinition> {
     }
 
     // Force always flooring values
-    async setValue(newValue: any) {
-        await super.setValue(Math.floor(newValue))
+    async setValue(newValue: number) {
+        return await super.setValue(Math.floor(newValue))
     }
 }

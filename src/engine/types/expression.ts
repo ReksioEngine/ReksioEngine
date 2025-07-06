@@ -1,8 +1,13 @@
-import { ValueType } from './index'
+import { Type, ValueType } from './index'
 import { ExpressionDefinition } from '../../fileFormats/cnv/types'
 import { NotImplementedError } from '../../common/errors'
+import { Engine } from '../index'
 
-export class Expression extends ValueType<ExpressionDefinition> {
+export class Expression extends ValueType<ExpressionDefinition, boolean> {
+    constructor(engine: Engine, parent: Type<any> | null, definition: ExpressionDefinition) {
+        super(engine, parent, definition, false)
+    }
+
     async getValue() {
         const operand1 = await this.engine.scripting.executeCallback(this, this.definition.OPERAND1)
         const operand2 = await this.engine.scripting.executeCallback(this, this.definition.OPERAND2)
