@@ -54982,6 +54982,9 @@ exports.Expression = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 class Expression extends index_1.ValueType {
+    constructor(engine, parent, definition) {
+        super(engine, parent, definition, false);
+    }
     async getValue() {
         const operand1 = await this.engine.scripting.executeCallback(this, this.definition.OPERAND1);
         const operand2 = await this.engine.scripting.executeCallback(this, this.definition.OPERAND2);
@@ -55144,10 +55147,10 @@ let Group = (() => {
             REMOVE(...objectsNames) {
                 this.objects = this.objects.filter((object) => !objectsNames.includes(object.name));
             }
-            __call(methodName, args) {
+            async __call(methodName, args) {
                 for (const object of this.objects) {
                     if (methodName in object) {
-                        object[methodName](...args);
+                        await object[methodName](...args);
                     }
                     else {
                         const argumentsString = args?.map((arg) => typeof arg).join(', ');
@@ -55619,6 +55622,7 @@ let ValueType = (() => {
                 this.engine.saveFile.saveValue(this, this.serialize());
             }
             serialize() {
+                (0, errors_1.assert)(this.value !== null && this.value !== undefined);
                 return this.value.toString();
             }
             deserialize(value) {
@@ -55741,7 +55745,7 @@ let Integer = (() => {
                 if (typeof newValue == 'string') {
                     const possibleInteger = this.engine.getObject(newValue);
                     if (possibleInteger instanceof _a) {
-                        await this.setValue(possibleInteger.getValue());
+                        await this.setValue(possibleInteger.value);
                         return;
                     }
                 }
@@ -55772,7 +55776,7 @@ let Integer = (() => {
             }
             // Force always flooring values
             async setValue(newValue) {
-                await super.setValue(Math.floor(newValue));
+                return await super.setValue(Math.floor(newValue));
             }
         },
         (() => {
@@ -57587,7 +57591,7 @@ let Vector = (() => {
     let _LEN_decorators;
     return _a = class Vector extends _classSuper {
             constructor(engine, parent, definition) {
-                super(engine, parent, definition);
+                super(engine, parent, definition, []);
                 __runInitializers(this, _instanceExtraInitializers);
                 this.value = this.definition.VALUE;
             }
