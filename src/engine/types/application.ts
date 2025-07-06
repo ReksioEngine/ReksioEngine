@@ -2,7 +2,7 @@ import { Type } from './index'
 import { ApplicationDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { loadDefinition, doReady } from '../../loaders/definitionLoader'
-import { FileNotFoundError, pathJoin } from '../../loaders/filesLoader'
+import { pathJoin } from '../../loaders/filesLoader'
 import { method } from '../../common/types'
 
 const langCodeMapping: Record<string, string> = {
@@ -24,21 +24,15 @@ export class Application extends Type<ApplicationDefinition> {
 
     async init() {
         if (this.definition.PATH) {
-            try {
-                const applicationDefinition = await this.engine.fileLoader.getCNVFile(
-                    pathJoin('DANE', this.definition.PATH, this.name + '.cnv')
-                )
+            const applicationDefinition = await this.engine.fileLoader.getCNVFile(
+                pathJoin('DANE', this.definition.PATH, this.name + '.cnv')
+            )
 
-                this.engine.app.ticker.stop()
-                const applicationScope = this.engine.scopeManager.newScope('application')
-                await loadDefinition(this.engine, applicationScope, applicationDefinition, this)
-                await doReady(applicationScope)
-                this.engine.app.ticker.start()
-            } catch (err) {
-                if (err! instanceof FileNotFoundError) {
-                    throw err
-                }
-            }
+            this.engine.app.ticker.stop()
+            const applicationScope = this.engine.scopeManager.newScope('application')
+            await loadDefinition(this.engine, applicationScope, applicationDefinition, this)
+            await doReady(applicationScope)
+            this.engine.app.ticker.start()
         }
     }
 
