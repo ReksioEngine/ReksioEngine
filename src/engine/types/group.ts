@@ -26,10 +26,10 @@ export class Group extends Type<GroupDefinition> {
         this.objects = this.objects.filter((object) => !objectsNames.includes(object.name))
     }
 
-    __call(methodName: string, args: any[]) {
+    async __call(methodName: string, args: any[]) {
         for (const object of this.objects) {
             if (methodName in object) {
-                object[methodName](...args)
+                await object[methodName](...args)
             } else {
                 const argumentsString = args?.map((arg) => typeof arg).join(', ')
                 throw new Error(
