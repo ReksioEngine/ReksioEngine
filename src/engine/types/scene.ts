@@ -36,7 +36,7 @@ export class Scene extends Type<SceneDefinition> {
     }
 
     @method()
-    RUN(objectName: string, methodName: string, ...args: any[]) {
+    async RUN(objectName: string, methodName: string, ...args: any[]) {
         const object = this.engine.getObject(objectName)
         if (object === null) {
             return
@@ -44,9 +44,9 @@ export class Scene extends Type<SceneDefinition> {
 
         const method = object[methodName]
         if (method !== undefined) {
-            return method.bind(object)(...args)
+            return await method.bind(object)(...args)
         } else {
-            return object.__call(methodName, args)
+            return await object.__call(methodName, args)
         }
     }
 

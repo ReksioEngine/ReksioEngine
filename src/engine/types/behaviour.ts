@@ -49,9 +49,9 @@ export class Behaviour extends Type<BehaviourDefinition> {
         }
     }
 
-    executeCallback(args: any[] = []) {
+    async executeCallback(args: any[] = []) {
         // Don't resolve args, it will fail in S33_METEORY
-        return this.engine.scripting.executeCallback(null, this.definition.CODE, args)
+        return await this.engine.scripting.executeCallback(null, this.definition.CODE, args)
     }
 
     async executeConditionalCallback(args: any[] = []) {

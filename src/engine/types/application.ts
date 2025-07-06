@@ -53,16 +53,16 @@ export class Application extends Type<ApplicationDefinition> {
     }
 
     @method()
-    RUN(objectName: string, methodName: string, ...args: any[]) {
+    async RUN(objectName: string, methodName: string, ...args: any[]) {
         const object = this.engine.getObject(objectName)
         if (object === null) {
             return
         }
 
         if (object[methodName]) {
-            return object[methodName](...args)
+            return await object[methodName](...args)
         } else {
-            return object.__call(methodName, args)
+            return await object.__call(methodName, args)
         }
     }
 
