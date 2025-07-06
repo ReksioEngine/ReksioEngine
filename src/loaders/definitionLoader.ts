@@ -35,6 +35,7 @@ import { MultiArray } from '../engine/types/multiArray'
 import { System } from '../engine/types/system'
 import { Scope } from '../engine/scope'
 import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
+import { Struct } from '../engine/types/struct'
 
 const createTypeInstance = (engine: Engine, parent: Type<any> | null, definition: any) => {
     switch (definition.TYPE) {
@@ -96,6 +97,8 @@ const createTypeInstance = (engine: Engine, parent: Type<any> | null, definition
             return new StaticFilter(engine, parent, definition)
         case 'STRING':
             return new StringType(engine, parent, definition)
+        case 'STRUCT':
+            return new Struct(engine, parent, definition)
         case 'SYSTEM':
             return new System(engine, parent, definition)
         case 'TEXT':

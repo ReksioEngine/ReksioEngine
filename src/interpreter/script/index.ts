@@ -29,6 +29,7 @@ import { Rand } from '../../engine/types/rand'
 import { System } from '../../engine/types/system'
 import { createCallback } from '../../fileFormats/common'
 import { Integer } from '../../engine/types/integer'
+import { Struct } from '../../engine/types/struct'
 
 export class InterruptScriptExecution extends IgnorableError {
     public one: boolean
@@ -128,8 +129,8 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
     }
 
     visitObjectValueReference = (ctx: ObjectValueReferenceContext): any => {
-        const identifier = ctx.identifier().getText()
-        const object = this.engine.getObject(identifier)
+        const identifier = ctx.objectName().getText()
+        const object = this.visitObjectName(ctx.objectName())
         this.methodCallUsedVariables[identifier] = object
         this.scriptUsedVariables[identifier] = object
         if (object === null) {
@@ -397,6 +398,16 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
 
             // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
             return null
+        }
+
+        const subField = ctx.subFieldAccess()
+        if (subField !== null) {
+            assert(object instanceof Struct)
+            const struct = object as Struct
+            const subFieldValue = struct.GETFIELD(subField.IDENTIFIER().getText())
+            this.methodCallUsedVariables[ctx.getText()] = object
+            this.scriptUsedVariables[ctx.getText()] = object
+            return subFieldValue
         }
 
         return object

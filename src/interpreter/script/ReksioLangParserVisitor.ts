@@ -6,6 +6,7 @@ import {ParseTreeVisitor} from 'antlr4';
 import { ExprContext } from "./ReksioLangParser.js";
 import { StatementContext } from "./ReksioLangParser.js";
 import { StatementListContext } from "./ReksioLangParser.js";
+import { SubFieldAccessContext } from "./ReksioLangParser.js";
 import { MethodCallContext } from "./ReksioLangParser.js";
 import { ObjectNameContext } from "./ReksioLangParser.js";
 import { MethodNameContext } from "./ReksioLangParser.js";
@@ -47,6 +48,12 @@ export default class ReksioLangParserVisitor<Result> extends ParseTreeVisitor<Re
 	 * @return the visitor result
 	 */
 	visitStatementList?: (ctx: StatementListContext) => Result;
+	/**
+	 * Visit a parse tree produced by `ReksioLangParser.subFieldAccess`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSubFieldAccess?: (ctx: SubFieldAccessContext) => Result;
 	/**
 	 * Visit a parse tree produced by `ReksioLangParser.methodCall`.
 	 * @param ctx the parse tree

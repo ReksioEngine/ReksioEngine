@@ -23,6 +23,7 @@ fragment F_OPERATION_GROUPING_END: ']';
 fragment F_BRACKET_START: '(';
 fragment F_BRACKET_END: ')';
 fragment F_COMMA: ',';
+fragment F_FIELD_ACCESS: '|';
 
 // Inconsistency
 fragment F_TYPO: [>:];
@@ -46,6 +47,7 @@ TYPO: F_TYPO;
 TYPO_QUOTE: F_TYPO_QUOTE -> pushMode(MISSING_QUOTE);
 WHITESPACE: F_WHITESPACE -> skip;
 COMMA: F_COMMA;
+FIELD_ACCESS: F_FIELD_ACCESS;
 
 // Default mode
 IDENTIFIER: [a-zA-Z0-9_$\-]+ { this.text.match(/[A-Za-z$]/) !== null }? ;
@@ -75,6 +77,7 @@ I_METHOD_CALL_SYMBOL: F_METHOD_CALL_SYMBOL -> type(METHOD_CALL_SYMBOL);
 I_TYPO: F_TYPO -> type(TYPO);
 I_WHITESPACE: F_WHITESPACE -> skip;
 I_COMMA: F_COMMA -> type(COMMA);
+I_FIELD_ACCESS: F_FIELD_ACCESS -> type(FIELD_ACCESS);
 
 // Inside mode
 // Directly inside grouping identifiers cannot have '-' in them

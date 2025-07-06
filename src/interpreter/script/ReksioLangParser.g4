@@ -15,8 +15,9 @@ expr :
 statement: | expr;
 statementList: (statement STATEMENT_END)* EOF;
 
+subFieldAccess: FIELD_ACCESS IDENTIFIER;
 methodCall: objectName METHOD_CALL_SYMBOL methodName BRACKET_START methodCallArguments? BRACKET_END;
-objectName: identifier;
+objectName: identifier subField=subFieldAccess?;
 methodName: identifier;
 methodCallArguments: expr (COMMA expr)*;
 
@@ -37,5 +38,5 @@ number: MINUS NUMBER | NUMBER;
 bool: TRUE | FALSE;
 string: CODE_STRING | STRING;
 
-objectValueReference: identifier;
+objectValueReference: objectName;
 identifier: dereference=ASTERISK? IDENTIFIER;

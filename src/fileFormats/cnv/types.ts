@@ -444,6 +444,14 @@ const StringDefinitionStructure = {
     ONBRUTALCHANGED: optional(callbacks(string)),
 }
 
+export type StructDefinition = TypeDefinition & {
+    FIELDS: string
+}
+
+const StructDefinitionStructure = {
+    FIELDS: string
+}
+
 export type SystemDefinition = TypeDefinition
 const SystemDefinitionStructure = {}
 
@@ -529,6 +537,7 @@ export const structureDefinitions = {
     SOUND: SoundStructure,
     STATICFILTER: StaticFilterDefinitionStructure,
     STRING: StringDefinitionStructure,
+    STRUCT: StructDefinitionStructure,
     SYSTEM: SystemDefinitionStructure,
     TEXT: TextDefinitionStructure,
     TIMER: TimerStructure,
