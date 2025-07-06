@@ -28,8 +28,11 @@ export class String extends ValueType<StringDefinition, string> {
     }
 
     @method()
-    GET(index: number = 0, length?: number) {
-        return this.value.substring(index, length !== undefined ? index + length : this.value.length)
+    GET(index?: number, length: number = 1) {
+        if (index === undefined) {
+            return this.value
+        }
+        return this.value.substring(index, index + length)
     }
 
     @method()
