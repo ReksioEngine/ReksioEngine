@@ -1,4 +1,4 @@
-import { Type, XRayInfo } from './index'
+import { DisplayType, Type, XRayInfo } from './index'
 import { Engine } from '../index'
 import { ButtonDefinition } from '../../fileFormats/cnv/types'
 import { Image } from './image'
@@ -71,10 +71,11 @@ export class Button extends Type<ButtonDefinition> {
         if (Array.isArray(rect)) {
             shape = rect
         } else {
-            const object = this.engine.getObject(rect)
+            const object: DisplayType<any> | null = this.engine.getObject(rect)
             assert(object !== null, 'object referred by RECT should exist')
 
             const sprite = object.getRenderObject()
+            assert(sprite !== null)
             shape = [sprite.x, sprite.y, sprite.x + sprite.width, sprite.y + sprite.height]
         }
 

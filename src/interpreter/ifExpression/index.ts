@@ -11,6 +11,8 @@ import ReksioIFExpressionParser, {
 import ReksioIFExpressionLexer from './ReksioIFExpressionLexer'
 import { ForceNumber } from '../../common/types'
 import { Engine } from '../../engine'
+import { ValueType } from '../../engine/types'
+import { assert } from '../../common/errors'
 
 export class ExpressionEvaluator extends ReksioIFExpressionVisitor<any> {
     private engine: Engine
@@ -72,7 +74,8 @@ export class ExpressionEvaluator extends ReksioIFExpressionVisitor<any> {
     }
 
     visitIdentifier = async (ctx: IdentifierContext): Promise<any> => {
-        const object = this.engine.getObject(ctx.getText())
+        const object: ValueType<any> | null = this.engine.getObject(ctx.getText())
+        assert(object !== null)
         return await object.getValue()
     }
 

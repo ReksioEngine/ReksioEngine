@@ -3,6 +3,7 @@ import { BehaviourDefinition } from '../../fileFormats/cnv/types'
 import { Condition } from './condition'
 import { InterruptScriptExecution } from '../../interpreter/script'
 import { method } from '../../common/types'
+import { assert } from '../../common/errors'
 
 export class Behaviour extends Type<BehaviourDefinition> {
     async ready() {
@@ -62,7 +63,8 @@ export class Behaviour extends Type<BehaviourDefinition> {
 
     async shouldRun() {
         if (this.definition.CONDITION) {
-            const condition: Condition = this.engine.getObject(this.definition.CONDITION.objectName)
+            const condition: Condition | null = this.engine.getObject(this.definition.CONDITION.objectName)
+            assert(condition !== null)
             return await condition.CHECK(true)
         }
         return true

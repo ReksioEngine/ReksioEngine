@@ -33,7 +33,7 @@ export class ScopeManager {
         }
     }
 
-    public findByName(name: string) {
+    public findByName<T extends Type<any>>(name: string): T | null {
         return this.find((key: string, object: Type<any>) => key === name)
     }
 

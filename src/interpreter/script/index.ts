@@ -119,7 +119,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             return name
         }
 
-        const object = this.engine.getObject(name)
+        const object: ValueType<any> | null = this.engine.getObject(name)
         if (object != null) {
             return object.getValue()
         }
@@ -136,7 +136,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             return identifier
         } else if (object instanceof ValueType) {
             return object.getValue()
-        } else if (object instanceof Type) {
+        } else {
             return object
         }
     }
@@ -258,14 +258,14 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
                     typeof a === 'string'
                         ? a.toString().startsWith('"')
                             ? a.toString().replace(/^"|"$/g, '')
-                            : (await this.engine.getObject(valueAsString(a))?.getValue() ?? a)
+                            : (await this.engine.getObject<ValueType<any>>(valueAsString(a))?.getValue() ?? a)
                         : a
 
                 const right =
                     typeof b === 'string'
                         ? b.toString().startsWith('"')
                             ? b.toString().replace(/^"|"$/g, '')
-                            : (await this.engine.getObject(valueAsString(b))?.getValue() ?? b)
+                            : (await this.engine.getObject<ValueType<any>>(valueAsString(b))?.getValue() ?? b)
                         : b
 
                 let result = false

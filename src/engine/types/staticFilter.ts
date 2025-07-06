@@ -1,8 +1,9 @@
-import { Type } from './index'
+import { DisplayType, Type } from './index'
 import { StaticFilterDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { Animo } from './animo'
 import { method } from '../../common/types'
+import { assert } from '../../common/errors'
 
 export class StaticFilter extends Type<StaticFilterDefinition> {
     private properties = new Map<string, any>()
@@ -20,7 +21,8 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
 
     @method()
     LINK(arg: any) {
-        const object = this.engine.getObject(arg)
+        const object: DisplayType<any> | null = this.engine.getObject(arg)
+        assert(object !== null)
 
         const renderObject = object.getRenderObject()
         if (renderObject === null) {
@@ -49,7 +51,9 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
 
     @method()
     UNLINK(arg: any) {
-        const object = this.engine.getObject(arg)
+        const object: Animo | null = this.engine.getObject(arg)
+        assert(object !== null)
+
         const properties = this.linked.get(object)
         if (!properties) {
             return

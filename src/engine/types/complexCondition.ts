@@ -3,6 +3,7 @@ import { ComplexConditionDefinition } from '../../fileFormats/cnv/types'
 import { InterruptScriptExecution } from '../../interpreter/script'
 import { method } from '../../common/types'
 import { Condition } from './condition'
+import { assert } from '../../common/errors'
 
 export class ComplexCondition extends Type<ComplexConditionDefinition> {
     // In loops its like 'break'
@@ -23,8 +24,9 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
 
     @method()
     async CHECK(arg: boolean): Promise<boolean> {
-        const condition1: Condition = this.engine.getObject(this.definition.CONDITION1)
-        const condition2: Condition = this.engine.getObject(this.definition.CONDITION2)
+        const condition1: Condition | null = this.engine.getObject(this.definition.CONDITION1)
+        const condition2: Condition | null = this.engine.getObject(this.definition.CONDITION2)
+        assert(condition1 !== null && condition2 !== null)
 
         let result
         switch (this.definition.OPERATOR) {

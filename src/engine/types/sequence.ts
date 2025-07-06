@@ -320,7 +320,7 @@ export class Sequence extends Type<SequenceDefinition> {
 
     private async getAnimo(nameOrFilename: string): Promise<Animo> {
         // Get object by name
-        const object = this.engine.getObject(nameOrFilename)
+        const object: Animo | null = this.engine.getObject(nameOrFilename)
         if (object) {
             return object
         }

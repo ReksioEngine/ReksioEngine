@@ -4,6 +4,8 @@ import { Type } from './types'
 import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
 import { Engine } from './index'
 import { Scope } from './scope'
+import { Behaviour } from './types/behaviour'
+import { assert } from '../common/errors'
 
 export class ScriptingManager {
     private readonly engine: Engine
@@ -53,7 +55,9 @@ export class ScriptingManager {
                     .build()
                 stackTrace.push(stackFrame)
 
-                const behaviour = this.engine.getObject(callback.behaviourReference)
+                const behaviour: Behaviour | null = this.engine.getObject(callback.behaviourReference)
+                assert(behaviour !== null)
+
                 if (forwardInterrupts) {
                     return await behaviour.executeConditionalCallback(callback.constantArguments)
                 } else {

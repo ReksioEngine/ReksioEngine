@@ -5,6 +5,7 @@ import { Rectangle, Sprite } from 'pixi.js'
 import { assert, NotImplementedError } from '../../common/errors'
 import { EventsComponent } from '../components/events'
 import { method } from '../../common/types'
+import { AdvancedSprite } from '../rendering'
 
 export type XRayInfo = {
     type: string
@@ -52,7 +53,9 @@ export class Type<DefinitionType extends TypeDefinition> {
 
     @method()
     GETCLONEINDEX() {
-        return this.engine.getObject(this.definition.NAME).clones.indexOf(this) + 1
+        const object = this.engine.getObject(this.definition.NAME)
+        assert(object !== null)
+        return object.clones.indexOf(this) + 1
     }
 
     private async cloneObject(object: Type<any>) {
@@ -113,7 +116,7 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
         this.engine.rendering.sortObjects()
     }
 
-    getRenderObject(): Sprite | null {
+    getRenderObject(): AdvancedSprite | null {
         throw new NotImplementedError()
     }
 

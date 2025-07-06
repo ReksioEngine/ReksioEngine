@@ -14,6 +14,7 @@ import { BUILD_VARS, GamePlayerOptions } from '../index'
 import { Scope, ScopeManager } from './scope'
 import { Episode } from './types/episode'
 import { ISound, soundLibrary } from './sounds'
+import { Type } from './types'
 
 export class Engine {
     public debug: Debugging
@@ -265,7 +266,7 @@ export class Engine {
         this.debug.updateCurrentScene()
     }
 
-    getObject(name: string | reference): any {
+    getObject<T extends Type<any>>(name: string | reference): T | null {
         if (typeof name == 'string') {
             return this.scopeManager.findByName(name)
         } else {

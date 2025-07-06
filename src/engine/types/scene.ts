@@ -19,8 +19,9 @@ export class Scene extends Type<SceneDefinition> {
 
     @method()
     async RUNCLONES(baseObjectName: string, startingIdx: number, endingIdx: number, behaviourName: string) {
-        const baseObject: Type<any> = this.engine.getObject(baseObjectName)
-        const behaviour: Behaviour = this.engine.getObject(behaviourName)
+        const baseObject: Type<any> | null = this.engine.getObject(baseObjectName)
+        const behaviour: Behaviour | null = this.engine.getObject(behaviourName)
+        assert(baseObject !== null && behaviour !== null)
 
         if (startingIdx < 1) {
             startingIdx = 1
@@ -37,7 +38,7 @@ export class Scene extends Type<SceneDefinition> {
 
     @method()
     async RUN(objectName: string, methodName: string, ...args: any[]) {
-        const object = this.engine.getObject(objectName)
+        const object: any = this.engine.getObject(objectName)
         if (object === null) {
             return
         }

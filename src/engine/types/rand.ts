@@ -2,6 +2,7 @@ import { Type } from './index'
 import { RandDefinition } from '../../fileFormats/cnv/types'
 import { method } from '../../common/types'
 import { ArrayObject } from './array'
+import { assert } from '../../common/errors'
 
 export class Rand extends Type<RandDefinition> {
     @method()
@@ -16,7 +17,8 @@ export class Rand extends Type<RandDefinition> {
 
     @method()
     GETPLENTY(objectTarget: string, count: number, min: number, max: number, unique: boolean) {
-        const object = this.engine?.getObject(objectTarget) as ArrayObject
+        const object: ArrayObject | null = this.engine.getObject(objectTarget)
+        assert(object !== null)
 
         const values: number[] = []
         while (values.length < count) {
