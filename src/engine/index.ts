@@ -266,9 +266,11 @@ export class Engine {
         this.debug.updateCurrentScene()
     }
 
-    getObject<T extends Type<any>>(name: string | reference): T | null {
+    getObject<T extends Type<any>>(name: string | reference | null): T | null {
         if (typeof name == 'string') {
             return this.scopeManager.findByName(name)
+        } else if (name === null) {
+            return null
         } else {
             return this.getObject(name.objectName)
         }
