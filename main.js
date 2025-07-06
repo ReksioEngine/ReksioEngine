@@ -52316,6 +52316,7 @@ exports.ScriptingManager = void 0;
 const script_1 = __webpack_require__(/*! ../interpreter/script */ "./src/interpreter/script/index.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const scope_1 = __webpack_require__(/*! ./scope */ "./src/engine/scope.ts");
+const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 class ScriptingManager {
     constructor(engine) {
         this.engine = engine;
@@ -52343,6 +52344,7 @@ class ScriptingManager {
                     .build();
                 stacktrace_1.stackTrace.push(stackFrame);
                 const behaviour = this.engine.getObject(callback.behaviourReference);
+                (0, errors_1.assert)(behaviour !== null);
                 if (forwardInterrupts) {
                     return await behaviour.executeConditionalCallback(callback.constantArguments);
                 }
@@ -53477,16 +53479,17 @@ let Application = (() => {
             GETLANGUAGE() {
                 return this.language;
             }
-            RUN(objectName, methodName, ...args) {
+            async RUN(objectName, methodName, ...args) {
                 const object = this.engine.getObject(objectName);
                 if (object === null) {
                     return;
                 }
-                if (object[methodName]) {
-                    return object[methodName](...args);
+                const method = object[methodName];
+                if (method) {
+                    return await method(...args);
                 }
                 else {
-                    return object.__call(methodName, args);
+                    return await object.__call(methodName, args);
                 }
             }
             EXIT() {
@@ -53786,6 +53789,7 @@ exports.Behaviour = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 let Behaviour = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -53834,9 +53838,9 @@ let Behaviour = (() => {
                     }
                 }
             }
-            executeCallback(args = []) {
+            async executeCallback(args = []) {
                 // Don't resolve args, it will fail in S33_METEORY
-                return this.engine.scripting.executeCallback(null, this.definition.CODE, args);
+                return await this.engine.scripting.executeCallback(null, this.definition.CODE, args);
             }
             async executeConditionalCallback(args = []) {
                 if (await this.shouldRun()) {
@@ -53846,6 +53850,7 @@ let Behaviour = (() => {
             async shouldRun() {
                 if (this.definition.CONDITION) {
                     const condition = this.engine.getObject(this.definition.CONDITION.objectName);
+                    (0, errors_1.assert)(condition !== null);
                     return await condition.CHECK(true);
                 }
                 return true;
@@ -54073,6 +54078,7 @@ let Button = (() => {
                     const object = this.engine.getObject(rect);
                     (0, errors_1.assert)(object !== null, 'object referred by RECT should exist');
                     const sprite = object.getRenderObject();
+                    (0, errors_1.assert)(sprite !== null);
                     shape = [sprite.x, sprite.y, sprite.x + sprite.width, sprite.y + sprite.height];
                 }
                 const [x1, y1, x2, y2] = shape;
@@ -54505,6 +54511,7 @@ exports.ComplexCondition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 let ComplexCondition = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -54528,13 +54535,14 @@ let ComplexCondition = (() => {
             async CHECK(arg) {
                 const condition1 = this.engine.getObject(this.definition.CONDITION1);
                 const condition2 = this.engine.getObject(this.definition.CONDITION2);
+                (0, errors_1.assert)(condition1 !== null && condition2 !== null);
                 let result;
                 switch (this.definition.OPERATOR) {
                     case 'AND':
-                        result = condition1.CHECK(arg) && condition2.CHECK(arg);
+                        result = await condition1.CHECK(arg) && await condition2.CHECK(arg);
                         break;
                     case 'OR':
-                        result = condition1.CHECK(arg) || condition2.CHECK(arg);
+                        result = await condition1.CHECK(arg) || await condition2.CHECK(arg);
                         break;
                 }
                 if (result) {
@@ -55325,9 +55333,12 @@ let Image = (() => {
                     this.maskContainer.addChild(maskGraphics);
                 }
                 const object = this.engine.getObject(name);
+                (0, errors_1.assert)(object !== null);
                 let otherObjectAlphaSprite = this.otherObjectsAlphaSpriteCache.get(name);
                 if (!otherObjectAlphaSprite) {
-                    otherObjectAlphaSprite = new pixi_js_1.Sprite(this.generateMaskTexture(object.getRenderObject()));
+                    const renderObject = object.getRenderObject();
+                    (0, errors_1.assert)(renderObject !== null);
+                    otherObjectAlphaSprite = new pixi_js_1.Sprite(this.generateMaskTexture(renderObject));
                     this.otherObjectsAlphaSpriteCache.set(name, otherObjectAlphaSprite);
                     this.maskContainer.addChild(otherObjectAlphaSprite);
                 }
@@ -55463,7 +55474,9 @@ let Type = (() => {
                 }
             }
             GETCLONEINDEX() {
-                return this.engine.getObject(this.definition.NAME).clones.indexOf(this) + 1;
+                const object = this.engine.getObject(this.definition.NAME);
+                (0, errors_1.assert)(object !== null);
+                return object.clones.indexOf(this) + 1;
             }
             async cloneObject(object) {
                 const clone = await object.clone();
@@ -56278,6 +56291,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Rand = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 let Rand = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -56293,7 +56307,8 @@ let Rand = (() => {
                 return Math.floor(Math.random() * (max - min)) + min;
             }
             GETPLENTY(objectTarget, count, min, max, unique) {
-                const object = this.engine?.getObject(objectTarget);
+                const object = this.engine.getObject(objectTarget);
+                (0, errors_1.assert)(object !== null);
                 const values = [];
                 while (values.length < count) {
                     const randomValue = this.GET(min, max);
@@ -56390,6 +56405,7 @@ let Scene = (() => {
             async RUNCLONES(baseObjectName, startingIdx, endingIdx, behaviourName) {
                 const baseObject = this.engine.getObject(baseObjectName);
                 const behaviour = this.engine.getObject(behaviourName);
+                (0, errors_1.assert)(baseObject !== null && behaviour !== null);
                 if (startingIdx < 1) {
                     startingIdx = 1;
                 }
@@ -56401,17 +56417,17 @@ let Scene = (() => {
                     await behaviour.RUN(clone);
                 }
             }
-            RUN(objectName, methodName, ...args) {
+            async RUN(objectName, methodName, ...args) {
                 const object = this.engine.getObject(objectName);
                 if (object === null) {
                     return;
                 }
                 const method = object[methodName];
                 if (method !== undefined) {
-                    return method.bind(object)(...args);
+                    return await method.bind(object)(...args);
                 }
                 else {
-                    return object.__call(methodName, args);
+                    return await object.__call(methodName, args);
                 }
             }
             getRelativePath(filename) {
@@ -57019,6 +57035,7 @@ exports.StaticFilter = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 let StaticFilter = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -57038,6 +57055,7 @@ let StaticFilter = (() => {
             }
             LINK(arg) {
                 const object = this.engine.getObject(arg);
+                (0, errors_1.assert)(object !== null);
                 const renderObject = object.getRenderObject();
                 if (renderObject === null) {
                     return;
@@ -57060,6 +57078,7 @@ let StaticFilter = (() => {
             }
             UNLINK(arg) {
                 const object = this.engine.getObject(arg);
+                (0, errors_1.assert)(object !== null);
                 const properties = this.linked.get(object);
                 if (!properties) {
                     return;
@@ -60070,6 +60089,7 @@ const antlr4_1 = __importDefault(__webpack_require__(/*! antlr4 */ "./node_modul
 const ReksioIFExpressionParser_1 = __importDefault(__webpack_require__(/*! ./ReksioIFExpressionParser */ "./src/interpreter/ifExpression/ReksioIFExpressionParser.ts"));
 const ReksioIFExpressionLexer_1 = __importDefault(__webpack_require__(/*! ./ReksioIFExpressionLexer */ "./src/interpreter/ifExpression/ReksioIFExpressionLexer.ts"));
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 class ExpressionEvaluator extends ReksioIFExpressionVisitor_1.default {
     constructor(engine) {
         super();
@@ -60124,6 +60144,7 @@ class ExpressionEvaluator extends ReksioIFExpressionVisitor_1.default {
         };
         this.visitIdentifier = async (ctx) => {
             const object = this.engine.getObject(ctx.getText());
+            (0, errors_1.assert)(object !== null);
             return await object.getValue();
         };
         this.visitLogicOperator = (ctx) => {
@@ -61864,7 +61885,7 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
             else if (object instanceof types_2.ValueType) {
                 return object.getValue();
             }
-            else if (object instanceof types_2.Type) {
+            else {
                 return object;
             }
         };
