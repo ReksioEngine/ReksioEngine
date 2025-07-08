@@ -2,6 +2,10 @@ import { assert, UnexpectedError } from './errors'
 import { printStackTrace } from '../interpreter/script/stacktrace'
 
 export const valueAsString = (value: any) => {
+    if (value === null) {
+        return 'NULL'
+    }
+
     if (typeof value === 'string') {
         return value
     }
@@ -14,16 +18,16 @@ export const valueAsString = (value: any) => {
         return value ? 'TRUE' : 'FALSE'
     }
 
-    if (value === null) {
-        return 'NULL'
-    }
-
     assert(value !== undefined)
     assert(typeof value !== 'object')
     return value.toString()
 }
 
 export const valueAsBool = (value: any) => {
+    if (value === null) {
+        return false
+    }
+
     if (typeof value === 'boolean') {
         return value
     }
@@ -33,6 +37,10 @@ export const valueAsBool = (value: any) => {
 }
 
 export const valueAsDouble = (value: any) => {
+    if (value === null) {
+        return 0
+    }
+
     if (typeof value === 'number') {
         return value
     }
@@ -40,14 +48,6 @@ export const valueAsDouble = (value: any) => {
     const number = Number(value)
     assert(!Number.isNaN(number), 'Value is not a number')
     return number
-}
-
-export const valueAsInteger = (value: any) => {
-    if (typeof value === 'number' && Number.isInteger(value)) {
-        return value
-    }
-
-    return Math.floor(valueAsDouble(value))
 }
 
 export const ForceNumber = (value: any) => {
@@ -123,11 +123,14 @@ export const isDirectlyConvertible = (value: any, type: parameterType) => {
         case 'boolean':
             return (
                 typeof value === 'boolean' ||
+                value === null ||
                 value.toString().toUpperCase() === 'TRUE' ||
                 value.toString().toUpperCase() === 'FALSE'
             )
         case 'number':
-            return typeof value === 'number' || !Number.isNaN(Number(value))
+            return typeof value === 'number' ||
+                value === null ||
+                !Number.isNaN(Number(value))
         default:
             return false
     }
