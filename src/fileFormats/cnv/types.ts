@@ -200,6 +200,16 @@ const ConditionDefinitionStructure = {
     ONRUNTIMEFAILED: optional(callback),
 }
 
+export type DatabaseDefinition = TypeDefinition & {
+    MODEL: reference
+    ONINIT?: callback
+}
+
+const DatabaseDefinitionStructure = {
+    MODEL: reference,
+    ONINIT: optional(callback),
+}
+
 export type DoubleDefinition = TypeDefinition & {
     VALUE?: string
     DEFAULT?: number
@@ -519,6 +529,7 @@ export const structureDefinitions = {
     CNVLOADER: CNVLoaderStructure,
     COMPLEXCONDITION: ComplexConditionDefinitionStructure,
     CONDITION: ConditionDefinitionStructure,
+    DATABASE: DatabaseDefinitionStructure,
     DOUBLE: DoubleStructure,
     EPISODE: EpisodeStructure,
     EXPRESSION: ExpressionDefinitionStructure,

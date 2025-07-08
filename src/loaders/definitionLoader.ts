@@ -36,6 +36,7 @@ import { System } from '../engine/types/system'
 import { Scope } from '../engine/scope'
 import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
 import { Struct } from '../engine/types/struct'
+import { Database } from '../engine/types/database'
 
 const createTypeInstance = (engine: Engine, parent: Type<any> | null, definition: any) => {
     switch (definition.TYPE) {
@@ -61,6 +62,8 @@ const createTypeInstance = (engine: Engine, parent: Type<any> | null, definition
             return new Condition(engine, parent, definition)
         case 'COMPLEXCONDITION':
             return new ComplexCondition(engine, parent, definition)
+        case 'DATABASE':
+            return new Database(engine, parent, definition)
         case 'DOUBLE':
             return new Double(engine, parent, definition)
         case 'EPISODE':

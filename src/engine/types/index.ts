@@ -65,7 +65,7 @@ export class Type<DefinitionType extends TypeDefinition> {
         clone.name = `${object.definition.NAME}_${object.clones.length}`
         clone.isReady = true
 
-        this.engine.scopeManager.getScope('scene')?.set(clone.name, clone)
+        this.parentScope?.set(clone.name, clone)
         return clone
     }
 
@@ -79,6 +79,10 @@ export class Type<DefinitionType extends TypeDefinition> {
 
     __getXRayInfo(): XRayInfo | null {
         return null
+    }
+
+    get parentScope() {
+        return this.engine.scopeManager.getScopeOf(this)
     }
 
     // Called when trying to call a method that is not existing for a type

@@ -17,14 +17,20 @@ export class Struct extends Type<StructDefinition> {
     }
 
     async init() {
+        await this.initializeContent()
+    }
+
+    private async initializeContent() {
         for (const key of this.structure.keys()) {
             const type = this.structure.get(key)!
-
-            const field: Type<any> = await createObject(this.engine, {
-                TYPE: type,
-                NAME: key,
-            }, this)
-
+            const field: Type<any> = await createObject(
+                this.engine,
+                {
+                    TYPE: type,
+                    NAME: key,
+                },
+                this
+            )
             assert(field instanceof ValueType, 'struct field has to be of value type')
             this.content.set(key, field)
         }
@@ -32,6 +38,7 @@ export class Struct extends Type<StructDefinition> {
 
     @method()
     GETFIELD(name: string) {
+        assert(this.content !== null)
         return this.content.get(name)
     }
 
@@ -57,7 +64,14 @@ export class Struct extends Type<StructDefinition> {
     }
 
     private parseFieldsString(definition: string) {
-        const matches = [...definition.matchAll(FIELD_PATTERN)];
-        return new Map(matches.map(m => [m.groups!.name, m.groups!.type]));
+        const matches = [...definition.matchAll(FIELD_PATTERN)]
+        return new Map(matches.map((m) => [m.groups!.name, m.groups!.type]))
+    }
+
+    async clone(): Promise<Struct> {
+        const clone = await super.clone() as Struct
+        clone.structure = this.structure
+        await clone.initializeContent()
+        return clone
     }
 }
