@@ -54447,14 +54447,20 @@ exports.CNVLoader = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const definitionLoader_1 = __webpack_require__(/*! ../../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 let CNVLoader = (() => {
     var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _LOAD_decorators;
     return _a = class CNVLoader extends _classSuper {
-            LOAD(filename) {
-                throw new errors_1.NotImplementedError();
+            async LOAD(filename) {
+                (0, errors_1.assert)(this.engine.currentScene !== null);
+                const definition = await this.engine.fileLoader.getCNVFile(this.engine.currentScene.getRelativePath(filename));
+                const sceneScope = this.engine.scopeManager.getScope('scene');
+                (0, errors_1.assert)(sceneScope !== null);
+                await (0, definitionLoader_1.loadDefinition)(this.engine, sceneScope, definition, this.engine.currentScene);
+                await (0, definitionLoader_1.doReady)(sceneScope);
             }
             constructor() {
                 super(...arguments);
@@ -62226,6 +62232,7 @@ const system_1 = __webpack_require__(/*! ../../engine/types/system */ "./src/eng
 const common_1 = __webpack_require__(/*! ../../fileFormats/common */ "./src/fileFormats/common/index.ts");
 const integer_1 = __webpack_require__(/*! ../../engine/types/integer */ "./src/engine/types/integer.ts");
 const struct_1 = __webpack_require__(/*! ../../engine/types/struct */ "./src/engine/types/struct.ts");
+const cnvloader_1 = __webpack_require__(/*! ../../engine/types/cnvloader */ "./src/engine/types/cnvloader.ts");
 class InterruptScriptExecution extends errors_1.IgnorableError {
     constructor(one = false) {
         super();
@@ -62548,12 +62555,14 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
         this.globalInstances.set('RANDOM', new rand_1.Rand(this.engine, null, {
             TYPE: 'RAND',
             NAME: 'RANDOM',
-            TOINI: false,
         }));
         this.globalInstances.set('SYSTEM', new system_1.System(this.engine, null, {
             TYPE: 'SYSTEM',
             NAME: 'SYSTEM',
-            TOINI: false,
+        }));
+        this.globalInstances.set('CNVLOADER', new cnvloader_1.CNVLoader(this.engine, null, {
+            TYPE: 'CNVLOADER',
+            NAME: 'CNVLOADER'
         }));
     }
     markInCode(ctx) {
@@ -63028,6 +63037,9 @@ const loadDefinition = async (engine, scope, definition, parent) => {
 exports.loadDefinition = loadDefinition;
 const doReady = async (scope) => {
     for (const object of sortByPriority(scope.objects)) {
+        if (object.isReady) {
+            continue;
+        }
         object.isReady = true;
         try {
             stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(object).method('ready').build());
