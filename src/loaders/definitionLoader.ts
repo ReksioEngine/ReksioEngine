@@ -187,6 +187,9 @@ export const loadDefinition = async (engine: Engine, scope: Scope, definition: C
 
 export const doReady = async (scope: Scope) => {
     for (const object of sortByPriority(scope.objects)) {
+        if (object.isReady) {
+            continue
+        }
         object.isReady = true
 
         try {

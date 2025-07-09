@@ -30,6 +30,7 @@ import { System } from '../../engine/types/system'
 import { createCallback } from '../../fileFormats/common'
 import { Integer } from '../../engine/types/integer'
 import { Struct } from '../../engine/types/struct'
+import { CNVLoader } from '../../engine/types/cnvloader'
 
 export class InterruptScriptExecution extends IgnorableError {
     public one: boolean
@@ -73,7 +74,6 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             new Rand(this.engine, null, {
                 TYPE: 'RAND',
                 NAME: 'RANDOM',
-                TOINI: false,
             })
         )
         this.globalInstances.set(
@@ -81,7 +81,13 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             new System(this.engine, null, {
                 TYPE: 'SYSTEM',
                 NAME: 'SYSTEM',
-                TOINI: false,
+            })
+        )
+        this.globalInstances.set(
+            'CNVLOADER',
+            new CNVLoader(this.engine, null, {
+                TYPE: 'CNVLOADER',
+                NAME: 'CNVLOADER'
             })
         )
     }

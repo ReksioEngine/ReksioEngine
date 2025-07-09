@@ -174,12 +174,12 @@ export type reference = {
 export type TypeDefinition = {
     NAME: string
     TYPE: string
-    TOINI: boolean
 }
 
 export type ValueTypeDefinition = TypeDefinition & {
     VALUE?: any
     DEFAULT?: any
+    TOINI?: boolean
 }
 
 export type DisplayTypeDefinition = TypeDefinition & {
