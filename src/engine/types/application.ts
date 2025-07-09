@@ -53,9 +53,8 @@ export class Application extends Type<ApplicationDefinition> {
             return
         }
 
-        const method = object[methodName]
-        if (method) {
-            return await method(...args)
+        if (object[methodName]) {
+            return await object[methodName](...args)
         } else {
             return await object.__call(methodName, args)
         }
