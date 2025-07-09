@@ -50834,10 +50834,13 @@ exports.t = t;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.method = exports.InvalidMethodParameter = exports.compareType = exports.isDirectlyConvertible = exports.Compare = exports.ForceNumber = exports.valueAsInteger = exports.valueAsDouble = exports.valueAsBool = exports.valueAsString = void 0;
+exports.method = exports.InvalidMethodParameter = exports.compareType = exports.isDirectlyConvertible = exports.Compare = exports.ForceNumber = exports.valueAsDouble = exports.valueAsBool = exports.valueAsString = void 0;
 const errors_1 = __webpack_require__(/*! ./errors */ "./src/common/errors.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const valueAsString = (value) => {
+    if (value === null) {
+        return 'NULL';
+    }
     if (typeof value === 'string') {
         return value;
     }
@@ -50847,15 +50850,15 @@ const valueAsString = (value) => {
     if (typeof value === 'boolean') {
         return value ? 'TRUE' : 'FALSE';
     }
-    if (value === null) {
-        return 'NULL';
-    }
     (0, errors_1.assert)(value !== undefined);
     (0, errors_1.assert)(typeof value !== 'object');
     return value.toString();
 };
 exports.valueAsString = valueAsString;
 const valueAsBool = (value) => {
+    if (value === null) {
+        return false;
+    }
     if (typeof value === 'boolean') {
         return value;
     }
@@ -50864,6 +50867,9 @@ const valueAsBool = (value) => {
 };
 exports.valueAsBool = valueAsBool;
 const valueAsDouble = (value) => {
+    if (value === null) {
+        return 0;
+    }
     if (typeof value === 'number') {
         return value;
     }
@@ -50872,13 +50878,6 @@ const valueAsDouble = (value) => {
     return number;
 };
 exports.valueAsDouble = valueAsDouble;
-const valueAsInteger = (value) => {
-    if (typeof value === 'number' && Number.isInteger(value)) {
-        return value;
-    }
-    return Math.floor((0, exports.valueAsDouble)(value));
-};
-exports.valueAsInteger = valueAsInteger;
 const ForceNumber = (value) => {
     const numberValue = Number(value);
     (0, errors_1.assert)(!isNaN(numberValue), `${value} is not a number`);
@@ -50943,10 +50942,13 @@ const isDirectlyConvertible = (value, type) => {
             return true;
         case 'boolean':
             return (typeof value === 'boolean' ||
+                value === null ||
                 value.toString().toUpperCase() === 'TRUE' ||
                 value.toString().toUpperCase() === 'FALSE');
         case 'number':
-            return typeof value === 'number' || !Number.isNaN(Number(value));
+            return typeof value === 'number' ||
+                value === null ||
+                !Number.isNaN(Number(value));
         default:
             return false;
     }
@@ -52276,6 +52278,19 @@ class ScopeManager {
             return this.find(callback, level + 1);
         }
     }
+    getScopeOf(object, level = 0) {
+        const scope = this.getScope(level);
+        if (!scope) {
+            return null;
+        }
+        const result = [...scope.content.values()].includes(object);
+        if (result) {
+            return scope;
+        }
+        else {
+            return this.getScopeOf(object, level + 1);
+        }
+    }
     get APPLICATION() {
         const application = this.findByType('APPLICATION');
         (0, errors_1.assert)(application != null);
@@ -53461,19 +53476,12 @@ let Application = (() => {
             }
             async init() {
                 if (this.definition.PATH) {
-                    try {
-                        const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, filesLoader_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
-                        this.engine.app.ticker.stop();
-                        const applicationScope = this.engine.scopeManager.newScope('application');
-                        await (0, definitionLoader_1.loadDefinition)(this.engine, applicationScope, applicationDefinition, this);
-                        await (0, definitionLoader_1.doReady)(applicationScope);
-                        this.engine.app.ticker.start();
-                    }
-                    catch (err) {
-                        if (err instanceof filesLoader_1.FileNotFoundError) {
-                            throw err;
-                        }
-                    }
+                    const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, filesLoader_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
+                    this.engine.app.ticker.stop();
+                    const applicationScope = this.engine.scopeManager.newScope('application');
+                    await (0, definitionLoader_1.loadDefinition)(this.engine, applicationScope, applicationDefinition, this);
+                    await (0, definitionLoader_1.doReady)(applicationScope);
+                    this.engine.app.ticker.start();
                 }
             }
             SETLANGUAGE(langCode) {
@@ -53487,9 +53495,8 @@ let Application = (() => {
                 if (object === null) {
                     return;
                 }
-                const method = object[methodName];
-                if (method) {
-                    return await method(...args);
+                if (object[methodName]) {
+                    return await object[methodName](...args);
                 }
                 else {
                     return await object.__call(methodName, args);
@@ -54718,6 +54725,183 @@ exports.Condition = Condition;
 
 /***/ }),
 
+/***/ "./src/engine/types/database.ts":
+/*!**************************************!*\
+  !*** ./src/engine/types/database.ts ***!
+  \**************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Database = void 0;
+const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const decoder = new TextDecoder('windows-1250');
+let Database = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _GETROWSNO_decorators;
+    let _GETCURSORPOS_decorators;
+    let _NEXT_decorators;
+    let _PREV_decorators;
+    let _SELECT_decorators;
+    let _FIND_decorators;
+    let _REMOVEAT_decorators;
+    let _REMOVEALL_decorators;
+    let _LOAD_decorators;
+    return _a = class Database extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.baseStruct = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.content = [];
+                this.cursorPosition = 0;
+            }
+            init() {
+                this.baseStruct = this.engine.getObject(this.definition.MODEL);
+            }
+            async ready() {
+                await this.callbacks.run('ONINIT');
+            }
+            GETROWSNO() {
+                return this.content.length;
+            }
+            GETCURSORPOS() {
+                return this.cursorPosition;
+            }
+            NEXT() {
+                this.cursorPosition = (this.cursorPosition + 1) % this.content.length;
+                this.updateCursorValue();
+            }
+            PREV() {
+                this.cursorPosition += 1;
+                if (this.cursorPosition < 0) {
+                    this.cursorPosition = this.content.length - 1;
+                }
+                this.updateCursorValue();
+            }
+            SELECT(index) {
+                (0, errors_1.assert)(index < this.content.length && index >= 0, 'out of bounds');
+                this.cursorPosition = index;
+                this.updateCursorValue();
+            }
+            FIND(column, value, offset) {
+                // Should be ok without await for getValue as these types don't have async get
+                const index = this.content.findIndex((entry) => entry.GETFIELD(column)?.getValue() === value);
+                if (index == -1) {
+                    return -1;
+                }
+                // Simulating stupid behavior
+                if (index < offset) {
+                    return this.content.length + index;
+                }
+                return index;
+            }
+            REMOVEAT(index) {
+                this.content.splice(index, 1);
+                this.updateCursorValue();
+            }
+            REMOVEALL() {
+                this.content.forEach((item) => item.destroy());
+                this.content = [];
+                this.updateCursorValue();
+            }
+            async LOAD(path) {
+                (0, errors_1.assert)(this.engine.currentScene !== null);
+                (0, errors_1.assert)(this.baseStruct !== null);
+                const relativePath = this.engine.currentScene.getRelativePath(path);
+                const data = await this.engine.fileLoader.getRawFile(relativePath);
+                const content = decoder.decode(data);
+                const lines = content.replaceAll('\r\n', '\n').split('\n');
+                const structFieldsNames = Array.from(this.baseStruct.structure.keys());
+                for (const line of lines) {
+                    const fieldContents = line.split('|');
+                    const newEntry = await this.baseStruct.clone();
+                    for (let i = 0; i < fieldContents.length; i++) {
+                        const fieldName = structFieldsNames[i];
+                        const fieldValue = fieldContents[i];
+                        await newEntry.SETFIELD(fieldName, fieldValue === 'NULL' ? null : fieldValue);
+                    }
+                    this.content.push(newEntry);
+                }
+                this.updateCursorValue();
+            }
+            updateCursorValue() {
+                (0, errors_1.assert)(this.parentScope !== null);
+                const cursorName = this.name + '_CURSOR';
+                if (this.content.length == 0) {
+                    this.parentScope.remove(cursorName);
+                }
+                else {
+                    this.parentScope.set(cursorName, this.content[this.cursorPosition]);
+                }
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _GETROWSNO_decorators = [(0, types_1.method)()];
+            _GETCURSORPOS_decorators = [(0, types_1.method)()];
+            _NEXT_decorators = [(0, types_1.method)()];
+            _PREV_decorators = [(0, types_1.method)()];
+            _SELECT_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _FIND_decorators = [(0, types_1.method)({ name: "column", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false }, { name: "offset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _REMOVEAT_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _REMOVEALL_decorators = [(0, types_1.method)()];
+            _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            __esDecorate(_a, null, _GETROWSNO_decorators, { kind: "method", name: "GETROWSNO", static: false, private: false, access: { has: obj => "GETROWSNO" in obj, get: obj => obj.GETROWSNO }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCURSORPOS_decorators, { kind: "method", name: "GETCURSORPOS", static: false, private: false, access: { has: obj => "GETCURSORPOS" in obj, get: obj => obj.GETCURSORPOS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _NEXT_decorators, { kind: "method", name: "NEXT", static: false, private: false, access: { has: obj => "NEXT" in obj, get: obj => obj.NEXT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _PREV_decorators, { kind: "method", name: "PREV", static: false, private: false, access: { has: obj => "PREV" in obj, get: obj => obj.PREV }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SELECT_decorators, { kind: "method", name: "SELECT", static: false, private: false, access: { has: obj => "SELECT" in obj, get: obj => obj.SELECT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVEAT_decorators, { kind: "method", name: "REMOVEAT", static: false, private: false, access: { has: obj => "REMOVEAT" in obj, get: obj => obj.REMOVEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVEALL_decorators, { kind: "method", name: "REMOVEALL", static: false, private: false, access: { has: obj => "REMOVEALL" in obj, get: obj => obj.REMOVEALL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
+exports.Database = Database;
+
+
+/***/ }),
+
 /***/ "./src/engine/types/double.ts":
 /*!************************************!*\
   !*** ./src/engine/types/double.ts ***!
@@ -54915,19 +55099,12 @@ let Episode = (() => {
     return _a = class Episode extends _classSuper {
             async init() {
                 if (this.definition.PATH) {
-                    try {
-                        const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, filesLoader_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
-                        this.engine.app.ticker.stop();
-                        const episodeScope = this.engine.scopeManager.newScope('episode');
-                        await (0, definitionLoader_1.loadDefinition)(this.engine, episodeScope, applicationDefinition, this);
-                        await (0, definitionLoader_1.doReady)(episodeScope);
-                        this.engine.app.ticker.start();
-                    }
-                    catch (err) {
-                        if (err instanceof filesLoader_1.FileNotFoundError) {
-                            throw err;
-                        }
-                    }
+                    const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, filesLoader_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
+                    this.engine.app.ticker.stop();
+                    const episodeScope = this.engine.scopeManager.newScope('episode');
+                    await (0, definitionLoader_1.loadDefinition)(this.engine, episodeScope, applicationDefinition, this);
+                    await (0, definitionLoader_1.doReady)(episodeScope);
+                    this.engine.app.ticker.start();
                 }
             }
             GOTO(sceneName) {
@@ -55489,7 +55666,7 @@ let Type = (() => {
                 object.clones.push(clone);
                 clone.name = `${object.definition.NAME}_${object.clones.length}`;
                 clone.isReady = true;
-                this.engine.scopeManager.getScope('scene')?.set(clone.name, clone);
+                this.parentScope?.set(clone.name, clone);
                 return clone;
             }
             init() { }
@@ -55501,6 +55678,9 @@ let Type = (() => {
             resume() { }
             __getXRayInfo() {
                 return null;
+            }
+            get parentScope() {
+                return this.engine.scopeManager.getScopeOf(this);
             }
             // Called when trying to call a method that is not existing for a type
             __call(methodName, args) {
@@ -57294,6 +57474,9 @@ let Struct = (() => {
                 this.structure = this.parseFieldsString(this.definition.FIELDS);
             }
             async init() {
+                await this.initializeContent();
+            }
+            async initializeContent() {
                 for (const key of this.structure.keys()) {
                     const type = this.structure.get(key);
                     const field = await (0, definitionLoader_1.createObject)(this.engine, {
@@ -57305,6 +57488,7 @@ let Struct = (() => {
                 }
             }
             GETFIELD(name) {
+                (0, errors_1.assert)(this.content !== null);
                 return this.content.get(name);
             }
             async SETFIELD(name, value) {
@@ -57325,7 +57509,13 @@ let Struct = (() => {
             }
             parseFieldsString(definition) {
                 const matches = [...definition.matchAll(FIELD_PATTERN)];
-                return new Map(matches.map(m => [m.groups.name, m.groups.type]));
+                return new Map(matches.map((m) => [m.groups.name, m.groups.type]));
+            }
+            async clone() {
+                const clone = await super.clone();
+                clone.structure = this.structure;
+                await clone.initializeContent();
+                return clone;
             }
         },
         (() => {
@@ -58286,6 +58476,10 @@ const ConditionDefinitionStructure = {
     ONRUNTIMESUCCESS: (0, common_1.optional)(common_1.callback),
     ONRUNTIMEFAILED: (0, common_1.optional)(common_1.callback),
 };
+const DatabaseDefinitionStructure = {
+    MODEL: common_1.reference,
+    ONINIT: (0, common_1.optional)(common_1.callback),
+};
 const DoubleStructure = {
     VALUE: (0, common_1.optional)(common_1.number),
     DEFAULT: (0, common_1.optional)(common_1.number),
@@ -58429,6 +58623,7 @@ exports.structureDefinitions = {
     CNVLOADER: CNVLoaderStructure,
     COMPLEXCONDITION: ComplexConditionDefinitionStructure,
     CONDITION: ConditionDefinitionStructure,
+    DATABASE: DatabaseDefinitionStructure,
     DOUBLE: DoubleStructure,
     EPISODE: EpisodeStructure,
     EXPRESSION: ExpressionDefinitionStructure,
@@ -62692,6 +62887,7 @@ const multiArray_1 = __webpack_require__(/*! ../engine/types/multiArray */ "./sr
 const system_1 = __webpack_require__(/*! ../engine/types/system */ "./src/engine/types/system.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const struct_1 = __webpack_require__(/*! ../engine/types/struct */ "./src/engine/types/struct.ts");
+const database_1 = __webpack_require__(/*! ../engine/types/database */ "./src/engine/types/database.ts");
 const createTypeInstance = (engine, parent, definition) => {
     switch (definition.TYPE) {
         case 'ANIMO':
@@ -62716,6 +62912,8 @@ const createTypeInstance = (engine, parent, definition) => {
             return new condition_1.Condition(engine, parent, definition);
         case 'COMPLEXCONDITION':
             return new complexCondition_1.ComplexCondition(engine, parent, definition);
+        case 'DATABASE':
+            return new database_1.Database(engine, parent, definition);
         case 'DOUBLE':
             return new double_1.Double(engine, parent, definition);
         case 'EPISODE':
