@@ -50866,6 +50866,18 @@ const valueAsBool = (value) => {
     return value.toUpperCase() === 'TRUE';
 };
 exports.valueAsBool = valueAsBool;
+const toNumber = (value) => {
+    if (typeof value === 'number') {
+        return value;
+    }
+    else if (typeof value === 'string') {
+        const match = value.match(/^-?\d+/);
+        return match ? Number(match[0]) : 0;
+    }
+    else {
+        return Number(value);
+    }
+};
 const valueAsDouble = (value) => {
     if (value === null) {
         return 0;
@@ -50873,13 +50885,13 @@ const valueAsDouble = (value) => {
     if (typeof value === 'number') {
         return value;
     }
-    const number = Number(value);
+    const number = toNumber(value);
     (0, errors_1.assert)(!Number.isNaN(number), 'Value is not a number');
     return number;
 };
 exports.valueAsDouble = valueAsDouble;
 const ForceNumber = (value) => {
-    const numberValue = Number(value);
+    const numberValue = toNumber(value);
     (0, errors_1.assert)(!isNaN(numberValue), `${value} is not a number`);
     return numberValue;
 };
@@ -50948,7 +50960,7 @@ const isDirectlyConvertible = (value, type) => {
         case 'number':
             return typeof value === 'number' ||
                 value === null ||
-                !Number.isNaN(Number(value));
+                !Number.isNaN(toNumber(value));
         default:
             return false;
     }
@@ -51200,6 +51212,9 @@ class CallbacksComponent {
     }
     autoRegister() {
         const structure = types_1.structureDefinitions[this.object.definition.TYPE];
+        if (!structure) {
+            return;
+        }
         for (const [key, value] of Object.entries(structure)) {
             const fieldDefinition = value;
             const callback = this.object.definition[key];
@@ -51240,10 +51255,10 @@ class CallbacksComponent {
             if (param !== null && param !== undefined && callbackGroup.parametrized.has(param)) {
                 const callback = callbackGroup.parametrized.get(param);
                 (0, errors_1.assert)(callback !== undefined, 'Callbacks should not happen to be undefined values');
-                await this.engine.scripting.executeCallback(thisReference, callback);
+                await this.engine.scripting.executeCallback(thisReference, thisReference, callback);
             }
             else if (callbackGroup.nonParametrized) {
-                await this.engine.scripting.executeCallback(thisReference, callbackGroup.nonParametrized);
+                await this.engine.scripting.executeCallback(thisReference, thisReference, callbackGroup.nonParametrized);
             }
         }
         catch (err) {
@@ -51414,7 +51429,7 @@ class Debugging {
         this.debugContainer = debugContainer;
     }
     async createObject(definition) {
-        return await (0, definitionLoader_1.createObject)(this.engine, definition, null);
+        return await (0, definitionLoader_1.createObject)(this.engine, definition, this.engine.currentScene);
     }
     setupDebugTools() {
         if (!this.enabled || !this.debugContainer) {
@@ -51606,8 +51621,8 @@ class Debugging {
             }
             return;
         }
-        const sceneScope = this.engine.scopeManager.getScope('scene');
-        (0, errors_1.assert)(sceneScope != null);
+        const sceneScope = this.engine.currentScene?.scope;
+        (0, errors_1.assert)(sceneScope);
         for (const object of sceneScope.objects) {
             const info = object.__getXRayInfo();
             if (info == null || (!this.enableXRayInvisible && !info.visible)) {
@@ -51757,7 +51772,13 @@ class Engine {
             this.app.ticker.start();
         }
         catch (err) {
-            console.error('Unhandled error occurred during start\n%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scopeManager.scopes);
+            if (err instanceof CancelTick) {
+                if (err.callback) {
+                    await err.callback();
+                }
+                return;
+            }
+            console.error('Unhandled error occurred during start\n%cGlobal scopes:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scopeManager.scopes);
             console.error(err);
         }
     }
@@ -51769,35 +51790,33 @@ class Engine {
         sounds_1.soundLibrary.stopAll();
     }
     async tick(elapsedMS) {
-        const sceneScope = this.scopeManager.getScope('scene');
-        if (sceneScope === null) {
-            return;
-        }
-        for (const object of sceneScope.objects.filter((object) => object.isReady)) {
-            try {
-                await object.tick(elapsedMS);
-            }
-            catch (err) {
-                if (err instanceof CancelTick) {
-                    if (err.callback) {
-                        await err.callback();
+        for (const scope of this.scopeManager.scopes) {
+            for (const object of scope.objects.filter((object) => object.isReady)) {
+                try {
+                    await object.tick(elapsedMS);
+                }
+                catch (err) {
+                    if (err instanceof CancelTick) {
+                        if (err.callback) {
+                            await err.callback();
+                        }
+                        return;
                     }
-                    return;
+                    else if (err instanceof errors_1.IrrecoverableError) {
+                        console.error('Irrecoverable error occurred. Execution paused\n' +
+                            'Call "engine.resume()" to resume\n' +
+                            '\n' +
+                            '%cGlobal scopes:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scopeManager.scopes);
+                    }
+                    else {
+                        console.error('Unhandled error occurred during tick. Execution paused\n' +
+                            'Call "engine.resume()" to resume\n' +
+                            '\n' +
+                            '%cGlobal scopes:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scopeManager.scopes);
+                        console.error(err);
+                    }
+                    this.pause();
                 }
-                else if (err instanceof errors_1.IrrecoverableError) {
-                    console.error('Irrecoverable error occurred. Execution paused\n' +
-                        'Call "engine.resume()" to resume\n' +
-                        '\n' +
-                        '%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scopeManager.scopes);
-                }
-                else {
-                    console.error('Unhandled error occurred during tick. Execution paused\n' +
-                        'Call "engine.resume()" to resume\n' +
-                        '\n' +
-                        '%cScope:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scopeManager.scopes);
-                    console.error(err);
-                }
-                this.pause();
             }
         }
         this.debug.updateXRay();
@@ -51817,11 +51836,12 @@ class Engine {
         loadingFreezeOverlay.zIndex = 9999999;
         this.app.stage.addChild(loadingFreezeOverlay);
         this.app.renderer.render(this.app.stage);
-        const scopeToClear = this.currentScene !== null ? (this.scopeManager.popScope() ?? null) : null;
+        const scopeToClear = this.currentScene !== null ? this.currentScene.scope : null;
         if (scopeToClear) {
+            this.scopeManager.removeScope(scopeToClear);
             for (const object of scopeToClear.objects) {
                 object.destroy();
-                this.scopeManager.getScope('scene')?.remove(object.name);
+                scopeToClear.remove(object.name);
             }
         }
         // Alert when rendering stage wasn't completely cleared after all destroys.
@@ -51837,6 +51857,7 @@ class Engine {
         }
         this.previousScene = this.currentScene;
         this.currentScene = this.getObject(sceneName);
+        (0, errors_1.assert)(this.currentScene !== null, 'could not find scene');
         if (this.music !== null && this.currentScene.definition.MUSIC !== this.previousScene?.definition.MUSIC) {
             this.music.stop();
             this.music = null;
@@ -51862,6 +51883,8 @@ class Engine {
             sceneDefinitionPromise
                 .then((sceneDefinition) => {
                 const newScope = this.scopeManager.newScope('scene');
+                (0, errors_1.assert)(this.currentScene !== null, 'could not find scene');
+                this.currentScene.scope = newScope;
                 const newScopePromise = (0, definitionLoader_1.loadDefinition)(this, newScope, sceneDefinition, this.currentScene);
                 newScopePromise
                     .then(() => {
@@ -51877,8 +51900,7 @@ class Engine {
         }
         if (music) {
             this.music = music;
-            const instance = this.music.play();
-            (0, errors_1.assert)(!(instance instanceof Promise), 'Sound should already be preloaded');
+            await this.music.play();
             if (this.debug.mutedMusic) {
                 this.music.muted = true;
             }
@@ -51892,15 +51914,19 @@ class Engine {
         this.app.ticker.start();
         this.debug.updateCurrentScene();
     }
-    getObject(name) {
+    getObject(name, parentScope = null) {
         if (typeof name == 'string') {
-            return this.scopeManager.findByName(name);
+            const currentScopeEntry = parentScope?.get(name);
+            if (currentScopeEntry) {
+                return currentScopeEntry;
+            }
+            return this.scopeManager.findByName(name, parentScope);
         }
         else if (name === null) {
             return null;
         }
         else {
-            return this.getObject(name.objectName);
+            return this.getObject(name.objectName, parentScope);
         }
     }
     resolvePath(path, base = '') {
@@ -51919,8 +51945,8 @@ class Engine {
         }
     }
     resume() {
-        const sceneScope = this.scopeManager.getScope('scene');
-        (0, errors_1.assert)(sceneScope != null);
+        const sceneScope = this.currentScene?.scope;
+        (0, errors_1.assert)(sceneScope);
         sounds_1.soundLibrary.resumeAll();
         for (const object of sceneScope.objects) {
             object.resume();
@@ -51928,8 +51954,8 @@ class Engine {
         this.app.ticker.start();
     }
     pause() {
-        const sceneScope = this.scopeManager.getScope('scene');
-        (0, errors_1.assert)(sceneScope != null);
+        const sceneScope = this.currentScene?.scope;
+        (0, errors_1.assert)(sceneScope);
         this.app.ticker.stop();
         sounds_1.soundLibrary.pauseAll();
         for (const object of sceneScope.objects) {
@@ -52230,56 +52256,56 @@ exports.SaveFileManager = SaveFileManager;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Scope = exports.ScopeManager = void 0;
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
+const byName = (name) => (key, object) => key === name;
+const byType = (type) => (key, object) => object.definition.TYPE === type;
 class ScopeManager {
     constructor() {
         this.scopes = [];
+        this.localScopes = [];
     }
     newScope(type) {
         const newScope = new Scope(type);
         this.scopes.push(newScope);
         return newScope;
     }
-    pushScope(scope) {
-        this.scopes.push(scope);
+    removeScope(scope) {
+        this.scopes.splice(this.scopes.indexOf(scope), 1);
     }
-    popScope() {
-        return this.scopes.pop();
+    pushLocalScope(scope) {
+        this.localScopes.push(scope);
     }
-    getScope(level = 0) {
-        if (typeof level === 'string') {
-            for (let i = this.scopes.length - 1; i >= 0; i--) {
-                const scope = this.scopes[i];
-                if (scope.type === level) {
-                    return scope;
-                }
-            }
-            return null;
+    popLocalScope() {
+        return this.localScopes.pop();
+    }
+    findByName(name, parentScope = null) {
+        const local = this._find(byName(name), this.localScopes);
+        if (local) {
+            return local;
         }
-        else {
-            return this.scopes[this.scopes.length - 1 - level];
-        }
-    }
-    findByName(name) {
-        return this.find((key, object) => key === name);
+        const startIndex = parentScope && this.scopes.includes(parentScope) ? this.scopes.length - 1 - this.scopes.indexOf(parentScope) : 0;
+        return this._find(byName(name), this.scopes, startIndex);
     }
     findByType(type) {
-        return this.find((key, object) => object.definition.TYPE === type);
+        return this._find(byType(type), this.scopes);
     }
-    find(callback, level = 0) {
-        const scope = this.getScope(level);
+    find(callback, scopes) {
+        return this._find(callback, scopes ?? this.scopes);
+    }
+    _find(callback, scopes, level = 0) {
+        const scope = scopes[scopes.length - 1 - level];
         if (!scope) {
             return null;
         }
-        const result = [...scope.content.entries()].find(([key, value]) => callback(key, value));
+        const result = scope.find(callback);
         if (result) {
-            return result[1];
+            return result;
         }
         else {
-            return this.find(callback, level + 1);
+            return this._find(callback, scopes, level + 1);
         }
     }
     getScopeOf(object, level = 0) {
-        const scope = this.getScope(level);
+        const scope = this.scopes[this.scopes.length - 1 - level];
         if (!scope) {
             return null;
         }
@@ -52312,6 +52338,14 @@ class Scope {
     remove(name) {
         this.content.delete(name);
     }
+    find(callback) {
+        for (const [key, value] of this.content.entries()) {
+            if (callback(key, value)) {
+                return value;
+            }
+        }
+        return null;
+    }
     get objects() {
         return [...this.content.values()];
     }
@@ -52339,20 +52373,20 @@ class ScriptingManager {
     constructor(engine) {
         this.engine = engine;
     }
-    async executeCallback(caller, callback, args, localScopeEntries, forwardInterrupts = false) {
+    async executeCallback(thisRef, caller, callback, args, localScopeEntries, forwardInterrupts = false) {
         let stackFrame = null;
         try {
             const localScope = new scope_1.Scope('local', localScopeEntries ? new Map(Object.entries(localScopeEntries)) : undefined);
-            if (caller !== null) {
-                localScope.set('THIS', caller);
+            if (thisRef !== null) {
+                localScope.set('THIS', thisRef);
             }
-            this.engine.scopeManager.pushScope(localScope);
+            this.engine.scopeManager.pushLocalScope(localScope);
             if (callback.code) {
-                return await (0, script_1.runScript)(this.engine, callback.code, args, callback.isSingleStatement, true);
+                return await (0, script_1.runScript)(this.engine, caller, callback.code, args, callback.isSingleStatement, true);
             }
             else if (callback.behaviourReference) {
-                if (!this.engine.getObject(callback.behaviourReference)) {
-                    console.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`, 'font-weight: bold', 'font-weight: inherit', callback, 'font-weight: bold', 'font-weight: inherit', caller);
+                if (!this.engine.getObject(callback.behaviourReference, caller?.parentScope)) {
+                    console.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cTHIS:%c%O`, 'font-weight: bold', 'font-weight: inherit', callback, 'font-weight: bold', 'font-weight: inherit', thisRef);
                     return;
                 }
                 stackFrame = stacktrace_1.StackFrame.builder()
@@ -52361,7 +52395,7 @@ class ScriptingManager {
                     .args(...(args !== undefined ? args : []))
                     .build();
                 stacktrace_1.stackTrace.push(stackFrame);
-                const behaviour = this.engine.getObject(callback.behaviourReference);
+                const behaviour = this.engine.getObject(callback.behaviourReference, caller?.parentScope);
                 (0, errors_1.assert)(behaviour !== null);
                 if (forwardInterrupts) {
                     return await behaviour.executeConditionalCallback(callback.constantArguments);
@@ -52372,14 +52406,14 @@ class ScriptingManager {
             }
         }
         finally {
-            this.engine.scopeManager.popScope();
+            this.engine.scopeManager.popLocalScope();
             if (stackFrame !== null) {
                 stacktrace_1.stackTrace.pop();
             }
         }
     }
     runScript(code, args, isSingleStatement, printDebug) {
-        return (0, script_1.runScript)(this.engine, code, args, isSingleStatement, printDebug);
+        return (0, script_1.runScript)(this.engine, null, code, args, isSingleStatement, printDebug);
     }
 }
 exports.ScriptingManager = ScriptingManager;
@@ -52477,6 +52511,9 @@ class SimulatedSound {
                 instance.tick(elapsedMS);
             }
         }
+    }
+    get isPlaying() {
+        return this.instances.some(instance => instance.running);
     }
     play(source, callback) {
         const instance = new SimulatedMediaInstance(this, this._speed, this._muted, this._volume);
@@ -52702,6 +52739,7 @@ let Animo = (() => {
     let _MOVE_decorators;
     let _SETPOSITION_decorators;
     let _SETASBUTTON_decorators;
+    let _DISABLE_decorators;
     let _GETCENTERX_decorators;
     let _GETCENTERY_decorators;
     let _GETPOSITIONX_decorators;
@@ -52720,6 +52758,7 @@ let Animo = (() => {
     let _ADDBEHAVIOUR_decorators;
     let _MONITORCOLLISION_decorators;
     let _REMOVEMONITORCOLLISION_decorators;
+    let _SETOPACITY_decorators;
     let _LOAD_decorators;
     return _a = class Animo extends _classSuper {
             constructor(engine, parent, definition) {
@@ -52802,9 +52841,10 @@ let Animo = (() => {
                 return null;
             }
             async loadAnimation(path) {
-                (0, errors_1.assert)(this.engine.currentScene !== null);
                 try {
-                    const relativePath = this.engine.currentScene.getRelativePath(path);
+                    const relativePath = this.engine.currentScene
+                        ? this.engine.currentScene.getRelativePath(path)
+                        : this.engine.resolvePath(path);
                     const annFile = await this.engine.fileLoader.getANNFile(relativePath);
                     await this.loadSfx(annFile);
                     console.debug(`File '${path}' loaded successfully!`);
@@ -53136,6 +53176,9 @@ let Animo = (() => {
                     await this.buttonLogic?.disable();
                 }
             }
+            async DISABLE() {
+                await this.buttonLogic.disable(); // not sure
+            }
             async onButtonStateChange(prevState, event, newState) {
                 const playEventIfExists = async (eventName) => {
                     if (this.hasEvent(eventName)) {
@@ -53229,7 +53272,7 @@ let Animo = (() => {
                 return this.isPlaying && (animName === undefined || this.currentEvent.name.toUpperCase() == animName);
             }
             ISNEAR(objectName, percentage) {
-                const otherObject = this.engine.getObject(objectName);
+                const otherObject = this.getObject(objectName);
                 if (otherObject === null || !(otherObject instanceof index_1.DisplayType)) {
                     return false;
                 }
@@ -53258,6 +53301,10 @@ let Animo = (() => {
             }
             REMOVEMONITORCOLLISION() {
                 this.collisions.enabled = false;
+            }
+            SETOPACITY(opacity) {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.alpha = opacity / 255;
             }
             async LOAD(path) {
                 this.destroy();
@@ -53340,6 +53387,7 @@ let Animo = (() => {
             _MOVE_decorators = [(0, types_1.method)({ name: "xOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "yOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SETPOSITION_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SETASBUTTON_decorators = [(0, types_1.method)({ name: "enabled", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "showPointer", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _DISABLE_decorators = [(0, types_1.method)()];
             _GETCENTERX_decorators = [(0, types_1.method)()];
             _GETCENTERY_decorators = [(0, types_1.method)()];
             _GETPOSITIONX_decorators = [(0, types_1.method)()];
@@ -53358,6 +53406,7 @@ let Animo = (() => {
             _ADDBEHAVIOUR_decorators = [(0, types_1.method)({ name: "callbackString", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _MONITORCOLLISION_decorators = [(0, types_1.method)({ name: "newState", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             _REMOVEMONITORCOLLISION_decorators = [(0, types_1.method)()];
+            _SETOPACITY_decorators = [(0, types_1.method)({ name: "opacity", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -53372,6 +53421,7 @@ let Animo = (() => {
             __esDecorate(_a, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SETASBUTTON_decorators, { kind: "method", name: "SETASBUTTON", static: false, private: false, access: { has: obj => "SETASBUTTON" in obj, get: obj => obj.SETASBUTTON }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETCENTERX_decorators, { kind: "method", name: "GETCENTERX", static: false, private: false, access: { has: obj => "GETCENTERX" in obj, get: obj => obj.GETCENTERX }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETCENTERY_decorators, { kind: "method", name: "GETCENTERY", static: false, private: false, access: { has: obj => "GETCENTERY" in obj, get: obj => obj.GETCENTERY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETPOSITIONX_decorators, { kind: "method", name: "GETPOSITIONX", static: false, private: false, access: { has: obj => "GETPOSITIONX" in obj, get: obj => obj.GETPOSITIONX }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -53390,6 +53440,7 @@ let Animo = (() => {
             __esDecorate(_a, null, _ADDBEHAVIOUR_decorators, { kind: "method", name: "ADDBEHAVIOUR", static: false, private: false, access: { has: obj => "ADDBEHAVIOUR" in obj, get: obj => obj.ADDBEHAVIOUR }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _MONITORCOLLISION_decorators, { kind: "method", name: "MONITORCOLLISION", static: false, private: false, access: { has: obj => "MONITORCOLLISION" in obj, get: obj => obj.MONITORCOLLISION }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _REMOVEMONITORCOLLISION_decorators, { kind: "method", name: "REMOVEMONITORCOLLISION", static: false, private: false, access: { has: obj => "REMOVEMONITORCOLLISION" in obj, get: obj => obj.REMOVEMONITORCOLLISION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETOPACITY_decorators, { kind: "method", name: "SETOPACITY", static: false, private: false, access: { has: obj => "SETOPACITY" in obj, get: obj => obj.SETOPACITY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
@@ -53452,6 +53503,9 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const definitionLoader_1 = __webpack_require__(/*! ../../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
 const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const scene_1 = __webpack_require__(/*! ./scene */ "./src/engine/types/scene.ts");
+const behaviour_1 = __webpack_require__(/*! ./behaviour */ "./src/engine/types/behaviour.ts");
 const langCodeMapping = {
     '0415': 'POL',
     '0405': 'CZE',
@@ -53463,24 +53517,25 @@ const langCodeMapping = {
 };
 let Application = (() => {
     var _a;
-    let _classSuper = index_1.Type;
+    let _classSuper = index_1.ParentType;
     let _instanceExtraInitializers = [];
     let _SETLANGUAGE_decorators;
     let _GETLANGUAGE_decorators;
     let _RUN_decorators;
+    let _RUNENV_decorators;
     let _EXIT_decorators;
     return _a = class Application extends _classSuper {
-            constructor(engine, parent, definition) {
-                super(engine, parent, definition);
+            constructor() {
+                super(...arguments);
                 this.language = (__runInitializers(this, _instanceExtraInitializers), 'POL');
             }
             async init() {
                 if (this.definition.PATH) {
                     const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, filesLoader_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
                     this.engine.app.ticker.stop();
-                    const applicationScope = this.engine.scopeManager.newScope('application');
-                    await (0, definitionLoader_1.loadDefinition)(this.engine, applicationScope, applicationDefinition, this);
-                    await (0, definitionLoader_1.doReady)(applicationScope);
+                    this.scope = this.engine.scopeManager.newScope('application');
+                    await (0, definitionLoader_1.loadDefinition)(this.engine, this.scope, applicationDefinition, this);
+                    await (0, definitionLoader_1.doReady)(this.scope);
                     this.engine.app.ticker.start();
                 }
             }
@@ -53491,7 +53546,7 @@ let Application = (() => {
                 return this.language;
             }
             async RUN(objectName, methodName, ...args) {
-                const object = this.engine.getObject(objectName);
+                const object = this.getObject(objectName);
                 if (object === null) {
                     return;
                 }
@@ -53501,6 +53556,20 @@ let Application = (() => {
                 else {
                     return await object.__call(methodName, args);
                 }
+            }
+            async RUNENV(sceneName, behaviourName, ...args) {
+                const object = this.getObject(sceneName);
+                if (object === null) {
+                    return;
+                }
+                (0, errors_1.assert)(object instanceof scene_1.Scene, 'attempted RUNENV on non-SCENE object');
+                (0, errors_1.assert)(object.scope);
+                const behaviour = object.scope.get(behaviourName);
+                if (behaviour === null) {
+                    return;
+                }
+                (0, errors_1.assert)(behaviour instanceof behaviour_1.Behaviour);
+                await behaviour.RUNC(...args);
             }
             EXIT() {
                 if (this.engine.options.onExit) {
@@ -53513,10 +53582,12 @@ let Application = (() => {
             _SETLANGUAGE_decorators = [(0, types_1.method)({ name: "langCode", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _GETLANGUAGE_decorators = [(0, types_1.method)()];
             _RUN_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "methodName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            _RUNENV_decorators = [(0, types_1.method)({ name: "sceneName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
             _EXIT_decorators = [(0, types_1.method)()];
             __esDecorate(_a, null, _SETLANGUAGE_decorators, { kind: "method", name: "SETLANGUAGE", static: false, private: false, access: { has: obj => "SETLANGUAGE" in obj, get: obj => obj.SETLANGUAGE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETLANGUAGE_decorators, { kind: "method", name: "GETLANGUAGE", static: false, private: false, access: { has: obj => "GETLANGUAGE" in obj, get: obj => obj.GETLANGUAGE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RUNENV_decorators, { kind: "method", name: "RUNENV", static: false, private: false, access: { has: obj => "RUNENV" in obj, get: obj => obj.RUNENV }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _EXIT_decorators, { kind: "method", name: "EXIT", static: false, private: false, access: { has: obj => "EXIT" in obj, get: obj => obj.EXIT }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
@@ -53574,6 +53645,7 @@ exports.ArrayObject = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
 const generateMessage = (action, position, value) => {
     return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`;
 };
@@ -53598,6 +53670,7 @@ let ArrayObject = (() => {
     let _FIND_decorators;
     let _REVERSEFIND_decorators;
     let _LOAD_decorators;
+    let _SAVE_decorators;
     let _SAVEINI_decorators;
     let _LOADINI_decorators;
     let _MSGBOX_decorators;
@@ -53676,8 +53749,20 @@ let ArrayObject = (() => {
             }
             async LOAD(path) {
                 (0, errors_1.assert)(this.engine.currentScene !== null);
-                // TODO: Fix problem with it being async
-                this.value = await this.engine.fileLoader.getARRFile(this.engine.currentScene.getRelativePath(path));
+                try {
+                    this.value = await this.engine.fileLoader.getARRFile(this.engine.currentScene.getRelativePath(path));
+                }
+                catch (err) {
+                    if (err instanceof filesLoader_1.FileNotFoundError) {
+                        console.error(err);
+                    }
+                    else {
+                        throw err;
+                    }
+                }
+            }
+            SAVE(path) {
+                throw new errors_1.NotImplementedError();
             }
             SAVEINI() {
                 this.saveToINI();
@@ -53720,6 +53805,7 @@ let ArrayObject = (() => {
             _FIND_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
             _REVERSEFIND_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
             _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _SAVE_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _SAVEINI_decorators = [(0, types_1.method)()];
             _LOADINI_decorators = [(0, types_1.method)()];
             _MSGBOX_decorators = [(0, types_1.method)()];
@@ -53740,6 +53826,7 @@ let ArrayObject = (() => {
             __esDecorate(_a, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _REVERSEFIND_decorators, { kind: "method", name: "REVERSEFIND", static: false, private: false, access: { has: obj => "REVERSEFIND" in obj, get: obj => obj.REVERSEFIND }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SAVE_decorators, { kind: "method", name: "SAVE", static: false, private: false, access: { has: obj => "SAVE" in obj, get: obj => obj.SAVE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SAVEINI_decorators, { kind: "method", name: "SAVEINI", static: false, private: false, access: { has: obj => "SAVEINI" in obj, get: obj => obj.SAVEINI }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _LOADINI_decorators, { kind: "method", name: "LOADINI", static: false, private: false, access: { has: obj => "LOADINI" in obj, get: obj => obj.LOADINI }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _MSGBOX_decorators, { kind: "method", name: "MSGBOX", static: false, private: false, access: { has: obj => "MSGBOX" in obj, get: obj => obj.MSGBOX }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -53800,6 +53887,7 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const class_1 = __webpack_require__(/*! ./class */ "./src/engine/types/class.ts");
 let Behaviour = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -53811,6 +53899,10 @@ let Behaviour = (() => {
             async ready() {
                 if (this.definition.NAME === '__INIT__') {
                     await this.RUN();
+                }
+                if (this.definition.NAME === 'CONSTRUCTOR') {
+                    (0, errors_1.assert)(this.parent !== null && this.parent instanceof class_1.ClassInstance);
+                    await this.RUN(...this.parent.args);
                 }
             }
             async RUN(...args) {
@@ -53832,7 +53924,7 @@ let Behaviour = (() => {
                 for (let i = start; i < start + len; i += step) {
                     try {
                         if (await this.shouldRun()) {
-                            await this.engine.scripting.executeCallback(null, this.definition.CODE, [i, step, ...args]);
+                            await this.engine.scripting.executeCallback(null, this, this.definition.CODE, [i, step, ...args]);
                         }
                     }
                     catch (err) {
@@ -53850,7 +53942,7 @@ let Behaviour = (() => {
             }
             async executeCallback(args = []) {
                 // Don't resolve args, it will fail in S33_METEORY
-                return await this.engine.scripting.executeCallback(null, this.definition.CODE, args);
+                return await this.engine.scripting.executeCallback(null, this, this.definition.CODE, args);
             }
             async executeConditionalCallback(args = []) {
                 if (await this.shouldRun()) {
@@ -53859,7 +53951,7 @@ let Behaviour = (() => {
             }
             async shouldRun() {
                 if (this.definition.CONDITION) {
-                    const condition = this.engine.getObject(this.definition.CONDITION.objectName);
+                    const condition = this.getObject(this.definition.CONDITION.objectName);
                     (0, errors_1.assert)(condition !== null);
                     return await condition.CHECK(true);
                 }
@@ -54036,22 +54128,29 @@ let Button = (() => {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition);
                 this.logic = (__runInitializers(this, _instanceExtraInitializers), void 0);
+                this.lastMousePosition = new pixi_js_1.Point();
+                this.originalPriority = 0;
+                this.draggingActive = false;
+                this.draggingEnded = false;
+                this.draggingPosition = null;
                 this.gfxStandard = null;
                 this.gfxOnClick = null;
                 this.gfxOnMove = null;
                 this.interactArea = null;
                 this.rect = null;
                 this.logic = new button_1.ButtonLogicComponent(this.onStateChange.bind(this));
+                this.onPointerMoveHandler = this.onPointerMove.bind(this);
+                this.onPointerUpHandler = this.onPointerUp.bind(this);
             }
             init() {
                 if (this.definition.GFXSTANDARD) {
-                    this.gfxStandard = this.engine.getObject(this.definition.GFXSTANDARD);
+                    this.gfxStandard = this.getObject(this.definition.GFXSTANDARD);
                 }
                 if (this.definition.GFXONCLICK) {
-                    this.gfxOnClick = this.engine.getObject(this.definition.GFXONCLICK);
+                    this.gfxOnClick = this.getObject(this.definition.GFXONCLICK);
                 }
                 if (this.definition.GFXONMOVE) {
-                    this.gfxOnMove = this.engine.getObject(this.definition.GFXONMOVE);
+                    this.gfxOnMove = this.getObject(this.definition.GFXONMOVE);
                 }
             }
             async applyDefaults() {
@@ -54073,6 +54172,19 @@ let Button = (() => {
             }
             async tick() {
                 await this.logic.tick();
+                if (this.draggingActive && this.draggingPosition) {
+                    const offsetX = this.lastMousePosition.x - this.draggingPosition.x;
+                    const offsetY = this.lastMousePosition.y - this.draggingPosition.y;
+                    this.draggingPosition.set(this.lastMousePosition.x, this.lastMousePosition.y);
+                    await this.gfxStandard?.MOVE(offsetX, offsetY);
+                    await this.gfxOnClick?.MOVE(offsetX, offsetY);
+                    await this.gfxOnMove?.MOVE(offsetX, offsetY);
+                    await this.callbacks.run('ONDRAGGING');
+                }
+                if (this.draggingEnded) {
+                    await this.callbacks.run('ONENDDRAGGING');
+                    this.draggingEnded = false;
+                }
             }
             setRect(rect) {
                 if (this.gfxStandard) {
@@ -54085,7 +54197,7 @@ let Button = (() => {
                     shape = rect;
                 }
                 else {
-                    const object = this.engine.getObject(rect);
+                    const object = this.getObject(rect);
                     (0, errors_1.assert)(object !== null, 'object referred by RECT should exist');
                     const sprite = object.getRenderObject();
                     (0, errors_1.assert)(sprite !== null);
@@ -54113,6 +54225,9 @@ let Button = (() => {
                 }
             }
             async onStateChange(prevState, event, state) {
+                if (this.draggingActive) {
+                    return;
+                }
                 if (this.interactArea) {
                     // For area button
                     this.interactArea.visible = state != button_1.State.DISABLED;
@@ -54179,6 +54294,17 @@ let Button = (() => {
                 }
                 else if (event == button_1.Event.DOWN) {
                     await this.callbacks.run('ONCLICKED');
+                    if (this.definition.DRAGGABLE) {
+                        const renderObject = this.gfxStandard?.getRenderObject();
+                        (0, errors_1.assert)(renderObject);
+                        this.originalPriority = renderObject.zIndex;
+                        this.gfxStandard?.SETPRIORITY(99999999);
+                        await this.callbacks.run('ONSTARTDRAGGING');
+                        this.engine.app.stage.on('pointerup', this.onPointerUpHandler);
+                        if (this.callbacks.has('ONDRAGGING')) {
+                            this.engine.app.stage.on('pointermove', this.onPointerMoveHandler);
+                        }
+                    }
                 }
                 else if (event == button_1.Event.UP) {
                     await this.callbacks.run('ONRELEASED');
@@ -54189,6 +54315,23 @@ let Button = (() => {
                 }
                 else if (event == button_1.Event.OUT) {
                     await this.callbacks.run('ONFOCUSOFF');
+                }
+            }
+            onPointerMove(event) {
+                this.lastMousePosition.set(Math.floor(event.screen.x), Math.floor(event.screen.y));
+                if (this.draggingPosition == null) {
+                    this.draggingPosition = new pixi_js_1.Point(Math.floor(event.screen.x), Math.floor(event.screen.y));
+                    this.draggingActive = true;
+                }
+            }
+            onPointerUp(event) {
+                if (this.draggingActive) {
+                    this.draggingActive = false;
+                    this.draggingEnded = true;
+                    this.draggingPosition = null;
+                    this.engine.app.stage.off('pointermove', this.onPointerMoveHandler);
+                    this.engine.app.stage.off('pointerup', this.onPointerMoveHandler);
+                    this.gfxStandard?.SETPRIORITY(this.originalPriority);
                 }
             }
             async ENABLE() {
@@ -54336,6 +54479,7 @@ const assetsLoader_1 = __webpack_require__(/*! ../../loaders/assetsLoader */ "./
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 let CanvasObserver = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -54343,6 +54487,7 @@ let CanvasObserver = (() => {
     let _SETBACKGROUND_decorators;
     let _REFRESH_decorators;
     let _GETGRAPHICSAT_decorators;
+    let _SAVE_decorators;
     return _a = class CanvasObserver extends _classSuper {
             async SETBACKGROUND(filename) {
                 const relativePath = this.engine.currentScene?.getRelativePath(filename);
@@ -54378,6 +54523,9 @@ let CanvasObserver = (() => {
                 }
                 return null;
             }
+            SAVE(filename, scaleX, scaleY) {
+                throw new errors_1.NotImplementedError();
+            }
             constructor() {
                 super(...arguments);
                 __runInitializers(this, _instanceExtraInitializers);
@@ -54388,14 +54536,143 @@ let CanvasObserver = (() => {
             _SETBACKGROUND_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _REFRESH_decorators = [(0, types_1.method)()];
             _GETGRAPHICSAT_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "onlyVisible", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false }, { name: "minZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "maxZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "ignoreAlpha", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            _SAVE_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "scaleX", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "scaleY", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _SETBACKGROUND_decorators, { kind: "method", name: "SETBACKGROUND", static: false, private: false, access: { has: obj => "SETBACKGROUND" in obj, get: obj => obj.SETBACKGROUND }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _REFRESH_decorators, { kind: "method", name: "REFRESH", static: false, private: false, access: { has: obj => "REFRESH" in obj, get: obj => obj.REFRESH }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETGRAPHICSAT_decorators, { kind: "method", name: "GETGRAPHICSAT", static: false, private: false, access: { has: obj => "GETGRAPHICSAT" in obj, get: obj => obj.GETGRAPHICSAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SAVE_decorators, { kind: "method", name: "SAVE", static: false, private: false, access: { has: obj => "SAVE" in obj, get: obj => obj.SAVE }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
 })();
 exports.CanvasObserver = CanvasObserver;
+
+
+/***/ }),
+
+/***/ "./src/engine/types/class.ts":
+/*!***********************************!*\
+  !*** ./src/engine/types/class.ts ***!
+  \***********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ClassInstance = exports.Class = void 0;
+const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const scope_1 = __webpack_require__(/*! ../scope */ "./src/engine/scope.ts");
+const definitionLoader_1 = __webpack_require__(/*! ../../loaders/definitionLoader */ "./src/loaders/definitionLoader.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const behaviour_1 = __webpack_require__(/*! ./behaviour */ "./src/engine/types/behaviour.ts");
+let Class = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _NEW_decorators;
+    return _a = class Class extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.innerDefinition = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.instances = [];
+            }
+            async init() {
+                this.innerDefinition = await this.engine.fileLoader.getCNVFile(this.engine.resolvePath(this.definition.DEF, 'common/classes'));
+            }
+            destroy() {
+                this.instances.forEach(instance => instance.destroy());
+            }
+            async tick(elapsedMS) {
+                for (const instance of this.instances) {
+                    await instance.tick(elapsedMS);
+                }
+            }
+            async NEW(name, ...args) {
+                (0, errors_1.assert)(this.innerDefinition !== null);
+                const instance = new ClassInstance(this.engine, this, name, args);
+                await instance.init();
+                this.instances.push(instance);
+                this.parentScope?.set(name, instance);
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _NEW_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            __esDecorate(_a, null, _NEW_decorators, { kind: "method", name: "NEW", static: false, private: false, access: { has: obj => "NEW" in obj, get: obj => obj.NEW }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
+exports.Class = Class;
+class ClassInstance extends index_1.ParentType {
+    constructor(engine, classObject, name, args) {
+        super(engine, classObject.parent, {
+            TYPE: 'CLASS_INSTANCE',
+            NAME: name,
+        });
+        this.scope = new scope_1.Scope('class_instance');
+        this.args = [];
+        this.class = classObject;
+        this.args = args;
+    }
+    async init() {
+        (0, errors_1.assert)(this.class.innerDefinition !== null);
+        await (0, definitionLoader_1.loadDefinition)(this.engine, this.scope, this.class.innerDefinition, this);
+        await (0, definitionLoader_1.doReady)(this.scope);
+        console.log(`Initialized class instance ${this.name} of ${this.class.name}`);
+    }
+    destroy() {
+        this.scope.objects.forEach(object => object.destroy());
+    }
+    async tick(elapsedMS) {
+        for (const object of this.scope.objects.filter((object) => object.isReady)) {
+            await object.tick(elapsedMS);
+        }
+    }
+    async __call(methodName, args) {
+        const object = this.engine.getObject(methodName, this.scope);
+        if (object === null || !(object instanceof behaviour_1.Behaviour)) {
+            return;
+        }
+        await object.RUNC(...args);
+    }
+}
+exports.ClassInstance = ClassInstance;
 
 
 /***/ }),
@@ -54457,10 +54734,9 @@ let CNVLoader = (() => {
             async LOAD(filename) {
                 (0, errors_1.assert)(this.engine.currentScene !== null);
                 const definition = await this.engine.fileLoader.getCNVFile(this.engine.currentScene.getRelativePath(filename));
-                const sceneScope = this.engine.scopeManager.getScope('scene');
-                (0, errors_1.assert)(sceneScope !== null);
-                await (0, definitionLoader_1.loadDefinition)(this.engine, sceneScope, definition, this.engine.currentScene);
-                await (0, definitionLoader_1.doReady)(sceneScope);
+                (0, errors_1.assert)(this.parent?.scope);
+                await (0, definitionLoader_1.loadDefinition)(this.engine, this.parent.scope, definition, this.engine.currentScene);
+                await (0, definitionLoader_1.doReady)(this.parent.scope);
             }
             constructor() {
                 super(...arguments);
@@ -54549,8 +54825,8 @@ let ComplexCondition = (() => {
                 }
             }
             async CHECK(arg) {
-                const condition1 = this.engine.getObject(this.definition.CONDITION1);
-                const condition2 = this.engine.getObject(this.definition.CONDITION2);
+                const condition1 = this.getObject(this.definition.CONDITION1);
+                const condition2 = this.getObject(this.definition.CONDITION2);
                 (0, errors_1.assert)(condition1 !== null && condition2 !== null);
                 let result;
                 switch (this.definition.OPERATOR) {
@@ -54662,8 +54938,8 @@ let Condition = (() => {
                 }
             }
             async CHECK(shouldSignal) {
-                const operand1 = await this.engine.scripting.executeCallback(null, this.definition.OPERAND1);
-                const operand2 = await this.engine.scripting.executeCallback(null, this.definition.OPERAND2);
+                const operand1 = await this.engine.scripting.executeCallback(null, this, this.definition.OPERAND1);
+                const operand2 = await this.engine.scripting.executeCallback(null, this, this.definition.OPERAND2);
                 let result;
                 if (operand1 !== undefined && operand2 !== undefined) {
                     try {
@@ -54800,7 +55076,7 @@ let Database = (() => {
                 this.cursorPosition = 0;
             }
             init() {
-                this.baseStruct = this.engine.getObject(this.definition.MODEL);
+                this.baseStruct = this.getObject(this.definition.MODEL);
             }
             async ready() {
                 await this.callbacks.run('ONINIT');
@@ -55096,7 +55372,7 @@ const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/type
 const index_2 = __webpack_require__(/*! ../index */ "./src/engine/index.ts");
 let Episode = (() => {
     var _a;
-    let _classSuper = index_1.Type;
+    let _classSuper = index_1.ParentType;
     let _instanceExtraInitializers = [];
     let _GOTO_decorators;
     let _GETLATESTSCENE_decorators;
@@ -55107,9 +55383,9 @@ let Episode = (() => {
                 if (this.definition.PATH) {
                     const applicationDefinition = await this.engine.fileLoader.getCNVFile((0, filesLoader_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
                     this.engine.app.ticker.stop();
-                    const episodeScope = this.engine.scopeManager.newScope('episode');
-                    await (0, definitionLoader_1.loadDefinition)(this.engine, episodeScope, applicationDefinition, this);
-                    await (0, definitionLoader_1.doReady)(episodeScope);
+                    this.scope = this.engine.scopeManager.newScope('episode');
+                    await (0, definitionLoader_1.loadDefinition)(this.engine, this.scope, applicationDefinition, this);
+                    await (0, definitionLoader_1.doReady)(this.scope);
                     this.engine.app.ticker.start();
                 }
             }
@@ -55172,8 +55448,8 @@ class Expression extends index_1.ValueType {
         super(engine, parent, definition, false);
     }
     async getValue() {
-        const operand1 = await this.engine.scripting.executeCallback(this, this.definition.OPERAND1);
-        const operand2 = await this.engine.scripting.executeCallback(this, this.definition.OPERAND2);
+        const operand1 = await this.engine.scripting.executeCallback(this, this, this.definition.OPERAND1);
+        const operand2 = await this.engine.scripting.executeCallback(this, this, this.definition.OPERAND2);
         let result;
         switch (this.definition.OPERATOR) {
             case 'ADD':
@@ -55232,16 +55508,17 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Font = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
-const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 class Font extends index_1.Type {
     constructor() {
         super(...arguments);
         this.bitmapFont = null;
     }
     async init() {
-        (0, errors_1.assert)(this.engine.currentScene !== null);
         try {
-            const relativePath = this.engine.currentScene.getRelativePath(this.definition['DEF_%s_%s_%d']);
+            const filename = this.definition['DEF_%s_%s_%d'];
+            const relativePath = this.engine.currentScene !== null
+                ? this.engine.currentScene.getRelativePath(filename)
+                : this.engine.resolvePath(filename);
             this.bitmapFont = await this.engine.fileLoader.getFNTFile(relativePath);
         }
         catch (err) {
@@ -55321,7 +55598,7 @@ let Group = (() => {
             }
             ADD(...objectsNames) {
                 objectsNames.forEach((objectName) => {
-                    const object = this.engine.getObject(objectName);
+                    const object = this.getObject(objectName);
                     if (object === null) {
                         console.warn(`Script was trying to add non-existing object "${objectName}" to a group "${this.name}"`);
                     }
@@ -55340,7 +55617,7 @@ let Group = (() => {
                     }
                     else {
                         const argumentsString = args?.map((arg) => typeof arg).join(', ');
-                        throw new Error(`Method '${methodName}(${argumentsString ?? ''})' does not exist in ${object.constructor.name}`);
+                        console.warn(`Method '${methodName}(${argumentsString ?? ''})' does not exist in ${object.constructor.name}`);
                     }
                 }
             }
@@ -55442,10 +55719,13 @@ let Image = (() => {
     let _SETPOSITION_decorators;
     let _SHOW_decorators;
     let _HIDE_decorators;
+    let _GETPOSITIONX_decorators;
     let _GETPOSITIONY_decorators;
     let _GETALPHA_decorators;
     let _MERGEALPHA_decorators;
     let _LOAD_decorators;
+    let _INVALIDATE_decorators;
+    let _SETCLIPPING_decorators;
     return _a = class Image extends _classSuper {
             constructor() {
                 super(...arguments);
@@ -55466,8 +55746,9 @@ let Image = (() => {
                 this.sprite.name = `${this.name} (IMAGE)`; // For PIXI Devtools
             }
             async load(path) {
-                (0, errors_1.assert)(this.engine.currentScene !== null);
-                const relativePath = this.engine.currentScene.getRelativePath(path);
+                const relativePath = this.engine.currentScene !== null
+                    ? this.engine.currentScene.getRelativePath(path)
+                    : this.engine.resolvePath(path);
                 return await (0, assetsLoader_1.loadSprite)(this.engine.fileLoader, relativePath);
             }
             async ready() {
@@ -55480,7 +55761,8 @@ let Image = (() => {
                 this.engine.rendering.removeFromStage(this.sprite);
             }
             SETOPACITY(opacity) {
-                throw new errors_1.NotImplementedError();
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.alpha = opacity / 255;
             }
             MOVE(xOffset, yOffset) {
                 (0, errors_1.assert)(this.sprite !== null);
@@ -55499,6 +55781,10 @@ let Image = (() => {
             HIDE() {
                 (0, errors_1.assert)(this.sprite !== null);
                 this.sprite.visible = false;
+            }
+            GETPOSITIONX() {
+                (0, errors_1.assert)(this.sprite !== null);
+                return this.sprite.x;
             }
             GETPOSITIONY() {
                 (0, errors_1.assert)(this.sprite !== null);
@@ -55521,7 +55807,7 @@ let Image = (() => {
                     this.maskContainer = new pixi_js_1.Container();
                     this.maskContainer.addChild(maskGraphics);
                 }
-                const object = this.engine.getObject(name);
+                const object = this.getObject(name);
                 (0, errors_1.assert)(object !== null);
                 let otherObjectAlphaSprite = this.otherObjectsAlphaSpriteCache.get(name);
                 if (!otherObjectAlphaSprite) {
@@ -55540,6 +55826,17 @@ let Image = (() => {
                 await this.initSprite(path);
                 (0, errors_1.assert)(this.sprite !== null);
                 this.engine.rendering.addToStage(this.sprite);
+            }
+            INVALIDATE() {
+                throw new errors_1.NotImplementedError();
+            }
+            SETCLIPPING(x1, y1, x2, y2) {
+                (0, errors_1.assert)(this.sprite !== null);
+                const maskGraphics = new pixi_js_1.Graphics();
+                maskGraphics.beginFill(0x000000);
+                maskGraphics.drawRect(x1, y1, x2 - x1, y2 - y1);
+                maskGraphics.endFill();
+                this.sprite.mask = maskGraphics;
             }
             generateMaskTexture(sprite) {
                 (0, errors_1.assert)(sprite.hitmap !== undefined);
@@ -55564,19 +55861,25 @@ let Image = (() => {
             _SETPOSITION_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SHOW_decorators = [(0, types_1.method)()];
             _HIDE_decorators = [(0, types_1.method)()];
+            _GETPOSITIONX_decorators = [(0, types_1.method)()];
             _GETPOSITIONY_decorators = [(0, types_1.method)()];
             _GETALPHA_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _MERGEALPHA_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _INVALIDATE_decorators = [(0, types_1.method)()];
+            _SETCLIPPING_decorators = [(0, types_1.method)({ name: "x1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x2", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y2", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _SETOPACITY_decorators, { kind: "method", name: "SETOPACITY", static: false, private: false, access: { has: obj => "SETOPACITY" in obj, get: obj => obj.SETOPACITY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPOSITIONX_decorators, { kind: "method", name: "GETPOSITIONX", static: false, private: false, access: { has: obj => "GETPOSITIONX" in obj, get: obj => obj.GETPOSITIONX }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETPOSITIONY_decorators, { kind: "method", name: "GETPOSITIONY", static: false, private: false, access: { has: obj => "GETPOSITIONY" in obj, get: obj => obj.GETPOSITIONY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETALPHA_decorators, { kind: "method", name: "GETALPHA", static: false, private: false, access: { has: obj => "GETALPHA" in obj, get: obj => obj.GETALPHA }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _MERGEALPHA_decorators, { kind: "method", name: "MERGEALPHA", static: false, private: false, access: { has: obj => "MERGEALPHA" in obj, get: obj => obj.MERGEALPHA }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _INVALIDATE_decorators, { kind: "method", name: "INVALIDATE", static: false, private: false, access: { has: obj => "INVALIDATE" in obj, get: obj => obj.INVALIDATE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETCLIPPING_decorators, { kind: "method", name: "SETCLIPPING", static: false, private: false, access: { has: obj => "SETCLIPPING" in obj, get: obj => obj.SETCLIPPING }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
@@ -55629,7 +55932,7 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     done = true;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ValueType = exports.DisplayType = exports.Type = void 0;
+exports.ParentType = exports.ValueType = exports.DisplayType = exports.Type = void 0;
 const callbacks_1 = __webpack_require__(/*! ../components/callbacks */ "./src/engine/components/callbacks.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const events_1 = __webpack_require__(/*! ../components/events */ "./src/engine/components/events.ts");
@@ -55663,7 +55966,7 @@ let Type = (() => {
                 }
             }
             GETCLONEINDEX() {
-                const object = this.engine.getObject(this.definition.NAME);
+                const object = this.getObject(this.definition.NAME);
                 (0, errors_1.assert)(object !== null);
                 return object.clones.indexOf(this) + 1;
             }
@@ -55686,7 +55989,10 @@ let Type = (() => {
                 return null;
             }
             get parentScope() {
-                return this.engine.scopeManager.getScopeOf(this);
+                return this.parent?.scope ?? null;
+            }
+            getObject(name) {
+                return this.engine.getObject(name, this.parentScope);
             }
             // Called when trying to call a method that is not existing for a type
             __call(methodName, args) {
@@ -55766,6 +56072,7 @@ let ValueType = (() => {
     let _classSuper = Type;
     let _instanceExtraInitializers = [];
     let _RESETINI_decorators;
+    let _COPYFILE_decorators;
     return _a = class ValueType extends _classSuper {
             constructor(engine, parent, definition, defaultValue, autoSave = true) {
                 super(engine, parent, definition);
@@ -55779,6 +56086,9 @@ let ValueType = (() => {
                     await this.setValue(this.definition.DEFAULT ?? this.definition.VALUE ?? this.defaultValue);
                     this.saveToINI();
                 }
+            }
+            async COPYFILE(from, to) {
+                throw new errors_1.NotImplementedError();
             }
             valueOf() {
                 return this.value;
@@ -55821,12 +56131,21 @@ let ValueType = (() => {
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _RESETINI_decorators = [(0, types_1.method)()];
+            _COPYFILE_decorators = [(0, types_1.method)({ name: "from", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "to", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _RESETINI_decorators, { kind: "method", name: "RESETINI", static: false, private: false, access: { has: obj => "RESETINI" in obj, get: obj => obj.RESETINI }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _COPYFILE_decorators, { kind: "method", name: "COPYFILE", static: false, private: false, access: { has: obj => "COPYFILE" in obj, get: obj => obj.COPYFILE }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
 })();
 exports.ValueType = ValueType;
+class ParentType extends Type {
+    constructor() {
+        super(...arguments);
+        this.scope = null;
+    }
+}
+exports.ParentType = ParentType;
 
 
 /***/ }),
@@ -55894,6 +56213,7 @@ let Integer = (() => {
     let _GET_decorators;
     let _SWITCH_decorators;
     let _ABS_decorators;
+    let _RANDOM_decorators;
     return _a = class Integer extends _classSuper {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition, 0);
@@ -55932,7 +56252,7 @@ let Integer = (() => {
             // TODO: Maybe type guard could try to resolve references
             async SET(newValue) {
                 if (typeof newValue == 'string') {
-                    const possibleInteger = this.engine.getObject(newValue);
+                    const possibleInteger = this.getObject(newValue);
                     if (possibleInteger instanceof _a) {
                         await this.setValue(possibleInteger.value);
                         return;
@@ -55953,6 +56273,9 @@ let Integer = (() => {
             }
             async ABS(value) {
                 return this.setValue(Math.abs(value));
+            }
+            async RANDOM(offset, range) {
+                return Math.floor(Math.random() * range) + offset;
             }
             async valueChanged(oldValue, newValue) {
                 if (oldValue !== newValue) {
@@ -55983,6 +56306,7 @@ let Integer = (() => {
             _GET_decorators = [(0, types_1.method)()];
             _SWITCH_decorators = [(0, types_1.method)({ name: "first", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "second", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _ABS_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _RANDOM_decorators = [(0, types_1.method)({ name: "offset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "range", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _INC_decorators, { kind: "method", name: "INC", static: false, private: false, access: { has: obj => "INC" in obj, get: obj => obj.INC }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _DEC_decorators, { kind: "method", name: "DEC", static: false, private: false, access: { has: obj => "DEC" in obj, get: obj => obj.DEC }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -55996,6 +56320,7 @@ let Integer = (() => {
             __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SWITCH_decorators, { kind: "method", name: "SWITCH", static: false, private: false, access: { has: obj => "SWITCH" in obj, get: obj => obj.SWITCH }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _ABS_decorators, { kind: "method", name: "ABS", static: false, private: false, access: { has: obj => "ABS" in obj, get: obj => obj.ABS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RANDOM_decorators, { kind: "method", name: "RANDOM", static: false, private: false, access: { has: obj => "RANDOM" in obj, get: obj => obj.RANDOM }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
@@ -56064,12 +56389,15 @@ let Keyboard = (() => {
     var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
+    let _DISABLE_decorators;
     let _ISKEYDOWN_decorators;
+    let _ISENABLED_decorators;
     return _a = class Keyboard extends _classSuper {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition);
                 this.keysState = (__runInitializers(this, _instanceExtraInitializers), new Map());
                 this.changeQueue = [];
+                this.enabled = true;
                 this.onKeyDownCallback = this.onKeyDown.bind(this);
                 this.onKeyUpCallback = this.onKeyUp.bind(this);
             }
@@ -56092,17 +56420,27 @@ let Keyboard = (() => {
                 }
                 this.changeQueue = [];
             }
+            DISABLE() {
+                this.enabled = false;
+            }
             ISKEYDOWN(keyName) {
                 if (this.keysState.has(keyName)) {
                     return this.keysState.get(keyName);
                 }
                 return false;
             }
+            ISENABLED() {
+                return this.enabled;
+            }
             onKeyDown(event) {
-                this.setKeyState(event.code, true);
+                if (this.enabled) {
+                    this.setKeyState(event.code, true);
+                }
             }
             onKeyUp(event) {
-                this.setKeyState(event.code, false);
+                if (this.enabled) {
+                    this.setKeyState(event.code, false);
+                }
             }
             setKeyState(keyCode, value) {
                 const mapped = keysMapping[keyCode];
@@ -56115,8 +56453,12 @@ let Keyboard = (() => {
         },
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _DISABLE_decorators = [(0, types_1.method)()];
             _ISKEYDOWN_decorators = [(0, types_1.method)({ name: "keyName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _ISENABLED_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _ISKEYDOWN_decorators, { kind: "method", name: "ISKEYDOWN", static: false, private: false, access: { has: obj => "ISKEYDOWN" in obj, get: obj => obj.ISKEYDOWN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISENABLED_decorators, { kind: "method", name: "ISENABLED", static: false, private: false, access: { has: obj => "ISENABLED" in obj, get: obj => obj.ISENABLED }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
@@ -56186,10 +56528,12 @@ let Mouse = (() => {
     let _SET_decorators;
     let _ENABLE_decorators;
     let _DISABLE_decorators;
+    let _DISABLESIGNAL_decorators;
     let _SHOW_decorators;
     let _HIDE_decorators;
     let _GETPOSX_decorators;
     let _GETPOSY_decorators;
+    let _SETPOSITION_decorators;
     return _a = class Mouse extends _classSuper {
             constructor() {
                 super(...arguments);
@@ -56249,6 +56593,9 @@ let Mouse = (() => {
                 this.unregisterCallbacks();
                 this.engine.app.stage.eventMode = 'none';
             }
+            DISABLESIGNAL() {
+                throw new errors_1.NotImplementedError();
+            }
             unregisterCallbacks() {
                 this.engine.app.stage.removeListener('pointermove', this.mouseMoveListener);
                 this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener);
@@ -56264,6 +56611,10 @@ let Mouse = (() => {
             }
             GETPOSY() {
                 return this.mousePosition.y;
+            }
+            SETPOSITION(x, y) {
+                // This is kinda impossible. We would have to hide cursor and emulate it.
+                throw new errors_1.NotImplementedError();
             }
             onMouseMove(event) {
                 this.moved = true;
@@ -56307,17 +56658,21 @@ let Mouse = (() => {
             _SET_decorators = [(0, types_1.method)({ name: "cursorType", types: [{ name: "string", literal: "ACTIVE", isArray: false }, { name: "string", literal: "ARROW", isArray: false }], optional: false, rest: false })];
             _ENABLE_decorators = [(0, types_1.method)()];
             _DISABLE_decorators = [(0, types_1.method)()];
+            _DISABLESIGNAL_decorators = [(0, types_1.method)()];
             _SHOW_decorators = [(0, types_1.method)()];
             _HIDE_decorators = [(0, types_1.method)()];
             _GETPOSX_decorators = [(0, types_1.method)()];
             _GETPOSY_decorators = [(0, types_1.method)()];
+            _SETPOSITION_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DISABLESIGNAL_decorators, { kind: "method", name: "DISABLESIGNAL", static: false, private: false, access: { has: obj => "DISABLESIGNAL" in obj, get: obj => obj.DISABLESIGNAL }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETPOSX_decorators, { kind: "method", name: "GETPOSX", static: false, private: false, access: { has: obj => "GETPOSX" in obj, get: obj => obj.GETPOSX }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETPOSY_decorators, { kind: "method", name: "GETPOSY", static: false, private: false, access: { has: obj => "GETPOSY" in obj, get: obj => obj.GETPOSY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
@@ -56500,7 +56855,7 @@ let Rand = (() => {
                 return Math.floor(Math.random() * (max - min)) + min;
             }
             GETPLENTY(objectTarget, count, min, max, unique) {
-                const object = this.engine.getObject(objectTarget);
+                const object = this.getObject(objectTarget);
                 (0, errors_1.assert)(object !== null);
                 const values = [];
                 while (values.length < count) {
@@ -56579,14 +56934,19 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const filesLoader_1 = __webpack_require__(/*! ../../loaders/filesLoader */ "./src/loaders/filesLoader.ts");
+const assetsLoader_1 = __webpack_require__(/*! ../../loaders/assetsLoader */ "./src/loaders/assetsLoader.ts");
 let Scene = (() => {
     var _a;
-    let _classSuper = index_1.Type;
+    let _classSuper = index_1.ParentType;
     let _instanceExtraInitializers = [];
     let _SETMUSICVOLUME_decorators;
     let _SETMINHSPRIORITY_decorators;
     let _RUNCLONES_decorators;
     let _RUN_decorators;
+    let _STARTMUSIC_decorators;
+    let _GETMAXHSPRIORITY_decorators;
+    let _GETMINHSPRIORITY_decorators;
+    let _GETPLAYINGANIMO_decorators;
     return _a = class Scene extends _classSuper {
             SETMUSICVOLUME(volume) {
                 (0, errors_1.assert)(this.engine.music !== null);
@@ -56596,8 +56956,8 @@ let Scene = (() => {
                 throw new errors_1.NotImplementedError();
             }
             async RUNCLONES(baseObjectName, startingIdx, endingIdx, behaviourName) {
-                const baseObject = this.engine.getObject(baseObjectName);
-                const behaviour = this.engine.getObject(behaviourName);
+                const baseObject = this.getObject(baseObjectName);
+                const behaviour = this.getObject(behaviourName);
                 (0, errors_1.assert)(baseObject !== null && behaviour !== null);
                 if (startingIdx < 1) {
                     startingIdx = 1;
@@ -56611,7 +56971,7 @@ let Scene = (() => {
                 }
             }
             async RUN(objectName, methodName, ...args) {
-                const object = this.engine.getObject(objectName);
+                const object = this.getObject(objectName);
                 if (object === null) {
                     return;
                 }
@@ -56622,6 +56982,22 @@ let Scene = (() => {
                 else {
                     return await object.__call(methodName, args);
                 }
+            }
+            async STARTMUSIC(filename) {
+                this.engine.music?.stop();
+                this.engine.music = await (0, assetsLoader_1.loadSound)(this.engine.fileLoader, filename, {
+                    loop: true,
+                });
+                await this.engine.music.play();
+            }
+            GETMAXHSPRIORITY() {
+                throw new errors_1.NotImplementedError();
+            }
+            GETMINHSPRIORITY() {
+                throw new errors_1.NotImplementedError();
+            }
+            GETPLAYINGANIMO(arg) {
+                throw new errors_1.NotImplementedError();
             }
             getRelativePath(filename) {
                 const scenePath = (0, filesLoader_1.pathJoin)('DANE', this.definition.PATH);
@@ -56638,10 +57014,18 @@ let Scene = (() => {
             _SETMINHSPRIORITY_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _RUNCLONES_decorators = [(0, types_1.method)({ name: "baseObjectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "startingIdx", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "endingIdx", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _RUN_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "methodName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            _STARTMUSIC_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETMAXHSPRIORITY_decorators = [(0, types_1.method)()];
+            _GETMINHSPRIORITY_decorators = [(0, types_1.method)()];
+            _GETPLAYINGANIMO_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _SETMUSICVOLUME_decorators, { kind: "method", name: "SETMUSICVOLUME", static: false, private: false, access: { has: obj => "SETMUSICVOLUME" in obj, get: obj => obj.SETMUSICVOLUME }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SETMINHSPRIORITY_decorators, { kind: "method", name: "SETMINHSPRIORITY", static: false, private: false, access: { has: obj => "SETMINHSPRIORITY" in obj, get: obj => obj.SETMINHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _RUNCLONES_decorators, { kind: "method", name: "RUNCLONES", static: false, private: false, access: { has: obj => "RUNCLONES" in obj, get: obj => obj.RUNCLONES }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _STARTMUSIC_decorators, { kind: "method", name: "STARTMUSIC", static: false, private: false, access: { has: obj => "STARTMUSIC" in obj, get: obj => obj.STARTMUSIC }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETMAXHSPRIORITY_decorators, { kind: "method", name: "GETMAXHSPRIORITY", static: false, private: false, access: { has: obj => "GETMAXHSPRIORITY" in obj, get: obj => obj.GETMAXHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETMINHSPRIORITY_decorators, { kind: "method", name: "GETMINHSPRIORITY", static: false, private: false, access: { has: obj => "GETMINHSPRIORITY" in obj, get: obj => obj.GETMINHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPLAYINGANIMO_decorators, { kind: "method", name: "GETPLAYINGANIMO", static: false, private: false, access: { has: obj => "GETPLAYINGANIMO" in obj, get: obj => obj.GETPLAYINGANIMO }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
@@ -56967,7 +57351,7 @@ let Sequence = (() => {
             }
             async getAnimo(nameOrFilename) {
                 // Get object by name
-                const object = this.engine.getObject(nameOrFilename);
+                const object = this.getObject(nameOrFilename);
                 if (object) {
                     return object;
                 }
@@ -57067,6 +57451,7 @@ let Sound = (() => {
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _PLAY_decorators;
+    let _ISPLAYING_decorators;
     let _STOP_decorators;
     let _RESUME_decorators;
     let _PAUSE_decorators;
@@ -57109,17 +57494,17 @@ let Sound = (() => {
                     instance.on('end', this.onEnd.bind(this));
                 }, 0);
             }
+            ISPLAYING() {
+                return this.sound !== null && this.sound.isPlaying;
+            }
             STOP(arg) {
-                (0, errors_1.assert)(this.sound !== null);
-                this.sound.stop();
+                this.sound?.stop();
             }
             RESUME() {
-                (0, errors_1.assert)(this.sound !== null);
-                this.sound.resume();
+                this.sound?.resume();
             }
             PAUSE() {
-                (0, errors_1.assert)(this.sound !== null);
-                this.sound.pause();
+                this.sound?.pause();
             }
             RELEASE() {
                 this.sound?.stop();
@@ -57159,6 +57544,7 @@ let Sound = (() => {
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _PLAY_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "any", literal: null, isArray: false }], optional: true, rest: false })];
+            _ISPLAYING_decorators = [(0, types_1.method)()];
             _STOP_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
             _RESUME_decorators = [(0, types_1.method)()];
             _PAUSE_decorators = [(0, types_1.method)()];
@@ -57166,6 +57552,7 @@ let Sound = (() => {
             _SETFREQ_decorators = [(0, types_1.method)({ name: "frequency", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _LOAD_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISPLAYING_decorators, { kind: "method", name: "ISPLAYING", static: false, private: false, access: { has: obj => "ISPLAYING" in obj, get: obj => obj.ISPLAYING }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _RESUME_decorators, { kind: "method", name: "RESUME", static: false, private: false, access: { has: obj => "RESUME" in obj, get: obj => obj.RESUME }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _PAUSE_decorators, { kind: "method", name: "PAUSE", static: false, private: false, access: { has: obj => "PAUSE" in obj, get: obj => obj.PAUSE }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -57247,7 +57634,7 @@ let StaticFilter = (() => {
                 this.properties.set(name, value);
             }
             LINK(arg) {
-                const object = this.engine.getObject(arg);
+                const object = this.getObject(arg);
                 (0, errors_1.assert)(object !== null);
                 const renderObject = object.getRenderObject();
                 if (renderObject === null) {
@@ -57270,7 +57657,7 @@ let StaticFilter = (() => {
                 this.linked.set(object, savedProperties);
             }
             UNLINK(arg) {
-                const object = this.engine.getObject(arg);
+                const object = this.getObject(arg);
                 (0, errors_1.assert)(object !== null);
                 const properties = this.linked.get(object);
                 if (!properties) {
@@ -57362,6 +57749,7 @@ let String = (() => {
     let _SUB_decorators;
     let _GET_decorators;
     let _FIND_decorators;
+    let _LENGTH_decorators;
     return _a = class String extends _classSuper {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition, '');
@@ -57388,6 +57776,9 @@ let String = (() => {
             FIND(needle, start) {
                 return this.value.indexOf(needle, start);
             }
+            LENGTH() {
+                return this.value.length;
+            }
             async valueChanged(oldValue, newValue) {
                 if (oldValue !== newValue) {
                     await this.callbacks.run('ONCHANGED', newValue);
@@ -57402,11 +57793,13 @@ let String = (() => {
             _SUB_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "length", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _GET_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "length", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _FIND_decorators = [(0, types_1.method)({ name: "needle", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "start", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
+            _LENGTH_decorators = [(0, types_1.method)()];
             __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LENGTH_decorators, { kind: "method", name: "LENGTH", static: false, private: false, access: { has: obj => "LENGTH" in obj, get: obj => obj.LENGTH }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
@@ -57488,7 +57881,7 @@ let Struct = (() => {
                     const field = await (0, definitionLoader_1.createObject)(this.engine, {
                         TYPE: type,
                         NAME: key,
-                    }, this);
+                    }, this.parent);
                     (0, errors_1.assert)(field instanceof index_1.ValueType, 'struct field has to be of value type');
                     this.content.set(key, field);
                 }
@@ -57504,7 +57897,7 @@ let Struct = (() => {
                 }
             }
             async SET(otherObjectName) {
-                const otherObject = this.engine.getObject(otherObjectName);
+                const otherObject = this.getObject(otherObjectName);
                 (0, errors_1.assert)(otherObject !== null, 'object does not exist');
                 for (const key of otherObject.structure.keys()) {
                     const otherField = otherObject.GETFIELD(key);
@@ -57673,7 +58066,7 @@ let Text = (() => {
                 this.text = (__runInitializers(this, _instanceExtraInitializers), null);
             }
             async applyDefaults() {
-                const font = this.engine.getObject(this.definition.FONT);
+                const font = this.getObject(this.definition.FONT);
                 if (font === null || font.bitmapFont === null) {
                     return;
                 }
@@ -58467,6 +58860,10 @@ const ButtonDefinitionStructure = {
     ONINIT: (0, common_1.optional)(common_1.callback),
 };
 const CanvasObserverStructure = {};
+const ClassDefinitionStructure = {
+    DEF: common_1.string,
+    BASE: (0, common_1.optional)(common_1.string),
+};
 const CNVLoaderStructure = {};
 const ComplexConditionDefinitionStructure = {
     CONDITION1: common_1.reference,
@@ -58626,6 +59023,7 @@ exports.structureDefinitions = {
     BUTTON: ButtonDefinitionStructure,
     CANVASOBSERVER: CanvasObserverStructure,
     CANVAS_OBSERVER: CanvasObserverStructure,
+    CLASS: ClassDefinitionStructure,
     CNVLOADER: CNVLoaderStructure,
     COMPLEXCONDITION: ComplexConditionDefinitionStructure,
     CONDITION: ConditionDefinitionStructure,
@@ -60421,8 +60819,10 @@ const ReksioIFExpressionLexer_1 = __importDefault(__webpack_require__(/*! ./Reks
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 class ExpressionEvaluator extends ReksioIFExpressionVisitor_1.default {
-    constructor(engine) {
+    constructor(engine, caller) {
         super();
+        this.engine = engine;
+        this.caller = caller;
         this.visitExprList = async (ctx) => {
             const subResults = [];
             for (const entry of this.visitChildren(ctx)) {
@@ -60473,23 +60873,22 @@ class ExpressionEvaluator extends ReksioIFExpressionVisitor_1.default {
             return (0, types_1.ForceNumber)(ctx.getText());
         };
         this.visitIdentifier = async (ctx) => {
-            const object = this.engine.getObject(ctx.getText());
+            const object = this.engine.getObject(ctx.getText(), this.caller?.parentScope);
             (0, errors_1.assert)(object !== null);
             return await object.getValue();
         };
         this.visitLogicOperator = (ctx) => {
             return ctx.getText();
         };
-        this.engine = engine;
     }
 }
 exports.ExpressionEvaluator = ExpressionEvaluator;
-const evaluateExpression = async (engine, script) => {
+const evaluateExpression = async (engine, caller, script) => {
     const lexer = new ReksioIFExpressionLexer_1.default(new antlr4_1.default.CharStream(script));
     const tokens = new antlr4_1.default.CommonTokenStream(lexer);
     const parser = new ReksioIFExpressionParser_1.default(tokens);
     const tree = parser.exprList();
-    const evaluator = new ExpressionEvaluator(engine);
+    const evaluator = new ExpressionEvaluator(engine, caller);
     return await tree.accept(evaluator);
 };
 exports.evaluateExpression = evaluateExpression;
@@ -60629,7 +61028,7 @@ ReksioLangLexer.ruleNames = [
     "I_IDENTIFIER", "I_BRACKET_START", "I_BRACKET_END", "I_OPERATION_GROUPING_START",
     "I_OPERATION_GROUPING_END", "MISSING_QUOTE_TEXT",
 ];
-ReksioLangLexer._serializedATN = [4, 0, 25, 381, 6, -1, 6, -1,
+ReksioLangLexer._serializedATN = [4, 0, 25, 392, 6, -1, 6, -1,
     6, -1, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2,
     8, 7, 8, 2, 9, 7, 9, 2, 10, 7, 10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7,
     15, 2, 16, 7, 16, 2, 17, 7, 17, 2, 18, 7, 18, 2, 19, 7, 19, 2, 20, 7, 20, 2, 21, 7, 21, 2, 22, 7, 22,
@@ -60639,115 +61038,119 @@ ReksioLangLexer._serializedATN = [4, 0, 25, 381, 6, -1, 6, -1,
     44, 2, 45, 7, 45, 2, 46, 7, 46, 2, 47, 7, 47, 2, 48, 7, 48, 2, 49, 7, 49, 2, 50, 7, 50, 2, 51, 7, 51,
     2, 52, 7, 52, 2, 53, 7, 53, 2, 54, 7, 54, 2, 55, 7, 55, 2, 56, 7, 56, 2, 57, 7, 57, 2, 58, 7, 58, 2,
     59, 7, 59, 2, 60, 7, 60, 2, 61, 7, 61, 2, 62, 7, 62, 2, 63, 7, 63, 2, 64, 7, 64, 2, 65, 7, 65, 1, 0,
-    1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 2, 148, 8, 2, 11, 2, 12, 2, 149, 1,
-    2, 1, 2, 4, 2, 154, 8, 2, 11, 2, 12, 2, 155, 3, 2, 158, 8, 2, 1, 3, 1, 3, 1, 3, 1, 3, 5, 3, 164, 8, 3,
-    10, 3, 12, 3, 167, 9, 3, 1, 3, 1, 3, 1, 3, 1, 4, 1, 4, 5, 4, 174, 8, 4, 10, 4, 12, 4, 177, 9, 4, 1, 4,
-    1, 4, 1, 5, 4, 5, 182, 8, 5, 11, 5, 12, 5, 183, 1, 6, 1, 6, 1, 7, 1, 7, 1, 8, 1, 8, 1, 9, 1, 9, 1, 10,
-    1, 10, 1, 11, 1, 11, 1, 12, 1, 12, 1, 13, 1, 13, 1, 14, 1, 14, 1, 15, 1, 15, 1, 16, 1, 16, 1, 17, 1,
-    17, 1, 18, 1, 18, 1, 19, 1, 19, 1, 20, 4, 20, 215, 8, 20, 11, 20, 12, 20, 216, 1, 21, 1, 21, 1, 22,
-    1, 22, 1, 23, 1, 23, 1, 24, 1, 24, 1, 25, 1, 25, 1, 26, 1, 26, 1, 27, 1, 27, 1, 28, 1, 28, 1, 29, 1,
-    29, 1, 30, 1, 30, 1, 31, 1, 31, 1, 32, 1, 32, 1, 33, 1, 33, 1, 34, 1, 34, 1, 34, 1, 34, 1, 35, 1, 35,
-    1, 35, 1, 35, 1, 36, 1, 36, 1, 37, 1, 37, 1, 38, 4, 38, 258, 8, 38, 11, 38, 12, 38, 259, 1, 38, 1,
-    38, 1, 39, 1, 39, 1, 39, 1, 39, 1, 40, 1, 40, 1, 40, 1, 40, 1, 41, 1, 41, 1, 41, 1, 41, 1, 42, 1, 42,
-    1, 42, 1, 42, 1, 43, 1, 43, 1, 44, 1, 44, 1, 44, 1, 44, 1, 45, 1, 45, 1, 45, 1, 45, 1, 46, 1, 46, 1,
-    46, 1, 46, 1, 47, 1, 47, 1, 47, 1, 47, 1, 48, 1, 48, 1, 48, 1, 48, 1, 49, 1, 49, 1, 49, 1, 49, 1, 50,
-    1, 50, 1, 50, 1, 50, 1, 51, 1, 51, 1, 51, 1, 51, 1, 52, 1, 52, 1, 52, 1, 52, 1, 53, 1, 53, 1, 53, 1,
-    53, 1, 54, 1, 54, 1, 54, 1, 54, 1, 55, 1, 55, 1, 55, 1, 55, 1, 56, 1, 56, 1, 56, 1, 56, 1, 57, 1, 57,
-    1, 57, 1, 57, 1, 58, 1, 58, 1, 58, 1, 58, 1, 59, 1, 59, 1, 59, 1, 59, 1, 60, 4, 60, 347, 8, 60, 11,
-    60, 12, 60, 348, 1, 60, 1, 60, 1, 60, 1, 60, 1, 61, 1, 61, 1, 61, 1, 61, 1, 61, 1, 62, 1, 62, 1, 62,
-    1, 62, 1, 62, 1, 63, 1, 63, 1, 63, 1, 63, 1, 63, 1, 64, 1, 64, 1, 64, 1, 64, 1, 64, 1, 65, 4, 65, 376,
-    8, 65, 11, 65, 12, 65, 377, 1, 65, 1, 65, 0, 0, 66, 3, 0, 5, 0, 7, 0, 9, 0, 11, 0, 13, 0, 15, 0, 17,
-    0, 19, 0, 21, 0, 23, 0, 25, 0, 27, 0, 29, 0, 31, 0, 33, 0, 35, 0, 37, 0, 39, 0, 41, 0, 43, 0, 45, 1,
-    47, 2, 49, 3, 51, 4, 53, 5, 55, 6, 57, 7, 59, 8, 61, 9, 63, 10, 65, 11, 67, 12, 69, 13, 71, 14, 73,
-    15, 75, 16, 77, 17, 79, 18, 81, 19, 83, 20, 85, 21, 87, 22, 89, 23, 91, 0, 93, 0, 95, 0, 97, 0,
-    99, 0, 101, 0, 103, 0, 105, 0, 107, 0, 109, 0, 111, 0, 113, 0, 115, 0, 117, 24, 119, 0, 121, 0,
-    123, 0, 125, 0, 127, 0, 129, 0, 131, 0, 133, 25, 3, 0, 1, 2, 8, 1, 0, 48, 57, 1, 0, 123, 123, 2,
-    0, 41, 41, 43, 44, 2, 0, 58, 58, 62, 62, 3, 0, 9, 10, 12, 13, 32, 32, 6, 0, 36, 36, 45, 45, 48, 57,
-    65, 90, 95, 95, 97, 122, 5, 0, 36, 36, 48, 57, 65, 90, 95, 95, 97, 122, 2, 0, 41, 41, 44, 44, 367,
-    0, 45, 1, 0, 0, 0, 0, 47, 1, 0, 0, 0, 0, 49, 1, 0, 0, 0, 0, 51, 1, 0, 0, 0, 0, 53, 1, 0, 0, 0, 0, 55, 1,
-    0, 0, 0, 0, 57, 1, 0, 0, 0, 0, 59, 1, 0, 0, 0, 0, 61, 1, 0, 0, 0, 0, 63, 1, 0, 0, 0, 0, 65, 1, 0, 0, 0,
-    0, 67, 1, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 71, 1, 0, 0, 0, 0, 73, 1, 0, 0, 0, 0, 75, 1, 0, 0, 0, 0, 77, 1,
-    0, 0, 0, 0, 79, 1, 0, 0, 0, 0, 81, 1, 0, 0, 0, 0, 83, 1, 0, 0, 0, 0, 85, 1, 0, 0, 0, 0, 87, 1, 0, 0, 0,
-    0, 89, 1, 0, 0, 0, 1, 91, 1, 0, 0, 0, 1, 93, 1, 0, 0, 0, 1, 95, 1, 0, 0, 0, 1, 97, 1, 0, 0, 0, 1, 99, 1,
-    0, 0, 0, 1, 101, 1, 0, 0, 0, 1, 103, 1, 0, 0, 0, 1, 105, 1, 0, 0, 0, 1, 107, 1, 0, 0, 0, 1, 109, 1, 0,
-    0, 0, 1, 111, 1, 0, 0, 0, 1, 113, 1, 0, 0, 0, 1, 115, 1, 0, 0, 0, 1, 117, 1, 0, 0, 0, 1, 119, 1, 0, 0,
-    0, 1, 121, 1, 0, 0, 0, 1, 123, 1, 0, 0, 0, 1, 125, 1, 0, 0, 0, 1, 127, 1, 0, 0, 0, 1, 129, 1, 0, 0, 0,
-    1, 131, 1, 0, 0, 0, 2, 133, 1, 0, 0, 0, 3, 135, 1, 0, 0, 0, 5, 140, 1, 0, 0, 0, 7, 147, 1, 0, 0, 0, 9,
-    159, 1, 0, 0, 0, 11, 171, 1, 0, 0, 0, 13, 181, 1, 0, 0, 0, 15, 185, 1, 0, 0, 0, 17, 187, 1, 0, 0, 0,
-    19, 189, 1, 0, 0, 0, 21, 191, 1, 0, 0, 0, 23, 193, 1, 0, 0, 0, 25, 195, 1, 0, 0, 0, 27, 197, 1, 0,
-    0, 0, 29, 199, 1, 0, 0, 0, 31, 201, 1, 0, 0, 0, 33, 203, 1, 0, 0, 0, 35, 205, 1, 0, 0, 0, 37, 207,
-    1, 0, 0, 0, 39, 209, 1, 0, 0, 0, 41, 211, 1, 0, 0, 0, 43, 214, 1, 0, 0, 0, 45, 218, 1, 0, 0, 0, 47,
-    220, 1, 0, 0, 0, 49, 222, 1, 0, 0, 0, 51, 224, 1, 0, 0, 0, 53, 226, 1, 0, 0, 0, 55, 228, 1, 0, 0, 0,
-    57, 230, 1, 0, 0, 0, 59, 232, 1, 0, 0, 0, 61, 234, 1, 0, 0, 0, 63, 236, 1, 0, 0, 0, 65, 238, 1, 0,
-    0, 0, 67, 240, 1, 0, 0, 0, 69, 242, 1, 0, 0, 0, 71, 244, 1, 0, 0, 0, 73, 248, 1, 0, 0, 0, 75, 252,
-    1, 0, 0, 0, 77, 254, 1, 0, 0, 0, 79, 257, 1, 0, 0, 0, 81, 263, 1, 0, 0, 0, 83, 267, 1, 0, 0, 0, 85,
-    271, 1, 0, 0, 0, 87, 275, 1, 0, 0, 0, 89, 279, 1, 0, 0, 0, 91, 281, 1, 0, 0, 0, 93, 285, 1, 0, 0, 0,
-    95, 289, 1, 0, 0, 0, 97, 293, 1, 0, 0, 0, 99, 297, 1, 0, 0, 0, 101, 301, 1, 0, 0, 0, 103, 305, 1,
-    0, 0, 0, 105, 309, 1, 0, 0, 0, 107, 313, 1, 0, 0, 0, 109, 317, 1, 0, 0, 0, 111, 321, 1, 0, 0, 0, 113,
-    325, 1, 0, 0, 0, 115, 329, 1, 0, 0, 0, 117, 333, 1, 0, 0, 0, 119, 337, 1, 0, 0, 0, 121, 341, 1, 0,
-    0, 0, 123, 346, 1, 0, 0, 0, 125, 354, 1, 0, 0, 0, 127, 359, 1, 0, 0, 0, 129, 364, 1, 0, 0, 0, 131,
-    369, 1, 0, 0, 0, 133, 375, 1, 0, 0, 0, 135, 136, 5, 84, 0, 0, 136, 137, 5, 82, 0, 0, 137, 138, 5,
-    85, 0, 0, 138, 139, 5, 69, 0, 0, 139, 4, 1, 0, 0, 0, 140, 141, 5, 70, 0, 0, 141, 142, 5, 65, 0, 0,
-    142, 143, 5, 76, 0, 0, 143, 144, 5, 83, 0, 0, 144, 145, 5, 69, 0, 0, 145, 6, 1, 0, 0, 0, 146, 148,
-    7, 0, 0, 0, 147, 146, 1, 0, 0, 0, 148, 149, 1, 0, 0, 0, 149, 147, 1, 0, 0, 0, 149, 150, 1, 0, 0, 0,
-    150, 157, 1, 0, 0, 0, 151, 153, 5, 46, 0, 0, 152, 154, 7, 0, 0, 0, 153, 152, 1, 0, 0, 0, 154, 155,
-    1, 0, 0, 0, 155, 153, 1, 0, 0, 0, 155, 156, 1, 0, 0, 0, 156, 158, 1, 0, 0, 0, 157, 151, 1, 0, 0, 0,
-    157, 158, 1, 0, 0, 0, 158, 8, 1, 0, 0, 0, 159, 160, 5, 34, 0, 0, 160, 161, 5, 123, 0, 0, 161, 165,
-    1, 0, 0, 0, 162, 164, 8, 1, 0, 0, 163, 162, 1, 0, 0, 0, 164, 167, 1, 0, 0, 0, 165, 163, 1, 0, 0, 0,
-    165, 166, 1, 0, 0, 0, 166, 168, 1, 0, 0, 0, 167, 165, 1, 0, 0, 0, 168, 169, 5, 125, 0, 0, 169, 170,
-    5, 34, 0, 0, 170, 10, 1, 0, 0, 0, 171, 175, 5, 34, 0, 0, 172, 174, 8, 2, 0, 0, 173, 172, 1, 0, 0,
-    0, 174, 177, 1, 0, 0, 0, 175, 173, 1, 0, 0, 0, 175, 176, 1, 0, 0, 0, 176, 178, 1, 0, 0, 0, 177, 175,
-    1, 0, 0, 0, 178, 179, 5, 34, 0, 0, 179, 12, 1, 0, 0, 0, 180, 182, 5, 33, 0, 0, 181, 180, 1, 0, 0,
-    0, 182, 183, 1, 0, 0, 0, 183, 181, 1, 0, 0, 0, 183, 184, 1, 0, 0, 0, 184, 14, 1, 0, 0, 0, 185, 186,
-    5, 43, 0, 0, 186, 16, 1, 0, 0, 0, 187, 188, 5, 45, 0, 0, 188, 18, 1, 0, 0, 0, 189, 190, 5, 42, 0,
-    0, 190, 20, 1, 0, 0, 0, 191, 192, 5, 37, 0, 0, 192, 22, 1, 0, 0, 0, 193, 194, 5, 64, 0, 0, 194, 24,
-    1, 0, 0, 0, 195, 196, 5, 94, 0, 0, 196, 26, 1, 0, 0, 0, 197, 198, 5, 91, 0, 0, 198, 28, 1, 0, 0, 0,
-    199, 200, 5, 93, 0, 0, 200, 30, 1, 0, 0, 0, 201, 202, 5, 40, 0, 0, 202, 32, 1, 0, 0, 0, 203, 204,
-    5, 41, 0, 0, 204, 34, 1, 0, 0, 0, 205, 206, 5, 44, 0, 0, 206, 36, 1, 0, 0, 0, 207, 208, 5, 124, 0,
-    0, 208, 38, 1, 0, 0, 0, 209, 210, 7, 3, 0, 0, 210, 40, 1, 0, 0, 0, 211, 212, 5, 34, 0, 0, 212, 42,
-    1, 0, 0, 0, 213, 215, 7, 4, 0, 0, 214, 213, 1, 0, 0, 0, 215, 216, 1, 0, 0, 0, 216, 214, 1, 0, 0, 0,
-    216, 217, 1, 0, 0, 0, 217, 44, 1, 0, 0, 0, 218, 219, 3, 3, 0, 0, 219, 46, 1, 0, 0, 0, 220, 221, 3,
-    5, 1, 0, 221, 48, 1, 0, 0, 0, 222, 223, 3, 7, 2, 0, 223, 50, 1, 0, 0, 0, 224, 225, 3, 9, 3, 0, 225,
-    52, 1, 0, 0, 0, 226, 227, 3, 11, 4, 0, 227, 54, 1, 0, 0, 0, 228, 229, 3, 13, 5, 0, 229, 56, 1, 0,
-    0, 0, 230, 231, 3, 15, 6, 0, 231, 58, 1, 0, 0, 0, 232, 233, 3, 17, 7, 0, 233, 60, 1, 0, 0, 0, 234,
-    235, 3, 19, 8, 0, 235, 62, 1, 0, 0, 0, 236, 237, 3, 21, 9, 0, 237, 64, 1, 0, 0, 0, 238, 239, 3, 23,
-    10, 0, 239, 66, 1, 0, 0, 0, 240, 241, 3, 25, 11, 0, 241, 68, 1, 0, 0, 0, 242, 243, 3, 39, 18, 0,
-    243, 70, 1, 0, 0, 0, 244, 245, 3, 41, 19, 0, 245, 246, 1, 0, 0, 0, 246, 247, 6, 34, 0, 0, 247, 72,
-    1, 0, 0, 0, 248, 249, 3, 43, 20, 0, 249, 250, 1, 0, 0, 0, 250, 251, 6, 35, 1, 0, 251, 74, 1, 0, 0,
-    0, 252, 253, 3, 35, 16, 0, 253, 76, 1, 0, 0, 0, 254, 255, 3, 37, 17, 0, 255, 78, 1, 0, 0, 0, 256,
-    258, 7, 5, 0, 0, 257, 256, 1, 0, 0, 0, 258, 259, 1, 0, 0, 0, 259, 257, 1, 0, 0, 0, 259, 260, 1, 0,
-    0, 0, 260, 261, 1, 0, 0, 0, 261, 262, 4, 38, 0, 0, 262, 80, 1, 0, 0, 0, 263, 264, 3, 31, 14, 0, 264,
-    265, 1, 0, 0, 0, 265, 266, 6, 39, 2, 0, 266, 82, 1, 0, 0, 0, 267, 268, 3, 33, 15, 0, 268, 269, 1,
-    0, 0, 0, 269, 270, 6, 40, 3, 0, 270, 84, 1, 0, 0, 0, 271, 272, 3, 27, 12, 0, 272, 273, 1, 0, 0, 0,
-    273, 274, 6, 41, 4, 0, 274, 86, 1, 0, 0, 0, 275, 276, 3, 29, 13, 0, 276, 277, 1, 0, 0, 0, 277, 278,
-    6, 42, 3, 0, 278, 88, 1, 0, 0, 0, 279, 280, 5, 59, 0, 0, 280, 90, 1, 0, 0, 0, 281, 282, 3, 3, 0, 0,
-    282, 283, 1, 0, 0, 0, 283, 284, 6, 44, 5, 0, 284, 92, 1, 0, 0, 0, 285, 286, 3, 5, 1, 0, 286, 287,
-    1, 0, 0, 0, 287, 288, 6, 45, 6, 0, 288, 94, 1, 0, 0, 0, 289, 290, 3, 7, 2, 0, 290, 291, 1, 0, 0, 0,
-    291, 292, 6, 46, 7, 0, 292, 96, 1, 0, 0, 0, 293, 294, 3, 9, 3, 0, 294, 295, 1, 0, 0, 0, 295, 296,
-    6, 47, 8, 0, 296, 98, 1, 0, 0, 0, 297, 298, 3, 11, 4, 0, 298, 299, 1, 0, 0, 0, 299, 300, 6, 48, 9,
-    0, 300, 100, 1, 0, 0, 0, 301, 302, 3, 13, 5, 0, 302, 303, 1, 0, 0, 0, 303, 304, 6, 49, 10, 0, 304,
-    102, 1, 0, 0, 0, 305, 306, 3, 15, 6, 0, 306, 307, 1, 0, 0, 0, 307, 308, 6, 50, 11, 0, 308, 104,
-    1, 0, 0, 0, 309, 310, 3, 17, 7, 0, 310, 311, 1, 0, 0, 0, 311, 312, 6, 51, 12, 0, 312, 106, 1, 0,
-    0, 0, 313, 314, 3, 19, 8, 0, 314, 315, 1, 0, 0, 0, 315, 316, 6, 52, 13, 0, 316, 108, 1, 0, 0, 0,
-    317, 318, 3, 21, 9, 0, 318, 319, 1, 0, 0, 0, 319, 320, 6, 53, 14, 0, 320, 110, 1, 0, 0, 0, 321,
-    322, 3, 23, 10, 0, 322, 323, 1, 0, 0, 0, 323, 324, 6, 54, 15, 0, 324, 112, 1, 0, 0, 0, 325, 326,
-    3, 25, 11, 0, 326, 327, 1, 0, 0, 0, 327, 328, 6, 55, 16, 0, 328, 114, 1, 0, 0, 0, 329, 330, 3, 39,
-    18, 0, 330, 331, 1, 0, 0, 0, 331, 332, 6, 56, 17, 0, 332, 116, 1, 0, 0, 0, 333, 334, 3, 43, 20,
-    0, 334, 335, 1, 0, 0, 0, 335, 336, 6, 57, 1, 0, 336, 118, 1, 0, 0, 0, 337, 338, 3, 35, 16, 0, 338,
-    339, 1, 0, 0, 0, 339, 340, 6, 58, 18, 0, 340, 120, 1, 0, 0, 0, 341, 342, 3, 37, 17, 0, 342, 343,
-    1, 0, 0, 0, 343, 344, 6, 59, 19, 0, 344, 122, 1, 0, 0, 0, 345, 347, 7, 6, 0, 0, 346, 345, 1, 0, 0,
-    0, 347, 348, 1, 0, 0, 0, 348, 346, 1, 0, 0, 0, 348, 349, 1, 0, 0, 0, 349, 350, 1, 0, 0, 0, 350, 351,
-    4, 60, 1, 0, 351, 352, 1, 0, 0, 0, 352, 353, 6, 60, 20, 0, 353, 124, 1, 0, 0, 0, 354, 355, 3, 31,
-    14, 0, 355, 356, 1, 0, 0, 0, 356, 357, 6, 61, 21, 0, 357, 358, 6, 61, 2, 0, 358, 126, 1, 0, 0, 0,
-    359, 360, 3, 33, 15, 0, 360, 361, 1, 0, 0, 0, 361, 362, 6, 62, 22, 0, 362, 363, 6, 62, 3, 0, 363,
-    128, 1, 0, 0, 0, 364, 365, 3, 27, 12, 0, 365, 366, 1, 0, 0, 0, 366, 367, 6, 63, 23, 0, 367, 368,
-    6, 63, 4, 0, 368, 130, 1, 0, 0, 0, 369, 370, 3, 29, 13, 0, 370, 371, 1, 0, 0, 0, 371, 372, 6, 64,
-    24, 0, 372, 373, 6, 64, 3, 0, 373, 132, 1, 0, 0, 0, 374, 376, 8, 7, 0, 0, 375, 374, 1, 0, 0, 0, 376,
-    377, 1, 0, 0, 0, 377, 375, 1, 0, 0, 0, 377, 378, 1, 0, 0, 0, 378, 379, 1, 0, 0, 0, 379, 380, 6, 65,
-    3, 0, 380, 134, 1, 0, 0, 0, 13, 0, 1, 2, 149, 155, 157, 165, 175, 183, 216, 259, 348, 377, 25,
-    5, 2, 0, 6, 0, 0, 5, 0, 0, 4, 0, 0, 5, 1, 0, 7, 1, 0, 7, 2, 0, 7, 3, 0, 7, 4, 0, 7, 5, 0, 7, 6, 0, 7, 7, 0,
-    7, 8, 0, 7, 9, 0, 7, 10, 0, 7, 11, 0, 7, 12, 0, 7, 13, 0, 7, 16, 0, 7, 17, 0, 7, 18, 0, 7, 19, 0, 7, 20,
-    0, 7, 21, 0, 7, 22, 0];
+    1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 3, 0, 144, 8, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 3, 1, 156, 8, 1, 1, 2, 4, 2, 159, 8, 2, 11, 2, 12, 2, 160, 1, 2, 1, 2, 4, 2, 165, 8, 2, 11,
+    2, 12, 2, 166, 3, 2, 169, 8, 2, 1, 3, 1, 3, 1, 3, 1, 3, 5, 3, 175, 8, 3, 10, 3, 12, 3, 178, 9, 3, 1,
+    3, 1, 3, 1, 3, 1, 4, 1, 4, 5, 4, 185, 8, 4, 10, 4, 12, 4, 188, 9, 4, 1, 4, 1, 4, 1, 5, 4, 5, 193, 8, 5,
+    11, 5, 12, 5, 194, 1, 6, 1, 6, 1, 7, 1, 7, 1, 8, 1, 8, 1, 9, 1, 9, 1, 10, 1, 10, 1, 11, 1, 11, 1, 12,
+    1, 12, 1, 13, 1, 13, 1, 14, 1, 14, 1, 15, 1, 15, 1, 16, 1, 16, 1, 17, 1, 17, 1, 18, 1, 18, 1, 19, 1,
+    19, 1, 20, 4, 20, 226, 8, 20, 11, 20, 12, 20, 227, 1, 21, 1, 21, 1, 22, 1, 22, 1, 23, 1, 23, 1, 24,
+    1, 24, 1, 25, 1, 25, 1, 26, 1, 26, 1, 27, 1, 27, 1, 28, 1, 28, 1, 29, 1, 29, 1, 30, 1, 30, 1, 31, 1,
+    31, 1, 32, 1, 32, 1, 33, 1, 33, 1, 34, 1, 34, 1, 34, 1, 34, 1, 35, 1, 35, 1, 35, 1, 35, 1, 36, 1, 36,
+    1, 37, 1, 37, 1, 38, 4, 38, 269, 8, 38, 11, 38, 12, 38, 270, 1, 38, 1, 38, 1, 39, 1, 39, 1, 39, 1,
+    39, 1, 40, 1, 40, 1, 40, 1, 40, 1, 41, 1, 41, 1, 41, 1, 41, 1, 42, 1, 42, 1, 42, 1, 42, 1, 43, 1, 43,
+    1, 44, 1, 44, 1, 44, 1, 44, 1, 45, 1, 45, 1, 45, 1, 45, 1, 46, 1, 46, 1, 46, 1, 46, 1, 47, 1, 47, 1,
+    47, 1, 47, 1, 48, 1, 48, 1, 48, 1, 48, 1, 49, 1, 49, 1, 49, 1, 49, 1, 50, 1, 50, 1, 50, 1, 50, 1, 51,
+    1, 51, 1, 51, 1, 51, 1, 52, 1, 52, 1, 52, 1, 52, 1, 53, 1, 53, 1, 53, 1, 53, 1, 54, 1, 54, 1, 54, 1,
+    54, 1, 55, 1, 55, 1, 55, 1, 55, 1, 56, 1, 56, 1, 56, 1, 56, 1, 57, 1, 57, 1, 57, 1, 57, 1, 58, 1, 58,
+    1, 58, 1, 58, 1, 59, 1, 59, 1, 59, 1, 59, 1, 60, 4, 60, 358, 8, 60, 11, 60, 12, 60, 359, 1, 60, 1,
+    60, 1, 60, 1, 60, 1, 61, 1, 61, 1, 61, 1, 61, 1, 61, 1, 62, 1, 62, 1, 62, 1, 62, 1, 62, 1, 63, 1, 63,
+    1, 63, 1, 63, 1, 63, 1, 64, 1, 64, 1, 64, 1, 64, 1, 64, 1, 65, 4, 65, 387, 8, 65, 11, 65, 12, 65,
+    388, 1, 65, 1, 65, 0, 0, 66, 3, 0, 5, 0, 7, 0, 9, 0, 11, 0, 13, 0, 15, 0, 17, 0, 19, 0, 21, 0, 23, 0,
+    25, 0, 27, 0, 29, 0, 31, 0, 33, 0, 35, 0, 37, 0, 39, 0, 41, 0, 43, 0, 45, 1, 47, 2, 49, 3, 51, 4, 53,
+    5, 55, 6, 57, 7, 59, 8, 61, 9, 63, 10, 65, 11, 67, 12, 69, 13, 71, 14, 73, 15, 75, 16, 77, 17, 79,
+    18, 81, 19, 83, 20, 85, 21, 87, 22, 89, 23, 91, 0, 93, 0, 95, 0, 97, 0, 99, 0, 101, 0, 103, 0, 105,
+    0, 107, 0, 109, 0, 111, 0, 113, 0, 115, 0, 117, 24, 119, 0, 121, 0, 123, 0, 125, 0, 127, 0, 129,
+    0, 131, 0, 133, 25, 3, 0, 1, 2, 8, 1, 0, 48, 57, 1, 0, 123, 123, 2, 0, 41, 41, 43, 44, 2, 0, 58, 58,
+    62, 62, 3, 0, 9, 10, 12, 13, 32, 32, 6, 0, 36, 36, 45, 45, 48, 57, 65, 90, 95, 95, 97, 122, 5, 0,
+    36, 36, 48, 57, 65, 90, 95, 95, 97, 122, 2, 0, 41, 41, 44, 44, 380, 0, 45, 1, 0, 0, 0, 0, 47, 1,
+    0, 0, 0, 0, 49, 1, 0, 0, 0, 0, 51, 1, 0, 0, 0, 0, 53, 1, 0, 0, 0, 0, 55, 1, 0, 0, 0, 0, 57, 1, 0, 0, 0,
+    0, 59, 1, 0, 0, 0, 0, 61, 1, 0, 0, 0, 0, 63, 1, 0, 0, 0, 0, 65, 1, 0, 0, 0, 0, 67, 1, 0, 0, 0, 0, 69, 1,
+    0, 0, 0, 0, 71, 1, 0, 0, 0, 0, 73, 1, 0, 0, 0, 0, 75, 1, 0, 0, 0, 0, 77, 1, 0, 0, 0, 0, 79, 1, 0, 0, 0,
+    0, 81, 1, 0, 0, 0, 0, 83, 1, 0, 0, 0, 0, 85, 1, 0, 0, 0, 0, 87, 1, 0, 0, 0, 0, 89, 1, 0, 0, 0, 1, 91, 1,
+    0, 0, 0, 1, 93, 1, 0, 0, 0, 1, 95, 1, 0, 0, 0, 1, 97, 1, 0, 0, 0, 1, 99, 1, 0, 0, 0, 1, 101, 1, 0, 0, 0,
+    1, 103, 1, 0, 0, 0, 1, 105, 1, 0, 0, 0, 1, 107, 1, 0, 0, 0, 1, 109, 1, 0, 0, 0, 1, 111, 1, 0, 0, 0, 1,
+    113, 1, 0, 0, 0, 1, 115, 1, 0, 0, 0, 1, 117, 1, 0, 0, 0, 1, 119, 1, 0, 0, 0, 1, 121, 1, 0, 0, 0, 1, 123,
+    1, 0, 0, 0, 1, 125, 1, 0, 0, 0, 1, 127, 1, 0, 0, 0, 1, 129, 1, 0, 0, 0, 1, 131, 1, 0, 0, 0, 2, 133, 1,
+    0, 0, 0, 3, 143, 1, 0, 0, 0, 5, 155, 1, 0, 0, 0, 7, 158, 1, 0, 0, 0, 9, 170, 1, 0, 0, 0, 11, 182, 1,
+    0, 0, 0, 13, 192, 1, 0, 0, 0, 15, 196, 1, 0, 0, 0, 17, 198, 1, 0, 0, 0, 19, 200, 1, 0, 0, 0, 21, 202,
+    1, 0, 0, 0, 23, 204, 1, 0, 0, 0, 25, 206, 1, 0, 0, 0, 27, 208, 1, 0, 0, 0, 29, 210, 1, 0, 0, 0, 31,
+    212, 1, 0, 0, 0, 33, 214, 1, 0, 0, 0, 35, 216, 1, 0, 0, 0, 37, 218, 1, 0, 0, 0, 39, 220, 1, 0, 0, 0,
+    41, 222, 1, 0, 0, 0, 43, 225, 1, 0, 0, 0, 45, 229, 1, 0, 0, 0, 47, 231, 1, 0, 0, 0, 49, 233, 1, 0,
+    0, 0, 51, 235, 1, 0, 0, 0, 53, 237, 1, 0, 0, 0, 55, 239, 1, 0, 0, 0, 57, 241, 1, 0, 0, 0, 59, 243,
+    1, 0, 0, 0, 61, 245, 1, 0, 0, 0, 63, 247, 1, 0, 0, 0, 65, 249, 1, 0, 0, 0, 67, 251, 1, 0, 0, 0, 69,
+    253, 1, 0, 0, 0, 71, 255, 1, 0, 0, 0, 73, 259, 1, 0, 0, 0, 75, 263, 1, 0, 0, 0, 77, 265, 1, 0, 0, 0,
+    79, 268, 1, 0, 0, 0, 81, 274, 1, 0, 0, 0, 83, 278, 1, 0, 0, 0, 85, 282, 1, 0, 0, 0, 87, 286, 1, 0,
+    0, 0, 89, 290, 1, 0, 0, 0, 91, 292, 1, 0, 0, 0, 93, 296, 1, 0, 0, 0, 95, 300, 1, 0, 0, 0, 97, 304,
+    1, 0, 0, 0, 99, 308, 1, 0, 0, 0, 101, 312, 1, 0, 0, 0, 103, 316, 1, 0, 0, 0, 105, 320, 1, 0, 0, 0,
+    107, 324, 1, 0, 0, 0, 109, 328, 1, 0, 0, 0, 111, 332, 1, 0, 0, 0, 113, 336, 1, 0, 0, 0, 115, 340,
+    1, 0, 0, 0, 117, 344, 1, 0, 0, 0, 119, 348, 1, 0, 0, 0, 121, 352, 1, 0, 0, 0, 123, 357, 1, 0, 0, 0,
+    125, 365, 1, 0, 0, 0, 127, 370, 1, 0, 0, 0, 129, 375, 1, 0, 0, 0, 131, 380, 1, 0, 0, 0, 133, 386,
+    1, 0, 0, 0, 135, 136, 5, 84, 0, 0, 136, 137, 5, 82, 0, 0, 137, 138, 5, 85, 0, 0, 138, 144, 5, 69,
+    0, 0, 139, 140, 5, 116, 0, 0, 140, 141, 5, 114, 0, 0, 141, 142, 5, 117, 0, 0, 142, 144, 5, 101,
+    0, 0, 143, 135, 1, 0, 0, 0, 143, 139, 1, 0, 0, 0, 144, 4, 1, 0, 0, 0, 145, 146, 5, 70, 0, 0, 146,
+    147, 5, 65, 0, 0, 147, 148, 5, 76, 0, 0, 148, 149, 5, 83, 0, 0, 149, 156, 5, 69, 0, 0, 150, 151,
+    5, 102, 0, 0, 151, 152, 5, 97, 0, 0, 152, 153, 5, 108, 0, 0, 153, 154, 5, 115, 0, 0, 154, 156,
+    5, 101, 0, 0, 155, 145, 1, 0, 0, 0, 155, 150, 1, 0, 0, 0, 156, 6, 1, 0, 0, 0, 157, 159, 7, 0, 0, 0,
+    158, 157, 1, 0, 0, 0, 159, 160, 1, 0, 0, 0, 160, 158, 1, 0, 0, 0, 160, 161, 1, 0, 0, 0, 161, 168,
+    1, 0, 0, 0, 162, 164, 5, 46, 0, 0, 163, 165, 7, 0, 0, 0, 164, 163, 1, 0, 0, 0, 165, 166, 1, 0, 0,
+    0, 166, 164, 1, 0, 0, 0, 166, 167, 1, 0, 0, 0, 167, 169, 1, 0, 0, 0, 168, 162, 1, 0, 0, 0, 168, 169,
+    1, 0, 0, 0, 169, 8, 1, 0, 0, 0, 170, 171, 5, 34, 0, 0, 171, 172, 5, 123, 0, 0, 172, 176, 1, 0, 0,
+    0, 173, 175, 8, 1, 0, 0, 174, 173, 1, 0, 0, 0, 175, 178, 1, 0, 0, 0, 176, 174, 1, 0, 0, 0, 176, 177,
+    1, 0, 0, 0, 177, 179, 1, 0, 0, 0, 178, 176, 1, 0, 0, 0, 179, 180, 5, 125, 0, 0, 180, 181, 5, 34,
+    0, 0, 181, 10, 1, 0, 0, 0, 182, 186, 5, 34, 0, 0, 183, 185, 8, 2, 0, 0, 184, 183, 1, 0, 0, 0, 185,
+    188, 1, 0, 0, 0, 186, 184, 1, 0, 0, 0, 186, 187, 1, 0, 0, 0, 187, 189, 1, 0, 0, 0, 188, 186, 1, 0,
+    0, 0, 189, 190, 5, 34, 0, 0, 190, 12, 1, 0, 0, 0, 191, 193, 5, 33, 0, 0, 192, 191, 1, 0, 0, 0, 193,
+    194, 1, 0, 0, 0, 194, 192, 1, 0, 0, 0, 194, 195, 1, 0, 0, 0, 195, 14, 1, 0, 0, 0, 196, 197, 5, 43,
+    0, 0, 197, 16, 1, 0, 0, 0, 198, 199, 5, 45, 0, 0, 199, 18, 1, 0, 0, 0, 200, 201, 5, 42, 0, 0, 201,
+    20, 1, 0, 0, 0, 202, 203, 5, 37, 0, 0, 203, 22, 1, 0, 0, 0, 204, 205, 5, 64, 0, 0, 205, 24, 1, 0,
+    0, 0, 206, 207, 5, 94, 0, 0, 207, 26, 1, 0, 0, 0, 208, 209, 5, 91, 0, 0, 209, 28, 1, 0, 0, 0, 210,
+    211, 5, 93, 0, 0, 211, 30, 1, 0, 0, 0, 212, 213, 5, 40, 0, 0, 213, 32, 1, 0, 0, 0, 214, 215, 5, 41,
+    0, 0, 215, 34, 1, 0, 0, 0, 216, 217, 5, 44, 0, 0, 217, 36, 1, 0, 0, 0, 218, 219, 5, 124, 0, 0, 219,
+    38, 1, 0, 0, 0, 220, 221, 7, 3, 0, 0, 221, 40, 1, 0, 0, 0, 222, 223, 5, 34, 0, 0, 223, 42, 1, 0, 0,
+    0, 224, 226, 7, 4, 0, 0, 225, 224, 1, 0, 0, 0, 226, 227, 1, 0, 0, 0, 227, 225, 1, 0, 0, 0, 227, 228,
+    1, 0, 0, 0, 228, 44, 1, 0, 0, 0, 229, 230, 3, 3, 0, 0, 230, 46, 1, 0, 0, 0, 231, 232, 3, 5, 1, 0, 232,
+    48, 1, 0, 0, 0, 233, 234, 3, 7, 2, 0, 234, 50, 1, 0, 0, 0, 235, 236, 3, 9, 3, 0, 236, 52, 1, 0, 0,
+    0, 237, 238, 3, 11, 4, 0, 238, 54, 1, 0, 0, 0, 239, 240, 3, 13, 5, 0, 240, 56, 1, 0, 0, 0, 241, 242,
+    3, 15, 6, 0, 242, 58, 1, 0, 0, 0, 243, 244, 3, 17, 7, 0, 244, 60, 1, 0, 0, 0, 245, 246, 3, 19, 8,
+    0, 246, 62, 1, 0, 0, 0, 247, 248, 3, 21, 9, 0, 248, 64, 1, 0, 0, 0, 249, 250, 3, 23, 10, 0, 250,
+    66, 1, 0, 0, 0, 251, 252, 3, 25, 11, 0, 252, 68, 1, 0, 0, 0, 253, 254, 3, 39, 18, 0, 254, 70, 1,
+    0, 0, 0, 255, 256, 3, 41, 19, 0, 256, 257, 1, 0, 0, 0, 257, 258, 6, 34, 0, 0, 258, 72, 1, 0, 0, 0,
+    259, 260, 3, 43, 20, 0, 260, 261, 1, 0, 0, 0, 261, 262, 6, 35, 1, 0, 262, 74, 1, 0, 0, 0, 263, 264,
+    3, 35, 16, 0, 264, 76, 1, 0, 0, 0, 265, 266, 3, 37, 17, 0, 266, 78, 1, 0, 0, 0, 267, 269, 7, 5, 0,
+    0, 268, 267, 1, 0, 0, 0, 269, 270, 1, 0, 0, 0, 270, 268, 1, 0, 0, 0, 270, 271, 1, 0, 0, 0, 271, 272,
+    1, 0, 0, 0, 272, 273, 4, 38, 0, 0, 273, 80, 1, 0, 0, 0, 274, 275, 3, 31, 14, 0, 275, 276, 1, 0, 0,
+    0, 276, 277, 6, 39, 2, 0, 277, 82, 1, 0, 0, 0, 278, 279, 3, 33, 15, 0, 279, 280, 1, 0, 0, 0, 280,
+    281, 6, 40, 3, 0, 281, 84, 1, 0, 0, 0, 282, 283, 3, 27, 12, 0, 283, 284, 1, 0, 0, 0, 284, 285, 6,
+    41, 4, 0, 285, 86, 1, 0, 0, 0, 286, 287, 3, 29, 13, 0, 287, 288, 1, 0, 0, 0, 288, 289, 6, 42, 3,
+    0, 289, 88, 1, 0, 0, 0, 290, 291, 5, 59, 0, 0, 291, 90, 1, 0, 0, 0, 292, 293, 3, 3, 0, 0, 293, 294,
+    1, 0, 0, 0, 294, 295, 6, 44, 5, 0, 295, 92, 1, 0, 0, 0, 296, 297, 3, 5, 1, 0, 297, 298, 1, 0, 0, 0,
+    298, 299, 6, 45, 6, 0, 299, 94, 1, 0, 0, 0, 300, 301, 3, 7, 2, 0, 301, 302, 1, 0, 0, 0, 302, 303,
+    6, 46, 7, 0, 303, 96, 1, 0, 0, 0, 304, 305, 3, 9, 3, 0, 305, 306, 1, 0, 0, 0, 306, 307, 6, 47, 8,
+    0, 307, 98, 1, 0, 0, 0, 308, 309, 3, 11, 4, 0, 309, 310, 1, 0, 0, 0, 310, 311, 6, 48, 9, 0, 311,
+    100, 1, 0, 0, 0, 312, 313, 3, 13, 5, 0, 313, 314, 1, 0, 0, 0, 314, 315, 6, 49, 10, 0, 315, 102,
+    1, 0, 0, 0, 316, 317, 3, 15, 6, 0, 317, 318, 1, 0, 0, 0, 318, 319, 6, 50, 11, 0, 319, 104, 1, 0,
+    0, 0, 320, 321, 3, 17, 7, 0, 321, 322, 1, 0, 0, 0, 322, 323, 6, 51, 12, 0, 323, 106, 1, 0, 0, 0,
+    324, 325, 3, 19, 8, 0, 325, 326, 1, 0, 0, 0, 326, 327, 6, 52, 13, 0, 327, 108, 1, 0, 0, 0, 328,
+    329, 3, 21, 9, 0, 329, 330, 1, 0, 0, 0, 330, 331, 6, 53, 14, 0, 331, 110, 1, 0, 0, 0, 332, 333,
+    3, 23, 10, 0, 333, 334, 1, 0, 0, 0, 334, 335, 6, 54, 15, 0, 335, 112, 1, 0, 0, 0, 336, 337, 3, 25,
+    11, 0, 337, 338, 1, 0, 0, 0, 338, 339, 6, 55, 16, 0, 339, 114, 1, 0, 0, 0, 340, 341, 3, 39, 18,
+    0, 341, 342, 1, 0, 0, 0, 342, 343, 6, 56, 17, 0, 343, 116, 1, 0, 0, 0, 344, 345, 3, 43, 20, 0, 345,
+    346, 1, 0, 0, 0, 346, 347, 6, 57, 1, 0, 347, 118, 1, 0, 0, 0, 348, 349, 3, 35, 16, 0, 349, 350,
+    1, 0, 0, 0, 350, 351, 6, 58, 18, 0, 351, 120, 1, 0, 0, 0, 352, 353, 3, 37, 17, 0, 353, 354, 1, 0,
+    0, 0, 354, 355, 6, 59, 19, 0, 355, 122, 1, 0, 0, 0, 356, 358, 7, 6, 0, 0, 357, 356, 1, 0, 0, 0, 358,
+    359, 1, 0, 0, 0, 359, 357, 1, 0, 0, 0, 359, 360, 1, 0, 0, 0, 360, 361, 1, 0, 0, 0, 361, 362, 4, 60,
+    1, 0, 362, 363, 1, 0, 0, 0, 363, 364, 6, 60, 20, 0, 364, 124, 1, 0, 0, 0, 365, 366, 3, 31, 14, 0,
+    366, 367, 1, 0, 0, 0, 367, 368, 6, 61, 21, 0, 368, 369, 6, 61, 2, 0, 369, 126, 1, 0, 0, 0, 370,
+    371, 3, 33, 15, 0, 371, 372, 1, 0, 0, 0, 372, 373, 6, 62, 22, 0, 373, 374, 6, 62, 3, 0, 374, 128,
+    1, 0, 0, 0, 375, 376, 3, 27, 12, 0, 376, 377, 1, 0, 0, 0, 377, 378, 6, 63, 23, 0, 378, 379, 6, 63,
+    4, 0, 379, 130, 1, 0, 0, 0, 380, 381, 3, 29, 13, 0, 381, 382, 1, 0, 0, 0, 382, 383, 6, 64, 24, 0,
+    383, 384, 6, 64, 3, 0, 384, 132, 1, 0, 0, 0, 385, 387, 8, 7, 0, 0, 386, 385, 1, 0, 0, 0, 387, 388,
+    1, 0, 0, 0, 388, 386, 1, 0, 0, 0, 388, 389, 1, 0, 0, 0, 389, 390, 1, 0, 0, 0, 390, 391, 6, 65, 3,
+    0, 391, 134, 1, 0, 0, 0, 15, 0, 1, 2, 143, 155, 160, 166, 168, 176, 186, 194, 227, 270, 359,
+    388, 25, 5, 2, 0, 6, 0, 0, 5, 0, 0, 4, 0, 0, 5, 1, 0, 7, 1, 0, 7, 2, 0, 7, 3, 0, 7, 4, 0, 7, 5, 0, 7, 6,
+    0, 7, 7, 0, 7, 8, 0, 7, 9, 0, 7, 10, 0, 7, 11, 0, 7, 12, 0, 7, 13, 0, 7, 16, 0, 7, 17, 0, 7, 18, 0, 7,
+    19, 0, 7, 20, 0, 7, 21, 0, 7, 22, 0];
 ReksioLangLexer.DecisionsToDFA = ReksioLangLexer._ATN.decisionToState.map((ds, index) => new antlr4_1.DFA(ds, index));
 exports["default"] = ReksioLangLexer;
 
@@ -62246,7 +62649,7 @@ class AlreadyDisplayedError {
     }
 }
 class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
-    constructor(engine, script, args, printDebug = true) {
+    constructor(engine, caller, script, args, printDebug = true) {
         super();
         this.lastContext = null;
         this.methodCallUsedVariables = {};
@@ -62279,7 +62682,7 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
             if (ctx._dereference == null) {
                 return name;
             }
-            const object = this.engine.getObject(name);
+            const object = this.getObject(name);
             if (object != null) {
                 return object.getValue();
             }
@@ -62287,6 +62690,9 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
         };
         this.visitObjectValueReference = (ctx) => {
             const identifier = ctx.objectName().getText();
+            if (identifier == 'NULL') {
+                return null;
+            }
             const object = this.visitObjectName(ctx.objectName());
             this.methodCallUsedVariables[identifier] = object;
             this.scriptUsedVariables[identifier] = object;
@@ -62360,11 +62766,12 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                         (this.args.length ? '%cBehaviour Arguments:%c %O\n' : '') +
                         (Object.keys(argsVariables).length > 0 ? '%cVariables used in call:%c %O\n' : '') +
                         (Object.keys(this.scriptUsedVariables).length > 0 ? '%cVariables used in script:%c %O\n' : '') +
-                        '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', object, ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []), ...(this.args.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []), ...(Object.keys(argsVariables).length > 0
+                        '%cGlobal scopes:%c %O\n' +
+                        '%cCaller scope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', object, ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []), ...(this.args.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []), ...(Object.keys(argsVariables).length > 0
                         ? ['font-weight: bold', 'font-weight: inherit', argsVariables]
                         : []), ...(Object.keys(this.scriptUsedVariables).length > 0
                         ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables]
-                        : []), 'font-weight: bold', 'font-weight: inherit', this.engine.scopeManager.scopes);
+                        : []), 'font-weight: bold', 'font-weight: inherit', this.engine.scopeManager.scopes, 'font-weight: bold', 'font-weight: inherit', this.caller?.parentScope);
                     console.error(err);
                     (0, stacktrace_1.printStackTrace)();
                 }
@@ -62383,96 +62790,100 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
             this.lastContext = ctx;
             const methodName = ctx.methodName().getText();
             const args = ctx.methodCallArguments() != null ? await this.visitMethodCallArguments(ctx.methodCallArguments()) : [];
-            if (methodName === 'IF') {
-                if (args.length == 5) {
-                    const [a, operator, b, ifTrue, ifFalse] = args;
-                    const left = typeof a === 'string'
-                        ? a.toString().startsWith('"')
-                            ? a.toString().replace(/^"|"$/g, '')
-                            : (await this.engine.getObject((0, types_1.valueAsString)(a))?.getValue() ?? a)
-                        : a;
-                    const right = typeof b === 'string'
-                        ? b.toString().startsWith('"')
-                            ? b.toString().replace(/^"|"$/g, '')
-                            : (await this.engine.getObject((0, types_1.valueAsString)(b))?.getValue() ?? b)
-                        : b;
-                    let result = false;
-                    if (operator == '_') {
-                        result = types_1.Compare.Equal(left, right);
-                    }
-                    else if (operator == '!_') {
-                        result = types_1.Compare.NotEqual(left, right);
-                    }
-                    else if (operator == '>') {
-                        result = types_1.Compare.Greater(left, right);
-                    }
-                    else if (operator == '<') {
-                        result = types_1.Compare.Less(left, right);
-                    }
-                    else if (operator == '>_') {
-                        result = types_1.Compare.GreaterOrEqual(left, right);
-                    }
-                    else if (operator == '<_') {
-                        result = types_1.Compare.LessOrEqual(left, right);
-                    }
-                    const onTrue = this.engine.getObject(ifTrue);
-                    const onFalse = this.engine.getObject(ifFalse);
-                    if (result && onTrue !== null) {
-                        await onTrue.executeConditionalCallback();
-                    }
-                    else if (!result && onFalse !== null) {
-                        await onFalse.executeConditionalCallback();
-                    }
-                }
-                else if (args.length == 3) {
-                    const [expression, ifTrue, ifFalse] = args;
-                    const result = await (0, ifExpression_1.evaluateExpression)(this.engine, expression);
-                    const onTrue = this.engine.getObject(ifTrue);
-                    const onFalse = this.engine.getObject(ifFalse);
-                    if (result && onTrue !== null) {
-                        await onTrue.executeConditionalCallback();
-                    }
-                    else if (!result && onFalse !== null) {
-                        await onFalse.executeConditionalCallback();
-                    }
-                }
-            }
-            else if (methodName === 'BREAK') {
-                throw new InterruptScriptExecution(false);
-            }
-            else if (methodName === 'LOOP') {
-                const [codeOrBehaviour, start, len, step] = args;
-                const callback = (0, common_1.createCallback)(codeOrBehaviour);
-                if (callback === undefined) {
-                    throw new errors_1.IrrecoverableError('Invalid @LOOP callback');
-                }
-                const counter = new integer_1.Integer(this.engine, null, {
-                    NAME: '_I_',
-                    TYPE: 'INTEGER',
-                    TOINI: false,
-                });
-                for (let i = start; i < start + len; i += step) {
-                    await counter.setValue(i);
-                    try {
-                        await this.engine.scripting.executeCallback(null, callback, [], {
-                            _I_: counter,
-                        }, true);
-                    }
-                    catch (err) {
-                        if (err instanceof InterruptScriptExecution) {
-                            if (err.one) {
-                                continue;
-                            }
-                            break;
+            const stackFrame = stacktrace_1.StackFrame.builder()
+                .type('specialCall')
+                .method(methodName)
+                .args(...args)
+                .build();
+            stacktrace_1.stackTrace.push(stackFrame);
+            try {
+                if (methodName === 'IF') {
+                    if (args.length == 5) {
+                        const [a, operator, b, ifTrue, ifFalse] = args;
+                        const result = await this.resolveConditionalCall(a, operator, b);
+                        const onTrue = this.getObject(ifTrue);
+                        const onFalse = this.getObject(ifFalse);
+                        if (result && onTrue !== null) {
+                            await onTrue.executeConditionalCallback();
                         }
-                        throw err;
+                        else if (!result && onFalse !== null) {
+                            await onFalse.executeConditionalCallback();
+                        }
+                    }
+                    else if (args.length == 3) {
+                        const [expression, ifTrue, ifFalse] = args;
+                        const result = await (0, ifExpression_1.evaluateExpression)(this.engine, this.caller, expression);
+                        const onTrue = this.getObject(ifTrue);
+                        const onFalse = this.getObject(ifFalse);
+                        if (result && onTrue !== null) {
+                            await onTrue.executeConditionalCallback();
+                        }
+                        else if (!result && onFalse !== null) {
+                            await onFalse.executeConditionalCallback();
+                        }
                     }
                 }
+                else if (methodName === 'BREAK') {
+                    throw new InterruptScriptExecution(false);
+                }
+                else if (methodName === 'LOOP') {
+                    const [codeOrBehaviour, start, len, step] = args;
+                    const callback = (0, common_1.createCallback)(codeOrBehaviour);
+                    if (callback === undefined) {
+                        throw new errors_1.IrrecoverableError('Invalid @LOOP callback');
+                    }
+                    const counter = new integer_1.Integer(this.engine, null, {
+                        NAME: '_I_',
+                        TYPE: 'INTEGER',
+                        TOINI: false,
+                    });
+                    for (let i = start; i < start + len; i += step) {
+                        await counter.setValue(i);
+                        try {
+                            await this.engine.scripting.executeCallback(null, this.caller, callback, [], {
+                                _I_: counter,
+                            }, true);
+                        }
+                        catch (err) {
+                            if (err instanceof InterruptScriptExecution) {
+                                if (err.one) {
+                                    continue;
+                                }
+                                break;
+                            }
+                            throw err;
+                        }
+                    }
+                }
+                else if (methodName === 'WHILE') {
+                    const [a, operator, b, codeOrBehaviour] = args;
+                    const callback = (0, common_1.createCallback)(codeOrBehaviour);
+                    if (callback === undefined) {
+                        throw new errors_1.IrrecoverableError('Invalid callback');
+                    }
+                    while (await this.resolveConditionalCall(a, operator, b)) {
+                        try {
+                            await this.engine.scripting.executeCallback(null, this.caller, callback, [], undefined, true);
+                        }
+                        catch (err) {
+                            if (err instanceof InterruptScriptExecution) {
+                                if (err.one) {
+                                    continue;
+                                }
+                                break;
+                            }
+                            throw err;
+                        }
+                    }
+                }
+                else if (this.printDebug) {
+                    const code = this.markInCode(ctx);
+                    console.error(`Unknown special call ${methodName}` + '\n' + `%cCode:%c\n${code}\n\n` + '%cUsed variables:%c%O', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables);
+                    // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
+                }
             }
-            else if (this.printDebug) {
-                const code = this.markInCode(ctx);
-                console.error(`Unknown special call ${methodName}` + '\n' + `%cCode:%c\n${code}\n\n` + '%cUsed variables:%c%O', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables);
-                // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
+            finally {
+                stacktrace_1.stackTrace.pop();
             }
         };
         this.visitMethodCallArguments = async (ctx) => {
@@ -62481,8 +62892,11 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
         };
         this.visitObjectName = (ctx) => {
             this.lastContext = ctx;
-            const objectName = this.visitIdentifier(ctx.identifier());
-            const object = this.engine.getObject(objectName);
+            let objectName = this.visitIdentifier(ctx.identifier());
+            if (objectName !== null && objectName.endsWith('_0')) {
+                objectName = objectName.substring(0, objectName.length - 2);
+            }
+            const object = this.getObject(objectName);
             this.methodCallUsedVariables[objectName] = object;
             this.scriptUsedVariables[objectName] = object;
             if (object === null) {
@@ -62495,7 +62909,8 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
                         '\n' +
                         `%cCode:%c\n${code}\n\n` +
                         '%cUsed variables:%c %O\n' +
-                        '%cScope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables, 'font-weight: bold', 'font-weight: inherit', this.engine.scopeManager.scopes);
+                        '%cGlobal scopes:%c %O\n' +
+                        '%cCaller scope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables, 'font-weight: bold', 'font-weight: inherit', this.engine.scopeManager.scopes, 'font-weight: bold', 'font-weight: inherit', this.caller?.parentScope);
                 }
                 // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
                 return null;
@@ -62546,6 +62961,7 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
             return result;
         };
         this.engine = engine;
+        this.caller = caller;
         this.script = script;
         this.args = args;
         this.printDebug = printDebug;
@@ -62565,6 +62981,37 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
             NAME: 'CNVLOADER'
         }));
     }
+    async resolveConditionalCall(a, operator, b) {
+        const left = typeof a === 'string'
+            ? a.toString().startsWith('"')
+                ? a.toString().replace(/^"|"$/g, '')
+                : (await this.getObject((0, types_1.valueAsString)(a))?.getValue() ?? a)
+            : a;
+        const right = typeof b === 'string'
+            ? b.toString().startsWith('"')
+                ? b.toString().replace(/^"|"$/g, '')
+                : (await this.getObject((0, types_1.valueAsString)(b))?.getValue() ?? b)
+            : b;
+        if (operator == '_') {
+            return types_1.Compare.Equal(left, right);
+        }
+        else if (operator == '!_') {
+            return types_1.Compare.NotEqual(left, right);
+        }
+        else if (operator == '>') {
+            return types_1.Compare.Greater(left, right);
+        }
+        else if (operator == '<') {
+            return types_1.Compare.Less(left, right);
+        }
+        else if (operator == '>_') {
+            return types_1.Compare.GreaterOrEqual(left, right);
+        }
+        else if (operator == '<_') {
+            return types_1.Compare.LessOrEqual(left, right);
+        }
+        (0, errors_1.assert)(false, 'unknown comparison operator');
+    }
     markInCode(ctx) {
         const code = this.script?.substring(0, ctx.start.column) +
             '%c' +
@@ -62573,9 +63020,12 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
             this.script?.substring(ctx.stop.column + 1);
         return code.trimEnd().split(';').join(';\n');
     }
+    getObject(name) {
+        return this.engine.getObject(name, this.caller?.parentScope);
+    }
 }
 exports.ScriptEvaluator = ScriptEvaluator;
-const runScript = async (engine, script, args = [], singleStatement = false, printDebug = true) => {
+const runScript = async (engine, caller, script, args = [], singleStatement = false, printDebug = true) => {
     script = script.replace(/\$(\d+)/g, (match, index) => {
         const valueIndex = parseInt(index, 10) - 1;
         if (valueIndex >= 0 && valueIndex < args.length) {
@@ -62636,7 +63086,7 @@ const runScript = async (engine, script, args = [], singleStatement = false, pri
         },
     });
     const tree = singleStatement ? parser.statement() : parser.statementList();
-    const evaluator = new ScriptEvaluator(engine, script, args, printDebug);
+    const evaluator = new ScriptEvaluator(engine, caller, script, args, printDebug);
     try {
         return await tree.accept(evaluator);
     }
@@ -62744,6 +63194,9 @@ const generateStackTrace = (stackTraceSource) => {
                 break;
             case 'method':
                 lines.push(`at ${frame.object?.name ?? '<unknown>'}^${frame.methodName}(${argsString})`);
+                break;
+            case 'specialCall':
+                lines.push(`at ${frame.methodName}(${argsString})`);
                 break;
             case 'stage':
                 lines.push(`at ${frame.object?.name ?? '<unknown>'}::${frame.methodName}()`);
@@ -62897,6 +63350,7 @@ const system_1 = __webpack_require__(/*! ../engine/types/system */ "./src/engine
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const struct_1 = __webpack_require__(/*! ../engine/types/struct */ "./src/engine/types/struct.ts");
 const database_1 = __webpack_require__(/*! ../engine/types/database */ "./src/engine/types/database.ts");
+const class_1 = __webpack_require__(/*! ../engine/types/class */ "./src/engine/types/class.ts");
 const createTypeInstance = (engine, parent, definition) => {
     switch (definition.TYPE) {
         case 'ANIMO':
@@ -62915,6 +63369,8 @@ const createTypeInstance = (engine, parent, definition) => {
             return new canvasObserver_1.CanvasObserver(engine, parent, definition);
         case 'CANVASOBSERVER':
             return new canvasObserver_1.CanvasObserver(engine, parent, definition);
+        case 'CLASS':
+            return new class_1.Class(engine, parent, definition);
         case 'CNVLOADER':
             return new cnvloader_1.CNVLoader(engine, parent, definition);
         case 'CONDITION':
@@ -62987,9 +63443,10 @@ const initializationPriorities = [
     return acc;
 }, new Map());
 const sortByPriority = (entries) => {
+    const callLater = ['__INIT__', 'CONSTRUCTOR'];
     return entries.sort((a, b) => {
-        const aPriority = a.name === '__INIT__' ? 99999 : (initializationPriorities.get(a.definition.TYPE) ?? 9999);
-        const bPriority = b.name === '__INIT__' ? 99999 : (initializationPriorities.get(b.definition.TYPE) ?? 9999);
+        const aPriority = callLater.includes(a.name) ? 99999 : (initializationPriorities.get(a.definition.TYPE) ?? 9999);
+        const bPriority = callLater.includes(b.name) ? 99999 : (initializationPriorities.get(b.definition.TYPE) ?? 9999);
         return aPriority - bPriority;
     });
 };
@@ -63054,7 +63511,7 @@ exports.doReady = doReady;
 const createObject = async (engine, definition, parent) => {
     engine.app.ticker.stop();
     const instance = createTypeInstance(engine, parent, definition);
-    engine.scopeManager.getScope('scene')?.set(definition.NAME, instance);
+    parent?.scope?.set(definition.NAME, instance);
     if (instance instanceof types_1.DisplayType) {
         engine.rendering.displayObjectsInDefinitionOrder.push(instance);
     }
@@ -63117,6 +63574,7 @@ class SimpleFileLoader extends FileLoader {
     async getCNVFile(filename) {
         const data = await this.getRawFile(filename);
         const text = (0, cnv_1.decryptCNV)(data);
+        console.debug(filename);
         console.debug(text);
         return (0, cnv_1.parseCNV)(text);
     }
