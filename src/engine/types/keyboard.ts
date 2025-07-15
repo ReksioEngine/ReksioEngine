@@ -2,7 +2,6 @@ import { ParentType, Type } from './index'
 import { KeyboardDefinition, MusicDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { method } from '../../common/types'
-import { NotImplementedError } from '../../common/errors'
 
 const keysMapping = {
     ArrowLeft: 'LEFT',
@@ -19,6 +18,7 @@ type KeyState = { name: string; state: boolean }
 export class Keyboard extends Type<KeyboardDefinition> {
     private keysState = new Map<string, boolean>()
     private changeQueue: KeyState[] = []
+    private enabled: boolean = true
 
     private readonly onKeyDownCallback: (event: KeyboardEvent) => void
     private readonly onKeyUpCallback: (event: KeyboardEvent) => void
@@ -52,7 +52,7 @@ export class Keyboard extends Type<KeyboardDefinition> {
 
     @method()
     DISABLE() {
-        throw new NotImplementedError()
+        this.enabled = false
     }
 
     @method()
@@ -63,12 +63,21 @@ export class Keyboard extends Type<KeyboardDefinition> {
         return false
     }
 
+    @method()
+    ISENABLED() {
+        return this.enabled
+    }
+
     private onKeyDown(event: KeyboardEvent) {
-        this.setKeyState(event.code, true)
+        if (this.enabled) {
+            this.setKeyState(event.code, true)
+        }
     }
 
     private onKeyUp(event: KeyboardEvent) {
-        this.setKeyState(event.code, false)
+        if (this.enabled) {
+            this.setKeyState(event.code, false)
+        }
     }
 
     private setKeyState(keyCode: string, value: boolean) {
