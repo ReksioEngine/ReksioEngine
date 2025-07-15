@@ -2,7 +2,7 @@ import { DisplayType, ParentType, Type, XRayInfo } from './index'
 import { Engine } from '../index'
 import { ButtonDefinition } from '../../fileFormats/cnv/types'
 import { Image } from './image'
-import { Graphics, Rectangle } from 'pixi.js'
+import { FederatedPointerEvent, Graphics, Point, Rectangle } from 'pixi.js'
 import { ButtonLogicComponent, Event, State } from '../components/button'
 import { Animo } from './animo'
 import { assert } from '../../common/errors'
@@ -11,6 +11,14 @@ import { method } from '../../common/types'
 
 export class Button extends Type<ButtonDefinition> {
     private logic: ButtonLogicComponent
+
+    private lastMousePosition: Point = new Point()
+    private originalPriority: number = 0
+    private draggingActive: boolean = false
+    private draggingEnded: boolean = false
+    private draggingPosition: Point | null = null
+    private readonly onPointerMoveHandler
+    private readonly onPointerUpHandler
 
     private gfxStandard: Image | Animo | null = null
     private gfxOnClick: Image | Animo | null = null
@@ -22,6 +30,8 @@ export class Button extends Type<ButtonDefinition> {
     constructor(engine: Engine, parent: ParentType<any> | null, definition: ButtonDefinition) {
         super(engine, parent, definition)
         this.logic = new ButtonLogicComponent(this.onStateChange.bind(this))
+        this.onPointerMoveHandler = this.onPointerMove.bind(this)
+        this.onPointerUpHandler = this.onPointerUp.bind(this)
     }
 
     init() {
@@ -58,6 +68,23 @@ export class Button extends Type<ButtonDefinition> {
 
     async tick() {
         await this.logic.tick()
+
+        if (this.draggingActive && this.draggingPosition) {
+            const offsetX = this.lastMousePosition.x - this.draggingPosition.x
+            const offsetY = this.lastMousePosition.y - this.draggingPosition.y
+            this.draggingPosition.set(this.lastMousePosition.x, this.lastMousePosition.y)
+
+            await this.gfxStandard?.MOVE(offsetX, offsetY)
+            await this.gfxOnClick?.MOVE(offsetX, offsetY)
+            await this.gfxOnMove?.MOVE(offsetX, offsetY)
+
+            await this.callbacks.run('ONDRAGGING')
+        }
+
+        if (this.draggingEnded) {
+            await this.callbacks.run('ONENDDRAGGING')
+            this.draggingEnded = false
+        }
     }
 
     private setRect(rect: number[] | reference) {
@@ -104,6 +131,10 @@ export class Button extends Type<ButtonDefinition> {
     }
 
     private async onStateChange(prevState: State, event: Event, state: State) {
+        if (this.draggingActive) {
+            return
+        }
+
         if (this.interactArea) {
             // For area button
             this.interactArea.visible = state != State.DISABLED
@@ -175,6 +206,19 @@ export class Button extends Type<ButtonDefinition> {
             }
         } else if (event == Event.DOWN) {
             await this.callbacks.run('ONCLICKED')
+
+            if (this.definition.DRAGGABLE) {
+                const renderObject = this.gfxStandard?.getRenderObject()
+                assert(renderObject)
+
+                this.originalPriority = renderObject.zIndex
+                this.gfxStandard?.SETPRIORITY(99999999)
+                await this.callbacks.run('ONSTARTDRAGGING')
+                this.engine.app.stage.on('pointerup', this.onPointerUpHandler)
+                if (this.callbacks.has('ONDRAGGING')) {
+                    this.engine.app.stage.on('pointermove', this.onPointerMoveHandler)
+                }
+            }
         } else if (event == Event.UP) {
             await this.callbacks.run('ONRELEASED')
             await this.callbacks.run('ONACTION')
@@ -182,6 +226,32 @@ export class Button extends Type<ButtonDefinition> {
             await this.callbacks.run('ONFOCUSON')
         } else if (event == Event.OUT) {
             await this.callbacks.run('ONFOCUSOFF')
+        }
+    }
+
+    private onPointerMove(event: FederatedPointerEvent) {
+        this.lastMousePosition.set(
+            Math.floor(event.screen.x),
+            Math.floor(event.screen.y)
+        )
+
+        if (this.draggingPosition == null) {
+            this.draggingPosition = new Point(
+                Math.floor(event.screen.x),
+                Math.floor(event.screen.y)
+            )
+            this.draggingActive = true
+        }
+    }
+
+    private onPointerUp(event: FederatedPointerEvent) {
+        if (this.draggingActive) {
+            this.draggingActive = false
+            this.draggingEnded = true
+            this.draggingPosition = null
+            this.engine.app.stage.off('pointermove', this.onPointerMoveHandler)
+            this.engine.app.stage.off('pointerup', this.onPointerMoveHandler)
+            this.gfxStandard?.SETPRIORITY(this.originalPriority)
         }
     }
 
