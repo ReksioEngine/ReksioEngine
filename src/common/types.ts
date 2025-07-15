@@ -36,6 +36,17 @@ export const valueAsBool = (value: any) => {
     return value.toUpperCase() === 'TRUE'
 }
 
+const toNumber = (value: any) => {
+    if (typeof value === 'number') {
+        return value
+    } else if (typeof value === 'string') {
+        const match = value.match(/^\d+/)
+        return match ? Number(match[0]) : 0
+    } else {
+        return Number(value)
+    }
+}
+
 export const valueAsDouble = (value: any) => {
     if (value === null) {
         return 0
@@ -45,13 +56,13 @@ export const valueAsDouble = (value: any) => {
         return value
     }
 
-    const number = Number(value)
+    const number = toNumber(value)
     assert(!Number.isNaN(number), 'Value is not a number')
     return number
 }
 
 export const ForceNumber = (value: any) => {
-    const numberValue = Number(value)
+    const numberValue = toNumber(value)
     assert(!isNaN(numberValue), `${value} is not a number`)
     return numberValue
 }
@@ -130,7 +141,7 @@ export const isDirectlyConvertible = (value: any, type: parameterType) => {
         case 'number':
             return typeof value === 'number' ||
                 value === null ||
-                !Number.isNaN(Number(value))
+                !Number.isNaN(toNumber(value))
         default:
             return false
     }
