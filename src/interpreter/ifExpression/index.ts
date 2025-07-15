@@ -11,15 +11,12 @@ import ReksioIFExpressionParser, {
 import ReksioIFExpressionLexer from './ReksioIFExpressionLexer'
 import { ForceNumber } from '../../common/types'
 import { Engine } from '../../engine'
-import { ValueType } from '../../engine/types'
+import { Type, ValueType } from '../../engine/types'
 import { assert } from '../../common/errors'
 
 export class ExpressionEvaluator extends ReksioIFExpressionVisitor<any> {
-    private engine: Engine
-
-    constructor(engine: Engine) {
+    constructor(private engine: Engine, private caller: Type<any> | null) {
         super()
-        this.engine = engine
     }
 
     visitExprList = async (ctx: ExprListContext): Promise<any> => {
@@ -74,7 +71,7 @@ export class ExpressionEvaluator extends ReksioIFExpressionVisitor<any> {
     }
 
     visitIdentifier = async (ctx: IdentifierContext): Promise<any> => {
-        const object: ValueType<any, any> | null = this.engine.getObject(ctx.getText())
+        const object: ValueType<any, any> | null = this.engine.getObject(ctx.getText(), this.caller?.parentScope)
         assert(object !== null)
         return await object.getValue()
     }
@@ -84,12 +81,12 @@ export class ExpressionEvaluator extends ReksioIFExpressionVisitor<any> {
     }
 }
 
-export const evaluateExpression = async (engine: Engine, script: string) => {
+export const evaluateExpression = async (engine: Engine, caller: Type<any> | null, script: string) => {
     const lexer = new ReksioIFExpressionLexer(new antlr4.CharStream(script))
     const tokens = new antlr4.CommonTokenStream(lexer)
     const parser = new ReksioIFExpressionParser(tokens)
     const tree = parser.exprList()
 
-    const evaluator = new ExpressionEvaluator(engine)
+    const evaluator = new ExpressionEvaluator(engine, caller)
     return await tree.accept(evaluator)
 }

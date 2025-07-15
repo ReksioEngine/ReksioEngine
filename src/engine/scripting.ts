@@ -15,6 +15,7 @@ export class ScriptingManager {
     }
 
     async executeCallback(
+        thisRef: Type<any> | null,
         caller: Type<any> | null,
         callback: callback,
         args?: any[],
@@ -27,23 +28,23 @@ export class ScriptingManager {
                 'local',
                 localScopeEntries ? new Map(Object.entries(localScopeEntries)) : undefined
             )
-            if (caller !== null) {
-                localScope.set('THIS', caller)
+            if (thisRef !== null) {
+                localScope.set('THIS', thisRef)
             }
-            this.engine.scopeManager.pushScope(localScope)
+            this.engine.scopeManager.pushLocalScope(localScope)
 
             if (callback.code) {
-                return await runScript(this.engine, callback.code, args, callback.isSingleStatement, true)
+                return await runScript(this.engine, caller, callback.code, args, callback.isSingleStatement, true)
             } else if (callback.behaviourReference) {
-                if (!this.engine.getObject(callback.behaviourReference)) {
+                if (!this.engine.getObject(callback.behaviourReference, caller?.parentScope)) {
                     console.error(
-                        `Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cCaller:%c%O`,
+                        `Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cTHIS:%c%O`,
                         'font-weight: bold',
                         'font-weight: inherit',
                         callback,
                         'font-weight: bold',
                         'font-weight: inherit',
-                        caller
+                        thisRef
                     )
                     return
                 }
@@ -55,7 +56,7 @@ export class ScriptingManager {
                     .build()
                 stackTrace.push(stackFrame)
 
-                const behaviour: Behaviour | null = this.engine.getObject(callback.behaviourReference)
+                const behaviour: Behaviour | null = this.engine.getObject(callback.behaviourReference, caller?.parentScope)
                 assert(behaviour !== null)
 
                 if (forwardInterrupts) {
@@ -65,7 +66,7 @@ export class ScriptingManager {
                 }
             }
         } finally {
-            this.engine.scopeManager.popScope()
+            this.engine.scopeManager.popLocalScope()
             if (stackFrame !== null) {
                 stackTrace.pop()
             }
@@ -73,6 +74,6 @@ export class ScriptingManager {
     }
 
     runScript(code: string, args: any[], isSingleStatement: boolean, printDebug: boolean) {
-        return runScript(this.engine, code, args, isSingleStatement, printDebug)
+        return runScript(this.engine, null, code, args, isSingleStatement, printDebug)
     }
 }

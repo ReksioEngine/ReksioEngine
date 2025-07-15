@@ -9,7 +9,7 @@ export class Text extends Type<TextDefinition> {
     private text: PIXI.BitmapText | null = null
 
     async applyDefaults() {
-        const font: Font | null = this.engine.getObject(this.definition.FONT)
+        const font: Font | null = this.getObject(this.definition.FONT)
         if (font === null || font.bitmapFont === null) {
             return
         }

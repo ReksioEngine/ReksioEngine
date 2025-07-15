@@ -1,11 +1,13 @@
 import { Engine } from '../index'
-import { DisplayTypeDefinition, TypeDefinition, ValueTypeDefinition } from '../../fileFormats/common'
+import { DisplayTypeDefinition, reference, TypeDefinition, ValueTypeDefinition } from '../../fileFormats/common'
 import { CallbacksComponent } from '../components/callbacks'
 import { Rectangle, Sprite } from 'pixi.js'
 import { assert, NotImplementedError } from '../../common/errors'
 import { EventsComponent } from '../components/events'
 import { method } from '../../common/types'
 import { AdvancedSprite } from '../rendering'
+import { Scope } from '../scope'
+import { printStackTrace } from '../../interpreter/script/stacktrace'
 
 export type XRayInfo = {
     type: string
@@ -24,12 +26,12 @@ export class Type<DefinitionType extends TypeDefinition> {
     public readonly definition: DefinitionType
 
     public name: string = ''
-    public parent: Type<any> | null
+    public parent: ParentType<any> | null
     public clones: Array<Type<DefinitionType>> = []
 
     public isReady: boolean = false
 
-    constructor(engine: Engine, parent: Type<any> | null, definition: DefinitionType) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: DefinitionType) {
         this.engine = engine
         this.definition = definition
         this.name = definition.NAME
@@ -53,7 +55,7 @@ export class Type<DefinitionType extends TypeDefinition> {
 
     @method()
     GETCLONEINDEX() {
-        const object = this.engine.getObject(this.definition.NAME)
+        const object = this.getObject(this.definition.NAME)
         assert(object !== null)
         return object.clones.indexOf(this) + 1
     }
@@ -82,7 +84,11 @@ export class Type<DefinitionType extends TypeDefinition> {
     }
 
     get parentScope() {
-        return this.engine.scopeManager.getScopeOf(this)
+        return this.parent?.scope ?? null
+    }
+
+    getObject<T extends Type<any>>(name: string | reference | null): T | null {
+        return this.engine.getObject(name, this.parentScope)
     }
 
     // Called when trying to call a method that is not existing for a type
@@ -146,7 +152,7 @@ export class ValueType<DefinitionType extends ValueTypeDefinition, TypeOfValue> 
 
     constructor(
         engine: Engine,
-        parent: Type<any> | null,
+        parent: ParentType<any> | null,
         definition: DefinitionType,
         defaultValue: number | string | boolean | any[],
         autoSave: boolean = true
@@ -222,4 +228,8 @@ export class ValueType<DefinitionType extends ValueTypeDefinition, TypeOfValue> 
     protected deserialize(value: string): any {
         return value
     }
+}
+
+export class ParentType<DefinitionType extends ValueTypeDefinition> extends Type<DefinitionType> {
+    public scope: Scope | null = null
 }

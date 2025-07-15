@@ -12,7 +12,7 @@ export class Group extends Type<GroupDefinition> {
     @method()
     ADD(...objectsNames: string[]) {
         objectsNames.forEach((objectName) => {
-            const object = this.engine.getObject(objectName)
+            const object = this.getObject(objectName)
             if (object === null) {
                 console.warn(`Script was trying to add non-existing object "${objectName}" to a group "${this.name}"`)
             } else {

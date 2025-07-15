@@ -1,10 +1,10 @@
-import { Type, ValueType } from './index'
+import { ParentType, ValueType } from './index'
 import { Engine } from '../index'
 import { IntegerDefinition } from '../../fileFormats/cnv/types'
 import { ForceNumber, method } from '../../common/types'
 
 export class Integer extends ValueType<IntegerDefinition, number> {
-    constructor(engine: Engine, parent: Type<any> | null, definition: IntegerDefinition) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: IntegerDefinition) {
         super(engine, parent, definition, 0)
     }
 
@@ -61,7 +61,7 @@ export class Integer extends ValueType<IntegerDefinition, number> {
     // TODO: Maybe type guard could try to resolve references
     async SET(newValue?: number | string) {
         if (typeof newValue == 'string') {
-            const possibleInteger = this.engine.getObject(newValue)
+            const possibleInteger = this.getObject(newValue)
             if (possibleInteger instanceof Integer) {
                 await this.setValue(possibleInteger.value)
                 return

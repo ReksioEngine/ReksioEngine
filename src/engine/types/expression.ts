@@ -1,16 +1,16 @@
-import { Type, ValueType } from './index'
+import { ParentType, ValueType } from './index'
 import { ExpressionDefinition } from '../../fileFormats/cnv/types'
 import { NotImplementedError } from '../../common/errors'
 import { Engine } from '../index'
 
 export class Expression extends ValueType<ExpressionDefinition, boolean> {
-    constructor(engine: Engine, parent: Type<any> | null, definition: ExpressionDefinition) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: ExpressionDefinition) {
         super(engine, parent, definition, false)
     }
 
     async getValue() {
-        const operand1 = await this.engine.scripting.executeCallback(this, this.definition.OPERAND1)
-        const operand2 = await this.engine.scripting.executeCallback(this, this.definition.OPERAND2)
+        const operand1 = await this.engine.scripting.executeCallback(this, this, this.definition.OPERAND1)
+        const operand2 = await this.engine.scripting.executeCallback(this, this, this.definition.OPERAND2)
 
         let result
         switch (this.definition.OPERATOR) {

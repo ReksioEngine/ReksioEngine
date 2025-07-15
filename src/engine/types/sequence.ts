@@ -1,4 +1,4 @@
-import { Type } from './index'
+import { ParentType, Type } from './index'
 import { Engine } from '../index'
 import { SequenceDefinition } from '../../fileFormats/cnv/types'
 import { FileNotFoundError } from '../../loaders/filesLoader'
@@ -44,7 +44,7 @@ export class Sequence extends Type<SequenceDefinition> {
 
     private readonly onAnimoEventFinishedCallback: (eventName: string) => Promise<void>
 
-    constructor(engine: Engine, parent: Type<any> | null, definition: SequenceDefinition) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: SequenceDefinition) {
         super(engine, parent, definition)
         this.onAnimoEventFinishedCallback = this.onAnimoEventFinished.bind(this)
     }
@@ -320,7 +320,7 @@ export class Sequence extends Type<SequenceDefinition> {
 
     private async getAnimo(nameOrFilename: string): Promise<Animo> {
         // Get object by name
-        const object: Animo | null = this.engine.getObject(nameOrFilename)
+        const object: Animo | null = this.getObject(nameOrFilename)
         if (object) {
             return object
         }

@@ -1,7 +1,7 @@
 import { Type } from '../../engine/types'
 import { valueAsString } from '../../common/types'
 
-type StackFrameTypes = 'method' | 'behaviour' | 'callback' | 'stage'
+type StackFrameTypes = 'method' | 'behaviour' | 'callback' | 'stage' | 'specialCall'
 
 export class StackFrame {
     public type: StackFrameTypes | null = null
@@ -79,6 +79,9 @@ export const generateStackTrace = (stackTraceSource: StackFrame[]) => {
                 break
             case 'method':
                 lines.push(`at ${frame.object?.name ?? '<unknown>'}^${frame.methodName}(${argsString})`)
+                break
+            case 'specialCall':
+                lines.push(`at ${frame.methodName}(${argsString})`)
                 break
             case 'stage':
                 lines.push(`at ${frame.object?.name ?? '<unknown>'}::${frame.methodName}()`)

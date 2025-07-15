@@ -1,4 +1,4 @@
-import { DisplayType, Type, XRayInfo } from './index'
+import { DisplayType, ParentType, XRayInfo } from './index'
 import { AnimoDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { assert, InvalidObjectError } from '../../common/errors'
@@ -47,7 +47,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         ONSTARTED: 'ONSTARTED',
     }
 
-    constructor(engine: Engine, parent: Type<any> | null, definition: AnimoDefinition) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: AnimoDefinition) {
         super(engine, parent, definition)
         this.fps = definition.FPS ?? 16
         this.collisions = new CollisionsComponent(engine, this)
@@ -662,7 +662,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     @method()
     ISNEAR(objectName: string, percentage: number) {
-        const otherObject = this.engine.getObject(objectName)
+        const otherObject = this.getObject(objectName)
         if (otherObject === null || !(otherObject instanceof DisplayType)) {
             return false
         }

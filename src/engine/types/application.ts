@@ -1,4 +1,4 @@
-import { Type } from './index'
+import { ParentType, Type } from './index'
 import { ApplicationDefinition } from '../../fileFormats/cnv/types'
 import { loadDefinition, doReady } from '../../loaders/definitionLoader'
 import { pathJoin } from '../../loaders/filesLoader'
@@ -15,7 +15,7 @@ const langCodeMapping: Record<string, string> = {
     '041B': 'SLO',
 }
 
-export class Application extends Type<ApplicationDefinition> {
+export class Application extends ParentType<ApplicationDefinition> {
     private language: string = 'POL'
 
     async init() {
@@ -25,9 +25,9 @@ export class Application extends Type<ApplicationDefinition> {
             )
 
             this.engine.app.ticker.stop()
-            const applicationScope = this.engine.scopeManager.newScope('application')
-            await loadDefinition(this.engine, applicationScope, applicationDefinition, this)
-            await doReady(applicationScope)
+            this.scope = this.engine.scopeManager.newScope('application')
+            await loadDefinition(this.engine, this.scope, applicationDefinition, this)
+            await doReady(this.scope)
             this.engine.app.ticker.start()
         }
     }
@@ -44,7 +44,7 @@ export class Application extends Type<ApplicationDefinition> {
 
     @method()
     async RUN(objectName: string, methodName: string, ...args: any[]) {
-        const object: any = this.engine.getObject(objectName)
+        const object: any = this.getObject(objectName)
         if (object === null) {
             return
         }

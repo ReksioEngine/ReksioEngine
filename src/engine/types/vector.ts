@@ -1,11 +1,11 @@
-import { Type, ValueType } from './index'
+import { ParentType, ValueType } from './index'
 import { VectorDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { assert } from '../../common/errors'
 import { method } from '../../common/types'
 
 export class Vector extends ValueType<VectorDefinition, number[]> {
-    constructor(engine: Engine, parent: Type<any> | null, definition: VectorDefinition) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: VectorDefinition) {
         super(engine, parent, definition, [])
         this.value = this.definition.VALUE
     }

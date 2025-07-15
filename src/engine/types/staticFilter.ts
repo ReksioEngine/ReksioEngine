@@ -1,4 +1,4 @@
-import { DisplayType, Type } from './index'
+import { DisplayType, ParentType, Type } from './index'
 import { StaticFilterDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { Animo } from './animo'
@@ -9,7 +9,7 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
     private properties = new Map<string, any>()
     private linked: Map<Type<any>, Map<string, any>> = new Map()
 
-    constructor(engine: Engine, parent: Type<any> | null, definition: StaticFilterDefinition) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: StaticFilterDefinition) {
         super(engine, parent, definition)
         this.linked = new Map<Type<any>, Map<string, any>>()
     }
@@ -21,7 +21,7 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
 
     @method()
     LINK(arg: any) {
-        const object: DisplayType<any> | null = this.engine.getObject(arg)
+        const object: DisplayType<any> | null = this.getObject(arg)
         assert(object !== null)
 
         const renderObject = object.getRenderObject()
@@ -51,7 +51,7 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
 
     @method()
     UNLINK(arg: any) {
-        const object: Animo | null = this.engine.getObject(arg)
+        const object: Animo | null = this.getObject(arg)
         assert(object !== null)
 
         const properties = this.linked.get(object)

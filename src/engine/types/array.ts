@@ -1,4 +1,4 @@
-import { Type, ValueType } from './index'
+import { ParentType, ValueType } from './index'
 import { Engine } from '../index'
 import { ArrayDefinition } from '../../fileFormats/cnv/types'
 import { assert, NotImplementedError } from '../../common/errors'
@@ -10,7 +10,7 @@ const generateMessage = (action: string, position: number, value: any[]) => {
 }
 
 export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
-    constructor(engine: Engine, parent: Type<any> | null, definition: ArrayDefinition) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: ArrayDefinition) {
         super(engine, parent, definition, [], false)
     }
 

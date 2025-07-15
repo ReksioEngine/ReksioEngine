@@ -78,9 +78,9 @@ export class CallbacksComponent {
             if (param !== null && param !== undefined && callbackGroup.parametrized.has(param)) {
                 const callback = callbackGroup.parametrized.get(param)
                 assert(callback !== undefined, 'Callbacks should not happen to be undefined values')
-                await this.engine.scripting.executeCallback(thisReference, callback)
+                await this.engine.scripting.executeCallback(thisReference, thisReference, callback)
             } else if (callbackGroup.nonParametrized) {
-                await this.engine.scripting.executeCallback(thisReference, callbackGroup.nonParametrized)
+                await this.engine.scripting.executeCallback(thisReference, thisReference, callbackGroup.nonParametrized)
             }
         } catch (err) {
             if (!(err instanceof InterruptScriptExecution)) {

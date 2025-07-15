@@ -17,7 +17,7 @@ export class Rand extends Type<RandDefinition> {
 
     @method()
     GETPLENTY(objectTarget: string, count: number, min: number, max: number, unique: boolean) {
-        const object: ArrayObject | null = this.engine.getObject(objectTarget)
+        const object: ArrayObject | null = this.getObject(objectTarget)
         assert(object !== null)
 
         const values: number[] = []

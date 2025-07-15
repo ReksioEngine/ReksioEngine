@@ -22,7 +22,7 @@ import { Button } from '../engine/types/button'
 import { Sequence } from '../engine/types/sequence'
 import { Group } from '../engine/types/group'
 import { Text } from '../engine/types/text'
-import { DisplayType, Type } from '../engine/types'
+import { DisplayType, ParentType, Type } from '../engine/types'
 import { Font } from '../engine/types/font'
 import { ComplexCondition } from '../engine/types/complexCondition'
 import { Rand } from '../engine/types/rand'
@@ -38,7 +38,7 @@ import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
 import { Struct } from '../engine/types/struct'
 import { Database } from '../engine/types/database'
 
-const createTypeInstance = (engine: Engine, parent: Type<any> | null, definition: any) => {
+const createTypeInstance = (engine: Engine, parent: ParentType<any> | null, definition: any) => {
     switch (definition.TYPE) {
         case 'ANIMO':
             return new Animo(engine, parent, definition)
@@ -137,7 +137,7 @@ const sortByPriority = (entries: Type<any>[]) => {
     })
 }
 
-export const loadDefinition = async (engine: Engine, scope: Scope, definition: CNV, parent: Type<any> | null) => {
+export const loadDefinition = async (engine: Engine, scope: Scope, definition: CNV, parent: ParentType<any> | null) => {
     const entries = []
     for (const [key, value] of Object.entries(definition)) {
         const instance = createTypeInstance(engine, parent, value)
@@ -201,11 +201,11 @@ export const doReady = async (scope: Scope) => {
     }
 }
 
-export const createObject = async (engine: Engine, definition: CNVObject, parent: Type<any> | null) => {
+export const createObject = async (engine: Engine, definition: CNVObject, parent: ParentType<any> | null) => {
     engine.app.ticker.stop()
 
     const instance = createTypeInstance(engine, parent, definition)
-    engine.scopeManager.getScope('scene')?.set(definition.NAME, instance)
+    parent?.scope?.set(definition.NAME, instance)
 
     if (instance instanceof DisplayType) {
         engine.rendering.displayObjectsInDefinitionOrder.push(instance)

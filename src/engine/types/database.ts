@@ -12,7 +12,7 @@ export class Database extends Type<DatabaseDefinition> {
     private cursorPosition: number = 0
 
     init() {
-        this.baseStruct = this.engine.getObject(this.definition.MODEL)
+        this.baseStruct = this.getObject(this.definition.MODEL)
     }
 
     async ready() {

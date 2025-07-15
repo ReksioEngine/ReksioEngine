@@ -35,7 +35,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
         for (let i = start; i < start + len; i += step) {
             try {
                 if (await this.shouldRun()) {
-                    await this.engine.scripting.executeCallback(null, this.definition.CODE, [i, step, ...args])
+                    await this.engine.scripting.executeCallback(null, this, this.definition.CODE, [i, step, ...args])
                 }
             } catch (err) {
                 if (err instanceof InterruptScriptExecution) {
@@ -52,7 +52,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
 
     async executeCallback(args: any[] = []) {
         // Don't resolve args, it will fail in S33_METEORY
-        return await this.engine.scripting.executeCallback(null, this.definition.CODE, args)
+        return await this.engine.scripting.executeCallback(null, this, this.definition.CODE, args)
     }
 
     async executeConditionalCallback(args: any[] = []) {
@@ -63,7 +63,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
 
     async shouldRun() {
         if (this.definition.CONDITION) {
-            const condition: Condition | null = this.engine.getObject(this.definition.CONDITION.objectName)
+            const condition: Condition | null = this.getObject(this.definition.CONDITION.objectName)
             assert(condition !== null)
             return await condition.CHECK(true)
         }

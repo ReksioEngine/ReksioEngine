@@ -25,8 +25,8 @@ export class Condition extends Type<ConditionDefinition> {
 
     @method()
     async CHECK(shouldSignal: boolean): Promise<boolean> {
-        const operand1 = await this.engine.scripting.executeCallback(null, this.definition.OPERAND1)
-        const operand2 = await this.engine.scripting.executeCallback(null, this.definition.OPERAND2)
+        const operand1 = await this.engine.scripting.executeCallback(null, this, this.definition.OPERAND1)
+        const operand2 = await this.engine.scripting.executeCallback(null, this, this.definition.OPERAND2)
 
         let result
         if (operand1 !== undefined && operand2 !== undefined) {

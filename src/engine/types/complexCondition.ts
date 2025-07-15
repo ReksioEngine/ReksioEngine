@@ -24,8 +24,8 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
 
     @method()
     async CHECK(arg: boolean): Promise<boolean> {
-        const condition1: Condition | null = this.engine.getObject(this.definition.CONDITION1)
-        const condition2: Condition | null = this.engine.getObject(this.definition.CONDITION2)
+        const condition1: Condition | null = this.getObject(this.definition.CONDITION1)
+        const condition2: Condition | null = this.getObject(this.definition.CONDITION2)
         assert(condition1 !== null && condition2 !== null)
 
         let result

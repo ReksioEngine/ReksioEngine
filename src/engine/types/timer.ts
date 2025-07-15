@@ -1,4 +1,4 @@
-import { Type } from './index'
+import { ParentType, Type } from './index'
 import { TimerDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { method } from '../../common/types'
@@ -10,7 +10,7 @@ export class Timer extends Type<TimerDefinition> {
     private elapse: number
     private enabled: boolean
 
-    constructor(engine: Engine, parent: Type<any> | null, definition: TimerDefinition) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: TimerDefinition) {
         super(engine, parent, definition)
         this.elapse = definition.ELAPSE
         this.enabled = definition.ENABLED ?? true

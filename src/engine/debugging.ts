@@ -31,7 +31,7 @@ export class Debugging {
     }
 
     async createObject(definition: CNVObject) {
-        return await createObject(this.engine, definition, null)
+        return await createObject(this.engine, definition, this.engine.currentScene)
     }
 
     setupDebugTools() {
@@ -256,8 +256,8 @@ export class Debugging {
             return
         }
 
-        const sceneScope = this.engine.scopeManager.getScope('scene')
-        assert(sceneScope != null)
+        const sceneScope = this.engine.currentScene?.scope
+        assert(sceneScope)
 
         for (const object of sceneScope.objects) {
             const info = object.__getXRayInfo()

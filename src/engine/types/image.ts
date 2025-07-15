@@ -113,7 +113,7 @@ export class Image extends DisplayType<ImageDefinition> {
             this.maskContainer.addChild(maskGraphics)
         }
 
-        const object: DisplayType<any> | null = this.engine.getObject(name)
+        const object: DisplayType<any> | null = this.getObject(name)
         assert(object !== null)
 
         let otherObjectAlphaSprite = this.otherObjectsAlphaSpriteCache.get(name)

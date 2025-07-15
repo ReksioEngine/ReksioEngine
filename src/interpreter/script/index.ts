@@ -27,7 +27,7 @@ import { printStackTrace, StackFrame, stackTrace } from './stacktrace'
 import { evaluateExpression } from '../ifExpression'
 import { Rand } from '../../engine/types/rand'
 import { System } from '../../engine/types/system'
-import { createCallback } from '../../fileFormats/common'
+import { createCallback, reference } from '../../fileFormats/common'
 import { Integer } from '../../engine/types/integer'
 import { Struct } from '../../engine/types/struct'
 import { CNVLoader } from '../../engine/types/cnvloader'
@@ -49,6 +49,7 @@ class AlreadyDisplayedError {
 
 export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
     private readonly engine: Engine
+    private readonly caller: Type<any> | null
     private readonly args: any[]
     private readonly script: string
     private readonly printDebug: boolean
@@ -59,9 +60,10 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
 
     private globalInstances = new Map<string, any>()
 
-    constructor(engine: Engine, script: string, args: any[], printDebug: boolean = true) {
+    constructor(engine: Engine, caller: Type<any> | null, script: string, args: any[], printDebug: boolean = true) {
         super()
         this.engine = engine
+        this.caller = caller
         this.script = script
         this.args = args
         this.printDebug = printDebug
@@ -126,7 +128,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             return name
         }
 
-        const object: ValueType<any, any> | null = this.engine.getObject(name)
+        const object: ValueType<any, any> | null = this.getObject(name)
         if (object != null) {
             return object.getValue()
         }
@@ -219,7 +221,8 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
                         (this.args.length ? '%cBehaviour Arguments:%c %O\n' : '') +
                         (Object.keys(argsVariables).length > 0 ? '%cVariables used in call:%c %O\n' : '') +
                         (Object.keys(this.scriptUsedVariables).length > 0 ? '%cVariables used in script:%c %O\n' : '') +
-                        '%cScope:%c %O\n',
+                        '%cGlobal scopes:%c %O\n' +
+                        '%cCaller scope:%c %O\n',
                     'font-weight: bold',
                     'font-weight: inherit',
                     'color: red',
@@ -237,7 +240,10 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
                         : []),
                     'font-weight: bold',
                     'font-weight: inherit',
-                    this.engine.scopeManager.scopes
+                    this.engine.scopeManager.scopes,
+                    'font-weight: bold',
+                    'font-weight: inherit',
+                    this.caller?.parentScope
                 )
                 console.error(err)
                 printStackTrace()
@@ -256,114 +262,157 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         }
     }
 
+    async resolveConditionalCall(a: any, operator: string, b: any) {
+        const left =
+            typeof a === 'string'
+                ? a.toString().startsWith('"')
+                    ? a.toString().replace(/^"|"$/g, '')
+                    : (await this.getObject<ValueType<any, any>>(valueAsString(a))?.getValue() ?? a)
+                : a
+
+        const right =
+            typeof b === 'string'
+                ? b.toString().startsWith('"')
+                    ? b.toString().replace(/^"|"$/g, '')
+                    : (await this.getObject<ValueType<any, any>>(valueAsString(b))?.getValue() ?? b)
+                : b
+
+        if (operator == '_') {
+            return Compare.Equal(left, right)
+        } else if (operator == '!_') {
+            return Compare.NotEqual(left, right)
+        } else if (operator == '>') {
+            return Compare.Greater(left, right)
+        } else if (operator == '<') {
+            return Compare.Less(left, right)
+        } else if (operator == '>_') {
+            return Compare.GreaterOrEqual(left, right)
+        } else if (operator == '<_') {
+            return Compare.LessOrEqual(left, right)
+        }
+
+        assert(false, 'unknown comparison operator')
+    }
+
     visitSpecialCall = async (ctx: SpecialCallContext) => {
         this.lastContext = ctx
         const methodName = ctx.methodName().getText()
         const args = ctx.methodCallArguments() != null ? await this.visitMethodCallArguments(ctx.methodCallArguments()) : []
 
-        if (methodName === 'IF') {
-            if (args.length == 5) {
-                const [a, operator, b, ifTrue, ifFalse] = args
+        const stackFrame = StackFrame.builder()
+            .type('specialCall')
+            .method(methodName)
+            .args(...args)
+            .build()
+        stackTrace.push(stackFrame)
 
-                const left =
-                    typeof a === 'string'
-                        ? a.toString().startsWith('"')
-                            ? a.toString().replace(/^"|"$/g, '')
-                            : (await this.engine.getObject<ValueType<any, any>>(valueAsString(a))?.getValue() ?? a)
-                        : a
+        try {
+            if (methodName === 'IF') {
+                if (args.length == 5) {
+                    const [a, operator, b, ifTrue, ifFalse] = args
 
-                const right =
-                    typeof b === 'string'
-                        ? b.toString().startsWith('"')
-                            ? b.toString().replace(/^"|"$/g, '')
-                            : (await this.engine.getObject<ValueType<any, any>>(valueAsString(b))?.getValue() ?? b)
-                        : b
+                    const result = await this.resolveConditionalCall(a, operator, b)
+                    const onTrue: Behaviour | null = this.getObject(ifTrue)
+                    const onFalse: Behaviour | null = this.getObject(ifFalse)
 
-                let result = false
-                if (operator == '_') {
-                    result = Compare.Equal(left, right)
-                } else if (operator == '!_') {
-                    result = Compare.NotEqual(left, right)
-                } else if (operator == '>') {
-                    result = Compare.Greater(left, right)
-                } else if (operator == '<') {
-                    result = Compare.Less(left, right)
-                } else if (operator == '>_') {
-                    result = Compare.GreaterOrEqual(left, right)
-                } else if (operator == '<_') {
-                    result = Compare.LessOrEqual(left, right)
-                }
-
-                const onTrue: Behaviour | null = this.engine.getObject(ifTrue)
-                const onFalse: Behaviour | null = this.engine.getObject(ifFalse)
-
-                if (result && onTrue !== null) {
-                    await onTrue.executeConditionalCallback()
-                } else if (!result && onFalse !== null) {
-                    await onFalse.executeConditionalCallback()
-                }
-            } else if (args.length == 3) {
-                const [expression, ifTrue, ifFalse] = args
-                const result = await evaluateExpression(this.engine, expression)
-                const onTrue: Behaviour | null = this.engine.getObject(ifTrue)
-                const onFalse: Behaviour | null = this.engine.getObject(ifFalse)
-
-                if (result && onTrue !== null) {
-                    await onTrue.executeConditionalCallback()
-                } else if (!result && onFalse !== null) {
-                    await onFalse.executeConditionalCallback()
-                }
-            }
-        } else if (methodName === 'BREAK') {
-            throw new InterruptScriptExecution(false)
-        } else if (methodName === 'LOOP') {
-            const [codeOrBehaviour, start, len, step] = args
-
-            const callback = createCallback(codeOrBehaviour)
-            if (callback === undefined) {
-                throw new IrrecoverableError('Invalid @LOOP callback')
-            }
-
-            const counter = new Integer(this.engine, null, {
-                NAME: '_I_',
-                TYPE: 'INTEGER',
-                TOINI: false,
-            })
-            for (let i = start; i < start + len; i += step) {
-                await counter.setValue(i)
-                try {
-                    await this.engine.scripting.executeCallback(
-                        null,
-                        callback,
-                        [],
-                        {
-                            _I_: counter,
-                        },
-                        true
-                    )
-                } catch (err) {
-                    if (err instanceof InterruptScriptExecution) {
-                        if (err.one) {
-                            continue
-                        }
-                        break
+                    if (result && onTrue !== null) {
+                        await onTrue.executeConditionalCallback()
+                    } else if (!result && onFalse !== null) {
+                        await onFalse.executeConditionalCallback()
                     }
-                    throw err
+                } else if (args.length == 3) {
+                    const [expression, ifTrue, ifFalse] = args
+                    const result = await evaluateExpression(this.engine, this.caller, expression)
+                    const onTrue: Behaviour | null = this.getObject(ifTrue)
+                    const onFalse: Behaviour | null = this.getObject(ifFalse)
+
+                    if (result && onTrue !== null) {
+                        await onTrue.executeConditionalCallback()
+                    } else if (!result && onFalse !== null) {
+                        await onFalse.executeConditionalCallback()
+                    }
                 }
+            } else if (methodName === 'BREAK') {
+                throw new InterruptScriptExecution(false)
+            } else if (methodName === 'LOOP') {
+                const [codeOrBehaviour, start, len, step] = args
+
+                const callback = createCallback(codeOrBehaviour)
+                if (callback === undefined) {
+                    throw new IrrecoverableError('Invalid @LOOP callback')
+                }
+
+                const counter = new Integer(this.engine, null, {
+                    NAME: '_I_',
+                    TYPE: 'INTEGER',
+                    TOINI: false,
+                })
+                for (let i = start; i < start + len; i += step) {
+                    await counter.setValue(i)
+                    try {
+                        await this.engine.scripting.executeCallback(
+                            null,
+                            this.caller,
+                            callback,
+                            [],
+                            {
+                                _I_: counter,
+                            },
+                            true
+                        )
+                    } catch (err) {
+                        if (err instanceof InterruptScriptExecution) {
+                            if (err.one) {
+                                continue
+                            }
+                            break
+                        }
+                        throw err
+                    }
+                }
+            } else if (methodName === 'WHILE') {
+                const [a, operator, b, codeOrBehaviour] = args
+                const callback = createCallback(codeOrBehaviour)
+                if (callback === undefined) {
+                    throw new IrrecoverableError('Invalid callback')
+                }
+
+                while (await this.resolveConditionalCall(a, operator, b)) {
+                    try {
+                        await this.engine.scripting.executeCallback(
+                            null,
+                            this.caller,
+                            callback,
+                            [],
+                            undefined,
+                            true
+                        )
+                    } catch (err) {
+                        if (err instanceof InterruptScriptExecution) {
+                            if (err.one) {
+                                continue
+                            }
+                            break
+                        }
+                        throw err
+                    }
+                }
+            } else if (this.printDebug) {
+                const code = this.markInCode(ctx)
+                console.error(
+                    `Unknown special call ${methodName}` + '\n' + `%cCode:%c\n${code}\n\n` + '%cUsed variables:%c%O',
+                    'font-weight: bold',
+                    'font-weight: inherit',
+                    'color: red',
+                    'color: inherit',
+                    'font-weight: bold',
+                    'font-weight: inherit',
+                    this.scriptUsedVariables
+                )
+                // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
             }
-        } else if (this.printDebug) {
-            const code = this.markInCode(ctx)
-            console.error(
-                `Unknown special call ${methodName}` + '\n' + `%cCode:%c\n${code}\n\n` + '%cUsed variables:%c%O',
-                'font-weight: bold',
-                'font-weight: inherit',
-                'color: red',
-                'color: inherit',
-                'font-weight: bold',
-                'font-weight: inherit',
-                this.scriptUsedVariables
-            )
-            // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
+        } finally {
+            stackTrace.pop()
         }
     }
 
@@ -380,7 +429,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             objectName = objectName.substring(0, objectName.length - 2)
         }
 
-        const object = this.engine.getObject(objectName)
+        const object = this.getObject(objectName)
         this.methodCallUsedVariables[objectName] = object
         this.scriptUsedVariables[objectName] = object
 
@@ -396,7 +445,8 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
                         '\n' +
                         `%cCode:%c\n${code}\n\n` +
                         '%cUsed variables:%c %O\n' +
-                        '%cScope:%c %O\n',
+                        '%cGlobal scopes:%c %O\n' +
+                        '%cCaller scope:%c %O\n',
                     'font-weight: bold',
                     'font-weight: inherit',
                     'color: red',
@@ -406,7 +456,10 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
                     this.scriptUsedVariables,
                     'font-weight: bold',
                     'font-weight: inherit',
-                    this.engine.scopeManager.scopes
+                    this.engine.scopeManager.scopes,
+                    'font-weight: bold',
+                    'font-weight: inherit',
+                    this.caller?.parentScope
                 )
             }
 
@@ -473,10 +526,15 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
 
         return code.trimEnd().split(';').join(';\n')
     }
+
+    getObject<T extends Type<any>>(name: string | reference | null): T | null {
+        return this.engine.getObject(name, this.caller?.parentScope)
+    }
 }
 
 export const runScript = async (
     engine: Engine,
+    caller: Type<any> | null,
     script: string,
     args: any[] = [],
     singleStatement: boolean = false,
@@ -555,7 +613,7 @@ export const runScript = async (
     })
 
     const tree = singleStatement ? parser.statement() : parser.statementList()
-    const evaluator = new ScriptEvaluator(engine, script, args, printDebug)
+    const evaluator = new ScriptEvaluator(engine, caller, script, args, printDebug)
     try {
         return await tree.accept(evaluator)
     } catch (err) {

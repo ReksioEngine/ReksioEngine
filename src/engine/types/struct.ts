@@ -1,4 +1,4 @@
-import { Type, ValueType } from './index'
+import { ParentType, Type, ValueType } from './index'
 import { StructDefinition } from '../../fileFormats/cnv/types'
 import { method } from '../../common/types'
 import { Engine } from '../index'
@@ -11,7 +11,7 @@ export class Struct extends Type<StructDefinition> {
     public structure: Map<string, string> = new Map()
     private content: Map<string, ValueType<any, any>> = new Map()
 
-    constructor(engine: Engine, parent: Type<any> | null, definition: StructDefinition) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: StructDefinition) {
         super(engine, parent, definition)
         this.structure = this.parseFieldsString(this.definition.FIELDS)
     }
@@ -29,7 +29,7 @@ export class Struct extends Type<StructDefinition> {
                     TYPE: type,
                     NAME: key,
                 },
-                this
+                this.parent
             )
             assert(field instanceof ValueType, 'struct field has to be of value type')
             this.content.set(key, field)
@@ -52,7 +52,7 @@ export class Struct extends Type<StructDefinition> {
 
     @method()
     async SET(otherObjectName: string) {
-        const otherObject: Struct | null = this.engine.getObject(otherObjectName)
+        const otherObject: Struct | null = this.getObject(otherObjectName)
         assert(otherObject !== null, 'object does not exist')
 
         for (const key of otherObject.structure.keys()) {

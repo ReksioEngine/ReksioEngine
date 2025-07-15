@@ -1,4 +1,4 @@
-import { DisplayType, Type, XRayInfo } from './index'
+import { DisplayType, ParentType, Type, XRayInfo } from './index'
 import { Engine } from '../index'
 import { ButtonDefinition } from '../../fileFormats/cnv/types'
 import { Image } from './image'
@@ -19,20 +19,20 @@ export class Button extends Type<ButtonDefinition> {
     private interactArea: Graphics | null = null
     private rect: Rectangle | null = null
 
-    constructor(engine: Engine, parent: Type<any> | null, definition: ButtonDefinition) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: ButtonDefinition) {
         super(engine, parent, definition)
         this.logic = new ButtonLogicComponent(this.onStateChange.bind(this))
     }
 
     init() {
         if (this.definition.GFXSTANDARD) {
-            this.gfxStandard = this.engine.getObject(this.definition.GFXSTANDARD)
+            this.gfxStandard = this.getObject(this.definition.GFXSTANDARD)
         }
         if (this.definition.GFXONCLICK) {
-            this.gfxOnClick = this.engine.getObject(this.definition.GFXONCLICK)
+            this.gfxOnClick = this.getObject(this.definition.GFXONCLICK)
         }
         if (this.definition.GFXONMOVE) {
-            this.gfxOnMove = this.engine.getObject(this.definition.GFXONMOVE)
+            this.gfxOnMove = this.getObject(this.definition.GFXONMOVE)
         }
     }
 
@@ -71,7 +71,7 @@ export class Button extends Type<ButtonDefinition> {
         if (Array.isArray(rect)) {
             shape = rect
         } else {
-            const object: DisplayType<any> | null = this.engine.getObject(rect)
+            const object: DisplayType<any> | null = this.getObject(rect)
             assert(object !== null, 'object referred by RECT should exist')
 
             const sprite = object.getRenderObject()

@@ -1,11 +1,11 @@
-import { Type } from './index'
+import { ParentType, Type } from './index'
 import { SceneDefinition } from '../../fileFormats/cnv/types'
 import { Behaviour } from './behaviour'
 import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
 import { pathJoin } from '../../loaders/filesLoader'
 
-export class Scene extends Type<SceneDefinition> {
+export class Scene extends ParentType<SceneDefinition> {
     @method()
     SETMUSICVOLUME(volume: number) {
         assert(this.engine.music !== null)
@@ -19,8 +19,8 @@ export class Scene extends Type<SceneDefinition> {
 
     @method()
     async RUNCLONES(baseObjectName: string, startingIdx: number, endingIdx: number, behaviourName: string) {
-        const baseObject: Type<any> | null = this.engine.getObject(baseObjectName)
-        const behaviour: Behaviour | null = this.engine.getObject(behaviourName)
+        const baseObject: Type<any> | null = this.getObject(baseObjectName)
+        const behaviour: Behaviour | null = this.getObject(behaviourName)
         assert(baseObject !== null && behaviour !== null)
 
         if (startingIdx < 1) {
@@ -38,7 +38,7 @@ export class Scene extends Type<SceneDefinition> {
 
     @method()
     async RUN(objectName: string, methodName: string, ...args: any[]) {
-        const object: any = this.engine.getObject(objectName)
+        const object: any = this.getObject(objectName)
         if (object === null) {
             return
         }

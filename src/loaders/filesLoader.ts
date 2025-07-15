@@ -50,6 +50,7 @@ abstract class SimpleFileLoader extends FileLoader {
     async getCNVFile(filename: string): Promise<CNV> {
         const data = await this.getRawFile(filename)
         const text = decryptCNV(data)
+        console.debug(filename)
         console.debug(text)
         return parseCNV(text)
     }

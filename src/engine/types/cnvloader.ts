@@ -12,9 +12,8 @@ export class CNVLoader extends Type<CNVLoaderDefinition> {
             this.engine.currentScene.getRelativePath(filename)
         )
 
-        const sceneScope = this.engine.scopeManager.getScope('scene')
-        assert(sceneScope !== null)
-        await loadDefinition(this.engine, sceneScope, definition, this.engine.currentScene)
-        await doReady(sceneScope)
+        assert(this.parent?.scope)
+        await loadDefinition(this.engine, this.parent.scope, definition, this.engine.currentScene)
+        await doReady(this.parent.scope)
     }
 }

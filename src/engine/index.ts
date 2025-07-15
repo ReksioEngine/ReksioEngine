@@ -104,43 +104,40 @@ export class Engine {
     }
 
     async tick(elapsedMS: number) {
-        const sceneScope = this.scopeManager.getScope('scene')
-        if (sceneScope === null) {
-            return
-        }
-
-        for (const object of sceneScope.objects.filter((object) => object.isReady)) {
-            try {
-                await object.tick(elapsedMS)
-            } catch (err) {
-                if (err instanceof CancelTick) {
-                    if (err.callback) {
-                        await err.callback()
+        for (const scope of this.scopeManager.scopes) {
+            for (const object of scope.objects.filter((object) => object.isReady)) {
+                try {
+                    await object.tick(elapsedMS)
+                } catch (err) {
+                    if (err instanceof CancelTick) {
+                        if (err.callback) {
+                            await err.callback()
+                        }
+                        return
+                    } else if (err instanceof IrrecoverableError) {
+                        console.error(
+                            'Irrecoverable error occurred. Execution paused\n' +
+                            'Call "engine.resume()" to resume\n' +
+                            '\n' +
+                            '%cGlobal scopes:%c%O',
+                            'font-weight: bold',
+                            'font-weight: inherit',
+                            this.scopeManager.scopes
+                        )
+                    } else {
+                        console.error(
+                            'Unhandled error occurred during tick. Execution paused\n' +
+                            'Call "engine.resume()" to resume\n' +
+                            '\n' +
+                            '%cGlobal scopes:%c%O',
+                            'font-weight: bold',
+                            'font-weight: inherit',
+                            this.scopeManager.scopes
+                        )
+                        console.error(err)
                     }
-                    return
-                } else if (err instanceof IrrecoverableError) {
-                    console.error(
-                        'Irrecoverable error occurred. Execution paused\n' +
-                            'Call "engine.resume()" to resume\n' +
-                            '\n' +
-                            '%cScope:%c%O',
-                        'font-weight: bold',
-                        'font-weight: inherit',
-                        this.scopeManager.scopes
-                    )
-                } else {
-                    console.error(
-                        'Unhandled error occurred during tick. Execution paused\n' +
-                            'Call "engine.resume()" to resume\n' +
-                            '\n' +
-                            '%cScope:%c%O',
-                        'font-weight: bold',
-                        'font-weight: inherit',
-                        this.scopeManager.scopes
-                    )
-                    console.error(err)
+                    this.pause()
                 }
-                this.pause()
             }
         }
 
@@ -174,11 +171,12 @@ export class Engine {
         this.app.stage.addChild(loadingFreezeOverlay)
         this.app.renderer.render(this.app.stage)
 
-        const scopeToClear: Scope | null = this.currentScene !== null ? (this.scopeManager.popScope() ?? null) : null
+        const scopeToClear: Scope | null = this.currentScene !== null ? this.currentScene.scope : null
         if (scopeToClear) {
+            this.scopeManager.removeScope(scopeToClear)
             for (const object of scopeToClear.objects) {
                 object.destroy()
-                this.scopeManager.getScope('scene')?.remove(object.name)
+                scopeToClear.remove(object.name)
             }
         }
 
@@ -199,6 +197,7 @@ export class Engine {
 
         this.previousScene = this.currentScene
         this.currentScene = this.getObject(sceneName) as Scene
+        assert(this.currentScene !== null, 'could not find scene')
 
         if (this.music !== null && this.currentScene.definition.MUSIC !== this.previousScene?.definition.MUSIC) {
             this.music.stop()
@@ -232,6 +231,8 @@ export class Engine {
             sceneDefinitionPromise
                 .then((sceneDefinition) => {
                     const newScope = this.scopeManager.newScope('scene')
+                    assert(this.currentScene !== null, 'could not find scene')
+                    this.currentScene.scope = newScope
                     const newScopePromise = loadDefinition(this, newScope, sceneDefinition, this.currentScene)
                     newScopePromise
                         .then(() => {
@@ -266,13 +267,18 @@ export class Engine {
         this.debug.updateCurrentScene()
     }
 
-    getObject<T extends Type<any>>(name: string | reference | null): T | null {
+    getObject<T extends Type<any>>(name: string | reference | null, parentScope: Scope | null = null): T | null {
         if (typeof name == 'string') {
-            return this.scopeManager.findByName(name)
+            const currentScopeEntry = parentScope?.get<T>(name)
+            if (currentScopeEntry) {
+                return currentScopeEntry
+            }
+
+            return this.scopeManager.findByName(name, parentScope)
         } else if (name === null) {
             return null
         } else {
-            return this.getObject(name.objectName)
+            return this.getObject(name.objectName, parentScope)
         }
     }
 
@@ -294,8 +300,8 @@ export class Engine {
     }
 
     resume() {
-        const sceneScope = this.scopeManager.getScope('scene')
-        assert(sceneScope != null)
+        const sceneScope = this.currentScene?.scope
+        assert(sceneScope)
 
         soundLibrary.resumeAll()
         for (const object of sceneScope.objects) {
@@ -305,8 +311,8 @@ export class Engine {
     }
 
     pause() {
-        const sceneScope = this.scopeManager.getScope('scene')
-        assert(sceneScope != null)
+        const sceneScope = this.currentScene?.scope
+        assert(sceneScope)
 
         this.app.ticker.stop()
         soundLibrary.pauseAll()
