@@ -1,8 +1,8 @@
 lexer grammar ReksioLangLexer;
 
 // Keywords
-fragment F_TRUE : 'TRUE';
-fragment F_FALSE: 'FALSE';
+fragment F_TRUE : 'TRUE' | 'true';
+fragment F_FALSE: 'FALSE' | 'false';
 
 // Literals
 fragment F_NUMBER: [0-9]+ ('.' [0-9]+)? ;
