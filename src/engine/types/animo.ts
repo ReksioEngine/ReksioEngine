@@ -541,6 +541,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
     }
 
+    @method()
+    async DISABLE() {
+        await this.buttonLogic.disable() // not sure
+    }
+
     private async onButtonStateChange(prevState: State, event: FSMEvent, newState: State) {
         const playEventIfExists = async (eventName: string) => {
             if (this.hasEvent(eventName)) {
