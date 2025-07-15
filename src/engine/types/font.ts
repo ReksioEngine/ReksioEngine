@@ -2,16 +2,16 @@ import { Type } from './index'
 import { FontDefinition } from '../../fileFormats/cnv/types'
 import { BitmapFont } from 'pixi.js'
 import { FileNotFoundError } from '../../loaders/filesLoader'
-import { assert } from '../../common/errors'
 
 export class Font extends Type<FontDefinition> {
     public bitmapFont: BitmapFont | null = null
 
     async init() {
-        assert(this.engine.currentScene !== null)
-
         try {
-            const relativePath = this.engine.currentScene.getRelativePath(this.definition['DEF_%s_%s_%d'])
+            const filename = this.definition['DEF_%s_%s_%d']
+            const relativePath = this.engine.currentScene !== null
+                ? this.engine.currentScene.getRelativePath(filename)
+                : this.engine.resolvePath(filename)
             this.bitmapFont = await this.engine.fileLoader.getFNTFile(relativePath)
         } catch (err) {
             if (err instanceof FileNotFoundError) {

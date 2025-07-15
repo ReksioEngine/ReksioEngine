@@ -120,10 +120,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     private async loadAnimation(path: string) {
-        assert(this.engine.currentScene !== null)
-
         try {
-            const relativePath = this.engine.currentScene.getRelativePath(path)
+            const relativePath = this.engine.currentScene
+                ? this.engine.currentScene.getRelativePath(path)
+                : this.engine.resolvePath(path)
+
             const annFile = await this.engine.fileLoader.getANNFile(relativePath)
             await this.loadSfx(annFile)
 

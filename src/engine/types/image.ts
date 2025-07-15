@@ -26,8 +26,9 @@ export class Image extends DisplayType<ImageDefinition> {
     }
 
     private async load(path: string) {
-        assert(this.engine.currentScene !== null)
-        const relativePath = this.engine.currentScene.getRelativePath(path)
+        const relativePath = this.engine.currentScene !== null
+            ? this.engine.currentScene.getRelativePath(path)
+            : this.engine.resolvePath(path)
         return await loadSprite(this.engine.fileLoader, relativePath)
     }
 
