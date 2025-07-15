@@ -80,6 +80,8 @@ export interface ISound {
         callback?: CompleteCallback
     ): IMediaInstance | Promise<IMediaInstance>
 
+    get isPlaying(): boolean
+
     stop(): this
 
     get muted(): boolean
@@ -123,6 +125,10 @@ export class SimulatedSound implements ISound {
                 instance.tick(elapsedMS)
             }
         }
+    }
+
+    get isPlaying(): boolean {
+        return this.instances.some(instance => (instance as SimulatedMediaInstance).running)
     }
 
     play(
@@ -208,7 +214,7 @@ export class SimulatedMediaInstance implements IMediaInstance {
     }
 
     private timeCounter: number = 0
-    private running: boolean = false
+    public running: boolean = false
 
     constructor(
         private sound: SimulatedSound,

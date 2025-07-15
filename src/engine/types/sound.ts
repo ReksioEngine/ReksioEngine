@@ -50,6 +50,11 @@ export class Sound extends Type<SoundDefinition> {
     }
 
     @method()
+    ISPLAYING() {
+        return this.sound !== null && this.sound.isPlaying
+    }
+
+    @method()
     STOP(arg?: boolean) {
         this.sound?.stop()
     }
