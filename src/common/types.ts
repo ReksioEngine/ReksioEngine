@@ -40,7 +40,7 @@ const toNumber = (value: any) => {
     if (typeof value === 'number') {
         return value
     } else if (typeof value === 'string') {
-        const match = value.match(/^\d+/)
+        const match = value.match(/^-?\d+/)
         return match ? Number(match[0]) : 0
     } else {
         return Number(value)
