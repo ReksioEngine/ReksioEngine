@@ -51,20 +51,17 @@ export class Sound extends Type<SoundDefinition> {
 
     @method()
     STOP(arg?: boolean) {
-        assert(this.sound !== null)
-        this.sound.stop()
+        this.sound?.stop()
     }
 
     @method()
     RESUME() {
-        assert(this.sound !== null)
-        this.sound.resume()
+        this.sound?.resume()
     }
 
     @method()
     PAUSE() {
-        assert(this.sound !== null)
-        this.sound.pause()
+        this.sound?.pause()
     }
 
     @method()
