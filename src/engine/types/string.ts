@@ -40,6 +40,11 @@ export class String extends ValueType<StringDefinition, string> {
         return this.value.indexOf(needle, start)
     }
 
+    @method()
+    LENGTH() {
+        return this.value.length
+    }
+
     protected async valueChanged(oldValue: any, newValue: any) {
         if (oldValue !== newValue) {
             await this.callbacks.run('ONCHANGED', newValue)
