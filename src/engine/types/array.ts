@@ -1,8 +1,9 @@
 import { Type, ValueType } from './index'
 import { Engine } from '../index'
 import { ArrayDefinition } from '../../fileFormats/cnv/types'
-import { assert } from '../../common/errors'
+import { assert, NotImplementedError } from '../../common/errors'
 import { method, valueAsString } from '../../common/types'
+import { FileNotFoundError } from '../../loaders/filesLoader'
 
 const generateMessage = (action: string, position: number, value: any[]) => {
     return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`
@@ -117,8 +118,20 @@ export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
     @method()
     async LOAD(path: string) {
         assert(this.engine.currentScene !== null)
-        // TODO: Fix problem with it being async
-        this.value = await this.engine.fileLoader.getARRFile(this.engine.currentScene.getRelativePath(path))
+        try {
+            this.value = await this.engine.fileLoader.getARRFile(this.engine.currentScene.getRelativePath(path))
+        } catch (err) {
+            if (err instanceof FileNotFoundError) {
+                console.error(err)
+            } else {
+                throw err
+            }
+        }
+    }
+
+    @method()
+    SAVE(path: string) {
+        throw new NotImplementedError()
     }
 
     @method()
