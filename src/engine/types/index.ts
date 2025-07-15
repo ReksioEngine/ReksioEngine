@@ -165,6 +165,11 @@ export class ValueType<DefinitionType extends ValueTypeDefinition, TypeOfValue> 
         }
     }
 
+    @method()
+    async COPYFILE(from: string, to: string) {
+        throw new NotImplementedError()
+    }
+
     valueOf() {
         return this.value
     }

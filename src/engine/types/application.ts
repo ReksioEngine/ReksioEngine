@@ -1,9 +1,9 @@
 import { Type } from './index'
 import { ApplicationDefinition } from '../../fileFormats/cnv/types'
-import { Engine } from '../index'
 import { loadDefinition, doReady } from '../../loaders/definitionLoader'
 import { pathJoin } from '../../loaders/filesLoader'
 import { method } from '../../common/types'
+import { NotImplementedError } from '../../common/errors'
 
 const langCodeMapping: Record<string, string> = {
     '0415': 'POL',
@@ -17,10 +17,6 @@ const langCodeMapping: Record<string, string> = {
 
 export class Application extends Type<ApplicationDefinition> {
     private language: string = 'POL'
-
-    constructor(engine: Engine, parent: Type<any> | null, definition: ApplicationDefinition) {
-        super(engine, parent, definition)
-    }
 
     async init() {
         if (this.definition.PATH) {
@@ -58,6 +54,11 @@ export class Application extends Type<ApplicationDefinition> {
         } else {
             return await object.__call(methodName, args)
         }
+    }
+
+    @method()
+    RUNENV(arg1: string, arg2: string) {
+        throw new NotImplementedError()
     }
 
     @method()

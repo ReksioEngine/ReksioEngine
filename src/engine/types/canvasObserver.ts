@@ -4,6 +4,7 @@ import { loadTexture } from '../../loaders/assetsLoader'
 import { Point } from 'pixi.js'
 import { method } from '../../common/types'
 import { AdvancedSprite } from '../rendering'
+import { NotImplementedError } from '../../common/errors'
 
 export class CanvasObserver extends Type<CanvasObserverDefinition> {
     @method()
@@ -59,5 +60,10 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
         }
 
         return null
+    }
+
+    @method()
+    SAVE(filename: string, scaleX: number, scaleY: number) {
+        throw new NotImplementedError()
     }
 }

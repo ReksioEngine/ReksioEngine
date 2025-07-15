@@ -51,6 +51,11 @@ export class Scene extends Type<SceneDefinition> {
         }
     }
 
+    @method()
+    STARTMUSIC(filename: string) {
+        throw new NotImplementedError()
+    }
+
     public getRelativePath(filename: string) {
         const scenePath = pathJoin('DANE', this.definition.PATH)
         return this.engine.resolvePath(filename, scenePath)

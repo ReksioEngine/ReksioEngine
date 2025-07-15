@@ -2,6 +2,7 @@ import { Type } from './index'
 import { KeyboardDefinition, MusicDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { method } from '../../common/types'
+import { NotImplementedError } from '../../common/errors'
 
 const keysMapping = {
     ArrowLeft: 'LEFT',
@@ -47,6 +48,11 @@ export class Keyboard extends Type<KeyboardDefinition> {
             }
         }
         this.changeQueue = []
+    }
+
+    @method()
+    DISABLE() {
+        throw new NotImplementedError()
     }
 
     @method()

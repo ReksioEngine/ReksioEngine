@@ -88,6 +88,11 @@ export class Mouse extends Type<MouseDefinition> {
         this.engine.app.stage.eventMode = 'none'
     }
 
+    @method()
+    DISABLESIGNAL() {
+        throw new NotImplementedError()
+    }
+
     private unregisterCallbacks() {
         this.engine.app.stage.removeListener('pointermove', this.mouseMoveListener)
         this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener)
@@ -111,6 +116,12 @@ export class Mouse extends Type<MouseDefinition> {
     @method()
     GETPOSY() {
         return this.mousePosition.y
+    }
+
+    @method()
+    SETPOSITION(x: number, y: number) {
+        // This is kinda impossible. We would have to hide cursor and emulate it.
+        throw new NotImplementedError()
     }
 
     private onMouseMove(event: FederatedPointerEvent) {
