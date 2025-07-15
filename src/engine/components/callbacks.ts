@@ -30,6 +30,10 @@ export class CallbacksComponent {
 
     autoRegister() {
         const structure = structureDefinitions[this.object.definition.TYPE]
+        if (!structure) {
+            return
+        }
+
         for (const [key, value] of Object.entries(structure)) {
             const fieldDefinition = value as FieldTypeEntry
 
