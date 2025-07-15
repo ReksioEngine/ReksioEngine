@@ -85,8 +85,14 @@ export class Engine {
 
             this.app.ticker.start()
         } catch (err) {
+            if (err instanceof CancelTick) {
+                if (err.callback) {
+                    await err.callback()
+                }
+                return
+            }
             console.error(
-                'Unhandled error occurred during start\n%cScope:%c%O',
+                'Unhandled error occurred during start\n%cGlobal scopes:%c%O',
                 'font-weight: bold',
                 'font-weight: inherit',
                 this.scopeManager.scopes
@@ -249,8 +255,7 @@ export class Engine {
         }
         if (music) {
             this.music = music
-            const instance = this.music.play()
-            assert(!(instance instanceof Promise), 'Sound should already be preloaded')
+            await this.music.play()
             if (this.debug.mutedMusic) {
                 this.music.muted = true
             }
