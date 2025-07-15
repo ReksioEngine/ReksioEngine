@@ -32,9 +32,7 @@ export class Group extends Type<GroupDefinition> {
                 await object[methodName](...args)
             } else {
                 const argumentsString = args?.map((arg) => typeof arg).join(', ')
-                throw new Error(
-                    `Method '${methodName}(${argumentsString ?? ''})' does not exist in ${object.constructor.name}`
-                )
+                console.warn(`Method '${methodName}(${argumentsString ?? ''})' does not exist in ${object.constructor.name}`)
             }
         }
     }
