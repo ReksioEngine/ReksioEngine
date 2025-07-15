@@ -92,6 +92,11 @@ export class Integer extends ValueType<IntegerDefinition, number> {
         return this.setValue(Math.abs(value))
     }
 
+    @method()
+    async RANDOM(offset: number, range: number) {
+        return Math.floor(Math.random() * range) + offset
+    }
+
     protected async valueChanged(oldValue: any, newValue: any) {
         if (oldValue !== newValue) {
             await this.callbacks.run('ONCHANGED', newValue)
