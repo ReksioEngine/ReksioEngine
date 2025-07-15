@@ -3,7 +3,9 @@ import { ApplicationDefinition } from '../../fileFormats/cnv/types'
 import { loadDefinition, doReady } from '../../loaders/definitionLoader'
 import { pathJoin } from '../../loaders/filesLoader'
 import { method } from '../../common/types'
-import { NotImplementedError } from '../../common/errors'
+import { assert } from '../../common/errors'
+import { Scene } from './scene'
+import { Behaviour } from './behaviour'
 
 const langCodeMapping: Record<string, string> = {
     '0415': 'POL',
@@ -57,8 +59,22 @@ export class Application extends ParentType<ApplicationDefinition> {
     }
 
     @method()
-    RUNENV(arg1: string, arg2: string) {
-        throw new NotImplementedError()
+    async RUNENV(sceneName: string, behaviourName: string, ...args: any[]) {
+        const object: Type<any> | null = this.getObject(sceneName)
+        if (object === null) {
+            return
+        }
+
+        assert(object instanceof Scene, 'attempted RUNENV on non-SCENE object')
+        assert(object.scope)
+
+        const behaviour: Type<any> | null = object.scope.get(behaviourName)
+        if (behaviour === null) {
+            return
+        }
+
+        assert(behaviour instanceof Behaviour)
+        await behaviour.RUNC(...args)
     }
 
     @method()
