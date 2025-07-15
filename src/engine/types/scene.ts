@@ -4,6 +4,7 @@ import { Behaviour } from './behaviour'
 import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
 import { pathJoin } from '../../loaders/filesLoader'
+import { loadSound } from '../../loaders/assetsLoader'
 
 export class Scene extends ParentType<SceneDefinition> {
     @method()
@@ -52,7 +53,24 @@ export class Scene extends ParentType<SceneDefinition> {
     }
 
     @method()
-    STARTMUSIC(filename: string) {
+    async STARTMUSIC(filename: string) {
+        this.engine.music = await loadSound(this.engine.fileLoader, filename, {
+            loop: true,
+        })
+    }
+
+    @method()
+    GETMAXHSPRIORITY() {
+        throw new NotImplementedError()
+    }
+
+    @method()
+    GETMINHSPRIORITY() {
+        throw new NotImplementedError()
+    }
+
+    @method()
+    GETPLAYINGANIMO(arg: number) {
         throw new NotImplementedError()
     }
 
