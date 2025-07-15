@@ -37,6 +37,7 @@ import { Scope } from '../engine/scope'
 import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
 import { Struct } from '../engine/types/struct'
 import { Database } from '../engine/types/database'
+import { Class } from '../engine/types/class'
 
 const createTypeInstance = (engine: Engine, parent: ParentType<any> | null, definition: any) => {
     switch (definition.TYPE) {
@@ -56,6 +57,8 @@ const createTypeInstance = (engine: Engine, parent: ParentType<any> | null, defi
             return new CanvasObserver(engine, parent, definition)
         case 'CANVASOBSERVER':
             return new CanvasObserver(engine, parent, definition)
+        case 'CLASS':
+            return new Class(engine, parent, definition)
         case 'CNVLOADER':
             return new CNVLoader(engine, parent, definition)
         case 'CONDITION':
@@ -130,9 +133,10 @@ const initializationPriorities = [
 }, new Map())
 
 const sortByPriority = (entries: Type<any>[]) => {
+    const callLater = ['__INIT__', 'CONSTRUCTOR']
     return entries.sort((a: Type<any>, b: Type<any>) => {
-        const aPriority = a.name === '__INIT__' ? 99999 : (initializationPriorities.get(a.definition.TYPE) ?? 9999)
-        const bPriority = b.name === '__INIT__' ? 99999 : (initializationPriorities.get(b.definition.TYPE) ?? 9999)
+        const aPriority = callLater.includes(a.name) ? 99999 : (initializationPriorities.get(a.definition.TYPE) ?? 9999)
+        const bPriority = callLater.includes(b.name) ? 99999 : (initializationPriorities.get(b.definition.TYPE) ?? 9999)
         return aPriority - bPriority
     })
 }

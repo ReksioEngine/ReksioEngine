@@ -165,6 +165,16 @@ const ButtonDefinitionStructure = {
 export type CanvasObserverDefinition = TypeDefinition & NonNullable<unknown>
 const CanvasObserverStructure = {}
 
+export type ClassDefinition = TypeDefinition & {
+    DEF: string
+    BASE?: string
+}
+
+const ClassDefinitionStructure = {
+    DEF: string,
+    BASE: optional(string),
+}
+
 export type CNVLoaderDefinition = TypeDefinition & NonNullable<unknown>
 const CNVLoaderStructure = {}
 
@@ -526,6 +536,7 @@ export const structureDefinitions = {
     BUTTON: ButtonDefinitionStructure,
     CANVASOBSERVER: CanvasObserverStructure,
     CANVAS_OBSERVER: CanvasObserverStructure,
+    CLASS: ClassDefinitionStructure,
     CNVLOADER: CNVLoaderStructure,
     COMPLEXCONDITION: ComplexConditionDefinitionStructure,
     CONDITION: ConditionDefinitionStructure,

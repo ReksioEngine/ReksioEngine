@@ -4,11 +4,17 @@ import { Condition } from './condition'
 import { InterruptScriptExecution } from '../../interpreter/script'
 import { method } from '../../common/types'
 import { assert } from '../../common/errors'
+import { ClassInstance } from './class'
 
 export class Behaviour extends Type<BehaviourDefinition> {
     async ready() {
         if (this.definition.NAME === '__INIT__') {
             await this.RUN()
+        }
+
+        if (this.definition.NAME === 'CONSTRUCTOR') {
+            assert(this.parent !== null && this.parent instanceof ClassInstance)
+            await this.RUN(...this.parent.args)
         }
     }
 
