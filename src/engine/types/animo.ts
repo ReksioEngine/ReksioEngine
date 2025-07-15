@@ -711,6 +711,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
+    SETOPACITY(opacity: number) {
+        assert(this.sprite !== null)
+        this.sprite.alpha = opacity / 255
+    }
+
+    @method()
     async LOAD(path: string) {
         this.destroy()
         this.annFile = await this.loadAnimation(path)

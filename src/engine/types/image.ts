@@ -45,7 +45,8 @@ export class Image extends DisplayType<ImageDefinition> {
 
     @method()
     SETOPACITY(opacity: number) {
-        throw new NotImplementedError()
+        assert(this.sprite !== null)
+        this.sprite.alpha = opacity / 255
     }
 
     @method()
