@@ -75,6 +75,12 @@ export class Image extends DisplayType<ImageDefinition> {
     }
 
     @method()
+    GETPOSITIONX() {
+        assert(this.sprite !== null)
+        return this.sprite.x
+    }
+
+    @method()
     GETPOSITIONY() {
         assert(this.sprite !== null)
         return this.sprite.y
@@ -131,6 +137,23 @@ export class Image extends DisplayType<ImageDefinition> {
 
         assert(this.sprite !== null)
         this.engine.rendering.addToStage(this.sprite)
+    }
+
+    @method()
+    INVALIDATE() {
+        throw new NotImplementedError()
+    }
+
+    @method()
+    SETCLIPPING(x1: number, y1: number, x2: number, y2: number) {
+        assert(this.sprite !== null)
+
+        const maskGraphics = new Graphics()
+        maskGraphics.beginFill(0x000000)
+        maskGraphics.drawRect(x1, y1, x2-x1, y2-y1)
+        maskGraphics.endFill()
+
+        this.sprite.mask = maskGraphics
     }
 
     private generateMaskTexture(sprite: AdvancedSprite) {
