@@ -136,6 +136,10 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
 
     visitObjectValueReference = (ctx: ObjectValueReferenceContext): any => {
         const identifier = ctx.objectName().getText()
+        if (identifier == 'NULL') {
+            return null
+        }
+
         const object = this.visitObjectName(ctx.objectName())
         this.methodCallUsedVariables[identifier] = object
         this.scriptUsedVariables[identifier] = object
@@ -371,7 +375,11 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
     visitObjectName = (ctx: ObjectNameContext): any => {
         this.lastContext = ctx
 
-        const objectName = this.visitIdentifier(ctx.identifier())
+        let objectName = this.visitIdentifier(ctx.identifier())
+        if (objectName !== null && objectName.endsWith('_0')) {
+            objectName = objectName.substring(0, objectName.length - 2)
+        }
+
         const object = this.engine.getObject(objectName)
         this.methodCallUsedVariables[objectName] = object
         this.scriptUsedVariables[objectName] = object
