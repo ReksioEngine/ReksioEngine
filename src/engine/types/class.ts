@@ -2,7 +2,7 @@ import { ParentType, Type } from './index'
 import { ClassDefinition } from '../../fileFormats/cnv/types'
 import { method } from '../../common/types'
 import { Scope } from '../scope'
-import { doReady, loadDefinition } from '../../loaders/definitionLoader'
+import { doReady, loadDefinition } from '../../filesystem/definitionLoader'
 import { CNV } from '../../fileFormats/cnv/parser'
 import { assert } from '../../common/errors'
 import { TypeDefinition } from '../../fileFormats/common'
@@ -14,8 +14,8 @@ export class Class extends Type<ClassDefinition> {
     public instances: ClassInstance[] = []
 
     async init() {
-        this.innerDefinition = await this.engine.fileLoader.getCNVFile(
-            this.engine.resolvePath(this.definition.DEF, 'common/classes')
+        this.innerDefinition = await this.engine.filesystem.getCNVFile(
+            await this.engine.resolvePath(this.definition.DEF, 'common/classes')
         )
     }
 

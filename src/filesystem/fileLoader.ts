@@ -1,12 +1,5 @@
-import { decryptCNV, parseCNV } from '../fileFormats/cnv'
-import { Image, loadImage } from '../fileFormats/img'
-import { ANN, loadAnn } from '../fileFormats/ann'
-import { CNV } from '../fileFormats/cnv/parser'
-import { parseSequence, SequenceFile } from '../fileFormats/seq'
 import { Iso9660Reader, LocalIso9660Reader, RemoteIso9660Reader } from './iso9660'
-import { loadFont } from '../fileFormats/fnt'
-import { BitmapFont } from 'pixi.js'
-import { parseArray } from '../fileFormats/archive/array'
+import { normalizePath } from './index'
 
 export class FileNotFoundError extends Error {
     constructor(filename: string) {
@@ -14,70 +7,14 @@ export class FileNotFoundError extends Error {
     }
 }
 
-export const normalizePath = (path: string) => {
-    return path.toLowerCase().replace(/\\+/g, '/').replace(/\/+/g, '/').replace(/^\//, '')
-}
-
-export const pathJoin = (...parts: Array<string>) => {
-    const fixedParts = parts.filter((part) => part !== '').map((part) => part.replace(/\\/g, '/'))
-    return normalizePath(fixedParts.join('/'))
-}
-
 export abstract class FileLoader {
     abstract init(): Promise<void>
     abstract getRawFile(filename: string): Promise<ArrayBuffer>
-    abstract getCNVFile(filename: string): Promise<CNV>
-    abstract getSequenceFile(filename: string): Promise<SequenceFile>
-    abstract getIMGFile(filename: string): Promise<Image>
-    abstract getANNFile(filename: string): Promise<ANN>
-    abstract getFNTFile(filename: string): Promise<BitmapFont>
-    abstract getARRFile(filename: string): Promise<any[]>
     abstract getFilesListing(): string[]
     abstract hasFile(filename: string): boolean
 }
 
 abstract class SimpleFileLoader extends FileLoader {
-    async getANNFile(filename: string): Promise<ANN> {
-        const data = await this.getRawFile(filename)
-        return loadAnn(data)
-    }
-
-    async getFNTFile(filename: string): Promise<BitmapFont> {
-        const data = await this.getRawFile(filename)
-        return loadFont(data)
-    }
-
-    async getCNVFile(filename: string): Promise<CNV> {
-        const data = await this.getRawFile(filename)
-        const text = decryptCNV(data)
-        console.debug(filename)
-        console.debug(text)
-        return parseCNV(text)
-    }
-
-    async getSequenceFile(filename: string): Promise<SequenceFile> {
-        const data = await this.getRawFile(filename)
-        const decoder = new TextDecoder()
-        const text = decoder.decode(data)
-        console.debug(text)
-        return parseSequence(text)
-    }
-
-    async getIMGFile(filename: string): Promise<Image> {
-        filename = normalizePath(filename)
-        if (!filename.endsWith('.img')) {
-            filename = filename + '.img'
-        }
-
-        const data = await this.getRawFile(filename)
-        return loadImage(data)
-    }
-
-    async getARRFile(filename: string): Promise<any[]> {
-        const data = await this.getRawFile(filename)
-        return parseArray(data)
-    }
-
     hasFile(filename: string): boolean {
         return this.getFilesListing().includes(normalizePath(filename))
     }

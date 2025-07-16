@@ -1,10 +1,9 @@
 import { reference } from '../fileFormats/common'
 import { ScriptingManager } from './scripting'
-import { loadDefinition, doReady } from '../loaders/definitionLoader'
+import { loadDefinition, doReady } from '../filesystem/definitionLoader'
 import { Application, Rectangle, Sprite, Texture } from 'pixi.js'
 import { Scene } from './types/scene'
-import { FileLoader, pathJoin } from '../loaders/filesLoader'
-import { loadSound, loadTexture } from '../loaders/assetsLoader'
+import { loadSound, loadTexture } from '../filesystem/assetsLoader'
 import { SaveFile, SaveFileManager } from './saveFile'
 import { Debugging } from './debugging'
 import { assert, IgnorableError, IrrecoverableError } from '../common/errors'
@@ -15,6 +14,7 @@ import { Scope, ScopeManager } from './scope'
 import { Episode } from './types/episode'
 import { ISound, soundLibrary } from './sounds'
 import { Type } from './types'
+import Filesystem, { pathJoin } from '../filesystem'
 
 export class Engine {
     public debug: Debugging
@@ -30,7 +30,7 @@ export class Engine {
 
     public saveFile: SaveFile
 
-    public fileLoader: FileLoader
+    public filesystem: Filesystem
     public music: ISound | null = null
 
     constructor(
@@ -41,7 +41,7 @@ export class Engine {
         this.scripting = new ScriptingManager(this)
         this.scopeManager = new ScopeManager()
         this.debug = new Debugging(this, this.options.debug ?? false, options.debugContainer ?? null)
-        this.fileLoader = this.options.fileLoader
+        this.filesystem = new Filesystem(this.options.fileLoader, this.options.storage)
         this.saveFile = this.options.saveFile ?? SaveFileManager.empty(undefined)
     }
 
@@ -68,9 +68,9 @@ export class Engine {
 
     async start() {
         try {
-            await this.fileLoader.init()
+            await this.filesystem.init()
 
-            const applicationDef = await this.fileLoader.getCNVFile('DANE/Application.def')
+            const applicationDef = await this.filesystem.getCNVFile('DANE/Application.def')
             const rootScope = this.scopeManager.newScope('root')
             await loadDefinition(this, rootScope, applicationDef, null)
             await doReady(rootScope)
@@ -80,7 +80,7 @@ export class Engine {
                 throw new IrrecoverableError("Starting episode doesn't exist")
             }
 
-            this.debug.fillSceneSelector()
+            await this.debug.fillSceneSelector()
             await this.changeScene(this.options.startScene ?? episode.definition.STARTWITH)
 
             this.app.ticker.start()
@@ -214,8 +214,8 @@ export class Engine {
         let texturePromise: Promise<Texture> | null = null
         if (this.currentScene.definition.BACKGROUND) {
             texturePromise = loadTexture(
-                this.fileLoader,
-                this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)
+                this.filesystem,
+                await this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)
             )
         } else {
             this.rendering.clearBackground()
@@ -225,15 +225,15 @@ export class Engine {
         // We keep playing the same music if it was the same in previous scene
         let musicPromise = null
         if (this.music == null && this.currentScene.definition.MUSIC) {
-            musicPromise = loadSound(this.fileLoader, this.currentScene.definition.MUSIC, {
+            musicPromise = loadSound(this.filesystem, this.currentScene.definition.MUSIC, {
                 loop: true,
             })
         }
 
+        const sceneDefinitionPromise = this.filesystem.getCNVFile(
+            await this.currentScene!.getRelativePath(sceneName + '.cnv')
+        )
         const newScopePromise: Promise<Scope> = new Promise((resolve, reject) => {
-            const sceneDefinitionPromise = this.fileLoader.getCNVFile(
-                this.currentScene!.getRelativePath(sceneName + '.cnv')
-            )
             sceneDefinitionPromise
                 .then((sceneDefinition) => {
                     const newScope = this.scopeManager.newScope('scene')
@@ -287,7 +287,7 @@ export class Engine {
         }
     }
 
-    resolvePath(path: string, base = '') {
+    async resolvePath(path: string, base = '') {
         if (path.startsWith('$')) {
             base = ''
             path = path.substring(1)
@@ -297,7 +297,7 @@ export class Engine {
         const langPath = pathJoin(base, lang, path)
         const noLangPath = pathJoin(base, path)
 
-        if (this.fileLoader.hasFile(langPath)) {
+        if (await this.filesystem.hasFile(langPath)) {
             return langPath
         } else {
             return noLangPath

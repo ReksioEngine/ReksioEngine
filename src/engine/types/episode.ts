@@ -1,15 +1,15 @@
 import { ParentType } from './index'
 import { EpisodeDefinition } from '../../fileFormats/cnv/types'
 import { assert } from '../../common/errors'
-import { loadDefinition, doReady } from '../../loaders/definitionLoader'
-import { pathJoin } from '../../loaders/filesLoader'
+import { loadDefinition, doReady } from '../../filesystem/definitionLoader'
 import { method } from '../../common/types'
 import { CancelTick } from '../index'
+import { pathJoin } from '../../filesystem'
 
 export class Episode extends ParentType<EpisodeDefinition> {
     async init() {
         if (this.definition.PATH) {
-            const applicationDefinition = await this.engine.fileLoader.getCNVFile(
+            const applicationDefinition = await this.engine.filesystem.getCNVFile(
                 pathJoin('DANE', this.definition.PATH, this.name + '.cnv')
             )
 

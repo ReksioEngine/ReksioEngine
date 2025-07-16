@@ -85,8 +85,8 @@ export class Database extends Type<DatabaseDefinition> {
         assert(this.engine.currentScene !== null)
         assert(this.baseStruct !== null)
 
-        const relativePath = this.engine.currentScene.getRelativePath(path)
-        const data = await this.engine.fileLoader.getRawFile(relativePath)
+        const relativePath = await this.engine.currentScene.getRelativePath(path)
+        const data = await this.engine.filesystem.getFile(relativePath)
         const content = decoder.decode(data)
         const lines = content.replaceAll('\r\n', '\n').split('\n')
 

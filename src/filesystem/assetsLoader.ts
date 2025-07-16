@@ -1,12 +1,12 @@
 import { Options, Sound } from '@pixi/sound'
-import { FileLoader } from './filesLoader'
 import * as PIXI from 'pixi.js'
 import { AdvancedSprite, createHitmapFromImageBytes } from '../engine/rendering'
 import { ISound, SimulatedSound, soundLibrary } from '../engine/sounds'
 import { BUILD_VARS } from '../index'
+import Filesystem from './index'
 
-export const loadSound = async (fileLoader: FileLoader, filename: string, options?: Options): Promise<ISound> => {
-    const buffer = await fileLoader.getRawFile(filename)
+export const loadSound = async (fileLoader: Filesystem, filename: string, options?: Options): Promise<ISound> => {
+    const buffer = await fileLoader.getFile(filename)
     const sound = await new Promise<Sound>((resolve, reject) => {
         Sound.from({
             source: buffer,
@@ -27,7 +27,7 @@ export const loadSound = async (fileLoader: FileLoader, filename: string, option
     return result
 }
 
-export const loadSprite = async (fileLoader: FileLoader, filename: string) => {
+export const loadSprite = async (fileLoader: Filesystem, filename: string) => {
     const image = await fileLoader.getIMGFile(filename)
     const imageBytes = new Uint8Array(image.bytes)
 
@@ -47,7 +47,7 @@ export const loadSprite = async (fileLoader: FileLoader, filename: string) => {
     return sprite
 }
 
-export const loadTexture = async (fileLoader: FileLoader, filename: string) => {
+export const loadTexture = async (fileLoader: Filesystem, filename: string) => {
     const image = await fileLoader.getIMGFile(filename)
     const baseTexture = PIXI.BaseTexture.fromBuffer(
         new Uint8Array(image.bytes),

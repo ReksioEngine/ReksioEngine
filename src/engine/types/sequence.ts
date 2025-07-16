@@ -1,7 +1,7 @@
 import { ParentType, Type } from './index'
 import { Engine } from '../index'
 import { SequenceDefinition } from '../../fileFormats/cnv/types'
-import { FileNotFoundError } from '../../loaders/filesLoader'
+import { FileNotFoundError } from '../../filesystem/fileLoader'
 import {
     ParameterSequence,
     SequenceFile,
@@ -12,9 +12,9 @@ import {
 } from '../../fileFormats/seq'
 import { assert } from '../../common/errors'
 import { Animo } from './animo'
-import { loadSound } from '../../loaders/assetsLoader'
+import { loadSound } from '../../filesystem/assetsLoader'
 import { IMediaInstance } from '@pixi/sound'
-import { createObject } from '../../loaders/definitionLoader'
+import { createObject } from '../../filesystem/definitionLoader'
 import { method } from '../../common/types'
 import { ISound, SimulatedMediaInstance } from '../sounds'
 
@@ -50,12 +50,12 @@ export class Sequence extends Type<SequenceDefinition> {
     }
 
     async init() {
-        const relativePath = this.engine.currentScene?.getRelativePath(this.definition.FILENAME)
+        const relativePath = await this.engine.currentScene?.getRelativePath(this.definition.FILENAME)
         if (relativePath == undefined) {
             throw new FileNotFoundError('Could not get scene directory path')
         }
 
-        this.sequenceFile = await this.engine.fileLoader.getSequenceFile(relativePath)
+        this.sequenceFile = await this.engine.filesystem.getSequenceFile(relativePath)
         await this.load()
 
         for (const animoFilename of this.allAnimoFilenames) {
@@ -110,7 +110,7 @@ export class Sequence extends Type<SequenceDefinition> {
         const sounds = await Promise.all(
             soundsNames.map(async (name: string): Promise<ISound> => {
                 console.debug(`Preloading sound ${name}...`)
-                return loadSound(this.engine.fileLoader, `Wavs/${name}`)
+                return loadSound(this.engine.filesystem, `Wavs/${name}`)
             })
         )
         for (let i = 0; i < sounds.length; i++) {

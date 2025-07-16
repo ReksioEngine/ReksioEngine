@@ -2,7 +2,7 @@ import { DisplayType } from './index'
 import { ImageDefinition } from '../../fileFormats/cnv/types'
 import { assert, NotImplementedError } from '../../common/errors'
 import { Container, Graphics, Point, Sprite } from 'pixi.js'
-import { loadSprite } from '../../loaders/assetsLoader'
+import { loadSprite } from '../../filesystem/assetsLoader'
 import { AdvancedSprite } from '../rendering'
 import { method } from '../../common/types'
 import * as PIXI from 'pixi.js'
@@ -27,9 +27,9 @@ export class Image extends DisplayType<ImageDefinition> {
 
     private async load(path: string) {
         const relativePath = this.engine.currentScene !== null
-            ? this.engine.currentScene.getRelativePath(path)
-            : this.engine.resolvePath(path)
-        return await loadSprite(this.engine.fileLoader, relativePath)
+            ? await this.engine.currentScene.getRelativePath(path)
+            : await this.engine.resolvePath(path)
+        return await loadSprite(this.engine.filesystem, relativePath)
     }
 
     async ready() {

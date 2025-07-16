@@ -173,7 +173,14 @@ export class ValueType<DefinitionType extends ValueTypeDefinition, TypeOfValue> 
 
     @method()
     async COPYFILE(from: string, to: string) {
-        throw new NotImplementedError()
+        console.debug(`Copying file ${from} to ${to}`)
+        const sourceData = await this.engine.filesystem.getFile(
+            await this.engine.resolvePath(from)
+        )
+        await this.engine.filesystem.saveFile(
+            await this.engine.resolvePath(to),
+            sourceData
+        )
     }
 
     valueOf() {

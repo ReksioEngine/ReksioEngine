@@ -1,11 +1,11 @@
 import { ParentType, Type } from './index'
 import { ApplicationDefinition } from '../../fileFormats/cnv/types'
-import { loadDefinition, doReady } from '../../loaders/definitionLoader'
-import { pathJoin } from '../../loaders/filesLoader'
+import { loadDefinition, doReady } from '../../filesystem/definitionLoader'
 import { method } from '../../common/types'
 import { assert } from '../../common/errors'
 import { Scene } from './scene'
 import { Behaviour } from './behaviour'
+import { pathJoin } from '../../filesystem'
 
 const langCodeMapping: Record<string, string> = {
     '0415': 'POL',
@@ -22,7 +22,7 @@ export class Application extends ParentType<ApplicationDefinition> {
 
     async init() {
         if (this.definition.PATH) {
-            const applicationDefinition = await this.engine.fileLoader.getCNVFile(
+            const applicationDefinition = await this.engine.filesystem.getCNVFile(
                 pathJoin('DANE', this.definition.PATH, this.name + '.cnv')
             )
 

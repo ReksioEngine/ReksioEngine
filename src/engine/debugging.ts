@@ -4,7 +4,7 @@ import { Engine } from './index'
 import { Container, Graphics, Rectangle, Text } from 'pixi.js'
 import { Animo } from './types/animo'
 import { CNVObject } from '../fileFormats/cnv/parser'
-import { createObject } from '../loaders/definitionLoader'
+import { createObject } from '../filesystem/definitionLoader'
 import { SaveFileManager } from './saveFile'
 import { printStackTrace } from '../interpreter/script/stacktrace'
 import { assert, EngineError } from '../common/errors'
@@ -193,7 +193,7 @@ export class Debugging {
         })
     }
 
-    fillSceneSelector() {
+    async fillSceneSelector() {
         if (!this.enabled || !this.debugContainer) {
             return
         }
@@ -212,8 +212,8 @@ export class Debugging {
                 continue
             }
 
-            const sceneDefPath = scene.getRelativePath(`${sceneName}.cnv`)
-            const canGoTo = this.engine.fileLoader.hasFile(sceneDefPath.toLowerCase())
+            const sceneDefPath = await scene.getRelativePath(`${sceneName}.cnv`)
+            const canGoTo = this.engine.filesystem.hasFile(sceneDefPath.toLowerCase())
 
             const option = document.createElement('option')
             option.value = sceneName

@@ -3,7 +3,7 @@ import { StructDefinition } from '../../fileFormats/cnv/types'
 import { method } from '../../common/types'
 import { Engine } from '../index'
 import { assert } from '../../common/errors'
-import { createObject } from '../../loaders/definitionLoader'
+import { createObject } from '../../filesystem/definitionLoader'
 
 const FIELD_PATTERN = /(?<name>\w+)<(?<type>\w+)>/g
 

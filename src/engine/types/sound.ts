@@ -1,7 +1,7 @@
 import { Type } from './index'
-import { loadSound } from '../../loaders/assetsLoader'
+import { loadSound } from '../../filesystem/assetsLoader'
 import { SoundDefinition } from '../../fileFormats/cnv/types'
-import { FileNotFoundError } from '../../loaders/filesLoader'
+import { FileNotFoundError } from '../../filesystem/fileLoader'
 import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
 import { ISound, SimulatedSound } from '../sounds'
@@ -11,9 +11,7 @@ export class Sound extends Type<SoundDefinition> {
     private callbacksQueue: string[] = []
 
     async init() {
-        await this.loadSound(
-            this.engine.resolvePath(this.definition.FILENAME, 'Wavs')
-        )
+        await this.loadSound(await this.engine.resolvePath(this.definition.FILENAME, 'Wavs'))
     }
 
     async ready() {
@@ -87,10 +85,7 @@ export class Sound extends Type<SoundDefinition> {
 
     private async loadSound(path: string) {
         try {
-            this.sound = await loadSound(
-                this.engine.fileLoader,
-                this.engine.resolvePath(path),
-            )
+            this.sound = await loadSound(this.engine.filesystem, await this.engine.resolvePath(path))
         } catch (err) {
             if (err instanceof FileNotFoundError) {
                 // Ignore sound loading errors

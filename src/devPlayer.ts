@@ -5,8 +5,9 @@ import {
     GithubFileLoader,
     IsoFileLoader,
     RemoteIsoFileLoader,
-} from './loaders/filesLoader'
+} from './filesystem/fileLoader'
 import { SaveFileManager } from './engine/saveFile'
+import { IndexedDBStorage } from './filesystem/fileStorage'
 
 const urlParams = new URLSearchParams(window.location.search)
 const gameContainer = document.getElementById('game')!
@@ -22,6 +23,7 @@ const baseOptions = {
     debugContainer: debugContainer,
     onExit: () => document.exitFullscreen(),
     saveFile: areSavesEnabled ? SaveFileManager.fromLocalStorage() : undefined,
+    storage: new IndexedDBStorage('reksio')
 }
 
 let config = {}

@@ -1,8 +1,9 @@
 import { Engine } from './engine'
 import * as PIXI from 'pixi.js'
-import { FileLoader } from './loaders/filesLoader'
+import { FileLoader } from './filesystem/fileLoader'
 import { SaveFile, SaveFileManager } from './engine/saveFile'
-export * as FileLoaders from './loaders/filesLoader'
+import { FileStorage } from './filesystem/fileStorage'
+export * as FileLoaders from './filesystem/fileLoader'
 export { SaveFile, SaveFileManager, createSaveFileLocalStorageHandler } from './engine/saveFile'
 
 export const BUILD_VARS = {
@@ -12,6 +13,7 @@ export const BUILD_VARS = {
 
 export type GamePlayerOptions = {
     fileLoader: FileLoader
+    storage: FileStorage
     startScene?: string
     saveFile?: SaveFile
     debug?: boolean

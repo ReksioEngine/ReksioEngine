@@ -3,8 +3,8 @@ import { SceneDefinition } from '../../fileFormats/cnv/types'
 import { Behaviour } from './behaviour'
 import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
-import { pathJoin } from '../../loaders/filesLoader'
-import { loadSound } from '../../loaders/assetsLoader'
+import { loadSound } from '../../filesystem/assetsLoader'
+import { pathJoin } from '../../filesystem'
 
 export class Scene extends ParentType<SceneDefinition> {
     @method()
@@ -55,7 +55,7 @@ export class Scene extends ParentType<SceneDefinition> {
     @method()
     async STARTMUSIC(filename: string) {
         this.engine.music?.stop()
-        this.engine.music = await loadSound(this.engine.fileLoader, filename, {
+        this.engine.music = await loadSound(this.engine.filesystem, filename, {
             loop: true,
         })
         await this.engine.music.play()

@@ -6,8 +6,8 @@ import * as PIXI from 'pixi.js'
 import { Graphics, Rectangle, Sprite, Texture } from 'pixi.js'
 import { ANN, Event } from '../../fileFormats/ann'
 import { ButtonLogicComponent, Event as FSMEvent, State } from '../components/button'
-import { loadSound } from '../../loaders/assetsLoader'
-import { FileNotFoundError } from '../../loaders/filesLoader'
+import { loadSound } from '../../filesystem/assetsLoader'
+import { FileNotFoundError } from '../../filesystem/fileLoader'
 import { AdvancedSprite, createHitmapFromImageBytes } from '../rendering'
 import { method } from '../../common/types'
 import { CollisionsComponent } from '../components/collisions'
@@ -122,10 +122,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private async loadAnimation(path: string) {
         try {
             const relativePath = this.engine.currentScene
-                ? this.engine.currentScene.getRelativePath(path)
-                : this.engine.resolvePath(path)
+                ? await this.engine.currentScene.getRelativePath(path)
+                : await this.engine.resolvePath(path)
 
-            const annFile = await this.engine.fileLoader.getANNFile(relativePath)
+            const annFile = await this.engine.filesystem.getANNFile(relativePath)
             await this.loadSfx(annFile)
 
             console.debug(`File '${path}' loaded successfully!`)
@@ -141,9 +141,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private async loadSfx(annFile: ANN) {
         const loadSoundIfNotExists = async (filename: string) => {
             const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '')
-            const resolvedPath = this.engine.resolvePath(normalizedSFXFilename, 'wavs/sfx')
+            const resolvedPath = await this.engine.resolvePath(normalizedSFXFilename, 'wavs/sfx')
             try {
-                const sound = await loadSound(this.engine.fileLoader, resolvedPath)
+                const sound = await loadSound(this.engine.filesystem, resolvedPath)
                 this.sounds.set(filename, sound)
             } catch (err) {
                 console.warn(err)
