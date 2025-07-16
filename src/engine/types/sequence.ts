@@ -350,7 +350,7 @@ export class Sequence extends Type<SequenceDefinition> {
                 TOINI: false,
                 VISIBLE: true,
             },
-            null
+            this.parent
         )) as Animo
     }
 }
