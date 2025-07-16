@@ -57374,7 +57374,7 @@ let Sequence = (() => {
                     TOCANVAS: true,
                     TOINI: false,
                     VISIBLE: true,
-                }, null));
+                }, this.parent));
             }
         },
         (() => {
