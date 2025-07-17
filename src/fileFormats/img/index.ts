@@ -49,6 +49,58 @@ const parseHeader = (view: BinaryBuffer) => {
     return image
 }
 
+export const buildImage = (header: ImageHeader, rgbaData: any) => {
+    const rgb = extractRgb565(rgbaData)
+    const alpha = extractAlphaChannel(rgbaData)
+
+    const raw = new Uint8Array(40 + rgb.byteLength + alpha.byteLength).buffer
+    const buffer = new BinaryBuffer(new DataView(raw))
+    buffer.setUint32(0x4b4950)
+    buffer.setUint32(header.width)
+    buffer.setUint32(header.height)
+    buffer.setUint32(header.bpp)
+    buffer.setUint32(rgb.byteLength)
+    buffer.setUint32(0)
+    buffer.setUint32(header.compressionType)
+    buffer.setUint32(alpha.byteLength)
+    buffer.setUint32(header.positionX)
+    buffer.setUint32(header.positionY)
+
+    buffer.write(new Uint8Array(rgb.buffer, rgb.byteOffset, rgb.byteLength))
+    buffer.write(alpha)
+
+    return raw
+}
+
+const extractRgb565 = (data: Uint8ClampedArray) => {
+    const nPixels = data.length / 4
+    const rgb565 = new Uint16Array(nPixels)
+
+    for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+        const r = data[i]
+        const g = data[i + 1]
+        const b = data[i + 2]
+
+        const r5 = (r >> 3) & 0x1f
+        const g6 = (g >> 2) & 0x3f
+        const b5 = (b >> 3) & 0x1f
+
+        rgb565[j] = (r5 << 11) | (g6 << 5) | b5
+    }
+
+    return rgb565
+}
+
+const extractAlphaChannel = (data: Uint8ClampedArray) => {
+    const nPixels = data.length / 4
+    const alpha = new Uint8Array(nPixels)
+
+    for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+        alpha[j] = data[i + 3]
+    }
+    return alpha
+}
+
 // Based on https://github.com/mysliwy112/AM-transcoder/blob/master/src/image.cpp
 const convertToRgba32 = (bytes: Uint8Array) => {
     const rgb = new Uint8Array((bytes.byteLength / 2) * 3)

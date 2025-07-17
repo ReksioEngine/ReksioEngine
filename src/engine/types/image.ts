@@ -133,11 +133,12 @@ export class Image extends DisplayType<ImageDefinition> {
 
     @method()
     async LOAD(path: string) {
-        this.destroy()
-        await this.initSprite(path)
-
         assert(this.sprite !== null)
-        this.engine.rendering.addToStage(this.sprite)
+        const newSprite = await this.load(path)
+        this.sprite.texture = newSprite.texture
+        this.sprite.x = newSprite.x
+        this.sprite.y = newSprite.y
+        this.sprite.hitmap = newSprite.hitmap
     }
 
     @method()
