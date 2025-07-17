@@ -1,9 +1,10 @@
 import { ParentType, ValueType } from './index'
 import { Engine } from '../index'
 import { ArrayDefinition } from '../../fileFormats/cnv/types'
-import { assert, NotImplementedError } from '../../common/errors'
+import { assert } from '../../common/errors'
 import { method, valueAsString } from '../../common/types'
 import { FileNotFoundError } from '../../filesystem/fileLoader'
+import { serializeArray } from '../../fileFormats/archive/array'
 
 const generateMessage = (action: string, position: number, value: any[]) => {
     return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`
@@ -130,8 +131,9 @@ export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
     }
 
     @method()
-    SAVE(path: string) {
-        throw new NotImplementedError()
+    async SAVE(path: string) {
+        assert(this.engine.currentScene !== null)
+        await this.engine.filesystem.saveFile(await this.engine.currentScene.getRelativePath(path), serializeArray(this.value))
     }
 
     @method()

@@ -168,6 +168,13 @@ export class BinaryBuffer {
         this.offset += size
         return slice
     }
+
+    // Not the fastest
+    write(data: Uint8Array) {
+        for (let i = 0; i < data.length; i++) {
+            this.setUint8(data[i])
+        }
+    }
 }
 
 export const stringUntilNull = (text: string) => {

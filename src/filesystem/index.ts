@@ -4,7 +4,7 @@ import { loadImage } from '../fileFormats/img'
 import { loadAnn } from '../fileFormats/ann'
 import { loadFont } from '../fileFormats/fnt'
 import { decryptCNV } from '../fileFormats/cnv'
-import { parseArray } from '../fileFormats/archive/array'
+import { deserializeArray } from '../fileFormats/archive/array'
 import { FileLoader } from './fileLoader'
 import { FileStorage } from './fileStorage'
 
@@ -87,6 +87,6 @@ export default class Filesystem {
 
     async getARRFile(filename: string): Promise<any[]> {
         const data = await this.getFile(filename)
-        return parseArray(data)
+        return deserializeArray(data)
     }
 }
