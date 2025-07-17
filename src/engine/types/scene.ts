@@ -7,15 +7,13 @@ import { loadSound } from '../../filesystem/assetsLoader'
 import { pathJoin } from '../../filesystem'
 
 export class Scene extends ParentType<SceneDefinition> {
+    private minHSPriority = 0
+    private maxHSPriority = 10000000
+
     @method()
     SETMUSICVOLUME(volume: number) {
         assert(this.engine.music !== null)
         this.engine.music.volume = volume / 1000
-    }
-
-    @method()
-    SETMINHSPRIORITY(arg: number) {
-        throw new NotImplementedError()
     }
 
     @method()
@@ -63,12 +61,22 @@ export class Scene extends ParentType<SceneDefinition> {
 
     @method()
     GETMAXHSPRIORITY() {
-        throw new NotImplementedError()
+        return this.maxHSPriority
+    }
+
+    @method()
+    SETMAXHSPRIORITY(priority: number) {
+        this.maxHSPriority = priority
     }
 
     @method()
     GETMINHSPRIORITY() {
-        throw new NotImplementedError()
+        return this.minHSPriority
+    }
+
+    @method()
+    SETMINHSPRIORITY(priority: number) {
+        this.minHSPriority = priority
     }
 
     @method()
