@@ -177,99 +177,101 @@ export class Engine {
         this.app.stage.addChild(loadingFreezeOverlay)
         this.app.renderer.render(this.app.stage)
 
-        const scopeToClear: Scope | null = this.currentScene !== null ? this.currentScene.scope : null
-        if (scopeToClear) {
-            this.scopeManager.removeScope(scopeToClear)
-            for (const object of scopeToClear.objects) {
-                object.destroy()
-                scopeToClear.remove(object.name)
+        try {
+            const scopeToClear: Scope | null = this.currentScene !== null ? this.currentScene.scope : null
+            if (scopeToClear) {
+                this.scopeManager.removeScope(scopeToClear)
+                for (const object of scopeToClear.objects) {
+                    object.destroy()
+                    scopeToClear.remove(object.name)
+                }
             }
-        }
 
-        // Alert when rendering stage wasn't completely cleared after all destroys.
-        // For debugging purposes.
-        const leakedObjects = this.app.stage.children.filter(
-            (obj) =>
-                ![
-                    loadingFreezeOverlay,
-                    this.rendering.loadingDarkOverlay,
-                    this.rendering.loadingText,
-                    this.rendering.canvasBackground,
-                ].includes(obj as any)
-        )
-        if (leakedObjects.length > 0) {
-            console.error('Display objects leak detected', leakedObjects)
-        }
-
-        this.previousScene = this.currentScene
-        this.currentScene = this.getObject(sceneName) as Scene
-        assert(this.currentScene !== null, 'could not find scene')
-
-        if (this.music !== null && this.currentScene.definition.MUSIC !== this.previousScene?.definition.MUSIC) {
-            this.music.stop()
-            this.music = null
-        }
-
-        // Set background image
-        let texturePromise: Promise<Texture> | null = null
-        if (this.currentScene.definition.BACKGROUND) {
-            texturePromise = loadTexture(
-                this.filesystem,
-                await this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)
+            // Alert when rendering stage wasn't completely cleared after all destroys.
+            // For debugging purposes.
+            const leakedObjects = this.app.stage.children.filter(
+                (obj) =>
+                    ![
+                        loadingFreezeOverlay,
+                        this.rendering.loadingDarkOverlay,
+                        this.rendering.loadingText,
+                        this.rendering.canvasBackground,
+                    ].includes(obj as any)
             )
-        } else {
-            this.rendering.clearBackground()
-        }
-
-        // Play new scene background music.
-        // We keep playing the same music if it was the same in previous scene
-        let musicPromise = null
-        if (this.music == null && this.currentScene.definition.MUSIC) {
-            musicPromise = loadSound(this.filesystem, this.currentScene.definition.MUSIC, {
-                loop: true,
-            })
-        }
-
-        const sceneDefinitionPromise = this.filesystem.getCNVFile(
-            await this.currentScene!.getRelativePath(sceneName + '.cnv')
-        )
-        const newScopePromise: Promise<Scope> = new Promise((resolve, reject) => {
-            sceneDefinitionPromise
-                .then((sceneDefinition) => {
-                    const newScope = this.scopeManager.newScope('scene')
-                    assert(this.currentScene !== null, 'could not find scene')
-                    this.currentScene.scope = newScope
-                    const newScopePromise = loadDefinition(this, newScope, sceneDefinition, this.currentScene)
-                    newScopePromise
-                        .then(() => {
-                            resolve(newScope)
-                        })
-                        .catch(reject)
-                })
-                .catch(reject)
-        })
-
-        const [texture, music, newScope] = await Promise.all([texturePromise, musicPromise, newScopePromise])
-        if (texture) {
-            this.rendering.setBackground(texture)
-        }
-        if (music) {
-            this.music = music
-            await this.music.play()
-            if (this.debug.mutedMusic) {
-                this.music.muted = true
+            if (leakedObjects.length > 0) {
+                console.error('Display objects leak detected', leakedObjects)
             }
-        }
-        if (newScope) {
-            await doReady(newScope)
-        }
 
-        this.app.stage.removeChild(loadingFreezeOverlay)
-        this.app.stage.removeChild(this.rendering.loadingDarkOverlay)
-        this.app.stage.removeChild(this.rendering.loadingText)
+            this.previousScene = this.currentScene
+            this.currentScene = this.getObject(sceneName) as Scene
+            assert(this.currentScene !== null, 'could not find scene')
 
-        this.app.ticker.start()
-        this.debug.updateCurrentScene()
+            if (this.music !== null && this.currentScene.definition.MUSIC !== this.previousScene?.definition.MUSIC) {
+                this.music.stop()
+                this.music = null
+            }
+
+            // Set background image
+            let texturePromise: Promise<Texture> | null = null
+            if (this.currentScene.definition.BACKGROUND) {
+                texturePromise = loadTexture(
+                    this.filesystem,
+                    await this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)
+                )
+            } else {
+                this.rendering.clearBackground()
+            }
+
+            // Play new scene background music.
+            // We keep playing the same music if it was the same in previous scene
+            let musicPromise = null
+            if (this.music == null && this.currentScene.definition.MUSIC) {
+                musicPromise = loadSound(this.filesystem, this.currentScene.definition.MUSIC, {
+                    loop: true,
+                })
+            }
+
+            const sceneDefinitionPromise = this.filesystem.getCNVFile(
+                await this.currentScene!.getRelativePath(sceneName + '.cnv')
+            )
+            const newScopePromise: Promise<Scope> = new Promise((resolve, reject) => {
+                sceneDefinitionPromise
+                    .then((sceneDefinition) => {
+                        const newScope = this.scopeManager.newScope('scene')
+                        assert(this.currentScene !== null, 'could not find scene')
+                        this.currentScene.scope = newScope
+                        const newScopePromise = loadDefinition(this, newScope, sceneDefinition, this.currentScene)
+                        newScopePromise
+                            .then(() => {
+                                resolve(newScope)
+                            })
+                            .catch(reject)
+                    })
+                    .catch(reject)
+            })
+
+            const [texture, music, newScope] = await Promise.all([texturePromise, musicPromise, newScopePromise])
+            if (texture) {
+                this.rendering.setBackground(texture)
+            }
+            if (music) {
+                this.music = music
+                await this.music.play()
+                if (this.debug.mutedMusic) {
+                    this.music.muted = true
+                }
+            }
+            if (newScope) {
+                await doReady(newScope)
+            }
+        } finally {
+            this.app.stage.removeChild(loadingFreezeOverlay)
+            this.app.stage.removeChild(this.rendering.loadingDarkOverlay)
+            this.app.stage.removeChild(this.rendering.loadingText)
+
+            this.app.ticker.start()
+            this.debug.updateCurrentScene()
+        }
     }
 
     getObject<T extends Type<any>>(name: string | reference | null, parentScope: Scope | null = null): T | null {
