@@ -58,7 +58,7 @@ export class Struct extends Type<StructDefinition> {
         for (const key of otherObject.structure.keys()) {
             const otherField = otherObject.GETFIELD(key)
             if (otherField) {
-                await this.SETFIELD(key, otherField.getValue())
+                await this.SETFIELD(key, await otherField.getValue())
             }
         }
     }
