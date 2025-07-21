@@ -173,6 +173,19 @@ export class Image extends DisplayType<ImageDefinition> {
         return new PIXI.Texture(PIXI.BaseTexture.fromBuffer(new Uint8Array(textureBytes), sprite.width, sprite.height))
     }
 
+    async clone() {
+        assert(this.sprite !== null)
+
+        const spriteClone = new AdvancedSprite(this.sprite.texture)
+        spriteClone.x = this.sprite.x
+        spriteClone.y = this.sprite.y
+        spriteClone.hitmap = this.sprite.hitmap
+
+        const clone = await super.clone() as unknown as Image
+        clone.sprite = spriteClone
+        return clone
+    }
+
     getRenderObject() {
         return this.sprite
     }
