@@ -1,4 +1,4 @@
-import { Type, ValueType } from './index'
+import { Type, ParentType } from './index'
 import { MatrixDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { assert, NotImplementedError } from '../../common/errors'
@@ -38,7 +38,7 @@ enum Field {
 }
 
 export class Matrix extends Type<MatrixDefinition> {
-    constructor(engine: Engine, parent: Type<any> | null, definition: MatrixDefinition) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: MatrixDefinition) {
         super(engine, parent, definition)
     }
 
