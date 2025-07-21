@@ -55763,6 +55763,7 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const assetsLoader_1 = __webpack_require__(/*! ../../filesystem/assetsLoader */ "./src/filesystem/assetsLoader.ts");
+const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 let Image = (() => {
@@ -55906,6 +55907,16 @@ let Image = (() => {
                     textureBytes[newPos++] = 255;
                 }
                 return new PIXI.Texture(PIXI.BaseTexture.fromBuffer(new Uint8Array(textureBytes), sprite.width, sprite.height));
+            }
+            async clone() {
+                (0, errors_1.assert)(this.sprite !== null);
+                const spriteClone = new rendering_1.AdvancedSprite(this.sprite.texture);
+                spriteClone.x = this.sprite.x;
+                spriteClone.y = this.sprite.y;
+                spriteClone.hitmap = this.sprite.hitmap;
+                const clone = await super.clone();
+                clone.sprite = spriteClone;
+                return clone;
             }
             getRenderObject() {
                 return this.sprite;
