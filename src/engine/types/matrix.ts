@@ -37,6 +37,14 @@ enum Field {
     MOLE = 99,
 }
 
+enum Direction {
+    LEFT = 0,
+    UP = 1,
+    RIGHT = 2,
+    DOWN = 3,
+    NONE = 4,
+}
+
 export class Matrix extends Type<MatrixDefinition> {
     constructor(engine: Engine, parent: ParentType<any> | null, definition: MatrixDefinition) {
         super(engine, parent, definition)
@@ -46,34 +54,150 @@ export class Matrix extends Type<MatrixDefinition> {
     private height: number = 0
     private ticks: number = 0
     private board: number[] = []
+    private nextBoard: number[] = []
+
+
+    initializeEmptyBoard(board: number[]): number[] {
+        if (this.width > 0 && this.height > 0) {
+            board = new Array(this.width * this.height).fill(Field.EMPTY)
+        }
+        return board
+    }
 
     // SIZE[0] - Width
     // SIZE[1] - Height
     init() {
-        console.log(this.definition.SIZE)
         this.width = this.definition.SIZE[0]
         this.height = this.definition.SIZE[1]
-        if (this.width > 0 && this.height > 0) {
-            this.board = new Array(this.width * this.height).fill(Field.EMPTY)
+        this.initializeEmptyBoard(this.board)
+        this.initializeEmptyBoard(this.nextBoard)
+    }
+
+    //Returns new position
+    @method()
+    CALCENEMYMOVEDEST(oldPos: number, dir: number) {
+        switch (dir) {
+            case Direction.LEFT: {
+                return oldPos - 1
+            }
+            case Direction.UP: {
+                return oldPos - this.width
+            }
+            case Direction.RIGHT: {
+                return oldPos + 1
+            }
+            case Direction.DOWN: {
+                return oldPos + this.width
+            }
+            default: {
+                return oldPos
+            }
+        }
+        // console.log(args)
+        // throw new NotImplementedError()
+    }
+
+    rotateLeft(dir: number) {
+        switch (dir) {
+            case Direction.LEFT:
+                return Direction.DOWN
+            case Direction.UP:
+                return Direction.LEFT
+            case Direction.RIGHT:
+                return Direction.UP
+            case Direction.DOWN:
+                return Direction.RIGHT
+            default:
+                return dir
         }
     }
 
+    rotateRight(dir: number) {
+        switch (dir) {
+            case Direction.LEFT:
+                return Direction.UP
+            case Direction.UP:
+                return Direction.RIGHT
+            case Direction.RIGHT:
+                return Direction.DOWN
+            case Direction.DOWN:
+                return Direction.LEFT
+            default:
+                return dir
+        }
+    }
+
+    opositeDirection(dir: number) {
+        switch (dir) {
+            case Direction.LEFT:
+                return Direction.RIGHT
+            case Direction.UP:
+                return Direction.DOWN
+            case Direction.RIGHT:
+                return Direction.LEFT
+            case Direction.DOWN:
+                return Direction.UP
+            default:
+                return dir
+        }
+    }
+
+    isNewPositionValid(newPosIndex: number) {
+        if (this.board[newPosIndex] != Field.EMPTY && this.board[newPosIndex] != Field.MOLE) {
+            return false
+        }
+        if (newPosIndex < 0 || newPosIndex >= this.board.length) {
+            return false
+        }
+        return true
+    }
+
+    canMoveTo(oldPos: number, newPos: number) {
+        let newPosIndex: number = this.CALCENEMYMOVEDEST(oldPos, newPos)
+        return this.isNewPositionValid(newPosIndex)
+    }
+
+    //Returns direction
     @method()
-    CALCENEMYMOVEDEST(...args: any[]) {
-        // console.log(args)
-        throw new NotImplementedError()
+    CALCENEMYMOVEDIR(oldPos: number, currentMoveDir: number) {
+        let newDir: number = this.rotateLeft(currentMoveDir)
+        if (this.canMoveTo(oldPos, newDir)) {
+            return newDir
+        }
+        if (this.canMoveTo(oldPos, currentMoveDir)) {
+            return currentMoveDir
+        }
+        newDir = this.rotateRight(currentMoveDir)
+        if (this.canMoveTo(oldPos, newDir)) {
+            return newDir
+        }
+        newDir = this.opositeDirection(currentMoveDir)
+        if (this.canMoveTo(oldPos, newDir)) {
+            return newDir
+        }
+
+        return Direction.NONE
+
+        // throw new NotImplementedError()
     }
 
     @method()
-    CALCENEMYMOVEDIR(...args: any[]) {
-        // console.log(args)
-        throw new NotImplementedError()
-    }
-
-    @method()
-    CANHEROGOTO(...args: any[]) {
-        console.log('CANHEROGOTO')
-        console.log(args)
+    CANHEROGOTO(targetCellIndex: number) {
+        if (targetCellIndex < 0 || targetCellIndex >= this.board.length) {
+            return false
+        }
+        if (
+            this.board[targetCellIndex] == Field.EMPTY ||
+            this.board[targetCellIndex] == Field.GROUND ||
+            this.board[targetCellIndex] == Field.DYNAMITE ||
+            this.board[targetCellIndex] == Field.DYNAMITE_FIRED ||
+            this.board[targetCellIndex] == Field.ENEMY ||
+            this.board[targetCellIndex] == Field.EXPLOSION ||
+            this.board[targetCellIndex] == Field.EXIT
+        ) {
+            return true
+        }
+        return false
         // return true; // TODO: Implement this
     }
 
@@ -82,7 +206,7 @@ export class Matrix extends Type<MatrixDefinition> {
         return this.board[index]
         // throw new NotImplementedError()
     }
-
+    //TODO
     @method()
     GETCELLOFFSET(...args: any[]) {
         // console.log(args)
@@ -115,8 +239,6 @@ export class Matrix extends Type<MatrixDefinition> {
             }
         }
 
-        console.log('Count ' + cellType + ': ' + count)
-
         return count
         // throw new NotImplementedError()
     }
@@ -134,41 +256,66 @@ export class Matrix extends Type<MatrixDefinition> {
         // console.log(args)
         throw new NotImplementedError()
     }
-
+    //Not used
     @method()
     GETOFFSET(...args: any[]) {
         throw new NotImplementedError()
     }
-
+    //TODO
     @method()
     ISGATEEMPTY(...args: any[]) {
         throw new NotImplementedError()
     }
-
+    //TODO
     @method()
     ISINGATE(...args: any[]) {
         // console.log(args)
         throw new NotImplementedError()
     }
-
+    
     @method()
-    MOVE(...args: any[]) {
-        throw new NotImplementedError()
+    MOVE(previousPos: number, newPos: number) {
+        this.board[newPos] = this.board[previousPos]
+        this.board[previousPos] = Field.EMPTY
+        // throw new NotImplementedError()
     }
 
     @method()
     NEXT(...args: any[]) {
         // TODO: Implement this
-        return this.ticks + 4
+        // this.board = [...this.nextBoard] // Copy next board to current board
+        // this.nextBoard = this.initializeEmptyBoard(this.nextBoard) // Reset next board
+        return ++this.ticks
         // throw new NotImplementedError()
+    }
+    
+    setByIndex(index: number, cellType: number) {
+        assert(index >= 0 && index < this.board.length, `Index ${index} out of bounds for board of length ${this.board.length}`)
+        this.board[index] = cellType
+    }
+
+    setByPosition(x: number, y: number, cellType: number) {
+        assert(x >= 0 && x < this.width, `X position ${x} out of bounds for width ${this.width}`)
+        assert(y >= 0 && y < this.height, `Y position ${y} out of bounds for height ${this.height}`)
+        let index = y * this.width + x
+        this.board[index] = cellType
     }
 
     @method()
-    SET(index: number, value: number) {
-        this.board[index] = value
+    SET(...args: number[]) {
+        if(args.length === 2)
+        {
+            this.setByIndex(args[0], args[1])
+        }
+        if(args.length === 3)
+        {
+            this.setByPosition(Math.floor(args[0]), Math.floor(args[1]), args[2])
+        }
         // throw new NotImplementedError()
     }
-
+    
+    
+    //TODO
     @method()
     SETGATE(...args: any[]) {
         // console.log(args)
@@ -183,7 +330,9 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    TICK(...args: any[]) {
+    TICK() {
+        this.ticks++
+        return 0
         // console.log(args)
         // throw new NotImplementedError()
     }

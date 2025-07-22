@@ -181,9 +181,11 @@ export class Image extends DisplayType<ImageDefinition> {
         spriteClone.x = this.sprite.x
         spriteClone.y = this.sprite.y
         spriteClone.hitmap = this.sprite.hitmap
+        spriteClone.visible = this.sprite.visible
 
         const clone = (await super.clone()) as unknown as Image
         clone.sprite = spriteClone
+        this.engine.rendering.addToStage(clone.sprite)
         return clone
     }
 
