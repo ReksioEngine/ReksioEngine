@@ -56,7 +56,6 @@ export class Matrix extends Type<MatrixDefinition> {
     private board: number[] = []
     private nextBoard: number[] = []
 
-
     initializeEmptyBoard(board: number[]): number[] {
         if (this.width > 0 && this.height > 0) {
             board = new Array(this.width * this.height).fill(Field.EMPTY)
@@ -143,10 +142,10 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     isNewPositionValid(newPosIndex: number) {
-        if (this.board[newPosIndex] != Field.EMPTY && this.board[newPosIndex] != Field.MOLE) {
+        if (newPosIndex < 0 || newPosIndex >= this.nextBoard.length) {
             return false
         }
-        if (newPosIndex < 0 || newPosIndex >= this.board.length) {
+        if (this.nextBoard[newPosIndex] != Field.EMPTY && this.nextBoard[newPosIndex] != Field.MOLE) {
             return false
         }
         return true
@@ -272,49 +271,50 @@ export class Matrix extends Type<MatrixDefinition> {
         // console.log(args)
         throw new NotImplementedError()
     }
-    
+
     @method()
     MOVE(previousPos: number, newPos: number) {
-        this.board[newPos] = this.board[previousPos]
-        this.board[previousPos] = Field.EMPTY
+        this.nextBoard[newPos] = this.board[previousPos]
+        this.nextBoard[previousPos] = Field.EMPTY
         // throw new NotImplementedError()
     }
 
     @method()
     NEXT(...args: any[]) {
-        // TODO: Implement this
+        console.log('NEXT')
         // this.board = [...this.nextBoard] // Copy next board to current board
+        // TODO: Implement this
         // this.nextBoard = this.initializeEmptyBoard(this.nextBoard) // Reset next board
         return ++this.ticks
         // throw new NotImplementedError()
     }
-    
+
     setByIndex(index: number, cellType: number) {
-        assert(index >= 0 && index < this.board.length, `Index ${index} out of bounds for board of length ${this.board.length}`)
-        this.board[index] = cellType
+        assert(
+            index >= 0 && index < this.nextBoard.length,
+            `Index ${index} out of bounds for board of length ${this.nextBoard.length}`
+        )
+        this.nextBoard[index] = cellType
     }
 
     setByPosition(x: number, y: number, cellType: number) {
         assert(x >= 0 && x < this.width, `X position ${x} out of bounds for width ${this.width}`)
         assert(y >= 0 && y < this.height, `Y position ${y} out of bounds for height ${this.height}`)
         let index = y * this.width + x
-        this.board[index] = cellType
+        this.nextBoard[index] = cellType
     }
 
     @method()
     SET(...args: number[]) {
-        if(args.length === 2)
-        {
+        if (args.length === 2) {
             this.setByIndex(args[0], args[1])
         }
-        if(args.length === 3)
-        {
+        if (args.length === 3) {
             this.setByPosition(Math.floor(args[0]), Math.floor(args[1]), args[2])
         }
         // throw new NotImplementedError()
     }
-    
-    
+
     //TODO
     @method()
     SETGATE(...args: any[]) {
@@ -323,14 +323,16 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    SETROW(row: number, ...args: any[]) {
-        this.board.splice(row * this.width, this.width, ...args)
+    SETROW(row: number, ...cells: number[]) {
+        this.board.splice(row * this.width, this.width, ...cells)
+        this.nextBoard.splice(row * this.width, this.width, ...cells)
         // this.board = this.board.map((v: any) => (v === Field.ENEMY ? Field.EMPTY : v)) // Cutout enemies for now
         // throw new NotImplementedError()
     }
 
     @method()
     TICK() {
+        this.board = [...this.nextBoard] // Copy next board to current board
         this.ticks++
         return 0
         // console.log(args)
