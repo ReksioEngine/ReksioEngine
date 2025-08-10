@@ -59,9 +59,9 @@ export class ScriptingManager {
                 assert(behaviour !== null)
 
                 if (forwardInterrupts) {
-                    return await behaviour.executeConditionalCallback(callback.constantArguments)
+                    return await behaviour.executeConditionalCallback(args ?? callback.constantArguments)
                 } else {
-                    return await behaviour.RUNC(...callback.constantArguments)
+                    return await behaviour.RUNC(...(args ?? callback.constantArguments))
                 }
             }
         } finally {
