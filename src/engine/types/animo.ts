@@ -265,6 +265,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             if (this.sounds.has(randomFilename)) {
                 logger.debug(`Playing sound '${randomFilename}'`, {
                     animo: this,
+                    timestamp: performance.now(),
                 })
                 const sound = this.sounds.get(randomFilename)!
                 sound.play()
