@@ -253,6 +253,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
             if (this.sounds.has(randomFilename)) {
                 console.debug(`Playing sound '${randomFilename}'`)
+                console.debug(performance.now())
                 const sound = this.sounds.get(randomFilename)!
                 const instance = sound.play()
                 assert(!(instance instanceof Promise), 'Sound should already be preloaded')
