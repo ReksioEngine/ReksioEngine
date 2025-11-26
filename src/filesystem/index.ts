@@ -1,8 +1,8 @@
-import { parseCNV } from '../fileFormats/cnv/parser'
+import { parseCNV } from '../fileFormats/cnv'
 import { parseSequence } from '../fileFormats/seq'
 import { loadImage } from '../fileFormats/img'
 import { loadAnn } from '../fileFormats/ann'
-import { loadFont } from '../fileFormats/fnt'
+import { parseFont } from '../fileFormats/fnt'
 import { decryptCNV } from '../fileFormats/cnv'
 import { deserializeArray } from '../fileFormats/archive/array'
 import { FileLoader } from './fileLoader'
@@ -56,7 +56,7 @@ export default class Filesystem {
 
     async getFNTFile(filename: string) {
         const data = await this.getFile(filename)
-        return loadFont(data)
+        return parseFont(data)
     }
 
     async getCNVFile(filename: string) {

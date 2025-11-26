@@ -35,7 +35,7 @@ const parse = (view: BinaryBuffer) => {
     return font
 }
 
-export const loadFont = (data: ArrayBuffer) => {
+export const parseFont = (data: ArrayBuffer) => {
     const buffer = new BinaryBuffer(new DataView(data))
     const header = parse(buffer)
 
