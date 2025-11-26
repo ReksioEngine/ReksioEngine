@@ -33,6 +33,8 @@ export class Engine {
     public filesystem: Filesystem
     public music: ISound | null = null
 
+    public insideTick = false
+
     constructor(
         public readonly app: Application,
         public readonly options: GamePlayerOptions
@@ -110,41 +112,53 @@ export class Engine {
     }
 
     async tick(elapsedMS: number) {
-        for (const scope of this.scopeManager.scopes) {
-            for (const object of scope.objects.filter((object) => object.isReady)) {
-                try {
-                    await object.tick(elapsedMS)
-                } catch (err) {
-                    if (err instanceof CancelTick) {
-                        if (err.callback) {
-                            await err.callback()
+        if (this.insideTick) {
+            console.debug('skipped tick')
+            return
+        }
+
+        // console.debug("tick",performance.now())
+
+        this.insideTick = true
+        try {
+            for (const scope of this.scopeManager.scopes) {
+                for (const object of scope.objects.filter((object) => object.isReady)) {
+                    try {
+                        await object.tick(elapsedMS)
+                    } catch (err) {
+                        if (err instanceof CancelTick) {
+                            if (err.callback) {
+                                await err.callback()
+                            }
+                            return
+                        } else if (err instanceof IrrecoverableError) {
+                            console.error(
+                                'Irrecoverable error occurred. Execution paused\n' +
+                                    'Call "engine.resume()" to resume\n' +
+                                    '\n' +
+                                    '%cGlobal scopes:%c%O',
+                                'font-weight: bold',
+                                'font-weight: inherit',
+                                this.scopeManager.scopes
+                            )
+                        } else {
+                            console.error(
+                                'Unhandled error occurred during tick. Execution paused\n' +
+                                    'Call "engine.resume()" to resume\n' +
+                                    '\n' +
+                                    '%cGlobal scopes:%c%O',
+                                'font-weight: bold',
+                                'font-weight: inherit',
+                                this.scopeManager.scopes
+                            )
+                            console.error(err)
                         }
-                        return
-                    } else if (err instanceof IrrecoverableError) {
-                        console.error(
-                            'Irrecoverable error occurred. Execution paused\n' +
-                            'Call "engine.resume()" to resume\n' +
-                            '\n' +
-                            '%cGlobal scopes:%c%O',
-                            'font-weight: bold',
-                            'font-weight: inherit',
-                            this.scopeManager.scopes
-                        )
-                    } else {
-                        console.error(
-                            'Unhandled error occurred during tick. Execution paused\n' +
-                            'Call "engine.resume()" to resume\n' +
-                            '\n' +
-                            '%cGlobal scopes:%c%O',
-                            'font-weight: bold',
-                            'font-weight: inherit',
-                            this.scopeManager.scopes
-                        )
-                        console.error(err)
+                        this.pause()
                     }
-                    this.pause()
                 }
             }
+        } finally {
+            this.insideTick = false
         }
 
         this.debug.updateXRay()

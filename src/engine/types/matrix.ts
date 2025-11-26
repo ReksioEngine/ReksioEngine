@@ -3,6 +3,7 @@ import { MatrixDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
+import { printStackTrace } from '../../interpreter/script/stacktrace'
 // CALCENEMYMOVEDEST
 // CALCENEMYMOVEDIR
 // CANHEROGOTO
@@ -213,15 +214,18 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async GET(index: number) {
-        return this.board[index]
+    async GET(...args: any[]) {
+        //index: number) {
+        // console.log("GET",args)
+        return this.board[args[0]]
+        // return this.board[index]
         // throw new NotImplementedError()
     }
     //TODO
     @method()
     async GETCELLOFFSET(x: number, y: number) {
         let index = y * this.width + x
-        console.log('GETCELLOFFSET', index)
+        // console.log('GETCELLOFFSET', index)
         return index
         // throw new NotImplementedError()
     }
@@ -229,6 +233,7 @@ export class Matrix extends Type<MatrixDefinition> {
     // BASEPOS - Offset of board in pixels from top left corner
     @method()
     async GETCELLPOSX(index: number) {
+        // console.log("GETCELLPOSX",index)
         let posx: number = (index % this.width) * this.definition.CELLWIDTH + this.definition.BASEPOS[0]
         // console.log(posx)
         return posx
@@ -237,6 +242,7 @@ export class Matrix extends Type<MatrixDefinition> {
 
     @method()
     async GETCELLPOSY(index: number) {
+        // console.log("GETCELLPOSY",index)
         let posy: number = Math.floor(index / this.width) * this.definition.CELLHEIGHT + this.definition.BASEPOS[1]
         // console.log(posy)
         return posy
@@ -277,20 +283,21 @@ export class Matrix extends Type<MatrixDefinition> {
     //TODO
     @method()
     async ISGATEEMPTY(...args: any[]) {
-        console.log('ISGATEEMPTY', args)
+        // console.log('ISGATEEMPTY', args)
         return false
         // throw new NotImplementedError()
     }
     //TODO
     @method()
     async ISINGATE(...args: any[]) {
-        console.log('ISINGATE', args)
+        // console.log('ISINGATE', args)
         return false
         // throw new NotImplementedError()
     }
 
     @method()
     async MOVE(previousPos: number, newPos: number) {
+        // console.log("MOVE",previousPos,newPos)
         this.board[newPos] = this.board[previousPos]
         this.board[previousPos] = Field.EMPTY
         // throw new NotImplementedError()
@@ -310,7 +317,7 @@ export class Matrix extends Type<MatrixDefinition> {
         return true
     }
 
-    getNextCursor(currentX: number, currentY: number) {
+    async getNextCursor(currentX: number, currentY: number) {
         let nextX = currentX + 1
         let nextY = currentY
         if (nextX >= this.width) {
@@ -331,7 +338,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     async runCallback(name: string, x: number, y: number, code: number) {
-        console.log(name, x, y, code)
+        // console.log(name, x, y, code)
         await this.callbacks.run(name, null, null, [x, y, code])
     }
 
@@ -378,7 +385,7 @@ export class Matrix extends Type<MatrixDefinition> {
                         break
                 }
                 if (callbackAction != Actions.NONE) {
-                    this.getNextCursor(x, y)
+                    await this.getNextCursor(x, y)
                     if (this.stoneActionsDone()) {
                         this.cursorX = this.width
                         this.cursorY = -1
@@ -400,34 +407,48 @@ export class Matrix extends Type<MatrixDefinition> {
         // throw new NotImplementedError()
     }
 
-    setByIndex(index: number, cellType: number) {
+    async setByIndex(index: number, cellType: number) {
         assert(
             index >= 0 && index < this.board.length,
             `Index ${index} out of bounds for board of length ${this.board.length}`
         )
+        if (cellType == Field.ENEMY) {
+            if (this.board[index] != Field.EMPTY) {
+                return
+            }
+        }
+
         this.board[index] = cellType
     }
 
-    setByPosition(x: number, y: number, cellType: number) {
+    async setByPosition(x: number, y: number, cellType: number) {
         assert(x >= 0 && x < this.width, `X position ${x} out of bounds for width ${this.width}`)
         assert(y >= 0 && y < this.height, `Y position ${y} out of bounds for height ${this.height}`)
         let index = y * this.width + x
+
+        if (cellType == Field.ENEMY) {
+            if (this.board[index] != Field.EMPTY) {
+                return
+            }
+        }
+
         this.board[index] = cellType
     }
 
     @method()
     async SET(...args: number[]) {
+        // console.log("SET",args)
         if (args.length === 2) {
             // args[0] - Index
             // args[1] - cellType
-            this.setByIndex(args[0], args[1])
+            await this.setByIndex(args[0], args[1])
         }
         if (args.length === 3) {
             // args[0] - x
             // args[1] - y
             // position in matrix
             // args[2] - cellType
-            this.setByPosition(Math.floor(args[0]), Math.floor(args[1]), args[2])
+            await this.setByPosition(Math.floor(args[0]), Math.floor(args[1]), args[2])
         }
         // throw new NotImplementedError()
     }
@@ -436,7 +457,7 @@ export class Matrix extends Type<MatrixDefinition> {
     @method()
     async SETGATE(...args: any[]) {
         // console.log(args)
-        throw new NotImplementedError()
+        // throw new NotImplementedError()
     }
 
     @method()

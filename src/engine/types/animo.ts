@@ -253,7 +253,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
             if (this.sounds.has(randomFilename)) {
                 console.debug(`Playing sound '${randomFilename}'`)
-                console.debug(performance.now())
                 const sound = this.sounds.get(randomFilename)!
                 const instance = sound.play()
                 assert(!(instance instanceof Promise), 'Sound should already be preloaded')
@@ -399,7 +398,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async STOP(shouldSignal?: boolean | string) {
         this.isPlaying = false
         this.currentFrame = 0
-        if (shouldSignal !== false) {
+        if (shouldSignal !== false && shouldSignal !== 'FALSE') {
             await this.ONFINISHED()
         }
     }
@@ -751,7 +750,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     async clone() {
-        const clone = await super.clone() as Animo
+        const clone = (await super.clone()) as Animo
         clone.isPlaying = this.isPlaying
         clone.currentFrame = this.currentFrame
         clone.currentEvent = this.currentEvent

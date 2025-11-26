@@ -5,6 +5,7 @@ import { InterruptScriptExecution } from '../../interpreter/script'
 import { method } from '../../common/types'
 import { assert } from '../../common/errors'
 import { ClassInstance } from './class'
+import { printStackTrace } from '../../interpreter/script/stacktrace'
 
 export class Behaviour extends Type<BehaviourDefinition> {
     async ready() {
@@ -58,7 +59,24 @@ export class Behaviour extends Type<BehaviourDefinition> {
 
     async executeCallback(args: any[] = []) {
         // Don't resolve args, it will fail in S33_METEORY
-        return await this.engine.scripting.executeCallback(null, this, this.definition.CODE, args)
+        // TODO: Cleanup here after Matrix is fixed
+        // if(this.name.includes("BEHENEXPLODE"))
+        // {
+        //     console.log("START")
+        // }
+
+        // console.log(this.name,"START")
+
+        let res = await this.engine.scripting.executeCallback(null, this, this.definition.CODE, args)
+
+        // console.log(this.name,"DONE")
+
+        // if(this.name.includes("BEHENEXPLODE"))
+        // {
+        //     console.log("DONE")
+        // }
+
+        return res
     }
 
     async executeConditionalCallback(args: any[] = []) {
