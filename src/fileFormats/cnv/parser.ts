@@ -1,6 +1,5 @@
 import { structureDefinitions } from './types'
 import { FieldProcessorRecoverableError, FieldTypeEntry } from '../common'
-import { NotImplementedError } from '../../common/errors'
 
 export interface CNVObject {
     TYPE: string
@@ -51,7 +50,7 @@ export const parseCNV = (content: string) => {
             }
 
             if (variableName !== 'TYPE' && !Object.prototype.hasOwnProperty.call(structureDefinitions, object.TYPE)) {
-                throw new NotImplementedError(`Objects of type ${object.TYPE} are not supported`)
+                throw new Error(`Objects of type ${object.TYPE} are not supported`)
             }
 
             const definition = structureDefinitions[object.TYPE]

@@ -115,7 +115,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public expr(): ExprContext {
-		let localctx: ExprContext = new ExprContext(this, this._ctx, this.state);
+		const localctx: ExprContext = new ExprContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 0, ReksioLangParser.RULE_expr);
 		let _la: number;
 		try {
@@ -195,7 +195,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public statement(): StatementContext {
-		let localctx: StatementContext = new StatementContext(this, this._ctx, this.state);
+		const localctx: StatementContext = new StatementContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 2, ReksioLangParser.RULE_statement);
 		try {
 			this.state = 48;
@@ -244,7 +244,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public statementList(): StatementListContext {
-		let localctx: StatementListContext = new StatementListContext(this, this._ctx, this.state);
+		const localctx: StatementListContext = new StatementListContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 4, ReksioLangParser.RULE_statementList);
 		let _la: number;
 		try {
@@ -286,7 +286,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public subFieldAccess(): SubFieldAccessContext {
-		let localctx: SubFieldAccessContext = new SubFieldAccessContext(this, this._ctx, this.state);
+		const localctx: SubFieldAccessContext = new SubFieldAccessContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 6, ReksioLangParser.RULE_subFieldAccess);
 		try {
 			this.enterOuterAlt(localctx, 1);
@@ -313,7 +313,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public methodCall(): MethodCallContext {
-		let localctx: MethodCallContext = new MethodCallContext(this, this._ctx, this.state);
+		const localctx: MethodCallContext = new MethodCallContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 8, ReksioLangParser.RULE_methodCall);
 		let _la: number;
 		try {
@@ -357,7 +357,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public objectName(): ObjectNameContext {
-		let localctx: ObjectNameContext = new ObjectNameContext(this, this._ctx, this.state);
+		const localctx: ObjectNameContext = new ObjectNameContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 10, ReksioLangParser.RULE_objectName);
 		try {
 			this.enterOuterAlt(localctx, 1);
@@ -392,7 +392,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public methodName(): MethodNameContext {
-		let localctx: MethodNameContext = new MethodNameContext(this, this._ctx, this.state);
+		const localctx: MethodNameContext = new MethodNameContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 12, ReksioLangParser.RULE_methodName);
 		try {
 			this.enterOuterAlt(localctx, 1);
@@ -417,7 +417,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public methodCallArguments(): MethodCallArgumentsContext {
-		let localctx: MethodCallArgumentsContext = new MethodCallArgumentsContext(this, this._ctx, this.state);
+		const localctx: MethodCallArgumentsContext = new MethodCallArgumentsContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 14, ReksioLangParser.RULE_methodCallArguments);
 		let _la: number;
 		try {
@@ -459,7 +459,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public specialCall(): SpecialCallContext {
-		let localctx: SpecialCallContext = new SpecialCallContext(this, this._ctx, this.state);
+		const localctx: SpecialCallContext = new SpecialCallContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 16, ReksioLangParser.RULE_specialCall);
 		let _la: number;
 		try {
@@ -501,7 +501,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public operationGrouping(): OperationGroupingContext {
-		let localctx: OperationGroupingContext = new OperationGroupingContext(this, this._ctx, this.state);
+		const localctx: OperationGroupingContext = new OperationGroupingContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 18, ReksioLangParser.RULE_operationGrouping);
 		try {
 			this.enterOuterAlt(localctx, 1);
@@ -537,11 +537,11 @@ export default class ReksioLangParser extends Parser {
 			_p = 0;
 		}
 
-		let _parentctx: ParserRuleContext = this._ctx;
-		let _parentState: number = this.state;
+		const _parentctx: ParserRuleContext = this._ctx;
+		const _parentState: number = this.state;
 		let localctx: OperationContext = new OperationContext(this, this._ctx, _parentState);
 		let _prevctx: OperationContext = localctx;
-		let _startState: number = 20;
+		const _startState: number = 20;
 		this.enterRecursionRule(localctx, 20, ReksioLangParser.RULE_operation, _p);
 		try {
 			let _alt: number;
@@ -665,7 +665,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public comment(): CommentContext {
-		let localctx: CommentContext = new CommentContext(this, this._ctx, this.state);
+		const localctx: CommentContext = new CommentContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 22, ReksioLangParser.RULE_comment);
 		try {
 			this.enterOuterAlt(localctx, 1);
@@ -690,7 +690,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public number_(): NumberContext {
-		let localctx: NumberContext = new NumberContext(this, this._ctx, this.state);
+		const localctx: NumberContext = new NumberContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 24, ReksioLangParser.RULE_number);
 		try {
 			this.state = 126;
@@ -732,7 +732,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public bool(): BoolContext {
-		let localctx: BoolContext = new BoolContext(this, this._ctx, this.state);
+		const localctx: BoolContext = new BoolContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 26, ReksioLangParser.RULE_bool);
 		let _la: number;
 		try {
@@ -765,7 +765,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public string_(): StringContext {
-		let localctx: StringContext = new StringContext(this, this._ctx, this.state);
+		const localctx: StringContext = new StringContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 28, ReksioLangParser.RULE_string);
 		let _la: number;
 		try {
@@ -798,7 +798,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public objectValueReference(): ObjectValueReferenceContext {
-		let localctx: ObjectValueReferenceContext = new ObjectValueReferenceContext(this, this._ctx, this.state);
+		const localctx: ObjectValueReferenceContext = new ObjectValueReferenceContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 30, ReksioLangParser.RULE_objectValueReference);
 		try {
 			this.enterOuterAlt(localctx, 1);
@@ -823,7 +823,7 @@ export default class ReksioLangParser extends Parser {
 	}
 	// @RuleVersion(0)
 	public identifier(): IdentifierContext {
-		let localctx: IdentifierContext = new IdentifierContext(this, this._ctx, this.state);
+		const localctx: IdentifierContext = new IdentifierContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 32, ReksioLangParser.RULE_identifier);
 		let _la: number;
 		try {

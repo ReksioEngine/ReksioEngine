@@ -4,7 +4,6 @@ import { FileLoader } from './filesystem/fileLoader'
 import { SaveFile, SaveFileManager } from './engine/saveFile'
 import { FileStorage } from './filesystem/fileStorage'
 export * as FileLoaders from './filesystem/fileLoader'
-export * as FileFormats from './fileFormats'
 export { SaveFile, SaveFileManager, createSaveFileLocalStorageHandler } from './engine/saveFile'
 
 export const BUILD_VARS = {

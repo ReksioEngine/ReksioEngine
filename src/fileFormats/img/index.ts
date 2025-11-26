@@ -1,6 +1,6 @@
 import { BinaryBuffer } from '../utils'
-import { decompress as CLZWDecompress } from '../compression/clzw'
-import { decompress as CRLEDecompress } from '../compression/crle'
+import { decompressCLZW as CLZWDecompress } from '../compression/clzw'
+import { decompressCRLE as CRLEDecompress } from '../compression/crle'
 import { CompressionType } from '../compression'
 
 export interface CompressedImageHeader {

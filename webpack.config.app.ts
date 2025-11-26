@@ -30,7 +30,7 @@ module.exports = (env: any) => ({
                 loader: 'ts-loader',
                 exclude: /node_modules/,
                 options: {
-                    configFile: path.resolve(__dirname, 'tsconfig.json'),
+                    configFile: path.resolve(__dirname, 'tsconfig.app.json'),
                     getCustomTransformers: (program: Program) => ({
                         before: [typeGuard(program)],
                     }),

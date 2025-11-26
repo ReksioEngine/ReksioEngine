@@ -52,20 +52,18 @@ export class Condition extends Type<ConditionDefinition> {
                         break
                 }
             } catch (err) {
-                if (err instanceof UnexpectedError) {
-                    console.error(
-                        'Condition details\n' + '\n' + '%cCondition:%c%O\n%cOperand1:%c%O\n%cOperand2:%c%O\n',
-                        'font-weight: bold',
-                        'font-weight: inherit',
-                        this,
-                        'font-weight: bold',
-                        'font-weight: inherit',
-                        operand1,
-                        'font-weight: bold',
-                        'font-weight: inherit',
-                        operand2
-                    )
-                }
+                console.error(
+                    'Condition details\n' + '\n' + '%cCondition:%c%O\n%cOperand1:%c%O\n%cOperand2:%c%O\n',
+                    'font-weight: bold',
+                    'font-weight: inherit',
+                    this,
+                    'font-weight: bold',
+                    'font-weight: inherit',
+                    operand1,
+                    'font-weight: bold',
+                    'font-weight: inherit',
+                    operand2
+                )
                 throw err
             }
         } else {

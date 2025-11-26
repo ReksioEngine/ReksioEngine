@@ -4,7 +4,7 @@ import { CompressionType } from '../compression'
 
 const decoder = new TextDecoder()
 
-interface AnnHeader {
+export interface AnnHeader {
     framesCount: number
     bpp: number
     eventsCount: number

@@ -26,7 +26,7 @@ module.exports = (env: any) => ({
         new CopyPlugin({
             patterns: [
                 {
-                    from: 'static/library-package.json',
+                    from: 'static/library.package.json',
                     to: 'package.json',
                     transform: (input) => {
                         const pkg = JSON.parse(fs.readFileSync('./package.json').toString());

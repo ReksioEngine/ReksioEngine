@@ -1,5 +1,4 @@
 import { boolean, map, string } from '../common'
-import { assert } from '../../common/errors'
 
 export interface SequenceFileEntry {
     TYPE: string
@@ -27,7 +26,9 @@ export const parseSequence = (content: string): SequenceFile => {
         } else {
             const [objectName, variableName, subKey] = key.split(':')
             const object = objectsMap.get(objectName)
-            assert(object !== undefined)
+            if (object === undefined) {
+                throw new Error("Object not found")
+            }
 
             const definition = structureDefinitions[object.TYPE]
             if (definition && variableName in definition) {

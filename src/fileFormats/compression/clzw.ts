@@ -1,6 +1,6 @@
 import { BinaryBuffer } from '../utils'
 
-export const decompress = (buffer: BinaryBuffer) => {
+export const decompressCLZW = (buffer: BinaryBuffer) => {
     const uncompressedSize = buffer.getUint32()
     const compressedSize = buffer.getUint32()
 
