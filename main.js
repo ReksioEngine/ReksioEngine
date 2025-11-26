@@ -50772,7 +50772,7 @@ class IgnorableError {
 exports.IgnorableError = IgnorableError;
 function assert(expr, message) {
     if (!expr) {
-        throw new UnexpectedError('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''));
+        throw new Error('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''));
     }
 }
 exports.assert = assert;
@@ -54969,7 +54969,6 @@ exports.Condition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
-const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 let Condition = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -55020,9 +55019,7 @@ let Condition = (() => {
                         }
                     }
                     catch (err) {
-                        if (err instanceof errors_1.UnexpectedError) {
-                            console.error('Condition details\n' + '\n' + '%cCondition:%c%O\n%cOperand1:%c%O\n%cOperand2:%c%O\n', 'font-weight: bold', 'font-weight: inherit', this, 'font-weight: bold', 'font-weight: inherit', operand1, 'font-weight: bold', 'font-weight: inherit', operand2);
-                        }
+                        console.error('Condition details\n' + '\n' + '%cCondition:%c%O\n%cOperand1:%c%O\n%cOperand2:%c%O\n', 'font-weight: bold', 'font-weight: inherit', this, 'font-weight: bold', 'font-weight: inherit', operand1, 'font-weight: bold', 'font-weight: inherit', operand2);
                         throw err;
                     }
                 }
@@ -58768,7 +58765,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseCNV = void 0;
 const types_1 = __webpack_require__(/*! ./types */ "./src/fileFormats/cnv/types.ts");
 const common_1 = __webpack_require__(/*! ../common */ "./src/fileFormats/common/index.ts");
-const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const splitOnce = (text, separator) => {
     const index = text.indexOf(separator);
     return [text.substring(0, index), text.substring(index + 1)];
@@ -58805,7 +58801,7 @@ const parseCNV = (content) => {
                 continue;
             }
             if (variableName !== 'TYPE' && !Object.prototype.hasOwnProperty.call(types_1.structureDefinitions, object.TYPE)) {
-                throw new errors_1.NotImplementedError(`Objects of type ${object.TYPE} are not supported`);
+                throw new Error(`Objects of type ${object.TYPE} are not supported`);
             }
             const definition = types_1.structureDefinitions[object.TYPE];
             const supportedVariablesRaw = definition ? Object.keys(definition) : [];
@@ -59336,9 +59332,9 @@ exports.createCallback = createCallback;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.decompress = void 0;
+exports.decompressCLZW = void 0;
 const utils_1 = __webpack_require__(/*! ../utils */ "./src/fileFormats/utils.ts");
-const decompress = (buffer) => {
+const decompressCLZW = (buffer) => {
     const uncompressedSize = buffer.getUint32();
     const compressedSize = buffer.getUint32();
     const srcBuffer = buffer.read(compressedSize);
@@ -59440,7 +59436,7 @@ const decompress = (buffer) => {
     }
     return dst.buffer();
 };
-exports.decompress = decompress;
+exports.decompressCLZW = decompressCLZW;
 
 
 /***/ }),
@@ -59454,8 +59450,8 @@ exports.decompress = decompress;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.decompress = void 0;
-const decompress = (input, decompressedSize, bulk = 1) => {
+exports.decompressCRLE = void 0;
+const decompressCRLE = (input, decompressedSize, bulk = 1) => {
     const output = new Uint8Array(decompressedSize);
     let outputPosition = 0;
     while (outputPosition < decompressedSize) {
@@ -59479,7 +59475,7 @@ const decompress = (input, decompressedSize, bulk = 1) => {
     }
     return output;
 };
-exports.decompress = decompress;
+exports.decompressCRLE = decompressCRLE;
 
 
 /***/ }),
@@ -59488,12 +59484,37 @@ exports.decompress = decompress;
 /*!**********************************************!*\
   !*** ./src/fileFormats/compression/index.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.CompressionType = void 0;
+exports.CompressionType = exports.CRLE = exports.CLZW = void 0;
+exports.CLZW = __importStar(__webpack_require__(/*! ./clzw */ "./src/fileFormats/compression/clzw.ts"));
+exports.CRLE = __importStar(__webpack_require__(/*! ./crle */ "./src/fileFormats/compression/crle.ts"));
 var CompressionType;
 (function (CompressionType) {
     CompressionType[CompressionType["NONE"] = 0] = "NONE";
@@ -59538,7 +59559,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.loadFont = void 0;
+exports.parseFont = void 0;
 const utils_1 = __webpack_require__(/*! ../utils */ "./src/fileFormats/utils.ts");
 const img_1 = __webpack_require__(/*! ../img */ "./src/fileFormats/img/index.ts");
 const compression_1 = __webpack_require__(/*! ../compression */ "./src/fileFormats/compression/index.ts");
@@ -59561,7 +59582,7 @@ const parse = (view) => {
     font.cutFromRight = Array.from(new Uint8Array(view.read(font.charsCount)));
     return font;
 };
-const loadFont = (data) => {
+const parseFont = (data) => {
     const buffer = new utils_1.BinaryBuffer(new DataView(data));
     const header = parse(buffer);
     const image = (0, img_1.loadImageWithoutHeader)(buffer, {
@@ -59627,7 +59648,7 @@ const loadFont = (data) => {
     fontData.kerning = kerning;
     return pixi_js_1.BitmapFont.install(fontData, [texture], true);
 };
-exports.loadFont = loadFont;
+exports.parseFont = parseFont;
 
 
 /***/ }),
@@ -59801,11 +59822,11 @@ const decompressImageData = (buffer, descriptor) => {
         case compression_1.CompressionType.NONE:
             return new Uint8Array(buffer.read(descriptor.compressedLen));
         case compression_1.CompressionType.CLZW:
-            return new Uint8Array((0, clzw_1.decompress)(buffer));
+            return new Uint8Array((0, clzw_1.decompressCLZW)(buffer));
         case compression_1.CompressionType.CRLE:
-            return new Uint8Array((0, crle_1.decompress)(new utils_1.BinaryBuffer(new DataView(buffer.read(descriptor.compressedLen))), descriptor.decompressedLen, descriptor.pixelLen));
+            return new Uint8Array((0, crle_1.decompressCRLE)(new utils_1.BinaryBuffer(new DataView(buffer.read(descriptor.compressedLen))), descriptor.decompressedLen, descriptor.pixelLen));
         case compression_1.CompressionType.CLZW_IN_CRLE:
-            return new Uint8Array((0, crle_1.decompress)(new utils_1.BinaryBuffer(new DataView((0, clzw_1.decompress)(buffer))), descriptor.decompressedLen, descriptor.pixelLen));
+            return new Uint8Array((0, crle_1.decompressCRLE)(new utils_1.BinaryBuffer(new DataView((0, clzw_1.decompressCLZW)(buffer))), descriptor.decompressedLen, descriptor.pixelLen));
         case compression_1.CompressionType.JPEG:
             throw new Error(`Unsupported compression type: ${descriptor.compressionType}`);
         default:
@@ -59827,7 +59848,6 @@ const decompressImageData = (buffer, descriptor) => {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.structureDefinitions = exports.parseSequence = void 0;
 const common_1 = __webpack_require__(/*! ../common */ "./src/fileFormats/common/index.ts");
-const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const parseSequence = (content) => {
     const lines = content.split('\n');
     const objectsMap = new Map();
@@ -59845,7 +59865,9 @@ const parseSequence = (content) => {
         else {
             const [objectName, variableName, subKey] = key.split(':');
             const object = objectsMap.get(objectName);
-            (0, errors_1.assert)(object !== undefined);
+            if (object === undefined) {
+                throw new Error("Object not found");
+            }
             const definition = exports.structureDefinitions[object.TYPE];
             if (definition && variableName in definition) {
                 const typeDefinition = definition[variableName];
@@ -60578,12 +60600,12 @@ exports.IndexedDBStorage = IndexedDBStorage;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.pathJoin = exports.normalizePath = void 0;
-const parser_1 = __webpack_require__(/*! ../fileFormats/cnv/parser */ "./src/fileFormats/cnv/parser.ts");
+const cnv_1 = __webpack_require__(/*! ../fileFormats/cnv */ "./src/fileFormats/cnv/index.ts");
 const seq_1 = __webpack_require__(/*! ../fileFormats/seq */ "./src/fileFormats/seq/index.ts");
 const img_1 = __webpack_require__(/*! ../fileFormats/img */ "./src/fileFormats/img/index.ts");
 const ann_1 = __webpack_require__(/*! ../fileFormats/ann */ "./src/fileFormats/ann/index.ts");
 const fnt_1 = __webpack_require__(/*! ../fileFormats/fnt */ "./src/fileFormats/fnt/index.ts");
-const cnv_1 = __webpack_require__(/*! ../fileFormats/cnv */ "./src/fileFormats/cnv/index.ts");
+const cnv_2 = __webpack_require__(/*! ../fileFormats/cnv */ "./src/fileFormats/cnv/index.ts");
 const array_1 = __webpack_require__(/*! ../fileFormats/archive/array */ "./src/fileFormats/archive/array.ts");
 const normalizePath = (path) => {
     return path.toLowerCase().replace(/\\+/g, '/').replace(/\/+/g, '/').replace(/^\//, '');
@@ -60627,14 +60649,14 @@ class Filesystem {
     }
     async getFNTFile(filename) {
         const data = await this.getFile(filename);
-        return (0, fnt_1.loadFont)(data);
+        return (0, fnt_1.parseFont)(data);
     }
     async getCNVFile(filename) {
         const data = await this.getFile(filename);
-        const text = (0, cnv_1.decryptCNV)(data);
+        const text = (0, cnv_2.decryptCNV)(data);
         console.debug(filename);
         console.debug(text);
-        return (0, parser_1.parseCNV)(text);
+        return (0, cnv_1.parseCNV)(text);
     }
     async getSequenceFile(filename) {
         const data = await this.getFile(filename);
@@ -62091,7 +62113,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     expr() {
-        let localctx = new ExprContext(this, this._ctx, this.state);
+        const localctx = new ExprContext(this, this._ctx, this.state);
         this.enterRule(localctx, 0, ReksioLangParser.RULE_expr);
         let _la;
         try {
@@ -62171,7 +62193,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     statement() {
-        let localctx = new StatementContext(this, this._ctx, this.state);
+        const localctx = new StatementContext(this, this._ctx, this.state);
         this.enterRule(localctx, 2, ReksioLangParser.RULE_statement);
         try {
             this.state = 48;
@@ -62221,7 +62243,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     statementList() {
-        let localctx = new StatementListContext(this, this._ctx, this.state);
+        const localctx = new StatementListContext(this, this._ctx, this.state);
         this.enterRule(localctx, 4, ReksioLangParser.RULE_statementList);
         let _la;
         try {
@@ -62264,7 +62286,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     subFieldAccess() {
-        let localctx = new SubFieldAccessContext(this, this._ctx, this.state);
+        const localctx = new SubFieldAccessContext(this, this._ctx, this.state);
         this.enterRule(localctx, 6, ReksioLangParser.RULE_subFieldAccess);
         try {
             this.enterOuterAlt(localctx, 1);
@@ -62292,7 +62314,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     methodCall() {
-        let localctx = new MethodCallContext(this, this._ctx, this.state);
+        const localctx = new MethodCallContext(this, this._ctx, this.state);
         this.enterRule(localctx, 8, ReksioLangParser.RULE_methodCall);
         let _la;
         try {
@@ -62336,7 +62358,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     objectName() {
-        let localctx = new ObjectNameContext(this, this._ctx, this.state);
+        const localctx = new ObjectNameContext(this, this._ctx, this.state);
         this.enterRule(localctx, 10, ReksioLangParser.RULE_objectName);
         try {
             this.enterOuterAlt(localctx, 1);
@@ -62372,7 +62394,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     methodName() {
-        let localctx = new MethodNameContext(this, this._ctx, this.state);
+        const localctx = new MethodNameContext(this, this._ctx, this.state);
         this.enterRule(localctx, 12, ReksioLangParser.RULE_methodName);
         try {
             this.enterOuterAlt(localctx, 1);
@@ -62398,7 +62420,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     methodCallArguments() {
-        let localctx = new MethodCallArgumentsContext(this, this._ctx, this.state);
+        const localctx = new MethodCallArgumentsContext(this, this._ctx, this.state);
         this.enterRule(localctx, 14, ReksioLangParser.RULE_methodCallArguments);
         let _la;
         try {
@@ -62441,7 +62463,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     specialCall() {
-        let localctx = new SpecialCallContext(this, this._ctx, this.state);
+        const localctx = new SpecialCallContext(this, this._ctx, this.state);
         this.enterRule(localctx, 16, ReksioLangParser.RULE_specialCall);
         let _la;
         try {
@@ -62483,7 +62505,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     operationGrouping() {
-        let localctx = new OperationGroupingContext(this, this._ctx, this.state);
+        const localctx = new OperationGroupingContext(this, this._ctx, this.state);
         this.enterRule(localctx, 18, ReksioLangParser.RULE_operationGrouping);
         try {
             this.enterOuterAlt(localctx, 1);
@@ -62516,11 +62538,11 @@ class ReksioLangParser extends antlr4_1.Parser {
         if (_p === undefined) {
             _p = 0;
         }
-        let _parentctx = this._ctx;
-        let _parentState = this.state;
+        const _parentctx = this._ctx;
+        const _parentState = this.state;
         let localctx = new OperationContext(this, this._ctx, _parentState);
         let _prevctx = localctx;
-        let _startState = 20;
+        const _startState = 20;
         this.enterRecursionRule(localctx, 20, ReksioLangParser.RULE_operation, _p);
         try {
             let _alt;
@@ -62645,7 +62667,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     comment() {
-        let localctx = new CommentContext(this, this._ctx, this.state);
+        const localctx = new CommentContext(this, this._ctx, this.state);
         this.enterRule(localctx, 22, ReksioLangParser.RULE_comment);
         try {
             this.enterOuterAlt(localctx, 1);
@@ -62671,7 +62693,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     number_() {
-        let localctx = new NumberContext(this, this._ctx, this.state);
+        const localctx = new NumberContext(this, this._ctx, this.state);
         this.enterRule(localctx, 24, ReksioLangParser.RULE_number);
         try {
             this.state = 126;
@@ -62714,7 +62736,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     bool() {
-        let localctx = new BoolContext(this, this._ctx, this.state);
+        const localctx = new BoolContext(this, this._ctx, this.state);
         this.enterRule(localctx, 26, ReksioLangParser.RULE_bool);
         let _la;
         try {
@@ -62748,7 +62770,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     string_() {
-        let localctx = new StringContext(this, this._ctx, this.state);
+        const localctx = new StringContext(this, this._ctx, this.state);
         this.enterRule(localctx, 28, ReksioLangParser.RULE_string);
         let _la;
         try {
@@ -62782,7 +62804,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     objectValueReference() {
-        let localctx = new ObjectValueReferenceContext(this, this._ctx, this.state);
+        const localctx = new ObjectValueReferenceContext(this, this._ctx, this.state);
         this.enterRule(localctx, 30, ReksioLangParser.RULE_objectValueReference);
         try {
             this.enterOuterAlt(localctx, 1);
@@ -62808,7 +62830,7 @@ class ReksioLangParser extends antlr4_1.Parser {
     }
     // @RuleVersion(0)
     identifier() {
-        let localctx = new IdentifierContext(this, this._ctx, this.state);
+        const localctx = new IdentifierContext(this, this._ctx, this.state);
         this.enterRule(localctx, 32, ReksioLangParser.RULE_identifier);
         let _la;
         try {
