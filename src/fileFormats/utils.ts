@@ -110,7 +110,7 @@ export class BinaryBuffer {
      */
     setInt16(value: number, advance = true, littleEndian = true): void {
         this.view.setInt16(this.offset, value, littleEndian)
-        if (advance) this.offset += 1
+        if (advance) this.offset += 2
     }
 
     /**
