@@ -378,6 +378,12 @@ const MusicStructure = {
     FILENAME: string,
 }
 
+export type PatternDefinition = TypeDefinition
+
+const PatterDefinitionStructure = {
+    // TODO
+}
+
 export type RandDefinition = TypeDefinition
 
 const RandDefinitionStructure = {}
@@ -517,6 +523,14 @@ const TimerStructure = {
     ONTICK: optional(callbacks(number)),
 }
 
+export type WorldDefinition = TypeDefinition & {
+    // TODO
+}
+
+const WorldStructure = {
+    // TODO
+}
+
 export type VectorDefinition = TypeDefinition & {
     SIZE: number
     VALUE: Array<number>
@@ -553,6 +567,7 @@ export const structureDefinitions = {
     MOUSE: MouseStructure,
     MULTIARRAY: MultiArrayDefinitionStructure,
     MUSIC: MusicStructure,
+    PATTERN: PatterDefinitionStructure,
     RAND: RandDefinitionStructure,
     SCENE: SceneStructure,
     SEQUENCE: SequenceDefinitionStructure,
@@ -563,5 +578,6 @@ export const structureDefinitions = {
     SYSTEM: SystemDefinitionStructure,
     TEXT: TextDefinitionStructure,
     TIMER: TimerStructure,
+    WORLD: WorldStructure,
     VECTOR: VectorDefinitionStructure,
 } as any
