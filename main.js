@@ -60025,7 +60025,7 @@ class BinaryBuffer {
     setInt16(value, advance = true, littleEndian = true) {
         this.view.setInt16(this.offset, value, littleEndian);
         if (advance)
-            this.offset += 1;
+            this.offset += 2;
     }
     /**
      * Stores an Int32 value at current offset
