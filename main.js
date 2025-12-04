@@ -58675,7 +58675,8 @@ exports.serializeArray = serializeArray;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.decryptCNV = void 0;
+exports.decryptCNV = exports.isCNVEncrypted = void 0;
+const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder('utf-8');
 const HEADER_PATTERN = /{<(?<direction>[cCdD]):(?<movement>\d+)>}/;
 const CR = '\r'.charCodeAt(0);
@@ -58702,15 +58703,34 @@ const calcShift = (step, movement) => {
         shift: finalShift,
     };
 };
+const isCNVEncrypted = (content) => {
+    let buffer;
+    if (typeof content === 'string') {
+        buffer = textEncoder.encode(content).buffer;
+    }
+    else {
+        buffer = content;
+    }
+    const contentText = textDecoder.decode(buffer);
+    return parseHeader(contentText) !== null;
+};
+exports.isCNVEncrypted = isCNVEncrypted;
 const decryptCNV = (content) => {
-    const contentText = textDecoder.decode(content);
+    let buffer;
+    if (typeof content === 'string') {
+        buffer = textEncoder.encode(content).buffer;
+    }
+    else {
+        buffer = content;
+    }
+    const contentText = textDecoder.decode(buffer);
     const header = parseHeader(contentText);
     if (header === null) {
         return contentText.replaceAll('\r\n', '\n');
     }
     const { length, direction, movement } = header;
     const directionMultiplier = direction.toLowerCase() === 'd' ? -1 : 1;
-    const payload = new Uint8Array(content.slice(length));
+    const payload = new Uint8Array(buffer.slice(length));
     let output = '';
     let step = 0;
     let shift = 0;
@@ -58744,9 +58764,10 @@ exports.decryptCNV = decryptCNV;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseCNV = exports.decryptCNV = void 0;
+exports.parseCNV = exports.isCNVEncrypted = exports.decryptCNV = void 0;
 var decryptor_1 = __webpack_require__(/*! ./decryptor */ "./src/fileFormats/cnv/decryptor.ts");
 Object.defineProperty(exports, "decryptCNV", ({ enumerable: true, get: function () { return decryptor_1.decryptCNV; } }));
+Object.defineProperty(exports, "isCNVEncrypted", ({ enumerable: true, get: function () { return decryptor_1.isCNVEncrypted; } }));
 var parser_1 = __webpack_require__(/*! ./parser */ "./src/fileFormats/cnv/parser.ts");
 Object.defineProperty(exports, "parseCNV", ({ enumerable: true, get: function () { return parser_1.parseCNV; } }));
 
@@ -59066,6 +59087,9 @@ const MultiArrayDefinitionStructure = {
 const MusicStructure = {
     FILENAME: common_1.string,
 };
+const PatterDefinitionStructure = {
+// TODO
+};
 const RandDefinitionStructure = {};
 const SceneStructure = {
     DESCRIPTION: (0, common_1.optional)(common_1.string),
@@ -59126,6 +59150,9 @@ const TimerStructure = {
     ONINIT: (0, common_1.optional)(common_1.callback),
     ONTICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.number)),
 };
+const WorldStructure = {
+// TODO
+};
 const VectorDefinitionStructure = {
     SIZE: common_1.number,
     VALUE: (0, common_1.array)(common_1.number),
@@ -59156,6 +59183,7 @@ exports.structureDefinitions = {
     MOUSE: MouseStructure,
     MULTIARRAY: MultiArrayDefinitionStructure,
     MUSIC: MusicStructure,
+    PATTERN: PatterDefinitionStructure,
     RAND: RandDefinitionStructure,
     SCENE: SceneStructure,
     SEQUENCE: SequenceDefinitionStructure,
@@ -59166,6 +59194,7 @@ exports.structureDefinitions = {
     SYSTEM: SystemDefinitionStructure,
     TEXT: TextDefinitionStructure,
     TIMER: TimerStructure,
+    WORLD: WorldStructure,
     VECTOR: VectorDefinitionStructure,
 };
 
