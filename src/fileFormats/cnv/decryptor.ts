@@ -1,3 +1,4 @@
+const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder('utf-8')
 
 const HEADER_PATTERN = /{<(?<direction>[cCdD]):(?<movement>\d+)>}/
@@ -36,8 +37,27 @@ const calcShift = (step: number, movement: number): { step: number; shift: numbe
     }
 }
 
-export const decryptCNV = (content: ArrayBuffer): string => {
-    const contentText = textDecoder.decode(content)
+export const isCNVEncrypted = (content: ArrayBuffer | string) => {
+    let buffer: ArrayBuffer
+    if (typeof content === 'string') {
+        buffer = textEncoder.encode(content).buffer
+    } else {
+        buffer = content
+    }
+
+    const contentText = textDecoder.decode(buffer)
+    return parseHeader(contentText) !== null
+}
+
+export const decryptCNV = (content: ArrayBuffer | string): string => {
+    let buffer: ArrayBuffer
+    if (typeof content === 'string') {
+        buffer = textEncoder.encode(content).buffer
+    } else {
+        buffer = content
+    }
+
+    const contentText = textDecoder.decode(buffer)
     const header = parseHeader(contentText)
     if (header === null) {
         return contentText.replaceAll('\r\n', '\n')
@@ -45,7 +65,7 @@ export const decryptCNV = (content: ArrayBuffer): string => {
 
     const { length, direction, movement } = header
     const directionMultiplier = direction.toLowerCase() === 'd' ? -1 : 1
-    const payload = new Uint8Array(content.slice(length))
+    const payload = new Uint8Array(buffer.slice(length))
 
     let output = ''
     let step = 0
