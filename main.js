@@ -58479,7 +58479,7 @@ const parseHeader = (view) => {
 };
 const parseFrame = (view) => {
     const frame = {};
-    view.skip(4);
+    frame.hasName = view.getUint32();
     view.skip(4);
     frame.positionX = view.getInt16();
     frame.positionY = view.getInt16();
@@ -58488,13 +58488,21 @@ const parseFrame = (view) => {
     view.skip(4);
     frame.transparency = view.getUint8();
     view.skip(5);
-    const nameSize = view.getUint32();
-    frame.name = (0, utils_1.stringUntilNull)(decoder.decode(view.read(nameSize)));
-    if (frame.hasSounds != 0) {
+    if (frame.hasName !== 0) {
+        const nameSize = view.getUint32();
+        frame.name = (0, utils_1.stringUntilNull)(decoder.decode(view.read(nameSize)));
+    }
+    else {
+        frame.name = '';
+    }
+    if (frame.hasSounds !== 0) {
         const soundsLen = view.getUint32();
         frame.sounds = (0, utils_1.stringUntilNull)(decoder.decode(view.read(soundsLen)))
             .split(';')
             .filter((x) => x.trim() !== '');
+    }
+    else {
+        frame.sounds = [];
     }
     return frame;
 };
