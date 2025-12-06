@@ -19,7 +19,11 @@ export interface AnnHeader {
 export interface Event {
     name: string
     framesCount: number
-    loopAfterFrame: number
+    loopFramesStartIndex: number
+    loopFramesEndIndex: number
+    loopRepeatsCount: number
+    fps: number
+    flags: number
     transparency: number
 
     framesImageMapping: number[]
@@ -59,7 +63,7 @@ const parseHeader = (view: BinaryBuffer) => {
     ann.framesCount = view.getUint16()
     ann.bpp = view.getUint16()
     ann.eventsCount = view.getUint16()
-    view.skip(0xd)
+    stringUntilNull(decoder.decode(view.read(0xd)))
     ann.fps = view.getUint32()
     ann.flags = view.getUint32()
     ann.transparency = view.getUint8()
@@ -110,9 +114,19 @@ const parseEvent = (view: BinaryBuffer) => {
     const event = {} as Event
     event.name = stringUntilNull(decoder.decode(view.read(0x20)))
     event.framesCount = view.getUint16()
-    view.skip(0x6)
-    event.loopAfterFrame = view.getUint32()
-    view.skip(0x4 + 0x6)
+    view.getUint32() // frame mapping buffer pointer? I think they just write runtime values here and its doesn't matter for a file format.
+    event.loopFramesStartIndex = view.getUint16()
+    event.loopFramesEndIndex = view.getUint16()
+    event.loopRepeatsCount = view.getUint16()
+    view.skip(0x2) // alignment padding
+    event.fps = view.getUint32()
+
+    // flags & 0x20000 - causes direction flip (ping-pong style) instead of jumping,
+    // doesn't seem to care about loopAllowedRepeats
+    // flags & 0x100000 - should wait for sound to stop playing?
+    // flags & 0x800000 - advance to the next event at event end?
+    event.flags = view.getUint32()
+
     event.transparency = view.getUint8()
     view.skip(0xc)
 

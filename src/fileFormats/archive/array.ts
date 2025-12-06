@@ -11,7 +11,6 @@ enum ValueType {
 }
 
 export const deserializeArray = (data: ArrayBuffer) => {
-    console.log('deserializing', data)
     const buffer = new BinaryBuffer(new DataView(data))
     const count = buffer.getUint32()
 

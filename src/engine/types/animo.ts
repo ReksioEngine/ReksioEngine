@@ -259,8 +259,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
             }
         }
 
-        if (event.loopAfterFrame != 0 && this.currentFrame >= event.loopAfterFrame) {
-            this.currentFrame = 0
+        if (event.loopFramesEndIndex != 0 && this.currentFrame == event.loopFramesEndIndex) {
+            // TODO: handle event.loopRepeatsCount
+            this.currentFrame = event.loopFramesStartIndex
         } else if (this.currentFrame + 1 >= event.framesCount) {
             this.currentFrame = 0
             this.eventEndedLastTick = this.currentEvent
