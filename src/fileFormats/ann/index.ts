@@ -22,11 +22,12 @@ export interface Event {
     loopAfterFrame: number
     transparency: number
 
-    framesImageMapping: Array<number>
-    frames: Array<Frame>
+    framesImageMapping: number[]
+    frames: Frame[]
 }
 
 export interface Frame {
+    hasName: number
     positionX: number
     positionY: number
     hasSounds: number
@@ -76,7 +77,7 @@ const parseHeader = (view: BinaryBuffer) => {
 
 const parseFrame = (view: BinaryBuffer) => {
     const frame = {} as Frame
-    view.skip(4)
+    frame.hasName = view.getUint32()
     view.skip(4)
     frame.positionX = view.getInt16()
     frame.positionY = view.getInt16()
@@ -86,14 +87,20 @@ const parseFrame = (view: BinaryBuffer) => {
     frame.transparency = view.getUint8()
     view.skip(5)
 
-    const nameSize = view.getUint32()
-    frame.name = stringUntilNull(decoder.decode(view.read(nameSize)))
+    if (frame.hasName !== 0) {
+        const nameSize = view.getUint32()
+        frame.name = stringUntilNull(decoder.decode(view.read(nameSize)))
+    } else {
+        frame.name = ''
+    }
 
-    if (frame.hasSounds != 0) {
+    if (frame.hasSounds !== 0) {
         const soundsLen = view.getUint32()
         frame.sounds = stringUntilNull(decoder.decode(view.read(soundsLen)))
             .split(';')
             .filter((x) => x.trim() !== '')
+    } else {
+        frame.sounds = []
     }
 
     return frame
@@ -150,12 +157,12 @@ export const loadAnn = (data: ArrayBuffer) => {
         events.push(parseEvent(buffer))
     }
 
-    const annImages = []
+    const annImages: AnnImage[] = []
     for (let i = 0; i < header.framesCount; i++) {
         annImages.push(parseAnnImage(buffer))
     }
 
-    const images = []
+    const images: Uint8Array[] = []
     for (let i = 0; i < header.framesCount; i++) {
         const img = annImages[i]
         const { colorDescriptor, alphaDescriptor } = createDescriptors(img, {
