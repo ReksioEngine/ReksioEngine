@@ -52979,8 +52979,9 @@ let Animo = (() => {
                         (0, errors_1.assert)(!(instance instanceof Promise), 'Sound should already be preloaded');
                     }
                 }
-                if (event.loopAfterFrame != 0 && this.currentFrame >= event.loopAfterFrame) {
-                    this.currentFrame = 0;
+                if (event.loopFramesEndIndex != 0 && this.currentFrame == event.loopFramesEndIndex) {
+                    // TODO: handle event.loopRepeatsCount
+                    this.currentFrame = event.loopFramesStartIndex;
                 }
                 else if (this.currentFrame + 1 >= event.framesCount) {
                     this.currentFrame = 0;
@@ -58465,7 +58466,7 @@ const parseHeader = (view) => {
     ann.framesCount = view.getUint16();
     ann.bpp = view.getUint16();
     ann.eventsCount = view.getUint16();
-    view.skip(0xd);
+    (0, utils_1.stringUntilNull)(decoder.decode(view.read(0xd)));
     ann.fps = view.getUint32();
     ann.flags = view.getUint32();
     ann.transparency = view.getUint8();
@@ -58510,9 +58511,17 @@ const parseEvent = (view) => {
     const event = {};
     event.name = (0, utils_1.stringUntilNull)(decoder.decode(view.read(0x20)));
     event.framesCount = view.getUint16();
-    view.skip(0x6);
-    event.loopAfterFrame = view.getUint32();
-    view.skip(0x4 + 0x6);
+    view.getUint32(); // frame mapping buffer pointer? I think they just write runtime values here and its doesn't matter for a file format.
+    event.loopFramesStartIndex = view.getUint16();
+    event.loopFramesEndIndex = view.getUint16();
+    event.loopRepeatsCount = view.getUint16();
+    view.skip(0x2); // alignment padding
+    event.fps = view.getUint32();
+    // flags & 0x20000 - causes direction flip (ping-pong style) instead of jumping,
+    // doesn't seem to care about loopAllowedRepeats
+    // flags & 0x100000 - should wait for sound to stop playing?
+    // flags & 0x800000 - advance to the next event at event end?
+    event.flags = view.getUint32();
     event.transparency = view.getUint8();
     view.skip(0xc);
     event.framesImageMapping = [];
@@ -58595,7 +58604,6 @@ var ValueType;
     ValueType[ValueType["BOOLEAN"] = 3] = "BOOLEAN";
 })(ValueType || (ValueType = {}));
 const deserializeArray = (data) => {
-    console.log('deserializing', data);
     const buffer = new utils_1.BinaryBuffer(new DataView(data));
     const count = buffer.getUint32();
     const entries = [];
