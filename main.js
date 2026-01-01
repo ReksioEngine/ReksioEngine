@@ -59771,40 +59771,23 @@ const extractAlphaChannel = (data) => {
     }
     return alpha;
 };
-// Based on https://github.com/mysliwy112/AM-transcoder/blob/master/src/image.cpp
-const convertToRgba32 = (bytes) => {
-    const rgb = new Uint8Array((bytes.byteLength / 2) * 3);
-    let counter = 0;
-    for (let i = 0; i < bytes.byteLength; i += 2) {
-        let temp = bytes[i] + bytes[i + 1] * 256;
-        rgb[counter + 2] = (temp % 32) * 8;
-        temp /= 32;
-        rgb[counter + 1] = (temp % 64) * 4;
-        temp /= 64;
-        rgb[counter] = (temp % 32) * 8;
-        counter += 3;
+const convertToRgba32 = (bytes, alphaBytes) => {
+    const numPixels = bytes.byteLength >>> 1;
+    const rgba = new Uint8Array(numPixels * 4);
+    const input16 = new Uint16Array(bytes.buffer, bytes.byteOffset, numPixels);
+    const pixels32 = new Uint32Array(rgba.buffer, rgba.byteOffset, numPixels);
+    const hasAlphaBytes = alphaBytes && alphaBytes.length > 0;
+    for (let i = 0; i < numPixels; i++) {
+        let temp = input16[i];
+        const b = (temp & 0x1F) << 3;
+        temp >>>= 5;
+        const g = (temp & 0x3F) << 2;
+        temp >>>= 6;
+        const r = (temp & 0x1F) << 3;
+        const a = hasAlphaBytes ? alphaBytes[i] : 255;
+        pixels32[i] = r | (g << 8) | (b << 16) | (a << 24);
     }
-    return rgb;
-};
-// Based on https://github.com/mysliwy112/AM-transcoder/blob/master/src/image.cpp
-const addAlpha = (imgBytes, alphaBytes) => {
-    const output = new Uint8Array(imgBytes.byteLength + imgBytes.byteLength / 3);
-    let alphaPosition = 0;
-    let colorPosition = 0;
-    for (let i = 0; i < output.byteLength; i += 4) {
-        output[i] = imgBytes[colorPosition];
-        output[i + 1] = imgBytes[colorPosition + 1];
-        output[i + 2] = imgBytes[colorPosition + 2];
-        if (alphaBytes == undefined || alphaBytes.byteLength == 0) {
-            output[i + 3] = 255;
-        }
-        else {
-            output[i + 3] = alphaBytes[alphaPosition];
-        }
-        colorPosition += 3;
-        alphaPosition++;
-    }
-    return output;
+    return rgba;
 };
 const loadImage = (data) => {
     const buffer = new utils_1.BinaryBuffer(new DataView(data));
@@ -59857,9 +59840,7 @@ exports.createDescriptors = createDescriptors;
 const loadImageWithoutHeader = (buffer, colorCompression, alphaCompression) => {
     const colorBytes = decompressImageData(buffer, colorCompression);
     const alphaBytes = alphaCompression !== undefined ? decompressImageData(buffer, alphaCompression) : undefined;
-    let imageBytes = convertToRgba32(colorBytes);
-    imageBytes = addAlpha(imageBytes, alphaBytes);
-    return imageBytes;
+    return convertToRgba32(colorBytes, alphaBytes);
 };
 exports.loadImageWithoutHeader = loadImageWithoutHeader;
 const decompressImageData = (buffer, descriptor) => {
