@@ -5,6 +5,7 @@ import { SaveFile, SaveFileManager } from './engine/saveFile'
 import { FileStorage } from './filesystem/fileStorage'
 export * as FileLoaders from './filesystem/fileLoader'
 export { SaveFile, SaveFileManager, createSaveFileLocalStorageHandler } from './engine/saveFile'
+export { FileStorage, IndexedDBStorage } from './filesystem/fileStorage'
 
 export const BUILD_VARS = {
     manualTick: process.env.manualTick as unknown as boolean,
