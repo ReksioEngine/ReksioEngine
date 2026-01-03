@@ -48081,7 +48081,7 @@ else {
                 return new fileLoader_1.RemoteIsoFileLoader(source);
             }
         }
-        return new fileLoader_1.ListingJSONUrlFileLoader('https://iso.zagrajwreksia.pl/game-assets/reksioiskarbpiratow/listing.json');
+        return new fileLoader_1.ListingJSONUrlFileLoader('https://iso.zagrajwreksia.pl/game-assets/risp/pl/listing.json');
     };
     config = {
         ...baseOptions,
