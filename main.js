@@ -42786,7 +42786,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createGamePlayer = exports.GamePlayerInstance = exports.BUILD_VARS = exports.createSaveFileLocalStorageHandler = exports.SaveFileManager = exports.SaveFile = exports.FileLoaders = void 0;
+exports.createGamePlayer = exports.GamePlayerInstance = exports.BUILD_VARS = exports.IndexedDBStorage = exports.FileStorage = exports.createSaveFileLocalStorageHandler = exports.SaveFileManager = exports.SaveFile = exports.FileLoaders = void 0;
 const engine_1 = __webpack_require__(/*! ./engine */ "./src/engine/index.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 const saveFile_1 = __webpack_require__(/*! ./engine/saveFile */ "./src/engine/saveFile.ts");
@@ -42795,6 +42795,9 @@ var saveFile_2 = __webpack_require__(/*! ./engine/saveFile */ "./src/engine/save
 Object.defineProperty(exports, "SaveFile", ({ enumerable: true, get: function () { return saveFile_2.SaveFile; } }));
 Object.defineProperty(exports, "SaveFileManager", ({ enumerable: true, get: function () { return saveFile_2.SaveFileManager; } }));
 Object.defineProperty(exports, "createSaveFileLocalStorageHandler", ({ enumerable: true, get: function () { return saveFile_2.createSaveFileLocalStorageHandler; } }));
+var fileStorage_1 = __webpack_require__(/*! ./filesystem/fileStorage */ "./src/filesystem/fileStorage.ts");
+Object.defineProperty(exports, "FileStorage", ({ enumerable: true, get: function () { return fileStorage_1.FileStorage; } }));
+Object.defineProperty(exports, "IndexedDBStorage", ({ enumerable: true, get: function () { return fileStorage_1.IndexedDBStorage; } }));
 exports.BUILD_VARS = {
     manualTick: undefined,
     debug: true,
