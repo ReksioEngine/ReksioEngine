@@ -67,7 +67,7 @@ if (urlParams.get('loader') === 'iso-local') {
                 return new RemoteIsoFileLoader(source)
             }
         }
-        return new ListingJSONUrlFileLoader('https://iso.zagrajwreksia.pl/game-assets/reksioiskarbpiratow/listing.json')
+        return new ListingJSONUrlFileLoader('https://iso.zagrajwreksia.pl/game-assets/risp/pl/listing.json')
     }
 
     config = {
