@@ -425,11 +425,12 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         this.lastContext = ctx
 
         let objectName = this.visitIdentifier(ctx.identifier())
-        if (objectName !== null && objectName.endsWith('_0')) {
+        let object = this.getObject(objectName)
+        if (object === null && objectName !== null && objectName.endsWith('_0')) {
             objectName = objectName.substring(0, objectName.length - 2)
+            object = this.getObject(objectName)
         }
 
-        const object = this.getObject(objectName)
         this.methodCallUsedVariables[objectName] = object
         this.scriptUsedVariables[objectName] = object
 
