@@ -4,7 +4,7 @@ import { SoundDefinition } from '../../fileFormats/cnv/types'
 import { FileNotFoundError } from '../../filesystem/fileLoader'
 import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
-import { ISound, SimulatedSound } from '../sounds'
+import { Sound as ISound } from '../audio'
 
 export class Sound extends Type<SoundDefinition> {
     private sound: ISound | null = null
@@ -19,32 +19,26 @@ export class Sound extends Type<SoundDefinition> {
     }
 
     async tick(elapsedMS: number) {
-        if (this.sound instanceof SimulatedSound) {
-            this.sound.tick(elapsedMS)
-        }
-
         while (this.callbacksQueue.length > 0) {
             await this.callbacks.run(this.callbacksQueue.shift()!)
         }
     }
 
     destroy() {
-        if (this.sound !== null && this.sound.instances != null) {
-            this.sound.destroy()
+        if (this.sound !== null) {
+            this.sound.stop()
+            this.sound = null
         }
     }
 
     // This argument is "PLAY" for kurator in intro for some reason
     @method()
     PLAY(arg?: any) {
-        // Temporary hack, idk why it's needed for fanfary to run in Piraci:MAPA
-        setTimeout(() => {
-            assert(this.sound !== null)
-            const instance = this.sound.play()
-            assert(!(instance instanceof Promise), 'Sound should already be preloaded')
-            this.onStart()
-            instance.on('end', this.onEnd.bind(this))
-        }, 0)
+        assert(this.sound !== null)
+        this.sound.play({
+            onStart: this.onStart.bind(this),
+            onEnd: this.onEnd.bind(this),
+        })
     }
 
     @method()
@@ -69,8 +63,7 @@ export class Sound extends Type<SoundDefinition> {
 
     @method()
     RELEASE() {
-        this.sound?.stop()
-        this.sound?.destroy()
+        this.destroy()
     }
 
     @method()

@@ -53,10 +53,10 @@ export class Scene extends ParentType<SceneDefinition> {
     @method()
     async STARTMUSIC(filename: string) {
         this.engine.music?.stop()
-        this.engine.music = await loadSound(this.engine.filesystem, filename, {
+        const sound = await loadSound(this.engine.filesystem, filename)
+        this.engine.music = sound.play({
             loop: true,
         })
-        await this.engine.music.play()
     }
 
     @method()

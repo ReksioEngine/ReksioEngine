@@ -12,9 +12,9 @@ import { RenderingManager } from './rendering'
 import { BUILD_VARS, GamePlayerOptions } from '../index'
 import { Scope, ScopeManager } from './scope'
 import { Episode } from './types/episode'
-import { ISound, soundLibrary } from './sounds'
 import { Type } from './types'
 import Filesystem, { pathJoin } from '../filesystem'
+import { globalAudio, SoundInstance } from './audio'
 
 export class Engine {
     public debug: Debugging
@@ -31,7 +31,7 @@ export class Engine {
     public saveFile: SaveFile
 
     public filesystem: Filesystem
-    public music: ISound | null = null
+    public music: SoundInstance | null = null
 
     constructor(
         public readonly app: Application,
@@ -52,7 +52,6 @@ export class Engine {
             await initDevtools({ app: this.app })
 
             this.rendering.init()
-            soundLibrary.disableAutoPause = true
 
             if (!BUILD_VARS.manualTick) {
                 this.app.ticker.add(() => this.tick(this.app.ticker.elapsedMS))
@@ -106,7 +105,7 @@ export class Engine {
         if (this.music !== null) {
             this.music.stop()
         }
-        soundLibrary.stopAll()
+        globalAudio.stopAll()
     }
 
     async tick(elapsedMS: number) {
@@ -156,7 +155,10 @@ export class Engine {
         }
 
         this.app.ticker.stop()
-        soundLibrary.stopAll([this.music])
+
+        if (this.music !== null) {
+            this.music.pause()
+        }
 
         this.rendering.onSceneChange()
 
@@ -226,9 +228,7 @@ export class Engine {
             // We keep playing the same music if it was the same in previous scene
             let musicPromise = null
             if (this.music == null && this.currentScene.definition.MUSIC) {
-                musicPromise = loadSound(this.filesystem, this.currentScene.definition.MUSIC, {
-                    loop: true,
-                })
+                musicPromise = loadSound(this.filesystem, this.currentScene.definition.MUSIC)
             }
 
             const sceneDefinitionPromise = this.filesystem.getCNVFile(
@@ -254,13 +254,18 @@ export class Engine {
             if (texture) {
                 this.rendering.setBackground(texture)
             }
+
             if (music) {
-                this.music = music
-                await this.music.play()
+                this.music = music.play({
+                    loop: true,
+                })
                 if (this.debug.mutedMusic) {
                     this.music.muted = true
                 }
+            } else if (this.music !== null) {
+                this.music.resume()
             }
+
             if (newScope) {
                 await doReady(newScope)
             }
@@ -310,7 +315,7 @@ export class Engine {
         const sceneScope = this.currentScene?.scope
         assert(sceneScope)
 
-        soundLibrary.resumeAll()
+        globalAudio.resume()
         for (const object of sceneScope.objects) {
             object.resume()
         }
@@ -322,7 +327,7 @@ export class Engine {
         assert(sceneScope)
 
         this.app.ticker.stop()
-        soundLibrary.pauseAll()
+        globalAudio.pause()
         for (const object of sceneScope.objects) {
             object.pause()
         }

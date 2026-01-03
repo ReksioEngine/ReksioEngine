@@ -13,10 +13,9 @@ import {
 import { assert } from '../../common/errors'
 import { Animo } from './animo'
 import { loadSound } from '../../filesystem/assetsLoader'
-import { IMediaInstance } from '@pixi/sound'
 import { createObject } from '../../filesystem/definitionLoader'
 import { method } from '../../common/types'
-import { ISound, SimulatedMediaInstance } from '../sounds'
+import { Sound, SoundInstance } from '../audio'
 
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~'
 
@@ -29,12 +28,12 @@ export class Sequence extends Type<SequenceDefinition> {
     private allAnimoFilenames: Set<string> = new Set()
     private allAnimoObjects = new Map<string, Animo>()
 
-    private sounds: Map<string, ISound> = new Map()
+    private sounds: Map<string, Sound> = new Map()
     private endedSpeakingSoundsQueue: Speaking[] = []
 
     private queue: SequenceFileEntry[] = []
     private activeAnimo: Animo | null = null
-    private playingSound: IMediaInstance | null = null
+    private playingSound: SoundInstance | null = null
     private currentAnimoEvent: string | null = null
     private sequenceName: string | null = null
     private runningSubSequence: SequenceFileEntry | null = null
@@ -68,7 +67,7 @@ export class Sequence extends Type<SequenceDefinition> {
     }
 
     destroy() {
-        this.playingSound?.destroy()
+        this.playingSound?.stop()
     }
 
     private async load() {
@@ -108,7 +107,7 @@ export class Sequence extends Type<SequenceDefinition> {
         }
 
         const sounds = await Promise.all(
-            soundsNames.map(async (name: string): Promise<ISound> => {
+            soundsNames.map(async (name: string): Promise<Sound> => {
                 console.debug(`Preloading sound ${name}...`)
                 return loadSound(this.engine.filesystem, `Wavs/${name}`)
             })
@@ -119,10 +118,6 @@ export class Sequence extends Type<SequenceDefinition> {
     }
 
     async tick(elapsedMS: number) {
-        if (this.playingSound instanceof SimulatedMediaInstance) {
-            this.playingSound.tick(elapsedMS)
-        }
-
         while (this.endedSpeakingSoundsQueue.length > 0) {
             this.loop = false
             const entry = this.endedSpeakingSoundsQueue.shift()!
@@ -261,12 +256,11 @@ export class Sequence extends Type<SequenceDefinition> {
 
                 console.debug(`Playing sound '${speaking.WAVFN}'`)
                 const sound = this.sounds.get(speaking.WAVFN)!
-                const instance = sound.play()
-                assert(!(instance instanceof Promise), 'Sound should already be preloaded')
-                instance.on('end', () => {
-                    this.endedSpeakingSoundsQueue.push(speaking)
+                this.playingSound = sound.play({
+                    onEnd: () => {
+                        this.endedSpeakingSoundsQueue.push(speaking)
+                    }
                 })
-                this.playingSound = instance
 
                 const startEvent = speaking.PREFIX + '_START'
                 if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {

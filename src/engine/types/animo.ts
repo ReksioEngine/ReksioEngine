@@ -11,7 +11,7 @@ import { FileNotFoundError } from '../../filesystem/fileLoader'
 import { AdvancedSprite, createHitmapFromImageBytes } from '../rendering'
 import { method } from '../../common/types'
 import { CollisionsComponent } from '../components/collisions'
-import { ISound } from '../sounds'
+import { Sound } from '../audio'
 
 export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent
@@ -40,7 +40,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     private textures = new Map<number, PIXI.Texture>()
     private hitmaps = new Map<number, Uint8Array>()
-    private sounds = new Map<string, ISound>()
+    private sounds = new Map<string, Sound>()
 
     public static Events = {
         ONFINISHED: 'ONFINISHED',
@@ -86,10 +86,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
             this.engine.rendering.removeFromStage(this.buttonInteractArea)
         }
         for (const sound of this.sounds.values()) {
-            if (sound.instances != null) {
-                sound.destroy()
-            }
+            sound.stop()
         }
+        this.sounds.clear()
     }
 
     async tick(elapsedMS: number) {
@@ -254,8 +253,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             if (this.sounds.has(randomFilename)) {
                 console.debug(`Playing sound '${randomFilename}'`)
                 const sound = this.sounds.get(randomFilename)!
-                const instance = sound.play()
-                assert(!(instance instanceof Promise), 'Sound should already be preloaded')
+                sound.play()
             }
         }
 

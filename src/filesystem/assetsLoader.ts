@@ -1,30 +1,11 @@
-import { Options, Sound } from '@pixi/sound'
 import * as PIXI from 'pixi.js'
 import { AdvancedSprite, createHitmapFromImageBytes } from '../engine/rendering'
-import { ISound, SimulatedSound, soundLibrary } from '../engine/sounds'
-import { BUILD_VARS } from '../index'
 import Filesystem from './index'
+import { globalAudio, Sound } from '../engine/audio'
 
-export const loadSound = async (fileLoader: Filesystem, filename: string, options?: Options): Promise<ISound> => {
+export const loadSound = async (fileLoader: Filesystem, filename: string): Promise<Sound> => {
     const buffer = await fileLoader.getFile(filename)
-    const sound = await new Promise<Sound>((resolve, reject) => {
-        Sound.from({
-            source: buffer,
-            preload: true,
-            loaded: (err, sound) => {
-                if (err || !sound) {
-                    reject(err)
-                } else {
-                    resolve(sound)
-                }
-            },
-            ...options,
-        })
-    })
-
-    const result = BUILD_VARS.manualTick ? new SimulatedSound(sound) : sound
-    soundLibrary.register(result)
-    return result
+    return globalAudio.load(buffer)
 }
 
 export const loadSprite = async (fileLoader: Filesystem, filename: string) => {

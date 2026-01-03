@@ -11,7 +11,7 @@ import { assert, EngineError } from '../common/errors'
 import { drawRectangle } from './rendering'
 import debuggingTemplate from './debugging.html'
 import { Scene } from './types/scene'
-import { soundLibrary } from './sounds'
+import { globalAudio } from './audio'
 
 export class Debugging {
     private readonly engine: Engine
@@ -64,7 +64,7 @@ export class Debugging {
 
         const setSpeed = (speed: number) => {
             this.engine.speed = speed
-            soundLibrary.speedAll = speed
+            globalAudio.setGlobalRate(speed)
             speedDisplay.textContent = `(${speed}x)`
 
             this.engine.app.ticker.maxFPS = speed > 1 ? 0 : 60
