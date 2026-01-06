@@ -19,18 +19,13 @@ jobs:
               uses: actions/setup-node@v3
               with:
                   node-version: '22'
+                  cache: 'yarn'
 
-            - name: Persist npm cache
-              uses: actions/cache@v3
-              with:
-                  path: ~/.npm
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
-
-            - run: npm install
-            - run: npm run build -- --mode development --env debug
+            - run: yarn install --frozen-lockfile
+            - run: yarn build -- --mode development --env debug
 
             - name: Deploy
-              uses: peaceiris/actions-gh-pages@v3
+              uses: peaceiris/actions-gh-pages@v4
               if: github.ref == 'refs/heads/master'
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
