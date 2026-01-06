@@ -135,7 +135,7 @@ export class Matrix extends Type<MatrixDefinition> {
         if (newPosIndex < 0 || newPosIndex >= this.board.length) {
             return false
         }
-        if (this.board[newPosIndex] != Field.EMPTY && this.board[newPosIndex] != Field.MOLE) {
+        if (this.board[newPosIndex] !== Field.EMPTY && this.board[newPosIndex] !== Field.MOLE) {
             return false
         }
         return true
@@ -175,13 +175,13 @@ export class Matrix extends Type<MatrixDefinition> {
             return false
         }
         if (
-            this.board[targetCellIndex] == Field.EMPTY ||
-            this.board[targetCellIndex] == Field.GROUND ||
-            this.board[targetCellIndex] == Field.DYNAMITE ||
-            this.board[targetCellIndex] == Field.DYNAMITE_FIRED ||
-            this.board[targetCellIndex] == Field.ENEMY ||
-            this.board[targetCellIndex] == Field.EXPLOSION ||
-            this.board[targetCellIndex] == Field.EXIT
+            this.board[targetCellIndex] === Field.EMPTY ||
+            this.board[targetCellIndex] === Field.GROUND ||
+            this.board[targetCellIndex] === Field.DYNAMITE ||
+            this.board[targetCellIndex] === Field.DYNAMITE_FIRED ||
+            this.board[targetCellIndex] === Field.ENEMY ||
+            this.board[targetCellIndex] === Field.EXPLOSION ||
+            this.board[targetCellIndex] === Field.EXIT
         ) {
             return true
         }
@@ -227,7 +227,7 @@ export class Matrix extends Type<MatrixDefinition> {
     async GETCELLSNO(cellType: number) {
         let count: number = 0
         for (let i = 0; i < this.board.length; i++) {
-            if (this.board[i] == cellType) {
+            if (this.board[i] === cellType) {
                 count++
             }
         }
@@ -257,7 +257,7 @@ export class Matrix extends Type<MatrixDefinition> {
         }
         for (let column = this.gateRect.left; column < this.gateRect.right; column++) {
             for (let row = this.gateRect.top; row < this.gateRect.bottom; row++) {
-                if (this.board[this.getIndexFromCoordinates(column, row)] == Field.STONE) {
+                if (this.board[this.getIndexFromCoordinates(column, row)] === Field.STONE) {
                     return false
                 }
             }
@@ -283,7 +283,7 @@ export class Matrix extends Type<MatrixDefinition> {
         let x = this.cursorX
         for (let y = this.cursorY; y > -1; y--) {
             while (x < this.width) {
-                if (this.stoneActions[this.getIndexFromCoordinates(x, y)] != Actions.NONE) {
+                if (this.stoneActions[this.getIndexFromCoordinates(x, y)] !== Actions.NONE) {
                     return false
                 }
                 x++
@@ -307,7 +307,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     moveStoneDown(oldIndex: number, newIndex: number) {
-        if (this.board[newIndex] != Field.EXPLOSION) {
+        if (this.board[newIndex] !== Field.EXPLOSION) {
             this.board[newIndex] = Field.STONE
         }
         this.board[oldIndex] = Field.EMPTY
@@ -324,7 +324,7 @@ export class Matrix extends Type<MatrixDefinition> {
         let x = 0
         let callbackAction = Actions.NONE
         while (y >= 0) {
-            if (y == this.cursorY) {
+            if (y === this.cursorY) {
                 x = this.cursorX
             } else {
                 x = 0
@@ -355,7 +355,7 @@ export class Matrix extends Type<MatrixDefinition> {
                         this.moveStoneDown(index, index + this.width)
                         break
                 }
-                if (callbackAction != Actions.NONE) {
+                if (callbackAction !== Actions.NONE) {
                     await this.getNextCursor(x, y)
                     if (this.stoneActionsDone()) {
                         this.cursorX = this.width
@@ -363,7 +363,7 @@ export class Matrix extends Type<MatrixDefinition> {
                         await this.runCallback('ONLATEST', x, y, callbackAction)
                         return result
                     }
-                    if (result == 0) {
+                    if (result === 0) {
                         result = 1
                     }
                     await this.runCallback('ONNEXT', x, y, callbackAction)
@@ -382,8 +382,8 @@ export class Matrix extends Type<MatrixDefinition> {
             index >= 0 && index < this.board.length,
             `Index ${index} out of bounds for board of length ${this.board.length}`
         )
-        if (cellType == Field.ENEMY) {
-            if (this.board[index] != Field.EMPTY) {
+        if (cellType === Field.ENEMY) {
+            if (this.board[index] !== Field.EMPTY) {
                 return
             }
         }
@@ -396,8 +396,8 @@ export class Matrix extends Type<MatrixDefinition> {
         assert(y >= 0 && y < this.height, `Y position ${y} out of bounds for height ${this.height}`)
         const index = y * this.width + x
 
-        if (cellType == Field.ENEMY) {
-            if (this.board[index] != Field.EMPTY) {
+        if (cellType === Field.ENEMY) {
+            if (this.board[index] !== Field.EMPTY) {
                 return
             }
         }
@@ -443,7 +443,7 @@ export class Matrix extends Type<MatrixDefinition> {
             for (let x: number = 0; x < this.width; x++) {
                 for (let y: number = this.height - 2; y > -1; y--) {
                     const index = this.width * y + x
-                    if (this.board[index] != Field.STONE) {
+                    if (this.board[index] !== Field.STONE) {
                         continue
                     }
                     const indexUnder = index + this.width
@@ -451,7 +451,7 @@ export class Matrix extends Type<MatrixDefinition> {
                         case Field.EMPTY: {
                             this.stoneActions[index] = Actions.DOWN
                             let indexOver = index - this.width
-                            while (y > 0 && this.board[indexOver] == Field.STONE) {
+                            while (y > 0 && this.board[indexOver] === Field.STONE) {
                                 indexOver -= this.width
                                 y -= 1
                             }
@@ -460,7 +460,7 @@ export class Matrix extends Type<MatrixDefinition> {
                         case Field.ENEMY: {
                             this.stoneActions[index] = Actions.EXPLODE
                             let indexOver = index - this.width
-                            while (y > 0 && this.board[indexOver] == Field.STONE) {
+                            while (y > 0 && this.board[indexOver] === Field.STONE) {
                                 indexOver -= this.width
                                 y -= 1
                             }
@@ -468,24 +468,24 @@ export class Matrix extends Type<MatrixDefinition> {
                         }
                         case Field.STONE: {
                             const indexOver = index - this.width
-                            if (y == 0 || this.board[indexOver] != Field.STONE) {
+                            if (y === 0 || this.board[indexOver] !== Field.STONE) {
                                 // Checks if we have action queued for cell 1 and 2 spaces to the left
                                 // Then we check if space to the left of cell and 1 under it is empty
                                 if (
-                                    (x == 0 || this.stoneActions[index - 1] == Actions.NONE) &&
-                                    (x < 2 || this.stoneActions[index - 2] == Actions.NONE) &&
-                                    this.board[index - 1] == Field.EMPTY &&
-                                    this.board[indexUnder - 1] == Field.EMPTY
+                                    (x === 0 || this.stoneActions[index - 1] === Actions.NONE) &&
+                                    (x < 2 || this.stoneActions[index - 2] === Actions.NONE) &&
+                                    this.board[index - 1] === Field.EMPTY &&
+                                    this.board[indexUnder - 1] === Field.EMPTY
                                 ) {
                                     this.stoneActions[index] = Actions.DOWNLEFT
                                 } else {
                                     // Checks if we have action queued for cell 1 and 2 spaces to the right
                                     // Then we check if space to the right of cell and 1 under it is not empty
                                     if (
-                                        (x != this.width - 1 && this.stoneActions[index + 1] != Actions.NONE) ||
-                                        (x < this.width - 2 && this.stoneActions[index + 2] != Actions.NONE) ||
-                                        this.board[index + 1] != Field.EMPTY ||
-                                        this.board[indexUnder + 1] != Field.EMPTY
+                                        (x !== this.width - 1 && this.stoneActions[index + 1] !== Actions.NONE) ||
+                                        (x < this.width - 2 && this.stoneActions[index + 2] !== Actions.NONE) ||
+                                        this.board[index + 1] !== Field.EMPTY ||
+                                        this.board[indexUnder + 1] !== Field.EMPTY
                                     ) {
                                         continue
                                     }
