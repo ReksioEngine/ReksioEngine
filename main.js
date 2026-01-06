@@ -32765,6 +32765,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.method = exports.InvalidMethodParameter = exports.compareType = exports.isDirectlyConvertible = exports.Compare = exports.ForceNumber = exports.valueAsDouble = exports.valueAsBool = exports.valueAsString = void 0;
 const errors_1 = __webpack_require__(/*! ./errors */ "./src/common/errors.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
+const logging_1 = __webpack_require__(/*! ../engine/logging */ "./src/engine/logging.ts");
 const valueAsString = (value) => {
     if (value === null) {
         return 'NULL';
@@ -32886,9 +32887,7 @@ const isDirectlyConvertible = (value, type) => {
                 value.toString().toUpperCase() === 'TRUE' ||
                 value.toString().toUpperCase() === 'FALSE');
         case 'number':
-            return typeof value === 'number' ||
-                value === null ||
-                !Number.isNaN(toNumber(value));
+            return typeof value === 'number' || value === null || !Number.isNaN(toNumber(value));
         default:
             return false;
     }
@@ -32969,10 +32968,11 @@ function method(...types) {
                 }
             }
             if (processedArgs < newArgs.length) {
-                console.warn([
-                    `Function: ${originalMethod.name}`,
-                    `More arguments given than method accepts`
-                ].join('\n'));
+                logging_1.logger.warn('More arguments given than method accepts', {
+                    function: originalMethod.name,
+                    processedArgs,
+                    newArgs,
+                });
                 (0, stacktrace_1.printStackTrace)();
             }
             return originalMethod.call(this, ...newArgs);
@@ -33024,7 +33024,9 @@ class SoundInstance extends EventTarget {
         try {
             this.source.disconnect();
         }
-        catch { /* ignore */ }
+        catch {
+            /* ignore */
+        }
         this.source = null;
     }
     finalize(reason) {
@@ -33073,7 +33075,9 @@ class SoundInstance extends EventTarget {
         try {
             this.source.stop();
         }
-        catch { /* ignore */ }
+        catch {
+            /* ignore */
+        }
         this.finalize('stop');
         this.offset = 0;
     }
@@ -33085,7 +33089,9 @@ class SoundInstance extends EventTarget {
         try {
             this.source.stop();
         }
-        catch { /* ignore */ }
+        catch {
+            /* ignore */
+        }
         this.finalize('pause');
     }
     resume() {
@@ -33160,7 +33166,7 @@ class Sound {
         this.instances.slice().forEach((inst) => inst.resume());
     }
     get isPlaying() {
-        return this.instances.some(instance => instance.isPlaying);
+        return this.instances.some((instance) => instance.isPlaying);
     }
 }
 exports.Sound = Sound;
@@ -33191,7 +33197,7 @@ class AudioManager {
     }
     setGlobalRate(v) {
         this.speed = v;
-        this.sounds.forEach((s) => s.instances.forEach(instance => instance.speed = this.speed));
+        this.sounds.forEach((s) => s.instances.forEach((instance) => (instance.speed = this.speed)));
     }
     pause() {
         this.sounds.forEach((s) => s.pause());
@@ -33895,6 +33901,7 @@ const index_1 = __webpack_require__(/*! ../index */ "./src/index.ts");
 const scope_1 = __webpack_require__(/*! ./scope */ "./src/engine/scope.ts");
 const filesystem_1 = __importStar(__webpack_require__(/*! ../filesystem */ "./src/filesystem/index.ts"));
 const audio_1 = __webpack_require__(/*! ./audio */ "./src/engine/audio.ts");
+const logging_1 = __webpack_require__(/*! ./logging */ "./src/engine/logging.ts");
 class Engine {
     constructor(app, options) {
         this.app = app;
@@ -33923,8 +33930,7 @@ class Engine {
             this.debug.setupDebugTools();
         }
         catch (err) {
-            console.error('Unhandled error occurred during initialization');
-            console.error(err);
+            logging_1.logger.error('Unhandled error occurred during initialization', null, err);
         }
     }
     async start() {
@@ -33949,8 +33955,9 @@ class Engine {
                 }
                 return;
             }
-            console.error('Unhandled error occurred during start\n%cGlobal scopes:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scopeManager.scopes);
-            console.error(err);
+            logging_1.logger.error('Unhandled error occurred during start', {
+                scopes: this.scopeManager.scopes,
+            }, err);
         }
     }
     destroy() {
@@ -33974,17 +33981,15 @@ class Engine {
                         return;
                     }
                     else if (err instanceof errors_1.IrrecoverableError) {
-                        console.error('Irrecoverable error occurred. Execution paused\n' +
-                            'Call "engine.resume()" to resume\n' +
-                            '\n' +
-                            '%cGlobal scopes:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scopeManager.scopes);
+                        logging_1.logger.error('Irrecoverable error occurred. Execution paused\n' + 'Call "engine.resume()" to resume', {
+                            scopes: this.scopeManager.scopes,
+                        }, err);
                     }
                     else {
-                        console.error('Unhandled error occurred during tick. Execution paused\n' +
-                            'Call "engine.resume()" to resume\n' +
-                            '\n' +
-                            '%cGlobal scopes:%c%O', 'font-weight: bold', 'font-weight: inherit', this.scopeManager.scopes);
-                        console.error(err);
+                        logging_1.logger.error('Unhandled error occurred during tick. Execution paused\n' +
+                            'Call "engine.resume()" to resume', {
+                            scopes: this.scopeManager.scopes,
+                        }, err);
                     }
                     this.pause();
                 }
@@ -34019,13 +34024,11 @@ class Engine {
             }
             // Alert when rendering stage wasn't completely cleared after all destroys.
             // For debugging purposes.
-            const leakedObjects = this.app.stage.children.filter((obj) => ![
-                loadingFreezeOverlay,
-                this.rendering.loadingOverlay,
-                this.rendering.canvasBackground,
-            ].includes(obj));
+            const leakedObjects = this.app.stage.children.filter((obj) => ![loadingFreezeOverlay, this.rendering.loadingOverlay, this.rendering.canvasBackground].includes(obj));
             if (leakedObjects.length > 0) {
-                console.error('Display objects leak detected', leakedObjects);
+                logging_1.logger.error('Display objects leak detected', {
+                    leakedObjects,
+                });
             }
             this.previousScene = this.currentScene;
             this.currentScene = this.getObject(sceneName);
@@ -34147,6 +34150,134 @@ class CancelTick extends errors_1.IgnorableError {
     }
 }
 exports.CancelTick = CancelTick;
+
+
+/***/ }),
+
+/***/ "./src/engine/logging.ts":
+/*!*******************************!*\
+  !*** ./src/engine/logging.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.logger = exports.allLogs = exports.fmt = exports.codeHighlight = exports.bold = exports.red = exports.color = void 0;
+class TextFormatting {
+    constructor(text, richText, args) {
+        this.text = text;
+        this.richText = richText;
+        this.args = args;
+    }
+}
+const color = (color, text) => {
+    return new TextFormatting(text, `%c${text}%c`, [`color: ${color}`, 'color: inherit']);
+};
+exports.color = color;
+const red = (text) => (0, exports.color)('red', text);
+exports.red = red;
+const bold = (text) => new TextFormatting(text, `%c${text}%c`, ['font-weight: bold', 'font-weight: inherit']);
+exports.bold = bold;
+const codeHighlight = (codeParts) => {
+    const rawText = codeParts.join('').trimEnd().split(';').join(';\n');
+    const richText = `${codeParts[0]}%c${codeParts[1]}%c${codeParts[2]}`.trimEnd().split(';').join(';\n');
+    return new TextFormatting(rawText, richText, ['color: red', 'color: inherit']);
+};
+exports.codeHighlight = codeHighlight;
+const fmt = (strings, ...values) => {
+    let richText = '';
+    let rawText = '';
+    const args = [];
+    for (let i = 0, l = strings.length; i < l; i++) {
+        richText += strings[i];
+        rawText += strings[i];
+        if (i !== strings.length - 1) {
+            const value = values.shift();
+            if (value instanceof TextFormatting) {
+                richText += value.richText;
+                rawText += value.text;
+                args.push(...value.args);
+            }
+            else {
+                richText += value.toString();
+                rawText += value.toString();
+            }
+        }
+    }
+    return {
+        text: rawText,
+        richText: richText,
+        richArgs: args,
+    };
+};
+exports.fmt = fmt;
+exports.allLogs = [];
+class Logger {
+    constructor() {
+        this.severityMapping = {
+            info: console.log,
+            warn: console.warn,
+            error: console.error,
+            debug: console.debug,
+        };
+    }
+    appendExtraData(formatting, extraData) {
+        const { text, richText, richArgs } = formatting;
+        let richTextCopy = richText;
+        const richArgsCopy = [...richArgs];
+        if (extraData && Object.entries(extraData).length > 0) {
+            richTextCopy += '\n';
+            for (const [key, value] of Object.entries(extraData)) {
+                if (key.startsWith('_')) {
+                    continue;
+                }
+                richTextCopy += `%c${key}%c: %O\n`;
+                richArgsCopy.push('font-weight: bold', 'font-weight: inherit', value);
+            }
+            richTextCopy = richTextCopy.trimEnd();
+        }
+        return {
+            text: text,
+            richText: richTextCopy,
+            richArgs: richArgsCopy,
+            extraData,
+        };
+    }
+    printLog(severity, formatting, extraData, err) {
+        const formatInfo = typeof formatting === 'string'
+            ? {
+                text: formatting,
+                richText: formatting,
+                richArgs: [],
+            }
+            : formatting;
+        const formatInfoWithExtra = this.appendExtraData(formatInfo, extraData);
+        exports.allLogs.push({
+            type: severity,
+            text: formatInfo.text,
+            error: err,
+            extraData,
+        });
+        this.severityMapping[severity](formatInfoWithExtra.richText, ...formatInfoWithExtra.richArgs);
+        if (err) {
+            this.severityMapping[severity](err);
+        }
+    }
+    log(formatting, extraData, err) {
+        this.printLog('info', formatting, extraData, err);
+    }
+    warn(formatting, extraData, err) {
+        this.printLog('warn', formatting, extraData, err);
+    }
+    debug(formatting, extraData, err) {
+        this.printLog('debug', formatting, extraData, err);
+    }
+    error(formatting, extraData, err) {
+        this.printLog('error', formatting, extraData, err);
+    }
+}
+exports.logger = new Logger();
 
 
 /***/ }),
@@ -34461,7 +34592,9 @@ class ScopeManager {
         if (local) {
             return local;
         }
-        const startIndex = parentScope && this.scopes.includes(parentScope) ? this.scopes.length - 1 - this.scopes.indexOf(parentScope) : 0;
+        const startIndex = parentScope && this.scopes.includes(parentScope)
+            ? this.scopes.length - 1 - this.scopes.indexOf(parentScope)
+            : 0;
         return this._find(byName(name), this.scopes, startIndex);
     }
     findByType(type) {
@@ -34548,6 +34681,7 @@ const script_1 = __webpack_require__(/*! ../interpreter/script */ "./src/interpr
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const scope_1 = __webpack_require__(/*! ./scope */ "./src/engine/scope.ts");
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
+const logging_1 = __webpack_require__(/*! ./logging */ "./src/engine/logging.ts");
 class ScriptingManager {
     constructor(engine) {
         this.engine = engine;
@@ -34565,7 +34699,10 @@ class ScriptingManager {
             }
             else if (callback.behaviourReference) {
                 if (!this.engine.getObject(callback.behaviourReference, caller?.parentScope)) {
-                    console.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cTHIS:%c%O`, 'font-weight: bold', 'font-weight: inherit', callback, 'font-weight: bold', 'font-weight: inherit', thisRef);
+                    logging_1.logger.error('Trying to execute behaviour "${callback.behaviourReference}" that doesn\'t exist!', {
+                        callback,
+                        thisRef,
+                    });
                     return;
                 }
                 stackFrame = stacktrace_1.StackFrame.builder()
@@ -34677,6 +34814,7 @@ const fileLoader_1 = __webpack_require__(/*! ../../filesystem/fileLoader */ "./s
 const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const collisions_1 = __webpack_require__(/*! ../components/collisions */ "./src/engine/components/collisions.ts");
+const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Animo = (() => {
     var _a;
     let _classSuper = index_1.DisplayType;
@@ -34801,7 +34939,10 @@ let Animo = (() => {
                         : await this.engine.resolvePath(path);
                     const annFile = await this.engine.filesystem.getANNFile(relativePath);
                     await this.loadSfx(annFile);
-                    console.debug(`File '${path}' loaded successfully!`);
+                    logging_1.logger.debug(`ANN file '${path}' loaded successfully!`, {
+                        animo: this,
+                        annFile,
+                    });
                     return annFile;
                 }
                 catch (err) {
@@ -34820,7 +34961,11 @@ let Animo = (() => {
                         this.sounds.set(filename, sound);
                     }
                     catch (err) {
-                        console.warn(err);
+                        logging_1.logger.warn('Failed to load sfx sound', {
+                            animo: this,
+                            filename,
+                            resolvedPath,
+                        }, err);
                     }
                 };
                 const soundsNames = new Set();
@@ -34900,7 +35045,9 @@ let Animo = (() => {
                     const filenames = eventFrame.sounds;
                     const randomFilename = filenames[Math.floor(Math.random() * filenames.length)];
                     if (this.sounds.has(randomFilename)) {
-                        console.debug(`Playing sound '${randomFilename}'`);
+                        logging_1.logger.debug(`Playing sound '${randomFilename}'`, {
+                            animo: this,
+                        });
                         const sound = this.sounds.get(randomFilename);
                         sound.play();
                     }
@@ -34930,7 +35077,9 @@ let Animo = (() => {
                 (0, errors_1.assert)(event !== null);
                 const eventFrame = event.frames[frameIdx];
                 if (eventFrame === undefined) {
-                    console.warn(`Attempted to change to non-existent frame ${frameIdx}`);
+                    logging_1.logger.warn(`Attempted to change to non-existent frame ${frameIdx}`, {
+                        animo: this,
+                    });
                     return;
                 }
                 const imageIndex = event.framesImageMapping[frameIdx];
@@ -34955,7 +35104,9 @@ let Animo = (() => {
                 (0, errors_1.assert)(this.sprite !== null);
                 const annImage = this.annFile.annImages[imageIndex];
                 if (annImage === undefined) {
-                    console.warn(`Attempted to change to non-existent frame image ${imageIndex}`);
+                    logging_1.logger.warn(`Attempted to change to non-existent frame image ${imageIndex}`, {
+                        animo: this,
+                    });
                     return;
                 }
                 this.sprite.texture = this.getTexture(imageIndex);
@@ -35052,7 +35203,9 @@ let Animo = (() => {
                         this.anchorOffsetY = this.positionOffsetY + this.sprite.height;
                         break;
                     default:
-                        console.warn('Invalid anchor specifier - resetting anchor values.');
+                        logging_1.logger.warn('Invalid anchor specifier - resetting anchor values.', {
+                            animo: this,
+                        });
                         this.anchorOffsetX = 0;
                         this.anchorOffsetY = 0;
                         break;
@@ -35287,7 +35440,7 @@ let Animo = (() => {
                 return this.sprite;
             }
             async clone() {
-                const clone = await super.clone();
+                const clone = (await super.clone());
                 clone.isPlaying = this.isPlaying;
                 clone.currentFrame = this.currentFrame;
                 clone.currentEvent = this.currentEvent;
@@ -35601,6 +35754,7 @@ const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/er
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const fileLoader_1 = __webpack_require__(/*! ../../filesystem/fileLoader */ "./src/filesystem/fileLoader.ts");
 const array_1 = __webpack_require__(/*! ../../fileFormats/archive/array */ "./src/fileFormats/archive/array.ts");
+const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 const generateMessage = (action, position, value) => {
     return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`;
 };
@@ -35709,7 +35863,9 @@ let ArrayObject = (() => {
                 }
                 catch (err) {
                     if (err instanceof fileLoader_1.FileNotFoundError) {
-                        console.error(err);
+                        logging_1.logger.error(`Failed to load array from "${path}"`, {
+                            array: this,
+                        }, err);
                     }
                     else {
                         throw err;
@@ -35728,7 +35884,7 @@ let ArrayObject = (() => {
             }
             MSGBOX() { }
             async clone() {
-                const cloned = await super.clone();
+                const cloned = (await super.clone());
                 cloned.value = [...this.value];
                 return cloned;
             }
@@ -36437,6 +36593,7 @@ const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/type
 const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/rendering.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const img_1 = __webpack_require__(/*! ../../fileFormats/img */ "./src/fileFormats/img/index.ts");
+const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let CanvasObserver = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -36482,7 +36639,7 @@ let CanvasObserver = (() => {
             }
             async SAVE(filename, scaleX, scaleY, left = 0, top = 0, right = 0, bottom = 0) {
                 (0, errors_1.assert)(this.engine.currentScene !== null);
-                const rectangle = (right != left && bottom != top)
+                const rectangle = right != left && bottom != top
                     ? new pixi_js_1.Rectangle(left, top, right - left, bottom - top)
                     : new pixi_js_1.Rectangle(0, 0, this.engine.app.view.width, this.engine.app.view.height);
                 const originalCanvas = await this.engine.app.renderer.extract.image(this.engine.app.stage, undefined, undefined, rectangle);
@@ -36505,8 +36662,11 @@ let CanvasObserver = (() => {
                     imageLen: -1,
                     alphaLen: -1,
                 }, pixels);
-                console.log(`Saving image to ${await this.engine.currentScene.getRelativePath(filename)}`);
-                await this.engine.filesystem.saveFile(await this.engine.currentScene.getRelativePath(filename), imgFile);
+                const virtualPath = await this.engine.currentScene.getRelativePath(filename);
+                logging_1.logger.debug(`Saving canvas to "${virtualPath}"`, {
+                    observer: this,
+                });
+                await this.engine.filesystem.saveFile(virtualPath, imgFile);
             }
             constructor() {
                 super(...arguments);
@@ -36582,6 +36742,7 @@ const scope_1 = __webpack_require__(/*! ../scope */ "./src/engine/scope.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../../filesystem/definitionLoader */ "./src/filesystem/definitionLoader.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const behaviour_1 = __webpack_require__(/*! ./behaviour */ "./src/engine/types/behaviour.ts");
+const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Class = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -36597,7 +36758,7 @@ let Class = (() => {
                 this.innerDefinition = await this.engine.filesystem.getCNVFile(await this.engine.resolvePath(this.definition.DEF, 'common/classes'));
             }
             destroy() {
-                this.instances.forEach(instance => instance.destroy());
+                this.instances.forEach((instance) => instance.destroy());
             }
             async tick(elapsedMS) {
                 for (const instance of this.instances) {
@@ -36636,10 +36797,13 @@ class ClassInstance extends index_1.ParentType {
         (0, errors_1.assert)(this.class.innerDefinition !== null);
         await (0, definitionLoader_1.loadDefinition)(this.engine, this.scope, this.class.innerDefinition, this);
         await (0, definitionLoader_1.doReady)(this.scope);
-        console.log(`Initialized class instance ${this.name} of ${this.class.name}`);
+        logging_1.logger.debug(`${this.class.name} class instance ${this.name} initialized`, {
+            class: this,
+            instance: this,
+        });
     }
     destroy() {
-        this.scope.objects.forEach(object => object.destroy());
+        this.scope.objects.forEach((object) => object.destroy());
     }
     async tick(elapsedMS) {
         for (const object of this.scope.objects.filter((object) => object.isReady)) {
@@ -36813,10 +36977,10 @@ let ComplexCondition = (() => {
                 let result;
                 switch (this.definition.OPERATOR) {
                     case 'AND':
-                        result = await condition1.CHECK(arg) && await condition2.CHECK(arg);
+                        result = (await condition1.CHECK(arg)) && (await condition2.CHECK(arg));
                         break;
                     case 'OR':
-                        result = await condition1.CHECK(arg) || await condition2.CHECK(arg);
+                        result = (await condition1.CHECK(arg)) || (await condition2.CHECK(arg));
                         break;
                 }
                 if (result) {
@@ -36896,6 +37060,7 @@ exports.Condition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Condition = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -36946,13 +37111,17 @@ let Condition = (() => {
                         }
                     }
                     catch (err) {
-                        console.error('Condition details\n' + '\n' + '%cCondition:%c%O\n%cOperand1:%c%O\n%cOperand2:%c%O\n', 'font-weight: bold', 'font-weight: inherit', this, 'font-weight: bold', 'font-weight: inherit', operand1, 'font-weight: bold', 'font-weight: inherit', operand2);
+                        logging_1.logger.error('Error occured while evaluating condition', {
+                            condition: this,
+                        }, err);
                         throw err;
                     }
                 }
                 else {
                     result = false;
-                    console.warn(`Condition ${this.name} has an operand that resolved to undefined. operand1=${operand1}, operand2=${operand2}`);
+                    logging_1.logger.warn(`Condition ${this.name} has an operand that resolved to undefined. operand1=${operand1}, operand2=${operand2}`, {
+                        condition: this,
+                    });
                 }
                 if (shouldSignal) {
                     if (result) {
@@ -37349,6 +37518,7 @@ const definitionLoader_1 = __webpack_require__(/*! ../../filesystem/definitionLo
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const index_2 = __webpack_require__(/*! ../index */ "./src/engine/index.ts");
 const filesystem_1 = __webpack_require__(/*! ../../filesystem */ "./src/filesystem/index.ts");
+const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Episode = (() => {
     var _a;
     let _classSuper = index_1.ParentType;
@@ -37383,7 +37553,9 @@ let Episode = (() => {
                     this.GOTO(this.engine.previousScene.definition.NAME);
                 }
                 else {
-                    console.warn('Attempted EPISODE^BACK() but there is no previous scene');
+                    logging_1.logger.warn('Attempted EPISODE^BACK() but there is no previous scene', {
+                        episode: this,
+                    });
                 }
             }
             constructor() {
@@ -37487,14 +37659,15 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Font = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const fileLoader_1 = __webpack_require__(/*! ../../filesystem/fileLoader */ "./src/filesystem/fileLoader.ts");
+const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 class Font extends index_1.Type {
     constructor() {
         super(...arguments);
         this.bitmapFont = null;
     }
     async init() {
+        const filename = this.definition['DEF_%s_%s_%d'];
         try {
-            const filename = this.definition['DEF_%s_%s_%d'];
             const relativePath = this.engine.currentScene !== null
                 ? await this.engine.currentScene.getRelativePath(filename)
                 : await this.engine.resolvePath(filename);
@@ -37502,7 +37675,9 @@ class Font extends index_1.Type {
         }
         catch (err) {
             if (err instanceof fileLoader_1.FileNotFoundError) {
-                console.warn('FNT file not found');
+                logging_1.logger.warn(`FNT file not found at "${filename}"`, {
+                    font: this,
+                });
             }
         }
     }
@@ -37561,6 +37736,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Group = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Group = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -37579,7 +37755,9 @@ let Group = (() => {
                 objectsNames.forEach((objectName) => {
                     const object = this.getObject(objectName);
                     if (object === null) {
-                        console.warn(`Script was trying to add non-existing object "${objectName}" to a group "${this.name}"`);
+                        logging_1.logger.warn(`Script was trying to add non-existing object "${objectName}" to a group "${this.name}"`, {
+                            group: this,
+                        });
                     }
                     else {
                         this.objects.push(object);
@@ -37596,7 +37774,10 @@ let Group = (() => {
                     }
                     else {
                         const argumentsString = args?.map((arg) => typeof arg).join(', ');
-                        console.warn(`Method '${methodName}(${argumentsString ?? ''})' does not exist in ${object.constructor.name}`);
+                        logging_1.logger.warn(`Method '${methodName}(${argumentsString ?? ''})' does not exist in ${object.constructor.name}`, {
+                            object,
+                            args,
+                        });
                     }
                 }
             }
@@ -37838,7 +38019,7 @@ let Image = (() => {
                 spriteClone.x = this.sprite.x;
                 spriteClone.y = this.sprite.y;
                 spriteClone.hitmap = this.sprite.hitmap;
-                const clone = await super.clone();
+                const clone = (await super.clone());
                 clone.sprite = spriteClone;
                 return clone;
             }
@@ -37929,6 +38110,7 @@ const callbacks_1 = __webpack_require__(/*! ../components/callbacks */ "./src/en
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const events_1 = __webpack_require__(/*! ../components/events */ "./src/engine/components/events.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Type = (() => {
     var _a;
     let _instanceExtraInitializers = [];
@@ -37989,7 +38171,10 @@ let Type = (() => {
             // Called when trying to call a method that is not existing for a type
             __call(methodName, args) {
                 const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
-                console.error(`Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.\nArguments: %O\nObject: %O`, args, this);
+                logging_1.logger.error(`Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.`, {
+                    object: this,
+                    args,
+                });
             }
             async clone() {
                 // @ts-expect-error Dynamically constructing object
@@ -38370,6 +38555,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Keyboard = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 const keysMapping = {
     ArrowLeft: 'LEFT',
     ArrowRight: 'RIGHT',
@@ -38439,7 +38625,9 @@ let Keyboard = (() => {
             setKeyState(keyCode, value) {
                 const mapped = keysMapping[keyCode];
                 if (!mapped) {
-                    console.warn(`Unsupported keyboard key code ${keyCode}`);
+                    logging_1.logger.warn(`Unsupported keyboard key code ${keyCode}`, {
+                        supportedKeys: Object.keys(keysMapping),
+                    });
                 }
                 this.keysState.set(mapped, value);
                 this.changeQueue.push({ name: mapped, state: value });
@@ -39087,6 +39275,7 @@ const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts"
 const assetsLoader_1 = __webpack_require__(/*! ../../filesystem/assetsLoader */ "./src/filesystem/assetsLoader.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../../filesystem/definitionLoader */ "./src/filesystem/definitionLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~';
 let Sequence = (() => {
     var _a;
@@ -39168,7 +39357,9 @@ let Sequence = (() => {
                     }
                 }
                 const sounds = await Promise.all(soundsNames.map(async (name) => {
-                    console.debug(`Preloading sound ${name}...`);
+                    logging_1.logger.debug(`Preloading sound ${name}...`, {
+                        sequence: this,
+                    });
                     return (0, assetsLoader_1.loadSound)(this.engine.filesystem, `Wavs/${name}`);
                 }));
                 for (let i = 0; i < sounds.length; i++) {
@@ -39294,12 +39485,14 @@ let Sequence = (() => {
                             this.playingSound.stop();
                             this.playingSound = null;
                         }
-                        console.debug(`Playing sound '${speaking.WAVFN}'`);
+                        logging_1.logger.debug(`Playing sound '${speaking.WAVFN}'`, {
+                            sequence: this,
+                        });
                         const sound = this.sounds.get(speaking.WAVFN);
                         this.playingSound = sound.play({
                             onEnd: () => {
                                 this.endedSpeakingSoundsQueue.push(speaking);
-                            }
+                            },
                         });
                         const startEvent = speaking.PREFIX + '_START';
                         if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
@@ -39441,6 +39634,7 @@ const assetsLoader_1 = __webpack_require__(/*! ../../filesystem/assetsLoader */ 
 const fileLoader_1 = __webpack_require__(/*! ../../filesystem/fileLoader */ "./src/filesystem/fileLoader.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Sound = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -39514,7 +39708,9 @@ let Sound = (() => {
                         // Ignore sound loading errors
                         // because there are some sounds for other language versions
                         // that it tries to load, but they are not there
-                        console.warn(err);
+                        logging_1.logger.warn(`Failed to load sound "${path}"`, {
+                            sound: this,
+                        }, err);
                     }
                     else {
                         throw err;
@@ -39522,11 +39718,15 @@ let Sound = (() => {
                 }
             }
             onStart() {
-                console.debug(`Playing sound '${this.definition.FILENAME}'`);
+                logging_1.logger.debug(`Playing sound '${this.definition.FILENAME}'`, {
+                    sound: this,
+                });
                 this.callbacksQueue.push('ONSTARTED');
             }
             onEnd() {
-                console.debug(`Finished playing sound '${this.definition.FILENAME}'`);
+                logging_1.logger.debug(`Finished playing sound '${this.definition.FILENAME}'`, {
+                    sound: this,
+                });
                 this.callbacksQueue.push('ONFINISHED');
             }
         },
@@ -39900,7 +40100,7 @@ let Struct = (() => {
                 return new Map(matches.map((m) => [m.groups.name, m.groups.type]));
             }
             async clone() {
-                const clone = await super.clone();
+                const clone = (await super.clone());
                 clone.structure = this.structure;
                 await clone.initializeContent();
                 return clone;
@@ -40716,6 +40916,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseCNV = void 0;
 const types_1 = __webpack_require__(/*! ./types */ "./src/fileFormats/cnv/types.ts");
 const common_1 = __webpack_require__(/*! ../common */ "./src/fileFormats/common/index.ts");
+const logging_1 = __webpack_require__(/*! ../../engine/logging */ "./src/engine/logging.ts");
 const splitOnce = (text, separator) => {
     const index = text.indexOf(separator);
     return [text.substring(0, index), text.substring(index + 1)];
@@ -40791,35 +40992,44 @@ const parseCNV = (content) => {
                 }
                 catch (err) {
                     if (err instanceof common_1.FieldProcessorRecoverableError) {
-                        console.warn('Recoverable error occured\n' +
-                            `%cError%c: ${err.message}\n` +
-                            `%cObject name:%c ${objectName}\n` +
-                            `%cObject type:%c ${object.TYPE}\n` +
-                            `%cField name:%c ${fieldName}\n` +
-                            `%cParam:%c ${param}\n` +
-                            '%cValue:%c %O', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', value);
+                        logging_1.logger.error('Recoverable error occured', {
+                            objectName,
+                            objectType: object.TYPE,
+                            object,
+                            fieldName,
+                            param,
+                            value,
+                        }, err);
                         continue;
                     }
-                    console.error('Failed to process CNV field\n' +
-                        `%cObject name:%c ${objectName}\n` +
-                        `%cObject type:%c ${object.TYPE}\n` +
-                        `%cField name:%c ${fieldName}\n` +
-                        `%cParam:%c ${param}\n` +
-                        '%cValue:%c %O', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', 'font-weight: bold', 'font-weight: inherit', value);
+                    logging_1.logger.error('Failed to process CNV field', {
+                        objectName,
+                        objectType: object.TYPE,
+                        object,
+                        fieldName,
+                        param,
+                        value,
+                    }, err);
                     throw err;
                 }
             }
             else {
                 if (variableName.startsWith('ON')) {
                     if (param) {
-                        console.warn(`Unsupported parametrized event callback "${variableName}" with param "${param}" in type ${object.TYPE}`);
+                        logging_1.logger.warn(`Unsupported parametrized event callback "${variableName}" with param "${param}" in type ${object.TYPE}`, {
+                            object,
+                        });
                     }
                     else {
-                        console.warn(`Unsupported non-parametrized event callback "${variableName}" in type ${object.TYPE}`);
+                        logging_1.logger.warn(`Unsupported non-parametrized event callback "${variableName}" in type ${object.TYPE}`, {
+                            object,
+                        });
                     }
                 }
                 else if (variableName !== 'TYPE') {
-                    console.warn(`Unsupported field ${variableName} in type ${object.TYPE}`);
+                    logging_1.logger.warn(`Unsupported field ${variableName} in type ${object.TYPE}`, {
+                        object,
+                    });
                 }
                 object[variableName] = value;
             }
@@ -40830,7 +41040,9 @@ const parseCNV = (content) => {
         for (const field in typeDefinition) {
             const typeInfo = typeDefinition[field];
             if (!(field in object) && !typeInfo?.flags?.optional) {
-                console.warn(`Field '${field}' in type ${object.TYPE} is missing but is not optional`);
+                logging_1.logger.warn(`Field '${field}' in type ${object.TYPE} is missing but is not optional`, {
+                    object,
+                });
             }
         }
     }
@@ -41058,7 +41270,7 @@ const StringDefinitionStructure = {
     ONBRUTALCHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
 };
 const StructDefinitionStructure = {
-    FIELDS: common_1.string
+    FIELDS: common_1.string,
 };
 const SystemDefinitionStructure = {};
 const TextDefinitionStructure = {
@@ -41135,12 +41347,13 @@ exports.structureDefinitions = {
 /*!*****************************************!*\
   !*** ./src/fileFormats/common/index.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createCallback = exports.callbacks = exports.map = exports.array = exports.reference = exports.code = exports.callback = exports.boolean = exports.number = exports.string = exports.optional = exports.FieldProcessorRecoverableError = void 0;
+const logging_1 = __webpack_require__(/*! ../../engine/logging */ "./src/engine/logging.ts");
 class FieldProcessorRecoverableError extends Error {
 }
 exports.FieldProcessorRecoverableError = FieldProcessorRecoverableError;
@@ -41169,7 +41382,9 @@ exports.number = {
     processor: (object, key, param, value) => {
         const result = Number(value.startsWith('"') ? value.slice(1, -1) : value);
         if (isNaN(result)) {
-            console.warn(`NaN value was provided for number field.\n${fieldAssignmentAsString(object, key, param, value)}`);
+            logging_1.logger.warn(`NaN value was provided for number field.\n${fieldAssignmentAsString(object, key, param, value)}`, {
+                object,
+            });
             return 0;
         }
         return result;
@@ -41179,7 +41394,9 @@ exports.boolean = {
     name: 'boolean',
     processor: (object, key, param, value) => {
         if (value !== 'TRUE' && value !== 'FALSE' && value !== '0' && value !== '1') {
-            console.warn(`Expected TRUE, FALSE, 0 or 1.\n${fieldAssignmentAsString(object, key, param, value)}`);
+            logging_1.logger.warn(`Expected TRUE, FALSE, 0 or 1.\n${fieldAssignmentAsString(object, key, param, value)}`, {
+                object,
+            });
             return false;
         }
         if (value === '0' || value === '1') {
@@ -41693,11 +41910,11 @@ const convertToRgba32 = (bytes, alphaBytes) => {
     const hasAlphaBytes = alphaBytes && alphaBytes.length > 0;
     for (let i = 0; i < numPixels; i++) {
         let temp = input16[i];
-        const b = (temp & 0x1F) << 3;
+        const b = (temp & 0x1f) << 3;
         temp >>>= 5;
-        const g = (temp & 0x3F) << 2;
+        const g = (temp & 0x3f) << 2;
         temp >>>= 6;
-        const r = (temp & 0x1F) << 3;
+        const r = (temp & 0x1f) << 3;
         const a = hasAlphaBytes ? alphaBytes[i] : 255;
         pixels32[i] = r | (g << 8) | (b << 16) | (a << 24);
     }
@@ -41806,7 +42023,7 @@ const parseSequence = (content) => {
             const [objectName, variableName, subKey] = key.split(':');
             const object = objectsMap.get(objectName);
             if (object === undefined) {
-                throw new Error("Object not found");
+                throw new Error('Object not found');
             }
             const definition = exports.structureDefinitions[object.TYPE];
             if (definition && variableName in definition) {
@@ -42145,6 +42362,7 @@ const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */
 const struct_1 = __webpack_require__(/*! ../engine/types/struct */ "./src/engine/types/struct.ts");
 const database_1 = __webpack_require__(/*! ../engine/types/database */ "./src/engine/types/database.ts");
 const class_1 = __webpack_require__(/*! ../engine/types/class */ "./src/engine/types/class.ts");
+const logging_1 = __webpack_require__(/*! ../engine/logging */ "./src/engine/logging.ts");
 const createTypeInstance = (engine, parent, definition) => {
     switch (definition.TYPE) {
         case 'ANIMO':
@@ -42220,7 +42438,9 @@ const createTypeInstance = (engine, parent, definition) => {
         case 'VECTOR':
             return new vector_1.Vector(engine, parent, definition);
         default:
-            console.error(definition);
+            logging_1.logger.error(`Failed to initialize object. Unknown object type '${definition.TYPE}'`, {
+                definition,
+            });
             throw new Error(`Unknown object type '${definition.TYPE}'`);
     }
 };
@@ -42271,7 +42491,9 @@ const loadDefinition = async (engine, scope, definition, parent) => {
         if (result.status === 'rejected') {
             scope.remove(object.name);
             failedObjects.push(object);
-            console.error(`Failed to initialize object ${object.name}`, result.reason);
+            logging_1.logger.error(`Failed to initialize object ${object.name}`, {
+                reason: result.reason,
+            });
         }
     }
     const goodObjects = orderedScope.filter((entry) => !failedObjects.includes(entry));
@@ -42333,6 +42555,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ListingJSONUrlFileLoader = exports.RemoteIsoFileLoader = exports.IsoFileLoader = exports.ArchiveOrgFileLoader = exports.GithubFileLoader = exports.UrlFileLoader = exports.FileLoader = exports.FileNotFoundError = void 0;
 const iso9660_1 = __webpack_require__(/*! ./iso9660 */ "./src/filesystem/iso9660.ts");
 const index_1 = __webpack_require__(/*! ./index */ "./src/filesystem/index.ts");
+const logging_1 = __webpack_require__(/*! ../engine/logging */ "./src/engine/logging.ts");
 class FileNotFoundError extends Error {
     constructor(filename) {
         super(`File '${filename}' not found in files listing`);
@@ -42353,7 +42576,7 @@ class UrlFileLoader extends SimpleFileLoader {
         this.listing = null;
     }
     async init() {
-        console.debug('Fetching files listing...');
+        logging_1.logger.debug('Fetching files listing...');
         this.listing = await this.fetchFilesListing();
     }
     getFilesListing() {
@@ -42361,7 +42584,7 @@ class UrlFileLoader extends SimpleFileLoader {
     }
     async getRawFile(filename) {
         const normalizedFilename = (0, index_1.normalizePath)(filename);
-        console.debug(`Fetching '${normalizedFilename}'...`);
+        logging_1.logger.debug(`Fetching '${normalizedFilename}'...`);
         const fileUrl = this.listing.get(normalizedFilename);
         if (fileUrl == null) {
             throw new FileNotFoundError(normalizedFilename);
@@ -42499,7 +42722,7 @@ class IndexedDBStorage extends FileStorage {
     }
     async has(filename) {
         (0, errors_1.assert)(this.db !== null);
-        return await this.db.count('filesystem', filename) > 0;
+        return (await this.db.count('filesystem', filename)) > 0;
     }
     async save(filename, content) {
         (0, errors_1.assert)(this.db !== null);
@@ -45488,6 +45711,7 @@ const common_1 = __webpack_require__(/*! ../../fileFormats/common */ "./src/file
 const integer_1 = __webpack_require__(/*! ../../engine/types/integer */ "./src/engine/types/integer.ts");
 const struct_1 = __webpack_require__(/*! ../../engine/types/struct */ "./src/engine/types/struct.ts");
 const cnvloader_1 = __webpack_require__(/*! ../../engine/types/cnvloader */ "./src/engine/types/cnvloader.ts");
+const logging_1 = __webpack_require__(/*! ../../engine/logging */ "./src/engine/logging.ts");
 class InterruptScriptExecution extends errors_1.IgnorableError {
     constructor(one = false) {
         super();
@@ -45831,19 +46055,19 @@ class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
         }));
         this.globalInstances.set('CNVLOADER', new cnvloader_1.CNVLoader(this.engine, null, {
             TYPE: 'CNVLOADER',
-            NAME: 'CNVLOADER'
+            NAME: 'CNVLOADER',
         }));
     }
     async resolveConditionalCall(a, operator, b) {
         const left = typeof a === 'string'
             ? a.toString().startsWith('"')
                 ? a.toString().replace(/^"|"$/g, '')
-                : (await this.getObject((0, types_1.valueAsString)(a))?.getValue() ?? a)
+                : ((await this.getObject((0, types_1.valueAsString)(a))?.getValue()) ?? a)
             : a;
         const right = typeof b === 'string'
             ? b.toString().startsWith('"')
                 ? b.toString().replace(/^"|"$/g, '')
-                : (await this.getObject((0, types_1.valueAsString)(b))?.getValue() ?? b)
+                : ((await this.getObject((0, types_1.valueAsString)(b))?.getValue()) ?? b)
             : b;
         if (operator == '_') {
             return types_1.Compare.Equal(left, right);
@@ -45925,7 +46149,10 @@ const runScript = async (engine, caller, script, args = [], singleStatement = fa
     lexer.removeErrorListeners();
     lexer.addErrorListener({
         syntaxError(_recognizer, _offendingSymbol, line, column, msg) {
-            console.error(`Lexer error: ${msg} at ${line}:${column}\n${script}`);
+            logging_1.logger.error(`Lexer error: ${msg} at ${line}:${column}\n${script}`, {
+                caller,
+                args,
+            });
             (0, stacktrace_1.printStackTrace)();
         },
     });
@@ -45934,7 +46161,10 @@ const runScript = async (engine, caller, script, args = [], singleStatement = fa
     parser.removeErrorListeners();
     parser.addErrorListener({
         syntaxError(_recognizer, _offendingSymbol, line, column, msg, _e) {
-            console.error(`Parser error: ${msg} at ${line}:${column}\n${script}`);
+            logging_1.logger.error(`Parser error: ${msg} at ${line}:${column}\n${script}`, {
+                caller,
+                args,
+            });
             (0, stacktrace_1.printStackTrace)();
         },
     });
@@ -48038,7 +48268,7 @@ const baseOptions = {
     debugContainer: debugContainer,
     onExit: () => document.exitFullscreen(),
     saveFile: areSavesEnabled ? saveFile_1.SaveFileManager.fromLocalStorage() : undefined,
-    storage: new fileStorage_1.IndexedDBStorage('reksio')
+    storage: new fileStorage_1.IndexedDBStorage('reksio'),
 };
 let config = {};
 const start = () => {
