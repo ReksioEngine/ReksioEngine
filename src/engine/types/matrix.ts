@@ -3,26 +3,6 @@ import { MatrixDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
-import { printStackTrace } from '../../interpreter/script/stacktrace'
-// CALCENEMYMOVEDEST
-// CALCENEMYMOVEDIR
-// CANHEROGOTO
-// GET
-// GETCELLOFFSET
-// GETCELLPOSX
-// GETCELLPOSY
-// GETCELLSNO
-// GETFIELDPOSX
-// GETFIELDPOSY
-// GETOFFSET
-// ISGATEEMPTY
-// ISINGATE
-// MOVE
-// NEXT
-// SET
-// SETGATE
-// SETROW
-// TICK
 
 enum Field {
     EMPTY = 0,
@@ -61,7 +41,6 @@ export class Matrix extends Type<MatrixDefinition> {
 
     private width: number = 0
     private height: number = 0
-    // private ticks: number = 0
     private board: number[] = []
     private stoneActions: number[] = []
 
@@ -76,8 +55,6 @@ export class Matrix extends Type<MatrixDefinition> {
         return board
     }
 
-    // SIZE[0] - Width
-    // SIZE[1] - Height
     init() {
         this.width = this.definition.SIZE[0]
         this.height = this.definition.SIZE[1]
@@ -105,8 +82,6 @@ export class Matrix extends Type<MatrixDefinition> {
                 return oldPos
             }
         }
-        // console.log(args)
-        // throw new NotImplementedError()
     }
 
     rotateLeft(dir: number) {
@@ -165,7 +140,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     async canMoveTo(oldPos: number, newPos: number) {
-        let newPosIndex: number = await this.CALCENEMYMOVEDEST(oldPos, newPos)
+        const newPosIndex: number = await this.CALCENEMYMOVEDEST(oldPos, newPos)
         return this.isNewPositionValid(newPosIndex)
     }
 
@@ -190,7 +165,6 @@ export class Matrix extends Type<MatrixDefinition> {
 
         return Direction.NONE
 
-        // throw new NotImplementedError()
     }
 
     @method()
@@ -210,43 +184,30 @@ export class Matrix extends Type<MatrixDefinition> {
             return true
         }
         return false
-        // return true; // TODO: Implement this
     }
 
     @method()
     async GET(...args: any[]) {
-        //index: number) {
-        // console.log("GET",args)
         return this.board[args[0]]
-        // return this.board[index]
-        // throw new NotImplementedError()
-    }
-    //TODO
-    @method()
-    async GETCELLOFFSET(x: number, y: number) {
-        let index = y * this.width + x
-        // console.log('GETCELLOFFSET', index)
-        return index
-        // throw new NotImplementedError()
     }
 
-    // BASEPOS - Offset of board in pixels from top left corner
+    @method()
+    async GETCELLOFFSET(x: number, y: number) {
+        const index = y * this.width + x
+        return index
+    }
+
+    // BASEPOS - Offset from the top left corner of the board (in pixels)
     @method()
     async GETCELLPOSX(index: number) {
-        // console.log("GETCELLPOSX",index)
-        let posx: number = (index % this.width) * this.definition.CELLWIDTH + this.definition.BASEPOS[0]
-        // console.log(posx)
+        const posx: number = (index % this.width) * this.definition.CELLWIDTH + this.definition.BASEPOS[0]
         return posx
-        // throw new NotImplementedError()
     }
 
     @method()
     async GETCELLPOSY(index: number) {
-        // console.log("GETCELLPOSY",index)
-        let posy: number = Math.floor(index / this.width) * this.definition.CELLHEIGHT + this.definition.BASEPOS[1]
-        // console.log(posy)
+        const posy: number = Math.floor(index / this.width) * this.definition.CELLHEIGHT + this.definition.BASEPOS[1]
         return posy
-        // throw new NotImplementedError()
     }
 
     @method()
@@ -259,48 +220,39 @@ export class Matrix extends Type<MatrixDefinition> {
         }
 
         return count
-        // throw new NotImplementedError()
     }
 
-    //Not used
     @method()
     async GETFIELDPOSX(...args: any[]) {
-        // console.log(args)
         throw new NotImplementedError()
     }
 
-    //Not used
     @method()
     async GETFIELDPOSY(...args: any[]) {
-        // console.log(args)
         throw new NotImplementedError()
     }
-    //Not used
+
     @method()
     async GETOFFSET(...args: any[]) {
         throw new NotImplementedError()
     }
-    //TODO
+
     @method()
     async ISGATEEMPTY(...args: any[]) {
-        // console.log('ISGATEEMPTY', args)
+        // TODO: implement
         return false
-        // throw new NotImplementedError()
     }
-    //TODO
+
     @method()
     async ISINGATE(...args: any[]) {
-        // console.log('ISINGATE', args)
+        // TODO: implement
         return false
-        // throw new NotImplementedError()
     }
 
     @method()
     async MOVE(previousPos: number, newPos: number) {
-        // console.log("MOVE",previousPos,newPos)
         this.board[newPos] = this.board[previousPos]
         this.board[previousPos] = Field.EMPTY
-        // throw new NotImplementedError()
     }
 
     stoneActionsDone() {
@@ -338,7 +290,6 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     async runCallback(name: string, x: number, y: number, code: number) {
-        // console.log(name, x, y, code)
         await this.callbacks.run(name, null, null, [x, y, code])
     }
 
@@ -355,16 +306,12 @@ export class Matrix extends Type<MatrixDefinition> {
                 x = 0
             }
             while (x < this.width) {
-                let index = this.width * y + x
+                const index = this.width * y + x
                 switch (this.stoneActions[index]) {
                     case Actions.NONE:
                         x += 1
                         continue
                     case Actions.DOWN:
-                        // if(this.board[index+2*this.width]==Field.MOLE)
-                        // {
-                        //     result = 2
-                        // }
                         callbackAction = Actions.DOWN
                         this.moveStoneDown(index, index + this.width)
                         break
@@ -404,7 +351,6 @@ export class Matrix extends Type<MatrixDefinition> {
         }
 
         return result
-        // throw new NotImplementedError()
     }
 
     async setByIndex(index: number, cellType: number) {
@@ -424,7 +370,7 @@ export class Matrix extends Type<MatrixDefinition> {
     async setByPosition(x: number, y: number, cellType: number) {
         assert(x >= 0 && x < this.width, `X position ${x} out of bounds for width ${this.width}`)
         assert(y >= 0 && y < this.height, `Y position ${y} out of bounds for height ${this.height}`)
-        let index = y * this.width + x
+        const index = y * this.width + x
 
         if (cellType == Field.ENEMY) {
             if (this.board[index] != Field.EMPTY) {
@@ -437,7 +383,6 @@ export class Matrix extends Type<MatrixDefinition> {
 
     @method()
     async SET(...args: number[]) {
-        // console.log("SET",args)
         if (args.length === 2) {
             // args[0] - Index
             // args[1] - cellType
@@ -450,21 +395,18 @@ export class Matrix extends Type<MatrixDefinition> {
             // args[2] - cellType
             await this.setByPosition(Math.floor(args[0]), Math.floor(args[1]), args[2])
         }
-        // throw new NotImplementedError()
     }
 
-    //TODO
     @method()
     async SETGATE(...args: any[]) {
-        // console.log(args)
-        // throw new NotImplementedError()
+        // TODO: implement
     }
 
     @method()
     async SETROW(row: number, ...cells: number[]) {
+        // TODO: implement
         this.board.splice(row * this.width, this.width, ...cells)
         // this.board = this.board.map((v: any) => (v === Field.ENEMY ? Field.EMPTY : v)) // Cutout enemies for now
-        // throw new NotImplementedError()
     }
 
     @method()
@@ -475,11 +417,11 @@ export class Matrix extends Type<MatrixDefinition> {
         if (this.width > 0) {
             for (let x: number = 0; x < this.width; x++) {
                 for (let y: number = this.height - 2; y > -1; y--) {
-                    let index = this.width * y + x
+                    const index = this.width * y + x
                     if (this.board[index] != Field.STONE) {
                         continue
                     }
-                    let indexUnder = index + this.width
+                    const indexUnder = index + this.width
                     switch (this.board[indexUnder]) {
                         case Field.EMPTY: {
                             this.stoneActions[index] = Actions.DOWN
@@ -500,7 +442,7 @@ export class Matrix extends Type<MatrixDefinition> {
                             continue
                         }
                         case Field.STONE: {
-                            let indexOver = index - this.width
+                            const indexOver = index - this.width
                             if (y == 0 || this.board[indexOver] != Field.STONE) {
                                 // Checks if we have action queued for cell 1 and 2 spaces to the left
                                 // Then we check if space to the left of cell and 1 under it is empty
