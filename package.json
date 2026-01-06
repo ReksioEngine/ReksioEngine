@@ -9,7 +9,8 @@
         "build-lib": "webpack --config ./webpack.config.library.ts",
         "build-formats-lib": "tsc -p ./tsconfig.formats.json && cp ./static/formats.package.json ./dist/package.json",
         "prepare": "husky install",
-        "prepublishOnly": "yarn run build-lib"
+        "prepublishOnly": "yarn run build-lib",
+        "serve": "webpack serve --config webpack.config.app.ts"
     },
     "private": true,
     "dependencies": {
