@@ -5,9 +5,9 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "cross-env NODE_OPTIONS=\"$(node -h | grep -q 'no-experimental-strip-types' && echo '--no-experimental-strip-types')\" webpack --config webpack.config.app.ts",
-        "build-lib": "cross-env NODE_OPTIONS=\"$(node -h | grep -q 'no-experimental-strip-types' && echo '--no-experimental-strip-types')\" webpack --config ./webpack.config.library.ts",
-        "build-formats-lib": "cross-env NODE_OPTIONS=\"$(node -h | grep -q 'no-experimental-strip-types' && echo '--no-experimental-strip-types')\" tsc -p ./tsconfig.formats.json && cp ./static/formats.package.json ./dist/package.json",
+        "build": "webpack --config webpack.config.app.ts",
+        "build-lib": "webpack --config ./webpack.config.library.ts",
+        "build-formats-lib": "tsc -p ./tsconfig.formats.json && cp ./static/formats.package.json ./dist/package.json",
         "prepare": "husky install",
         "prepublishOnly": "yarn run build-lib"
     },
