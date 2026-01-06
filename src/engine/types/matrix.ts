@@ -3,6 +3,7 @@ import { MatrixDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
+import { Rectangle } from 'pixi.js'
 
 enum Field {
     EMPTY = 0,
@@ -42,6 +43,7 @@ export class Matrix extends Type<MatrixDefinition> {
     private width: number = 0
     private height: number = 0
     private board: number[] = []
+    private gateRect: Rectangle | null = null
     private stoneActions: number[] = []
 
     private cursorX = 0
@@ -191,22 +193,33 @@ export class Matrix extends Type<MatrixDefinition> {
         return this.board[args[0]]
     }
 
+    getIndexFromCoordinates(column: number, row: number) {
+        return row * this.width + column
+    }
+
+    getColumnFromIndex(index: number) {
+        return index % this.width
+    }
+
+    getRowFromIndex(index: number) {
+        return Math.floor(index / this.width)
+    }
+
     @method()
     async GETCELLOFFSET(x: number, y: number) {
-        const index = y * this.width + x
-        return index
+        return this.getIndexFromCoordinates(x, y)
     }
 
     // BASEPOS - Offset from the top left corner of the board (in pixels)
     @method()
     async GETCELLPOSX(index: number) {
-        const posx: number = (index % this.width) * this.definition.CELLWIDTH + this.definition.BASEPOS[0]
+        const posx: number = this.getColumnFromIndex(index) * this.definition.CELLWIDTH + this.definition.BASEPOS[0]
         return posx
     }
 
     @method()
     async GETCELLPOSY(index: number) {
-        const posy: number = Math.floor(index / this.width) * this.definition.CELLHEIGHT + this.definition.BASEPOS[1]
+        const posy: number = this.getRowFromIndex(index) * this.definition.CELLHEIGHT + this.definition.BASEPOS[1]
         return posy
     }
 
@@ -238,15 +251,26 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async ISGATEEMPTY(...args: any[]) {
-        // TODO: implement
-        return false
+    async ISGATEEMPTY() {
+        if (!this.gateRect) {
+            return true
+        }
+        for (let column = this.gateRect.left; column < this.gateRect.right; column++) {
+            for (let row = this.gateRect.top; row < this.gateRect.bottom; row++) {
+                if (this.board[this.getIndexFromCoordinates(column, row)] == Field.STONE) {
+                    return false
+                }
+            }
+        }
+        return true
     }
 
     @method()
-    async ISINGATE(...args: any[]) {
-        // TODO: implement
-        return false
+    async ISINGATE(index: number) {
+        if (!this.gateRect) {
+            return false
+        }
+        return this.gateRect.contains(this.getColumnFromIndex(index), this.getRowFromIndex(index))
     }
 
     @method()
@@ -259,7 +283,7 @@ export class Matrix extends Type<MatrixDefinition> {
         let x = this.cursorX
         for (let y = this.cursorY; y > -1; y--) {
             while (x < this.width) {
-                if (this.stoneActions[x + y * this.width] != Actions.NONE) {
+                if (this.stoneActions[this.getIndexFromCoordinates(x, y)] != Actions.NONE) {
                     return false
                 }
                 x++
@@ -398,8 +422,9 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async SETGATE(...args: any[]) {
+    async SETGATE(startColumn: number, startRow: number, endColumn: number, endRow: number) {
         // TODO: implement
+        this.gateRect = new Rectangle(startColumn, startRow, endColumn - startColumn + 1, endRow - startRow + 1)
     }
 
     @method()
