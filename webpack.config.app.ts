@@ -9,7 +9,9 @@ module.exports = (env: any) => ({
     entry: './src/devPlayer.ts',
     mode: 'development',
     devServer: {
-        contentBase: 'dist',
+        static: {
+            directory: 'dist',
+        },
         port: 3000,
     },
     devtool: 'source-map',
