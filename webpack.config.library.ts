@@ -29,14 +29,14 @@ module.exports = (env: any) => ({
                     from: 'static/library.package.json',
                     to: 'package.json',
                     transform: (input) => {
-                        const pkg = JSON.parse(fs.readFileSync('./package.json').toString());
+                        const pkg = JSON.parse(fs.readFileSync('./package.json').toString())
 
                         const libraryManifest = JSON.parse(input.toString())
                         libraryManifest.dependencies = pkg.dependencies || {}
                         libraryManifest.version = pkg.version || {}
 
-                        return JSON.stringify(libraryManifest, null, "    ")
-                    }
+                        return JSON.stringify(libraryManifest, null, '    ')
+                    },
                 },
             ],
         }),

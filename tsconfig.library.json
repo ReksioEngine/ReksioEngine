@@ -9,7 +9,7 @@
         "sourceMap": true,
         "declaration": true,
         "outDir": "./dist/types",
-        "rootDir": "src",
+        "rootDir": "src"
     },
     "include": ["src/**/*"],
     "exclude": ["src/engine/debugging/debugging.html"]

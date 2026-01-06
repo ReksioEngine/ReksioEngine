@@ -116,7 +116,7 @@ const createTypeInstance = (engine: Engine, parent: ParentType<any> | null, defi
             return new Vector(engine, parent, definition)
         default:
             logger.error(`Failed to initialize object. Unknown object type '${definition.TYPE}'`, {
-                definition
+                definition,
             })
             throw new Error(`Unknown object type '${definition.TYPE}'`)
     }
@@ -177,7 +177,7 @@ export const loadDefinition = async (engine: Engine, scope: Scope, definition: C
             failedObjects.push(object)
 
             logger.error(`Failed to initialize object ${object.name}`, {
-                reason: result.reason
+                reason: result.reason,
             })
         }
     }

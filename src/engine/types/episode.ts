@@ -44,7 +44,7 @@ export class Episode extends ParentType<EpisodeDefinition> {
             this.GOTO(this.engine.previousScene.definition.NAME)
         } else {
             logger.warn('Attempted EPISODE^BACK() but there is no previous scene', {
-                episode: this
+                episode: this,
             })
         }
     }

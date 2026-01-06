@@ -124,9 +124,13 @@ export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
             this.value = await this.engine.filesystem.getARRFile(await this.engine.currentScene.getRelativePath(path))
         } catch (err) {
             if (err instanceof FileNotFoundError) {
-                logger.error(`Failed to load array from "${path}"`, {
-                    array: this
-                }, err)
+                logger.error(
+                    `Failed to load array from "${path}"`,
+                    {
+                        array: this,
+                    },
+                    err
+                )
             } else {
                 throw err
             }
@@ -136,7 +140,10 @@ export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
     @method()
     async SAVE(path: string) {
         assert(this.engine.currentScene !== null)
-        await this.engine.filesystem.saveFile(await this.engine.currentScene.getRelativePath(path), serializeArray(this.value))
+        await this.engine.filesystem.saveFile(
+            await this.engine.currentScene.getRelativePath(path),
+            serializeArray(this.value)
+        )
     }
 
     @method()
@@ -153,7 +160,7 @@ export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
     MSGBOX() {}
 
     async clone() {
-        const cloned = await super.clone() as ArrayObject
+        const cloned = (await super.clone()) as ArrayObject
         cloned.value = [...this.value]
         return cloned
     }

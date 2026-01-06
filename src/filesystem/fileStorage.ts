@@ -17,9 +17,7 @@ export class IndexedDBStorage extends FileStorage {
 
     async init() {
         this.db = await openDB(this.name, 1, {
-            upgrade(
-                database: IDBPDatabase,
-            ) {
+            upgrade(database: IDBPDatabase) {
                 database.createObjectStore('filesystem')
             },
         })
@@ -32,7 +30,7 @@ export class IndexedDBStorage extends FileStorage {
 
     async has(filename: string): Promise<boolean> {
         assert(this.db !== null)
-        return await this.db.count('filesystem', filename) > 0
+        return (await this.db.count('filesystem', filename)) > 0
     }
 
     async save(filename: string, content: ArrayBuffer) {

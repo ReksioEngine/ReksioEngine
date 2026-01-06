@@ -26,9 +26,10 @@ export class Image extends DisplayType<ImageDefinition> {
     }
 
     private async load(path: string) {
-        const relativePath = this.engine.currentScene !== null
-            ? await this.engine.currentScene.getRelativePath(path)
-            : await this.engine.resolvePath(path)
+        const relativePath =
+            this.engine.currentScene !== null
+                ? await this.engine.currentScene.getRelativePath(path)
+                : await this.engine.resolvePath(path)
         return await loadSprite(this.engine.filesystem, relativePath)
     }
 
@@ -152,7 +153,7 @@ export class Image extends DisplayType<ImageDefinition> {
 
         const maskGraphics = new Graphics()
         maskGraphics.beginFill(0x000000)
-        maskGraphics.drawRect(x1, y1, x2-x1, y2-y1)
+        maskGraphics.drawRect(x1, y1, x2 - x1, y2 - y1)
         maskGraphics.endFill()
 
         this.sprite.mask = maskGraphics
@@ -181,7 +182,7 @@ export class Image extends DisplayType<ImageDefinition> {
         spriteClone.y = this.sprite.y
         spriteClone.hitmap = this.sprite.hitmap
 
-        const clone = await super.clone() as unknown as Image
+        const clone = (await super.clone()) as unknown as Image
         clone.sprite = spriteClone
         return clone
     }

@@ -9,7 +9,7 @@
         "sourceMap": true,
         "declaration": true,
         "outDir": "./dist",
-        "rootDir": "src/fileFormats",
+        "rootDir": "src/fileFormats"
     },
     "include": ["src/fileFormats/**/*"]
 }

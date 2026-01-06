@@ -52,7 +52,10 @@ export class ScriptingManager {
                     .build()
                 stackTrace.push(stackFrame)
 
-                const behaviour: Behaviour | null = this.engine.getObject(callback.behaviourReference, caller?.parentScope)
+                const behaviour: Behaviour | null = this.engine.getObject(
+                    callback.behaviourReference,
+                    caller?.parentScope
+                )
                 assert(behaviour !== null)
 
                 if (forwardInterrupts) {

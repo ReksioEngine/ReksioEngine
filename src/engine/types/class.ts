@@ -21,7 +21,7 @@ export class Class extends Type<ClassDefinition> {
     }
 
     destroy() {
-        this.instances.forEach(instance => instance.destroy())
+        this.instances.forEach((instance) => instance.destroy())
     }
 
     async tick(elapsedMS: number) {
@@ -41,7 +41,7 @@ export class Class extends Type<ClassDefinition> {
     }
 }
 
-export class ClassInstance extends ParentType<TypeDefinition>{
+export class ClassInstance extends ParentType<TypeDefinition> {
     private class: Class
     public scope: Scope = new Scope('class_instance')
     public args: any[] = []
@@ -62,12 +62,12 @@ export class ClassInstance extends ParentType<TypeDefinition>{
 
         logger.debug(`${this.class.name} class instance ${this.name} initialized`, {
             class: this,
-            instance: this
+            instance: this,
         })
     }
 
     destroy() {
-        this.scope.objects.forEach(object => object.destroy())
+        this.scope.objects.forEach((object) => object.destroy())
     }
 
     async tick(elapsedMS: number) {

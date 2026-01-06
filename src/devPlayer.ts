@@ -23,7 +23,7 @@ const baseOptions = {
     debugContainer: debugContainer,
     onExit: () => document.exitFullscreen(),
     saveFile: areSavesEnabled ? SaveFileManager.fromLocalStorage() : undefined,
-    storage: new IndexedDBStorage('reksio')
+    storage: new IndexedDBStorage('reksio'),
 }
 
 let config = {}

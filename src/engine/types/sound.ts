@@ -85,9 +85,13 @@ export class Sound extends Type<SoundDefinition> {
                 // Ignore sound loading errors
                 // because there are some sounds for other language versions
                 // that it tries to load, but they are not there
-                logger.warn(`Failed to load sound "${path}"`, {
-                    sound: this
-                }, err)
+                logger.warn(
+                    `Failed to load sound "${path}"`,
+                    {
+                        sound: this,
+                    },
+                    err
+                )
             } else {
                 throw err
             }

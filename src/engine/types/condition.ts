@@ -52,9 +52,13 @@ export class Condition extends Type<ConditionDefinition> {
                         break
                 }
             } catch (err) {
-                logger.error('Error occured while evaluating condition', {
-                    condition: this
-                }, err)
+                logger.error(
+                    'Error occured while evaluating condition',
+                    {
+                        condition: this,
+                    },
+                    err
+                )
                 throw err
             }
         } else {
@@ -62,7 +66,7 @@ export class Condition extends Type<ConditionDefinition> {
             logger.warn(
                 `Condition ${this.name} has an operand that resolved to undefined. operand1=${operand1}, operand2=${operand2}`,
                 {
-                    condition: this
+                    condition: this,
                 }
             )
         }

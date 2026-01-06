@@ -230,16 +230,10 @@ export class Button extends Type<ButtonDefinition> {
     }
 
     private onPointerMove(event: FederatedPointerEvent) {
-        this.lastMousePosition.set(
-            Math.floor(event.screen.x),
-            Math.floor(event.screen.y)
-        )
+        this.lastMousePosition.set(Math.floor(event.screen.x), Math.floor(event.screen.y))
 
         if (this.draggingPosition == null) {
-            this.draggingPosition = new Point(
-                Math.floor(event.screen.x),
-                Math.floor(event.screen.y)
-            )
+            this.draggingPosition = new Point(Math.floor(event.screen.x), Math.floor(event.screen.y))
             this.draggingActive = true
         }
     }

@@ -27,7 +27,7 @@ export const parseSequence = (content: string): SequenceFile => {
             const [objectName, variableName, subKey] = key.split(':')
             const object = objectsMap.get(objectName)
             if (object === undefined) {
-                throw new Error("Object not found")
+                throw new Error('Object not found')
             }
 
             const definition = structureDefinitions[object.TYPE]

@@ -1,10 +1,10 @@
 {
-  "name": "reksio-formats",
-  "version": "0.0.4",
-  "author": "Adikso",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ReksioEngine/ReksioEngine.git"
-  }
+    "name": "reksio-formats",
+    "version": "0.0.4",
+    "author": "Adikso",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ReksioEngine/ReksioEngine.git"
+    }
 }

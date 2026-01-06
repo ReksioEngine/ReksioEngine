@@ -15,7 +15,10 @@ import { Type, ValueType } from '../../engine/types'
 import { assert } from '../../common/errors'
 
 export class ExpressionEvaluator extends ReksioIFExpressionVisitor<any> {
-    constructor(private engine: Engine, private caller: Type<any> | null) {
+    constructor(
+        private engine: Engine,
+        private caller: Type<any> | null
+    ) {
         super()
     }
 

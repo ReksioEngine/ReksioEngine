@@ -33,7 +33,10 @@ export class ScopeManager {
             return local
         }
 
-        const startIndex = parentScope && this.scopes.includes(parentScope) ? this.scopes.length - 1 - this.scopes.indexOf(parentScope) : 0
+        const startIndex =
+            parentScope && this.scopes.includes(parentScope)
+                ? this.scopes.length - 1 - this.scopes.indexOf(parentScope)
+                : 0
         return this._find(byName(name), this.scopes, startIndex)
     }
 
@@ -45,7 +48,11 @@ export class ScopeManager {
         return this._find(callback, scopes ?? this.scopes)
     }
 
-    public _find<TYPE>(callback: (key: string, object: Type<any>) => boolean, scopes: Array<Scope>, level = 0): TYPE | null {
+    public _find<TYPE>(
+        callback: (key: string, object: Type<any>) => boolean,
+        scopes: Array<Scope>,
+        level = 0
+    ): TYPE | null {
         const scope = scopes[scopes.length - 1 - level]
         if (!scope) {
             return null

@@ -90,7 +90,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             'CNVLOADER',
             new CNVLoader(this.engine, null, {
                 TYPE: 'CNVLOADER',
-                NAME: 'CNVLOADER'
+                NAME: 'CNVLOADER',
             })
         )
     }
@@ -186,7 +186,8 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
         const method = object[methodName]
 
         this.methodCallUsedVariables = {}
-        const args = ctx.methodCallArguments() != null ? await this.visitMethodCallArguments(ctx.methodCallArguments()) : []
+        const args =
+            ctx.methodCallArguments() != null ? await this.visitMethodCallArguments(ctx.methodCallArguments()) : []
         const argsVariables = this.methodCallUsedVariables
         this.methodCallUsedVariables = {}
 
@@ -268,14 +269,14 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
             typeof a === 'string'
                 ? a.toString().startsWith('"')
                     ? a.toString().replace(/^"|"$/g, '')
-                    : (await this.getObject<ValueType<any, any>>(valueAsString(a))?.getValue() ?? a)
+                    : ((await this.getObject<ValueType<any, any>>(valueAsString(a))?.getValue()) ?? a)
                 : a
 
         const right =
             typeof b === 'string'
                 ? b.toString().startsWith('"')
                     ? b.toString().replace(/^"|"$/g, '')
-                    : (await this.getObject<ValueType<any, any>>(valueAsString(b))?.getValue() ?? b)
+                    : ((await this.getObject<ValueType<any, any>>(valueAsString(b))?.getValue()) ?? b)
                 : b
 
         if (operator == '_') {
@@ -298,7 +299,8 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
     visitSpecialCall = async (ctx: SpecialCallContext) => {
         this.lastContext = ctx
         const methodName = ctx.methodName().getText()
-        const args = ctx.methodCallArguments() != null ? await this.visitMethodCallArguments(ctx.methodCallArguments()) : []
+        const args =
+            ctx.methodCallArguments() != null ? await this.visitMethodCallArguments(ctx.methodCallArguments()) : []
 
         const stackFrame = StackFrame.builder()
             .type('specialCall')
@@ -380,14 +382,7 @@ export class ScriptEvaluator extends ReksioLangParserVisitor<any> {
 
                 while (await this.resolveConditionalCall(a, operator, b)) {
                     try {
-                        await this.engine.scripting.executeCallback(
-                            null,
-                            this.caller,
-                            callback,
-                            [],
-                            undefined,
-                            true
-                        )
+                        await this.engine.scripting.executeCallback(null, this.caller, callback, [], undefined, true)
                     } catch (err) {
                         if (err instanceof InterruptScriptExecution) {
                             if (err.one) {
@@ -594,7 +589,7 @@ export const runScript = async (
         ) {
             logger.error(`Lexer error: ${msg} at ${line}:${column}\n${script}`, {
                 caller,
-                args
+                args,
             })
             printStackTrace()
         },
@@ -614,7 +609,7 @@ export const runScript = async (
         ) {
             logger.error(`Parser error: ${msg} at ${line}:${column}\n${script}`, {
                 caller,
-                args
+                args,
             })
             printStackTrace()
         },

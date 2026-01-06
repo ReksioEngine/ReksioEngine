@@ -85,7 +85,7 @@ export class Keyboard extends Type<KeyboardDefinition> {
         const mapped = keysMapping[keyCode]
         if (!mapped) {
             logger.warn(`Unsupported keyboard key code ${keyCode}`, {
-                supportedKeys: Object.keys(keysMapping)
+                supportedKeys: Object.keys(keysMapping),
             })
         }
         this.keysState.set(mapped, value)

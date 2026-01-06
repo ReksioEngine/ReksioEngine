@@ -41,9 +41,12 @@ export const number = {
     processor: (object: any, key: string, param: string, value: string) => {
         const result = Number(value.startsWith('"') ? value.slice(1, -1) : value)
         if (isNaN(result)) {
-            logger.warn(`NaN value was provided for number field.\n${fieldAssignmentAsString(object, key, param, value)}`, {
-                object,
-            })
+            logger.warn(
+                `NaN value was provided for number field.\n${fieldAssignmentAsString(object, key, param, value)}`,
+                {
+                    object,
+                }
+            )
             return 0
         }
         return result

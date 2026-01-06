@@ -69,7 +69,7 @@ export class Struct extends Type<StructDefinition> {
     }
 
     async clone(): Promise<Struct> {
-        const clone = await super.clone() as Struct
+        const clone = (await super.clone()) as Struct
         clone.structure = this.structure
         await clone.initializeContent()
         return clone

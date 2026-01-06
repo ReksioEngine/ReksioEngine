@@ -130,7 +130,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
             logger.debug(`ANN file '${path}' loaded successfully!`, {
                 animo: this,
-                annFile
+                annFile,
             })
             return annFile
         } catch (err) {
@@ -149,11 +149,15 @@ export class Animo extends DisplayType<AnimoDefinition> {
                 const sound = await loadSound(this.engine.filesystem, resolvedPath)
                 this.sounds.set(filename, sound)
             } catch (err) {
-                logger.warn('Failed to load sfx sound', {
-                    animo: this,
-                    filename,
-                    resolvedPath
-                }, err)
+                logger.warn(
+                    'Failed to load sfx sound',
+                    {
+                        animo: this,
+                        filename,
+                        resolvedPath,
+                    },
+                    err
+                )
             }
         }
 
@@ -294,7 +298,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const eventFrame = event.frames[frameIdx]
         if (eventFrame === undefined) {
             logger.warn(`Attempted to change to non-existent frame ${frameIdx}`, {
-                animo: this
+                animo: this,
             })
             return
         }
@@ -329,7 +333,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const annImage = this.annFile.annImages[imageIndex]
         if (annImage === undefined) {
             logger.warn(`Attempted to change to non-existent frame image ${imageIndex}`, {
-                animo: this
+                animo: this,
             })
             return
         }
@@ -765,7 +769,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     async clone() {
-        const clone = await super.clone() as Animo
+        const clone = (await super.clone()) as Animo
         clone.isPlaying = this.isPlaying
         clone.currentFrame = this.currentFrame
         clone.currentEvent = this.currentEvent

@@ -1,12 +1,12 @@
 {
-  "name": "reksioengine",
-  "version": "0.0.1",
-  "main": "reksioengine.js",
-  "types": "types/index.d.ts",
-  "author": "Adikso",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ReksioEngine/ReksioEngine.git"
-  }
+    "name": "reksioengine",
+    "version": "0.0.1",
+    "main": "reksioengine.js",
+    "types": "types/index.d.ts",
+    "author": "Adikso",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ReksioEngine/ReksioEngine.git"
+    }
 }

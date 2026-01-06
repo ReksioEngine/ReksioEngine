@@ -31,10 +31,10 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
         let result
         switch (this.definition.OPERATOR) {
             case 'AND':
-                result = await condition1.CHECK(arg) && await condition2.CHECK(arg)
+                result = (await condition1.CHECK(arg)) && (await condition2.CHECK(arg))
                 break
             case 'OR':
-                result = await condition1.CHECK(arg) || await condition2.CHECK(arg)
+                result = (await condition1.CHECK(arg)) || (await condition2.CHECK(arg))
                 break
         }
 

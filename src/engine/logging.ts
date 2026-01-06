@@ -94,10 +94,10 @@ class Logger {
         const formatInfo: FormatInfo =
             typeof formatting === 'string'
                 ? {
-                    text: formatting,
-                    richText: formatting,
-                    richArgs: [],
-                }
+                      text: formatting,
+                      richText: formatting,
+                      richArgs: [],
+                  }
                 : formatting
 
         const formatInfoWithExtra = this.appendExtraData(formatInfo, extraData)

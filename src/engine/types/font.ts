@@ -10,14 +10,15 @@ export class Font extends Type<FontDefinition> {
     async init() {
         const filename = this.definition['DEF_%s_%s_%d']
         try {
-            const relativePath = this.engine.currentScene !== null
-                ? await this.engine.currentScene.getRelativePath(filename)
-                : await this.engine.resolvePath(filename)
+            const relativePath =
+                this.engine.currentScene !== null
+                    ? await this.engine.currentScene.getRelativePath(filename)
+                    : await this.engine.resolvePath(filename)
             this.bitmapFont = await this.engine.filesystem.getFNTFile(relativePath)
         } catch (err) {
             if (err instanceof FileNotFoundError) {
                 logger.warn(`FNT file not found at "${filename}"`, {
-                    font: this
+                    font: this,
                 })
             }
         }

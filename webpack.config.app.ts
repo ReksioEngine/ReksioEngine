@@ -38,7 +38,7 @@ module.exports = (env: any) => ({
             },
             {
                 test: /\.html$/i,
-                loader: "html-loader",
+                loader: 'html-loader',
             },
         ],
     },

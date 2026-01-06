@@ -9,10 +9,12 @@ While the game is not fully playable yet - you can have a look at the current pr
 ## Current state (2025-03-12)
 
 ### Reksio i Skarb Piratów
+
 **Progress**: 100% of the game scenes appear to work, but we are still testing. \
 **Detailed progress**: https://github.com/orgs/ReksioEngine/projects/2
 
 ### Reksio i Ufo
+
 **Breaking point**: At around 30% of play time. You can't start digging minigame. \
 **Progress**: Around 85% of the game scenes appear to work. \
 **Detailed progress**: https://github.com/orgs/ReksioEngine/projects/1

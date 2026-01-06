@@ -102,22 +102,22 @@ const extractAlphaChannel = (data: Uint8ClampedArray) => {
 }
 
 const convertToRgba32 = (bytes: Uint8Array, alphaBytes?: Uint8Array): Uint8Array => {
-    const numPixels = bytes.byteLength >>> 1;
-    const rgba = new Uint8Array(numPixels * 4);
-    const input16 = new Uint16Array(bytes.buffer, bytes.byteOffset, numPixels);
-    const pixels32 = new Uint32Array(rgba.buffer, rgba.byteOffset, numPixels);
-    const hasAlphaBytes = alphaBytes && alphaBytes.length > 0;
+    const numPixels = bytes.byteLength >>> 1
+    const rgba = new Uint8Array(numPixels * 4)
+    const input16 = new Uint16Array(bytes.buffer, bytes.byteOffset, numPixels)
+    const pixels32 = new Uint32Array(rgba.buffer, rgba.byteOffset, numPixels)
+    const hasAlphaBytes = alphaBytes && alphaBytes.length > 0
     for (let i = 0; i < numPixels; i++) {
-        let temp = input16[i];
-        const b = (temp & 0x1F) << 3;
-        temp >>>= 5;
-        const g = (temp & 0x3F) << 2;
-        temp >>>= 6;
-        const r = (temp & 0x1F) << 3;
-        const a = hasAlphaBytes ? alphaBytes![i] : 255;
-        pixels32[i] = r | (g << 8) | (b << 16) | (a << 24);
+        let temp = input16[i]
+        const b = (temp & 0x1f) << 3
+        temp >>>= 5
+        const g = (temp & 0x3f) << 2
+        temp >>>= 6
+        const r = (temp & 0x1f) << 3
+        const a = hasAlphaBytes ? alphaBytes![i] : 255
+        pixels32[i] = r | (g << 8) | (b << 16) | (a << 24)
     }
-    return rgba;
+    return rgba
 }
 
 export const loadImage = (data: ArrayBuffer): Image => {

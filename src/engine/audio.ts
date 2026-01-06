@@ -47,7 +47,11 @@ export class SoundInstance extends EventTarget {
 
     private cleanupSource() {
         if (!this.source) return
-        try { this.source.disconnect() } catch { /* ignore */ }
+        try {
+            this.source.disconnect()
+        } catch {
+            /* ignore */
+        }
         this.source = null
     }
 
@@ -100,7 +104,11 @@ export class SoundInstance extends EventTarget {
         if (!this.source || this.finished) return
         this.stopRequested = true
 
-        try { this.source.stop() } catch { /* ignore */ }
+        try {
+            this.source.stop()
+        } catch {
+            /* ignore */
+        }
         this.finalize('stop')
         this.offset = 0
     }
@@ -111,7 +119,11 @@ export class SoundInstance extends EventTarget {
         const elapsed = (this.ctx.currentTime - this.startedAt) * this.currentRate
         this.offset = (this.offset + elapsed) % this.parentSound.buffer.duration
 
-        try { this.source.stop() } catch { /* ignore */ }
+        try {
+            this.source.stop()
+        } catch {
+            /* ignore */
+        }
         this.finalize('pause')
     }
 
@@ -168,7 +180,10 @@ export class SoundInstance extends EventTarget {
 export class Sound {
     public instances: SoundInstance[] = []
 
-    constructor(private manager: AudioManager, public buffer: AudioBuffer) {}
+    constructor(
+        private manager: AudioManager,
+        public buffer: AudioBuffer
+    ) {}
 
     _removeInstance(inst: SoundInstance) {
         const i = this.instances.indexOf(inst)
@@ -199,7 +214,7 @@ export class Sound {
     }
 
     get isPlaying() {
-        return this.instances.some(instance => instance.isPlaying)
+        return this.instances.some((instance) => instance.isPlaying)
     }
 }
 
@@ -234,7 +249,7 @@ export class AudioManager {
 
     setGlobalRate(v: number) {
         this.speed = v
-        this.sounds.forEach((s) => s.instances.forEach(instance => instance.speed = this.speed))
+        this.sounds.forEach((s) => s.instances.forEach((instance) => (instance.speed = this.speed)))
     }
 
     pause() {

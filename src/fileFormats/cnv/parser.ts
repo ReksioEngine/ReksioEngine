@@ -93,25 +93,33 @@ export const parseCNV = (content: string) => {
                     }
                 } catch (err) {
                     if (err instanceof FieldProcessorRecoverableError) {
-                        logger.error('Recoverable error occured', {
+                        logger.error(
+                            'Recoverable error occured',
+                            {
+                                objectName,
+                                objectType: object.TYPE,
+                                object,
+                                fieldName,
+                                param,
+                                value,
+                            },
+                            err
+                        )
+                        continue
+                    }
+
+                    logger.error(
+                        'Failed to process CNV field',
+                        {
                             objectName,
                             objectType: object.TYPE,
                             object,
                             fieldName,
                             param,
-                            value
-                        }, err)
-                        continue
-                    }
-
-                    logger.error('Failed to process CNV field', {
-                        objectName,
-                        objectType: object.TYPE,
-                        object,
-                        fieldName,
-                        param,
-                        value
-                    }, err)
+                            value,
+                        },
+                        err
+                    )
                     throw err
                 }
             } else {
@@ -120,20 +128,20 @@ export const parseCNV = (content: string) => {
                         logger.warn(
                             `Unsupported parametrized event callback "${variableName}" with param "${param}" in type ${object.TYPE}`,
                             {
-                                object
+                                object,
                             }
                         )
                     } else {
                         logger.warn(
                             `Unsupported non-parametrized event callback "${variableName}" in type ${object.TYPE}`,
                             {
-                                object
+                                object,
                             }
                         )
                     }
                 } else if (variableName !== 'TYPE') {
                     logger.warn(`Unsupported field ${variableName} in type ${object.TYPE}`, {
-                        object
+                        object,
                     })
                 }
                 object[variableName] = value
@@ -148,7 +156,7 @@ export const parseCNV = (content: string) => {
 
             if (!(field in object) && !typeInfo?.flags?.optional) {
                 logger.warn(`Field '${field}' in type ${object.TYPE} is missing but is not optional`, {
-                    object
+                    object,
                 })
             }
         }

@@ -16,7 +16,7 @@ export class Group extends Type<GroupDefinition> {
             const object = this.getObject(objectName)
             if (object === null) {
                 logger.warn(`Script was trying to add non-existing object "${objectName}" to a group "${this.name}"`, {
-                    group: this
+                    group: this,
                 })
             } else {
                 this.objects.push(object)
@@ -35,10 +35,13 @@ export class Group extends Type<GroupDefinition> {
                 await object[methodName](...args)
             } else {
                 const argumentsString = args?.map((arg) => typeof arg).join(', ')
-                logger.warn(`Method '${methodName}(${argumentsString ?? ''})' does not exist in ${object.constructor.name}`, {
-                    object,
-                    args
-                })
+                logger.warn(
+                    `Method '${methodName}(${argumentsString ?? ''})' does not exist in ${object.constructor.name}`,
+                    {
+                        object,
+                        args,
+                    }
+                )
             }
         }
     }

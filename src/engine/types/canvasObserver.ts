@@ -68,9 +68,10 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
     async SAVE(filename: string, scaleX: number, scaleY: number, left = 0, top = 0, right = 0, bottom = 0) {
         assert(this.engine.currentScene !== null)
 
-        const rectangle = (right != left && bottom != top)
-            ? new Rectangle(left, top, right-left, bottom-top)
-            : new Rectangle(0, 0, this.engine.app.view.width, this.engine.app.view.height)
+        const rectangle =
+            right != left && bottom != top
+                ? new Rectangle(left, top, right - left, bottom - top)
+                : new Rectangle(0, 0, this.engine.app.view.width, this.engine.app.view.height)
 
         const originalCanvas = await this.engine.app.renderer.extract.image(
             this.engine.app.stage,
@@ -106,12 +107,9 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
 
         const virtualPath = await this.engine.currentScene.getRelativePath(filename)
         logger.debug(`Saving canvas to "${virtualPath}"`, {
-            observer: this
+            observer: this,
         })
 
-        await this.engine.filesystem.saveFile(
-            virtualPath,
-            imgFile
-        )
+        await this.engine.filesystem.saveFile(virtualPath, imgFile)
     }
 }

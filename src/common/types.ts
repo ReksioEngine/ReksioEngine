@@ -140,9 +140,7 @@ export const isDirectlyConvertible = (value: any, type: parameterType) => {
                 value.toString().toUpperCase() === 'FALSE'
             )
         case 'number':
-            return typeof value === 'number' ||
-                value === null ||
-                !Number.isNaN(toNumber(value))
+            return typeof value === 'number' || value === null || !Number.isNaN(toNumber(value))
         default:
             return false
     }
@@ -260,7 +258,7 @@ export function method(...types: parameter[]) {
                 logger.warn('More arguments given than method accepts', {
                     function: originalMethod.name,
                     processedArgs,
-                    newArgs
+                    newArgs,
                 })
                 printStackTrace()
             }

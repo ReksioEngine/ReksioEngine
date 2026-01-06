@@ -475,7 +475,7 @@ export type StructDefinition = TypeDefinition & {
 }
 
 const StructDefinitionStructure = {
-    FIELDS: string
+    FIELDS: string,
 }
 
 export type SystemDefinition = TypeDefinition

@@ -110,7 +110,7 @@ export class Sequence extends Type<SequenceDefinition> {
         const sounds = await Promise.all(
             soundsNames.map(async (name: string): Promise<Sound> => {
                 logger.debug(`Preloading sound ${name}...`, {
-                    sequence: this
+                    sequence: this,
                 })
                 return loadSound(this.engine.filesystem, `Wavs/${name}`)
             })
@@ -258,13 +258,13 @@ export class Sequence extends Type<SequenceDefinition> {
                 }
 
                 logger.debug(`Playing sound '${speaking.WAVFN}'`, {
-                    sequence: this
+                    sequence: this,
                 })
                 const sound = this.sounds.get(speaking.WAVFN)!
                 this.playingSound = sound.play({
                     onEnd: () => {
                         this.endedSpeakingSoundsQueue.push(speaking)
-                    }
+                    },
                 })
 
                 const startEvent = speaking.PREFIX + '_START'

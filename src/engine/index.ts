@@ -61,7 +61,7 @@ export class Engine {
 
             this.debug.setupDebugTools()
         } catch (err) {
-            logger.error("Unhandled error occurred during initialization", null, err)
+            logger.error('Unhandled error occurred during initialization', null, err)
         }
     }
 
@@ -91,9 +91,13 @@ export class Engine {
                 return
             }
 
-            logger.error("Unhandled error occurred during start", {
-                scopes: this.scopeManager.scopes
-            }, err)
+            logger.error(
+                'Unhandled error occurred during start',
+                {
+                    scopes: this.scopeManager.scopes,
+                },
+                err
+            )
         }
     }
 
@@ -118,19 +122,18 @@ export class Engine {
                         return
                     } else if (err instanceof IrrecoverableError) {
                         logger.error(
-                            'Irrecoverable error occurred. Execution paused\n' +
-                            'Call "engine.resume()" to resume',
+                            'Irrecoverable error occurred. Execution paused\n' + 'Call "engine.resume()" to resume',
                             {
-                                scopes: this.scopeManager.scopes
+                                scopes: this.scopeManager.scopes,
                             },
                             err
                         )
                     } else {
                         logger.error(
                             'Unhandled error occurred during tick. Execution paused\n' +
-                            'Call "engine.resume()" to resume',
+                                'Call "engine.resume()" to resume',
                             {
-                                scopes: this.scopeManager.scopes
+                                scopes: this.scopeManager.scopes,
                             },
                             err
                         )
@@ -186,19 +189,14 @@ export class Engine {
             // For debugging purposes.
             const leakedObjects = this.app.stage.children.filter(
                 (obj) =>
-                    ![
-                        loadingFreezeOverlay,
-                        this.rendering.loadingOverlay,
-                        this.rendering.canvasBackground,
-                    ].includes(obj as any)
+                    ![loadingFreezeOverlay, this.rendering.loadingOverlay, this.rendering.canvasBackground].includes(
+                        obj as any
+                    )
             )
             if (leakedObjects.length > 0) {
-                logger.error(
-                    'Display objects leak detected',
-                    {
-                        leakedObjects
-                    }
-                )
+                logger.error('Display objects leak detected', {
+                    leakedObjects,
+                })
             }
 
             this.previousScene = this.currentScene

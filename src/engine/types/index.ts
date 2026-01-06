@@ -94,10 +94,13 @@ export class Type<DefinitionType extends TypeDefinition> {
     // Called when trying to call a method that is not existing for a type
     __call(methodName: string, args: any[]) {
         const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : ''
-        logger.error(`Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.`, {
-            object: this,
-            args
-        })
+        logger.error(
+            `Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.`,
+            {
+                object: this,
+                args,
+            }
+        )
     }
 
     async clone(): Promise<Type<DefinitionType>> {
@@ -173,13 +176,8 @@ export class ValueType<DefinitionType extends ValueTypeDefinition, TypeOfValue> 
     @method()
     async COPYFILE(from: string, to: string) {
         console.debug(`Copying file ${from} to ${to}`)
-        const sourceData = await this.engine.filesystem.getFile(
-            await this.engine.resolvePath(from)
-        )
-        await this.engine.filesystem.saveFile(
-            await this.engine.resolvePath(to),
-            sourceData
-        )
+        const sourceData = await this.engine.filesystem.getFile(await this.engine.resolvePath(from))
+        await this.engine.filesystem.saveFile(await this.engine.resolvePath(to), sourceData)
     }
 
     valueOf() {
