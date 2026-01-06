@@ -34001,8 +34001,7 @@ class Engine {
             this.music.pause();
         }
         this.rendering.onSceneChange();
-        this.app.stage.addChild(this.rendering.loadingDarkOverlay);
-        this.app.stage.addChild(this.rendering.loadingText);
+        this.app.stage.addChild(this.rendering.loadingOverlay);
         this.app.renderer.render(this.app.stage);
         const loadingFreezeOverlay = pixi_js_1.Sprite.from(await this.app.renderer.extract.image(this.app.stage, undefined, undefined, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height)));
         loadingFreezeOverlay.name = 'Loading freeze overlay';
@@ -34022,8 +34021,7 @@ class Engine {
             // For debugging purposes.
             const leakedObjects = this.app.stage.children.filter((obj) => ![
                 loadingFreezeOverlay,
-                this.rendering.loadingDarkOverlay,
-                this.rendering.loadingText,
+                this.rendering.loadingOverlay,
                 this.rendering.canvasBackground,
             ].includes(obj));
             if (leakedObjects.length > 0) {
@@ -34087,8 +34085,7 @@ class Engine {
         }
         finally {
             this.app.stage.removeChild(loadingFreezeOverlay);
-            this.app.stage.removeChild(this.rendering.loadingDarkOverlay);
-            this.app.stage.removeChild(this.rendering.loadingText);
+            this.app.stage.removeChild(this.rendering.loadingOverlay);
             this.app.ticker.start();
             this.debug.updateCurrentScene();
         }
@@ -34175,8 +34172,8 @@ class RenderingManager {
         this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
         this.canvasBackground.zIndex = -99999;
         this.canvasBackground.name = 'Scene Background'; // For PIXI Devtools
-        this.loadingDarkOverlay = pixi_js_1.Sprite.from((0, exports.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0x000000, 0.5));
-        this.loadingText = new pixi_js_1.Text('Loading..', new pixi_js_1.TextStyle({
+        const loadingDarkOverlay = pixi_js_1.Sprite.from((0, exports.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0x000000, 0.5));
+        const loadingText = new pixi_js_1.Text('Loading..', new pixi_js_1.TextStyle({
             fontFamily: 'Arial',
             fontSize: 36,
             fontWeight: 'bold',
@@ -34192,9 +34189,12 @@ class RenderingManager {
             wordWrapWidth: 440,
             lineJoin: 'round',
         }));
-        this.loadingText.x = this.app.view.width / 2;
-        this.loadingText.y = this.app.view.height / 2;
-        this.loadingText.anchor.set(0.5, 0.5);
+        loadingText.x = this.app.view.width / 2;
+        loadingText.y = this.app.view.height / 2;
+        loadingText.anchor.set(0.5, 0.5);
+        this.loadingOverlay = new pixi_js_1.Container();
+        this.loadingOverlay.addChild(loadingDarkOverlay);
+        this.loadingOverlay.addChild(loadingText);
     }
     init() {
         this.app.ticker.maxFPS = 60;
