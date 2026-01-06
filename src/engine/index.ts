@@ -162,8 +162,7 @@ export class Engine {
 
         this.rendering.onSceneChange()
 
-        this.app.stage.addChild(this.rendering.loadingDarkOverlay)
-        this.app.stage.addChild(this.rendering.loadingText)
+        this.app.stage.addChild(this.rendering.loadingOverlay)
         this.app.renderer.render(this.app.stage)
 
         const loadingFreezeOverlay = Sprite.from(
@@ -195,8 +194,7 @@ export class Engine {
                 (obj) =>
                     ![
                         loadingFreezeOverlay,
-                        this.rendering.loadingDarkOverlay,
-                        this.rendering.loadingText,
+                        this.rendering.loadingOverlay,
                         this.rendering.canvasBackground,
                     ].includes(obj as any)
             )
@@ -271,8 +269,7 @@ export class Engine {
             }
         } finally {
             this.app.stage.removeChild(loadingFreezeOverlay)
-            this.app.stage.removeChild(this.rendering.loadingDarkOverlay)
-            this.app.stage.removeChild(this.rendering.loadingText)
+            this.app.stage.removeChild(this.rendering.loadingOverlay)
 
             this.app.ticker.start()
             this.debug.updateCurrentScene()
