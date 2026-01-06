@@ -6,6 +6,7 @@ import { method } from '../../common/types'
 import { AdvancedSprite } from '../rendering'
 import { assert } from '../../common/errors'
 import { buildImage } from '../../fileFormats/img'
+import { logger } from '../logging'
 
 export class CanvasObserver extends Type<CanvasObserverDefinition> {
     @method()
@@ -103,9 +104,13 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
             pixels
         )
 
-        console.log(`Saving image to ${await this.engine.currentScene.getRelativePath(filename)}`)
+        const virtualPath = await this.engine.currentScene.getRelativePath(filename)
+        logger.debug(`Saving canvas to "${virtualPath}"`, {
+            observer: this
+        })
+
         await this.engine.filesystem.saveFile(
-            await this.engine.currentScene.getRelativePath(filename),
+            virtualPath,
             imgFile
         )
     }

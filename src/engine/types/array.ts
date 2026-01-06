@@ -5,6 +5,7 @@ import { assert } from '../../common/errors'
 import { method, valueAsString } from '../../common/types'
 import { FileNotFoundError } from '../../filesystem/fileLoader'
 import { serializeArray } from '../../fileFormats/archive/array'
+import { logger } from '../logging'
 
 const generateMessage = (action: string, position: number, value: any[]) => {
     return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`
@@ -123,7 +124,9 @@ export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
             this.value = await this.engine.filesystem.getARRFile(await this.engine.currentScene.getRelativePath(path))
         } catch (err) {
             if (err instanceof FileNotFoundError) {
-                console.error(err)
+                logger.error(`Failed to load array from "${path}"`, {
+                    array: this
+                }, err)
             } else {
                 throw err
             }

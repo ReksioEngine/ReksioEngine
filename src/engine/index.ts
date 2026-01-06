@@ -15,6 +15,7 @@ import { Episode } from './types/episode'
 import { Type } from './types'
 import Filesystem, { pathJoin } from '../filesystem'
 import { globalAudio, SoundInstance } from './audio'
+import { logger } from './logging'
 
 export class Engine {
     public debug: Debugging
@@ -60,8 +61,7 @@ export class Engine {
 
             this.debug.setupDebugTools()
         } catch (err) {
-            console.error('Unhandled error occurred during initialization')
-            console.error(err)
+            logger.error("Unhandled error occurred during initialization", null, err)
         }
     }
 
@@ -90,13 +90,10 @@ export class Engine {
                 }
                 return
             }
-            console.error(
-                'Unhandled error occurred during start\n%cGlobal scopes:%c%O',
-                'font-weight: bold',
-                'font-weight: inherit',
-                this.scopeManager.scopes
-            )
-            console.error(err)
+
+            logger.error("Unhandled error occurred during start", {
+                scopes: this.scopeManager.scopes
+            }, err)
         }
     }
 
@@ -120,26 +117,23 @@ export class Engine {
                         }
                         return
                     } else if (err instanceof IrrecoverableError) {
-                        console.error(
+                        logger.error(
                             'Irrecoverable error occurred. Execution paused\n' +
-                            'Call "engine.resume()" to resume\n' +
-                            '\n' +
-                            '%cGlobal scopes:%c%O',
-                            'font-weight: bold',
-                            'font-weight: inherit',
-                            this.scopeManager.scopes
+                            'Call "engine.resume()" to resume',
+                            {
+                                scopes: this.scopeManager.scopes
+                            },
+                            err
                         )
                     } else {
-                        console.error(
+                        logger.error(
                             'Unhandled error occurred during tick. Execution paused\n' +
-                            'Call "engine.resume()" to resume\n' +
-                            '\n' +
-                            '%cGlobal scopes:%c%O',
-                            'font-weight: bold',
-                            'font-weight: inherit',
-                            this.scopeManager.scopes
+                            'Call "engine.resume()" to resume',
+                            {
+                                scopes: this.scopeManager.scopes
+                            },
+                            err
                         )
-                        console.error(err)
                     }
                     this.pause()
                 }
@@ -199,7 +193,12 @@ export class Engine {
                     ].includes(obj as any)
             )
             if (leakedObjects.length > 0) {
-                console.error('Display objects leak detected', leakedObjects)
+                logger.error(
+                    'Display objects leak detected',
+                    {
+                        leakedObjects
+                    }
+                )
             }
 
             this.previousScene = this.currentScene

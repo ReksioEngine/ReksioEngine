@@ -16,6 +16,7 @@ import { loadSound } from '../../filesystem/assetsLoader'
 import { createObject } from '../../filesystem/definitionLoader'
 import { method } from '../../common/types'
 import { Sound, SoundInstance } from '../audio'
+import { logger } from '../logging'
 
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~'
 
@@ -108,7 +109,9 @@ export class Sequence extends Type<SequenceDefinition> {
 
         const sounds = await Promise.all(
             soundsNames.map(async (name: string): Promise<Sound> => {
-                console.debug(`Preloading sound ${name}...`)
+                logger.debug(`Preloading sound ${name}...`, {
+                    sequence: this
+                })
                 return loadSound(this.engine.filesystem, `Wavs/${name}`)
             })
         )
@@ -254,7 +257,9 @@ export class Sequence extends Type<SequenceDefinition> {
                     this.playingSound = null
                 }
 
-                console.debug(`Playing sound '${speaking.WAVFN}'`)
+                logger.debug(`Playing sound '${speaking.WAVFN}'`, {
+                    sequence: this
+                })
                 const sound = this.sounds.get(speaking.WAVFN)!
                 this.playingSound = sound.play({
                     onEnd: () => {

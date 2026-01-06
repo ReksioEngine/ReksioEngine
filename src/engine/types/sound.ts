@@ -5,6 +5,7 @@ import { FileNotFoundError } from '../../filesystem/fileLoader'
 import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
 import { Sound as ISound } from '../audio'
+import { logger } from '../logging'
 
 export class Sound extends Type<SoundDefinition> {
     private sound: ISound | null = null
@@ -84,7 +85,9 @@ export class Sound extends Type<SoundDefinition> {
                 // Ignore sound loading errors
                 // because there are some sounds for other language versions
                 // that it tries to load, but they are not there
-                console.warn(err)
+                logger.warn(`Failed to load sound "${path}"`, {
+                    sound: this
+                }, err)
             } else {
                 throw err
             }
@@ -92,12 +95,16 @@ export class Sound extends Type<SoundDefinition> {
     }
 
     private onStart() {
-        console.debug(`Playing sound '${this.definition.FILENAME}'`)
+        logger.debug(`Playing sound '${this.definition.FILENAME}'`, {
+            sound: this,
+        })
         this.callbacksQueue.push('ONSTARTED')
     }
 
     private onEnd() {
-        console.debug(`Finished playing sound '${this.definition.FILENAME}'`)
+        logger.debug(`Finished playing sound '${this.definition.FILENAME}'`, {
+            sound: this,
+        })
         this.callbacksQueue.push('ONFINISHED')
     }
 }

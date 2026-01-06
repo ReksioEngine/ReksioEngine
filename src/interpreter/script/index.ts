@@ -31,6 +31,7 @@ import { createCallback, reference } from '../../fileFormats/common'
 import { Integer } from '../../engine/types/integer'
 import { Struct } from '../../engine/types/struct'
 import { CNVLoader } from '../../engine/types/cnvloader'
+import { logger } from '../../engine/logging'
 
 export class InterruptScriptExecution extends IgnorableError {
     public one: boolean
@@ -591,7 +592,10 @@ export const runScript = async (
             column: number,
             msg: string
         ) {
-            console.error(`Lexer error: ${msg} at ${line}:${column}\n${script}`)
+            logger.error(`Lexer error: ${msg} at ${line}:${column}\n${script}`, {
+                caller,
+                args
+            })
             printStackTrace()
         },
     })
@@ -608,7 +612,10 @@ export const runScript = async (
             msg: string,
             _e: RecognitionException | undefined
         ) {
-            console.error(`Parser error: ${msg} at ${line}:${column}\n${script}`)
+            logger.error(`Parser error: ${msg} at ${line}:${column}\n${script}`, {
+                caller,
+                args
+            })
             printStackTrace()
         },
     })
@@ -623,7 +630,6 @@ export const runScript = async (
         } else if (!(err instanceof AlreadyDisplayedError)) {
             if (evaluator.lastContext) {
                 const code = evaluator.markInCode(evaluator.lastContext)
-
                 if (printDebug) {
                     console.error(
                         'Execution stopped due to irrecoverable error\n\n' + `%cCode:%c\n${code}`,

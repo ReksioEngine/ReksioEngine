@@ -12,6 +12,7 @@ import { AdvancedSprite, createHitmapFromImageBytes } from '../rendering'
 import { method } from '../../common/types'
 import { CollisionsComponent } from '../components/collisions'
 import { Sound } from '../audio'
+import { logger } from '../logging'
 
 export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent
@@ -127,7 +128,10 @@ export class Animo extends DisplayType<AnimoDefinition> {
             const annFile = await this.engine.filesystem.getANNFile(relativePath)
             await this.loadSfx(annFile)
 
-            console.debug(`File '${path}' loaded successfully!`)
+            logger.debug(`ANN file '${path}' loaded successfully!`, {
+                animo: this,
+                annFile
+            })
             return annFile
         } catch (err) {
             if (err instanceof FileNotFoundError) {
@@ -145,7 +149,11 @@ export class Animo extends DisplayType<AnimoDefinition> {
                 const sound = await loadSound(this.engine.filesystem, resolvedPath)
                 this.sounds.set(filename, sound)
             } catch (err) {
-                console.warn(err)
+                logger.warn('Failed to load sfx sound', {
+                    animo: this,
+                    filename,
+                    resolvedPath
+                }, err)
             }
         }
 
@@ -251,7 +259,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
             const randomFilename = filenames[Math.floor(Math.random() * filenames.length)]
 
             if (this.sounds.has(randomFilename)) {
-                console.debug(`Playing sound '${randomFilename}'`)
+                logger.debug(`Playing sound '${randomFilename}'`, {
+                    animo: this,
+                })
                 const sound = this.sounds.get(randomFilename)!
                 sound.play()
             }
@@ -283,7 +293,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         const eventFrame = event.frames[frameIdx]
         if (eventFrame === undefined) {
-            console.warn(`Attempted to change to non-existent frame ${frameIdx}`)
+            logger.warn(`Attempted to change to non-existent frame ${frameIdx}`, {
+                animo: this
+            })
             return
         }
 
@@ -316,7 +328,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         const annImage = this.annFile.annImages[imageIndex]
         if (annImage === undefined) {
-            console.warn(`Attempted to change to non-existent frame image ${imageIndex}`)
+            logger.warn(`Attempted to change to non-existent frame image ${imageIndex}`, {
+                animo: this
+            })
             return
         }
 
@@ -438,7 +452,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
                 this.anchorOffsetY = this.positionOffsetY + this.sprite.height
                 break
             default:
-                console.warn('Invalid anchor specifier - resetting anchor values.')
+                logger.warn('Invalid anchor specifier - resetting anchor values.', {
+                    animo: this,
+                })
                 this.anchorOffsetX = 0
                 this.anchorOffsetY = 0
                 break

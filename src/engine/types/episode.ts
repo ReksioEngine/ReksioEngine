@@ -5,6 +5,7 @@ import { loadDefinition, doReady } from '../../filesystem/definitionLoader'
 import { method } from '../../common/types'
 import { CancelTick } from '../index'
 import { pathJoin } from '../../filesystem'
+import { logger } from '../logging'
 
 export class Episode extends ParentType<EpisodeDefinition> {
     async init() {
@@ -42,7 +43,9 @@ export class Episode extends ParentType<EpisodeDefinition> {
         if (this.engine.previousScene) {
             this.GOTO(this.engine.previousScene.definition.NAME)
         } else {
-            console.warn('Attempted EPISODE^BACK() but there is no previous scene')
+            logger.warn('Attempted EPISODE^BACK() but there is no previous scene', {
+                episode: this
+            })
         }
     }
 }

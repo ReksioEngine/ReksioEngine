@@ -38,6 +38,7 @@ import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
 import { Struct } from '../engine/types/struct'
 import { Database } from '../engine/types/database'
 import { Class } from '../engine/types/class'
+import { logger } from '../engine/logging'
 
 const createTypeInstance = (engine: Engine, parent: ParentType<any> | null, definition: any) => {
     switch (definition.TYPE) {
@@ -114,7 +115,9 @@ const createTypeInstance = (engine: Engine, parent: ParentType<any> | null, defi
         case 'VECTOR':
             return new Vector(engine, parent, definition)
         default:
-            console.error(definition)
+            logger.error(`Failed to initialize object. Unknown object type '${definition.TYPE}'`, {
+                definition
+            })
             throw new Error(`Unknown object type '${definition.TYPE}'`)
     }
 }
@@ -173,7 +176,9 @@ export const loadDefinition = async (engine: Engine, scope: Scope, definition: C
             scope.remove(object.name)
             failedObjects.push(object)
 
-            console.error(`Failed to initialize object ${object.name}`, result.reason)
+            logger.error(`Failed to initialize object ${object.name}`, {
+                reason: result.reason
+            })
         }
     }
 

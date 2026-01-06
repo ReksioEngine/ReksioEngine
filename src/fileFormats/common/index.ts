@@ -1,3 +1,5 @@
+import { logger } from '../../engine/logging'
+
 type FieldTypeProcessor = (object: any, key: string, param: string, value: string) => any
 
 export type FieldTypeEntry = {
@@ -39,7 +41,9 @@ export const number = {
     processor: (object: any, key: string, param: string, value: string) => {
         const result = Number(value.startsWith('"') ? value.slice(1, -1) : value)
         if (isNaN(result)) {
-            console.warn(`NaN value was provided for number field.\n${fieldAssignmentAsString(object, key, param, value)}`)
+            logger.warn(`NaN value was provided for number field.\n${fieldAssignmentAsString(object, key, param, value)}`, {
+                object,
+            })
             return 0
         }
         return result
@@ -50,7 +54,9 @@ export const boolean = {
     name: 'boolean',
     processor: (object: any, key: string, param: string, value: string) => {
         if (value !== 'TRUE' && value !== 'FALSE' && value !== '0' && value !== '1') {
-            console.warn(`Expected TRUE, FALSE, 0 or 1.\n${fieldAssignmentAsString(object, key, param, value)}`)
+            logger.warn(`Expected TRUE, FALSE, 0 or 1.\n${fieldAssignmentAsString(object, key, param, value)}`, {
+                object,
+            })
             return false
         }
         if (value === '0' || value === '1') {

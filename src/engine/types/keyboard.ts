@@ -2,6 +2,7 @@ import { ParentType, Type } from './index'
 import { KeyboardDefinition, MusicDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { method } from '../../common/types'
+import { logger } from '../logging'
 
 const keysMapping = {
     ArrowLeft: 'LEFT',
@@ -83,7 +84,9 @@ export class Keyboard extends Type<KeyboardDefinition> {
     private setKeyState(keyCode: string, value: boolean) {
         const mapped = keysMapping[keyCode]
         if (!mapped) {
-            console.warn(`Unsupported keyboard key code ${keyCode}`)
+            logger.warn(`Unsupported keyboard key code ${keyCode}`, {
+                supportedKeys: Object.keys(keysMapping)
+            })
         }
         this.keysState.set(mapped, value)
         this.changeQueue.push({ name: mapped, state: value })

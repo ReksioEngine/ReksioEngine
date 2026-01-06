@@ -6,6 +6,7 @@ import { Engine } from './index'
 import { Scope } from './scope'
 import { Behaviour } from './types/behaviour'
 import { assert } from '../common/errors'
+import { logger } from './logging'
 
 export class ScriptingManager {
     private readonly engine: Engine
@@ -37,15 +38,10 @@ export class ScriptingManager {
                 return await runScript(this.engine, caller, callback.code, args, callback.isSingleStatement, true)
             } else if (callback.behaviourReference) {
                 if (!this.engine.getObject(callback.behaviourReference, caller?.parentScope)) {
-                    console.error(
-                        `Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!\n\n%cCallback:%c%O\n%cTHIS:%c%O`,
-                        'font-weight: bold',
-                        'font-weight: inherit',
+                    logger.error('Trying to execute behaviour "${callback.behaviourReference}" that doesn\'t exist!', {
                         callback,
-                        'font-weight: bold',
-                        'font-weight: inherit',
-                        thisRef
-                    )
+                        thisRef,
+                    })
                     return
                 }
 

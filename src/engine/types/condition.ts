@@ -2,6 +2,7 @@ import { Type } from './index'
 import { ConditionDefinition } from '../../fileFormats/cnv/types'
 import { InterruptScriptExecution } from '../../interpreter/script'
 import { Compare, method } from '../../common/types'
+import { logger } from '../logging'
 
 export class Condition extends Type<ConditionDefinition> {
     // arg is always true in ReksioIUfo
@@ -51,24 +52,18 @@ export class Condition extends Type<ConditionDefinition> {
                         break
                 }
             } catch (err) {
-                console.error(
-                    'Condition details\n' + '\n' + '%cCondition:%c%O\n%cOperand1:%c%O\n%cOperand2:%c%O\n',
-                    'font-weight: bold',
-                    'font-weight: inherit',
-                    this,
-                    'font-weight: bold',
-                    'font-weight: inherit',
-                    operand1,
-                    'font-weight: bold',
-                    'font-weight: inherit',
-                    operand2
-                )
+                logger.error('Error occured while evaluating condition', {
+                    condition: this
+                }, err)
                 throw err
             }
         } else {
             result = false
-            console.warn(
-                `Condition ${this.name} has an operand that resolved to undefined. operand1=${operand1}, operand2=${operand2}`
+            logger.warn(
+                `Condition ${this.name} has an operand that resolved to undefined. operand1=${operand1}, operand2=${operand2}`,
+                {
+                    condition: this
+                }
             )
         }
 

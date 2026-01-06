@@ -1,5 +1,6 @@
 import { assert, UnexpectedError } from './errors'
 import { printStackTrace } from '../interpreter/script/stacktrace'
+import { logger } from '../engine/logging'
 
 export const valueAsString = (value: any) => {
     if (value === null) {
@@ -256,10 +257,11 @@ export function method(...types: parameter[]) {
             }
 
             if (processedArgs < newArgs.length) {
-                console.warn([
-                    `Function: ${originalMethod.name}`,
-                    `More arguments given than method accepts`
-                ].join('\n'))
+                logger.warn('More arguments given than method accepts', {
+                    function: originalMethod.name,
+                    processedArgs,
+                    newArgs
+                })
                 printStackTrace()
             }
 

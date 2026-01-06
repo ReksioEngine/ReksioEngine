@@ -1,5 +1,6 @@
 import { Iso9660Reader, LocalIso9660Reader, RemoteIso9660Reader } from './iso9660'
 import { normalizePath } from './index'
+import { logger } from '../engine/logging'
 
 export class FileNotFoundError extends Error {
     constructor(filename: string) {
@@ -26,7 +27,7 @@ export abstract class UrlFileLoader extends SimpleFileLoader {
     protected abstract fetchFilesListing(): Promise<Map<string, string>>
 
     async init(): Promise<void> {
-        console.debug('Fetching files listing...')
+        logger.debug('Fetching files listing...')
         this.listing = await this.fetchFilesListing()
     }
 
@@ -36,7 +37,7 @@ export abstract class UrlFileLoader extends SimpleFileLoader {
 
     async getRawFile(filename: string): Promise<ArrayBuffer> {
         const normalizedFilename = normalizePath(filename)
-        console.debug(`Fetching '${normalizedFilename}'...`)
+        logger.debug(`Fetching '${normalizedFilename}'...`)
         const fileUrl = this.listing!.get(normalizedFilename)
         if (fileUrl == null) {
             throw new FileNotFoundError(normalizedFilename)

@@ -8,6 +8,7 @@ import { assert } from '../../common/errors'
 import { TypeDefinition } from '../../fileFormats/common'
 import { Engine } from '../index'
 import { Behaviour } from './behaviour'
+import { logger } from '../logging'
 
 export class Class extends Type<ClassDefinition> {
     public innerDefinition: CNV | null = null
@@ -58,7 +59,11 @@ export class ClassInstance extends ParentType<TypeDefinition>{
         assert(this.class.innerDefinition !== null)
         await loadDefinition(this.engine, this.scope, this.class.innerDefinition, this)
         await doReady(this.scope)
-        console.log(`Initialized class instance ${this.name} of ${this.class.name}`)
+
+        logger.debug(`${this.class.name} class instance ${this.name} initialized`, {
+            class: this,
+            instance: this
+        })
     }
 
     destroy() {

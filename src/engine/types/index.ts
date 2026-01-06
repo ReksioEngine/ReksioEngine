@@ -7,6 +7,7 @@ import { EventsComponent } from '../components/events'
 import { method } from '../../common/types'
 import { AdvancedSprite } from '../rendering'
 import { Scope } from '../scope'
+import { logger } from '../logging'
 
 export type XRayInfo = {
     type: string
@@ -93,11 +94,10 @@ export class Type<DefinitionType extends TypeDefinition> {
     // Called when trying to call a method that is not existing for a type
     __call(methodName: string, args: any[]) {
         const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : ''
-        console.error(
-            `Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.\nArguments: %O\nObject: %O`,
-            args,
-            this
-        )
+        logger.error(`Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.`, {
+            object: this,
+            args
+        })
     }
 
     async clone(): Promise<Type<DefinitionType>> {
