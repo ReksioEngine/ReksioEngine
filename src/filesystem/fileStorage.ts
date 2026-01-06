@@ -18,7 +18,7 @@ export class IndexedDBStorage extends FileStorage {
     async init() {
         this.db = await openDB(this.name, 1, {
             upgrade(
-                database: IDBPDatabase<unknown>,
+                database: IDBPDatabase,
             ) {
                 database.createObjectStore('filesystem')
             },

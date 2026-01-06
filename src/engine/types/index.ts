@@ -1,13 +1,12 @@
 import { Engine } from '../index'
 import { DisplayTypeDefinition, reference, TypeDefinition, ValueTypeDefinition } from '../../fileFormats/common'
 import { CallbacksComponent } from '../components/callbacks'
-import { Rectangle, Sprite } from 'pixi.js'
+import { Rectangle } from 'pixi.js'
 import { assert, NotImplementedError } from '../../common/errors'
 import { EventsComponent } from '../components/events'
 import { method } from '../../common/types'
 import { AdvancedSprite } from '../rendering'
 import { Scope } from '../scope'
-import { printStackTrace } from '../../interpreter/script/stacktrace'
 
 export type XRayInfo = {
     type: string
