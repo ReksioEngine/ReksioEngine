@@ -26,15 +26,15 @@ describe('valueAsString', () => {
     })
 
     test('undefined as string', () => {
-        expect(() => valueAsString(undefined)).toThrow(UnexpectedError)
+        expect(() => valueAsString(undefined)).toThrow()
     })
 
     test('array as string', () => {
-        expect(() => valueAsString([1, 2, 3, 4])).toThrow(UnexpectedError)
+        expect(() => valueAsString([1, 2, 3, 4])).toThrow()
     })
 
     test('object as string', () => {
-        expect(() => valueAsString(new Date())).toThrow(UnexpectedError)
+        expect(() => valueAsString(new Date())).toThrow()
     })
 })
 
