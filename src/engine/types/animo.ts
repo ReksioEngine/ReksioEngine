@@ -787,6 +787,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         await clone.initSprite()
         clone.sprite!.visible = this.sprite!.visible
+        clone.SETPRIORITY(this.GETPRIORITY())
         return clone
     }
 
