@@ -312,12 +312,20 @@ export class Matrix extends Type<MatrixDefinition> {
         this.cursorX = nextX
     }
 
+    isPlayerBelow(index: number) {
+        const column = this.getColumnFromIndex(index)
+        const row = this.getRowFromIndex(index)
+        const playerIndex = this.getIndexFromCoordinates(column, row + 1)
+        return playerIndex < this.board.length && this.board[playerIndex] === Field.MOLE
+    }
+
     async runCallback(name: string, x: number, y: number, code: number) {
         await this.callbacks.run(name, null, null, [x, y, code])
     }
 
     @method()
     async NEXT() {
+        let remaining = RemainingActions.NONE
         let y = this.cursorY
         let x = 0
         while (y >= 0) {
@@ -350,21 +358,30 @@ export class Matrix extends Type<MatrixDefinition> {
                 }
                 if (newIndex !== null && this.board[newIndex] !== Field.EXPLOSION) {
                     this.board[newIndex] = Field.STONE
+                    if (this.isPlayerBelow(newIndex)) {
+                        remaining = RemainingActions.PLAYER_COLLISION
+                    }
                 }
                 await this.getNextCursor(x, y)
                 if (this.stoneActionsDone()) {
                     this.cursorX = this.width
                     this.cursorY = -1
                     await this.runCallback('ONLATEST', x, y, callbackAction)
-                    return RemainingActions.NONE
+                } else {
+                    if (remaining === RemainingActions.NONE) {
+                        remaining = RemainingActions.STONE_UPDATES
+                    }
+                    await this.runCallback('ONNEXT', x, y, callbackAction)
                 }
-                await this.runCallback('ONNEXT', x, y, callbackAction)
-                return RemainingActions.STONE_UPDATES
+                if (remaining === RemainingActions.PLAYER_COLLISION) {
+                    await new Promise(r => setTimeout(r, 1));
+                }
+                return remaining
             }
             y--
         }
 
-        return RemainingActions.NONE
+        return remaining
     }
 
     async setByIndex(index: number, cellType: number) {
