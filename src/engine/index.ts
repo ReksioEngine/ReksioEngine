@@ -76,7 +76,8 @@ export class Engine {
 
             const episode: Episode | null = this.scopeManager.findByType('EPISODE')
             if (episode === null) {
-                throw new IrrecoverableError("Starting episode doesn't exist")
+                logger.error("Starting episode doesn't exist")
+                return
             }
 
             await this.debug.fillSceneSelector()
