@@ -186,6 +186,7 @@ export class Image extends DisplayType<ImageDefinition> {
         const clone = (await super.clone()) as unknown as Image
         clone.sprite = spriteClone
         this.engine.rendering.addToStage(clone.sprite)
+        clone.SETPRIORITY(this.GETPRIORITY())
         return clone
     }
 
