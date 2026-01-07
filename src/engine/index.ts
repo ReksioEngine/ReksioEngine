@@ -86,9 +86,7 @@ export class Engine {
             this.app.ticker.start()
         } catch (err) {
             if (err instanceof CancelTick) {
-                if (err.callback) {
-                    await err.callback()
-                }
+                await err.callback?.()
                 return
             }
 
@@ -117,9 +115,7 @@ export class Engine {
                     await object.tick(elapsedMS)
                 } catch (err) {
                     if (err instanceof CancelTick) {
-                        if (err.callback) {
-                            await err.callback()
-                        }
+                        await err.callback?.()
                         return
                     } else if (err instanceof IrrecoverableError) {
                         logger.error(
@@ -148,15 +144,9 @@ export class Engine {
     }
 
     async changeScene(sceneName: string) {
-        if (this.options.onSceneChange) {
-            this.options.onSceneChange(sceneName, this.currentScene?.name)
-        }
-
+        this.options.onSceneChange?.(sceneName, this.currentScene?.name)
         this.app.ticker.stop()
-
-        if (this.music !== null) {
-            this.music.pause()
-        }
+        this.music?.pause()
 
         this.rendering.onSceneChange()
 
@@ -279,7 +269,7 @@ export class Engine {
                 return currentScopeEntry
             }
 
-            return this.scopeManager.findByName(name, parentScope)
+            return currentScopeEntry ?? this.scopeManager.findByName(name, parentScope)
         } else if (name === null) {
             return null
         } else {
