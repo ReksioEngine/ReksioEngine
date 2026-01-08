@@ -415,7 +415,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async STOP(shouldSignal?: boolean | string) {
         this.isPlaying = false
         this.currentFrame = 0
-        if (shouldSignal !== false) {
+        if (shouldSignal !== false && shouldSignal !== 'FALSE') {
             await this.ONFINISHED()
         }
     }
@@ -787,6 +787,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         await clone.initSprite()
         clone.sprite!.visible = this.sprite!.visible
+        clone.SETPRIORITY(this.GETPRIORITY())
         return clone
     }
 
