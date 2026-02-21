@@ -620,9 +620,19 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    GETFRAMENAME(): string {
+    GETFRAMENAME(frameID?: string | number, iFrameNo?: number): string {
         assert(this.currentEvent !== null)
-        return this.currentEvent.frames[this.currentFrame].name
+
+        if (frameID === undefined && iFrameNo === undefined) {
+            return this.currentEvent.frames[this.currentFrame].name
+        }
+
+        assert(frameID !== undefined && iFrameNo !== undefined)
+        assert(this.annFile !== null)
+
+        const event = typeof frameID === 'string' ? this.getEvent(frameID) : this.annFile.events[frameID]
+        assert(event !== null)
+        return event?.frames[iFrameNo].name
     }
 
     @method()
