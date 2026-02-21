@@ -677,6 +677,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
+    GETNOE(): number {
+        assert(this.annFile !== null)
+        return this.annFile.events.length
+    }
+
+    @method()
     GETCURRFRAMEPOSX(): number {
         assert(this.currentEvent !== null)
         return this.currentEvent.frames[this.currentFrame].positionX
