@@ -18,7 +18,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent
     readonly collisions: CollisionsComponent
 
-    private isPlaying: boolean = false
+    public isPlaying: boolean = false
     private currentFrame: number = 0
     private currentEvent: Event | null = null
 

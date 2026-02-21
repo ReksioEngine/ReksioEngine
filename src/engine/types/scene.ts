@@ -5,6 +5,8 @@ import { assert, NotImplementedError } from '../../common/errors'
 import { method } from '../../common/types'
 import { loadSound } from '../../filesystem/assetsLoader'
 import { pathJoin } from '../../filesystem'
+import { Group } from './group'
+import { Animo } from './animo'
 
 export class Scene extends ParentType<SceneDefinition> {
     private minHSPriority = 0
@@ -80,7 +82,28 @@ export class Scene extends ParentType<SceneDefinition> {
     }
 
     @method()
-    GETPLAYINGANIMO(arg: number) {
+    GETPLAYINGANIMO(targetGroupName: string) {
+        const targetGroup = this.engine.getObject(targetGroupName)
+        if (targetGroup === null || !(targetGroup instanceof Group)) {
+            return
+        }
+
+        targetGroup.removeAll()
+
+        const scope = this.engine.currentScene?.scope;
+        if (!scope) {
+            return
+        }
+
+        for (const [key, value] of scope.content.entries()) {
+            if (value instanceof Animo && value.isPlaying) {
+                targetGroup.add(value)
+            }
+        }
+    }
+
+    @method()
+    RESUME() {
         throw new NotImplementedError()
     }
 

@@ -45,4 +45,12 @@ export class Group extends Type<GroupDefinition> {
             }
         }
     }
+
+    add(object: Type<any>) {
+        this.objects.push(object)
+    }
+
+    removeAll(): void {
+        this.objects = []
+    }
 }
