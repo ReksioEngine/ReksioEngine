@@ -5,7 +5,7 @@ import { Image } from './image'
 import { FederatedPointerEvent, Graphics, Point, Rectangle } from 'pixi.js'
 import { ButtonLogicComponent, Event, State } from '../components/button'
 import { Animo } from './animo'
-import { assert } from '../../common/errors'
+import { assert, NotImplementedError } from '../../common/errors'
 import { reference } from '../../fileFormats/common'
 import { method } from '../../common/types'
 
@@ -274,6 +274,11 @@ export class Button extends Type<ButtonDefinition> {
     @method()
     SETRECT(objectName: string) {
         this.setRect({ objectName })
+    }
+
+    @method()
+    SETSTD(graphicObjectName: string, removeFromCanvas: boolean = false, onBoundingBox: boolean = false) {
+        throw new NotImplementedError()
     }
 
     private registerInteractive(object: Image | Animo) {
