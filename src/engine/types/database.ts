@@ -88,17 +88,17 @@ export class Database extends Type<DatabaseDefinition> {
         const relativePath = await this.engine.currentScene.getRelativePath(path)
         const data = await this.engine.filesystem.getFile(relativePath)
         const content = decoder.decode(data)
-        const lines = content.replaceAll('\r\n', '\n').split('\n')
+        const lines = content.replaceAll('\r\n', '\n').trim().split('\n')
 
         const structFieldsNames = Array.from(this.baseStruct.structure.keys())
         for (const line of lines) {
             const fieldContents = line.split('|')
             const newEntry = await this.baseStruct.clone()
 
-            for (let i = 0; i < fieldContents.length; i++) {
+            for (let i = 0; i < structFieldsNames.length; i++) {
                 const fieldName = structFieldsNames[i]
                 const fieldValue = fieldContents[i]
-                await newEntry.SETFIELD(fieldName, fieldValue === 'NULL' ? null : fieldValue)
+                await newEntry.setField(fieldName, fieldValue === 'NULL' ? null : fieldValue)
             }
             this.content.push(newEntry)
         }
