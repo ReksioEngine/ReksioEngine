@@ -24,6 +24,19 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
     REFRESH() {}
 
     @method()
+    REMOVE(objectName: string) {
+        const object = this.engine.getObject(objectName)
+        if (object == null || !(object instanceof DisplayType)) {
+            return
+        }
+
+        const renderObject = object.getRenderObject()
+        if (renderObject != null) {
+            this.engine.rendering.removeFromStage(renderObject)
+        }
+    }
+
+    @method()
     GETGRAPHICSAT(
         x: number,
         y: number,
