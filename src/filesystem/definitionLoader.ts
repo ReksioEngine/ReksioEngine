@@ -39,6 +39,7 @@ import { Struct } from '../engine/types/struct'
 import { Database } from '../engine/types/database'
 import { Class } from '../engine/types/class'
 import { logger } from '../engine/logging'
+import { World } from '../engine/types/world'
 
 const createTypeInstance = (engine: Engine, parent: ParentType<any> | null, definition: any) => {
     switch (definition.TYPE) {
@@ -114,6 +115,8 @@ const createTypeInstance = (engine: Engine, parent: ParentType<any> | null, defi
             return new Timer(engine, parent, definition)
         case 'VECTOR':
             return new Vector(engine, parent, definition)
+        case 'WORLD':
+            return new World(engine, parent, definition)
         default:
             logger.error(`Failed to initialize object. Unknown object type '${definition.TYPE}'`, {
                 definition,

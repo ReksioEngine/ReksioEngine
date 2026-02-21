@@ -524,11 +524,11 @@ const TimerStructure = {
 }
 
 export type WorldDefinition = TypeDefinition & {
-    // TODO
+    FILENAME: string
 }
 
 const WorldStructure = {
-    // TODO
+    FILENAME: string
 }
 
 export type VectorDefinition = TypeDefinition & {
