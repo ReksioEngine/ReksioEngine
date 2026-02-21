@@ -90,7 +90,7 @@ export class Scene extends ParentType<SceneDefinition> {
 
         targetGroup.removeAll()
 
-        const scope = this.engine.currentScene?.scope;
+        const scope = this.engine.currentScene?.scope
         if (!scope) {
             return
         }

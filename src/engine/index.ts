@@ -244,7 +244,7 @@ export class Engine {
             if (music) {
                 this.music = music.play({
                     loop: true,
-                    muted: this.debug.mutedMusic
+                    muted: this.debug.mutedMusic,
                 })
             } else if (this.music !== null) {
                 this.music.resume()

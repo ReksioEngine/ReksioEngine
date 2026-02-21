@@ -528,7 +528,7 @@ export type WorldDefinition = TypeDefinition & {
 }
 
 const WorldStructure = {
-    FILENAME: string
+    FILENAME: string,
 }
 
 export type VectorDefinition = TypeDefinition & {

@@ -15,7 +15,17 @@ export class World extends Type<WorldDefinition> {
     }
 
     @method()
-    ADDBODY(id: number, density: number, mu: number, friction: number, bounce: number, bounceVel: number, maxVel: number, bodyType: number, geomType: number) {
+    ADDBODY(
+        id: number,
+        density: number,
+        mu: number,
+        friction: number,
+        bounce: number,
+        bounceVel: number,
+        maxVel: number,
+        bodyType: number,
+        geomType: number
+    ) {
         throw new NotImplementedError()
     }
 
