@@ -25,6 +25,7 @@ export class Mouse extends Type<MouseDefinition> {
 
     private mousePosition: Point = new Point(0, 0)
     private moved = false
+    private signalsDisabled: boolean = false
 
     async ready() {
         this.registerCallbacks()
@@ -38,6 +39,11 @@ export class Mouse extends Type<MouseDefinition> {
     async tick(elapsedMS: number) {
         while (this.clicksQueue.length > 0) {
             const event = this.clicksQueue.shift()!
+
+            if (this.signalsDisabled) {
+                continue
+            }
+
             switch (event.type) {
                 case 'click':
                     await this.callbacks.run('ONCLICK', event.key)
@@ -51,7 +57,7 @@ export class Mouse extends Type<MouseDefinition> {
             }
         }
 
-        if (this.moved) {
+        if (this.moved && !this.signalsDisabled) {
             await this.callbacks.run('ONMOVE')
             this.moved = false
         }
@@ -90,7 +96,12 @@ export class Mouse extends Type<MouseDefinition> {
 
     @method()
     DISABLESIGNAL() {
-        throw new NotImplementedError()
+        this.signalsDisabled = true
+    }
+
+    @method()
+    ENABLESIGNAL() {
+        this.signalsDisabled = false
     }
 
     private unregisterCallbacks() {
