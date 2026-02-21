@@ -67,6 +67,11 @@ export class Double extends ValueType<DoubleDefinition, number> {
     }
 
     @method()
+    async LENGTH(pointX: number, pointY: number) {
+        return await this.setValue(Math.sqrt(pointX * pointX + pointY * pointY))
+    }
+
+    @method()
     GET() {
         return this.value
     }
