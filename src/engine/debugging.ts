@@ -6,12 +6,12 @@ import { Animo } from './types/animo'
 import { CNVObject } from '../fileFormats/cnv/parser'
 import { createObject } from '../filesystem/definitionLoader'
 import { SaveFileManager } from './saveFile'
-import { printStackTrace } from '../interpreter/script/stacktrace'
 import { assert, EngineError } from '../common/errors'
 import { drawRectangle } from './rendering'
 import debuggingTemplate from './debugging.html'
 import { Scene } from './types/scene'
 import { globalAudio } from './audio'
+import { printStackTrace } from '../interpreter/stacktrace'
 
 export class Debugging {
     private readonly engine: Engine

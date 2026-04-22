@@ -1,10 +1,10 @@
 import { Type } from './index'
 import { BehaviourDefinition } from '../../fileFormats/cnv/types'
 import { Condition } from './condition'
-import { InterruptScriptExecution } from '../../interpreter/script'
 import { method } from '../../common/types'
 import { assert } from '../../common/errors'
 import { ClassInstance } from './class'
+import { InterruptScriptExecution } from '../../interpreter'
 
 export class Behaviour extends Type<BehaviourDefinition> {
     async ready() {
