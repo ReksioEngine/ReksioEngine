@@ -38,16 +38,12 @@ export class Struct extends Type<StructDefinition> {
 
     @method()
     GETFIELD(name: string) {
-        assert(this.content !== null)
-        return this.content.get(name)
+        return this.getField(name)
     }
 
     @method()
     async SETFIELD(name: string, value: any) {
-        const fieldObject = this.GETFIELD(name)
-        if (fieldObject !== undefined) {
-            await fieldObject.setValue(value)
-        }
+        await this.setField(name, value)
     }
 
     @method()
@@ -60,6 +56,18 @@ export class Struct extends Type<StructDefinition> {
             if (otherField) {
                 await this.SETFIELD(key, await otherField.getValue())
             }
+        }
+    }
+
+    getField(name: string) {
+        assert(this.content !== null)
+        return this.content.get(name)
+    }
+
+    async setField(name: string, value: any) {
+        const fieldObject = this.getField(name)
+        if (fieldObject !== undefined) {
+            await fieldObject.setValue(value)
         }
     }
 
