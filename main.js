@@ -30362,6 +30362,21 @@ function isMobile(param) {
 
 /***/ }),
 
+/***/ "./node_modules/lzo-ts/dist/index.js":
+/*!*******************************************!*\
+  !*** ./node_modules/lzo-ts/dist/index.js ***!
+  \*******************************************/
+/***/ ((module) => {
+
+var r=Object.defineProperty;var n=Object.getOwnPropertyDescriptor;var l=Object.getOwnPropertyNames;var f=Object.prototype.hasOwnProperty;var p=(t,i)=>{for(var s in i)r(t,s,{get:i[s],enumerable:!0})},v=(t,i,s,h)=>{if(i&&typeof i=="object"||typeof i=="function")for(let e of l(i))!f.call(t,e)&&e!==s&&r(t,e,{get:()=>i[e],enumerable:!(h=n(i,e))||h.enumerable});return t};var u=t=>v(r({},"__esModule",{value:!0}),t);var w={};p(w,{LZO:()=>a});module.exports=u(w);var a=class t{constructor(){this.B=128*1024;this.l=this.blockSize;this.d=0;this.t=new Uint8Array(256*1024);this.u=0;this.y=0;this.C=0;this.s=0;this.h=0;this.i=0;this.r=0;this.a=0;this.n=0;this.g=0;this.A=0;this.x=0;this.E=0;this.f=0;this.v=0;this.p=0;this.D=new Uint32Array(16384);this.k=new Uint32Array(16384);this.U=!1}get blockSize(){return this.B}set blockSize(i){if(i<=0)throw new Error("Block size must be a positive integer");this.B=i}b(){var i=new Uint8Array(this.l+(this.blockSize-this.l%this.blockSize));i.set(this.t),this.t=i,this.u=this.t.length}z(){this.l=this.i+3,this.l>this.u&&this.b(),this.t[this.i++]=this.e[this.h++],this.s>1&&(this.t[this.i++]=this.e[this.h++],this.s>2&&(this.t[this.i++]=this.e[this.h++])),this.s=this.e[this.h++]}j(){return this.s=this.e[this.h-2]&3,this.s}T(){this.s+=2,this.l=this.i+this.s,this.l>this.u&&this.b();do this.t[this.i++]=this.t[this.r++];while(--this.s>0)}q(){this.l=this.i+this.s,this.l>this.u&&this.b();do this.t[this.i++]=this.e[this.h++];while(--this.s>0)}S(){for(;;){if(this.s>=64)this.r=this.i-1-(this.s>>2&7)-(this.e[this.h++]<<3),this.s=(this.s>>5)-1,this.T();else if(this.s>=32){if(this.s&=31,this.s===0){for(;this.e[this.h]===0;)this.s+=255,this.h++;this.s+=31+this.e[this.h++]}this.r=this.i-1-(this.e[this.h]>>2)-(this.e[this.h+1]<<6),this.h+=2,this.T()}else if(this.s>=16){if(this.r=this.i-((this.s&8)<<11),this.s&=7,this.s===0){for(;this.e[this.h]===0;)this.s+=255,this.h++;this.s+=7+this.e[this.h++]}if(this.r-=(this.e[this.h]>>2)+(this.e[this.h+1]<<6),this.h+=2,this.r===this.i)return this.t.subarray(0,this.i);this.r-=16384,this.T()}else this.r=this.i-1-(this.s>>2)-(this.e[this.h++]<<2),this.l=this.i+2,this.l>this.u&&this.b(),this.t[this.i++]=this.t[this.r++],this.t[this.i++]=this.t[this.r];if(this.j()===0)return!0;this.z()}}F(i){if(this.e=i,this.y=this.e.length,this.C=this.t.length,this.u=this.t.length,this.s=0,this.h=0,this.i=0,this.r=0,this.U=!1,this.e[this.h]>17)if(this.s=this.e[this.h++]-17,this.s<4){this.z();let s=this.S();if(s!==!0)return s}else this.q(),this.U=!0;for(;;){if(this.U)this.U=!1;else{if(this.s=this.e[this.h++],this.s>=16){let h=this.S();if(h!==!0)return h;continue}else if(this.s===0){for(;this.e[this.h]===0;)this.s+=255,this.h++;this.s+=15+this.e[this.h++]}this.s+=3,this.q()}if(this.s=this.e[this.h++],this.s<16){if(this.r=this.i-2049,this.r-=this.s>>2,this.r-=this.e[this.h++]<<2,this.l=this.i+3,this.l>this.u&&this.b(),this.t[this.i++]=this.t[this.r++],this.t[this.i++]=this.t[this.r++],this.t[this.i++]=this.t[this.r],this.j()===0)continue;this.z()}let s=this.S();if(s!==!0)return s}}G(){for(this.m=this.h,this.y=this.h+this.o-20,this.f=this.h,this.c=this.s,this.h+=this.c<4?4-this.c:0,this.h+=1+(this.h-this.f>>5);!(this.h>=this.y);){if(this.A=this.e[this.h]|this.e[this.h+1]<<8,this.g=this.e[this.h+2]|this.e[this.h+3]<<8,this.x=((this.A*17053>>>16)+this.g*17053+this.A*6180&65535)>>>2,this.r=this.m+this.k[this.x],this.k[this.x]=this.h-this.m,(this.g<<16)+this.A!=(this.e[this.r]|this.e[this.r+1]<<8|this.e[this.r+2]<<16|this.e[this.r+3]<<24)){this.h+=1+(this.h-this.f>>5);continue}if(this.f-=this.c,this.c=0,this.p=this.h-this.f,this.p!==0)if(this.p<=3){this.t[this.i-2]|=this.p;do this.t[this.i++]=this.e[this.f++];while(--this.p>0)}else{if(this.p<=18)this.t[this.i++]=this.p-3;else{for(this.v=this.p-18,this.t[this.i++]=0;this.v>255;)this.v-=255,this.t[this.i++]=0;this.t[this.i++]=this.v}do this.t[this.i++]=this.e[this.f++];while(--this.p>0)}for(this.a=4;this.e[this.h+this.a]===this.e[this.r+this.a]&&(this.a+=1,!(this.e[this.h+this.a]!==this.e[this.r+this.a]||this.h+this.a>=this.y)););if(this.n=this.h-this.r,this.h+=this.a,this.f=this.h,this.a<=8&&this.n<=2048)this.n-=1,this.t[this.i++]=this.a-1<<5|(this.n&7)<<2,this.t[this.i++]=this.n>>3;else if(this.n<=16384){if(this.n-=1,this.a<=33)this.t[this.i++]=32|this.a-2;else{for(this.a-=33,this.t[this.i++]=32;this.a>255;)this.a-=255,this.t[this.i++]=0;this.t[this.i++]=this.a}this.t[this.i++]=this.n<<2,this.t[this.i++]=this.n>>6}else{if(this.n-=16384,this.a<=9)this.t[this.i++]=16|this.n>>11&8|this.a-2;else{for(this.a-=9,this.t[this.i++]=16|this.n>>11&8;this.a>255;)this.a-=255,this.t[this.i++]=0;this.t[this.i++]=this.a}this.t[this.i++]=this.n<<2,this.t[this.i++]=this.n>>6}}this.s=this.o-(this.f-this.m-this.c)}H(i){for(this.e=i,this.h=this.i=this.s=0,this.i=0,this.s=0,this.w=this.e.length,this.d=this.w+Math.ceil(this.e.length/16)+64+3,this.d>this.t.length&&(this.t=new Uint8Array(this.d));this.w>20&&(this.o=this.w<=49152?this.w:49152,!(this.s+this.o>>5<=0));)this.k.set(this.D),this.M=this.h,this.G(),this.h=this.M+this.o,this.w-=this.o;if(this.s+=this.w,this.s>0){if(this.E=this.e.length-this.s,this.i===0&&this.s<=238)this.t[this.i++]=17+this.s;else if(this.s<=3)this.t[this.i-2]|=this.s;else if(this.s<=18)this.t[this.i++]=this.s-3;else{for(this.v=this.s-18,this.t[this.i++]=0;this.v>255;)this.v-=255,this.t[this.i++]=0;this.t[this.i++]=this.v}do this.t[this.i++]=this.e[this.E++];while(--this.s>0)}return this.t[this.i++]=17,this.t[this.i++]=0,this.t[this.i++]=0,this.t.subarray(0,this.i)}static compress(i){return new t().H(i)}static decompress(i){return new t().F(i)}};0&&(0);
+/**
+ * Compress and decompress data using the LZO1X-1 algorithm.
+ * @license GPL-3.0
+ */
+
+
+/***/ }),
+
 /***/ "./node_modules/pixi.js/lib/filters.js":
 /*!*********************************************!*\
   !*** ./node_modules/pixi.js/lib/filters.js ***!
@@ -30763,10 +30778,10 @@ exports.t = t;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.method = exports.InvalidMethodParameter = exports.compareType = exports.isDirectlyConvertible = exports.Compare = exports.ForceNumber = exports.valueAsDouble = exports.valueAsBool = exports.valueAsString = void 0;
+exports.method = exports.InvalidMethodParameter = exports.compareType = exports.isDirectlyConvertible = exports.Compare = exports.ForceNumber = exports.valueAsDouble = exports.toNumber = exports.valueAsBool = exports.valueAsString = void 0;
 const errors_1 = __webpack_require__(/*! ./errors */ "./src/common/errors.ts");
-const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const logging_1 = __webpack_require__(/*! ../engine/logging */ "./src/engine/logging.ts");
+const stacktrace_1 = __webpack_require__(/*! ../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
 const valueAsString = (value) => {
     if (value === null) {
         return 'NULL';
@@ -30808,6 +30823,7 @@ const toNumber = (value) => {
         return Number(value);
     }
 };
+exports.toNumber = toNumber;
 const valueAsDouble = (value) => {
     if (value === null) {
         return 0;
@@ -30815,13 +30831,13 @@ const valueAsDouble = (value) => {
     if (typeof value === 'number') {
         return value;
     }
-    const number = toNumber(value);
+    const number = (0, exports.toNumber)(value);
     (0, errors_1.assert)(!Number.isNaN(number), 'Value is not a number');
     return number;
 };
 exports.valueAsDouble = valueAsDouble;
 const ForceNumber = (value) => {
-    const numberValue = toNumber(value);
+    const numberValue = (0, exports.toNumber)(value);
     (0, errors_1.assert)(!isNaN(numberValue), `${value} is not a number`);
     return numberValue;
 };
@@ -30888,7 +30904,7 @@ const isDirectlyConvertible = (value, type) => {
                 value.toString().toUpperCase() === 'TRUE' ||
                 value.toString().toUpperCase() === 'FALSE');
         case 'number':
-            return typeof value === 'number' || value === null || !Number.isNaN(toNumber(value));
+            return typeof value === 'number' || value === null || !Number.isNaN((0, exports.toNumber)(value));
         default:
             return false;
     }
@@ -31017,7 +31033,8 @@ class SoundInstance extends EventTarget {
             ...opts,
         };
         this.currentRate = this.initialOpts.rate;
-        this._volume = opts.volume ?? 1;
+        this.volume = opts.volume ?? 1;
+        this.muted = opts.muted ?? false;
     }
     cleanupSource() {
         if (!this.source)
@@ -31348,9 +31365,9 @@ exports.ButtonLogicComponent = ButtonLogicComponent;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CallbacksComponent = void 0;
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
-const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
-const stacktrace_1 = __webpack_require__(/*! ../../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const types_1 = __webpack_require__(/*! ../../fileFormats/cnv/types */ "./src/fileFormats/cnv/types.ts");
+const stacktrace_1 = __webpack_require__(/*! ../../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
+const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
 class CallbacksComponent {
     constructor(engine, object) {
         this.registry = new Map();
@@ -31418,7 +31435,7 @@ class CallbacksComponent {
             }
         }
         catch (err) {
-            if (!(err instanceof script_1.InterruptScriptExecution)) {
+            if (!(err instanceof interpreter_1.InterruptScriptExecution)) {
                 throw err;
             }
         }
@@ -31568,11 +31585,11 @@ const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib
 const animo_1 = __webpack_require__(/*! ./types/animo */ "./src/engine/types/animo.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../filesystem/definitionLoader */ "./src/filesystem/definitionLoader.ts");
 const saveFile_1 = __webpack_require__(/*! ./saveFile */ "./src/engine/saveFile.ts");
-const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 const rendering_1 = __webpack_require__(/*! ./rendering */ "./src/engine/rendering.ts");
 const debugging_html_1 = __importDefault(__webpack_require__(/*! ./debugging.html */ "./src/engine/debugging.html"));
 const audio_1 = __webpack_require__(/*! ./audio */ "./src/engine/audio.ts");
+const stacktrace_1 = __webpack_require__(/*! ../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
 class Debugging {
     constructor(engine, isDebug, debugContainer = null) {
         this.enabled = false;
@@ -31943,7 +31960,8 @@ class Engine {
             await (0, definitionLoader_1.doReady)(rootScope);
             const episode = this.scopeManager.findByType('EPISODE');
             if (episode === null) {
-                throw new errors_1.IrrecoverableError("Starting episode doesn't exist");
+                logging_1.logger.error("Starting episode doesn't exist");
+                return;
             }
             await this.debug.fillSceneSelector();
             await this.changeScene(this.options.startScene ?? episode.definition.STARTWITH);
@@ -31951,9 +31969,7 @@ class Engine {
         }
         catch (err) {
             if (err instanceof CancelTick) {
-                if (err.callback) {
-                    await err.callback();
-                }
+                await err.callback?.();
                 return;
             }
             logging_1.logger.error('Unhandled error occurred during start', {
@@ -31976,9 +31992,7 @@ class Engine {
                 }
                 catch (err) {
                     if (err instanceof CancelTick) {
-                        if (err.callback) {
-                            await err.callback();
-                        }
+                        await err.callback?.();
                         return;
                     }
                     else if (err instanceof errors_1.IrrecoverableError) {
@@ -31999,13 +32013,9 @@ class Engine {
         this.debug.updateXRay();
     }
     async changeScene(sceneName) {
-        if (this.options.onSceneChange) {
-            this.options.onSceneChange(sceneName, this.currentScene?.name);
-        }
+        this.options.onSceneChange?.(sceneName, this.currentScene?.name);
         this.app.ticker.stop();
-        if (this.music !== null) {
-            this.music.pause();
-        }
+        this.music?.pause();
         this.rendering.onSceneChange();
         this.app.stage.addChild(this.rendering.loadingOverlay);
         this.app.renderer.render(this.app.stage);
@@ -32075,10 +32085,8 @@ class Engine {
             if (music) {
                 this.music = music.play({
                     loop: true,
+                    muted: this.debug.mutedMusic,
                 });
-                if (this.debug.mutedMusic) {
-                    this.music.muted = true;
-                }
             }
             else if (this.music !== null) {
                 this.music.resume();
@@ -32100,7 +32108,7 @@ class Engine {
             if (currentScopeEntry) {
                 return currentScopeEntry;
             }
-            return this.scopeManager.findByName(name, parentScope);
+            return currentScopeEntry ?? this.scopeManager.findByName(name, parentScope);
         }
         else if (name === null) {
             return null;
@@ -32678,11 +32686,11 @@ exports.Scope = Scope;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ScriptingManager = void 0;
-const script_1 = __webpack_require__(/*! ../interpreter/script */ "./src/interpreter/script/index.ts");
-const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const scope_1 = __webpack_require__(/*! ./scope */ "./src/engine/scope.ts");
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 const logging_1 = __webpack_require__(/*! ./logging */ "./src/engine/logging.ts");
+const interpreter_1 = __webpack_require__(/*! ../interpreter */ "./src/interpreter/index.ts");
+const stacktrace_1 = __webpack_require__(/*! ../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
 class ScriptingManager {
     constructor(engine) {
         this.engine = engine;
@@ -32696,11 +32704,11 @@ class ScriptingManager {
             }
             this.engine.scopeManager.pushLocalScope(localScope);
             if (callback.code) {
-                return await (0, script_1.runScript)(this.engine, caller, callback.code, args, callback.isSingleStatement, true);
+                return await (0, interpreter_1.runCode)(this.engine, caller, callback.code, args ?? [], callback.isSingleStatement);
             }
             else if (callback.behaviourReference) {
                 if (!this.engine.getObject(callback.behaviourReference, caller?.parentScope)) {
-                    logging_1.logger.error('Trying to execute behaviour "${callback.behaviourReference}" that doesn\'t exist!', {
+                    logging_1.logger.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!`, {
                         callback,
                         thisRef,
                     });
@@ -32728,9 +32736,6 @@ class ScriptingManager {
                 stacktrace_1.stackTrace.pop();
             }
         }
-    }
-    runScript(code, args, isSingleStatement, printDebug) {
-        return (0, script_1.runScript)(this.engine, null, code, args, isSingleStatement, printDebug);
     }
 }
 exports.ScriptingManager = ScriptingManager;
@@ -32845,6 +32850,7 @@ let Animo = (() => {
     let _GETFRAME_decorators;
     let _GETCFRAMEINEVENT_decorators;
     let _GETNOF_decorators;
+    let _GETNOE_decorators;
     let _GETCURRFRAMEPOSX_decorators;
     let _GETCURRFRAMEPOSY_decorators;
     let _ISPLAYING_decorators;
@@ -33333,9 +33339,16 @@ let Animo = (() => {
                 (0, errors_1.assert)(this.sprite !== null);
                 return this.sprite.getGlobalPosition().y;
             }
-            GETFRAMENAME() {
+            GETFRAMENAME(frameID, iFrameNo) {
                 (0, errors_1.assert)(this.currentEvent !== null);
-                return this.currentEvent.frames[this.currentFrame].name;
+                if (frameID === undefined && iFrameNo === undefined) {
+                    return this.currentEvent.frames[this.currentFrame].name;
+                }
+                (0, errors_1.assert)(frameID !== undefined && iFrameNo !== undefined);
+                (0, errors_1.assert)(this.annFile !== null);
+                const event = typeof frameID === 'string' ? this.getEvent(frameID) : this.annFile.events[frameID];
+                (0, errors_1.assert)(event !== null);
+                return event?.frames[iFrameNo].name;
             }
             GETMAXWIDTH() {
                 (0, errors_1.assert)(this.annFile !== null);
@@ -33366,6 +33379,10 @@ let Animo = (() => {
             GETNOF() {
                 (0, errors_1.assert)(this.annFile !== null);
                 return this.annFile.header.framesCount;
+            }
+            GETNOE() {
+                (0, errors_1.assert)(this.annFile !== null);
+                return this.annFile.events.length;
             }
             GETCURRFRAMEPOSX() {
                 (0, errors_1.assert)(this.currentEvent !== null);
@@ -33500,13 +33517,14 @@ let Animo = (() => {
             _GETCENTERY_decorators = [(0, types_1.method)()];
             _GETPOSITIONX_decorators = [(0, types_1.method)()];
             _GETPOSITIONY_decorators = [(0, types_1.method)()];
-            _GETFRAMENAME_decorators = [(0, types_1.method)()];
+            _GETFRAMENAME_decorators = [(0, types_1.method)({ name: "frameID", types: [{ name: "string", literal: null, isArray: false }, { name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "iFrameNo", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _GETMAXWIDTH_decorators = [(0, types_1.method)()];
             _GETNOFINEVENT_decorators = [(0, types_1.method)()];
             _GETEVENTNAME_decorators = [(0, types_1.method)({ name: "eventIndex", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _GETFRAME_decorators = [(0, types_1.method)()];
             _GETCFRAMEINEVENT_decorators = [(0, types_1.method)()];
             _GETNOF_decorators = [(0, types_1.method)()];
+            _GETNOE_decorators = [(0, types_1.method)()];
             _GETCURRFRAMEPOSX_decorators = [(0, types_1.method)()];
             _GETCURRFRAMEPOSY_decorators = [(0, types_1.method)()];
             _ISPLAYING_decorators = [(0, types_1.method)({ name: "animName", types: [{ name: "string", literal: null, isArray: false }], optional: true, rest: false })];
@@ -33541,6 +33559,7 @@ let Animo = (() => {
             __esDecorate(_a, null, _GETFRAME_decorators, { kind: "method", name: "GETFRAME", static: false, private: false, access: { has: obj => "GETFRAME" in obj, get: obj => obj.GETFRAME }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETCFRAMEINEVENT_decorators, { kind: "method", name: "GETCFRAMEINEVENT", static: false, private: false, access: { has: obj => "GETCFRAMEINEVENT" in obj, get: obj => obj.GETCFRAMEINEVENT }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETNOF_decorators, { kind: "method", name: "GETNOF", static: false, private: false, access: { has: obj => "GETNOF" in obj, get: obj => obj.GETNOF }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETNOE_decorators, { kind: "method", name: "GETNOE", static: false, private: false, access: { has: obj => "GETNOE" in obj, get: obj => obj.GETNOE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETCURRFRAMEPOSX_decorators, { kind: "method", name: "GETCURRFRAMEPOSX", static: false, private: false, access: { has: obj => "GETCURRFRAMEPOSX" in obj, get: obj => obj.GETCURRFRAMEPOSX }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETCURRFRAMEPOSY_decorators, { kind: "method", name: "GETCURRFRAMEPOSY", static: false, private: false, access: { has: obj => "GETCURRFRAMEPOSY" in obj, get: obj => obj.GETCURRFRAMEPOSY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _ISPLAYING_decorators, { kind: "method", name: "ISPLAYING", static: false, private: false, access: { has: obj => "ISPLAYING" in obj, get: obj => obj.ISPLAYING }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -33997,10 +34016,10 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Behaviour = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const class_1 = __webpack_require__(/*! ./class */ "./src/engine/types/class.ts");
+const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
 let Behaviour = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -34023,7 +34042,7 @@ let Behaviour = (() => {
                     await this.executeCallback(args);
                 }
                 catch (err) {
-                    if (!(err instanceof script_1.InterruptScriptExecution)) {
+                    if (!(err instanceof interpreter_1.InterruptScriptExecution)) {
                         throw err;
                     }
                 }
@@ -34041,7 +34060,7 @@ let Behaviour = (() => {
                         }
                     }
                     catch (err) {
-                        if (err instanceof script_1.InterruptScriptExecution) {
+                        if (err instanceof interpreter_1.InterruptScriptExecution) {
                             if (err.one) {
                                 continue;
                             }
@@ -34237,6 +34256,7 @@ let Button = (() => {
     let _DISABLEBUTVISIBLE_decorators;
     let _SETPRIORITY_decorators;
     let _SETRECT_decorators;
+    let _SETSTD_decorators;
     return _a = class Button extends _classSuper {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition);
@@ -34464,6 +34484,9 @@ let Button = (() => {
             SETRECT(objectName) {
                 this.setRect({ objectName });
             }
+            SETSTD(graphicObjectName, removeFromCanvas = false, onBoundingBox = false) {
+                throw new errors_1.NotImplementedError();
+            }
             registerInteractive(object) {
                 const renderObject = object.getRenderObject();
                 (0, errors_1.assert)(renderObject !== null);
@@ -34529,11 +34552,13 @@ let Button = (() => {
             _DISABLEBUTVISIBLE_decorators = [(0, types_1.method)()];
             _SETPRIORITY_decorators = [(0, types_1.method)({ name: "priority", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SETRECT_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETSTD_decorators = [(0, types_1.method)({ name: "graphicObjectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "removeFromCanvas", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false }, { name: "onBoundingBox", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
             __esDecorate(_a, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _DISABLEBUTVISIBLE_decorators, { kind: "method", name: "DISABLEBUTVISIBLE", static: false, private: false, access: { has: obj => "DISABLEBUTVISIBLE" in obj, get: obj => obj.DISABLEBUTVISIBLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SETPRIORITY_decorators, { kind: "method", name: "SETPRIORITY", static: false, private: false, access: { has: obj => "SETPRIORITY" in obj, get: obj => obj.SETPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SETRECT_decorators, { kind: "method", name: "SETRECT", static: false, private: false, access: { has: obj => "SETRECT" in obj, get: obj => obj.SETRECT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETSTD_decorators, { kind: "method", name: "SETSTD", static: false, private: false, access: { has: obj => "SETSTD" in obj, get: obj => obj.SETSTD }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
@@ -34601,6 +34626,7 @@ let CanvasObserver = (() => {
     let _instanceExtraInitializers = [];
     let _SETBACKGROUND_decorators;
     let _REFRESH_decorators;
+    let _REMOVE_decorators;
     let _GETGRAPHICSAT_decorators;
     let _SAVE_decorators;
     return _a = class CanvasObserver extends _classSuper {
@@ -34613,6 +34639,16 @@ let CanvasObserver = (() => {
                 this.engine.rendering.setBackground(texture);
             }
             REFRESH() { }
+            REMOVE(objectName) {
+                const object = this.engine.getObject(objectName);
+                if (object == null || !(object instanceof index_1.DisplayType)) {
+                    return;
+                }
+                const renderObject = object.getRenderObject();
+                if (renderObject != null) {
+                    this.engine.rendering.removeFromStage(renderObject);
+                }
+            }
             GETGRAPHICSAT(x, y, onlyVisible = false, minZ = Number.MIN_SAFE_INTEGER, maxZ = Number.MAX_SAFE_INTEGER, ignoreAlpha = false) {
                 const point = new pixi_js_1.Point(x, y);
                 for (let i = this.engine.app.stage.children.length - 1; i >= 0; i--) {
@@ -34678,10 +34714,12 @@ let CanvasObserver = (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SETBACKGROUND_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _REFRESH_decorators = [(0, types_1.method)()];
+            _REMOVE_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _GETGRAPHICSAT_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "onlyVisible", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false }, { name: "minZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "maxZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "ignoreAlpha", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
             _SAVE_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "scaleX", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "scaleY", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _SETBACKGROUND_decorators, { kind: "method", name: "SETBACKGROUND", static: false, private: false, access: { has: obj => "SETBACKGROUND" in obj, get: obj => obj.SETBACKGROUND }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _REFRESH_decorators, { kind: "method", name: "REFRESH", static: false, private: false, access: { has: obj => "REFRESH" in obj, get: obj => obj.REFRESH }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVE_decorators, { kind: "method", name: "REMOVE", static: false, private: false, access: { has: obj => "REMOVE" in obj, get: obj => obj.REMOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETGRAPHICSAT_decorators, { kind: "method", name: "GETGRAPHICSAT", static: false, private: false, access: { has: obj => "GETGRAPHICSAT" in obj, get: obj => obj.GETGRAPHICSAT }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SAVE_decorators, { kind: "method", name: "SAVE", static: false, private: false, access: { has: obj => "SAVE" in obj, get: obj => obj.SAVE }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
@@ -34948,9 +34986,9 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ComplexCondition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
 let ComplexCondition = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -34962,13 +35000,13 @@ let ComplexCondition = (() => {
             // In loops its like 'break'
             async BREAK(arg) {
                 if (await this.CHECK(arg)) {
-                    throw new script_1.InterruptScriptExecution(false);
+                    throw new interpreter_1.InterruptScriptExecution(false);
                 }
             }
             // In loops its like 'continue'
             async ONE_BREAK(arg) {
                 if (await this.CHECK(arg)) {
-                    throw new script_1.InterruptScriptExecution(true);
+                    throw new interpreter_1.InterruptScriptExecution(true);
                 }
             }
             async CHECK(arg) {
@@ -35059,9 +35097,9 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Condition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
-const script_1 = __webpack_require__(/*! ../../interpreter/script */ "./src/interpreter/script/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
+const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
 let Condition = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -35074,14 +35112,14 @@ let Condition = (() => {
             // In loops its like 'break'
             async BREAK(arg) {
                 if (await this.CHECK(arg)) {
-                    throw new script_1.InterruptScriptExecution(false);
+                    throw new interpreter_1.InterruptScriptExecution(false);
                 }
             }
             // arg is always true in ReksioIUfo
             // In loops its like 'continue'
             async ONE_BREAK(arg) {
                 if (await this.CHECK(arg)) {
-                    throw new script_1.InterruptScriptExecution(true);
+                    throw new interpreter_1.InterruptScriptExecution(true);
                 }
             }
             async CHECK(shouldSignal) {
@@ -35279,15 +35317,15 @@ let Database = (() => {
                 const relativePath = await this.engine.currentScene.getRelativePath(path);
                 const data = await this.engine.filesystem.getFile(relativePath);
                 const content = decoder.decode(data);
-                const lines = content.replaceAll('\r\n', '\n').split('\n');
+                const lines = content.replaceAll('\r\n', '\n').trim().split('\n');
                 const structFieldsNames = Array.from(this.baseStruct.structure.keys());
                 for (const line of lines) {
                     const fieldContents = line.split('|');
                     const newEntry = await this.baseStruct.clone();
-                    for (let i = 0; i < fieldContents.length; i++) {
+                    for (let i = 0; i < structFieldsNames.length; i++) {
                         const fieldName = structFieldsNames[i];
                         const fieldValue = fieldContents[i];
-                        await newEntry.SETFIELD(fieldName, fieldValue === 'NULL' ? null : fieldValue);
+                        await newEntry.setField(fieldName, fieldValue === 'NULL' ? null : fieldValue);
                     }
                     this.content.push(newEntry);
                 }
@@ -35393,6 +35431,7 @@ let Double = (() => {
     let _SINUS_decorators;
     let _COSINUS_decorators;
     let _ARCTANEX_decorators;
+    let _LENGTH_decorators;
     let _GET_decorators;
     return _a = class Double extends _classSuper {
             constructor(engine, parent, definition) {
@@ -35434,6 +35473,9 @@ let Double = (() => {
                 }
                 return await this.setValue(value);
             }
+            async LENGTH(pointX, pointY) {
+                return await this.setValue(Math.sqrt(pointX * pointX + pointY * pointY));
+            }
             GET() {
                 return this.value;
             }
@@ -35449,6 +35491,7 @@ let Double = (() => {
             _SINUS_decorators = [(0, types_1.method)({ name: "angle", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _COSINUS_decorators = [(0, types_1.method)({ name: "angle", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _ARCTANEX_decorators = [(0, types_1.method)({ name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "summand", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
+            _LENGTH_decorators = [(0, types_1.method)({ name: "pointX", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "pointY", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _GET_decorators = [(0, types_1.method)()];
             __esDecorate(_a, null, _MUL_decorators, { kind: "method", name: "MUL", static: false, private: false, access: { has: obj => "MUL" in obj, get: obj => obj.MUL }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -35459,6 +35502,7 @@ let Double = (() => {
             __esDecorate(_a, null, _SINUS_decorators, { kind: "method", name: "SINUS", static: false, private: false, access: { has: obj => "SINUS" in obj, get: obj => obj.SINUS }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _COSINUS_decorators, { kind: "method", name: "COSINUS", static: false, private: false, access: { has: obj => "COSINUS" in obj, get: obj => obj.COSINUS }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _ARCTANEX_decorators, { kind: "method", name: "ARCTANEX", static: false, private: false, access: { has: obj => "ARCTANEX" in obj, get: obj => obj.ARCTANEX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LENGTH_decorators, { kind: "method", name: "LENGTH", static: false, private: false, access: { has: obj => "LENGTH" in obj, get: obj => obj.LENGTH }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
@@ -35781,6 +35825,12 @@ let Group = (() => {
                         });
                     }
                 }
+            }
+            add(object) {
+                this.objects.push(object);
+            }
+            removeAll() {
+                this.objects = [];
             }
         },
         (() => {
@@ -36573,12 +36623,14 @@ let Keyboard = (() => {
     let _DISABLE_decorators;
     let _ISKEYDOWN_decorators;
     let _ISENABLED_decorators;
+    let _SETAUTOREPEAT_decorators;
     return _a = class Keyboard extends _classSuper {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition);
                 this.keysState = (__runInitializers(this, _instanceExtraInitializers), new Map());
                 this.changeQueue = [];
                 this.enabled = true;
+                this.autoRepeat = false;
                 this.onKeyDownCallback = this.onKeyDown.bind(this);
                 this.onKeyUpCallback = this.onKeyUp.bind(this);
             }
@@ -36613,7 +36665,13 @@ let Keyboard = (() => {
             ISENABLED() {
                 return this.enabled;
             }
+            SETAUTOREPEAT(state) {
+                this.autoRepeat = state;
+            }
             onKeyDown(event) {
+                if (!this.autoRepeat && this.keysState.get(keysMapping[event.code])) {
+                    return;
+                }
                 if (this.enabled) {
                     this.setKeyState(event.code, true);
                 }
@@ -36639,9 +36697,11 @@ let Keyboard = (() => {
             _DISABLE_decorators = [(0, types_1.method)()];
             _ISKEYDOWN_decorators = [(0, types_1.method)({ name: "keyName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _ISENABLED_decorators = [(0, types_1.method)()];
+            _SETAUTOREPEAT_decorators = [(0, types_1.method)({ name: "state", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _ISKEYDOWN_decorators, { kind: "method", name: "ISKEYDOWN", static: false, private: false, access: { has: obj => "ISKEYDOWN" in obj, get: obj => obj.ISKEYDOWN }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _ISENABLED_decorators, { kind: "method", name: "ISENABLED", static: false, private: false, access: { has: obj => "ISENABLED" in obj, get: obj => obj.ISENABLED }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETAUTOREPEAT_decorators, { kind: "method", name: "SETAUTOREPEAT", static: false, private: false, access: { has: obj => "SETAUTOREPEAT" in obj, get: obj => obj.SETAUTOREPEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
@@ -36712,6 +36772,7 @@ let Mouse = (() => {
     let _ENABLE_decorators;
     let _DISABLE_decorators;
     let _DISABLESIGNAL_decorators;
+    let _ENABLESIGNAL_decorators;
     let _SHOW_decorators;
     let _HIDE_decorators;
     let _GETPOSX_decorators;
@@ -36725,6 +36786,7 @@ let Mouse = (() => {
                 this.lastClicksTime = {};
                 this.mousePosition = new pixi_js_1.Point(0, 0);
                 this.moved = false;
+                this.signalsDisabled = false;
             }
             async ready() {
                 this.registerCallbacks();
@@ -36736,6 +36798,9 @@ let Mouse = (() => {
             async tick(elapsedMS) {
                 while (this.clicksQueue.length > 0) {
                     const event = this.clicksQueue.shift();
+                    if (this.signalsDisabled) {
+                        continue;
+                    }
                     switch (event.type) {
                         case 'click':
                             await this.callbacks.run('ONCLICK', event.key);
@@ -36748,7 +36813,7 @@ let Mouse = (() => {
                             break;
                     }
                 }
-                if (this.moved) {
+                if (this.moved && !this.signalsDisabled) {
                     await this.callbacks.run('ONMOVE');
                     this.moved = false;
                 }
@@ -36777,7 +36842,10 @@ let Mouse = (() => {
                 this.engine.app.stage.eventMode = 'none';
             }
             DISABLESIGNAL() {
-                throw new errors_1.NotImplementedError();
+                this.signalsDisabled = true;
+            }
+            ENABLESIGNAL() {
+                this.signalsDisabled = false;
             }
             unregisterCallbacks() {
                 this.engine.app.stage.removeListener('pointermove', this.mouseMoveListener);
@@ -36842,6 +36910,7 @@ let Mouse = (() => {
             _ENABLE_decorators = [(0, types_1.method)()];
             _DISABLE_decorators = [(0, types_1.method)()];
             _DISABLESIGNAL_decorators = [(0, types_1.method)()];
+            _ENABLESIGNAL_decorators = [(0, types_1.method)()];
             _SHOW_decorators = [(0, types_1.method)()];
             _HIDE_decorators = [(0, types_1.method)()];
             _GETPOSX_decorators = [(0, types_1.method)()];
@@ -36851,6 +36920,7 @@ let Mouse = (() => {
             __esDecorate(_a, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _DISABLESIGNAL_decorators, { kind: "method", name: "DISABLESIGNAL", static: false, private: false, access: { has: obj => "DISABLESIGNAL" in obj, get: obj => obj.DISABLESIGNAL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ENABLESIGNAL_decorators, { kind: "method", name: "ENABLESIGNAL", static: false, private: false, access: { has: obj => "ENABLESIGNAL" in obj, get: obj => obj.ENABLESIGNAL }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETPOSX_decorators, { kind: "method", name: "GETPOSX", static: false, private: false, access: { has: obj => "GETPOSX" in obj, get: obj => obj.GETPOSX }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -37118,6 +37188,8 @@ const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/er
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const assetsLoader_1 = __webpack_require__(/*! ../../filesystem/assetsLoader */ "./src/filesystem/assetsLoader.ts");
 const filesystem_1 = __webpack_require__(/*! ../../filesystem */ "./src/filesystem/index.ts");
+const group_1 = __webpack_require__(/*! ./group */ "./src/engine/types/group.ts");
+const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts");
 let Scene = (() => {
     var _a;
     let _classSuper = index_1.ParentType;
@@ -37131,6 +37203,7 @@ let Scene = (() => {
     let _GETMINHSPRIORITY_decorators;
     let _SETMINHSPRIORITY_decorators;
     let _GETPLAYINGANIMO_decorators;
+    let _RESUME_decorators;
     return _a = class Scene extends _classSuper {
             constructor() {
                 super(...arguments);
@@ -37188,7 +37261,23 @@ let Scene = (() => {
             SETMINHSPRIORITY(priority) {
                 this.minHSPriority = priority;
             }
-            GETPLAYINGANIMO(arg) {
+            GETPLAYINGANIMO(targetGroupName) {
+                const targetGroup = this.engine.getObject(targetGroupName);
+                if (targetGroup === null || !(targetGroup instanceof group_1.Group)) {
+                    return;
+                }
+                targetGroup.removeAll();
+                const scope = this.engine.currentScene?.scope;
+                if (!scope) {
+                    return;
+                }
+                for (const [key, value] of scope.content.entries()) {
+                    if (value instanceof animo_1.Animo && value.isPlaying) {
+                        targetGroup.add(value);
+                    }
+                }
+            }
+            RESUME() {
                 throw new errors_1.NotImplementedError();
             }
             getRelativePath(filename) {
@@ -37206,7 +37295,8 @@ let Scene = (() => {
             _SETMAXHSPRIORITY_decorators = [(0, types_1.method)({ name: "priority", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _GETMINHSPRIORITY_decorators = [(0, types_1.method)()];
             _SETMINHSPRIORITY_decorators = [(0, types_1.method)({ name: "priority", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETPLAYINGANIMO_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETPLAYINGANIMO_decorators = [(0, types_1.method)({ name: "targetGroupName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _RESUME_decorators = [(0, types_1.method)()];
             __esDecorate(_a, null, _SETMUSICVOLUME_decorators, { kind: "method", name: "SETMUSICVOLUME", static: false, private: false, access: { has: obj => "SETMUSICVOLUME" in obj, get: obj => obj.SETMUSICVOLUME }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _RUNCLONES_decorators, { kind: "method", name: "RUNCLONES", static: false, private: false, access: { has: obj => "RUNCLONES" in obj, get: obj => obj.RUNCLONES }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -37216,6 +37306,7 @@ let Scene = (() => {
             __esDecorate(_a, null, _GETMINHSPRIORITY_decorators, { kind: "method", name: "GETMINHSPRIORITY", static: false, private: false, access: { has: obj => "GETMINHSPRIORITY" in obj, get: obj => obj.GETMINHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SETMINHSPRIORITY_decorators, { kind: "method", name: "SETMINHSPRIORITY", static: false, private: false, access: { has: obj => "SETMINHSPRIORITY" in obj, get: obj => obj.SETMINHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETPLAYINGANIMO_decorators, { kind: "method", name: "GETPLAYINGANIMO", static: false, private: false, access: { has: obj => "GETPLAYINGANIMO" in obj, get: obj => obj.GETPLAYINGANIMO }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RESUME_decorators, { kind: "method", name: "RESUME", static: false, private: false, access: { has: obj => "RESUME" in obj, get: obj => obj.RESUME }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
@@ -37361,10 +37452,18 @@ let Sequence = (() => {
                     logging_1.logger.debug(`Preloading sound ${name}...`, {
                         sequence: this,
                     });
-                    return (0, assetsLoader_1.loadSound)(this.engine.filesystem, `Wavs/${name}`);
+                    try {
+                        return await (0, assetsLoader_1.loadSound)(this.engine.filesystem, `Wavs/${name}`);
+                    }
+                    catch (error) {
+                        return null;
+                    }
                 }));
                 for (let i = 0; i < sounds.length; i++) {
-                    this.sounds.set(soundsNames[i], sounds[i]);
+                    const sound = sounds[i];
+                    if (sound !== null) {
+                        this.sounds.set(soundsNames[i], sound);
+                    }
                 }
             }
             async tick(elapsedMS) {
@@ -37490,11 +37589,13 @@ let Sequence = (() => {
                             sequence: this,
                         });
                         const sound = this.sounds.get(speaking.WAVFN);
-                        this.playingSound = sound.play({
-                            onEnd: () => {
-                                this.endedSpeakingSoundsQueue.push(speaking);
-                            },
-                        });
+                        if (sound) {
+                            this.playingSound = sound.play({
+                                onEnd: () => {
+                                    this.endedSpeakingSoundsQueue.push(speaking);
+                                },
+                            });
+                        }
                         const startEvent = speaking.PREFIX + '_START';
                         if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
                             await this.playAnimoEvent(startEvent);
@@ -38077,14 +38178,10 @@ let Struct = (() => {
                 }
             }
             GETFIELD(name) {
-                (0, errors_1.assert)(this.content !== null);
-                return this.content.get(name);
+                return this.getField(name);
             }
             async SETFIELD(name, value) {
-                const fieldObject = this.GETFIELD(name);
-                if (fieldObject !== undefined) {
-                    await fieldObject.setValue(value);
-                }
+                await this.setField(name, value);
             }
             async SET(otherObjectName) {
                 const otherObject = this.getObject(otherObjectName);
@@ -38094,6 +38191,16 @@ let Struct = (() => {
                     if (otherField) {
                         await this.SETFIELD(key, await otherField.getValue());
                     }
+                }
+            }
+            getField(name) {
+                (0, errors_1.assert)(this.content !== null);
+                return this.content.get(name);
+            }
+            async setField(name, value) {
+                const fieldObject = this.getField(name);
+                if (fieldObject !== undefined) {
+                    await fieldObject.setValue(value);
                 }
             }
             parseFieldsString(definition) {
@@ -38554,6 +38661,134 @@ let Vector = (() => {
         _a;
 })();
 exports.Vector = Vector;
+
+
+/***/ }),
+
+/***/ "./src/engine/types/world.ts":
+/*!***********************************!*\
+  !*** ./src/engine/types/world.ts ***!
+  \***********************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.World = void 0;
+const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+let World = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _LOAD_decorators;
+    let _SETGRAVITY_decorators;
+    let _ADDBODY_decorators;
+    let _SETLIMIT_decorators;
+    let _SETSPEED_decorators;
+    let _LINK_decorators;
+    let _SETPOSITION_decorators;
+    let _SETVELOCITY_decorators;
+    let _SETMAXSPEED_decorators;
+    let _MOVEOBJECTS_decorators;
+    return _a = class World extends _classSuper {
+            LOAD(filename) {
+                throw new errors_1.NotImplementedError();
+            }
+            SETGRAVITY(x, y, z) {
+                throw new errors_1.NotImplementedError();
+            }
+            ADDBODY(id, density, mu, friction, bounce, bounceVel, maxVel, bodyType, geomType) {
+                throw new errors_1.NotImplementedError();
+            }
+            SETLIMIT(id, x, y, z, x1, y1, z1) {
+                throw new errors_1.NotImplementedError();
+            }
+            SETSPEED(id, speed) {
+                throw new errors_1.NotImplementedError();
+            }
+            LINK(id, animoName, flag) {
+                throw new errors_1.NotImplementedError();
+            }
+            SETPOSITION(id, x, y, z) {
+                throw new errors_1.NotImplementedError();
+            }
+            SETVELOCITY(id, x, y, z) {
+                throw new errors_1.NotImplementedError();
+            }
+            SETMAXSPEED(id, speed) {
+                throw new errors_1.NotImplementedError();
+            }
+            MOVEOBJECTS() {
+                throw new errors_1.NotImplementedError();
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _LOAD_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETGRAVITY_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "z", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _ADDBODY_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "density", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "mu", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "friction", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "bounce", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "bounceVel", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "maxVel", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "bodyType", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "geomType", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETLIMIT_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "z", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "z1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETSPEED_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "speed", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _LINK_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "animoName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "flag", types: [{ name: "any", literal: null, isArray: false }], optional: true, rest: false })];
+            _SETPOSITION_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "z", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETVELOCITY_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "z", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETMAXSPEED_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "speed", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _MOVEOBJECTS_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETGRAVITY_decorators, { kind: "method", name: "SETGRAVITY", static: false, private: false, access: { has: obj => "SETGRAVITY" in obj, get: obj => obj.SETGRAVITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ADDBODY_decorators, { kind: "method", name: "ADDBODY", static: false, private: false, access: { has: obj => "ADDBODY" in obj, get: obj => obj.ADDBODY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETLIMIT_decorators, { kind: "method", name: "SETLIMIT", static: false, private: false, access: { has: obj => "SETLIMIT" in obj, get: obj => obj.SETLIMIT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETSPEED_decorators, { kind: "method", name: "SETSPEED", static: false, private: false, access: { has: obj => "SETSPEED" in obj, get: obj => obj.SETSPEED }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LINK_decorators, { kind: "method", name: "LINK", static: false, private: false, access: { has: obj => "LINK" in obj, get: obj => obj.LINK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETVELOCITY_decorators, { kind: "method", name: "SETVELOCITY", static: false, private: false, access: { has: obj => "SETVELOCITY" in obj, get: obj => obj.SETVELOCITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETMAXSPEED_decorators, { kind: "method", name: "SETMAXSPEED", static: false, private: false, access: { has: obj => "SETMAXSPEED" in obj, get: obj => obj.SETMAXSPEED }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MOVEOBJECTS_decorators, { kind: "method", name: "MOVEOBJECTS", static: false, private: false, access: { has: obj => "MOVEOBJECTS" in obj, get: obj => obj.MOVEOBJECTS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
+exports.World = World;
 
 
 /***/ }),
@@ -39294,7 +39529,7 @@ const TimerStructure = {
     ONTICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.number)),
 };
 const WorldStructure = {
-// TODO
+    FILENAME: common_1.string,
 };
 const VectorDefinitionStructure = {
     SIZE: common_1.number,
@@ -39510,108 +39745,11 @@ exports.createCallback = createCallback;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.decompressCLZW = void 0;
-const utils_1 = __webpack_require__(/*! ../utils */ "./src/fileFormats/utils.ts");
+const lzo_ts_1 = __webpack_require__(/*! lzo-ts */ "./node_modules/lzo-ts/dist/index.js");
 const decompressCLZW = (buffer) => {
     const uncompressedSize = buffer.getUint32();
     const compressedSize = buffer.getUint32();
-    const srcBuffer = buffer.read(compressedSize);
-    const src = new utils_1.BinaryBuffer(new DataView(srcBuffer));
-    const dstRaw = new ArrayBuffer(uncompressedSize);
-    const dst = new utils_1.BinaryBuffer(new DataView(dstRaw));
-    if (src.getUint8(false) > 0x11) {
-        const count = src.getUint8() - 0x11;
-        for (let i = 0; i < count; i++) {
-            dst.setUint8(src.getUint8());
-        }
-    }
-    while (src.offset < src.size) {
-        let tag = src.getUint8();
-        if (tag < 0x10) {
-            if (tag == 0) {
-                while (src.getUint8(false) == 0) {
-                    tag += 0xff;
-                    src.skip(1);
-                }
-                tag += src.getUint8() + 0xf;
-            }
-            for (let i = 0; i < 4 + tag - 1; i++) {
-                dst.setUint8(src.getUint8());
-            }
-            continue;
-        }
-        let edi_4 = dst;
-        let count = 0;
-        if (tag < 0x40) {
-            if (tag < 0x20) {
-                if (tag >= 0x10) {
-                    // let edi_10 = dst.offset - ((tag & 0b1000) << 0xb);
-                    const edi_10 = dst.ptr(-((tag & 0b1000) << 0xb));
-                    count = tag & 7;
-                    if (count == 0) {
-                        while (src.getUint8(false) == 0) {
-                            src.skip(1);
-                            count += 0xff;
-                        }
-                        count += src.getUint8() + 7;
-                    }
-                    const edi_11 = edi_10.ptr(-(src.getUint16() >> 2));
-                    if (edi_11.offset == dst.offset) {
-                        // const dstLen = dst.offset
-                        if (src.offset != src.size) {
-                            throw new Error('Decompression ended, but there is still data left');
-                            // return ((-(src.offset < src.size)) & 0b11111100) - 4;
-                        }
-                        else {
-                            return dst.buffer();
-                        }
-                    }
-                    edi_4 = edi_11.ptr(-0x4000);
-                }
-            }
-            else {
-                count = tag & 0b11111;
-                if (count == 0) {
-                    while (src.getUint8(false) == 0) {
-                        src.skip(1);
-                        count += 0xff;
-                    }
-                    count += src.getUint8() + 0x1f;
-                }
-                edi_4 = dst.ptr(-(src.getUint16() >> 2) - 1);
-            }
-            if (count >= 6 && dst.offset - edi_4.offset >= 4) {
-                for (let i = 0; i < 4; i++) {
-                    dst.setUint8(edi_4.getUint8());
-                }
-                count -= 2;
-            }
-            else {
-                for (let i = 0; i < 2; i++) {
-                    dst.setUint8(edi_4.getUint8());
-                }
-            }
-        }
-        else {
-            edi_4 = dst.ptr(-((tag >> 2) & 0b111) - (src.getUint8() << 3) - 1);
-            count = (tag >> 5) - 1;
-            for (let i = 0; i < 2; i++) {
-                dst.setUint8(edi_4.getUint8());
-            }
-        }
-        while (count > 0) {
-            dst.setUint8(edi_4.getUint8());
-            count--;
-        }
-        count = src.ptr(-2).getUint8(false) & 3;
-        if (count == 0) {
-            continue;
-        }
-        while (count > 0) {
-            dst.setUint8(src.getUint8());
-            count--;
-        }
-    }
-    return dst.buffer();
+    return lzo_ts_1.LZO.decompress(new Uint8Array(buffer.read(compressedSize))).buffer;
 };
 exports.decompressCLZW = decompressCLZW;
 
@@ -39630,26 +39768,29 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.decompressCRLE = void 0;
 const decompressCRLE = (input, decompressedSize, bulk = 1) => {
     const output = new Uint8Array(decompressedSize);
-    let outputPosition = 0;
-    while (outputPosition < decompressedSize) {
-        const count = input.getUint8();
+    const src = new Uint8Array(input.view.buffer);
+    let sp = input.offset;
+    let dp = 0;
+    const repeated = new Uint8Array(bulk);
+    while (dp < decompressedSize) {
+        const count = src[sp++];
         if (count < 128) {
-            for (let i = 0; i < count * bulk; i++) {
-                output[outputPosition++] = input.getUint8();
-            }
+            const bytes = count * bulk;
+            output.set(src.subarray(sp, sp + bytes), dp);
+            sp += bytes;
+            dp += bytes;
         }
         else {
-            const repeated = new Array(bulk);
-            for (let i = 0; i < bulk; i++) {
-                repeated[i] = input.getUint8();
-            }
-            for (let i = 0; i < (count & 0x7f); i++) {
-                for (let j = 0; j < bulk; j++) {
-                    output[outputPosition++] = repeated[j];
-                }
+            repeated.set(src.subarray(sp, sp + bulk));
+            sp += bulk;
+            const len = count & 0x7F;
+            for (let i = 0; i < len; i++) {
+                output.set(repeated, dp);
+                dp += bulk;
             }
         }
     }
+    input.offset = sp;
     return output;
 };
 exports.decompressCRLE = decompressCRLE;
@@ -40359,11 +40500,12 @@ const staticFilter_1 = __webpack_require__(/*! ../engine/types/staticFilter */ "
 const filter_1 = __webpack_require__(/*! ../engine/types/filter */ "./src/engine/types/filter.ts");
 const multiArray_1 = __webpack_require__(/*! ../engine/types/multiArray */ "./src/engine/types/multiArray.ts");
 const system_1 = __webpack_require__(/*! ../engine/types/system */ "./src/engine/types/system.ts");
-const stacktrace_1 = __webpack_require__(/*! ../interpreter/script/stacktrace */ "./src/interpreter/script/stacktrace.ts");
 const struct_1 = __webpack_require__(/*! ../engine/types/struct */ "./src/engine/types/struct.ts");
 const database_1 = __webpack_require__(/*! ../engine/types/database */ "./src/engine/types/database.ts");
 const class_1 = __webpack_require__(/*! ../engine/types/class */ "./src/engine/types/class.ts");
 const logging_1 = __webpack_require__(/*! ../engine/logging */ "./src/engine/logging.ts");
+const world_1 = __webpack_require__(/*! ../engine/types/world */ "./src/engine/types/world.ts");
+const stacktrace_1 = __webpack_require__(/*! ../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
 const createTypeInstance = (engine, parent, definition) => {
     switch (definition.TYPE) {
         case 'ANIMO':
@@ -40438,6 +40580,8 @@ const createTypeInstance = (engine, parent, definition) => {
             return new timer_1.Timer(engine, parent, definition);
         case 'VECTOR':
             return new vector_1.Vector(engine, parent, definition);
+        case 'WORLD':
+            return new world_1.World(engine, parent, definition);
         default:
             logging_1.logger.error(`Failed to initialize object. Unknown object type '${definition.TYPE}'`, {
                 definition,
@@ -41073,2646 +41217,361 @@ exports.createGamePlayer = createGamePlayer;
 
 /***/ }),
 
-/***/ "./src/interpreter/ifExpression/ReksioIFExpressionLexer.ts":
-/*!*****************************************************************!*\
-  !*** ./src/interpreter/ifExpression/ReksioIFExpressionLexer.ts ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ "./src/interpreter/ast.ts":
+/*!********************************!*\
+  !*** ./src/interpreter/ast.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-// Generated from ./src/interpreter/ifExpression/ReksioIFExpression.g4 by ANTLR 4.13.2
-// noinspection ES6UnusedImports,JSUnusedGlobalSymbols,JSUnusedLocalSymbols
-const antlr4_1 = __webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs");
-class ReksioIFExpressionLexer extends antlr4_1.Lexer {
-    constructor(input) {
-        super(input);
-        this._interp = new antlr4_1.LexerATNSimulator(this, ReksioIFExpressionLexer._ATN, ReksioIFExpressionLexer.DecisionsToDFA, new antlr4_1.PredictionContextCache());
-    }
-    get grammarFileName() {
-        return 'ReksioIFExpression.g4';
-    }
-    get literalNames() {
-        return ReksioIFExpressionLexer.literalNames;
-    }
-    get symbolicNames() {
-        return ReksioIFExpressionLexer.symbolicNames;
-    }
-    get ruleNames() {
-        return ReksioIFExpressionLexer.ruleNames;
-    }
-    get serializedATN() {
-        return ReksioIFExpressionLexer._serializedATN;
-    }
-    get channelNames() {
-        return ReksioIFExpressionLexer.channelNames;
-    }
-    get modeNames() {
-        return ReksioIFExpressionLexer.modeNames;
-    }
-    static get _ATN() {
-        if (!ReksioIFExpressionLexer.__ATN) {
-            ReksioIFExpressionLexer.__ATN = new antlr4_1.ATNDeserializer().deserialize(ReksioIFExpressionLexer._serializedATN);
-        }
-        return ReksioIFExpressionLexer.__ATN;
-    }
-}
-ReksioIFExpressionLexer.T__0 = 1;
-ReksioIFExpressionLexer.EQUAL = 2;
-ReksioIFExpressionLexer.NOT_EQUAL = 3;
-ReksioIFExpressionLexer.GREATER = 4;
-ReksioIFExpressionLexer.SMALLER = 5;
-ReksioIFExpressionLexer.GREATER_EQUAL = 6;
-ReksioIFExpressionLexer.SMALLER_EQUAL = 7;
-ReksioIFExpressionLexer.AND = 8;
-ReksioIFExpressionLexer.OR = 9;
-ReksioIFExpressionLexer.IDENTIFIER = 10;
-ReksioIFExpressionLexer.NUMBER = 11;
-ReksioIFExpressionLexer.STRING = 12;
-ReksioIFExpressionLexer.WHITESPACE = 13;
-ReksioIFExpressionLexer.EOF = antlr4_1.Token.EOF;
-ReksioIFExpressionLexer.channelNames = ['DEFAULT_TOKEN_CHANNEL', 'HIDDEN'];
-ReksioIFExpressionLexer.literalNames = [
-    null,
-    "'-'",
-    "'''",
-    "'!''",
-    "'>'",
-    "'<'",
-    "'>''",
-    "'<''",
-    "'&&'",
-    "'||'",
-];
-ReksioIFExpressionLexer.symbolicNames = [
-    null,
-    null,
-    'EQUAL',
-    'NOT_EQUAL',
-    'GREATER',
-    'SMALLER',
-    'GREATER_EQUAL',
-    'SMALLER_EQUAL',
-    'AND',
-    'OR',
-    'IDENTIFIER',
-    'NUMBER',
-    'STRING',
-    'WHITESPACE',
-];
-ReksioIFExpressionLexer.modeNames = ['DEFAULT_MODE'];
-ReksioIFExpressionLexer.ruleNames = [
-    'T__0',
-    'EQUAL',
-    'NOT_EQUAL',
-    'GREATER',
-    'SMALLER',
-    'GREATER_EQUAL',
-    'SMALLER_EQUAL',
-    'AND',
-    'OR',
-    'IDENTIFIER',
-    'NUMBER',
-    'STRING',
-    'WHITESPACE',
-];
-ReksioIFExpressionLexer._serializedATN = [
-    4, 0, 13, 96, 6, -1, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7,
-    7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7, 10, 2, 11, 7, 11, 2, 12, 7, 12, 1, 0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 2, 1,
-    2, 1, 3, 1, 3, 1, 4, 1, 4, 1, 5, 1, 5, 1, 5, 1, 6, 1, 6, 1, 6, 1, 7, 1, 7, 1, 7, 1, 8, 1, 8, 1, 8, 1, 9, 5, 9,
-    52, 8, 9, 10, 9, 12, 9, 55, 9, 9, 1, 9, 4, 9, 58, 8, 9, 11, 9, 12, 9, 59, 1, 9, 5, 9, 63, 8, 9, 10, 9, 12, 9,
-    66, 9, 9, 1, 10, 4, 10, 69, 8, 10, 11, 10, 12, 10, 70, 1, 10, 1, 10, 4, 10, 75, 8, 10, 11, 10, 12, 10, 76, 3,
-    10, 79, 8, 10, 1, 11, 1, 11, 5, 11, 83, 8, 11, 10, 11, 12, 11, 86, 9, 11, 1, 11, 1, 11, 1, 12, 4, 12, 91, 8, 12,
-    11, 12, 12, 12, 92, 1, 12, 1, 12, 0, 0, 13, 1, 1, 3, 2, 5, 3, 7, 4, 9, 5, 11, 6, 13, 7, 15, 8, 17, 9, 19, 10,
-    21, 11, 23, 12, 25, 13, 1, 0, 5, 5, 0, 36, 36, 48, 57, 65, 90, 95, 95, 97, 122, 5, 0, 36, 36, 63, 63, 65, 90,
-    95, 95, 97, 122, 1, 0, 48, 57, 2, 0, 41, 41, 44, 44, 3, 0, 9, 10, 12, 13, 32, 32, 103, 0, 1, 1, 0, 0, 0, 0, 3,
-    1, 0, 0, 0, 0, 5, 1, 0, 0, 0, 0, 7, 1, 0, 0, 0, 0, 9, 1, 0, 0, 0, 0, 11, 1, 0, 0, 0, 0, 13, 1, 0, 0, 0, 0, 15,
-    1, 0, 0, 0, 0, 17, 1, 0, 0, 0, 0, 19, 1, 0, 0, 0, 0, 21, 1, 0, 0, 0, 0, 23, 1, 0, 0, 0, 0, 25, 1, 0, 0, 0, 1,
-    27, 1, 0, 0, 0, 3, 29, 1, 0, 0, 0, 5, 31, 1, 0, 0, 0, 7, 34, 1, 0, 0, 0, 9, 36, 1, 0, 0, 0, 11, 38, 1, 0, 0, 0,
-    13, 41, 1, 0, 0, 0, 15, 44, 1, 0, 0, 0, 17, 47, 1, 0, 0, 0, 19, 53, 1, 0, 0, 0, 21, 68, 1, 0, 0, 0, 23, 80, 1,
-    0, 0, 0, 25, 90, 1, 0, 0, 0, 27, 28, 5, 45, 0, 0, 28, 2, 1, 0, 0, 0, 29, 30, 5, 39, 0, 0, 30, 4, 1, 0, 0, 0, 31,
-    32, 5, 33, 0, 0, 32, 33, 5, 39, 0, 0, 33, 6, 1, 0, 0, 0, 34, 35, 5, 62, 0, 0, 35, 8, 1, 0, 0, 0, 36, 37, 5, 60,
-    0, 0, 37, 10, 1, 0, 0, 0, 38, 39, 5, 62, 0, 0, 39, 40, 5, 39, 0, 0, 40, 12, 1, 0, 0, 0, 41, 42, 5, 60, 0, 0, 42,
-    43, 5, 39, 0, 0, 43, 14, 1, 0, 0, 0, 44, 45, 5, 38, 0, 0, 45, 46, 5, 38, 0, 0, 46, 16, 1, 0, 0, 0, 47, 48, 5,
-    124, 0, 0, 48, 49, 5, 124, 0, 0, 49, 18, 1, 0, 0, 0, 50, 52, 7, 0, 0, 0, 51, 50, 1, 0, 0, 0, 52, 55, 1, 0, 0, 0,
-    53, 51, 1, 0, 0, 0, 53, 54, 1, 0, 0, 0, 54, 57, 1, 0, 0, 0, 55, 53, 1, 0, 0, 0, 56, 58, 7, 1, 0, 0, 57, 56, 1,
-    0, 0, 0, 58, 59, 1, 0, 0, 0, 59, 57, 1, 0, 0, 0, 59, 60, 1, 0, 0, 0, 60, 64, 1, 0, 0, 0, 61, 63, 7, 0, 0, 0, 62,
-    61, 1, 0, 0, 0, 63, 66, 1, 0, 0, 0, 64, 62, 1, 0, 0, 0, 64, 65, 1, 0, 0, 0, 65, 20, 1, 0, 0, 0, 66, 64, 1, 0, 0,
-    0, 67, 69, 7, 2, 0, 0, 68, 67, 1, 0, 0, 0, 69, 70, 1, 0, 0, 0, 70, 68, 1, 0, 0, 0, 70, 71, 1, 0, 0, 0, 71, 78,
-    1, 0, 0, 0, 72, 74, 5, 46, 0, 0, 73, 75, 7, 2, 0, 0, 74, 73, 1, 0, 0, 0, 75, 76, 1, 0, 0, 0, 76, 74, 1, 0, 0, 0,
-    76, 77, 1, 0, 0, 0, 77, 79, 1, 0, 0, 0, 78, 72, 1, 0, 0, 0, 78, 79, 1, 0, 0, 0, 79, 22, 1, 0, 0, 0, 80, 84, 5,
-    34, 0, 0, 81, 83, 8, 3, 0, 0, 82, 81, 1, 0, 0, 0, 83, 86, 1, 0, 0, 0, 84, 82, 1, 0, 0, 0, 84, 85, 1, 0, 0, 0,
-    85, 87, 1, 0, 0, 0, 86, 84, 1, 0, 0, 0, 87, 88, 5, 34, 0, 0, 88, 24, 1, 0, 0, 0, 89, 91, 7, 4, 0, 0, 90, 89, 1,
-    0, 0, 0, 91, 92, 1, 0, 0, 0, 92, 90, 1, 0, 0, 0, 92, 93, 1, 0, 0, 0, 93, 94, 1, 0, 0, 0, 94, 95, 6, 12, 0, 0,
-    95, 26, 1, 0, 0, 0, 9, 0, 53, 59, 64, 70, 76, 78, 84, 92, 1, 6, 0, 0,
-];
-ReksioIFExpressionLexer.DecisionsToDFA = ReksioIFExpressionLexer._ATN.decisionToState.map((ds, index) => new antlr4_1.DFA(ds, index));
-exports["default"] = ReksioIFExpressionLexer;
-
-
-/***/ }),
-
-/***/ "./src/interpreter/ifExpression/ReksioIFExpressionParser.ts":
-/*!******************************************************************!*\
-  !*** ./src/interpreter/ifExpression/ReksioIFExpressionParser.ts ***!
-  \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-// Generated from ./src/interpreter/ifExpression/ReksioIFExpression.g4 by ANTLR 4.13.2
-// noinspection ES6UnusedImports,JSUnusedGlobalSymbols,JSUnusedLocalSymbols
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.LogicOperatorContext = exports.IdentifierContext = exports.StringContext = exports.NumberContext = exports.ValueContext = exports.ExprContext = exports.ExprListContext = void 0;
-const antlr4_1 = __webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs");
-class ReksioIFExpressionParser extends antlr4_1.Parser {
-    get grammarFileName() {
-        return 'ReksioIFExpression.g4';
-    }
-    get literalNames() {
-        return ReksioIFExpressionParser.literalNames;
-    }
-    get symbolicNames() {
-        return ReksioIFExpressionParser.symbolicNames;
-    }
-    get ruleNames() {
-        return ReksioIFExpressionParser.ruleNames;
-    }
-    get serializedATN() {
-        return ReksioIFExpressionParser._serializedATN;
-    }
-    createFailedPredicateException(predicate, message) {
-        return new antlr4_1.FailedPredicateException(this, predicate, message);
-    }
-    constructor(input) {
-        super(input);
-        this._interp = new antlr4_1.ParserATNSimulator(this, ReksioIFExpressionParser._ATN, ReksioIFExpressionParser.DecisionsToDFA, new antlr4_1.PredictionContextCache());
-    }
-    // @RuleVersion(0)
-    exprList() {
-        const localctx = new ExprListContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 0, ReksioIFExpressionParser.RULE_exprList);
-        let _la;
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 14;
-                this.expr();
-                this.state = 20;
-                this._errHandler.sync(this);
-                _la = this._input.LA(1);
-                while (_la === 8 || _la === 9) {
-                    {
-                        {
-                            this.state = 15;
-                            this.logicOperator();
-                            this.state = 16;
-                            this.expr();
-                        }
-                    }
-                    this.state = 22;
-                    this._errHandler.sync(this);
-                    _la = this._input.LA(1);
-                }
-                this.state = 23;
-                this.match(ReksioIFExpressionParser.EOF);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    expr() {
-        const localctx = new ExprContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 2, ReksioIFExpressionParser.RULE_expr);
-        try {
-            this.state = 49;
-            this._errHandler.sync(this);
-            switch (this._interp.adaptivePredict(this._input, 1, this._ctx)) {
-                case 1:
-                    this.enterOuterAlt(localctx, 1);
-                    {
-                        this.state = 25;
-                        localctx._left = this.value();
-                        this.state = 26;
-                        localctx._operator = this.match(ReksioIFExpressionParser.EQUAL);
-                        this.state = 27;
-                        localctx._right = this.value();
-                    }
-                    break;
-                case 2:
-                    this.enterOuterAlt(localctx, 2);
-                    {
-                        this.state = 29;
-                        localctx._left = this.value();
-                        this.state = 30;
-                        localctx._operator = this.match(ReksioIFExpressionParser.NOT_EQUAL);
-                        this.state = 31;
-                        localctx._right = this.value();
-                    }
-                    break;
-                case 3:
-                    this.enterOuterAlt(localctx, 3);
-                    {
-                        this.state = 33;
-                        localctx._left = this.value();
-                        this.state = 34;
-                        localctx._operator = this.match(ReksioIFExpressionParser.GREATER);
-                        this.state = 35;
-                        localctx._right = this.value();
-                    }
-                    break;
-                case 4:
-                    this.enterOuterAlt(localctx, 4);
-                    {
-                        this.state = 37;
-                        localctx._left = this.value();
-                        this.state = 38;
-                        localctx._operator = this.match(ReksioIFExpressionParser.SMALLER);
-                        this.state = 39;
-                        localctx._right = this.value();
-                    }
-                    break;
-                case 5:
-                    this.enterOuterAlt(localctx, 5);
-                    {
-                        this.state = 41;
-                        localctx._left = this.value();
-                        this.state = 42;
-                        localctx._operator = this.match(ReksioIFExpressionParser.GREATER_EQUAL);
-                        this.state = 43;
-                        localctx._right = this.value();
-                    }
-                    break;
-                case 6:
-                    this.enterOuterAlt(localctx, 6);
-                    {
-                        this.state = 45;
-                        localctx._left = this.value();
-                        this.state = 46;
-                        localctx._operator = this.match(ReksioIFExpressionParser.SMALLER_EQUAL);
-                        this.state = 47;
-                        localctx._right = this.value();
-                    }
-                    break;
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    value() {
-        const localctx = new ValueContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 4, ReksioIFExpressionParser.RULE_value);
-        try {
-            this.state = 54;
-            this._errHandler.sync(this);
-            switch (this._input.LA(1)) {
-                case 10:
-                    this.enterOuterAlt(localctx, 1);
-                    {
-                        this.state = 51;
-                        this.identifier();
-                    }
-                    break;
-                case 12:
-                    this.enterOuterAlt(localctx, 2);
-                    {
-                        this.state = 52;
-                        this.string_();
-                    }
-                    break;
-                case 1:
-                case 11:
-                    this.enterOuterAlt(localctx, 3);
-                    {
-                        this.state = 53;
-                        this.number_();
-                    }
-                    break;
-                default:
-                    throw new antlr4_1.NoViableAltException(this);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    number_() {
-        const localctx = new NumberContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 6, ReksioIFExpressionParser.RULE_number);
-        try {
-            this.state = 59;
-            this._errHandler.sync(this);
-            switch (this._input.LA(1)) {
-                case 1:
-                    this.enterOuterAlt(localctx, 1);
-                    {
-                        this.state = 56;
-                        this.match(ReksioIFExpressionParser.T__0);
-                        this.state = 57;
-                        this.match(ReksioIFExpressionParser.NUMBER);
-                    }
-                    break;
-                case 11:
-                    this.enterOuterAlt(localctx, 2);
-                    {
-                        this.state = 58;
-                        this.match(ReksioIFExpressionParser.NUMBER);
-                    }
-                    break;
-                default:
-                    throw new antlr4_1.NoViableAltException(this);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    string_() {
-        const localctx = new StringContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 8, ReksioIFExpressionParser.RULE_string);
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 61;
-                this.match(ReksioIFExpressionParser.STRING);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    identifier() {
-        const localctx = new IdentifierContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 10, ReksioIFExpressionParser.RULE_identifier);
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 63;
-                this.match(ReksioIFExpressionParser.IDENTIFIER);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    logicOperator() {
-        const localctx = new LogicOperatorContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 12, ReksioIFExpressionParser.RULE_logicOperator);
-        let _la;
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 65;
-                _la = this._input.LA(1);
-                if (!(_la === 8 || _la === 9)) {
-                    this._errHandler.recoverInline(this);
-                }
-                else {
-                    this._errHandler.reportMatch(this);
-                    this.consume();
-                }
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    static get _ATN() {
-        if (!ReksioIFExpressionParser.__ATN) {
-            ReksioIFExpressionParser.__ATN = new antlr4_1.ATNDeserializer().deserialize(ReksioIFExpressionParser._serializedATN);
-        }
-        return ReksioIFExpressionParser.__ATN;
-    }
-}
-ReksioIFExpressionParser.T__0 = 1;
-ReksioIFExpressionParser.EQUAL = 2;
-ReksioIFExpressionParser.NOT_EQUAL = 3;
-ReksioIFExpressionParser.GREATER = 4;
-ReksioIFExpressionParser.SMALLER = 5;
-ReksioIFExpressionParser.GREATER_EQUAL = 6;
-ReksioIFExpressionParser.SMALLER_EQUAL = 7;
-ReksioIFExpressionParser.AND = 8;
-ReksioIFExpressionParser.OR = 9;
-ReksioIFExpressionParser.IDENTIFIER = 10;
-ReksioIFExpressionParser.NUMBER = 11;
-ReksioIFExpressionParser.STRING = 12;
-ReksioIFExpressionParser.WHITESPACE = 13;
-ReksioIFExpressionParser.EOF = antlr4_1.Token.EOF;
-ReksioIFExpressionParser.RULE_exprList = 0;
-ReksioIFExpressionParser.RULE_expr = 1;
-ReksioIFExpressionParser.RULE_value = 2;
-ReksioIFExpressionParser.RULE_number = 3;
-ReksioIFExpressionParser.RULE_string = 4;
-ReksioIFExpressionParser.RULE_identifier = 5;
-ReksioIFExpressionParser.RULE_logicOperator = 6;
-ReksioIFExpressionParser.literalNames = [
-    null,
-    "'-'",
-    "'''",
-    "'!''",
-    "'>'",
-    "'<'",
-    "'>''",
-    "'<''",
-    "'&&'",
-    "'||'",
-];
-ReksioIFExpressionParser.symbolicNames = [
-    null,
-    null,
-    'EQUAL',
-    'NOT_EQUAL',
-    'GREATER',
-    'SMALLER',
-    'GREATER_EQUAL',
-    'SMALLER_EQUAL',
-    'AND',
-    'OR',
-    'IDENTIFIER',
-    'NUMBER',
-    'STRING',
-    'WHITESPACE',
-];
-// tslint:disable:no-trailing-whitespace
-ReksioIFExpressionParser.ruleNames = [
-    'exprList',
-    'expr',
-    'value',
-    'number',
-    'string',
-    'identifier',
-    'logicOperator',
-];
-ReksioIFExpressionParser._serializedATN = [
-    4, 1, 13, 68, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4, 2, 5, 7, 5, 2, 6, 7, 6, 1, 0, 1, 0, 1,
-    0, 1, 0, 5, 0, 19, 8, 0, 10, 0, 12, 0, 22, 9, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 50, 8, 1, 1,
-    2, 1, 2, 1, 2, 3, 2, 55, 8, 2, 1, 3, 1, 3, 1, 3, 3, 3, 60, 8, 3, 1, 4, 1, 4, 1, 5, 1, 5, 1, 6, 1, 6, 1, 6, 0, 0,
-    7, 0, 2, 4, 6, 8, 10, 12, 0, 1, 1, 0, 8, 9, 69, 0, 14, 1, 0, 0, 0, 2, 49, 1, 0, 0, 0, 4, 54, 1, 0, 0, 0, 6, 59,
-    1, 0, 0, 0, 8, 61, 1, 0, 0, 0, 10, 63, 1, 0, 0, 0, 12, 65, 1, 0, 0, 0, 14, 20, 3, 2, 1, 0, 15, 16, 3, 12, 6, 0,
-    16, 17, 3, 2, 1, 0, 17, 19, 1, 0, 0, 0, 18, 15, 1, 0, 0, 0, 19, 22, 1, 0, 0, 0, 20, 18, 1, 0, 0, 0, 20, 21, 1,
-    0, 0, 0, 21, 23, 1, 0, 0, 0, 22, 20, 1, 0, 0, 0, 23, 24, 5, 0, 0, 1, 24, 1, 1, 0, 0, 0, 25, 26, 3, 4, 2, 0, 26,
-    27, 5, 2, 0, 0, 27, 28, 3, 4, 2, 0, 28, 50, 1, 0, 0, 0, 29, 30, 3, 4, 2, 0, 30, 31, 5, 3, 0, 0, 31, 32, 3, 4, 2,
-    0, 32, 50, 1, 0, 0, 0, 33, 34, 3, 4, 2, 0, 34, 35, 5, 4, 0, 0, 35, 36, 3, 4, 2, 0, 36, 50, 1, 0, 0, 0, 37, 38,
-    3, 4, 2, 0, 38, 39, 5, 5, 0, 0, 39, 40, 3, 4, 2, 0, 40, 50, 1, 0, 0, 0, 41, 42, 3, 4, 2, 0, 42, 43, 5, 6, 0, 0,
-    43, 44, 3, 4, 2, 0, 44, 50, 1, 0, 0, 0, 45, 46, 3, 4, 2, 0, 46, 47, 5, 7, 0, 0, 47, 48, 3, 4, 2, 0, 48, 50, 1,
-    0, 0, 0, 49, 25, 1, 0, 0, 0, 49, 29, 1, 0, 0, 0, 49, 33, 1, 0, 0, 0, 49, 37, 1, 0, 0, 0, 49, 41, 1, 0, 0, 0, 49,
-    45, 1, 0, 0, 0, 50, 3, 1, 0, 0, 0, 51, 55, 3, 10, 5, 0, 52, 55, 3, 8, 4, 0, 53, 55, 3, 6, 3, 0, 54, 51, 1, 0, 0,
-    0, 54, 52, 1, 0, 0, 0, 54, 53, 1, 0, 0, 0, 55, 5, 1, 0, 0, 0, 56, 57, 5, 1, 0, 0, 57, 60, 5, 11, 0, 0, 58, 60,
-    5, 11, 0, 0, 59, 56, 1, 0, 0, 0, 59, 58, 1, 0, 0, 0, 60, 7, 1, 0, 0, 0, 61, 62, 5, 12, 0, 0, 62, 9, 1, 0, 0, 0,
-    63, 64, 5, 10, 0, 0, 64, 11, 1, 0, 0, 0, 65, 66, 7, 0, 0, 0, 66, 13, 1, 0, 0, 0, 4, 20, 49, 54, 59,
-];
-ReksioIFExpressionParser.DecisionsToDFA = ReksioIFExpressionParser._ATN.decisionToState.map((ds, index) => new antlr4_1.DFA(ds, index));
-exports["default"] = ReksioIFExpressionParser;
-class ExprListContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    expr_list() {
-        return this.getTypedRuleContexts(ExprContext);
-    }
-    expr(i) {
-        return this.getTypedRuleContext(ExprContext, i);
-    }
-    EOF() {
-        return this.getToken(ReksioIFExpressionParser.EOF, 0);
-    }
-    logicOperator_list() {
-        return this.getTypedRuleContexts(LogicOperatorContext);
-    }
-    logicOperator(i) {
-        return this.getTypedRuleContext(LogicOperatorContext, i);
-    }
-    get ruleIndex() {
-        return ReksioIFExpressionParser.RULE_exprList;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitExprList) {
-            return visitor.visitExprList(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.ExprListContext = ExprListContext;
-class ExprContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    value_list() {
-        return this.getTypedRuleContexts(ValueContext);
-    }
-    value(i) {
-        return this.getTypedRuleContext(ValueContext, i);
-    }
-    EQUAL() {
-        return this.getToken(ReksioIFExpressionParser.EQUAL, 0);
-    }
-    NOT_EQUAL() {
-        return this.getToken(ReksioIFExpressionParser.NOT_EQUAL, 0);
-    }
-    GREATER() {
-        return this.getToken(ReksioIFExpressionParser.GREATER, 0);
-    }
-    SMALLER() {
-        return this.getToken(ReksioIFExpressionParser.SMALLER, 0);
-    }
-    GREATER_EQUAL() {
-        return this.getToken(ReksioIFExpressionParser.GREATER_EQUAL, 0);
-    }
-    SMALLER_EQUAL() {
-        return this.getToken(ReksioIFExpressionParser.SMALLER_EQUAL, 0);
-    }
-    get ruleIndex() {
-        return ReksioIFExpressionParser.RULE_expr;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitExpr) {
-            return visitor.visitExpr(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.ExprContext = ExprContext;
-class ValueContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    identifier() {
-        return this.getTypedRuleContext(IdentifierContext, 0);
-    }
-    string_() {
-        return this.getTypedRuleContext(StringContext, 0);
-    }
-    number_() {
-        return this.getTypedRuleContext(NumberContext, 0);
-    }
-    get ruleIndex() {
-        return ReksioIFExpressionParser.RULE_value;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitValue) {
-            return visitor.visitValue(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.ValueContext = ValueContext;
-class NumberContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    NUMBER() {
-        return this.getToken(ReksioIFExpressionParser.NUMBER, 0);
-    }
-    get ruleIndex() {
-        return ReksioIFExpressionParser.RULE_number;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitNumber) {
-            return visitor.visitNumber(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.NumberContext = NumberContext;
-class StringContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    STRING() {
-        return this.getToken(ReksioIFExpressionParser.STRING, 0);
-    }
-    get ruleIndex() {
-        return ReksioIFExpressionParser.RULE_string;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitString) {
-            return visitor.visitString(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.StringContext = StringContext;
-class IdentifierContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    IDENTIFIER() {
-        return this.getToken(ReksioIFExpressionParser.IDENTIFIER, 0);
-    }
-    get ruleIndex() {
-        return ReksioIFExpressionParser.RULE_identifier;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitIdentifier) {
-            return visitor.visitIdentifier(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.IdentifierContext = IdentifierContext;
-class LogicOperatorContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    AND() {
-        return this.getToken(ReksioIFExpressionParser.AND, 0);
-    }
-    OR() {
-        return this.getToken(ReksioIFExpressionParser.OR, 0);
-    }
-    get ruleIndex() {
-        return ReksioIFExpressionParser.RULE_logicOperator;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitLogicOperator) {
-            return visitor.visitLogicOperator(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.LogicOperatorContext = LogicOperatorContext;
-
-
-/***/ }),
-
-/***/ "./src/interpreter/ifExpression/ReksioIFExpressionVisitor.ts":
-/*!*******************************************************************!*\
-  !*** ./src/interpreter/ifExpression/ReksioIFExpressionVisitor.ts ***!
-  \*******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-// Generated from ./src/interpreter/ifExpression/ReksioIFExpression.g4 by ANTLR 4.13.2
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const antlr4_1 = __webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs");
-/**
- * This interface defines a complete generic visitor for a parse tree produced
- * by `ReksioIFExpressionParser`.
- *
- * @param <Result> The return type of the visit operation. Use `void` for
- * operations with no return type.
- */
-class ReksioIFExpressionVisitor extends antlr4_1.ParseTreeVisitor {
-}
-exports["default"] = ReksioIFExpressionVisitor;
-
-
-/***/ }),
-
-/***/ "./src/interpreter/ifExpression/index.ts":
-/*!***********************************************!*\
-  !*** ./src/interpreter/ifExpression/index.ts ***!
-  \***********************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+exports.EXPR_OP_SYMBOL = exports.EXPR_OP_CODE = void 0;
+exports.EXPR_OP_CODE = {
+    ADD: 1,
+    SUB: 2,
+    MUL: 3,
+    DIV: 4,
+    MOD: 5,
 };
+exports.EXPR_OP_SYMBOL = {
+    '+': 'ADD',
+    '-': 'SUB',
+    '*': 'MUL',
+    '@': 'DIV',
+    '%': 'MOD',
+};
+
+
+/***/ }),
+
+/***/ "./src/interpreter/expression/index.ts":
+/*!*********************************************!*\
+  !*** ./src/interpreter/expression/index.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.evaluateExpression = exports.ExpressionEvaluator = void 0;
-const ReksioIFExpressionVisitor_1 = __importDefault(__webpack_require__(/*! ./ReksioIFExpressionVisitor */ "./src/interpreter/ifExpression/ReksioIFExpressionVisitor.ts"));
-const antlr4_1 = __importDefault(__webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs"));
-const ReksioIFExpressionParser_1 = __importDefault(__webpack_require__(/*! ./ReksioIFExpressionParser */ "./src/interpreter/ifExpression/ReksioIFExpressionParser.ts"));
-const ReksioIFExpressionLexer_1 = __importDefault(__webpack_require__(/*! ./ReksioIFExpressionLexer */ "./src/interpreter/ifExpression/ReksioIFExpressionLexer.ts"));
-const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
-const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
-class ExpressionEvaluator extends ReksioIFExpressionVisitor_1.default {
-    constructor(engine, caller) {
-        super();
+exports.parseLogicExpression = void 0;
+const parser_1 = __webpack_require__(/*! ../parser */ "./src/interpreter/parser.ts");
+/**
+ * Parse a logical condition expression like:
+ *   `VARSITEMON'"TARGET"||VARSITEMON^FIND("GOTO_")>-1`
+ *
+ * Supports:
+ *   - Comparison operators: ' (eq), !' (ne), < (lt), <' (le), > (gt), >' (ge), ? (has)
+ *   - Logical operators: && (and), || (or)
+ *
+ * The original engine does NOT support mixed && and || in the same
+ * expression. It uses whichever operator is found first and splits on that.
+ */
+function parseLogicExpression(text, offset = 0) {
+    const originalText = text;
+    text = text.trim();
+    const trimOffset = offset + originalText.indexOf(text);
+    if (!text) {
+        throw new parser_1.ParseError('empty logic expression', text);
+    }
+    // Find logical operators (respecting parentheses and quotes)
+    const andIndex = _findLogicOperator(text, '&&');
+    const orIndex = _findLogicOperator(text, '||');
+    // Check if we have compound expression
+    const hasAnd = andIndex !== -1;
+    const hasOr = orIndex !== -1;
+    if (!hasAnd && !hasOr) {
+        // Simple condition, no logical operators
+        return _parseCondition(text, trimOffset);
+    }
+    // Determine which operator to use (whichever appears first, or only one present)
+    let logicOp;
+    let operatorStr;
+    if (hasAnd && (!hasOr || andIndex < orIndex)) {
+        logicOp = 'AND';
+        operatorStr = '&&';
+    }
+    else {
+        logicOp = 'OR';
+        operatorStr = '||';
+    }
+    // Split by the chosen operator
+    const parts = _splitByLogicOperator(text, operatorStr);
+    const conditions = [];
+    let currentOffset = trimOffset;
+    for (const part of parts) {
+        const trimmedPart = part.trim();
+        if (!trimmedPart)
+            continue;
+        const partStart = trimOffset + text.indexOf(trimmedPart, currentOffset - trimOffset);
+        conditions.push(_parseCondition(trimmedPart, partStart));
+        currentOffset = partStart + trimmedPart.length;
+    }
+    if (conditions.length === 1) {
+        return conditions[0];
+    }
+    return {
+        type: 'LogicExpression',
+        operator: logicOp,
+        conditions,
+        start: trimOffset,
+        end: trimOffset + text.length,
+    };
+}
+exports.parseLogicExpression = parseLogicExpression;
+/**
+ * Find a logical operator in text, respecting parentheses and quotes.
+ */
+function _findLogicOperator(text, operator) {
+    let parenDepth = 0;
+    let inQuotes = false;
+    for (let i = 0; i < text.length - (operator.length - 1); i++) {
+        const ch = text[i];
+        if (ch === '"' && (i === 0 || text[i - 1] !== '\\')) {
+            inQuotes = !inQuotes;
+            continue;
+        }
+        if (inQuotes)
+            continue;
+        if (ch === '(') {
+            parenDepth++;
+        }
+        else if (ch === ')') {
+            parenDepth--;
+        }
+        else if (parenDepth === 0) {
+            if (text.slice(i, i + operator.length) === operator) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+/**
+ * Split text by a logical operator, respecting parentheses and quotes.
+ */
+function _splitByLogicOperator(text, operator) {
+    const parts = [];
+    let parenDepth = 0;
+    let inQuotes = false;
+    let start = 0;
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (ch === '"' && (i === 0 || text[i - 1] !== '\\')) {
+            inQuotes = !inQuotes;
+            continue;
+        }
+        if (inQuotes)
+            continue;
+        if (ch === '(') {
+            parenDepth++;
+        }
+        else if (ch === ')') {
+            parenDepth--;
+        }
+        else if (parenDepth === 0) {
+            if (text.slice(i, i + operator.length) === operator) {
+                parts.push(text.slice(start, i));
+                start = i + operator.length;
+            }
+        }
+    }
+    parts.push(text.slice(start));
+    return parts;
+}
+/**
+ * Parse a single condition like `VARSITEMON'"TARGET"`.
+ *
+ * Operator detection priority (matching original engine):
+ *   1. Find `'` → check char before for `!`, `<`, `>`
+ *   2. Find `<` alone
+ *   3. Find `>` alone
+ *   4. Find `?`
+ */
+function _parseCondition(text, offset) {
+    const originalText = text;
+    text = text.trim();
+    const trimOffset = offset + originalText.indexOf(text);
+    const result = _findComparisonOperator(text);
+    if (!result) {
+        throw new parser_1.ParseError('no comparison operator found', text, trimOffset);
+    }
+    const { operatorIndex, operatorLength, operator } = result;
+    // Extract left and right operands
+    const leftText = text.slice(0, operatorIndex).trim();
+    const rightText = text.slice(operatorIndex + operatorLength).trim();
+    if (!leftText) {
+        throw new parser_1.ParseError('missing left operand', text, trimOffset);
+    }
+    if (!rightText) {
+        throw new parser_1.ParseError('missing right operand', text, trimOffset + operatorIndex + operatorLength);
+    }
+    const leftStart = trimOffset + text.indexOf(leftText);
+    const rightStart = trimOffset + text.indexOf(rightText, operatorIndex + operatorLength);
+    return {
+        type: 'Condition',
+        left: (0, parser_1.parseParameter)(leftText, leftStart),
+        operator,
+        right: (0, parser_1.parseParameter)(rightText, rightStart),
+        start: trimOffset,
+        end: trimOffset + text.length,
+    };
+}
+/**
+ * Find the comparison operator in a condition string.
+ *
+ * Returns the operator info or null if not found.
+ *
+ * Detection order matches the original CMC_Condition::valid:
+ *   1. Find `'` and check preceding char for compound operators
+ *   2. Find standalone `<`
+ *   3. Find standalone `>`
+ *   4. Find `?`
+ */
+function _findComparisonOperator(text) {
+    // Search for operators outside of quotes and parentheses
+    let parenDepth = 0;
+    let inQuotes = false;
+    // First pass: look for apostrophe-based operators
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (ch === '"' && (i === 0 || text[i - 1] !== '\\')) {
+            inQuotes = !inQuotes;
+            continue;
+        }
+        if (inQuotes)
+            continue;
+        if (ch === '(') {
+            parenDepth++;
+        }
+        else if (ch === ')') {
+            parenDepth--;
+        }
+        else if (parenDepth === 0 && ch === "'") {
+            // Found apostrophe - check preceding character
+            if (i > 0) {
+                const prevChar = text[i - 1];
+                if (prevChar === '!') {
+                    return { operatorIndex: i - 1, operatorLength: 2, operator: 'NE' };
+                }
+                if (prevChar === '<') {
+                    return { operatorIndex: i - 1, operatorLength: 2, operator: 'LE' };
+                }
+                if (prevChar === '>') {
+                    return { operatorIndex: i - 1, operatorLength: 2, operator: 'GE' };
+                }
+            }
+            // Plain apostrophe = equals
+            return { operatorIndex: i, operatorLength: 1, operator: 'EQ' };
+        }
+    }
+    // Second pass: look for standalone < > ?
+    parenDepth = 0;
+    inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (ch === '"' && (i === 0 || text[i - 1] !== '\\')) {
+            inQuotes = !inQuotes;
+            continue;
+        }
+        if (inQuotes)
+            continue;
+        if (ch === '(') {
+            parenDepth++;
+        }
+        else if (ch === ')') {
+            parenDepth--;
+        }
+        else if (parenDepth === 0) {
+            // Check for < but not <' (already handled above)
+            if (ch === '<' && (i + 1 >= text.length || text[i + 1] !== "'")) {
+                return { operatorIndex: i, operatorLength: 1, operator: 'LT' };
+            }
+            // Check for > but not >' (already handled above)
+            if (ch === '>' && (i + 1 >= text.length || text[i + 1] !== "'")) {
+                return { operatorIndex: i, operatorLength: 1, operator: 'GT' };
+            }
+            if (ch === '?') {
+                return { operatorIndex: i, operatorLength: 1, operator: 'HAS' };
+            }
+        }
+    }
+    return null;
+}
+
+
+/***/ }),
+
+/***/ "./src/interpreter/index.ts":
+/*!**********************************!*\
+  !*** ./src/interpreter/index.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.InterruptScriptExecution = exports.RuntimeError = exports.runCode = exports.parseLogicExpression = exports.ParseError = exports.parseCode = exports.EXPR_OP_SYMBOL = exports.EXPR_OP_CODE = void 0;
+var ast_1 = __webpack_require__(/*! ./ast */ "./src/interpreter/ast.ts");
+Object.defineProperty(exports, "EXPR_OP_CODE", ({ enumerable: true, get: function () { return ast_1.EXPR_OP_CODE; } }));
+Object.defineProperty(exports, "EXPR_OP_SYMBOL", ({ enumerable: true, get: function () { return ast_1.EXPR_OP_SYMBOL; } }));
+var parser_1 = __webpack_require__(/*! ./parser */ "./src/interpreter/parser.ts");
+Object.defineProperty(exports, "parseCode", ({ enumerable: true, get: function () { return parser_1.parseCode; } }));
+Object.defineProperty(exports, "ParseError", ({ enumerable: true, get: function () { return parser_1.ParseError; } }));
+var expression_1 = __webpack_require__(/*! ./expression */ "./src/interpreter/expression/index.ts");
+Object.defineProperty(exports, "parseLogicExpression", ({ enumerable: true, get: function () { return expression_1.parseLogicExpression; } }));
+var interpreter_1 = __webpack_require__(/*! ./interpreter */ "./src/interpreter/interpreter.ts");
+Object.defineProperty(exports, "runCode", ({ enumerable: true, get: function () { return interpreter_1.runCode; } }));
+Object.defineProperty(exports, "RuntimeError", ({ enumerable: true, get: function () { return interpreter_1.RuntimeError; } }));
+Object.defineProperty(exports, "InterruptScriptExecution", ({ enumerable: true, get: function () { return interpreter_1.InterruptScriptExecution; } }));
+
+
+/***/ }),
+
+/***/ "./src/interpreter/interpreter.ts":
+/*!****************************************!*\
+  !*** ./src/interpreter/interpreter.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.runCode = exports.Interpreter = exports.InterruptScriptExecution = exports.RuntimeContext = exports.RuntimeError = void 0;
+const types_1 = __webpack_require__(/*! ../engine/types */ "./src/engine/types/index.ts");
+const struct_1 = __webpack_require__(/*! ../engine/types/struct */ "./src/engine/types/struct.ts");
+const types_2 = __webpack_require__(/*! ../common/types */ "./src/common/types.ts");
+const rand_1 = __webpack_require__(/*! ../engine/types/rand */ "./src/engine/types/rand.ts");
+const system_1 = __webpack_require__(/*! ../engine/types/system */ "./src/engine/types/system.ts");
+const cnvloader_1 = __webpack_require__(/*! ../engine/types/cnvloader */ "./src/engine/types/cnvloader.ts");
+const common_1 = __webpack_require__(/*! ../fileFormats/common */ "./src/fileFormats/common/index.ts");
+const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
+const integer_1 = __webpack_require__(/*! ../engine/types/integer */ "./src/engine/types/integer.ts");
+const string_1 = __webpack_require__(/*! ../engine/types/string */ "./src/engine/types/string.ts");
+const parser_1 = __webpack_require__(/*! ./parser */ "./src/interpreter/parser.ts");
+const expression_1 = __webpack_require__(/*! ./expression */ "./src/interpreter/expression/index.ts");
+const logging_1 = __webpack_require__(/*! ../engine/logging */ "./src/engine/logging.ts");
+const stacktrace_1 = __webpack_require__(/*! ./stacktrace */ "./src/interpreter/stacktrace.ts");
+class RuntimeError extends Error {
+    constructor(message) {
+        super(`Runtime error: ${message}`);
+        this.name = 'RuntimeError';
+    }
+}
+exports.RuntimeError = RuntimeError;
+class SilentError {
+    constructor(cause) {
+        this.cause = cause;
+    }
+}
+class RuntimeContext {
+    constructor(engine, caller, script) {
         this.engine = engine;
         this.caller = caller;
-        this.visitExprList = async (ctx) => {
-            const subResults = [];
-            for (const entry of this.visitChildren(ctx)) {
-                const value = await entry;
-                if (value !== undefined) {
-                    subResults.push(value);
-                }
-            }
-            let result = subResults[0];
-            for (let i = 1; i < subResults.length - 1; i += 2) {
-                const operator = subResults[i];
-                const nextValue = subResults[i + 1];
-                if (operator === '&&') {
-                    result = result && nextValue;
-                }
-                else if (operator === '||') {
-                    result = result || nextValue;
-                }
-            }
-            return result;
-        };
-        this.visitExpr = async (ctx) => {
-            const left = await this.visit(ctx._left)[0];
-            const right = await this.visit(ctx._right)[0];
-            if (ctx._operator.type == ReksioIFExpressionParser_1.default.EQUAL) {
-                return left == right;
-            }
-            else if (ctx._operator.type == ReksioIFExpressionParser_1.default.NOT_EQUAL) {
-                return left != right;
-            }
-            else if (ctx._operator.type == ReksioIFExpressionParser_1.default.GREATER) {
-                return left > right;
-            }
-            else if (ctx._operator.type == ReksioIFExpressionParser_1.default.SMALLER) {
-                return left < right;
-            }
-            else if (ctx._operator.type == ReksioIFExpressionParser_1.default.GREATER_EQUAL) {
-                return left >= right;
-            }
-            else if (ctx._operator.type == ReksioIFExpressionParser_1.default.SMALLER_EQUAL) {
-                return left <= right;
-            }
-        };
-        this.visitString = (ctx) => {
-            return ctx.STRING().getText().replace(/^"|"$/g, '');
-        };
-        this.visitNumber = (ctx) => {
-            return (0, types_1.ForceNumber)(ctx.getText());
-        };
-        this.visitIdentifier = async (ctx) => {
-            const object = this.engine.getObject(ctx.getText(), this.caller?.parentScope);
-            (0, errors_1.assert)(object !== null);
-            return await object.getValue();
-        };
-        this.visitLogicOperator = (ctx) => {
-            return ctx.getText();
-        };
+        this.script = script;
     }
 }
-exports.ExpressionEvaluator = ExpressionEvaluator;
-const evaluateExpression = async (engine, caller, script) => {
-    const lexer = new ReksioIFExpressionLexer_1.default(new antlr4_1.default.CharStream(script));
-    const tokens = new antlr4_1.default.CommonTokenStream(lexer);
-    const parser = new ReksioIFExpressionParser_1.default(tokens);
-    const tree = parser.exprList();
-    const evaluator = new ExpressionEvaluator(engine, caller);
-    return await tree.accept(evaluator);
-};
-exports.evaluateExpression = evaluateExpression;
-
-
-/***/ }),
-
-/***/ "./src/interpreter/script/ReksioLangLexer.ts":
-/*!***************************************************!*\
-  !*** ./src/interpreter/script/ReksioLangLexer.ts ***!
-  \***************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-// Generated from ./src/interpreter/script/ReksioLangLexer.g4 by ANTLR 4.13.2
-// noinspection ES6UnusedImports,JSUnusedGlobalSymbols,JSUnusedLocalSymbols
-const antlr4_1 = __webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs");
-class ReksioLangLexer extends antlr4_1.Lexer {
-    constructor(input) {
-        super(input);
-        this._interp = new antlr4_1.LexerATNSimulator(this, ReksioLangLexer._ATN, ReksioLangLexer.DecisionsToDFA, new antlr4_1.PredictionContextCache());
-    }
-    get grammarFileName() { return "ReksioLangLexer.g4"; }
-    get literalNames() { return ReksioLangLexer.literalNames; }
-    get symbolicNames() { return ReksioLangLexer.symbolicNames; }
-    get ruleNames() { return ReksioLangLexer.ruleNames; }
-    get serializedATN() { return ReksioLangLexer._serializedATN; }
-    get channelNames() { return ReksioLangLexer.channelNames; }
-    get modeNames() { return ReksioLangLexer.modeNames; }
-    // @Override
-    sempred(localctx, ruleIndex, predIndex) {
-        switch (ruleIndex) {
-            case 38:
-                return this.IDENTIFIER_sempred(localctx, predIndex);
-            case 60:
-                return this.I_IDENTIFIER_sempred(localctx, predIndex);
-        }
-        return true;
-    }
-    IDENTIFIER_sempred(localctx, predIndex) {
-        switch (predIndex) {
-            case 0:
-                return this.text.match(/[A-Za-z$]/) !== null;
-        }
-        return true;
-    }
-    I_IDENTIFIER_sempred(localctx, predIndex) {
-        switch (predIndex) {
-            case 1:
-                return this.text.match(/[A-Za-z$]/) !== null;
-        }
-        return true;
-    }
-    static get _ATN() {
-        if (!ReksioLangLexer.__ATN) {
-            ReksioLangLexer.__ATN = new antlr4_1.ATNDeserializer().deserialize(ReksioLangLexer._serializedATN);
-        }
-        return ReksioLangLexer.__ATN;
-    }
-}
-ReksioLangLexer.TRUE = 1;
-ReksioLangLexer.FALSE = 2;
-ReksioLangLexer.NUMBER = 3;
-ReksioLangLexer.CODE_STRING = 4;
-ReksioLangLexer.STRING = 5;
-ReksioLangLexer.COMMENT_START = 6;
-ReksioLangLexer.PLUS = 7;
-ReksioLangLexer.MINUS = 8;
-ReksioLangLexer.ASTERISK = 9;
-ReksioLangLexer.PERCENTAGE = 10;
-ReksioLangLexer.AT = 11;
-ReksioLangLexer.METHOD_CALL_SYMBOL = 12;
-ReksioLangLexer.TYPO = 13;
-ReksioLangLexer.TYPO_QUOTE = 14;
-ReksioLangLexer.WHITESPACE = 15;
-ReksioLangLexer.COMMA = 16;
-ReksioLangLexer.FIELD_ACCESS = 17;
-ReksioLangLexer.IDENTIFIER = 18;
-ReksioLangLexer.BRACKET_START = 19;
-ReksioLangLexer.BRACKET_END = 20;
-ReksioLangLexer.OPERATION_GROUPING_START = 21;
-ReksioLangLexer.OPERATION_GROUPING_END = 22;
-ReksioLangLexer.STATEMENT_END = 23;
-ReksioLangLexer.I_WHITESPACE = 24;
-ReksioLangLexer.MISSING_QUOTE_TEXT = 25;
-ReksioLangLexer.EOF = antlr4_1.Token.EOF;
-ReksioLangLexer.INSIDE = 1;
-ReksioLangLexer.MISSING_QUOTE = 2;
-ReksioLangLexer.channelNames = ["DEFAULT_TOKEN_CHANNEL", "HIDDEN"];
-ReksioLangLexer.literalNames = [null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, "';'"];
-ReksioLangLexer.symbolicNames = [null, "TRUE",
-    "FALSE", "NUMBER",
-    "CODE_STRING",
-    "STRING", "COMMENT_START",
-    "PLUS", "MINUS",
-    "ASTERISK",
-    "PERCENTAGE",
-    "AT", "METHOD_CALL_SYMBOL",
-    "TYPO", "TYPO_QUOTE",
-    "WHITESPACE",
-    "COMMA", "FIELD_ACCESS",
-    "IDENTIFIER",
-    "BRACKET_START",
-    "BRACKET_END",
-    "OPERATION_GROUPING_START",
-    "OPERATION_GROUPING_END",
-    "STATEMENT_END",
-    "I_WHITESPACE",
-    "MISSING_QUOTE_TEXT"];
-ReksioLangLexer.modeNames = ["DEFAULT_MODE", "INSIDE",
-    "MISSING_QUOTE",];
-ReksioLangLexer.ruleNames = [
-    "F_TRUE", "F_FALSE", "F_NUMBER", "F_CODE_STRING", "F_STRING", "F_COMMENT_START",
-    "F_PLUS", "F_MINUS", "F_ASTERISK", "F_PERCENTAGE", "F_AT", "F_METHOD_CALL_SYMBOL",
-    "F_OPERATION_GROUPING_START", "F_OPERATION_GROUPING_END", "F_BRACKET_START",
-    "F_BRACKET_END", "F_COMMA", "F_FIELD_ACCESS", "F_TYPO", "F_TYPO_QUOTE",
-    "F_WHITESPACE", "TRUE", "FALSE", "NUMBER", "CODE_STRING", "STRING", "COMMENT_START",
-    "PLUS", "MINUS", "ASTERISK", "PERCENTAGE", "AT", "METHOD_CALL_SYMBOL",
-    "TYPO", "TYPO_QUOTE", "WHITESPACE", "COMMA", "FIELD_ACCESS", "IDENTIFIER",
-    "BRACKET_START", "BRACKET_END", "OPERATION_GROUPING_START", "OPERATION_GROUPING_END",
-    "STATEMENT_END", "I_TRUE", "I_FALSE", "I_NUMBER", "I_CODE_STRING", "I_STRING",
-    "I_COMMENT_START", "I_PLUS", "I_MINUS", "I_ASTERISK", "I_PERCENTAGE",
-    "I_AT", "I_METHOD_CALL_SYMBOL", "I_TYPO", "I_WHITESPACE", "I_COMMA", "I_FIELD_ACCESS",
-    "I_IDENTIFIER", "I_BRACKET_START", "I_BRACKET_END", "I_OPERATION_GROUPING_START",
-    "I_OPERATION_GROUPING_END", "MISSING_QUOTE_TEXT",
-];
-ReksioLangLexer._serializedATN = [4, 0, 25, 392, 6, -1, 6, -1,
-    6, -1, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2,
-    8, 7, 8, 2, 9, 7, 9, 2, 10, 7, 10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7,
-    15, 2, 16, 7, 16, 2, 17, 7, 17, 2, 18, 7, 18, 2, 19, 7, 19, 2, 20, 7, 20, 2, 21, 7, 21, 2, 22, 7, 22,
-    2, 23, 7, 23, 2, 24, 7, 24, 2, 25, 7, 25, 2, 26, 7, 26, 2, 27, 7, 27, 2, 28, 7, 28, 2, 29, 7, 29, 2,
-    30, 7, 30, 2, 31, 7, 31, 2, 32, 7, 32, 2, 33, 7, 33, 2, 34, 7, 34, 2, 35, 7, 35, 2, 36, 7, 36, 2, 37,
-    7, 37, 2, 38, 7, 38, 2, 39, 7, 39, 2, 40, 7, 40, 2, 41, 7, 41, 2, 42, 7, 42, 2, 43, 7, 43, 2, 44, 7,
-    44, 2, 45, 7, 45, 2, 46, 7, 46, 2, 47, 7, 47, 2, 48, 7, 48, 2, 49, 7, 49, 2, 50, 7, 50, 2, 51, 7, 51,
-    2, 52, 7, 52, 2, 53, 7, 53, 2, 54, 7, 54, 2, 55, 7, 55, 2, 56, 7, 56, 2, 57, 7, 57, 2, 58, 7, 58, 2,
-    59, 7, 59, 2, 60, 7, 60, 2, 61, 7, 61, 2, 62, 7, 62, 2, 63, 7, 63, 2, 64, 7, 64, 2, 65, 7, 65, 1, 0,
-    1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 3, 0, 144, 8, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 3, 1, 156, 8, 1, 1, 2, 4, 2, 159, 8, 2, 11, 2, 12, 2, 160, 1, 2, 1, 2, 4, 2, 165, 8, 2, 11,
-    2, 12, 2, 166, 3, 2, 169, 8, 2, 1, 3, 1, 3, 1, 3, 1, 3, 5, 3, 175, 8, 3, 10, 3, 12, 3, 178, 9, 3, 1,
-    3, 1, 3, 1, 3, 1, 4, 1, 4, 5, 4, 185, 8, 4, 10, 4, 12, 4, 188, 9, 4, 1, 4, 1, 4, 1, 5, 4, 5, 193, 8, 5,
-    11, 5, 12, 5, 194, 1, 6, 1, 6, 1, 7, 1, 7, 1, 8, 1, 8, 1, 9, 1, 9, 1, 10, 1, 10, 1, 11, 1, 11, 1, 12,
-    1, 12, 1, 13, 1, 13, 1, 14, 1, 14, 1, 15, 1, 15, 1, 16, 1, 16, 1, 17, 1, 17, 1, 18, 1, 18, 1, 19, 1,
-    19, 1, 20, 4, 20, 226, 8, 20, 11, 20, 12, 20, 227, 1, 21, 1, 21, 1, 22, 1, 22, 1, 23, 1, 23, 1, 24,
-    1, 24, 1, 25, 1, 25, 1, 26, 1, 26, 1, 27, 1, 27, 1, 28, 1, 28, 1, 29, 1, 29, 1, 30, 1, 30, 1, 31, 1,
-    31, 1, 32, 1, 32, 1, 33, 1, 33, 1, 34, 1, 34, 1, 34, 1, 34, 1, 35, 1, 35, 1, 35, 1, 35, 1, 36, 1, 36,
-    1, 37, 1, 37, 1, 38, 4, 38, 269, 8, 38, 11, 38, 12, 38, 270, 1, 38, 1, 38, 1, 39, 1, 39, 1, 39, 1,
-    39, 1, 40, 1, 40, 1, 40, 1, 40, 1, 41, 1, 41, 1, 41, 1, 41, 1, 42, 1, 42, 1, 42, 1, 42, 1, 43, 1, 43,
-    1, 44, 1, 44, 1, 44, 1, 44, 1, 45, 1, 45, 1, 45, 1, 45, 1, 46, 1, 46, 1, 46, 1, 46, 1, 47, 1, 47, 1,
-    47, 1, 47, 1, 48, 1, 48, 1, 48, 1, 48, 1, 49, 1, 49, 1, 49, 1, 49, 1, 50, 1, 50, 1, 50, 1, 50, 1, 51,
-    1, 51, 1, 51, 1, 51, 1, 52, 1, 52, 1, 52, 1, 52, 1, 53, 1, 53, 1, 53, 1, 53, 1, 54, 1, 54, 1, 54, 1,
-    54, 1, 55, 1, 55, 1, 55, 1, 55, 1, 56, 1, 56, 1, 56, 1, 56, 1, 57, 1, 57, 1, 57, 1, 57, 1, 58, 1, 58,
-    1, 58, 1, 58, 1, 59, 1, 59, 1, 59, 1, 59, 1, 60, 4, 60, 358, 8, 60, 11, 60, 12, 60, 359, 1, 60, 1,
-    60, 1, 60, 1, 60, 1, 61, 1, 61, 1, 61, 1, 61, 1, 61, 1, 62, 1, 62, 1, 62, 1, 62, 1, 62, 1, 63, 1, 63,
-    1, 63, 1, 63, 1, 63, 1, 64, 1, 64, 1, 64, 1, 64, 1, 64, 1, 65, 4, 65, 387, 8, 65, 11, 65, 12, 65,
-    388, 1, 65, 1, 65, 0, 0, 66, 3, 0, 5, 0, 7, 0, 9, 0, 11, 0, 13, 0, 15, 0, 17, 0, 19, 0, 21, 0, 23, 0,
-    25, 0, 27, 0, 29, 0, 31, 0, 33, 0, 35, 0, 37, 0, 39, 0, 41, 0, 43, 0, 45, 1, 47, 2, 49, 3, 51, 4, 53,
-    5, 55, 6, 57, 7, 59, 8, 61, 9, 63, 10, 65, 11, 67, 12, 69, 13, 71, 14, 73, 15, 75, 16, 77, 17, 79,
-    18, 81, 19, 83, 20, 85, 21, 87, 22, 89, 23, 91, 0, 93, 0, 95, 0, 97, 0, 99, 0, 101, 0, 103, 0, 105,
-    0, 107, 0, 109, 0, 111, 0, 113, 0, 115, 0, 117, 24, 119, 0, 121, 0, 123, 0, 125, 0, 127, 0, 129,
-    0, 131, 0, 133, 25, 3, 0, 1, 2, 8, 1, 0, 48, 57, 1, 0, 123, 123, 2, 0, 41, 41, 43, 44, 2, 0, 58, 58,
-    62, 62, 3, 0, 9, 10, 12, 13, 32, 32, 6, 0, 36, 36, 45, 45, 48, 57, 65, 90, 95, 95, 97, 122, 5, 0,
-    36, 36, 48, 57, 65, 90, 95, 95, 97, 122, 2, 0, 41, 41, 44, 44, 380, 0, 45, 1, 0, 0, 0, 0, 47, 1,
-    0, 0, 0, 0, 49, 1, 0, 0, 0, 0, 51, 1, 0, 0, 0, 0, 53, 1, 0, 0, 0, 0, 55, 1, 0, 0, 0, 0, 57, 1, 0, 0, 0,
-    0, 59, 1, 0, 0, 0, 0, 61, 1, 0, 0, 0, 0, 63, 1, 0, 0, 0, 0, 65, 1, 0, 0, 0, 0, 67, 1, 0, 0, 0, 0, 69, 1,
-    0, 0, 0, 0, 71, 1, 0, 0, 0, 0, 73, 1, 0, 0, 0, 0, 75, 1, 0, 0, 0, 0, 77, 1, 0, 0, 0, 0, 79, 1, 0, 0, 0,
-    0, 81, 1, 0, 0, 0, 0, 83, 1, 0, 0, 0, 0, 85, 1, 0, 0, 0, 0, 87, 1, 0, 0, 0, 0, 89, 1, 0, 0, 0, 1, 91, 1,
-    0, 0, 0, 1, 93, 1, 0, 0, 0, 1, 95, 1, 0, 0, 0, 1, 97, 1, 0, 0, 0, 1, 99, 1, 0, 0, 0, 1, 101, 1, 0, 0, 0,
-    1, 103, 1, 0, 0, 0, 1, 105, 1, 0, 0, 0, 1, 107, 1, 0, 0, 0, 1, 109, 1, 0, 0, 0, 1, 111, 1, 0, 0, 0, 1,
-    113, 1, 0, 0, 0, 1, 115, 1, 0, 0, 0, 1, 117, 1, 0, 0, 0, 1, 119, 1, 0, 0, 0, 1, 121, 1, 0, 0, 0, 1, 123,
-    1, 0, 0, 0, 1, 125, 1, 0, 0, 0, 1, 127, 1, 0, 0, 0, 1, 129, 1, 0, 0, 0, 1, 131, 1, 0, 0, 0, 2, 133, 1,
-    0, 0, 0, 3, 143, 1, 0, 0, 0, 5, 155, 1, 0, 0, 0, 7, 158, 1, 0, 0, 0, 9, 170, 1, 0, 0, 0, 11, 182, 1,
-    0, 0, 0, 13, 192, 1, 0, 0, 0, 15, 196, 1, 0, 0, 0, 17, 198, 1, 0, 0, 0, 19, 200, 1, 0, 0, 0, 21, 202,
-    1, 0, 0, 0, 23, 204, 1, 0, 0, 0, 25, 206, 1, 0, 0, 0, 27, 208, 1, 0, 0, 0, 29, 210, 1, 0, 0, 0, 31,
-    212, 1, 0, 0, 0, 33, 214, 1, 0, 0, 0, 35, 216, 1, 0, 0, 0, 37, 218, 1, 0, 0, 0, 39, 220, 1, 0, 0, 0,
-    41, 222, 1, 0, 0, 0, 43, 225, 1, 0, 0, 0, 45, 229, 1, 0, 0, 0, 47, 231, 1, 0, 0, 0, 49, 233, 1, 0,
-    0, 0, 51, 235, 1, 0, 0, 0, 53, 237, 1, 0, 0, 0, 55, 239, 1, 0, 0, 0, 57, 241, 1, 0, 0, 0, 59, 243,
-    1, 0, 0, 0, 61, 245, 1, 0, 0, 0, 63, 247, 1, 0, 0, 0, 65, 249, 1, 0, 0, 0, 67, 251, 1, 0, 0, 0, 69,
-    253, 1, 0, 0, 0, 71, 255, 1, 0, 0, 0, 73, 259, 1, 0, 0, 0, 75, 263, 1, 0, 0, 0, 77, 265, 1, 0, 0, 0,
-    79, 268, 1, 0, 0, 0, 81, 274, 1, 0, 0, 0, 83, 278, 1, 0, 0, 0, 85, 282, 1, 0, 0, 0, 87, 286, 1, 0,
-    0, 0, 89, 290, 1, 0, 0, 0, 91, 292, 1, 0, 0, 0, 93, 296, 1, 0, 0, 0, 95, 300, 1, 0, 0, 0, 97, 304,
-    1, 0, 0, 0, 99, 308, 1, 0, 0, 0, 101, 312, 1, 0, 0, 0, 103, 316, 1, 0, 0, 0, 105, 320, 1, 0, 0, 0,
-    107, 324, 1, 0, 0, 0, 109, 328, 1, 0, 0, 0, 111, 332, 1, 0, 0, 0, 113, 336, 1, 0, 0, 0, 115, 340,
-    1, 0, 0, 0, 117, 344, 1, 0, 0, 0, 119, 348, 1, 0, 0, 0, 121, 352, 1, 0, 0, 0, 123, 357, 1, 0, 0, 0,
-    125, 365, 1, 0, 0, 0, 127, 370, 1, 0, 0, 0, 129, 375, 1, 0, 0, 0, 131, 380, 1, 0, 0, 0, 133, 386,
-    1, 0, 0, 0, 135, 136, 5, 84, 0, 0, 136, 137, 5, 82, 0, 0, 137, 138, 5, 85, 0, 0, 138, 144, 5, 69,
-    0, 0, 139, 140, 5, 116, 0, 0, 140, 141, 5, 114, 0, 0, 141, 142, 5, 117, 0, 0, 142, 144, 5, 101,
-    0, 0, 143, 135, 1, 0, 0, 0, 143, 139, 1, 0, 0, 0, 144, 4, 1, 0, 0, 0, 145, 146, 5, 70, 0, 0, 146,
-    147, 5, 65, 0, 0, 147, 148, 5, 76, 0, 0, 148, 149, 5, 83, 0, 0, 149, 156, 5, 69, 0, 0, 150, 151,
-    5, 102, 0, 0, 151, 152, 5, 97, 0, 0, 152, 153, 5, 108, 0, 0, 153, 154, 5, 115, 0, 0, 154, 156,
-    5, 101, 0, 0, 155, 145, 1, 0, 0, 0, 155, 150, 1, 0, 0, 0, 156, 6, 1, 0, 0, 0, 157, 159, 7, 0, 0, 0,
-    158, 157, 1, 0, 0, 0, 159, 160, 1, 0, 0, 0, 160, 158, 1, 0, 0, 0, 160, 161, 1, 0, 0, 0, 161, 168,
-    1, 0, 0, 0, 162, 164, 5, 46, 0, 0, 163, 165, 7, 0, 0, 0, 164, 163, 1, 0, 0, 0, 165, 166, 1, 0, 0,
-    0, 166, 164, 1, 0, 0, 0, 166, 167, 1, 0, 0, 0, 167, 169, 1, 0, 0, 0, 168, 162, 1, 0, 0, 0, 168, 169,
-    1, 0, 0, 0, 169, 8, 1, 0, 0, 0, 170, 171, 5, 34, 0, 0, 171, 172, 5, 123, 0, 0, 172, 176, 1, 0, 0,
-    0, 173, 175, 8, 1, 0, 0, 174, 173, 1, 0, 0, 0, 175, 178, 1, 0, 0, 0, 176, 174, 1, 0, 0, 0, 176, 177,
-    1, 0, 0, 0, 177, 179, 1, 0, 0, 0, 178, 176, 1, 0, 0, 0, 179, 180, 5, 125, 0, 0, 180, 181, 5, 34,
-    0, 0, 181, 10, 1, 0, 0, 0, 182, 186, 5, 34, 0, 0, 183, 185, 8, 2, 0, 0, 184, 183, 1, 0, 0, 0, 185,
-    188, 1, 0, 0, 0, 186, 184, 1, 0, 0, 0, 186, 187, 1, 0, 0, 0, 187, 189, 1, 0, 0, 0, 188, 186, 1, 0,
-    0, 0, 189, 190, 5, 34, 0, 0, 190, 12, 1, 0, 0, 0, 191, 193, 5, 33, 0, 0, 192, 191, 1, 0, 0, 0, 193,
-    194, 1, 0, 0, 0, 194, 192, 1, 0, 0, 0, 194, 195, 1, 0, 0, 0, 195, 14, 1, 0, 0, 0, 196, 197, 5, 43,
-    0, 0, 197, 16, 1, 0, 0, 0, 198, 199, 5, 45, 0, 0, 199, 18, 1, 0, 0, 0, 200, 201, 5, 42, 0, 0, 201,
-    20, 1, 0, 0, 0, 202, 203, 5, 37, 0, 0, 203, 22, 1, 0, 0, 0, 204, 205, 5, 64, 0, 0, 205, 24, 1, 0,
-    0, 0, 206, 207, 5, 94, 0, 0, 207, 26, 1, 0, 0, 0, 208, 209, 5, 91, 0, 0, 209, 28, 1, 0, 0, 0, 210,
-    211, 5, 93, 0, 0, 211, 30, 1, 0, 0, 0, 212, 213, 5, 40, 0, 0, 213, 32, 1, 0, 0, 0, 214, 215, 5, 41,
-    0, 0, 215, 34, 1, 0, 0, 0, 216, 217, 5, 44, 0, 0, 217, 36, 1, 0, 0, 0, 218, 219, 5, 124, 0, 0, 219,
-    38, 1, 0, 0, 0, 220, 221, 7, 3, 0, 0, 221, 40, 1, 0, 0, 0, 222, 223, 5, 34, 0, 0, 223, 42, 1, 0, 0,
-    0, 224, 226, 7, 4, 0, 0, 225, 224, 1, 0, 0, 0, 226, 227, 1, 0, 0, 0, 227, 225, 1, 0, 0, 0, 227, 228,
-    1, 0, 0, 0, 228, 44, 1, 0, 0, 0, 229, 230, 3, 3, 0, 0, 230, 46, 1, 0, 0, 0, 231, 232, 3, 5, 1, 0, 232,
-    48, 1, 0, 0, 0, 233, 234, 3, 7, 2, 0, 234, 50, 1, 0, 0, 0, 235, 236, 3, 9, 3, 0, 236, 52, 1, 0, 0,
-    0, 237, 238, 3, 11, 4, 0, 238, 54, 1, 0, 0, 0, 239, 240, 3, 13, 5, 0, 240, 56, 1, 0, 0, 0, 241, 242,
-    3, 15, 6, 0, 242, 58, 1, 0, 0, 0, 243, 244, 3, 17, 7, 0, 244, 60, 1, 0, 0, 0, 245, 246, 3, 19, 8,
-    0, 246, 62, 1, 0, 0, 0, 247, 248, 3, 21, 9, 0, 248, 64, 1, 0, 0, 0, 249, 250, 3, 23, 10, 0, 250,
-    66, 1, 0, 0, 0, 251, 252, 3, 25, 11, 0, 252, 68, 1, 0, 0, 0, 253, 254, 3, 39, 18, 0, 254, 70, 1,
-    0, 0, 0, 255, 256, 3, 41, 19, 0, 256, 257, 1, 0, 0, 0, 257, 258, 6, 34, 0, 0, 258, 72, 1, 0, 0, 0,
-    259, 260, 3, 43, 20, 0, 260, 261, 1, 0, 0, 0, 261, 262, 6, 35, 1, 0, 262, 74, 1, 0, 0, 0, 263, 264,
-    3, 35, 16, 0, 264, 76, 1, 0, 0, 0, 265, 266, 3, 37, 17, 0, 266, 78, 1, 0, 0, 0, 267, 269, 7, 5, 0,
-    0, 268, 267, 1, 0, 0, 0, 269, 270, 1, 0, 0, 0, 270, 268, 1, 0, 0, 0, 270, 271, 1, 0, 0, 0, 271, 272,
-    1, 0, 0, 0, 272, 273, 4, 38, 0, 0, 273, 80, 1, 0, 0, 0, 274, 275, 3, 31, 14, 0, 275, 276, 1, 0, 0,
-    0, 276, 277, 6, 39, 2, 0, 277, 82, 1, 0, 0, 0, 278, 279, 3, 33, 15, 0, 279, 280, 1, 0, 0, 0, 280,
-    281, 6, 40, 3, 0, 281, 84, 1, 0, 0, 0, 282, 283, 3, 27, 12, 0, 283, 284, 1, 0, 0, 0, 284, 285, 6,
-    41, 4, 0, 285, 86, 1, 0, 0, 0, 286, 287, 3, 29, 13, 0, 287, 288, 1, 0, 0, 0, 288, 289, 6, 42, 3,
-    0, 289, 88, 1, 0, 0, 0, 290, 291, 5, 59, 0, 0, 291, 90, 1, 0, 0, 0, 292, 293, 3, 3, 0, 0, 293, 294,
-    1, 0, 0, 0, 294, 295, 6, 44, 5, 0, 295, 92, 1, 0, 0, 0, 296, 297, 3, 5, 1, 0, 297, 298, 1, 0, 0, 0,
-    298, 299, 6, 45, 6, 0, 299, 94, 1, 0, 0, 0, 300, 301, 3, 7, 2, 0, 301, 302, 1, 0, 0, 0, 302, 303,
-    6, 46, 7, 0, 303, 96, 1, 0, 0, 0, 304, 305, 3, 9, 3, 0, 305, 306, 1, 0, 0, 0, 306, 307, 6, 47, 8,
-    0, 307, 98, 1, 0, 0, 0, 308, 309, 3, 11, 4, 0, 309, 310, 1, 0, 0, 0, 310, 311, 6, 48, 9, 0, 311,
-    100, 1, 0, 0, 0, 312, 313, 3, 13, 5, 0, 313, 314, 1, 0, 0, 0, 314, 315, 6, 49, 10, 0, 315, 102,
-    1, 0, 0, 0, 316, 317, 3, 15, 6, 0, 317, 318, 1, 0, 0, 0, 318, 319, 6, 50, 11, 0, 319, 104, 1, 0,
-    0, 0, 320, 321, 3, 17, 7, 0, 321, 322, 1, 0, 0, 0, 322, 323, 6, 51, 12, 0, 323, 106, 1, 0, 0, 0,
-    324, 325, 3, 19, 8, 0, 325, 326, 1, 0, 0, 0, 326, 327, 6, 52, 13, 0, 327, 108, 1, 0, 0, 0, 328,
-    329, 3, 21, 9, 0, 329, 330, 1, 0, 0, 0, 330, 331, 6, 53, 14, 0, 331, 110, 1, 0, 0, 0, 332, 333,
-    3, 23, 10, 0, 333, 334, 1, 0, 0, 0, 334, 335, 6, 54, 15, 0, 335, 112, 1, 0, 0, 0, 336, 337, 3, 25,
-    11, 0, 337, 338, 1, 0, 0, 0, 338, 339, 6, 55, 16, 0, 339, 114, 1, 0, 0, 0, 340, 341, 3, 39, 18,
-    0, 341, 342, 1, 0, 0, 0, 342, 343, 6, 56, 17, 0, 343, 116, 1, 0, 0, 0, 344, 345, 3, 43, 20, 0, 345,
-    346, 1, 0, 0, 0, 346, 347, 6, 57, 1, 0, 347, 118, 1, 0, 0, 0, 348, 349, 3, 35, 16, 0, 349, 350,
-    1, 0, 0, 0, 350, 351, 6, 58, 18, 0, 351, 120, 1, 0, 0, 0, 352, 353, 3, 37, 17, 0, 353, 354, 1, 0,
-    0, 0, 354, 355, 6, 59, 19, 0, 355, 122, 1, 0, 0, 0, 356, 358, 7, 6, 0, 0, 357, 356, 1, 0, 0, 0, 358,
-    359, 1, 0, 0, 0, 359, 357, 1, 0, 0, 0, 359, 360, 1, 0, 0, 0, 360, 361, 1, 0, 0, 0, 361, 362, 4, 60,
-    1, 0, 362, 363, 1, 0, 0, 0, 363, 364, 6, 60, 20, 0, 364, 124, 1, 0, 0, 0, 365, 366, 3, 31, 14, 0,
-    366, 367, 1, 0, 0, 0, 367, 368, 6, 61, 21, 0, 368, 369, 6, 61, 2, 0, 369, 126, 1, 0, 0, 0, 370,
-    371, 3, 33, 15, 0, 371, 372, 1, 0, 0, 0, 372, 373, 6, 62, 22, 0, 373, 374, 6, 62, 3, 0, 374, 128,
-    1, 0, 0, 0, 375, 376, 3, 27, 12, 0, 376, 377, 1, 0, 0, 0, 377, 378, 6, 63, 23, 0, 378, 379, 6, 63,
-    4, 0, 379, 130, 1, 0, 0, 0, 380, 381, 3, 29, 13, 0, 381, 382, 1, 0, 0, 0, 382, 383, 6, 64, 24, 0,
-    383, 384, 6, 64, 3, 0, 384, 132, 1, 0, 0, 0, 385, 387, 8, 7, 0, 0, 386, 385, 1, 0, 0, 0, 387, 388,
-    1, 0, 0, 0, 388, 386, 1, 0, 0, 0, 388, 389, 1, 0, 0, 0, 389, 390, 1, 0, 0, 0, 390, 391, 6, 65, 3,
-    0, 391, 134, 1, 0, 0, 0, 15, 0, 1, 2, 143, 155, 160, 166, 168, 176, 186, 194, 227, 270, 359,
-    388, 25, 5, 2, 0, 6, 0, 0, 5, 0, 0, 4, 0, 0, 5, 1, 0, 7, 1, 0, 7, 2, 0, 7, 3, 0, 7, 4, 0, 7, 5, 0, 7, 6,
-    0, 7, 7, 0, 7, 8, 0, 7, 9, 0, 7, 10, 0, 7, 11, 0, 7, 12, 0, 7, 13, 0, 7, 16, 0, 7, 17, 0, 7, 18, 0, 7,
-    19, 0, 7, 20, 0, 7, 21, 0, 7, 22, 0];
-ReksioLangLexer.DecisionsToDFA = ReksioLangLexer._ATN.decisionToState.map((ds, index) => new antlr4_1.DFA(ds, index));
-exports["default"] = ReksioLangLexer;
-
-
-/***/ }),
-
-/***/ "./src/interpreter/script/ReksioLangParser.ts":
-/*!****************************************************!*\
-  !*** ./src/interpreter/script/ReksioLangParser.ts ***!
-  \****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-// Generated from ./src/interpreter/script/ReksioLangParser.g4 by ANTLR 4.13.2
-// noinspection ES6UnusedImports,JSUnusedGlobalSymbols,JSUnusedLocalSymbols
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.IdentifierContext = exports.ObjectValueReferenceContext = exports.StringContext = exports.BoolContext = exports.NumberContext = exports.CommentContext = exports.OperationContext = exports.OperationGroupingContext = exports.SpecialCallContext = exports.MethodCallArgumentsContext = exports.MethodNameContext = exports.ObjectNameContext = exports.MethodCallContext = exports.SubFieldAccessContext = exports.StatementListContext = exports.StatementContext = exports.ExprContext = void 0;
-const antlr4_1 = __webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs");
-class ReksioLangParser extends antlr4_1.Parser {
-    get grammarFileName() { return "ReksioLangParser.g4"; }
-    get literalNames() { return ReksioLangParser.literalNames; }
-    get symbolicNames() { return ReksioLangParser.symbolicNames; }
-    get ruleNames() { return ReksioLangParser.ruleNames; }
-    get serializedATN() { return ReksioLangParser._serializedATN; }
-    createFailedPredicateException(predicate, message) {
-        return new antlr4_1.FailedPredicateException(this, predicate, message);
-    }
-    constructor(input) {
-        super(input);
-        this._interp = new antlr4_1.ParserATNSimulator(this, ReksioLangParser._ATN, ReksioLangParser.DecisionsToDFA, new antlr4_1.PredictionContextCache());
-    }
-    // @RuleVersion(0)
-    expr() {
-        const localctx = new ExprContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 0, ReksioLangParser.RULE_expr);
-        let _la;
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 35;
-                this._errHandler.sync(this);
-                _la = this._input.LA(1);
-                if (_la === 6) {
-                    {
-                        this.state = 34;
-                        this.comment();
-                    }
-                }
-                this.state = 44;
-                this._errHandler.sync(this);
-                switch (this._interp.adaptivePredict(this._input, 1, this._ctx)) {
-                    case 1:
-                        {
-                            this.state = 37;
-                            this.string_();
-                        }
-                        break;
-                    case 2:
-                        {
-                            this.state = 38;
-                            this.number_();
-                        }
-                        break;
-                    case 3:
-                        {
-                            this.state = 39;
-                            this.bool();
-                        }
-                        break;
-                    case 4:
-                        {
-                            this.state = 40;
-                            this.objectValueReference();
-                        }
-                        break;
-                    case 5:
-                        {
-                            this.state = 41;
-                            this.specialCall();
-                        }
-                        break;
-                    case 6:
-                        {
-                            this.state = 42;
-                            this.methodCall();
-                        }
-                        break;
-                    case 7:
-                        {
-                            this.state = 43;
-                            this.operationGrouping();
-                        }
-                        break;
-                }
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    statement() {
-        const localctx = new StatementContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 2, ReksioLangParser.RULE_statement);
-        try {
-            this.state = 48;
-            this._errHandler.sync(this);
-            switch (this._input.LA(1)) {
-                case 23:
-                    this.enterOuterAlt(localctx, 1);
-                    // tslint:disable-next-line:no-empty
-                    {
-                    }
-                    break;
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                case 8:
-                case 9:
-                case 11:
-                case 18:
-                case 21:
-                    this.enterOuterAlt(localctx, 2);
-                    {
-                        this.state = 47;
-                        this.expr();
-                    }
-                    break;
-                default:
-                    throw new antlr4_1.NoViableAltException(this);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    statementList() {
-        const localctx = new StatementListContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 4, ReksioLangParser.RULE_statementList);
-        let _la;
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 55;
-                this._errHandler.sync(this);
-                _la = this._input.LA(1);
-                while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 10750846) !== 0)) {
-                    {
-                        {
-                            this.state = 50;
-                            this.statement();
-                            this.state = 51;
-                            this.match(ReksioLangParser.STATEMENT_END);
-                        }
-                    }
-                    this.state = 57;
-                    this._errHandler.sync(this);
-                    _la = this._input.LA(1);
-                }
-                this.state = 58;
-                this.match(ReksioLangParser.EOF);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    subFieldAccess() {
-        const localctx = new SubFieldAccessContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 6, ReksioLangParser.RULE_subFieldAccess);
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 60;
-                this.match(ReksioLangParser.FIELD_ACCESS);
-                this.state = 61;
-                this.match(ReksioLangParser.IDENTIFIER);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    methodCall() {
-        const localctx = new MethodCallContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 8, ReksioLangParser.RULE_methodCall);
-        let _la;
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 63;
-                this.objectName();
-                this.state = 64;
-                this.match(ReksioLangParser.METHOD_CALL_SYMBOL);
-                this.state = 65;
-                this.methodName();
-                this.state = 66;
-                this.match(ReksioLangParser.BRACKET_START);
-                this.state = 68;
-                this._errHandler.sync(this);
-                _la = this._input.LA(1);
-                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2362238) !== 0)) {
-                    {
-                        this.state = 67;
-                        this.methodCallArguments();
-                    }
-                }
-                this.state = 70;
-                this.match(ReksioLangParser.BRACKET_END);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    objectName() {
-        const localctx = new ObjectNameContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 10, ReksioLangParser.RULE_objectName);
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 72;
-                this.identifier();
-                this.state = 74;
-                this._errHandler.sync(this);
-                switch (this._interp.adaptivePredict(this._input, 5, this._ctx)) {
-                    case 1:
-                        {
-                            this.state = 73;
-                            localctx._subField = this.subFieldAccess();
-                        }
-                        break;
-                }
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    methodName() {
-        const localctx = new MethodNameContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 12, ReksioLangParser.RULE_methodName);
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 76;
-                this.identifier();
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    methodCallArguments() {
-        const localctx = new MethodCallArgumentsContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 14, ReksioLangParser.RULE_methodCallArguments);
-        let _la;
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 78;
-                this.expr();
-                this.state = 83;
-                this._errHandler.sync(this);
-                _la = this._input.LA(1);
-                while (_la === 16) {
-                    {
-                        {
-                            this.state = 79;
-                            this.match(ReksioLangParser.COMMA);
-                            this.state = 80;
-                            this.expr();
-                        }
-                    }
-                    this.state = 85;
-                    this._errHandler.sync(this);
-                    _la = this._input.LA(1);
-                }
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    specialCall() {
-        const localctx = new SpecialCallContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 16, ReksioLangParser.RULE_specialCall);
-        let _la;
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 86;
-                this.match(ReksioLangParser.AT);
-                this.state = 87;
-                this.methodName();
-                this.state = 88;
-                this.match(ReksioLangParser.BRACKET_START);
-                this.state = 90;
-                this._errHandler.sync(this);
-                _la = this._input.LA(1);
-                if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2362238) !== 0)) {
-                    {
-                        this.state = 89;
-                        this.methodCallArguments();
-                    }
-                }
-                this.state = 92;
-                this.match(ReksioLangParser.BRACKET_END);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    operationGrouping() {
-        const localctx = new OperationGroupingContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 18, ReksioLangParser.RULE_operationGrouping);
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 94;
-                this.match(ReksioLangParser.OPERATION_GROUPING_START);
-                this.state = 95;
-                this.operation(0);
-                this.state = 96;
-                this.match(ReksioLangParser.OPERATION_GROUPING_END);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    operation(_p) {
-        if (_p === undefined) {
-            _p = 0;
-        }
-        const _parentctx = this._ctx;
-        const _parentState = this.state;
-        let localctx = new OperationContext(this, this._ctx, _parentState);
-        let _prevctx = localctx;
-        const _startState = 20;
-        this.enterRecursionRule(localctx, 20, ReksioLangParser.RULE_operation, _p);
-        try {
-            let _alt;
-            this.enterOuterAlt(localctx, 1);
-            {
-                {
-                    this.state = 99;
-                    this.expr();
-                }
-                this._ctx.stop = this._input.LT(-1);
-                this.state = 118;
-                this._errHandler.sync(this);
-                _alt = this._interp.adaptivePredict(this._input, 9, this._ctx);
-                while (_alt !== 2 && _alt !== antlr4_1.ATN.INVALID_ALT_NUMBER) {
-                    if (_alt === 1) {
-                        if (this._parseListeners != null) {
-                            this.triggerExitRuleEvent();
-                        }
-                        _prevctx = localctx;
-                        {
-                            this.state = 116;
-                            this._errHandler.sync(this);
-                            switch (this._interp.adaptivePredict(this._input, 8, this._ctx)) {
-                                case 1:
-                                    {
-                                        localctx = new OperationContext(this, _parentctx, _parentState);
-                                        localctx._left = _prevctx;
-                                        this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-                                        this.state = 101;
-                                        if (!(this.precpred(this._ctx, 6))) {
-                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 6)");
-                                        }
-                                        this.state = 102;
-                                        localctx._operator = this.match(ReksioLangParser.PLUS);
-                                        this.state = 103;
-                                        localctx._right = this.operation(7);
-                                    }
-                                    break;
-                                case 2:
-                                    {
-                                        localctx = new OperationContext(this, _parentctx, _parentState);
-                                        localctx._left = _prevctx;
-                                        this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-                                        this.state = 104;
-                                        if (!(this.precpred(this._ctx, 5))) {
-                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 5)");
-                                        }
-                                        this.state = 105;
-                                        localctx._operator = this.match(ReksioLangParser.MINUS);
-                                        this.state = 106;
-                                        localctx._right = this.operation(6);
-                                    }
-                                    break;
-                                case 3:
-                                    {
-                                        localctx = new OperationContext(this, _parentctx, _parentState);
-                                        localctx._left = _prevctx;
-                                        this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-                                        this.state = 107;
-                                        if (!(this.precpred(this._ctx, 4))) {
-                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 4)");
-                                        }
-                                        this.state = 108;
-                                        localctx._operator = this.match(ReksioLangParser.ASTERISK);
-                                        this.state = 109;
-                                        localctx._right = this.operation(5);
-                                    }
-                                    break;
-                                case 4:
-                                    {
-                                        localctx = new OperationContext(this, _parentctx, _parentState);
-                                        localctx._left = _prevctx;
-                                        this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-                                        this.state = 110;
-                                        if (!(this.precpred(this._ctx, 3))) {
-                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 3)");
-                                        }
-                                        this.state = 111;
-                                        localctx._operator = this.match(ReksioLangParser.PERCENTAGE);
-                                        this.state = 112;
-                                        localctx._right = this.operation(4);
-                                    }
-                                    break;
-                                case 5:
-                                    {
-                                        localctx = new OperationContext(this, _parentctx, _parentState);
-                                        localctx._left = _prevctx;
-                                        this.pushNewRecursionContext(localctx, _startState, ReksioLangParser.RULE_operation);
-                                        this.state = 113;
-                                        if (!(this.precpred(this._ctx, 2))) {
-                                            throw this.createFailedPredicateException("this.precpred(this._ctx, 2)");
-                                        }
-                                        this.state = 114;
-                                        localctx._operator = this.match(ReksioLangParser.AT);
-                                        this.state = 115;
-                                        localctx._right = this.operation(3);
-                                    }
-                                    break;
-                            }
-                        }
-                    }
-                    this.state = 120;
-                    this._errHandler.sync(this);
-                    _alt = this._interp.adaptivePredict(this._input, 9, this._ctx);
-                }
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.unrollRecursionContexts(_parentctx);
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    comment() {
-        const localctx = new CommentContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 22, ReksioLangParser.RULE_comment);
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 121;
-                this.match(ReksioLangParser.COMMENT_START);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    number_() {
-        const localctx = new NumberContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 24, ReksioLangParser.RULE_number);
-        try {
-            this.state = 126;
-            this._errHandler.sync(this);
-            switch (this._input.LA(1)) {
-                case 8:
-                    this.enterOuterAlt(localctx, 1);
-                    {
-                        this.state = 123;
-                        this.match(ReksioLangParser.MINUS);
-                        this.state = 124;
-                        this.match(ReksioLangParser.NUMBER);
-                    }
-                    break;
-                case 3:
-                    this.enterOuterAlt(localctx, 2);
-                    {
-                        this.state = 125;
-                        this.match(ReksioLangParser.NUMBER);
-                    }
-                    break;
-                default:
-                    throw new antlr4_1.NoViableAltException(this);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    bool() {
-        const localctx = new BoolContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 26, ReksioLangParser.RULE_bool);
-        let _la;
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 128;
-                _la = this._input.LA(1);
-                if (!(_la === 1 || _la === 2)) {
-                    this._errHandler.recoverInline(this);
-                }
-                else {
-                    this._errHandler.reportMatch(this);
-                    this.consume();
-                }
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    string_() {
-        const localctx = new StringContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 28, ReksioLangParser.RULE_string);
-        let _la;
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 130;
-                _la = this._input.LA(1);
-                if (!(_la === 4 || _la === 5)) {
-                    this._errHandler.recoverInline(this);
-                }
-                else {
-                    this._errHandler.reportMatch(this);
-                    this.consume();
-                }
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    objectValueReference() {
-        const localctx = new ObjectValueReferenceContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 30, ReksioLangParser.RULE_objectValueReference);
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 132;
-                this.objectName();
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    // @RuleVersion(0)
-    identifier() {
-        const localctx = new IdentifierContext(this, this._ctx, this.state);
-        this.enterRule(localctx, 32, ReksioLangParser.RULE_identifier);
-        let _la;
-        try {
-            this.enterOuterAlt(localctx, 1);
-            {
-                this.state = 135;
-                this._errHandler.sync(this);
-                _la = this._input.LA(1);
-                if (_la === 9) {
-                    {
-                        this.state = 134;
-                        localctx._dereference = this.match(ReksioLangParser.ASTERISK);
-                    }
-                }
-                this.state = 137;
-                this.match(ReksioLangParser.IDENTIFIER);
-            }
-        }
-        catch (re) {
-            if (re instanceof antlr4_1.RecognitionException) {
-                localctx.exception = re;
-                this._errHandler.reportError(this, re);
-                this._errHandler.recover(this, re);
-            }
-            else {
-                throw re;
-            }
-        }
-        finally {
-            this.exitRule();
-        }
-        return localctx;
-    }
-    sempred(localctx, ruleIndex, predIndex) {
-        switch (ruleIndex) {
-            case 10:
-                return this.operation_sempred(localctx, predIndex);
-        }
-        return true;
-    }
-    operation_sempred(localctx, predIndex) {
-        switch (predIndex) {
-            case 0:
-                return this.precpred(this._ctx, 6);
-            case 1:
-                return this.precpred(this._ctx, 5);
-            case 2:
-                return this.precpred(this._ctx, 4);
-            case 3:
-                return this.precpred(this._ctx, 3);
-            case 4:
-                return this.precpred(this._ctx, 2);
-        }
-        return true;
-    }
-    static get _ATN() {
-        if (!ReksioLangParser.__ATN) {
-            ReksioLangParser.__ATN = new antlr4_1.ATNDeserializer().deserialize(ReksioLangParser._serializedATN);
-        }
-        return ReksioLangParser.__ATN;
-    }
-}
-ReksioLangParser.TRUE = 1;
-ReksioLangParser.FALSE = 2;
-ReksioLangParser.NUMBER = 3;
-ReksioLangParser.CODE_STRING = 4;
-ReksioLangParser.STRING = 5;
-ReksioLangParser.COMMENT_START = 6;
-ReksioLangParser.PLUS = 7;
-ReksioLangParser.MINUS = 8;
-ReksioLangParser.ASTERISK = 9;
-ReksioLangParser.PERCENTAGE = 10;
-ReksioLangParser.AT = 11;
-ReksioLangParser.METHOD_CALL_SYMBOL = 12;
-ReksioLangParser.TYPO = 13;
-ReksioLangParser.TYPO_QUOTE = 14;
-ReksioLangParser.WHITESPACE = 15;
-ReksioLangParser.COMMA = 16;
-ReksioLangParser.FIELD_ACCESS = 17;
-ReksioLangParser.IDENTIFIER = 18;
-ReksioLangParser.BRACKET_START = 19;
-ReksioLangParser.BRACKET_END = 20;
-ReksioLangParser.OPERATION_GROUPING_START = 21;
-ReksioLangParser.OPERATION_GROUPING_END = 22;
-ReksioLangParser.STATEMENT_END = 23;
-ReksioLangParser.I_WHITESPACE = 24;
-ReksioLangParser.MISSING_QUOTE_TEXT = 25;
-ReksioLangParser.EOF = antlr4_1.Token.EOF;
-ReksioLangParser.RULE_expr = 0;
-ReksioLangParser.RULE_statement = 1;
-ReksioLangParser.RULE_statementList = 2;
-ReksioLangParser.RULE_subFieldAccess = 3;
-ReksioLangParser.RULE_methodCall = 4;
-ReksioLangParser.RULE_objectName = 5;
-ReksioLangParser.RULE_methodName = 6;
-ReksioLangParser.RULE_methodCallArguments = 7;
-ReksioLangParser.RULE_specialCall = 8;
-ReksioLangParser.RULE_operationGrouping = 9;
-ReksioLangParser.RULE_operation = 10;
-ReksioLangParser.RULE_comment = 11;
-ReksioLangParser.RULE_number = 12;
-ReksioLangParser.RULE_bool = 13;
-ReksioLangParser.RULE_string = 14;
-ReksioLangParser.RULE_objectValueReference = 15;
-ReksioLangParser.RULE_identifier = 16;
-ReksioLangParser.literalNames = [null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, null,
-    null, "';'"];
-ReksioLangParser.symbolicNames = [null, "TRUE",
-    "FALSE", "NUMBER",
-    "CODE_STRING",
-    "STRING", "COMMENT_START",
-    "PLUS", "MINUS",
-    "ASTERISK",
-    "PERCENTAGE",
-    "AT", "METHOD_CALL_SYMBOL",
-    "TYPO", "TYPO_QUOTE",
-    "WHITESPACE",
-    "COMMA", "FIELD_ACCESS",
-    "IDENTIFIER",
-    "BRACKET_START",
-    "BRACKET_END",
-    "OPERATION_GROUPING_START",
-    "OPERATION_GROUPING_END",
-    "STATEMENT_END",
-    "I_WHITESPACE",
-    "MISSING_QUOTE_TEXT"];
-// tslint:disable:no-trailing-whitespace
-ReksioLangParser.ruleNames = [
-    "expr", "statement", "statementList", "subFieldAccess", "methodCall",
-    "objectName", "methodName", "methodCallArguments", "specialCall", "operationGrouping",
-    "operation", "comment", "number", "bool", "string", "objectValueReference",
-    "identifier",
-];
-ReksioLangParser._serializedATN = [4, 1, 25, 140, 2, 0, 7, 0, 2,
-    1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2,
-    10, 7, 10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15, 2, 16, 7, 16, 1, 0,
-    3, 0, 36, 8, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 3, 0, 45, 8, 0, 1, 1, 1, 1, 3, 1, 49, 8, 1, 1,
-    2, 1, 2, 1, 2, 5, 2, 54, 8, 2, 10, 2, 12, 2, 57, 9, 2, 1, 2, 1, 2, 1, 3, 1, 3, 1, 3, 1, 4, 1, 4, 1, 4, 1,
-    4, 1, 4, 3, 4, 69, 8, 4, 1, 4, 1, 4, 1, 5, 1, 5, 3, 5, 75, 8, 5, 1, 6, 1, 6, 1, 7, 1, 7, 1, 7, 5, 7, 82,
-    8, 7, 10, 7, 12, 7, 85, 9, 7, 1, 8, 1, 8, 1, 8, 1, 8, 3, 8, 91, 8, 8, 1, 8, 1, 8, 1, 9, 1, 9, 1, 9, 1, 9,
-    1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1, 10, 1,
-    10, 1, 10, 1, 10, 1, 10, 5, 10, 117, 8, 10, 10, 10, 12, 10, 120, 9, 10, 1, 11, 1, 11, 1, 12, 1, 12,
-    1, 12, 3, 12, 127, 8, 12, 1, 13, 1, 13, 1, 14, 1, 14, 1, 15, 1, 15, 1, 16, 3, 16, 136, 8, 16, 1, 16,
-    1, 16, 1, 16, 0, 1, 20, 17, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 0, 2, 1,
-    0, 1, 2, 1, 0, 4, 5, 142, 0, 35, 1, 0, 0, 0, 2, 48, 1, 0, 0, 0, 4, 55, 1, 0, 0, 0, 6, 60, 1, 0, 0, 0, 8,
-    63, 1, 0, 0, 0, 10, 72, 1, 0, 0, 0, 12, 76, 1, 0, 0, 0, 14, 78, 1, 0, 0, 0, 16, 86, 1, 0, 0, 0, 18, 94,
-    1, 0, 0, 0, 20, 98, 1, 0, 0, 0, 22, 121, 1, 0, 0, 0, 24, 126, 1, 0, 0, 0, 26, 128, 1, 0, 0, 0, 28, 130,
-    1, 0, 0, 0, 30, 132, 1, 0, 0, 0, 32, 135, 1, 0, 0, 0, 34, 36, 3, 22, 11, 0, 35, 34, 1, 0, 0, 0, 35,
-    36, 1, 0, 0, 0, 36, 44, 1, 0, 0, 0, 37, 45, 3, 28, 14, 0, 38, 45, 3, 24, 12, 0, 39, 45, 3, 26, 13,
-    0, 40, 45, 3, 30, 15, 0, 41, 45, 3, 16, 8, 0, 42, 45, 3, 8, 4, 0, 43, 45, 3, 18, 9, 0, 44, 37, 1, 0,
-    0, 0, 44, 38, 1, 0, 0, 0, 44, 39, 1, 0, 0, 0, 44, 40, 1, 0, 0, 0, 44, 41, 1, 0, 0, 0, 44, 42, 1, 0, 0,
-    0, 44, 43, 1, 0, 0, 0, 45, 1, 1, 0, 0, 0, 46, 49, 1, 0, 0, 0, 47, 49, 3, 0, 0, 0, 48, 46, 1, 0, 0, 0,
-    48, 47, 1, 0, 0, 0, 49, 3, 1, 0, 0, 0, 50, 51, 3, 2, 1, 0, 51, 52, 5, 23, 0, 0, 52, 54, 1, 0, 0, 0, 53,
-    50, 1, 0, 0, 0, 54, 57, 1, 0, 0, 0, 55, 53, 1, 0, 0, 0, 55, 56, 1, 0, 0, 0, 56, 58, 1, 0, 0, 0, 57, 55,
-    1, 0, 0, 0, 58, 59, 5, 0, 0, 1, 59, 5, 1, 0, 0, 0, 60, 61, 5, 17, 0, 0, 61, 62, 5, 18, 0, 0, 62, 7, 1,
-    0, 0, 0, 63, 64, 3, 10, 5, 0, 64, 65, 5, 12, 0, 0, 65, 66, 3, 12, 6, 0, 66, 68, 5, 19, 0, 0, 67, 69,
-    3, 14, 7, 0, 68, 67, 1, 0, 0, 0, 68, 69, 1, 0, 0, 0, 69, 70, 1, 0, 0, 0, 70, 71, 5, 20, 0, 0, 71, 9,
-    1, 0, 0, 0, 72, 74, 3, 32, 16, 0, 73, 75, 3, 6, 3, 0, 74, 73, 1, 0, 0, 0, 74, 75, 1, 0, 0, 0, 75, 11,
-    1, 0, 0, 0, 76, 77, 3, 32, 16, 0, 77, 13, 1, 0, 0, 0, 78, 83, 3, 0, 0, 0, 79, 80, 5, 16, 0, 0, 80, 82,
-    3, 0, 0, 0, 81, 79, 1, 0, 0, 0, 82, 85, 1, 0, 0, 0, 83, 81, 1, 0, 0, 0, 83, 84, 1, 0, 0, 0, 84, 15, 1,
-    0, 0, 0, 85, 83, 1, 0, 0, 0, 86, 87, 5, 11, 0, 0, 87, 88, 3, 12, 6, 0, 88, 90, 5, 19, 0, 0, 89, 91,
-    3, 14, 7, 0, 90, 89, 1, 0, 0, 0, 90, 91, 1, 0, 0, 0, 91, 92, 1, 0, 0, 0, 92, 93, 5, 20, 0, 0, 93, 17,
-    1, 0, 0, 0, 94, 95, 5, 21, 0, 0, 95, 96, 3, 20, 10, 0, 96, 97, 5, 22, 0, 0, 97, 19, 1, 0, 0, 0, 98,
-    99, 6, 10, -1, 0, 99, 100, 3, 0, 0, 0, 100, 118, 1, 0, 0, 0, 101, 102, 10, 6, 0, 0, 102, 103, 5,
-    7, 0, 0, 103, 117, 3, 20, 10, 7, 104, 105, 10, 5, 0, 0, 105, 106, 5, 8, 0, 0, 106, 117, 3, 20, 10,
-    6, 107, 108, 10, 4, 0, 0, 108, 109, 5, 9, 0, 0, 109, 117, 3, 20, 10, 5, 110, 111, 10, 3, 0, 0, 111,
-    112, 5, 10, 0, 0, 112, 117, 3, 20, 10, 4, 113, 114, 10, 2, 0, 0, 114, 115, 5, 11, 0, 0, 115, 117,
-    3, 20, 10, 3, 116, 101, 1, 0, 0, 0, 116, 104, 1, 0, 0, 0, 116, 107, 1, 0, 0, 0, 116, 110, 1, 0, 0,
-    0, 116, 113, 1, 0, 0, 0, 117, 120, 1, 0, 0, 0, 118, 116, 1, 0, 0, 0, 118, 119, 1, 0, 0, 0, 119, 21,
-    1, 0, 0, 0, 120, 118, 1, 0, 0, 0, 121, 122, 5, 6, 0, 0, 122, 23, 1, 0, 0, 0, 123, 124, 5, 8, 0, 0,
-    124, 127, 5, 3, 0, 0, 125, 127, 5, 3, 0, 0, 126, 123, 1, 0, 0, 0, 126, 125, 1, 0, 0, 0, 127, 25,
-    1, 0, 0, 0, 128, 129, 7, 0, 0, 0, 129, 27, 1, 0, 0, 0, 130, 131, 7, 1, 0, 0, 131, 29, 1, 0, 0, 0, 132,
-    133, 3, 10, 5, 0, 133, 31, 1, 0, 0, 0, 134, 136, 5, 9, 0, 0, 135, 134, 1, 0, 0, 0, 135, 136, 1, 0,
-    0, 0, 136, 137, 1, 0, 0, 0, 137, 138, 5, 18, 0, 0, 138, 33, 1, 0, 0, 0, 12, 35, 44, 48, 55, 68, 74,
-    83, 90, 116, 118, 126, 135];
-ReksioLangParser.DecisionsToDFA = ReksioLangParser._ATN.decisionToState.map((ds, index) => new antlr4_1.DFA(ds, index));
-exports["default"] = ReksioLangParser;
-class ExprContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    string_() {
-        return this.getTypedRuleContext(StringContext, 0);
-    }
-    number_() {
-        return this.getTypedRuleContext(NumberContext, 0);
-    }
-    bool() {
-        return this.getTypedRuleContext(BoolContext, 0);
-    }
-    objectValueReference() {
-        return this.getTypedRuleContext(ObjectValueReferenceContext, 0);
-    }
-    specialCall() {
-        return this.getTypedRuleContext(SpecialCallContext, 0);
-    }
-    methodCall() {
-        return this.getTypedRuleContext(MethodCallContext, 0);
-    }
-    operationGrouping() {
-        return this.getTypedRuleContext(OperationGroupingContext, 0);
-    }
-    comment() {
-        return this.getTypedRuleContext(CommentContext, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_expr;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitExpr) {
-            return visitor.visitExpr(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.ExprContext = ExprContext;
-class StatementContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    expr() {
-        return this.getTypedRuleContext(ExprContext, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_statement;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitStatement) {
-            return visitor.visitStatement(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.StatementContext = StatementContext;
-class StatementListContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    EOF() {
-        return this.getToken(ReksioLangParser.EOF, 0);
-    }
-    statement_list() {
-        return this.getTypedRuleContexts(StatementContext);
-    }
-    statement(i) {
-        return this.getTypedRuleContext(StatementContext, i);
-    }
-    STATEMENT_END_list() {
-        return this.getTokens(ReksioLangParser.STATEMENT_END);
-    }
-    STATEMENT_END(i) {
-        return this.getToken(ReksioLangParser.STATEMENT_END, i);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_statementList;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitStatementList) {
-            return visitor.visitStatementList(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.StatementListContext = StatementListContext;
-class SubFieldAccessContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    FIELD_ACCESS() {
-        return this.getToken(ReksioLangParser.FIELD_ACCESS, 0);
-    }
-    IDENTIFIER() {
-        return this.getToken(ReksioLangParser.IDENTIFIER, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_subFieldAccess;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitSubFieldAccess) {
-            return visitor.visitSubFieldAccess(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.SubFieldAccessContext = SubFieldAccessContext;
-class MethodCallContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    objectName() {
-        return this.getTypedRuleContext(ObjectNameContext, 0);
-    }
-    METHOD_CALL_SYMBOL() {
-        return this.getToken(ReksioLangParser.METHOD_CALL_SYMBOL, 0);
-    }
-    methodName() {
-        return this.getTypedRuleContext(MethodNameContext, 0);
-    }
-    BRACKET_START() {
-        return this.getToken(ReksioLangParser.BRACKET_START, 0);
-    }
-    BRACKET_END() {
-        return this.getToken(ReksioLangParser.BRACKET_END, 0);
-    }
-    methodCallArguments() {
-        return this.getTypedRuleContext(MethodCallArgumentsContext, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_methodCall;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitMethodCall) {
-            return visitor.visitMethodCall(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.MethodCallContext = MethodCallContext;
-class ObjectNameContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    identifier() {
-        return this.getTypedRuleContext(IdentifierContext, 0);
-    }
-    subFieldAccess() {
-        return this.getTypedRuleContext(SubFieldAccessContext, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_objectName;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitObjectName) {
-            return visitor.visitObjectName(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.ObjectNameContext = ObjectNameContext;
-class MethodNameContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    identifier() {
-        return this.getTypedRuleContext(IdentifierContext, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_methodName;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitMethodName) {
-            return visitor.visitMethodName(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.MethodNameContext = MethodNameContext;
-class MethodCallArgumentsContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    expr_list() {
-        return this.getTypedRuleContexts(ExprContext);
-    }
-    expr(i) {
-        return this.getTypedRuleContext(ExprContext, i);
-    }
-    COMMA_list() {
-        return this.getTokens(ReksioLangParser.COMMA);
-    }
-    COMMA(i) {
-        return this.getToken(ReksioLangParser.COMMA, i);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_methodCallArguments;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitMethodCallArguments) {
-            return visitor.visitMethodCallArguments(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.MethodCallArgumentsContext = MethodCallArgumentsContext;
-class SpecialCallContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    AT() {
-        return this.getToken(ReksioLangParser.AT, 0);
-    }
-    methodName() {
-        return this.getTypedRuleContext(MethodNameContext, 0);
-    }
-    BRACKET_START() {
-        return this.getToken(ReksioLangParser.BRACKET_START, 0);
-    }
-    BRACKET_END() {
-        return this.getToken(ReksioLangParser.BRACKET_END, 0);
-    }
-    methodCallArguments() {
-        return this.getTypedRuleContext(MethodCallArgumentsContext, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_specialCall;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitSpecialCall) {
-            return visitor.visitSpecialCall(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.SpecialCallContext = SpecialCallContext;
-class OperationGroupingContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    OPERATION_GROUPING_START() {
-        return this.getToken(ReksioLangParser.OPERATION_GROUPING_START, 0);
-    }
-    operation() {
-        return this.getTypedRuleContext(OperationContext, 0);
-    }
-    OPERATION_GROUPING_END() {
-        return this.getToken(ReksioLangParser.OPERATION_GROUPING_END, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_operationGrouping;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitOperationGrouping) {
-            return visitor.visitOperationGrouping(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.OperationGroupingContext = OperationGroupingContext;
-class OperationContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    expr() {
-        return this.getTypedRuleContext(ExprContext, 0);
-    }
-    operation_list() {
-        return this.getTypedRuleContexts(OperationContext);
-    }
-    operation(i) {
-        return this.getTypedRuleContext(OperationContext, i);
-    }
-    PLUS() {
-        return this.getToken(ReksioLangParser.PLUS, 0);
-    }
-    MINUS() {
-        return this.getToken(ReksioLangParser.MINUS, 0);
-    }
-    ASTERISK() {
-        return this.getToken(ReksioLangParser.ASTERISK, 0);
-    }
-    PERCENTAGE() {
-        return this.getToken(ReksioLangParser.PERCENTAGE, 0);
-    }
-    AT() {
-        return this.getToken(ReksioLangParser.AT, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_operation;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitOperation) {
-            return visitor.visitOperation(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.OperationContext = OperationContext;
-class CommentContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    COMMENT_START() {
-        return this.getToken(ReksioLangParser.COMMENT_START, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_comment;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitComment) {
-            return visitor.visitComment(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.CommentContext = CommentContext;
-class NumberContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    MINUS() {
-        return this.getToken(ReksioLangParser.MINUS, 0);
-    }
-    NUMBER() {
-        return this.getToken(ReksioLangParser.NUMBER, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_number;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitNumber) {
-            return visitor.visitNumber(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.NumberContext = NumberContext;
-class BoolContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    TRUE() {
-        return this.getToken(ReksioLangParser.TRUE, 0);
-    }
-    FALSE() {
-        return this.getToken(ReksioLangParser.FALSE, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_bool;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitBool) {
-            return visitor.visitBool(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.BoolContext = BoolContext;
-class StringContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    CODE_STRING() {
-        return this.getToken(ReksioLangParser.CODE_STRING, 0);
-    }
-    STRING() {
-        return this.getToken(ReksioLangParser.STRING, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_string;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitString) {
-            return visitor.visitString(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.StringContext = StringContext;
-class ObjectValueReferenceContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    objectName() {
-        return this.getTypedRuleContext(ObjectNameContext, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_objectValueReference;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitObjectValueReference) {
-            return visitor.visitObjectValueReference(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.ObjectValueReferenceContext = ObjectValueReferenceContext;
-class IdentifierContext extends antlr4_1.ParserRuleContext {
-    constructor(parser, parent, invokingState) {
-        super(parent, invokingState);
-        this.parser = parser;
-    }
-    IDENTIFIER() {
-        return this.getToken(ReksioLangParser.IDENTIFIER, 0);
-    }
-    ASTERISK() {
-        return this.getToken(ReksioLangParser.ASTERISK, 0);
-    }
-    get ruleIndex() {
-        return ReksioLangParser.RULE_identifier;
-    }
-    // @Override
-    accept(visitor) {
-        if (visitor.visitIdentifier) {
-            return visitor.visitIdentifier(this);
-        }
-        else {
-            return visitor.visitChildren(this);
-        }
-    }
-}
-exports.IdentifierContext = IdentifierContext;
-
-
-/***/ }),
-
-/***/ "./src/interpreter/script/ReksioLangParserVisitor.ts":
-/*!***********************************************************!*\
-  !*** ./src/interpreter/script/ReksioLangParserVisitor.ts ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-// Generated from ./src/interpreter/script/ReksioLangParser.g4 by ANTLR 4.13.2
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const antlr4_1 = __webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs");
-/**
- * This interface defines a complete generic visitor for a parse tree produced
- * by `ReksioLangParser`.
- *
- * @param <Result> The return type of the visit operation. Use `void` for
- * operations with no return type.
- */
-class ReksioLangParserVisitor extends antlr4_1.ParseTreeVisitor {
-}
-exports["default"] = ReksioLangParserVisitor;
-
-
-/***/ }),
-
-/***/ "./src/interpreter/script/index.ts":
-/*!*****************************************!*\
-  !*** ./src/interpreter/script/index.ts ***!
-  \*****************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.runScript = exports.ScriptEvaluator = exports.InterruptScriptExecution = void 0;
-const ReksioLangParserVisitor_1 = __importDefault(__webpack_require__(/*! ./ReksioLangParserVisitor */ "./src/interpreter/script/ReksioLangParserVisitor.ts"));
-const ReksioLangParser_1 = __importDefault(__webpack_require__(/*! ./ReksioLangParser */ "./src/interpreter/script/ReksioLangParser.ts"));
-const ReksioLangLexer_1 = __importDefault(__webpack_require__(/*! ./ReksioLangLexer */ "./src/interpreter/script/ReksioLangLexer.ts"));
-const antlr4_1 = __importDefault(__webpack_require__(/*! antlr4 */ "./node_modules/antlr4/dist/antlr4.web.cjs"));
-const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
-const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
-const types_2 = __webpack_require__(/*! ../../engine/types */ "./src/engine/types/index.ts");
-const string_1 = __webpack_require__(/*! ../../engine/types/string */ "./src/engine/types/string.ts");
-const stacktrace_1 = __webpack_require__(/*! ./stacktrace */ "./src/interpreter/script/stacktrace.ts");
-const ifExpression_1 = __webpack_require__(/*! ../ifExpression */ "./src/interpreter/ifExpression/index.ts");
-const rand_1 = __webpack_require__(/*! ../../engine/types/rand */ "./src/engine/types/rand.ts");
-const system_1 = __webpack_require__(/*! ../../engine/types/system */ "./src/engine/types/system.ts");
-const common_1 = __webpack_require__(/*! ../../fileFormats/common */ "./src/fileFormats/common/index.ts");
-const integer_1 = __webpack_require__(/*! ../../engine/types/integer */ "./src/engine/types/integer.ts");
-const struct_1 = __webpack_require__(/*! ../../engine/types/struct */ "./src/engine/types/struct.ts");
-const cnvloader_1 = __webpack_require__(/*! ../../engine/types/cnvloader */ "./src/engine/types/cnvloader.ts");
-const logging_1 = __webpack_require__(/*! ../../engine/logging */ "./src/engine/logging.ts");
+exports.RuntimeContext = RuntimeContext;
 class InterruptScriptExecution extends errors_1.IgnorableError {
     constructor(one = false) {
         super();
@@ -43720,494 +41579,883 @@ class InterruptScriptExecution extends errors_1.IgnorableError {
     }
 }
 exports.InterruptScriptExecution = InterruptScriptExecution;
-class AlreadyDisplayedError {
-    constructor(cause) {
-        this.cause = cause;
+const COMPARE_OP_MAP = {
+    _: 'EQ',
+    '!_': 'NE',
+    '>': 'GT',
+    '<': 'LT',
+    '>_': 'GE',
+    '<_': 'LE',
+};
+function applyComparison(left, op, right) {
+    switch (op) {
+        case 'EQ':
+            return types_2.Compare.Equal(left, right);
+        case 'NE':
+            return types_2.Compare.NotEqual(left, right);
+        case 'LT':
+            return types_2.Compare.Less(left, right);
+        case 'LE':
+            return types_2.Compare.LessOrEqual(left, right);
+        case 'GT':
+            return types_2.Compare.Greater(left, right);
+        case 'GE':
+            return types_2.Compare.GreaterOrEqual(left, right);
+        case 'HAS':
+            return (0, types_2.valueAsString)(left).includes((0, types_2.valueAsString)(right));
+        default:
+            throw new RuntimeError(`Unknown comparison operator: ${op}`);
     }
 }
-class ScriptEvaluator extends ReksioLangParserVisitor_1.default {
-    constructor(engine, caller, script, args, printDebug = true) {
-        super();
-        this.lastContext = null;
-        this.methodCallUsedVariables = {};
-        this.scriptUsedVariables = {};
-        this.globalInstances = new Map();
-        this.visitStatementList = async (ctx) => {
-            this.lastContext = ctx;
-            let result = null;
-            for (const statement of ctx.statement_list()) {
-                result = await this.visitStatement(statement);
-            }
-            return result;
-        };
-        this.visitStatement = async (ctx) => {
-            this.lastContext = ctx;
-            if (ctx.expr() == null) {
-                return;
-            }
-            return await this.visit(ctx.expr());
-        };
-        this.visitExpr = async (ctx) => {
-            this.lastContext = ctx;
-            if (ctx.comment() != null) {
-                return;
-            }
-            return await this.visitChildren(ctx)[0];
-        };
-        this.visitIdentifier = (ctx) => {
-            const name = ctx.IDENTIFIER().getText();
-            if (ctx._dereference == null) {
-                return name;
-            }
-            const object = this.getObject(name);
-            if (object != null) {
-                return object.getValue();
-            }
-            return null;
-        };
-        this.visitObjectValueReference = (ctx) => {
-            const identifier = ctx.objectName().getText();
-            if (identifier == 'NULL') {
-                return null;
-            }
-            const object = this.visitObjectName(ctx.objectName());
-            this.methodCallUsedVariables[identifier] = object;
-            this.scriptUsedVariables[identifier] = object;
-            if (object === null) {
-                return identifier;
-            }
-            else if (object instanceof types_2.ValueType) {
-                return object.getValue();
-            }
-            else {
-                return object;
-            }
-        };
-        this.visitBool = (ctx) => {
-            if (ctx.TRUE() != null) {
-                return true;
-            }
-            else if (ctx.FALSE() != null) {
-                return false;
-            }
-        };
-        this.visitNumber = (ctx) => {
-            return (0, types_1.ForceNumber)(ctx.getText());
-        };
-        this.visitString = (ctx) => {
-            if (ctx.CODE_STRING() != null) {
-                return ctx.CODE_STRING().getText().replace(/^"|"$/g, '');
-            }
-            else if (ctx.STRING() != null) {
-                return ctx.STRING().getText().replace(/^"|"$/g, '');
-            }
-        };
-        this.visitMethodCall = async (ctx) => {
-            this.lastContext = ctx;
-            const object = this.visitObjectName(ctx.objectName());
-            if (object == null) {
-                return;
-            }
-            const methodName = ctx.methodName().getText();
-            const method = object[methodName];
-            this.methodCallUsedVariables = {};
-            const args = ctx.methodCallArguments() != null ? await this.visitMethodCallArguments(ctx.methodCallArguments()) : [];
-            const argsVariables = this.methodCallUsedVariables;
-            this.methodCallUsedVariables = {};
-            try {
-                const stackFrame = stacktrace_1.StackFrame.builder()
-                    .type('method')
-                    .object(object)
-                    .method(methodName)
-                    .args(...args)
-                    .build();
-                stacktrace_1.stackTrace.push(stackFrame);
-                if (method == undefined) {
-                    return await object.__call(methodName, args);
-                }
-                const result = await method.bind(object)(...args);
-                return result === null ? 'NULL' : result;
-            }
-            catch (err) {
-                if (err instanceof errors_1.IgnorableError) {
-                    throw err;
-                }
-                if (this.printDebug) {
-                    const code = this.markInCode(ctx);
-                    console.error('Error occurred during method call\n' +
-                        '\n' +
-                        `%cCode:%c\n${code}` +
-                        '\n' +
-                        '%cObject:%c %O\n' +
-                        (args.length > 0 ? '%cArguments:%c %O\n' : '') +
-                        (this.args.length ? '%cBehaviour Arguments:%c %O\n' : '') +
-                        (Object.keys(argsVariables).length > 0 ? '%cVariables used in call:%c %O\n' : '') +
-                        (Object.keys(this.scriptUsedVariables).length > 0 ? '%cVariables used in script:%c %O\n' : '') +
-                        '%cGlobal scopes:%c %O\n' +
-                        '%cCaller scope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', object, ...(args.length > 0 ? ['font-weight: bold', 'font-weight: inherit', args] : []), ...(this.args.length ? ['font-weight: bold', 'font-weight: inherit', this.args] : []), ...(Object.keys(argsVariables).length > 0
-                        ? ['font-weight: bold', 'font-weight: inherit', argsVariables]
-                        : []), ...(Object.keys(this.scriptUsedVariables).length > 0
-                        ? ['font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables]
-                        : []), 'font-weight: bold', 'font-weight: inherit', this.engine.scopeManager.scopes, 'font-weight: bold', 'font-weight: inherit', this.caller?.parentScope);
-                    console.error(err);
-                    (0, stacktrace_1.printStackTrace)();
-                }
-                if (err instanceof errors_1.NotImplementedError) {
-                    return null;
-                }
-                // eslint-disable-next-line no-debugger
-                debugger;
-                throw new AlreadyDisplayedError(err);
-            }
-            finally {
-                stacktrace_1.stackTrace.pop();
-            }
-        };
-        this.visitSpecialCall = async (ctx) => {
-            this.lastContext = ctx;
-            const methodName = ctx.methodName().getText();
-            const args = ctx.methodCallArguments() != null ? await this.visitMethodCallArguments(ctx.methodCallArguments()) : [];
-            const stackFrame = stacktrace_1.StackFrame.builder()
-                .type('specialCall')
-                .method(methodName)
-                .args(...args)
-                .build();
-            stacktrace_1.stackTrace.push(stackFrame);
-            try {
-                if (methodName === 'IF') {
-                    if (args.length == 5) {
-                        const [a, operator, b, ifTrue, ifFalse] = args;
-                        const result = await this.resolveConditionalCall(a, operator, b);
-                        const onTrue = this.getObject(ifTrue);
-                        const onFalse = this.getObject(ifFalse);
-                        if (result && onTrue !== null) {
-                            await onTrue.executeConditionalCallback();
-                        }
-                        else if (!result && onFalse !== null) {
-                            await onFalse.executeConditionalCallback();
-                        }
-                    }
-                    else if (args.length == 3) {
-                        const [expression, ifTrue, ifFalse] = args;
-                        const result = await (0, ifExpression_1.evaluateExpression)(this.engine, this.caller, expression);
-                        const onTrue = this.getObject(ifTrue);
-                        const onFalse = this.getObject(ifFalse);
-                        if (result && onTrue !== null) {
-                            await onTrue.executeConditionalCallback();
-                        }
-                        else if (!result && onFalse !== null) {
-                            await onFalse.executeConditionalCallback();
-                        }
-                    }
-                }
-                else if (methodName === 'BREAK') {
-                    throw new InterruptScriptExecution(false);
-                }
-                else if (methodName === 'LOOP') {
-                    const [codeOrBehaviour, start, len, step] = args;
-                    const callback = (0, common_1.createCallback)(codeOrBehaviour);
-                    if (callback === undefined) {
-                        throw new errors_1.IrrecoverableError('Invalid @LOOP callback');
-                    }
-                    const counter = new integer_1.Integer(this.engine, null, {
-                        NAME: '_I_',
-                        TYPE: 'INTEGER',
-                        TOINI: false,
-                    });
-                    for (let i = start; i < start + len; i += step) {
-                        await counter.setValue(i);
-                        try {
-                            await this.engine.scripting.executeCallback(null, this.caller, callback, [], {
-                                _I_: counter,
-                            }, true);
-                        }
-                        catch (err) {
-                            if (err instanceof InterruptScriptExecution) {
-                                if (err.one) {
-                                    continue;
-                                }
-                                break;
-                            }
-                            throw err;
-                        }
-                    }
-                }
-                else if (methodName === 'WHILE') {
-                    const [a, operator, b, codeOrBehaviour] = args;
-                    const callback = (0, common_1.createCallback)(codeOrBehaviour);
-                    if (callback === undefined) {
-                        throw new errors_1.IrrecoverableError('Invalid callback');
-                    }
-                    while (await this.resolveConditionalCall(a, operator, b)) {
-                        try {
-                            await this.engine.scripting.executeCallback(null, this.caller, callback, [], undefined, true);
-                        }
-                        catch (err) {
-                            if (err instanceof InterruptScriptExecution) {
-                                if (err.one) {
-                                    continue;
-                                }
-                                break;
-                            }
-                            throw err;
-                        }
-                    }
-                }
-                else if (this.printDebug) {
-                    const code = this.markInCode(ctx);
-                    console.error(`Unknown special call ${methodName}` + '\n' + `%cCode:%c\n${code}\n\n` + '%cUsed variables:%c%O', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables);
-                    // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
-                }
-            }
-            finally {
-                stacktrace_1.stackTrace.pop();
-            }
-        };
-        this.visitMethodCallArguments = async (ctx) => {
-            this.lastContext = ctx;
-            return Promise.all(ctx.expr_list().map(async (expr) => await this.visitExpr(expr)));
-        };
-        this.visitObjectName = (ctx) => {
-            this.lastContext = ctx;
-            let objectName = this.visitIdentifier(ctx.identifier());
-            let object = this.getObject(objectName);
-            if (object === null && objectName !== null && objectName.endsWith('_0')) {
-                objectName = objectName.substring(0, objectName.length - 2);
-                object = this.getObject(objectName);
-            }
-            this.methodCallUsedVariables[objectName] = object;
-            this.scriptUsedVariables[objectName] = object;
-            if (object === null) {
-                if (this.globalInstances.has(objectName)) {
-                    return this.globalInstances.get(objectName);
-                }
-                if (this.printDebug) {
-                    const code = this.markInCode(ctx);
-                    console.error(`Unknown identifier "${objectName}"\n` +
-                        '\n' +
-                        `%cCode:%c\n${code}\n\n` +
-                        '%cUsed variables:%c %O\n' +
-                        '%cGlobal scopes:%c %O\n' +
-                        '%cCaller scope:%c %O\n', 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit', 'font-weight: bold', 'font-weight: inherit', this.scriptUsedVariables, 'font-weight: bold', 'font-weight: inherit', this.engine.scopeManager.scopes, 'font-weight: bold', 'font-weight: inherit', this.caller?.parentScope);
-                }
-                // Don't stop execution because of games authors mistake in "Reksio i Skarb Piratów"
-                return null;
-            }
-            const subField = ctx.subFieldAccess();
-            if (subField !== null) {
-                (0, errors_1.assert)(object instanceof struct_1.Struct);
-                const struct = object;
-                const subFieldValue = struct.GETFIELD(subField.IDENTIFIER().getText());
-                this.methodCallUsedVariables[ctx.getText()] = object;
-                this.scriptUsedVariables[ctx.getText()] = object;
-                return subFieldValue;
-            }
-            return object;
-        };
-        this.visitOperationGrouping = async (ctx) => {
-            this.lastContext = ctx;
-            return this.visitOperation(ctx.operation());
-        };
-        this.visitOperation = async (ctx) => {
-            this.lastContext = ctx;
-            if (ctx.expr() !== null) {
-                return this.visitExpr(ctx.expr());
-            }
-            const left = await this.visitOperation(ctx._left);
-            let right = await this.visitOperation(ctx._right);
-            // It was a problem in S71_DROGA (Ufo)
-            if (typeof left === 'number' && typeof right === 'string') {
-                right = (0, types_1.ForceNumber)(right);
-            }
-            let result = undefined;
-            if (ctx._operator.type == ReksioLangParser_1.default.PLUS) {
-                result = left + right;
-            }
-            else if (ctx._operator.type == ReksioLangParser_1.default.MINUS) {
-                result = left - right;
-            }
-            else if (ctx._operator.type == ReksioLangParser_1.default.ASTERISK) {
-                result = left * right;
-            }
-            else if (ctx._operator.type == ReksioLangParser_1.default.PERCENTAGE) {
-                result = left % right;
-            }
-            else if (ctx._operator.type == ReksioLangParser_1.default.AT) {
-                result = left / right;
-            }
-            (0, errors_1.assert)(!(typeof result == 'number' && isNaN(result)));
-            return result;
-        };
-        this.engine = engine;
-        this.caller = caller;
-        this.script = script;
-        this.args = args;
-        this.printDebug = printDebug;
-        this.loadLibraries();
+class Interpreter {
+    constructor(context) {
+        this.context = context;
+        this.globalInstances = this.createGlobalInstances();
+        this.globalHandlers = this.createGlobalHandlers();
     }
-    loadLibraries() {
-        this.globalInstances.set('RANDOM', new rand_1.Rand(this.engine, null, {
-            TYPE: 'RAND',
-            NAME: 'RANDOM',
-        }));
-        this.globalInstances.set('SYSTEM', new system_1.System(this.engine, null, {
-            TYPE: 'SYSTEM',
-            NAME: 'SYSTEM',
-        }));
-        this.globalInstances.set('CNVLOADER', new cnvloader_1.CNVLoader(this.engine, null, {
-            TYPE: 'CNVLOADER',
-            NAME: 'CNVLOADER',
-        }));
+    async execute(statements) {
+        let result = null;
+        for (const stmt of statements) {
+            result = await this.executeStatement(stmt);
+        }
+        return result;
     }
-    async resolveConditionalCall(a, operator, b) {
-        const left = typeof a === 'string'
-            ? a.toString().startsWith('"')
-                ? a.toString().replace(/^"|"$/g, '')
-                : ((await this.getObject((0, types_1.valueAsString)(a))?.getValue()) ?? a)
-            : a;
-        const right = typeof b === 'string'
-            ? b.toString().startsWith('"')
-                ? b.toString().replace(/^"|"$/g, '')
-                : ((await this.getObject((0, types_1.valueAsString)(b))?.getValue()) ?? b)
-            : b;
-        if (operator == '_') {
-            return types_1.Compare.Equal(left, right);
-        }
-        else if (operator == '!_') {
-            return types_1.Compare.NotEqual(left, right);
-        }
-        else if (operator == '>') {
-            return types_1.Compare.Greater(left, right);
-        }
-        else if (operator == '<') {
-            return types_1.Compare.Less(left, right);
-        }
-        else if (operator == '>_') {
-            return types_1.Compare.GreaterOrEqual(left, right);
-        }
-        else if (operator == '<_') {
-            return types_1.Compare.LessOrEqual(left, right);
-        }
-        (0, errors_1.assert)(false, 'unknown comparison operator');
+    async executeStatement(stmt) {
+        return stmt.type === 'FunctionCall' ? this.executeFunctionCall(stmt) : this.evaluateParameter(stmt);
     }
-    markInCode(ctx) {
-        const code = this.script?.substring(0, ctx.start.column) +
-            '%c' +
-            this.script?.substring(ctx.start.column, ctx.stop.column + 1) +
-            '%c' +
-            this.script?.substring(ctx.stop.column + 1);
-        return code.trimEnd().split(';').join(';\n');
+    createGlobalInstances() {
+        const { engine } = this.context;
+        return new Map([
+            ['RANDOM', new rand_1.Rand(engine, null, { TYPE: 'RAND', NAME: 'RANDOM' })],
+            ['SYSTEM', new system_1.System(engine, null, { TYPE: 'SYSTEM', NAME: 'SYSTEM' })],
+            ['CNVLOADER', new cnvloader_1.CNVLoader(engine, null, { TYPE: 'CNVLOADER', NAME: 'CNVLOADER' })],
+        ]);
     }
-    getObject(name) {
-        return this.engine.getObject(name, this.caller?.parentScope);
+    createGlobalHandlers() {
+        return new Map([
+            ['IF', this.handleIf.bind(this)],
+            ['BREAK', this.handleBreak.bind(this)],
+            ['LOOP', this.handleLoop.bind(this)],
+            ['WHILE', this.handleWhile.bind(this)],
+        ]);
     }
-}
-exports.ScriptEvaluator = ScriptEvaluator;
-const runScript = async (engine, caller, script, args = [], singleStatement = false, printDebug = true) => {
-    script = script.replace(/\$(\d+)/g, (match, index) => {
-        const valueIndex = parseInt(index, 10) - 1;
-        if (valueIndex >= 0 && valueIndex < args.length) {
-            const arg = args[valueIndex];
-            if (arg instanceof string_1.String) {
-                return arg.getValue();
+    async handleIf(args) {
+        let result;
+        let onTrue;
+        let onFalse;
+        if (args.length === 5) {
+            const [a, operator, b, ifTrue, ifFalse] = args;
+            const left = typeof a === 'string' ? await this.execute((0, parser_1.parseCode)(a)) : a;
+            const right = typeof b === 'string' ? await this.execute((0, parser_1.parseCode)(b)) : b;
+            const op = COMPARE_OP_MAP[operator];
+            if (!op) {
+                throw new RuntimeError(`Unknown comparison operator: ${operator}`);
             }
-            else if (arg instanceof types_2.Type) {
-                return arg.name;
-            }
-            else {
-                return arg;
-            }
+            result = applyComparison(left, op, right);
+            onTrue = this.getObject(ifTrue);
+            onFalse = this.getObject(ifFalse);
+        }
+        else if (args.length === 3) {
+            const [expression, ifTrue, ifFalse] = args;
+            result = await this.evaluateLogicExpression((0, expression_1.parseLogicExpression)(expression));
+            onTrue = this.getObject(ifTrue);
+            onFalse = this.getObject(ifFalse);
         }
         else {
-            return match;
+            throw new RuntimeError(`Invalid @IF arguments: expected 3 or 5, got ${args.length}`);
         }
-    });
-    const initialLexer = new ReksioLangLexer_1.default(new antlr4_1.default.CharStream(script));
-    initialLexer.removeErrorListeners();
-    const initialTokens = new antlr4_1.default.CommonTokenStream(initialLexer);
-    initialTokens.fill();
-    // Fix simple typos in scripts
-    const rewriter = new antlr4_1.default.TokenStreamRewriter(initialTokens);
-    for (const token of initialTokens.tokens) {
-        if (token.type === ReksioLangLexer_1.default.TYPO && token.text === ':') {
-            rewriter.replaceSingle(token, ';');
+        if (result && onTrue) {
+            await onTrue.executeConditionalCallback();
         }
-        else if (token.type === ReksioLangLexer_1.default.TYPO && token.text === '>') {
-            rewriter.replaceSingle(token, '^');
+        else if (!result && onFalse) {
+            await onFalse.executeConditionalCallback();
         }
-        else if (token.type === ReksioLangLexer_1.default.TYPO_QUOTE) {
-            const nextToken = initialTokens.get(token.tokenIndex + 1);
-            rewriter.replace(token, nextToken, `"${nextToken.text}"`);
+    }
+    async handleBreak(_args) {
+        throw new InterruptScriptExecution(false);
+    }
+    async handleLoop(args) {
+        const [codeOrBehaviour, start, len, step] = args;
+        const callback = (0, common_1.createCallback)(codeOrBehaviour);
+        if (!callback) {
+            throw new errors_1.IrrecoverableError('Invalid @LOOP callback');
         }
-        else if (token.type === ReksioLangLexer_1.default.EOF) {
-            const prevToken = initialTokens.get(token.tokenIndex - 1);
-            if (prevToken.type !== ReksioLangLexer_1.default.STATEMENT_END) {
-                rewriter.insertAfter(prevToken, ';');
+        const counter = new integer_1.Integer(this.context.engine, null, {
+            NAME: '_I_',
+            TYPE: 'INTEGER',
+            TOINI: false,
+        });
+        for (let i = start; i < start + len; i += step) {
+            await counter.setValue(i);
+            try {
+                await this.context.engine.scripting.executeCallback(null, this.context.caller, callback, [], { _I_: counter }, true);
+            }
+            catch (err) {
+                if (err instanceof InterruptScriptExecution) {
+                    if (err.one)
+                        continue;
+                    break;
+                }
+                throw err;
             }
         }
     }
-    const lexer = new ReksioLangLexer_1.default(new antlr4_1.default.CharStream(rewriter.getText()));
-    lexer.removeErrorListeners();
-    lexer.addErrorListener({
-        syntaxError(_recognizer, _offendingSymbol, line, column, msg) {
-            logging_1.logger.error(`Lexer error: ${msg} at ${line}:${column}\n${script}`, {
-                caller,
-                args,
-            });
-            (0, stacktrace_1.printStackTrace)();
-        },
-    });
-    const tokens = new antlr4_1.default.CommonTokenStream(lexer);
-    const parser = new ReksioLangParser_1.default(tokens);
-    parser.removeErrorListeners();
-    parser.addErrorListener({
-        syntaxError(_recognizer, _offendingSymbol, line, column, msg, _e) {
-            logging_1.logger.error(`Parser error: ${msg} at ${line}:${column}\n${script}`, {
-                caller,
-                args,
-            });
-            (0, stacktrace_1.printStackTrace)();
-        },
-    });
-    const tree = singleStatement ? parser.statement() : parser.statementList();
-    const evaluator = new ScriptEvaluator(engine, caller, script, args, printDebug);
-    try {
-        return await tree.accept(evaluator);
-    }
-    catch (err) {
-        if (err instanceof errors_1.IgnorableError) {
-            throw err;
+    async handleWhile(args) {
+        const [a, operator, b, codeOrBehaviour] = args;
+        const callback = (0, common_1.createCallback)(codeOrBehaviour);
+        if (!callback) {
+            throw new errors_1.IrrecoverableError('Invalid @WHILE callback');
         }
-        else if (!(err instanceof AlreadyDisplayedError)) {
-            if (evaluator.lastContext) {
-                const code = evaluator.markInCode(evaluator.lastContext);
-                if (printDebug) {
-                    console.error('Execution stopped due to irrecoverable error\n\n' + `%cCode:%c\n${code}`, 'font-weight: bold', 'font-weight: inherit', 'color: red', 'color: inherit');
+        const op = COMPARE_OP_MAP[operator];
+        if (!op) {
+            throw new RuntimeError(`Unknown comparison operator: ${operator}`);
+        }
+        const evaluateCondition = async () => {
+            const left = typeof a === 'string' ? await this.execute((0, parser_1.parseCode)(a)) : a;
+            const right = typeof b === 'string' ? await this.execute((0, parser_1.parseCode)(b)) : b;
+            return applyComparison(left, op, right);
+        };
+        while (await evaluateCondition()) {
+            try {
+                await this.context.engine.scripting.executeCallback(null, this.context.caller, callback, [], undefined, true);
+            }
+            catch (err) {
+                if (err instanceof InterruptScriptExecution) {
+                    if (err.one)
+                        continue;
+                    break;
+                }
+                throw err;
+            }
+        }
+    }
+    async evaluateLogicExpression(expr) {
+        if (expr.type === 'Condition') {
+            const [left, right] = await Promise.all([
+                this.evaluateParameter(expr.left),
+                this.evaluateParameter(expr.right),
+            ]);
+            return applyComparison(left, expr.operator, right);
+        }
+        const { operator, conditions } = expr;
+        if (conditions.length === 0) {
+            return operator === 'AND';
+        }
+        const isOr = operator === 'OR';
+        for (const condition of conditions) {
+            const [left, right] = await Promise.all([
+                this.evaluateParameter(condition.left),
+                this.evaluateParameter(condition.right),
+            ]);
+            if (applyComparison(left, condition.operator, right) === isOr) {
+                return isOr;
+            }
+        }
+        return !isOr;
+    }
+    async executeFunctionCall(call) {
+        const args = await Promise.all(call.args.map((arg) => this.evaluateParameter(arg)));
+        if (!call.target) {
+            throw new RuntimeError('Bare methods not implemented');
+        }
+        switch (call.target.type) {
+            case 'GlobalTarget': {
+                const handler = this.globalHandlers.get(call.method);
+                if (!handler) {
+                    throw new RuntimeError(`Global method not found: @${call.method}`);
+                }
+                try {
+                    const stackFrame = stacktrace_1.StackFrame.builder()
+                        .type('specialCall')
+                        .method(call.method)
+                        .args(...args)
+                        .build();
+                    stacktrace_1.stackTrace.push(stackFrame);
+                    return handler(args);
+                }
+                finally {
+                    stacktrace_1.stackTrace.pop();
                 }
             }
-            if (printDebug) {
-                console.error(err);
+            case 'ObjectTarget': {
+                const targetObj = await this.resolveObjectRef(call.target.ref);
+                if (!targetObj) {
+                    return null;
+                }
+                try {
+                    const stackFrame = stacktrace_1.StackFrame.builder()
+                        .type('method')
+                        .object(targetObj)
+                        .method(call.method)
+                        .args(...args)
+                        .build();
+                    stacktrace_1.stackTrace.push(stackFrame);
+                    const method = targetObj[call.method];
+                    return method !== undefined ? method.bind(targetObj)(...args) : targetObj.__call(call.method, args);
+                }
+                catch (err) {
+                    if (err instanceof errors_1.IgnorableError)
+                        throw err;
+                    const beforePart = this.context.script.substring(0, call.start).replaceAll(';', ';\n');
+                    const callPart = this.context.script.substring(call.start, call.end);
+                    const afterPart = this.context.script.substring(call.end).replaceAll(';', ';\n').trim();
+                    logging_1.logger.error((0, logging_1.fmt) `Error occured during method execution:\n${beforePart}${(0, logging_1.color)('red', callPart)}${afterPart}\n`, {
+                        args,
+                    }, err);
+                    (0, stacktrace_1.printStackTrace)();
+                    if (err instanceof errors_1.NotImplementedError)
+                        return null;
+                    // eslint-disable-next-line no-debugger
+                    debugger;
+                    throw new SilentError(err);
+                }
+                finally {
+                    stacktrace_1.stackTrace.pop();
+                }
             }
-            throw err;
+            default:
+                throw new RuntimeError(`Unknown target type: ${call.target.type}`);
         }
     }
-};
-exports.runScript = runScript;
+    async evaluateParameter(param) {
+        switch (param.type) {
+            case 'NumberLiteral': {
+                const value = (0, types_2.toNumber)(param.value);
+                if (isNaN(value)) {
+                    throw new RuntimeError(`Invalid number literal: ${param.value}`);
+                }
+                return value;
+            }
+            case 'StringLiteral':
+                return param.value;
+            case 'BooleanLiteral':
+                return param.value;
+            case 'BracketExpression':
+                return this.evaluateExpression(param.expression);
+            case 'Identifier': {
+                const object = this.getObject(param.name);
+                if (object instanceof types_1.ValueType) {
+                    return await object.getValue();
+                }
+                return param.name;
+            }
+            case 'FieldAccess': {
+                const obj = this.getObject(param.objectName);
+                if (!obj) {
+                    throw new RuntimeError(`Cannot access field ${param.fieldName} on non-object ${param.objectName}`);
+                }
+                if (!(obj instanceof struct_1.Struct)) {
+                    throw new RuntimeError('Failed to access field: object is not a Struct');
+                }
+                const field = obj.getField(param.fieldName);
+                if (field === undefined) {
+                    throw new RuntimeError(`Field ${param.fieldName} not found on object ${param.objectName}`);
+                }
+                return await field.getValue();
+            }
+            case 'ConversionCall':
+                throw new RuntimeError('Unsupported conversion call');
+            case 'FunctionCall':
+                return this.executeFunctionCall(param);
+            default:
+                throw new RuntimeError(`Unknown parameter type: ${param.type}`);
+        }
+    }
+    async evaluateExpression(expr) {
+        let result = await this.evaluateParameter(expr.head);
+        for (const step of expr.tail) {
+            let operand = await this.evaluateParameter(step.operand);
+            if (typeof result === 'number' && typeof operand === 'string') {
+                operand = (0, types_2.ForceNumber)(operand);
+            }
+            switch (step.op) {
+                case 'ADD':
+                    result = result + operand;
+                    break;
+                case 'SUB':
+                    result = result - operand;
+                    break;
+                case 'MUL':
+                    result = result * operand;
+                    break;
+                case 'DIV':
+                    if (operand === 0)
+                        throw new RuntimeError('Division by zero');
+                    result = result / operand;
+                    break;
+                case 'MOD':
+                    if (operand === 0)
+                        throw new RuntimeError('Modulo by zero');
+                    result = result % operand;
+                    break;
+                default:
+                    throw new RuntimeError(`Unknown operator: ${step.op}`);
+            }
+        }
+        return result;
+    }
+    async resolveObjectRef(ref) {
+        switch (ref.type) {
+            case 'ThisRef':
+                return this.getObject('THIS');
+            case 'DirectRef':
+                throw new RuntimeError(`Unsupported ref: ${ref.type}`);
+            case 'Identifier':
+                return this.getObject(ref.name);
+            case 'IndirectRef':
+                return this.getObject(await this.evaluateParameter(ref.inner));
+            default:
+                throw new RuntimeError(`Unknown ref type: ${ref.type}`);
+        }
+    }
+    getObject(name) {
+        const object = this.context.engine.getObject(name, this.context.caller?.parentScope);
+        if (object === null && this.globalInstances.has(name)) {
+            return this.globalInstances.get(name);
+        }
+        return object;
+    }
+}
+exports.Interpreter = Interpreter;
+async function runCode(engine, caller, script, args, isSingleStatement) {
+    const processedScript = await substituteArguments(script, args);
+    const ast = (0, parser_1.parseCode)(processedScript);
+    const context = new RuntimeContext(engine, caller, processedScript);
+    const interpreter = new Interpreter(context);
+    try {
+        return isSingleStatement ? await interpreter.executeStatement(ast[0]) : await interpreter.execute(ast);
+    }
+    catch (err) {
+        if (err instanceof errors_1.IgnorableError)
+            throw err;
+        if (!(err instanceof SilentError))
+            throw err;
+    }
+}
+exports.runCode = runCode;
+async function substituteArguments(script, args) {
+    const regex = /\$(\d+)/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    while ((match = regex.exec(script)) !== null) {
+        parts.push(script.slice(lastIndex, match.index));
+        const valueIndex = parseInt(match[1], 10) - 1;
+        if (valueIndex < 0 || valueIndex >= args.length) {
+            parts.push(match[0]);
+        }
+        else {
+            const arg = args[valueIndex];
+            if (arg instanceof string_1.String) {
+                parts.push(String(await arg.getValue()));
+            }
+            else if (arg instanceof types_1.Type) {
+                parts.push(arg.name);
+            }
+            else {
+                parts.push(String(arg));
+            }
+        }
+        lastIndex = regex.lastIndex;
+    }
+    parts.push(script.slice(lastIndex));
+    const resolved = await Promise.all(parts);
+    return resolved.join('');
+}
 
 
 /***/ }),
 
-/***/ "./src/interpreter/script/stacktrace.ts":
-/*!**********************************************!*\
-  !*** ./src/interpreter/script/stacktrace.ts ***!
-  \**********************************************/
+/***/ "./src/interpreter/parser.ts":
+/*!***********************************!*\
+  !*** ./src/interpreter/parser.ts ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseExpression = exports.parseParameter = exports.parseParameters = exports.parseLine = exports.parseCode = exports.ParseError = void 0;
+const ast_1 = __webpack_require__(/*! ./ast */ "./src/interpreter/ast.ts");
+const types_1 = __webpack_require__(/*! ../common/types */ "./src/common/types.ts");
+const OPERATOR_CHARS = ['+', '-', '*', '@', '%'];
+class ParseError extends Error {
+    constructor(message, text = '', position = -1) {
+        const detail = position >= 0 ? ` at position ${position}` : '';
+        const ctx = text ? ` in '${text}'` : '';
+        super(`Parse error${detail}${ctx}: ${message}`);
+        this.name = 'ParseError';
+        this.text = text;
+        this.position = position;
+    }
+}
+exports.ParseError = ParseError;
+/**
+ * Parse a semicolon-delimited code string into a list of Statements.
+ */
+function parseCode(code) {
+    const results = [];
+    let depth = 0;
+    let start = 0;
+    for (let i = 0; i < code.length; i++) {
+        const ch = code[i];
+        if (ch === '(')
+            depth++;
+        else if (ch === ')')
+            depth--;
+        else if (ch === ';' && depth === 0) {
+            const stmt = code.slice(start, i).trim();
+            if (stmt) {
+                const stmtStart = code.indexOf(stmt, start);
+                results.push(parseLine(stmt, stmtStart));
+            }
+            start = i + 1;
+        }
+    }
+    const last = code.slice(start).trim();
+    if (last) {
+        const lastStart = code.indexOf(last, start);
+        results.push(parseLine(last, lastStart));
+    }
+    return results;
+}
+exports.parseCode = parseCode;
+/**
+ * Parse one line of CMC code into Statement.
+ *
+ * Mirrors `CMC_Behaviour::runLine`.
+ *
+ * If the line has no parentheses, no caret, and no `@`/`*` prefix,
+ * it's a bare value (number, identifier, etc.) and is parsed via
+ * `parseParameter` instead of being forced into a FunctionCall.
+ * This handles cases like `1234` -> NumberLiteral or `TRUE` -> Identifier.
+ */
+function parseLine(text, offset = 0) {
+    const originalText = text;
+    text = text.trim();
+    const trimOffset = offset + originalText.indexOf(text);
+    if (!text)
+        throw new ParseError('empty line', text);
+    const parenPos = text.indexOf('(');
+    // '@' prefix: global runner
+    if (text[0] === '@') {
+        let method;
+        let args;
+        const targetStart = trimOffset;
+        const targetEnd = trimOffset + 1;
+        if (parenPos === -1) {
+            method = text.slice(1);
+            args = [];
+        }
+        else {
+            method = text.slice(1, parenPos).trim();
+            args = parseParameters(_extractArgs(text, parenPos), trimOffset + parenPos + 1);
+        }
+        return {
+            type: 'FunctionCall',
+            target: { type: 'GlobalTarget', start: targetStart, end: targetEnd },
+            method,
+            args,
+            isHashMethod: method.startsWith('#'),
+            start: trimOffset,
+            end: trimOffset + text.length,
+        };
+    }
+    // '*' prefix: indirect / dereference
+    if (text[0] === '*') {
+        return _parsePrefixedStar(text, parenPos, trimOffset);
+    }
+    // No parens and no caret -> bare value, delegate to parseParameter.
+    // This correctly handles: `1234`, `TRUE`, `"hello"`, `obj|field`, etc.
+    if (parenPos === -1 && !text.includes('^')) {
+        return parseParameter(text, trimOffset);
+    }
+    // Has caret but no parens -> function call with no args (e.g. `obj^method`)
+    if (parenPos === -1) {
+        const [objRef, method] = _splitObjectMethod(text, trimOffset);
+        const target = objRef
+            ? { type: 'ObjectTarget', ref: objRef, start: objRef.start, end: objRef.end }
+            : null;
+        return {
+            type: 'FunctionCall',
+            target,
+            method,
+            args: [],
+            isHashMethod: false,
+            start: trimOffset,
+            end: trimOffset + text.length,
+        };
+    }
+    const callTarget = text.slice(0, parenPos).trim();
+    const argsText = _extractArgs(text, parenPos);
+    const [objRef, method] = _splitObjectMethod(callTarget, trimOffset);
+    const target = objRef
+        ? { type: 'ObjectTarget', ref: objRef, start: objRef.start, end: objRef.end }
+        : null;
+    return {
+        type: 'FunctionCall',
+        target,
+        method,
+        args: parseParameters(argsText, trimOffset + parenPos + 1),
+        isHashMethod: method.startsWith('#'),
+        start: trimOffset,
+        end: trimOffset + text.length,
+    };
+}
+exports.parseLine = parseLine;
+/**
+ * Split a comma-separated parameter string respecting `(` / `)` depth.
+ *
+ * Mirrors `CMC_Behaviour::resolveParameters`.
+ */
+function parseParameters(text, offset = 0) {
+    const originalText = text;
+    text = text.trim();
+    if (!text)
+        return [];
+    const trimOffset = offset + (originalText.length - originalText.trimStart().length);
+    const params = [];
+    let depth = 0;
+    let start = 0;
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (ch === '(')
+            depth++;
+        else if (ch === ')')
+            depth--;
+        else if (ch === ',' && depth === 0) {
+            const part = text.slice(start, i).trim();
+            if (part) {
+                const partStart = trimOffset + text.indexOf(part, start);
+                params.push(parseParameter(part, partStart));
+            }
+            start = i + 1;
+        }
+    }
+    const part = text.slice(start).trim();
+    if (part) {
+        const partStart = trimOffset + text.indexOf(part, start);
+        params.push(parseParameter(part, partStart));
+    }
+    return params;
+}
+exports.parseParameters = parseParameters;
+/**
+ * Classify and parse a single parameter expression.
+ *
+ * Mirrors `CMC_Behaviour::resolveParameter` priority chain:
+ *   1. `[expr]`              -> BracketExpression (parsed as flat Expression)
+ *   2. `CONV...`             -> ConversionCall
+ *   3. has `^`, no `"`       -> nested FunctionCall (recursive runLine)
+ *   4. starts with `"`       -> StringLiteral
+ *   5. starts with `-`/digit -> NumberLiteral
+ *   6. contains `|`          -> FieldAccess
+ *   7. fallback              -> Identifier
+ */
+function parseParameter(text, offset = 0) {
+    const originalText = text;
+    text = text.trim();
+    const trimOffset = offset + originalText.indexOf(text);
+    if (!text)
+        throw new ParseError('empty parameter');
+    const first = text[0];
+    // 1. bracket expression [...] -> parsed via CMC_Expression
+    if (first === '[') {
+        let inner = text.slice(1);
+        if (inner.endsWith(']'))
+            inner = inner.slice(0, -1);
+        const raw = inner.trim();
+        const expression = parseExpression(raw, trimOffset, 0);
+        return {
+            type: 'BracketExpression',
+            raw,
+            expression,
+            start: trimOffset,
+            end: trimOffset + text.length,
+        };
+    }
+    // 2. CONV prefix
+    if (text.toUpperCase().startsWith('CONV')) {
+        return {
+            type: 'ConversionCall',
+            text,
+            start: trimOffset,
+            end: trimOffset + text.length,
+        };
+    }
+    // 3. contains '^' and does NOT start with '"' -> nested call
+    if (text.includes('^') && first !== '"') {
+        return parseLine(text, trimOffset);
+    }
+    if (first === '"') {
+        let value = text.slice(1);
+        if (value.endsWith('"'))
+            value = value.slice(0, -1);
+        return {
+            type: 'StringLiteral',
+            value,
+            start: trimOffset,
+            end: trimOffset + text.length,
+        };
+    }
+    if (first === '-' || (first >= '0' && first <= '9')) {
+        return {
+            type: 'NumberLiteral',
+            value: text,
+            start: trimOffset,
+            end: trimOffset + text.length,
+        };
+    }
+    const pipe = text.indexOf('|');
+    if (pipe !== -1) {
+        return {
+            type: 'FieldAccess',
+            objectName: text.slice(0, pipe).trim(),
+            fieldName: text.slice(pipe + 1).trim(),
+            start: trimOffset,
+            end: trimOffset + text.length,
+        };
+    }
+    if (text === 'TRUE' || text === 'FALSE') {
+        return {
+            type: 'BooleanLiteral',
+            value: (0, types_1.valueAsBool)(text),
+            start: trimOffset,
+            end: trimOffset + text.length,
+        };
+    }
+    return {
+        type: 'Identifier',
+        name: text,
+        start: trimOffset,
+        end: trimOffset + text.length,
+    };
+}
+exports.parseParameter = parseParameter;
+function parseExpression(text, trimOffset, offset = 0) {
+    const parts = splitExpression(text, offset);
+    // parts[0] is always the first operand (may be empty string for leading operator)
+    const headPart = parts[0];
+    const head = parseParameter(headPart.text.trim(), trimOffset + 1 + headPart.start);
+    const tail = [];
+    for (let i = 1; i + 1 < parts.length; i += 2) {
+        const opPart = parts[i];
+        const resolved = resolveOp(opPart.text);
+        if (!resolved) {
+            // Unknown operator - shouldn't happen with well-formed input,
+            // but mirror the engine's behaviour of passing through
+            continue;
+        }
+        const operandPart = parts[i + 1];
+        const operandText = operandPart.text.trim();
+        const operandStart = operandPart.start + (operandPart.text.length - operandPart.text.trimStart().length);
+        tail.push({
+            op: resolved.op,
+            opCode: resolved.code,
+            operand: parseParameter(operandText, trimOffset + 1 + operandStart),
+            start: opPart.start,
+            end: operandPart.end,
+        });
+    }
+    return {
+        type: 'Expression',
+        head,
+        tail,
+        start: offset,
+        end: offset + text.length,
+    };
+}
+exports.parseExpression = parseExpression;
+function splitExpression(text, offset = 0) {
+    const parts = [];
+    let start = 0;
+    let bracketDepth = 0;
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (ch === '[') {
+            bracketDepth++;
+        }
+        else if (ch === ']') {
+            bracketDepth--;
+        }
+        else if (bracketDepth === 0 && OPERATOR_CHARS.includes(ch)) {
+            // Found an operator at the top level
+            parts.push({
+                text: text.slice(start, i),
+                start: offset + start,
+                end: offset + i,
+            }); // operand before this operator
+            parts.push({
+                text: ch,
+                start: offset + i,
+                end: offset + i + 1,
+            }); // the operator character
+            start = i + 1;
+        }
+    }
+    // Final operand (or the whole string if no operators found)
+    parts.push({
+        text: text.slice(start),
+        start: offset + start,
+        end: offset + text.length,
+    });
+    return parts;
+}
+function resolveOp(text) {
+    const trimmed = text.trim();
+    // symbol form
+    const bySymbol = ast_1.EXPR_OP_SYMBOL[trimmed];
+    if (bySymbol) {
+        return { op: bySymbol, code: ast_1.EXPR_OP_CODE[bySymbol] };
+    }
+    // word form
+    const upper = trimmed.toUpperCase();
+    if (upper in ast_1.EXPR_OP_CODE) {
+        const op = upper;
+        return { op, code: ast_1.EXPR_OP_CODE[op] };
+    }
+    return null;
+}
+function _parsePrefixedStar(text, parenPos, offset) {
+    if (parenPos === -1) {
+        const inner = text.slice(1).trim();
+        const innerStart = offset + text.indexOf(inner);
+        const [objRef, method] = _splitObjectMethod(inner, innerStart);
+        if (objRef !== null) {
+            const indirect = {
+                type: 'IndirectRef',
+                inner: _refToParam(objRef),
+                start: offset,
+                end: offset + text.length,
+            };
+            return {
+                type: 'FunctionCall',
+                target: { type: 'ObjectTarget', ref: indirect, start: offset, end: innerStart + inner.length },
+                method,
+                args: [],
+                isHashMethod: false,
+                start: offset,
+                end: offset + text.length,
+            };
+        }
+        return {
+            type: 'FunctionCall',
+            target: {
+                type: 'ObjectTarget',
+                ref: {
+                    type: 'IndirectRef',
+                    inner: { type: 'Identifier', name: inner, start: innerStart, end: innerStart + inner.length },
+                    start: offset,
+                    end: offset + text.length,
+                },
+                start: offset,
+                end: innerStart + inner.length,
+            },
+            method: inner,
+            args: [],
+            isHashMethod: false,
+            start: offset,
+            end: offset + text.length,
+        };
+    }
+    const callTarget = text.slice(1, parenPos).trim();
+    const callTargetStart = offset + 1;
+    const argsText = _extractArgs(text, parenPos);
+    const [objRef, method] = _splitObjectMethod(callTarget, callTargetStart);
+    let target;
+    if (objRef !== null) {
+        target = {
+            type: 'ObjectTarget',
+            ref: {
+                type: 'IndirectRef',
+                inner: _refToParam(objRef),
+                start: offset,
+                end: callTargetStart + callTarget.length,
+            },
+            start: offset,
+            end: callTargetStart + callTarget.length,
+        };
+    }
+    else {
+        target = {
+            type: 'ObjectTarget',
+            ref: {
+                type: 'IndirectRef',
+                inner: {
+                    type: 'Identifier',
+                    name: callTarget,
+                    start: callTargetStart,
+                    end: callTargetStart + callTarget.length,
+                },
+                start: offset,
+                end: callTargetStart + callTarget.length,
+            },
+            start: offset,
+            end: callTargetStart + callTarget.length,
+        };
+    }
+    return {
+        type: 'FunctionCall',
+        target,
+        method,
+        args: parseParameters(argsText, offset + parenPos + 1),
+        isHashMethod: method.startsWith('#'),
+        start: offset,
+        end: offset + text.length,
+    };
+}
+function _splitObjectMethod(text, offset) {
+    const firstCaret = text.indexOf('^');
+    const lastCaret = text.lastIndexOf('^');
+    if (firstCaret < 1) {
+        const method = lastCaret >= 0 ? text.slice(lastCaret + 1) : text;
+        return [null, method];
+    }
+    const objCode = text.slice(0, firstCaret);
+    const method = text.slice(lastCaret + 1);
+    if (objCode.startsWith('#') && objCode.length >= 2) {
+        const idByte = objCode.length >= 3 ? objCode.charCodeAt(2) & 0x7f : objCode.charCodeAt(1) & 0x7f;
+        return [{ type: 'DirectRef', idByte, start: offset, end: offset + objCode.length }, method];
+    }
+    if (objCode === 'THIS') {
+        return [{ type: 'ThisRef', start: offset, end: offset + objCode.length }, method];
+    }
+    return [{ type: 'Identifier', name: objCode, start: offset, end: offset + objCode.length }, method];
+}
+function _refToParam(ref) {
+    switch (ref.type) {
+        case 'Identifier':
+            return ref;
+        case 'ThisRef':
+            return { type: 'Identifier', name: 'THIS', start: ref.start, end: ref.end };
+        case 'DirectRef':
+            return { type: 'Identifier', name: `#${ref.idByte}`, start: ref.start, end: ref.end };
+        default:
+            return { type: 'Identifier', name: String(ref), start: ref.start, end: ref.end };
+    }
+}
+function _extractArgs(text, parenPos) {
+    let rest = text.slice(parenPos + 1).trim();
+    if (rest.endsWith(')')) {
+        rest = rest.slice(0, -1);
+    }
+    return rest.trim();
+}
+
+
+/***/ }),
+
+/***/ "./src/interpreter/stacktrace.ts":
+/*!***************************************!*\
+  !*** ./src/interpreter/stacktrace.ts ***!
+  \***************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.printStackTrace = exports.generateStackTrace = exports.stackTrace = exports.StackFrame = void 0;
-const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const types_1 = __webpack_require__(/*! ../common/types */ "./src/common/types.ts");
 class StackFrame {
     constructor() {
         this.type = null;
@@ -47448,17 +45696,6 @@ exports.Url = Url;
 "use strict";
 var r=Object.create;var t=Object.defineProperty;var s=Object.getOwnPropertyDescriptor;var _=Object.getOwnPropertyNames;var d=Object.getPrototypeOf,g=Object.prototype.hasOwnProperty;var l=(i,e,a,o)=>{if(e&&typeof e=="object"||typeof e=="function")for(let p of _(e))!g.call(i,p)&&p!==a&&t(i,p,{get:()=>e[p],enumerable:!(o=s(e,p))||o.enumerable});return i};var w=(i,e,a)=>(a=i!=null?r(d(i)):{},l(e||!i||!i.__esModule?t(a,"default",{value:i,enumerable:!0}):a,i));Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});var n=(i=>(i[i.Low=-1]="Low",i[i.Normal=0]="Normal",i[i.High=1]="High",i))(n||{});async function O(i){var a;const e={importPixi:!1,...i};e.app&&(e.renderer=e.app.renderer,e.stage=e.app.stage),e.importPixi&&!e.pixi&&(e.pixi=await __webpack_require__.e(/*! import() */ "vendors-node_modules_pixi_js_lib_index_mjs").then(__webpack_require__.bind(__webpack_require__, /*! pixi.js */ "./node_modules/pixi.js/lib/index.mjs"))),window.__PIXI_DEVTOOLS__={...window.__PIXI_DEVTOOLS__||{},app:e.app,stage:e.stage,renderer:e.renderer,extensions:[...((a=window.__PIXI_DEVTOOLS__)==null?void 0:a.extensions)||[],...e.extensions||[]],plugins:{}}}exports.ExtensionPriority=n;exports.initDevtools=O;
 
-
-/***/ }),
-
-/***/ "./node_modules/antlr4/dist/antlr4.web.cjs":
-/*!*************************************************!*\
-  !*** ./node_modules/antlr4/dist/antlr4.web.cjs ***!
-  \*************************************************/
-/***/ ((__unused_webpack_module, exports) => {
-
-(()=>{var t={92:()=>{}},e={};function n(s){var i=e[s];if(void 0!==i)return i.exports;var r=e[s]={exports:{}};return t[s](r,r.exports,n),r.exports}n.d=(t,e)=>{for(var s in e)n.o(e,s)&&!n.o(t,s)&&Object.defineProperty(t,s,{enumerable:!0,get:e[s]})},n.o=(t,e)=>Object.prototype.hasOwnProperty.call(t,e),n.r=t=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})};var s={};(()=>{"use strict";n.r(s),n.d(s,{ATN:()=>$,ATNDeserializer:()=>Lt,BailErrorStrategy:()=>Ce,CharStream:()=>Ie,CharStreams:()=>ve,CommonToken:()=>Pt,CommonTokenStream:()=>be,DFA:()=>le,DefaultErrorStrategy:()=>Ae,DiagnosticErrorListener:()=>me,ErrorListener:()=>Ot,FailedPredicateException:()=>Te,InputStream:()=>Ie,Interval:()=>m,IntervalSet:()=>E,LL1Analyzer:()=>W,Lexer:()=>Ut,LexerATNSimulator:()=>Xt,NoViableAltException:()=>ee,ParseTreeListener:()=>de,ParseTreeVisitor:()=>pe,ParseTreeWalker:()=>ge,Parser:()=>Fe,ParserATNSimulator:()=>se,ParserRuleContext:()=>Be,PredictionContextCache:()=>ie,PredictionMode:()=>te,RecognitionException:()=>Ft,RuleContext:()=>M,RuleNode:()=>w,TerminalNode:()=>P,Token:()=>t,arrayToString:()=>c,default:()=>We});class t{constructor(){this.source=null,this.type=null,this.channel=null,this.start=null,this.stop=null,this.tokenIndex=null,this.line=null,this.column=null,this._text=null}getTokenSource(){return this.source[0]}getInputStream(){return this.source[1]}get text(){return this._text}set text(t){this._text=t}}function e(t,e){if(!Array.isArray(t)||!Array.isArray(e))return!1;if(t===e)return!0;if(t.length!==e.length)return!1;for(let n=0;n<t.length;n++)if(!(t[n]===e[n]||t[n].equals&&t[n].equals(e[n])))return!1;return!0}t.INVALID_TYPE=0,t.EPSILON=-2,t.MIN_USER_TOKEN_TYPE=1,t.EOF=-1,t.DEFAULT_CHANNEL=0,t.HIDDEN_CHANNEL=1;const i=Math.round(Math.random()*Math.pow(2,32));function r(t){if(!t)return 0;const e=typeof t,n="string"===e?t:!("object"!==e||!t.toString)&&t.toString();if(!n)return 0;let s,r;const o=3&n.length,a=n.length-o;let l=i;const h=3432918353,c=461845907;let u=0;for(;u<a;)r=255&n.charCodeAt(u)|(255&n.charCodeAt(++u))<<8|(255&n.charCodeAt(++u))<<16|(255&n.charCodeAt(++u))<<24,++u,r=(65535&r)*h+(((r>>>16)*h&65535)<<16)&4294967295,r=r<<15|r>>>17,r=(65535&r)*c+(((r>>>16)*c&65535)<<16)&4294967295,l^=r,l=l<<13|l>>>19,s=5*(65535&l)+((5*(l>>>16)&65535)<<16)&4294967295,l=27492+(65535&s)+((58964+(s>>>16)&65535)<<16);switch(r=0,o){case 3:r^=(255&n.charCodeAt(u+2))<<16;case 2:r^=(255&n.charCodeAt(u+1))<<8;case 1:r^=255&n.charCodeAt(u),r=(65535&r)*h+(((r>>>16)*h&65535)<<16)&4294967295,r=r<<15|r>>>17,r=(65535&r)*c+(((r>>>16)*c&65535)<<16)&4294967295,l^=r}return l^=n.length,l^=l>>>16,l=2246822507*(65535&l)+((2246822507*(l>>>16)&65535)<<16)&4294967295,l^=l>>>13,l=3266489909*(65535&l)+((3266489909*(l>>>16)&65535)<<16)&4294967295,l^=l>>>16,l>>>0}class o{constructor(){this.count=0,this.hash=0}update(){for(let t=0;t<arguments.length;t++){const e=arguments[t];if(null!=e)if(Array.isArray(e))this.update.apply(this,e);else{let t=0;switch(typeof e){case"undefined":case"function":continue;case"number":case"boolean":t=e;break;case"string":t=r(e);break;default:e.updateHashCode?e.updateHashCode(this):console.log("No updateHashCode for "+e.toString());continue}t*=3432918353,t=t<<15|t>>>17,t*=461845907,this.count=this.count+1;let n=this.hash^t;n=n<<13|n>>>19,n=5*n+3864292196,this.hash=n}}}finish(){let t=this.hash^4*this.count;return t^=t>>>16,t*=2246822507,t^=t>>>13,t*=3266489909,t^=t>>>16,t}static hashStuff(){const t=new o;return t.update.apply(t,arguments),t.finish()}}function a(t){return t?"string"==typeof t?r(t):t.hashCode():-1}function l(t,e){return t?t.equals(e):t===e}function h(t){return null===t?"null":t}function c(t){return Array.isArray(t)?"["+t.map(h).join(", ")+"]":"null"}const u="h-";class d{constructor(t,e){this.data={},this.hashFunction=t||a,this.equalsFunction=e||l}add(t){const e=u+this.hashFunction(t);if(e in this.data){const n=this.data[e];for(let e=0;e<n.length;e++)if(this.equalsFunction(t,n[e]))return n[e];return n.push(t),t}return this.data[e]=[t],t}has(t){return null!=this.get(t)}get(t){const e=u+this.hashFunction(t);if(e in this.data){const n=this.data[e];for(let e=0;e<n.length;e++)if(this.equalsFunction(t,n[e]))return n[e]}return null}values(){return Object.keys(this.data).filter((t=>t.startsWith(u))).flatMap((t=>this.data[t]),this)}toString(){return c(this.values())}get length(){return Object.keys(this.data).filter((t=>t.startsWith(u))).map((t=>this.data[t].length),this).reduce(((t,e)=>t+e),0)}}class p{hashCode(){const t=new o;return this.updateHashCode(t),t.finish()}evaluate(t,e){}evalPrecedence(t,e){return this}static andContext(t,e){if(null===t||t===p.NONE)return e;if(null===e||e===p.NONE)return t;const n=new g(t,e);return 1===n.opnds.length?n.opnds[0]:n}static orContext(t,e){if(null===t)return e;if(null===e)return t;if(t===p.NONE||e===p.NONE)return p.NONE;const n=new f(t,e);return 1===n.opnds.length?n.opnds[0]:n}}class g extends p{constructor(t,e){super();const n=new d;t instanceof g?t.opnds.map((function(t){n.add(t)})):n.add(t),e instanceof g?e.opnds.map((function(t){n.add(t)})):n.add(e);const s=x(n);if(s.length>0){let t=null;s.map((function(e){(null===t||e.precedence<t.precedence)&&(t=e)})),n.add(t)}this.opnds=Array.from(n.values())}equals(t){return this===t||t instanceof g&&e(this.opnds,t.opnds)}updateHashCode(t){t.update(this.opnds,"AND")}evaluate(t,e){for(let n=0;n<this.opnds.length;n++)if(!this.opnds[n].evaluate(t,e))return!1;return!0}evalPrecedence(t,e){let n=!1;const s=[];for(let i=0;i<this.opnds.length;i++){const r=this.opnds[i],o=r.evalPrecedence(t,e);if(n|=o!==r,null===o)return null;o!==p.NONE&&s.push(o)}if(!n)return this;if(0===s.length)return p.NONE;let i=null;return s.map((function(t){i=null===i?t:p.andContext(i,t)})),i}toString(){const t=this.opnds.map((t=>t.toString()));return(t.length>3?t.slice(3):t).join("&&")}}class f extends p{constructor(t,e){super();const n=new d;t instanceof f?t.opnds.map((function(t){n.add(t)})):n.add(t),e instanceof f?e.opnds.map((function(t){n.add(t)})):n.add(e);const s=x(n);if(s.length>0){const t=s.sort((function(t,e){return t.compareTo(e)})),e=t[t.length-1];n.add(e)}this.opnds=Array.from(n.values())}equals(t){return this===t||t instanceof f&&e(this.opnds,t.opnds)}updateHashCode(t){t.update(this.opnds,"OR")}evaluate(t,e){for(let n=0;n<this.opnds.length;n++)if(this.opnds[n].evaluate(t,e))return!0;return!1}evalPrecedence(t,e){let n=!1;const s=[];for(let i=0;i<this.opnds.length;i++){const r=this.opnds[i],o=r.evalPrecedence(t,e);if(n|=o!==r,o===p.NONE)return p.NONE;null!==o&&s.push(o)}if(!n)return this;if(0===s.length)return null;return s.map((function(t){return t})),null}toString(){const t=this.opnds.map((t=>t.toString()));return(t.length>3?t.slice(3):t).join("||")}}function x(t){const e=[];return t.values().map((function(t){t instanceof p.PrecedencePredicate&&e.push(t)})),e}function T(t,e){if(null===t){const t={state:null,alt:null,context:null,semanticContext:null};return e&&(t.reachesIntoOuterContext=0),t}{const n={};return n.state=t.state||null,n.alt=void 0===t.alt?null:t.alt,n.context=t.context||null,n.semanticContext=t.semanticContext||null,e&&(n.reachesIntoOuterContext=t.reachesIntoOuterContext||0,n.precedenceFilterSuppressed=t.precedenceFilterSuppressed||!1),n}}class S{constructor(t,e){this.checkContext(t,e),t=T(t),e=T(e,!0),this.state=null!==t.state?t.state:e.state,this.alt=null!==t.alt?t.alt:e.alt,this.context=null!==t.context?t.context:e.context,this.semanticContext=null!==t.semanticContext?t.semanticContext:null!==e.semanticContext?e.semanticContext:p.NONE,this.reachesIntoOuterContext=e.reachesIntoOuterContext,this.precedenceFilterSuppressed=e.precedenceFilterSuppressed}checkContext(t,e){null!==t.context&&void 0!==t.context||null!==e&&null!==e.context&&void 0!==e.context||(this.context=null)}hashCode(){const t=new o;return this.updateHashCode(t),t.finish()}updateHashCode(t){t.update(this.state.stateNumber,this.alt,this.context,this.semanticContext)}equals(t){return this===t||t instanceof S&&this.state.stateNumber===t.state.stateNumber&&this.alt===t.alt&&(null===this.context?null===t.context:this.context.equals(t.context))&&this.semanticContext.equals(t.semanticContext)&&this.precedenceFilterSuppressed===t.precedenceFilterSuppressed}hashCodeForConfigSet(){const t=new o;return t.update(this.state.stateNumber,this.alt,this.semanticContext),t.finish()}equalsForConfigSet(t){return this===t||t instanceof S&&this.state.stateNumber===t.state.stateNumber&&this.alt===t.alt&&this.semanticContext.equals(t.semanticContext)}toString(){return"("+this.state+","+this.alt+(null!==this.context?",["+this.context.toString()+"]":"")+(this.semanticContext!==p.NONE?","+this.semanticContext.toString():"")+(this.reachesIntoOuterContext>0?",up="+this.reachesIntoOuterContext:"")+")"}}class m{constructor(t,e){this.start=t,this.stop=e}clone(){return new m(this.start,this.stop)}contains(t){return t>=this.start&&t<this.stop}toString(){return this.start===this.stop-1?this.start.toString():this.start.toString()+".."+(this.stop-1).toString()}get length(){return this.stop-this.start}}m.INVALID_INTERVAL=new m(-1,-2);class E{constructor(){this.intervals=null,this.readOnly=!1}first(e){return null===this.intervals||0===this.intervals.length?t.INVALID_TYPE:this.intervals[0].start}addOne(t){this.addInterval(new m(t,t+1))}addRange(t,e){this.addInterval(new m(t,e+1))}addInterval(t){if(null===this.intervals)this.intervals=[],this.intervals.push(t.clone());else{for(let e=0;e<this.intervals.length;e++){const n=this.intervals[e];if(t.stop<n.start)return void this.intervals.splice(e,0,t);if(t.stop===n.start)return void(this.intervals[e]=new m(t.start,n.stop));if(t.start<=n.stop)return this.intervals[e]=new m(Math.min(n.start,t.start),Math.max(n.stop,t.stop)),void this.reduce(e)}this.intervals.push(t.clone())}}addSet(t){return null!==t.intervals&&t.intervals.forEach((t=>this.addInterval(t)),this),this}reduce(t){if(t<this.intervals.length-1){const e=this.intervals[t],n=this.intervals[t+1];e.stop>=n.stop?(this.intervals.splice(t+1,1),this.reduce(t)):e.stop>=n.start&&(this.intervals[t]=new m(e.start,n.stop),this.intervals.splice(t+1,1))}}complement(t,e){const n=new E;return n.addInterval(new m(t,e+1)),null!==this.intervals&&this.intervals.forEach((t=>n.removeRange(t))),n}contains(t){if(null===this.intervals)return!1;for(let e=0;e<this.intervals.length;e++)if(this.intervals[e].contains(t))return!0;return!1}removeRange(t){if(t.start===t.stop-1)this.removeOne(t.start);else if(null!==this.intervals){let e=0;for(let n=0;n<this.intervals.length;n++){const n=this.intervals[e];if(t.stop<=n.start)return;if(t.start>n.start&&t.stop<n.stop){this.intervals[e]=new m(n.start,t.start);const s=new m(t.stop,n.stop);return void this.intervals.splice(e,0,s)}t.start<=n.start&&t.stop>=n.stop?(this.intervals.splice(e,1),e-=1):t.start<n.stop?this.intervals[e]=new m(n.start,t.start):t.stop<n.stop&&(this.intervals[e]=new m(t.stop,n.stop)),e+=1}}}removeOne(t){if(null!==this.intervals)for(let e=0;e<this.intervals.length;e++){const n=this.intervals[e];if(t<n.start)return;if(t===n.start&&t===n.stop-1)return void this.intervals.splice(e,1);if(t===n.start)return void(this.intervals[e]=new m(n.start+1,n.stop));if(t===n.stop-1)return void(this.intervals[e]=new m(n.start,n.stop-1));if(t<n.stop-1){const s=new m(n.start,t);return n.start=t+1,void this.intervals.splice(e,0,s)}}}toString(t,e,n){return t=t||null,e=e||null,n=n||!1,null===this.intervals?"{}":null!==t||null!==e?this.toTokenString(t,e):n?this.toCharString():this.toIndexString()}toCharString(){const e=[];for(let n=0;n<this.intervals.length;n++){const s=this.intervals[n];s.stop===s.start+1?s.start===t.EOF?e.push("<EOF>"):e.push("'"+String.fromCharCode(s.start)+"'"):e.push("'"+String.fromCharCode(s.start)+"'..'"+String.fromCharCode(s.stop-1)+"'")}return e.length>1?"{"+e.join(", ")+"}":e[0]}toIndexString(){const e=[];for(let n=0;n<this.intervals.length;n++){const s=this.intervals[n];s.stop===s.start+1?s.start===t.EOF?e.push("<EOF>"):e.push(s.start.toString()):e.push(s.start.toString()+".."+(s.stop-1).toString())}return e.length>1?"{"+e.join(", ")+"}":e[0]}toTokenString(t,e){const n=[];for(let s=0;s<this.intervals.length;s++){const i=this.intervals[s];for(let s=i.start;s<i.stop;s++)n.push(this.elementName(t,e,s))}return n.length>1?"{"+n.join(", ")+"}":n[0]}elementName(e,n,s){return s===t.EOF?"<EOF>":s===t.EPSILON?"<EPSILON>":e[s]||n[s]}get length(){return this.intervals.map((t=>t.length)).reduce(((t,e)=>t+e))}}class _{constructor(){this.atn=null,this.stateNumber=_.INVALID_STATE_NUMBER,this.stateType=null,this.ruleIndex=0,this.epsilonOnlyTransitions=!1,this.transitions=[],this.nextTokenWithinRule=null}toString(){return this.stateNumber}equals(t){return t instanceof _&&this.stateNumber===t.stateNumber}isNonGreedyExitState(){return!1}addTransition(t,e){void 0===e&&(e=-1),0===this.transitions.length?this.epsilonOnlyTransitions=t.isEpsilon:this.epsilonOnlyTransitions!==t.isEpsilon&&(this.epsilonOnlyTransitions=!1),-1===e?this.transitions.push(t):this.transitions.splice(e,1,t)}}_.INVALID_TYPE=0,_.BASIC=1,_.RULE_START=2,_.BLOCK_START=3,_.PLUS_BLOCK_START=4,_.STAR_BLOCK_START=5,_.TOKEN_START=6,_.RULE_STOP=7,_.BLOCK_END=8,_.STAR_LOOP_BACK=9,_.STAR_LOOP_ENTRY=10,_.PLUS_LOOP_BACK=11,_.LOOP_END=12,_.serializationNames=["INVALID","BASIC","RULE_START","BLOCK_START","PLUS_BLOCK_START","STAR_BLOCK_START","TOKEN_START","RULE_STOP","BLOCK_END","STAR_LOOP_BACK","STAR_LOOP_ENTRY","PLUS_LOOP_BACK","LOOP_END"],_.INVALID_STATE_NUMBER=-1;class A extends _{constructor(){return super(),this.stateType=_.RULE_STOP,this}}class C{constructor(t){if(null==t)throw"target cannot be null.";this.target=t,this.isEpsilon=!1,this.label=null}}C.EPSILON=1,C.RANGE=2,C.RULE=3,C.PREDICATE=4,C.ATOM=5,C.ACTION=6,C.SET=7,C.NOT_SET=8,C.WILDCARD=9,C.PRECEDENCE=10,C.serializationNames=["INVALID","EPSILON","RANGE","RULE","PREDICATE","ATOM","ACTION","SET","NOT_SET","WILDCARD","PRECEDENCE"],C.serializationTypes={EpsilonTransition:C.EPSILON,RangeTransition:C.RANGE,RuleTransition:C.RULE,PredicateTransition:C.PREDICATE,AtomTransition:C.ATOM,ActionTransition:C.ACTION,SetTransition:C.SET,NotSetTransition:C.NOT_SET,WildcardTransition:C.WILDCARD,PrecedencePredicateTransition:C.PRECEDENCE};class N extends C{constructor(t,e,n,s){super(t),this.ruleIndex=e,this.precedence=n,this.followState=s,this.serializationType=C.RULE,this.isEpsilon=!0}matches(t,e,n){return!1}}class y extends C{constructor(e,n){super(e),this.serializationType=C.SET,null!=n?this.label=n:(this.label=new E,this.label.addOne(t.INVALID_TYPE))}matches(t,e,n){return this.label.contains(t)}toString(){return this.label.toString()}}class I extends y{constructor(t,e){super(t,e),this.serializationType=C.NOT_SET}matches(t,e,n){return t>=e&&t<=n&&!super.matches(t,e,n)}toString(){return"~"+super.toString()}}class k extends C{constructor(t){super(t),this.serializationType=C.WILDCARD}matches(t,e,n){return t>=e&&t<=n}toString(){return"."}}class L extends C{constructor(t){super(t)}}class O{}class v extends O{}class R extends v{}class w extends R{get ruleContext(){throw new Error("missing interface implementation")}}class P extends R{}class b extends P{}const D={toStringTree:function(t,e,n){e=e||null,null!==(n=n||null)&&(e=n.ruleNames);let s=D.getNodeText(t,e);s=function(t,e){return t=t.replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r")}(s);const i=t.getChildCount();if(0===i)return s;let r="("+s+" ";i>0&&(s=D.toStringTree(t.getChild(0),e),r=r.concat(s));for(let n=1;n<i;n++)s=D.toStringTree(t.getChild(n),e),r=r.concat(" "+s);return r=r.concat(")"),r},getNodeText:function(e,n,s){if(n=n||null,null!==(s=s||null)&&(n=s.ruleNames),null!==n){if(e instanceof w){const t=e.ruleContext.getAltNumber();return 0!=t?n[e.ruleIndex]+":"+t:n[e.ruleIndex]}if(e instanceof b)return e.toString();if(e instanceof P&&null!==e.symbol)return e.symbol.text}const i=e.getPayload();return i instanceof t?i.text:e.getPayload().toString()},getChildren:function(t){const e=[];for(let n=0;n<t.getChildCount();n++)e.push(t.getChild(n));return e},getAncestors:function(t){let e=[];for(t=t.getParent();null!==t;)e=[t].concat(e),t=t.getParent();return e},findAllTokenNodes:function(t,e){return D.findAllNodes(t,e,!0)},findAllRuleNodes:function(t,e){return D.findAllNodes(t,e,!1)},findAllNodes:function(t,e,n){const s=[];return D._findAllNodes(t,e,n,s),s},_findAllNodes:function(t,e,n,s){n&&t instanceof P?t.symbol.type===e&&s.push(t):!n&&t instanceof w&&t.ruleIndex===e&&s.push(t);for(let i=0;i<t.getChildCount();i++)D._findAllNodes(t.getChild(i),e,n,s)},descendants:function(t){let e=[t];for(let n=0;n<t.getChildCount();n++)e=e.concat(D.descendants(t.getChild(n)));return e}},F=D;class M extends w{constructor(t,e){super(),this.parentCtx=t||null,this.invokingState=e||-1}depth(){let t=0,e=this;for(;null!==e;)e=e.parentCtx,t+=1;return t}isEmpty(){return-1===this.invokingState}getSourceInterval(){return m.INVALID_INTERVAL}get ruleContext(){return this}getPayload(){return this}getText(){return 0===this.getChildCount()?"":this.children.map((function(t){return t.getText()})).join("")}getAltNumber(){return 0}setAltNumber(t){}getChild(t){return null}getChildCount(){return 0}accept(t){return t.visitChildren(this)}toStringTree(t,e){return F.toStringTree(this,t,e)}toString(t,e){t=t||null,e=e||null;let n=this,s="[";for(;null!==n&&n!==e;){if(null===t)n.isEmpty()||(s+=n.invokingState);else{const e=n.ruleIndex;s+=e>=0&&e<t.length?t[e]:""+e}null===n.parentCtx||null===t&&n.parentCtx.isEmpty()||(s+=" "),n=n.parentCtx}return s+="]",s}}class U{constructor(t){this.cachedHashCode=t}isEmpty(){return this===U.EMPTY}hasEmptyPath(){return this.getReturnState(this.length-1)===U.EMPTY_RETURN_STATE}hashCode(){return this.cachedHashCode}updateHashCode(t){t.update(this.cachedHashCode)}}U.EMPTY=null,U.EMPTY_RETURN_STATE=2147483647,U.globalNodeCount=1,U.id=U.globalNodeCount,U.trace_atn_sim=!1;class B extends U{constructor(t,e){const n=new o;return n.update(t,e),super(n.finish()),this.parents=t,this.returnStates=e,this}isEmpty(){return this.returnStates[0]===U.EMPTY_RETURN_STATE}getParent(t){return this.parents[t]}getReturnState(t){return this.returnStates[t]}equals(t){return this===t||t instanceof B&&this.hashCode()===t.hashCode()&&e(this.returnStates,t.returnStates)&&e(this.parents,t.parents)}toString(){if(this.isEmpty())return"[]";{let t="[";for(let e=0;e<this.returnStates.length;e++)e>0&&(t+=", "),this.returnStates[e]!==U.EMPTY_RETURN_STATE?(t+=this.returnStates[e],null!==this.parents[e]?t=t+" "+this.parents[e]:t+="null"):t+="$";return t+"]"}}get length(){return this.returnStates.length}}class V extends U{constructor(t,e){let n=0;const s=new o;null!==t?s.update(t,e):s.update(1),n=s.finish(),super(n),this.parentCtx=t,this.returnState=e}getParent(t){return this.parentCtx}getReturnState(t){return this.returnState}equals(t){return this===t||t instanceof V&&this.hashCode()===t.hashCode()&&this.returnState===t.returnState&&(null==this.parentCtx?null==t.parentCtx:this.parentCtx.equals(t.parentCtx))}toString(){const t=null===this.parentCtx?"":this.parentCtx.toString();return 0===t.length?this.returnState===U.EMPTY_RETURN_STATE?"$":""+this.returnState:this.returnState+" "+t}get length(){return 1}static create(t,e){return e===U.EMPTY_RETURN_STATE&&null===t?U.EMPTY:new V(t,e)}}class z extends V{constructor(){super(null,U.EMPTY_RETURN_STATE)}isEmpty(){return!0}getParent(t){return null}getReturnState(t){return this.returnState}equals(t){return this===t}toString(){return"$"}}U.EMPTY=new z;const q="h-";class H{constructor(t,e){this.data={},this.hashFunction=t||a,this.equalsFunction=e||l}set(t,e){const n=q+this.hashFunction(t);if(n in this.data){const s=this.data[n];for(let n=0;n<s.length;n++){const i=s[n];if(this.equalsFunction(t,i.key)){const t=i.value;return i.value=e,t}}return s.push({key:t,value:e}),e}return this.data[n]=[{key:t,value:e}],e}containsKey(t){const e=q+this.hashFunction(t);if(e in this.data){const n=this.data[e];for(let e=0;e<n.length;e++){const s=n[e];if(this.equalsFunction(t,s.key))return!0}}return!1}get(t){const e=q+this.hashFunction(t);if(e in this.data){const n=this.data[e];for(let e=0;e<n.length;e++){const s=n[e];if(this.equalsFunction(t,s.key))return s.value}}return null}entries(){return Object.keys(this.data).filter((t=>t.startsWith(q))).flatMap((t=>this.data[t]),this)}getKeys(){return this.entries().map((t=>t.key))}getValues(){return this.entries().map((t=>t.value))}toString(){return"["+this.entries().map((t=>"{"+t.key+":"+t.value+"}")).join(", ")+"]"}get length(){return Object.keys(this.data).filter((t=>t.startsWith(q))).map((t=>this.data[t].length),this).reduce(((t,e)=>t+e),0)}}function K(t,e){if(null==e&&(e=M.EMPTY),null===e.parentCtx||e===M.EMPTY)return U.EMPTY;const n=K(t,e.parentCtx),s=t.states[e.invokingState].transitions[0];return V.create(n,s.followState.stateNumber)}function Y(t,e,n){if(t.isEmpty())return t;let s=n.get(t)||null;if(null!==s)return s;if(s=e.get(t),null!==s)return n.set(t,s),s;let i=!1,r=[];for(let s=0;s<r.length;s++){const o=Y(t.getParent(s),e,n);if(i||o!==t.getParent(s)){if(!i){r=[];for(let e=0;e<t.length;e++)r[e]=t.getParent(e);i=!0}r[s]=o}}if(!i)return e.add(t),n.set(t,t),t;let o=null;return o=0===r.length?U.EMPTY:1===r.length?V.create(r[0],t.getReturnState(0)):new B(r,t.returnStates),e.add(o),n.set(o,o),n.set(t,o),o}function G(t,e,n,s){if(t===e)return t;if(t instanceof V&&e instanceof V)return function(t,e,n,s){if(null!==s){let n=s.get(t,e);if(null!==n)return n;if(n=s.get(e,t),null!==n)return n}const i=function(t,e,n){if(n){if(t===U.EMPTY)return U.EMPTY;if(e===U.EMPTY)return U.EMPTY}else{if(t===U.EMPTY&&e===U.EMPTY)return U.EMPTY;if(t===U.EMPTY){const t=[e.returnState,U.EMPTY_RETURN_STATE],n=[e.parentCtx,null];return new B(n,t)}if(e===U.EMPTY){const e=[t.returnState,U.EMPTY_RETURN_STATE],n=[t.parentCtx,null];return new B(n,e)}}return null}(t,e,n);if(null!==i)return null!==s&&s.set(t,e,i),i;if(t.returnState===e.returnState){const i=G(t.parentCtx,e.parentCtx,n,s);if(i===t.parentCtx)return t;if(i===e.parentCtx)return e;const r=V.create(i,t.returnState);return null!==s&&s.set(t,e,r),r}{let n=null;if((t===e||null!==t.parentCtx&&t.parentCtx===e.parentCtx)&&(n=t.parentCtx),null!==n){const i=[t.returnState,e.returnState];t.returnState>e.returnState&&(i[0]=e.returnState,i[1]=t.returnState);const r=new B([n,n],i);return null!==s&&s.set(t,e,r),r}const i=[t.returnState,e.returnState];let r=[t.parentCtx,e.parentCtx];t.returnState>e.returnState&&(i[0]=e.returnState,i[1]=t.returnState,r=[e.parentCtx,t.parentCtx]);const o=new B(r,i);return null!==s&&s.set(t,e,o),o}}(t,e,n,s);if(n){if(t instanceof z)return t;if(e instanceof z)return e}return t instanceof V&&(t=new B([t.getParent()],[t.returnState])),e instanceof V&&(e=new B([e.getParent()],[e.returnState])),function(t,e,n,s){if(null!==s){let n=s.get(t,e);if(null!==n)return U.trace_atn_sim&&console.log("mergeArrays a="+t+",b="+e+" -> previous"),n;if(n=s.get(e,t),null!==n)return U.trace_atn_sim&&console.log("mergeArrays a="+t+",b="+e+" -> previous"),n}let i=0,r=0,o=0,a=new Array(t.returnStates.length+e.returnStates.length).fill(0),l=new Array(t.returnStates.length+e.returnStates.length).fill(null);for(;i<t.returnStates.length&&r<e.returnStates.length;){const h=t.parents[i],c=e.parents[r];if(t.returnStates[i]===e.returnStates[r]){const e=t.returnStates[i];e===U.EMPTY_RETURN_STATE&&null===h&&null===c||null!==h&&null!==c&&h===c?(l[o]=h,a[o]=e):(l[o]=G(h,c,n,s),a[o]=e),i+=1,r+=1}else t.returnStates[i]<e.returnStates[r]?(l[o]=h,a[o]=t.returnStates[i],i+=1):(l[o]=c,a[o]=e.returnStates[r],r+=1);o+=1}if(i<t.returnStates.length)for(let e=i;e<t.returnStates.length;e++)l[o]=t.parents[e],a[o]=t.returnStates[e],o+=1;else for(let t=r;t<e.returnStates.length;t++)l[o]=e.parents[t],a[o]=e.returnStates[t],o+=1;if(o<l.length){if(1===o){const n=V.create(l[0],a[0]);return null!==s&&s.set(t,e,n),n}l=l.slice(0,o),a=a.slice(0,o)}const h=new B(l,a);return h.equals(t)?(null!==s&&s.set(t,e,t),U.trace_atn_sim&&console.log("mergeArrays a="+t+",b="+e+" -> a"),t):h.equals(e)?(null!==s&&s.set(t,e,e),U.trace_atn_sim&&console.log("mergeArrays a="+t+",b="+e+" -> b"),e):(function(t){const e=new H;for(let n=0;n<t.length;n++){const s=t[n];e.containsKey(s)||e.set(s,s)}for(let n=0;n<t.length;n++)t[n]=e.get(t[n])}(l),null!==s&&s.set(t,e,h),U.trace_atn_sim&&console.log("mergeArrays a="+t+",b="+e+" -> "+h),h)}(t,e,n,s)}class j{constructor(){this.data=[]}add(t){this.data[t]=!0}or(t){Object.keys(t.data).map((t=>this.add(t)),this)}remove(t){delete this.data[t]}has(t){return!0===this.data[t]}values(){return Object.keys(this.data)}minValue(){return Math.min.apply(null,this.values())}hashCode(){return o.hashStuff(this.values())}equals(t){return t instanceof j&&e(this.data,t.data)}toString(){return"{"+this.values().join(", ")+"}"}get length(){return this.values().length}}class W{constructor(t){this.atn=t}getDecisionLookahead(t){if(null===t)return null;const e=t.transitions.length,n=[];for(let s=0;s<e;s++){n[s]=new E;const e=new d,i=!1;this._LOOK(t.transition(s).target,null,U.EMPTY,n[s],e,new j,i,!1),(0===n[s].length||n[s].contains(W.HIT_PRED))&&(n[s]=null)}return n}LOOK(t,e,n){const s=new E,i=null!==(n=n||null)?K(t.atn,n):null;return this._LOOK(t,e,i,s,new d,new j,!0,!0),s}_LOOK(e,n,s,i,r,o,a,l){const h=new S({state:e,alt:0,context:s},null);if(!r.has(h)){if(r.add(h),e===n){if(null===s)return void i.addOne(t.EPSILON);if(s.isEmpty()&&l)return void i.addOne(t.EOF)}if(e instanceof A){if(null===s)return void i.addOne(t.EPSILON);if(s.isEmpty()&&l)return void i.addOne(t.EOF);if(s!==U.EMPTY){const t=o.has(e.ruleIndex);try{o.remove(e.ruleIndex);for(let t=0;t<s.length;t++){const e=this.atn.states[s.getReturnState(t)];this._LOOK(e,n,s.getParent(t),i,r,o,a,l)}}finally{t&&o.add(e.ruleIndex)}return}}for(let h=0;h<e.transitions.length;h++){const c=e.transitions[h];if(c.constructor===N){if(o.has(c.target.ruleIndex))continue;const t=V.create(s,c.followState.stateNumber);try{o.add(c.target.ruleIndex),this._LOOK(c.target,n,t,i,r,o,a,l)}finally{o.remove(c.target.ruleIndex)}}else if(c instanceof L)a?this._LOOK(c.target,n,s,i,r,o,a,l):i.addOne(W.HIT_PRED);else if(c.isEpsilon)this._LOOK(c.target,n,s,i,r,o,a,l);else if(c.constructor===k)i.addRange(t.MIN_USER_TOKEN_TYPE,this.atn.maxTokenType);else{let e=c.label;null!==e&&(c instanceof I&&(e=e.complement(t.MIN_USER_TOKEN_TYPE,this.atn.maxTokenType)),i.addSet(e))}}}}}W.HIT_PRED=t.INVALID_TYPE;class ${constructor(t,e){this.grammarType=t,this.maxTokenType=e,this.states=[],this.decisionToState=[],this.ruleToStartState=[],this.ruleToStopState=null,this.modeNameToStartState={},this.ruleToTokenType=null,this.lexerActions=null,this.modeToStartState=[]}nextTokensInContext(t,e){return new W(this).LOOK(t,null,e)}nextTokensNoContext(t){return null!==t.nextTokenWithinRule||(t.nextTokenWithinRule=this.nextTokensInContext(t,null),t.nextTokenWithinRule.readOnly=!0),t.nextTokenWithinRule}nextTokens(t,e){return void 0===e?this.nextTokensNoContext(t):this.nextTokensInContext(t,e)}addState(t){null!==t&&(t.atn=this,t.stateNumber=this.states.length),this.states.push(t)}removeState(t){this.states[t.stateNumber]=null}defineDecisionState(t){return this.decisionToState.push(t),t.decision=this.decisionToState.length-1,t.decision}getDecisionState(t){return 0===this.decisionToState.length?null:this.decisionToState[t]}getExpectedTokens(e,n){if(e<0||e>=this.states.length)throw"Invalid state number.";const s=this.states[e];let i=this.nextTokens(s);if(!i.contains(t.EPSILON))return i;const r=new E;for(r.addSet(i),r.removeOne(t.EPSILON);null!==n&&n.invokingState>=0&&i.contains(t.EPSILON);){const e=this.states[n.invokingState].transitions[0];i=this.nextTokens(e.followState),r.addSet(i),r.removeOne(t.EPSILON),n=n.parentCtx}return i.contains(t.EPSILON)&&r.addOne(t.EOF),r}}$.INVALID_ALT_NUMBER=0;class X extends _{constructor(){super(),this.stateType=_.BASIC}}class J extends _{constructor(){return super(),this.decision=-1,this.nonGreedy=!1,this}}class Q extends J{constructor(){return super(),this.endState=null,this}}class Z extends _{constructor(){return super(),this.stateType=_.BLOCK_END,this.startState=null,this}}class tt extends _{constructor(){return super(),this.stateType=_.LOOP_END,this.loopBackState=null,this}}class et extends _{constructor(){return super(),this.stateType=_.RULE_START,this.stopState=null,this.isPrecedenceRule=!1,this}}class nt extends J{constructor(){return super(),this.stateType=_.TOKEN_START,this}}class st extends J{constructor(){return super(),this.stateType=_.PLUS_LOOP_BACK,this}}class it extends _{constructor(){return super(),this.stateType=_.STAR_LOOP_BACK,this}}class rt extends J{constructor(){return super(),this.stateType=_.STAR_LOOP_ENTRY,this.loopBackState=null,this.isPrecedenceDecision=null,this}}class ot extends Q{constructor(){return super(),this.stateType=_.PLUS_BLOCK_START,this.loopBackState=null,this}}class at extends Q{constructor(){return super(),this.stateType=_.STAR_BLOCK_START,this}}class lt extends Q{constructor(){return super(),this.stateType=_.BLOCK_START,this}}class ht extends C{constructor(t,e){super(t),this.label_=e,this.label=this.makeLabel(),this.serializationType=C.ATOM}makeLabel(){const t=new E;return t.addOne(this.label_),t}matches(t,e,n){return this.label_===t}toString(){return this.label_}}class ct extends C{constructor(t,e,n){super(t),this.serializationType=C.RANGE,this.start=e,this.stop=n,this.label=this.makeLabel()}makeLabel(){const t=new E;return t.addRange(this.start,this.stop),t}matches(t,e,n){return t>=this.start&&t<=this.stop}toString(){return"'"+String.fromCharCode(this.start)+"'..'"+String.fromCharCode(this.stop)+"'"}}class ut extends C{constructor(t,e,n,s){super(t),this.serializationType=C.ACTION,this.ruleIndex=e,this.actionIndex=void 0===n?-1:n,this.isCtxDependent=void 0!==s&&s,this.isEpsilon=!0}matches(t,e,n){return!1}toString(){return"action_"+this.ruleIndex+":"+this.actionIndex}}class dt extends C{constructor(t,e){super(t),this.serializationType=C.EPSILON,this.isEpsilon=!0,this.outermostPrecedenceReturn=e}matches(t,e,n){return!1}toString(){return"epsilon"}}class pt extends p{constructor(t,e,n){super(),this.ruleIndex=void 0===t?-1:t,this.predIndex=void 0===e?-1:e,this.isCtxDependent=void 0!==n&&n}evaluate(t,e){const n=this.isCtxDependent?e:null;return t.sempred(n,this.ruleIndex,this.predIndex)}updateHashCode(t){t.update(this.ruleIndex,this.predIndex,this.isCtxDependent)}equals(t){return this===t||t instanceof pt&&this.ruleIndex===t.ruleIndex&&this.predIndex===t.predIndex&&this.isCtxDependent===t.isCtxDependent}toString(){return"{"+this.ruleIndex+":"+this.predIndex+"}?"}}p.NONE=new pt;class gt extends L{constructor(t,e,n,s){super(t),this.serializationType=C.PREDICATE,this.ruleIndex=e,this.predIndex=n,this.isCtxDependent=s,this.isEpsilon=!0}matches(t,e,n){return!1}getPredicate(){return new pt(this.ruleIndex,this.predIndex,this.isCtxDependent)}toString(){return"pred_"+this.ruleIndex+":"+this.predIndex}}class ft extends p{constructor(t){super(),this.precedence=void 0===t?0:t}evaluate(t,e){return t.precpred(e,this.precedence)}evalPrecedence(t,e){return t.precpred(e,this.precedence)?p.NONE:null}compareTo(t){return this.precedence-t.precedence}updateHashCode(t){t.update(this.precedence)}equals(t){return this===t||t instanceof ft&&this.precedence===t.precedence}toString(){return"{"+this.precedence+">=prec}?"}}p.PrecedencePredicate=ft;class xt extends L{constructor(t,e){super(t),this.serializationType=C.PRECEDENCE,this.precedence=e,this.isEpsilon=!0}matches(t,e,n){return!1}getPredicate(){return new ft(this.precedence)}toString(){return this.precedence+" >= _p"}}class Tt{constructor(t){void 0===t&&(t=null),this.readOnly=!1,this.verifyATN=null===t||t.verifyATN,this.generateRuleBypassTransitions=null!==t&&t.generateRuleBypassTransitions}}Tt.defaultOptions=new Tt,Tt.defaultOptions.readOnly=!0;class St{constructor(t){this.actionType=t,this.isPositionDependent=!1}hashCode(){const t=new o;return this.updateHashCode(t),t.finish()}updateHashCode(t){t.update(this.actionType)}equals(t){return this===t}}class mt extends St{constructor(){super(6)}execute(t){t.skip()}toString(){return"skip"}}mt.INSTANCE=new mt;class Et extends St{constructor(t){super(0),this.channel=t}execute(t){t._channel=this.channel}updateHashCode(t){t.update(this.actionType,this.channel)}equals(t){return this===t||t instanceof Et&&this.channel===t.channel}toString(){return"channel("+this.channel+")"}}class _t extends St{constructor(t,e){super(1),this.ruleIndex=t,this.actionIndex=e,this.isPositionDependent=!0}execute(t){t.action(null,this.ruleIndex,this.actionIndex)}updateHashCode(t){t.update(this.actionType,this.ruleIndex,this.actionIndex)}equals(t){return this===t||t instanceof _t&&this.ruleIndex===t.ruleIndex&&this.actionIndex===t.actionIndex}}class At extends St{constructor(){super(3)}execute(t){t.more()}toString(){return"more"}}At.INSTANCE=new At;class Ct extends St{constructor(t){super(7),this.type=t}execute(t){t.type=this.type}updateHashCode(t){t.update(this.actionType,this.type)}equals(t){return this===t||t instanceof Ct&&this.type===t.type}toString(){return"type("+this.type+")"}}class Nt extends St{constructor(t){super(5),this.mode=t}execute(t){t.pushMode(this.mode)}updateHashCode(t){t.update(this.actionType,this.mode)}equals(t){return this===t||t instanceof Nt&&this.mode===t.mode}toString(){return"pushMode("+this.mode+")"}}class yt extends St{constructor(){super(4)}execute(t){t.popMode()}toString(){return"popMode"}}yt.INSTANCE=new yt;class It extends St{constructor(t){super(2),this.mode=t}execute(t){t.mode(this.mode)}updateHashCode(t){t.update(this.actionType,this.mode)}equals(t){return this===t||t instanceof It&&this.mode===t.mode}toString(){return"mode("+this.mode+")"}}function kt(t,e){const n=[];return n[t-1]=e,n.map((function(t){return e}))}class Lt{constructor(t){null==t&&(t=Tt.defaultOptions),this.deserializationOptions=t,this.stateFactories=null,this.actionFactories=null}deserialize(t){const e=this.reset(t);this.checkVersion(e),e&&this.skipUUID();const n=this.readATN();this.readStates(n,e),this.readRules(n,e),this.readModes(n);const s=[];return this.readSets(n,s,this.readInt.bind(this)),e&&this.readSets(n,s,this.readInt32.bind(this)),this.readEdges(n,s),this.readDecisions(n),this.readLexerActions(n,e),this.markPrecedenceDecisions(n),this.verifyATN(n),this.deserializationOptions.generateRuleBypassTransitions&&1===n.grammarType&&(this.generateRuleBypassTransitions(n),this.verifyATN(n)),n}reset(t){if(3===(t.charCodeAt?t.charCodeAt(0):t[0])){const e=function(t){const e=t.charCodeAt(0);return e>1?e-2:e+65534},n=t.split("").map(e);return n[0]=t.charCodeAt(0),this.data=n,this.pos=0,!0}return this.data=t,this.pos=0,!1}skipUUID(){let t=0;for(;t++<8;)this.readInt()}checkVersion(t){const e=this.readInt();if(!t&&4!==e)throw"Could not deserialize ATN with version "+e+" (expected 4)."}readATN(){const t=this.readInt(),e=this.readInt();return new $(t,e)}readStates(t,e){let n,s,i;const r=[],o=[],a=this.readInt();for(let n=0;n<a;n++){const n=this.readInt();if(n===_.INVALID_TYPE){t.addState(null);continue}let s=this.readInt();e&&65535===s&&(s=-1);const i=this.stateFactory(n,s);if(n===_.LOOP_END){const t=this.readInt();r.push([i,t])}else if(i instanceof Q){const t=this.readInt();o.push([i,t])}t.addState(i)}for(n=0;n<r.length;n++)s=r[n],s[0].loopBackState=t.states[s[1]];for(n=0;n<o.length;n++)s=o[n],s[0].endState=t.states[s[1]];let l=this.readInt();for(n=0;n<l;n++)i=this.readInt(),t.states[i].nonGreedy=!0;let h=this.readInt();for(n=0;n<h;n++)i=this.readInt(),t.states[i].isPrecedenceRule=!0}readRules(e,n){let s;const i=this.readInt();for(0===e.grammarType&&(e.ruleToTokenType=kt(i,0)),e.ruleToStartState=kt(i,0),s=0;s<i;s++){const i=this.readInt();if(e.ruleToStartState[s]=e.states[i],0===e.grammarType){let i=this.readInt();n&&65535===i&&(i=t.EOF),e.ruleToTokenType[s]=i}}for(e.ruleToStopState=kt(i,0),s=0;s<e.states.length;s++){const t=e.states[s];t instanceof A&&(e.ruleToStopState[t.ruleIndex]=t,e.ruleToStartState[t.ruleIndex].stopState=t)}}readModes(t){const e=this.readInt();for(let n=0;n<e;n++){let e=this.readInt();t.modeToStartState.push(t.states[e])}}readSets(t,e,n){const s=this.readInt();for(let t=0;t<s;t++){const t=new E;e.push(t);const s=this.readInt();0!==this.readInt()&&t.addOne(-1);for(let e=0;e<s;e++){const e=n(),s=n();t.addRange(e,s)}}}readEdges(t,e){let n,s,i,r,o;const a=this.readInt();for(n=0;n<a;n++){const n=this.readInt(),s=this.readInt(),i=this.readInt(),o=this.readInt(),a=this.readInt(),l=this.readInt();r=this.edgeFactory(t,i,n,s,o,a,l,e),t.states[n].addTransition(r)}for(n=0;n<t.states.length;n++)for(i=t.states[n],s=0;s<i.transitions.length;s++){const e=i.transitions[s];if(!(e instanceof N))continue;let n=-1;t.ruleToStartState[e.target.ruleIndex].isPrecedenceRule&&0===e.precedence&&(n=e.target.ruleIndex),r=new dt(e.followState,n),t.ruleToStopState[e.target.ruleIndex].addTransition(r)}for(n=0;n<t.states.length;n++){if(i=t.states[n],i instanceof Q){if(null===i.endState)throw"IllegalState";if(null!==i.endState.startState)throw"IllegalState";i.endState.startState=i}if(i instanceof st)for(s=0;s<i.transitions.length;s++)o=i.transitions[s].target,o instanceof ot&&(o.loopBackState=i);else if(i instanceof it)for(s=0;s<i.transitions.length;s++)o=i.transitions[s].target,o instanceof rt&&(o.loopBackState=i)}}readDecisions(t){const e=this.readInt();for(let n=0;n<e;n++){const e=this.readInt(),s=t.states[e];t.decisionToState.push(s),s.decision=n}}readLexerActions(t,e){if(0===t.grammarType){const n=this.readInt();t.lexerActions=kt(n,null);for(let s=0;s<n;s++){const n=this.readInt();let i=this.readInt();e&&65535===i&&(i=-1);let r=this.readInt();e&&65535===r&&(r=-1),t.lexerActions[s]=this.lexerActionFactory(n,i,r)}}}generateRuleBypassTransitions(t){let e;const n=t.ruleToStartState.length;for(e=0;e<n;e++)t.ruleToTokenType[e]=t.maxTokenType+e+1;for(e=0;e<n;e++)this.generateRuleBypassTransition(t,e)}generateRuleBypassTransition(t,e){let n,s;const i=new lt;i.ruleIndex=e,t.addState(i);const r=new Z;r.ruleIndex=e,t.addState(r),i.endState=r,t.defineDecisionState(i),r.startState=i;let o=null,a=null;if(t.ruleToStartState[e].isPrecedenceRule){for(a=null,n=0;n<t.states.length;n++)if(s=t.states[n],this.stateIsEndStateFor(s,e)){a=s,o=s.loopBackState.transitions[0];break}if(null===o)throw"Couldn't identify final state of the precedence rule prefix section."}else a=t.ruleToStopState[e];for(n=0;n<t.states.length;n++){s=t.states[n];for(let t=0;t<s.transitions.length;t++){const e=s.transitions[t];e!==o&&e.target===a&&(e.target=r)}}const l=t.ruleToStartState[e],h=l.transitions.length;for(;h>0;)i.addTransition(l.transitions[h-1]),l.transitions=l.transitions.slice(-1);t.ruleToStartState[e].addTransition(new dt(i)),r.addTransition(new dt(a));const c=new X;t.addState(c),c.addTransition(new ht(r,t.ruleToTokenType[e])),i.addTransition(new dt(c))}stateIsEndStateFor(t,e){if(t.ruleIndex!==e)return null;if(!(t instanceof rt))return null;const n=t.transitions[t.transitions.length-1].target;return n instanceof tt&&n.epsilonOnlyTransitions&&n.transitions[0].target instanceof A?t:null}markPrecedenceDecisions(t){for(let e=0;e<t.states.length;e++){const n=t.states[e];if(n instanceof rt&&t.ruleToStartState[n.ruleIndex].isPrecedenceRule){const t=n.transitions[n.transitions.length-1].target;t instanceof tt&&t.epsilonOnlyTransitions&&t.transitions[0].target instanceof A&&(n.isPrecedenceDecision=!0)}}}verifyATN(t){if(this.deserializationOptions.verifyATN)for(let e=0;e<t.states.length;e++){const n=t.states[e];if(null!==n)if(this.checkCondition(n.epsilonOnlyTransitions||n.transitions.length<=1),n instanceof ot)this.checkCondition(null!==n.loopBackState);else if(n instanceof rt)if(this.checkCondition(null!==n.loopBackState),this.checkCondition(2===n.transitions.length),n.transitions[0].target instanceof at)this.checkCondition(n.transitions[1].target instanceof tt),this.checkCondition(!n.nonGreedy);else{if(!(n.transitions[0].target instanceof tt))throw"IllegalState";this.checkCondition(n.transitions[1].target instanceof at),this.checkCondition(n.nonGreedy)}else n instanceof it?(this.checkCondition(1===n.transitions.length),this.checkCondition(n.transitions[0].target instanceof rt)):n instanceof tt?this.checkCondition(null!==n.loopBackState):n instanceof et?this.checkCondition(null!==n.stopState):n instanceof Q?this.checkCondition(null!==n.endState):n instanceof Z?this.checkCondition(null!==n.startState):n instanceof J?this.checkCondition(n.transitions.length<=1||n.decision>=0):this.checkCondition(n.transitions.length<=1||n instanceof A)}}checkCondition(t,e){if(!t)throw null==e&&(e="IllegalState"),e}readInt(){return this.data[this.pos++]}readInt32(){return this.readInt()|this.readInt()<<16}edgeFactory(e,n,s,i,r,o,a,l){const h=e.states[i];switch(n){case C.EPSILON:return new dt(h);case C.RANGE:return new ct(h,0!==a?t.EOF:r,o);case C.RULE:return new N(e.states[r],o,a,h);case C.PREDICATE:return new gt(h,r,o,0!==a);case C.PRECEDENCE:return new xt(h,r);case C.ATOM:return new ht(h,0!==a?t.EOF:r);case C.ACTION:return new ut(h,r,o,0!==a);case C.SET:return new y(h,l[r]);case C.NOT_SET:return new I(h,l[r]);case C.WILDCARD:return new k(h);default:throw"The specified transition type: "+n+" is not valid."}}stateFactory(t,e){if(null===this.stateFactories){const t=[];t[_.INVALID_TYPE]=null,t[_.BASIC]=()=>new X,t[_.RULE_START]=()=>new et,t[_.BLOCK_START]=()=>new lt,t[_.PLUS_BLOCK_START]=()=>new ot,t[_.STAR_BLOCK_START]=()=>new at,t[_.TOKEN_START]=()=>new nt,t[_.RULE_STOP]=()=>new A,t[_.BLOCK_END]=()=>new Z,t[_.STAR_LOOP_BACK]=()=>new it,t[_.STAR_LOOP_ENTRY]=()=>new rt,t[_.PLUS_LOOP_BACK]=()=>new st,t[_.LOOP_END]=()=>new tt,this.stateFactories=t}if(t>this.stateFactories.length||null===this.stateFactories[t])throw"The specified state type "+t+" is not valid.";{const n=this.stateFactories[t]();if(null!==n)return n.ruleIndex=e,n}}lexerActionFactory(t,e,n){if(null===this.actionFactories){const t=[];t[0]=(t,e)=>new Et(t),t[1]=(t,e)=>new _t(t,e),t[2]=(t,e)=>new It(t),t[3]=(t,e)=>At.INSTANCE,t[4]=(t,e)=>yt.INSTANCE,t[5]=(t,e)=>new Nt(t),t[6]=(t,e)=>mt.INSTANCE,t[7]=(t,e)=>new Ct(t),this.actionFactories=t}if(t>this.actionFactories.length||null===this.actionFactories[t])throw"The specified lexer action type "+t+" is not valid.";return this.actionFactories[t](e,n)}}class Ot{syntaxError(t,e,n,s,i,r){}reportAmbiguity(t,e,n,s,i,r,o){}reportAttemptingFullContext(t,e,n,s,i,r){}reportContextSensitivity(t,e,n,s,i,r){}}class vt extends Ot{constructor(){super()}syntaxError(t,e,n,s,i,r){console.error("line "+n+":"+s+" "+i)}}vt.INSTANCE=new vt;class Rt extends Ot{constructor(t){if(super(),null===t)throw"delegates";return this.delegates=t,this}syntaxError(t,e,n,s,i,r){this.delegates.map((o=>o.syntaxError(t,e,n,s,i,r)))}reportAmbiguity(t,e,n,s,i,r,o){this.delegates.map((a=>a.reportAmbiguity(t,e,n,s,i,r,o)))}reportAttemptingFullContext(t,e,n,s,i,r){this.delegates.map((o=>o.reportAttemptingFullContext(t,e,n,s,i,r)))}reportContextSensitivity(t,e,n,s,i,r){this.delegates.map((o=>o.reportContextSensitivity(t,e,n,s,i,r)))}}class wt{constructor(){this._listeners=[vt.INSTANCE],this._interp=null,this._stateNumber=-1}checkVersion(t){const e="4.13.1";e!==t&&console.log("ANTLR runtime and generated code versions disagree: "+e+"!="+t)}addErrorListener(t){this._listeners.push(t)}removeErrorListeners(){this._listeners=[]}getLiteralNames(){return Object.getPrototypeOf(this).constructor.literalNames||[]}getSymbolicNames(){return Object.getPrototypeOf(this).constructor.symbolicNames||[]}getTokenNames(){if(!this.tokenNames){const t=this.getLiteralNames(),e=this.getSymbolicNames(),n=t.length>e.length?t.length:e.length;this.tokenNames=[];for(let s=0;s<n;s++)this.tokenNames[s]=t[s]||e[s]||"<INVALID"}return this.tokenNames}getTokenTypeMap(){const e=this.getTokenNames();if(null===e)throw"The current recognizer does not provide a list of token names.";let n=this.tokenTypeMapCache[e];return void 0===n&&(n=e.reduce((function(t,e,n){t[e]=n})),n.EOF=t.EOF,this.tokenTypeMapCache[e]=n),n}getRuleIndexMap(){const t=this.ruleNames;if(null===t)throw"The current recognizer does not provide a list of rule names.";let e=this.ruleIndexMapCache[t];return void 0===e&&(e=t.reduce((function(t,e,n){t[e]=n})),this.ruleIndexMapCache[t]=e),e}getTokenType(e){const n=this.getTokenTypeMap()[e];return void 0!==n?n:t.INVALID_TYPE}getErrorHeader(t){return"line "+t.getOffendingToken().line+":"+t.getOffendingToken().column}getTokenErrorDisplay(e){if(null===e)return"<no token>";let n=e.text;return null===n&&(n=e.type===t.EOF?"<EOF>":"<"+e.type+">"),n=n.replace("\n","\\n").replace("\r","\\r").replace("\t","\\t"),"'"+n+"'"}getErrorListenerDispatch(){return new Rt(this._listeners)}sempred(t,e,n){return!0}precpred(t,e){return!0}get atn(){return this._interp.atn}get state(){return this._stateNumber}set state(t){this._stateNumber=t}}wt.tokenTypeMapCache={},wt.ruleIndexMapCache={};class Pt extends t{constructor(e,n,s,i,r){super(),this.source=void 0!==e?e:Pt.EMPTY_SOURCE,this.type=void 0!==n?n:null,this.channel=void 0!==s?s:t.DEFAULT_CHANNEL,this.start=void 0!==i?i:-1,this.stop=void 0!==r?r:-1,this.tokenIndex=-1,null!==this.source[0]?(this.line=e[0].line,this.column=e[0].column):this.column=-1}clone(){const t=new Pt(this.source,this.type,this.channel,this.start,this.stop);return t.tokenIndex=this.tokenIndex,t.line=this.line,t.column=this.column,t.text=this.text,t}cloneWithType(e){const n=new Pt(this.source,e,this.channel,this.start,this.stop);return n.tokenIndex=this.tokenIndex,n.line=this.line,n.column=this.column,e===t.EOF&&(n.text=""),n}toString(){let t=this.text;return t=null!==t?t.replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/\t/g,"\\t"):"<no text>","[@"+this.tokenIndex+","+this.start+":"+this.stop+"='"+t+"',<"+this.type+">"+(this.channel>0?",channel="+this.channel:"")+","+this.line+":"+this.column+"]"}get text(){if(null!==this._text)return this._text;const t=this.getInputStream();if(null===t)return null;const e=t.size;return this.start<e&&this.stop<e?t.getText(this.start,this.stop):"<EOF>"}set text(t){this._text=t}}Pt.EMPTY_SOURCE=[null,null];class bt{}class Dt extends bt{constructor(t){super(),this.copyText=void 0!==t&&t}create(t,e,n,s,i,r,o,a){const l=new Pt(t,e,s,i,r);return l.line=o,l.column=a,null!==n?l.text=n:this.copyText&&null!==t[1]&&(l.text=t[1].getText(i,r)),l}createThin(t,e){const n=new Pt(null,t);return n.text=e,n}}Dt.DEFAULT=new Dt;class Ft extends Error{constructor(t){super(t.message),Error.captureStackTrace&&Error.captureStackTrace(this,Ft),this.message=t.message,this.recognizer=t.recognizer,this.input=t.input,this.ctx=t.ctx,this.offendingToken=null,this.offendingState=-1,null!==this.recognizer&&(this.offendingState=this.recognizer.state)}getExpectedTokens(){return null!==this.recognizer?this.recognizer.atn.getExpectedTokens(this.offendingState,this.ctx):null}toString(){return this.message}}class Mt extends Ft{constructor(t,e,n,s){super({message:"",recognizer:t,input:e,ctx:null}),this.startIndex=n,this.deadEndConfigs=s}toString(){let t="";return this.startIndex>=0&&this.startIndex<this.input.size&&(t=this.input.getText(new m(this.startIndex,this.startIndex))),"LexerNoViableAltException"+t}}class Ut extends wt{constructor(e){super(),this._input=e,this._factory=Dt.DEFAULT,this._tokenFactorySourcePair=[this,e],this._interp=null,this._token=null,this._tokenStartCharIndex=-1,this._tokenStartLine=-1,this._tokenStartColumn=-1,this._hitEOF=!1,this._channel=t.DEFAULT_CHANNEL,this._type=t.INVALID_TYPE,this._modeStack=[],this._mode=Ut.DEFAULT_MODE,this._text=null}reset(){null!==this._input&&this._input.seek(0),this._token=null,this._type=t.INVALID_TYPE,this._channel=t.DEFAULT_CHANNEL,this._tokenStartCharIndex=-1,this._tokenStartColumn=-1,this._tokenStartLine=-1,this._text=null,this._hitEOF=!1,this._mode=Ut.DEFAULT_MODE,this._modeStack=[],this._interp.reset()}nextToken(){if(null===this._input)throw"nextToken requires a non-null input stream.";const e=this._input.mark();try{for(;;){if(this._hitEOF)return this.emitEOF(),this._token;this._token=null,this._channel=t.DEFAULT_CHANNEL,this._tokenStartCharIndex=this._input.index,this._tokenStartColumn=this._interp.column,this._tokenStartLine=this._interp.line,this._text=null;let e=!1;for(;;){this._type=t.INVALID_TYPE;let n=Ut.SKIP;try{n=this._interp.match(this._input,this._mode)}catch(t){if(!(t instanceof Ft))throw console.log(t.stack),t;this.notifyListeners(t),this.recover(t)}if(this._input.LA(1)===t.EOF&&(this._hitEOF=!0),this._type===t.INVALID_TYPE&&(this._type=n),this._type===Ut.SKIP){e=!0;break}if(this._type!==Ut.MORE)break}if(!e)return null===this._token&&this.emit(),this._token}}finally{this._input.release(e)}}skip(){this._type=Ut.SKIP}more(){this._type=Ut.MORE}mode(t){this._mode=t}pushMode(t){this._interp.debug&&console.log("pushMode "+t),this._modeStack.push(this._mode),this.mode(t)}popMode(){if(0===this._modeStack.length)throw"Empty Stack";return this._interp.debug&&console.log("popMode back to "+this._modeStack.slice(0,-1)),this.mode(this._modeStack.pop()),this._mode}emitToken(t){this._token=t}emit(){const t=this._factory.create(this._tokenFactorySourcePair,this._type,this._text,this._channel,this._tokenStartCharIndex,this.getCharIndex()-1,this._tokenStartLine,this._tokenStartColumn);return this.emitToken(t),t}emitEOF(){const e=this.column,n=this.line,s=this._factory.create(this._tokenFactorySourcePair,t.EOF,null,t.DEFAULT_CHANNEL,this._input.index,this._input.index-1,n,e);return this.emitToken(s),s}getCharIndex(){return this._input.index}getAllTokens(){const e=[];let n=this.nextToken();for(;n.type!==t.EOF;)e.push(n),n=this.nextToken();return e}notifyListeners(t){const e=this._tokenStartCharIndex,n=this._input.index,s=this._input.getText(e,n),i="token recognition error at: '"+this.getErrorDisplay(s)+"'";this.getErrorListenerDispatch().syntaxError(this,null,this._tokenStartLine,this._tokenStartColumn,i,t)}getErrorDisplay(t){const e=[];for(let n=0;n<t.length;n++)e.push(t[n]);return e.join("")}getErrorDisplayForChar(e){return e.charCodeAt(0)===t.EOF?"<EOF>":"\n"===e?"\\n":"\t"===e?"\\t":"\r"===e?"\\r":e}getCharErrorDisplay(t){return"'"+this.getErrorDisplayForChar(t)+"'"}recover(e){this._input.LA(1)!==t.EOF&&(e instanceof Mt?this._interp.consume(this._input):this._input.consume())}get inputStream(){return this._input}set inputStream(t){this._input=null,this._tokenFactorySourcePair=[this,this._input],this.reset(),this._input=t,this._tokenFactorySourcePair=[this,this._input]}get sourceName(){return this._input.sourceName}get type(){return this._type}set type(t){this._type=t}get line(){return this._interp.line}set line(t){this._interp.line=t}get column(){return this._interp.column}set column(t){this._interp.column=t}get text(){return null!==this._text?this._text:this._interp.getText(this._input)}set text(t){this._text=t}}function Bt(t){return t.hashCodeForConfigSet()}function Vt(t,e){return t===e||null!==t&&null!==e&&t.equalsForConfigSet(e)}Ut.DEFAULT_MODE=0,Ut.MORE=-2,Ut.SKIP=-3,Ut.DEFAULT_TOKEN_CHANNEL=t.DEFAULT_CHANNEL,Ut.HIDDEN=t.HIDDEN_CHANNEL,Ut.MIN_CHAR_VALUE=0,Ut.MAX_CHAR_VALUE=1114111;class zt{constructor(t){this.configLookup=new d(Bt,Vt),this.fullCtx=void 0===t||t,this.readOnly=!1,this.configs=[],this.uniqueAlt=0,this.conflictingAlts=null,this.hasSemanticContext=!1,this.dipsIntoOuterContext=!1,this.cachedHashCode=-1}add(t,e){if(void 0===e&&(e=null),this.readOnly)throw"This set is readonly";t.semanticContext!==p.NONE&&(this.hasSemanticContext=!0),t.reachesIntoOuterContext>0&&(this.dipsIntoOuterContext=!0);const n=this.configLookup.add(t);if(n===t)return this.cachedHashCode=-1,this.configs.push(t),!0;const s=!this.fullCtx,i=G(n.context,t.context,s,e);return n.reachesIntoOuterContext=Math.max(n.reachesIntoOuterContext,t.reachesIntoOuterContext),t.precedenceFilterSuppressed&&(n.precedenceFilterSuppressed=!0),n.context=i,!0}getStates(){const t=new d;for(let e=0;e<this.configs.length;e++)t.add(this.configs[e].state);return t}getPredicates(){const t=[];for(let e=0;e<this.configs.length;e++){const n=this.configs[e].semanticContext;n!==p.NONE&&t.push(n.semanticContext)}return t}optimizeConfigs(t){if(this.readOnly)throw"This set is readonly";if(0!==this.configLookup.length)for(let e=0;e<this.configs.length;e++){const n=this.configs[e];n.context=t.getCachedContext(n.context)}}addAll(t){for(let e=0;e<t.length;e++)this.add(t[e]);return!1}equals(t){return this===t||t instanceof zt&&e(this.configs,t.configs)&&this.fullCtx===t.fullCtx&&this.uniqueAlt===t.uniqueAlt&&this.conflictingAlts===t.conflictingAlts&&this.hasSemanticContext===t.hasSemanticContext&&this.dipsIntoOuterContext===t.dipsIntoOuterContext}hashCode(){const t=new o;return t.update(this.configs),t.finish()}updateHashCode(t){this.readOnly?(-1===this.cachedHashCode&&(this.cachedHashCode=this.hashCode()),t.update(this.cachedHashCode)):t.update(this.hashCode())}isEmpty(){return 0===this.configs.length}contains(t){if(null===this.configLookup)throw"This method is not implemented for readonly sets.";return this.configLookup.contains(t)}containsFast(t){if(null===this.configLookup)throw"This method is not implemented for readonly sets.";return this.configLookup.containsFast(t)}clear(){if(this.readOnly)throw"This set is readonly";this.configs=[],this.cachedHashCode=-1,this.configLookup=new d}setReadonly(t){this.readOnly=t,t&&(this.configLookup=null)}toString(){return c(this.configs)+(this.hasSemanticContext?",hasSemanticContext="+this.hasSemanticContext:"")+(this.uniqueAlt!==$.INVALID_ALT_NUMBER?",uniqueAlt="+this.uniqueAlt:"")+(null!==this.conflictingAlts?",conflictingAlts="+this.conflictingAlts:"")+(this.dipsIntoOuterContext?",dipsIntoOuterContext":"")}get items(){return this.configs}get length(){return this.configs.length}}class qt{constructor(t,e){return null===t&&(t=-1),null===e&&(e=new zt),this.stateNumber=t,this.configs=e,this.edges=null,this.isAcceptState=!1,this.prediction=0,this.lexerActionExecutor=null,this.requiresFullContext=!1,this.predicates=null,this}getAltSet(){const t=new d;if(null!==this.configs)for(let e=0;e<this.configs.length;e++){const n=this.configs[e];t.add(n.alt)}return 0===t.length?null:t}equals(t){return this===t||t instanceof qt&&this.configs.equals(t.configs)}toString(){let t=this.stateNumber+":"+this.configs;return this.isAcceptState&&(t+="=>",null!==this.predicates?t+=this.predicates:t+=this.prediction),t}hashCode(){const t=new o;return t.update(this.configs),t.finish()}}class Ht{constructor(t,e){return this.atn=t,this.sharedContextCache=e,this}getCachedContext(t){if(null===this.sharedContextCache)return t;const e=new H;return Y(t,this.sharedContextCache,e)}}Ht.ERROR=new qt(2147483647,new zt);class Kt extends zt{constructor(){super(),this.configLookup=new d}}class Yt extends S{constructor(t,e){super(t,e);const n=t.lexerActionExecutor||null;return this.lexerActionExecutor=n||(null!==e?e.lexerActionExecutor:null),this.passedThroughNonGreedyDecision=null!==e&&this.checkNonGreedyDecision(e,this.state),this.hashCodeForConfigSet=Yt.prototype.hashCode,this.equalsForConfigSet=Yt.prototype.equals,this}updateHashCode(t){t.update(this.state.stateNumber,this.alt,this.context,this.semanticContext,this.passedThroughNonGreedyDecision,this.lexerActionExecutor)}equals(t){return this===t||t instanceof Yt&&this.passedThroughNonGreedyDecision===t.passedThroughNonGreedyDecision&&(this.lexerActionExecutor?this.lexerActionExecutor.equals(t.lexerActionExecutor):!t.lexerActionExecutor)&&super.equals(t)}checkNonGreedyDecision(t,e){return t.passedThroughNonGreedyDecision||e instanceof J&&e.nonGreedy}}class Gt extends St{constructor(t,e){super(e.actionType),this.offset=t,this.action=e,this.isPositionDependent=!0}execute(t){this.action.execute(t)}updateHashCode(t){t.update(this.actionType,this.offset,this.action)}equals(t){return this===t||t instanceof Gt&&this.offset===t.offset&&this.action===t.action}}class jt{constructor(t){return this.lexerActions=null===t?[]:t,this.cachedHashCode=o.hashStuff(t),this}fixOffsetBeforeMatch(t){let e=null;for(let n=0;n<this.lexerActions.length;n++)!this.lexerActions[n].isPositionDependent||this.lexerActions[n]instanceof Gt||(null===e&&(e=this.lexerActions.concat([])),e[n]=new Gt(t,this.lexerActions[n]));return null===e?this:new jt(e)}execute(t,e,n){let s=!1;const i=e.index;try{for(let r=0;r<this.lexerActions.length;r++){let o=this.lexerActions[r];if(o instanceof Gt){const t=o.offset;e.seek(n+t),o=o.action,s=n+t!==i}else o.isPositionDependent&&(e.seek(i),s=!1);o.execute(t)}}finally{s&&e.seek(i)}}hashCode(){return this.cachedHashCode}updateHashCode(t){t.update(this.cachedHashCode)}equals(t){if(this===t)return!0;if(t instanceof jt){if(this.cachedHashCode!=t.cachedHashCode)return!1;if(this.lexerActions.length!=t.lexerActions.length)return!1;{const e=this.lexerActions.length;for(let n=0;n<e;++n)if(!this.lexerActions[n].equals(t.lexerActions[n]))return!1;return!0}}return!1}static append(t,e){if(null===t)return new jt([e]);const n=t.lexerActions.concat([e]);return new jt(n)}}function Wt(t){t.index=-1,t.line=0,t.column=-1,t.dfaState=null}class $t{constructor(){Wt(this)}reset(){Wt(this)}}class Xt extends Ht{constructor(t,e,n,s){super(e,s),this.decisionToDFA=n,this.recog=t,this.startIndex=-1,this.line=1,this.column=0,this.mode=Ut.DEFAULT_MODE,this.prevAccept=new $t}copyState(t){this.column=t.column,this.line=t.line,this.mode=t.mode,this.startIndex=t.startIndex}match(t,e){this.mode=e;const n=t.mark();try{this.startIndex=t.index,this.prevAccept.reset();const n=this.decisionToDFA[e];return null===n.s0?this.matchATN(t):this.execATN(t,n.s0)}finally{t.release(n)}}reset(){this.prevAccept.reset(),this.startIndex=-1,this.line=1,this.column=0,this.mode=Ut.DEFAULT_MODE}matchATN(t){const e=this.atn.modeToStartState[this.mode];Xt.debug&&console.log("matchATN mode "+this.mode+" start: "+e);const n=this.mode,s=this.computeStartState(t,e),i=s.hasSemanticContext;s.hasSemanticContext=!1;const r=this.addDFAState(s);i||(this.decisionToDFA[this.mode].s0=r);const o=this.execATN(t,r);return Xt.debug&&console.log("DFA after matchATN: "+this.decisionToDFA[n].toLexerString()),o}execATN(e,n){Xt.debug&&console.log("start state closure="+n.configs),n.isAcceptState&&this.captureSimState(this.prevAccept,e,n);let s=e.LA(1),i=n;for(;;){Xt.debug&&console.log("execATN loop starting closure: "+i.configs);let n=this.getExistingTargetState(i,s);if(null===n&&(n=this.computeTargetState(e,i,s)),n===Ht.ERROR)break;if(s!==t.EOF&&this.consume(e),n.isAcceptState&&(this.captureSimState(this.prevAccept,e,n),s===t.EOF))break;s=e.LA(1),i=n}return this.failOrAccept(this.prevAccept,e,i.configs,s)}getExistingTargetState(t,e){if(null===t.edges||e<Xt.MIN_DFA_EDGE||e>Xt.MAX_DFA_EDGE)return null;let n=t.edges[e-Xt.MIN_DFA_EDGE];return void 0===n&&(n=null),Xt.debug&&null!==n&&console.log("reuse state "+t.stateNumber+" edge to "+n.stateNumber),n}computeTargetState(t,e,n){const s=new Kt;return this.getReachableConfigSet(t,e.configs,s,n),0===s.items.length?(s.hasSemanticContext||this.addDFAEdge(e,n,Ht.ERROR),Ht.ERROR):this.addDFAEdge(e,n,null,s)}failOrAccept(e,n,s,i){if(null!==this.prevAccept.dfaState){const t=e.dfaState.lexerActionExecutor;return this.accept(n,t,this.startIndex,e.index,e.line,e.column),e.dfaState.prediction}if(i===t.EOF&&n.index===this.startIndex)return t.EOF;throw new Mt(this.recog,n,this.startIndex,s)}getReachableConfigSet(e,n,s,i){let r=$.INVALID_ALT_NUMBER;for(let o=0;o<n.items.length;o++){const a=n.items[o],l=a.alt===r;if(!l||!a.passedThroughNonGreedyDecision){Xt.debug&&console.log("testing %s at %s\n",this.getTokenName(i),a.toString(this.recog,!0));for(let n=0;n<a.state.transitions.length;n++){const o=a.state.transitions[n],h=this.getReachableTarget(o,i);if(null!==h){let n=a.lexerActionExecutor;null!==n&&(n=n.fixOffsetBeforeMatch(e.index-this.startIndex));const o=i===t.EOF,c=new Yt({state:h,lexerActionExecutor:n},a);this.closure(e,c,s,l,!0,o)&&(r=a.alt)}}}}}accept(t,e,n,s,i,r){Xt.debug&&console.log("ACTION %s\n",e),t.seek(s),this.line=i,this.column=r,null!==e&&null!==this.recog&&e.execute(this.recog,t,n)}getReachableTarget(t,e){return t.matches(e,0,Ut.MAX_CHAR_VALUE)?t.target:null}computeStartState(t,e){const n=U.EMPTY,s=new Kt;for(let i=0;i<e.transitions.length;i++){const r=e.transitions[i].target,o=new Yt({state:r,alt:i+1,context:n},null);this.closure(t,o,s,!1,!1,!1)}return s}closure(t,e,n,s,i,r){let o=null;if(Xt.debug&&console.log("closure("+e.toString(this.recog,!0)+")"),e.state instanceof A){if(Xt.debug&&(null!==this.recog?console.log("closure at %s rule stop %s\n",this.recog.ruleNames[e.state.ruleIndex],e):console.log("closure at rule stop %s\n",e)),null===e.context||e.context.hasEmptyPath()){if(null===e.context||e.context.isEmpty())return n.add(e),!0;n.add(new Yt({state:e.state,context:U.EMPTY},e)),s=!0}if(null!==e.context&&!e.context.isEmpty())for(let a=0;a<e.context.length;a++)if(e.context.getReturnState(a)!==U.EMPTY_RETURN_STATE){const l=e.context.getParent(a),h=this.atn.states[e.context.getReturnState(a)];o=new Yt({state:h,context:l},e),s=this.closure(t,o,n,s,i,r)}return s}e.state.epsilonOnlyTransitions||s&&e.passedThroughNonGreedyDecision||n.add(e);for(let a=0;a<e.state.transitions.length;a++){const l=e.state.transitions[a];o=this.getEpsilonTarget(t,e,l,n,i,r),null!==o&&(s=this.closure(t,o,n,s,i,r))}return s}getEpsilonTarget(e,n,s,i,r,o){let a=null;if(s.serializationType===C.RULE){const t=V.create(n.context,s.followState.stateNumber);a=new Yt({state:s.target,context:t},n)}else{if(s.serializationType===C.PRECEDENCE)throw"Precedence predicates are not supported in lexers.";if(s.serializationType===C.PREDICATE)Xt.debug&&console.log("EVAL rule "+s.ruleIndex+":"+s.predIndex),i.hasSemanticContext=!0,this.evaluatePredicate(e,s.ruleIndex,s.predIndex,r)&&(a=new Yt({state:s.target},n));else if(s.serializationType===C.ACTION)if(null===n.context||n.context.hasEmptyPath()){const t=jt.append(n.lexerActionExecutor,this.atn.lexerActions[s.actionIndex]);a=new Yt({state:s.target,lexerActionExecutor:t},n)}else a=new Yt({state:s.target},n);else s.serializationType===C.EPSILON?a=new Yt({state:s.target},n):s.serializationType!==C.ATOM&&s.serializationType!==C.RANGE&&s.serializationType!==C.SET||o&&s.matches(t.EOF,0,Ut.MAX_CHAR_VALUE)&&(a=new Yt({state:s.target},n))}return a}evaluatePredicate(t,e,n,s){if(null===this.recog)return!0;if(!s)return this.recog.sempred(null,e,n);const i=this.column,r=this.line,o=t.index,a=t.mark();try{return this.consume(t),this.recog.sempred(null,e,n)}finally{this.column=i,this.line=r,t.seek(o),t.release(a)}}captureSimState(t,e,n){t.index=e.index,t.line=this.line,t.column=this.column,t.dfaState=n}addDFAEdge(t,e,n,s){if(void 0===n&&(n=null),void 0===s&&(s=null),null===n&&null!==s){const t=s.hasSemanticContext;if(s.hasSemanticContext=!1,n=this.addDFAState(s),t)return n}return e<Xt.MIN_DFA_EDGE||e>Xt.MAX_DFA_EDGE||(Xt.debug&&console.log("EDGE "+t+" -> "+n+" upon "+e),null===t.edges&&(t.edges=[]),t.edges[e-Xt.MIN_DFA_EDGE]=n),n}addDFAState(t){const e=new qt(null,t);let n=null;for(let e=0;e<t.items.length;e++){const s=t.items[e];if(s.state instanceof A){n=s;break}}null!==n&&(e.isAcceptState=!0,e.lexerActionExecutor=n.lexerActionExecutor,e.prediction=this.atn.ruleToTokenType[n.state.ruleIndex]);const s=this.decisionToDFA[this.mode],i=s.states.get(e);if(null!==i)return i;const r=e;return r.stateNumber=s.states.length,t.setReadonly(!0),r.configs=t,s.states.add(r),r}getDFA(t){return this.decisionToDFA[t]}getText(t){return t.getText(this.startIndex,t.index-1)}consume(t){t.LA(1)==="\n".charCodeAt(0)?(this.line+=1,this.column=0):this.column+=1,t.consume()}getTokenName(t){return-1===t?"EOF":"'"+String.fromCharCode(t)+"'"}}Xt.debug=!1,Xt.dfa_debug=!1,Xt.MIN_DFA_EDGE=0,Xt.MAX_DFA_EDGE=127;class Jt{constructor(t,e){this.alt=e,this.pred=t}toString(){return"("+this.pred+", "+this.alt+")"}}class Qt{constructor(){this.data={}}get(t){return this.data["k-"+t]||null}set(t,e){this.data["k-"+t]=e}values(){return Object.keys(this.data).filter((t=>t.startsWith("k-"))).map((t=>this.data[t]),this)}}const Zt={SLL:0,LL:1,LL_EXACT_AMBIG_DETECTION:2,hasSLLConflictTerminatingPrediction:function(t,e){if(Zt.allConfigsInRuleStopStates(e))return!0;if(t===Zt.SLL&&e.hasSemanticContext){const t=new zt;for(let n=0;n<e.items.length;n++){let s=e.items[n];s=new S({semanticContext:p.NONE},s),t.add(s)}e=t}const n=Zt.getConflictingAltSubsets(e);return Zt.hasConflictingAltSet(n)&&!Zt.hasStateAssociatedWithOneAlt(e)},hasConfigInRuleStopState:function(t){for(let e=0;e<t.items.length;e++)if(t.items[e].state instanceof A)return!0;return!1},allConfigsInRuleStopStates:function(t){for(let e=0;e<t.items.length;e++)if(!(t.items[e].state instanceof A))return!1;return!0},resolvesToJustOneViableAlt:function(t){return Zt.getSingleViableAlt(t)},allSubsetsConflict:function(t){return!Zt.hasNonConflictingAltSet(t)},hasNonConflictingAltSet:function(t){for(let e=0;e<t.length;e++)if(1===t[e].length)return!0;return!1},hasConflictingAltSet:function(t){for(let e=0;e<t.length;e++)if(t[e].length>1)return!0;return!1},allSubsetsEqual:function(t){let e=null;for(let n=0;n<t.length;n++){const s=t[n];if(null===e)e=s;else if(s!==e)return!1}return!0},getUniqueAlt:function(t){const e=Zt.getAlts(t);return 1===e.length?e.minValue():$.INVALID_ALT_NUMBER},getAlts:function(t){const e=new j;return t.map((function(t){e.or(t)})),e},getConflictingAltSubsets:function(t){const e=new H;return e.hashFunction=function(t){o.hashStuff(t.state.stateNumber,t.context)},e.equalsFunction=function(t,e){return t.state.stateNumber===e.state.stateNumber&&t.context.equals(e.context)},t.items.map((function(t){let n=e.get(t);null===n&&(n=new j,e.set(t,n)),n.add(t.alt)})),e.getValues()},getStateToAltMap:function(t){const e=new Qt;return t.items.map((function(t){let n=e.get(t.state);null===n&&(n=new j,e.set(t.state,n)),n.add(t.alt)})),e},hasStateAssociatedWithOneAlt:function(t){const e=Zt.getStateToAltMap(t).values();for(let t=0;t<e.length;t++)if(1===e[t].length)return!0;return!1},getSingleViableAlt:function(t){let e=null;for(let n=0;n<t.length;n++){const s=t[n].minValue();if(null===e)e=s;else if(e!==s)return $.INVALID_ALT_NUMBER}return e}},te=Zt;class ee extends Ft{constructor(t,e,n,s,i,r){r=r||t._ctx,s=s||t.getCurrentToken(),n=n||t.getCurrentToken(),e=e||t.getInputStream(),super({message:"",recognizer:t,input:e,ctx:r}),this.deadEndConfigs=i,this.startToken=n,this.offendingToken=s}}class ne{constructor(t){this.defaultMapCtor=t||H,this.cacheMap=new this.defaultMapCtor}get(t,e){const n=this.cacheMap.get(t)||null;return null===n?null:n.get(e)||null}set(t,e,n){let s=this.cacheMap.get(t)||null;null===s&&(s=new this.defaultMapCtor,this.cacheMap.set(t,s)),s.set(e,n)}}class se extends Ht{constructor(t,e,n,s){super(e,s),this.parser=t,this.decisionToDFA=n,this.predictionMode=te.LL,this._input=null,this._startIndex=0,this._outerContext=null,this._dfa=null,this.mergeCache=null,this.debug=!1,this.debug_closure=!1,this.debug_add=!1,this.trace_atn_sim=!1,this.dfa_debug=!1,this.retry_debug=!1}reset(){}adaptivePredict(t,e,n){(this.debug||this.trace_atn_sim)&&console.log("adaptivePredict decision "+e+" exec LA(1)=="+this.getLookaheadName(t)+" line "+t.LT(1).line+":"+t.LT(1).column),this._input=t,this._startIndex=t.index,this._outerContext=n;const s=this.decisionToDFA[e];this._dfa=s;const i=t.mark(),r=t.index;try{let e;if(e=s.precedenceDfa?s.getPrecedenceStartState(this.parser.getPrecedence()):s.s0,null===e){null===n&&(n=M.EMPTY),this.debug&&console.log("predictATN decision "+s.decision+" exec LA(1)=="+this.getLookaheadName(t)+", outerContext="+n.toString(this.parser.ruleNames));const i=!1;let r=this.computeStartState(s.atnStartState,M.EMPTY,i);s.precedenceDfa?(s.s0.configs=r,r=this.applyPrecedenceFilter(r),e=this.addDFAState(s,new qt(null,r)),s.setPrecedenceStartState(this.parser.getPrecedence(),e)):(e=this.addDFAState(s,new qt(null,r)),s.s0=e)}const i=this.execATN(s,e,t,r,n);return this.debug&&console.log("DFA after predictATN: "+s.toString(this.parser.literalNames,this.parser.symbolicNames)),i}finally{this._dfa=null,this.mergeCache=null,t.seek(r),t.release(i)}}execATN(e,n,s,i,r){let o;(this.debug||this.trace_atn_sim)&&console.log("execATN decision "+e.decision+", DFA state "+n+", LA(1)=="+this.getLookaheadName(s)+" line "+s.LT(1).line+":"+s.LT(1).column);let a=n;this.debug&&console.log("s0 = "+n);let l=s.LA(1);for(;;){let n=this.getExistingTargetState(a,l);if(null===n&&(n=this.computeTargetState(e,a,l)),n===Ht.ERROR){const t=this.noViableAlt(s,r,a.configs,i);if(s.seek(i),o=this.getSynValidOrSemInvalidAltThatFinishedDecisionEntryRule(a.configs,r),o!==$.INVALID_ALT_NUMBER)return o;throw t}if(n.requiresFullContext&&this.predictionMode!==te.SLL){let t=null;if(null!==n.predicates){this.debug&&console.log("DFA state has preds in DFA sim LL failover");const e=s.index;if(e!==i&&s.seek(i),t=this.evalSemanticContext(n.predicates,r,!0),1===t.length)return this.debug&&console.log("Full LL avoided"),t.minValue();e!==i&&s.seek(e)}this.dfa_debug&&console.log("ctx sensitive state "+r+" in "+n);const a=!0,l=this.computeStartState(e.atnStartState,r,a);return this.reportAttemptingFullContext(e,t,n.configs,i,s.index),o=this.execATNWithFullContext(e,n,l,s,i,r),o}if(n.isAcceptState){if(null===n.predicates)return n.prediction;const t=s.index;s.seek(i);const o=this.evalSemanticContext(n.predicates,r,!0);if(0===o.length)throw this.noViableAlt(s,r,n.configs,i);return 1===o.length||this.reportAmbiguity(e,n,i,t,!1,o,n.configs),o.minValue()}a=n,l!==t.EOF&&(s.consume(),l=s.LA(1))}}getExistingTargetState(t,e){const n=t.edges;return null===n?null:n[e+1]||null}computeTargetState(t,e,n){const s=this.computeReachSet(e.configs,n,!1);if(null===s)return this.addDFAEdge(t,e,n,Ht.ERROR),Ht.ERROR;let i=new qt(null,s);const r=this.getUniqueAlt(s);if(this.debug){const t=te.getConflictingAltSubsets(s);console.log("SLL altSubSets="+c(t)+", configs="+s+", predict="+r+", allSubsetsConflict="+te.allSubsetsConflict(t)+", conflictingAlts="+this.getConflictingAlts(s))}return r!==$.INVALID_ALT_NUMBER?(i.isAcceptState=!0,i.configs.uniqueAlt=r,i.prediction=r):te.hasSLLConflictTerminatingPrediction(this.predictionMode,s)&&(i.configs.conflictingAlts=this.getConflictingAlts(s),i.requiresFullContext=!0,i.isAcceptState=!0,i.prediction=i.configs.conflictingAlts.minValue()),i.isAcceptState&&i.configs.hasSemanticContext&&(this.predicateDFAState(i,this.atn.getDecisionState(t.decision)),null!==i.predicates&&(i.prediction=$.INVALID_ALT_NUMBER)),i=this.addDFAEdge(t,e,n,i),i}predicateDFAState(t,e){const n=e.transitions.length,s=this.getConflictingAltsOrUniqueAlt(t.configs),i=this.getPredsForAmbigAlts(s,t.configs,n);null!==i?(t.predicates=this.getPredicatePredictions(s,i),t.prediction=$.INVALID_ALT_NUMBER):t.prediction=s.minValue()}execATNWithFullContext(e,n,s,i,r,o){(this.debug||this.trace_atn_sim)&&console.log("execATNWithFullContext "+s);let a,l=!1,h=s;i.seek(r);let c=i.LA(1),u=-1;for(;;){if(a=this.computeReachSet(h,c,!0),null===a){const t=this.noViableAlt(i,o,h,r);i.seek(r);const e=this.getSynValidOrSemInvalidAltThatFinishedDecisionEntryRule(h,o);if(e!==$.INVALID_ALT_NUMBER)return e;throw t}const e=te.getConflictingAltSubsets(a);if(this.debug&&console.log("LL altSubSets="+e+", predict="+te.getUniqueAlt(e)+", resolvesToJustOneViableAlt="+te.resolvesToJustOneViableAlt(e)),a.uniqueAlt=this.getUniqueAlt(a),a.uniqueAlt!==$.INVALID_ALT_NUMBER){u=a.uniqueAlt;break}if(this.predictionMode!==te.LL_EXACT_AMBIG_DETECTION){if(u=te.resolvesToJustOneViableAlt(e),u!==$.INVALID_ALT_NUMBER)break}else if(te.allSubsetsConflict(e)&&te.allSubsetsEqual(e)){l=!0,u=te.getSingleViableAlt(e);break}h=a,c!==t.EOF&&(i.consume(),c=i.LA(1))}return a.uniqueAlt!==$.INVALID_ALT_NUMBER?(this.reportContextSensitivity(e,u,a,r,i.index),u):(this.reportAmbiguity(e,n,r,i.index,l,null,a),u)}computeReachSet(e,n,s){this.debug&&console.log("in computeReachSet, starting closure: "+e),null===this.mergeCache&&(this.mergeCache=new ne);const i=new zt(s);let r=null;for(let o=0;o<e.items.length;o++){const a=e.items[o];if(this.debug&&console.log("testing "+this.getTokenName(n)+" at "+a),a.state instanceof A)(s||n===t.EOF)&&(null===r&&(r=[]),r.push(a),this.debug_add&&console.log("added "+a+" to skippedStopStates"));else for(let t=0;t<a.state.transitions.length;t++){const e=a.state.transitions[t],s=this.getReachableTarget(e,n);if(null!==s){const t=new S({state:s},a);i.add(t,this.mergeCache),this.debug_add&&console.log("added "+t+" to intermediate")}}}let o=null;if(null===r&&n!==t.EOF&&(1===i.items.length||this.getUniqueAlt(i)!==$.INVALID_ALT_NUMBER)&&(o=i),null===o){o=new zt(s);const e=new d,r=n===t.EOF;for(let t=0;t<i.items.length;t++)this.closure(i.items[t],o,e,!1,s,r)}if(n===t.EOF&&(o=this.removeAllConfigsNotInRuleStopState(o,o===i)),!(null===r||s&&te.hasConfigInRuleStopState(o)))for(let t=0;t<r.length;t++)o.add(r[t],this.mergeCache);return this.trace_atn_sim&&console.log("computeReachSet "+e+" -> "+o),0===o.items.length?null:o}removeAllConfigsNotInRuleStopState(e,n){if(te.allConfigsInRuleStopStates(e))return e;const s=new zt(e.fullCtx);for(let i=0;i<e.items.length;i++){const r=e.items[i];if(r.state instanceof A)s.add(r,this.mergeCache);else if(n&&r.state.epsilonOnlyTransitions&&this.atn.nextTokens(r.state).contains(t.EPSILON)){const t=this.atn.ruleToStopState[r.state.ruleIndex];s.add(new S({state:t},r),this.mergeCache)}}return s}computeStartState(t,e,n){const s=K(this.atn,e),i=new zt(n);this.trace_atn_sim&&console.log("computeStartState from ATN state "+t+" initialContext="+s.toString(this.parser));for(let e=0;e<t.transitions.length;e++){const r=t.transitions[e].target,o=new S({state:r,alt:e+1,context:s},null),a=new d;this.closure(o,i,a,!0,n,!1)}return i}applyPrecedenceFilter(t){let e;const n=[],s=new zt(t.fullCtx);for(let i=0;i<t.items.length;i++){if(e=t.items[i],1!==e.alt)continue;const r=e.semanticContext.evalPrecedence(this.parser,this._outerContext);null!==r&&(n[e.state.stateNumber]=e.context,r!==e.semanticContext?s.add(new S({semanticContext:r},e),this.mergeCache):s.add(e,this.mergeCache))}for(let i=0;i<t.items.length;i++)if(e=t.items[i],1!==e.alt){if(!e.precedenceFilterSuppressed){const t=n[e.state.stateNumber]||null;if(null!==t&&t.equals(e.context))continue}s.add(e,this.mergeCache)}return s}getReachableTarget(t,e){return t.matches(e,0,this.atn.maxTokenType)?t.target:null}getPredsForAmbigAlts(t,e,n){let s=[];for(let n=0;n<e.items.length;n++){const i=e.items[n];t.has(i.alt)&&(s[i.alt]=p.orContext(s[i.alt]||null,i.semanticContext))}let i=0;for(let t=1;t<n+1;t++){const e=s[t]||null;null===e?s[t]=p.NONE:e!==p.NONE&&(i+=1)}return 0===i&&(s=null),this.debug&&console.log("getPredsForAmbigAlts result "+c(s)),s}getPredicatePredictions(t,e){const n=[];let s=!1;for(let i=1;i<e.length;i++){const r=e[i];null!==t&&t.has(i)&&n.push(new Jt(r,i)),r!==p.NONE&&(s=!0)}return s?n:null}getSynValidOrSemInvalidAltThatFinishedDecisionEntryRule(t,e){const n=this.splitAccordingToSemanticValidity(t,e),s=n[0],i=n[1];let r=this.getAltThatFinishedDecisionEntryRule(s);return r!==$.INVALID_ALT_NUMBER||i.items.length>0&&(r=this.getAltThatFinishedDecisionEntryRule(i),r!==$.INVALID_ALT_NUMBER)?r:$.INVALID_ALT_NUMBER}getAltThatFinishedDecisionEntryRule(t){const e=[];for(let n=0;n<t.items.length;n++){const s=t.items[n];(s.reachesIntoOuterContext>0||s.state instanceof A&&s.context.hasEmptyPath())&&e.indexOf(s.alt)<0&&e.push(s.alt)}return 0===e.length?$.INVALID_ALT_NUMBER:Math.min.apply(null,e)}splitAccordingToSemanticValidity(t,e){const n=new zt(t.fullCtx),s=new zt(t.fullCtx);for(let i=0;i<t.items.length;i++){const r=t.items[i];r.semanticContext!==p.NONE?r.semanticContext.evaluate(this.parser,e)?n.add(r):s.add(r):n.add(r)}return[n,s]}evalSemanticContext(t,e,n){const s=new j;for(let i=0;i<t.length;i++){const r=t[i];if(r.pred===p.NONE){if(s.add(r.alt),!n)break;continue}const o=r.pred.evaluate(this.parser,e);if((this.debug||this.dfa_debug)&&console.log("eval pred "+r+"="+o),o&&((this.debug||this.dfa_debug)&&console.log("PREDICT "+r.alt),s.add(r.alt),!n))break}return s}closure(t,e,n,s,i,r){this.closureCheckingStopState(t,e,n,s,i,0,r)}closureCheckingStopState(t,e,n,s,i,r,o){if((this.trace_atn_sim||this.debug_closure)&&console.log("closure("+t.toString(this.parser,!0)+")"),t.state instanceof A){if(!t.context.isEmpty()){for(let a=0;a<t.context.length;a++){if(t.context.getReturnState(a)===U.EMPTY_RETURN_STATE){if(i){e.add(new S({state:t.state,context:U.EMPTY},t),this.mergeCache);continue}this.debug&&console.log("FALLING off rule "+this.getRuleName(t.state.ruleIndex)),this.closure_(t,e,n,s,i,r,o);continue}const l=this.atn.states[t.context.getReturnState(a)],h=t.context.getParent(a),c={state:l,alt:t.alt,context:h,semanticContext:t.semanticContext},u=new S(c,null);u.reachesIntoOuterContext=t.reachesIntoOuterContext,this.closureCheckingStopState(u,e,n,s,i,r-1,o)}return}if(i)return void e.add(t,this.mergeCache);this.debug&&console.log("FALLING off rule "+this.getRuleName(t.state.ruleIndex))}this.closure_(t,e,n,s,i,r,o)}closure_(t,e,n,s,i,r,o){const a=t.state;a.epsilonOnlyTransitions||e.add(t,this.mergeCache);for(let l=0;l<a.transitions.length;l++){if(0===l&&this.canDropLoopEntryEdgeInLeftRecursiveRule(t))continue;const h=a.transitions[l],c=s&&!(h instanceof ut),u=this.getEpsilonTarget(t,h,c,0===r,i,o);if(null!==u){let s=r;if(t.state instanceof A){if(null!==this._dfa&&this._dfa.precedenceDfa&&h.outermostPrecedenceReturn===this._dfa.atnStartState.ruleIndex&&(u.precedenceFilterSuppressed=!0),u.reachesIntoOuterContext+=1,n.add(u)!==u)continue;e.dipsIntoOuterContext=!0,s-=1,this.debug&&console.log("dips into outer ctx: "+u)}else{if(!h.isEpsilon&&n.add(u)!==u)continue;h instanceof N&&s>=0&&(s+=1)}this.closureCheckingStopState(u,e,n,c,i,s,o)}}}canDropLoopEntryEdgeInLeftRecursiveRule(t){const e=t.state;if(e.stateType!==_.STAR_LOOP_ENTRY)return!1;if(e.stateType!==_.STAR_LOOP_ENTRY||!e.isPrecedenceDecision||t.context.isEmpty()||t.context.hasEmptyPath())return!1;const n=t.context.length;for(let s=0;s<n;s++)if(this.atn.states[t.context.getReturnState(s)].ruleIndex!==e.ruleIndex)return!1;const s=e.transitions[0].target.endState.stateNumber,i=this.atn.states[s];for(let s=0;s<n;s++){const n=t.context.getReturnState(s),r=this.atn.states[n];if(1!==r.transitions.length||!r.transitions[0].isEpsilon)return!1;const o=r.transitions[0].target;if(!(r.stateType===_.BLOCK_END&&o===e||r===i||o===i||o.stateType===_.BLOCK_END&&1===o.transitions.length&&o.transitions[0].isEpsilon&&o.transitions[0].target===e))return!1}return!0}getRuleName(t){return null!==this.parser&&t>=0?this.parser.ruleNames[t]:"<rule "+t+">"}getEpsilonTarget(e,n,s,i,r,o){switch(n.serializationType){case C.RULE:return this.ruleTransition(e,n);case C.PRECEDENCE:return this.precedenceTransition(e,n,s,i,r);case C.PREDICATE:return this.predTransition(e,n,s,i,r);case C.ACTION:return this.actionTransition(e,n);case C.EPSILON:return new S({state:n.target},e);case C.ATOM:case C.RANGE:case C.SET:return o&&n.matches(t.EOF,0,1)?new S({state:n.target},e):null;default:return null}}actionTransition(t,e){if(this.debug){const t=-1===e.actionIndex?65535:e.actionIndex;console.log("ACTION edge "+e.ruleIndex+":"+t)}return new S({state:e.target},t)}precedenceTransition(t,e,n,s,i){this.debug&&(console.log("PRED (collectPredicates="+n+") "+e.precedence+">=_p, ctx dependent=true"),null!==this.parser&&console.log("context surrounding pred is "+c(this.parser.getRuleInvocationStack())));let r=null;if(n&&s)if(i){const n=this._input.index;this._input.seek(this._startIndex);const s=e.getPredicate().evaluate(this.parser,this._outerContext);this._input.seek(n),s&&(r=new S({state:e.target},t))}else{const n=p.andContext(t.semanticContext,e.getPredicate());r=new S({state:e.target,semanticContext:n},t)}else r=new S({state:e.target},t);return this.debug&&console.log("config from pred transition="+r),r}predTransition(t,e,n,s,i){this.debug&&(console.log("PRED (collectPredicates="+n+") "+e.ruleIndex+":"+e.predIndex+", ctx dependent="+e.isCtxDependent),null!==this.parser&&console.log("context surrounding pred is "+c(this.parser.getRuleInvocationStack())));let r=null;if(n&&(e.isCtxDependent&&s||!e.isCtxDependent))if(i){const n=this._input.index;this._input.seek(this._startIndex);const s=e.getPredicate().evaluate(this.parser,this._outerContext);this._input.seek(n),s&&(r=new S({state:e.target},t))}else{const n=p.andContext(t.semanticContext,e.getPredicate());r=new S({state:e.target,semanticContext:n},t)}else r=new S({state:e.target},t);return this.debug&&console.log("config from pred transition="+r),r}ruleTransition(t,e){this.debug&&console.log("CALL rule "+this.getRuleName(e.target.ruleIndex)+", ctx="+t.context);const n=e.followState,s=V.create(t.context,n.stateNumber);return new S({state:e.target,context:s},t)}getConflictingAlts(t){const e=te.getConflictingAltSubsets(t);return te.getAlts(e)}getConflictingAltsOrUniqueAlt(t){let e=null;return t.uniqueAlt!==$.INVALID_ALT_NUMBER?(e=new j,e.add(t.uniqueAlt)):e=t.conflictingAlts,e}getTokenName(e){if(e===t.EOF)return"EOF";if(null!==this.parser&&null!==this.parser.literalNames){if(!(e>=this.parser.literalNames.length&&e>=this.parser.symbolicNames.length))return(this.parser.literalNames[e]||this.parser.symbolicNames[e])+"<"+e+">";console.log(e+" ttype out of range: "+this.parser.literalNames),console.log(""+this.parser.getInputStream().getTokens())}return""+e}getLookaheadName(t){return this.getTokenName(t.LA(1))}dumpDeadEndConfigs(t){console.log("dead end configs: ");const e=t.getDeadEndConfigs();for(let t=0;t<e.length;t++){const n=e[t];let s="no edges";if(n.state.transitions.length>0){const t=n.state.transitions[0];t instanceof ht?s="Atom "+this.getTokenName(t.label):t instanceof y&&(s=(t instanceof I?"~":"")+"Set "+t.set)}console.error(n.toString(this.parser,!0)+":"+s)}}noViableAlt(t,e,n,s){return new ee(this.parser,t,t.get(s),t.LT(1),n,e)}getUniqueAlt(t){let e=$.INVALID_ALT_NUMBER;for(let n=0;n<t.items.length;n++){const s=t.items[n];if(e===$.INVALID_ALT_NUMBER)e=s.alt;else if(s.alt!==e)return $.INVALID_ALT_NUMBER}return e}addDFAEdge(t,e,n,s){if(this.debug&&console.log("EDGE "+e+" -> "+s+" upon "+this.getTokenName(n)),null===s)return null;if(s=this.addDFAState(t,s),null===e||n<-1||n>this.atn.maxTokenType)return s;if(null===e.edges&&(e.edges=[]),e.edges[n+1]=s,this.debug){const e=null===this.parser?null:this.parser.literalNames,n=null===this.parser?null:this.parser.symbolicNames;console.log("DFA=\n"+t.toString(e,n))}return s}addDFAState(t,e){if(e===Ht.ERROR)return e;const n=t.states.get(e);return null!==n?(this.trace_atn_sim&&console.log("addDFAState "+e+" exists"),n):(e.stateNumber=t.states.length,e.configs.readOnly||(e.configs.optimizeConfigs(this),e.configs.setReadonly(!0)),this.trace_atn_sim&&console.log("addDFAState new "+e),t.states.add(e),this.debug&&console.log("adding new DFA state: "+e),e)}reportAttemptingFullContext(t,e,n,s,i){if(this.debug||this.retry_debug){const e=new m(s,i+1);console.log("reportAttemptingFullContext decision="+t.decision+":"+n+", input="+this.parser.getTokenStream().getText(e))}null!==this.parser&&this.parser.getErrorListenerDispatch().reportAttemptingFullContext(this.parser,t,s,i,e,n)}reportContextSensitivity(t,e,n,s,i){if(this.debug||this.retry_debug){const e=new m(s,i+1);console.log("reportContextSensitivity decision="+t.decision+":"+n+", input="+this.parser.getTokenStream().getText(e))}null!==this.parser&&this.parser.getErrorListenerDispatch().reportContextSensitivity(this.parser,t,s,i,e,n)}reportAmbiguity(t,e,n,s,i,r,o){if(this.debug||this.retry_debug){const t=new m(n,s+1);console.log("reportAmbiguity "+r+":"+o+", input="+this.parser.getTokenStream().getText(t))}null!==this.parser&&this.parser.getErrorListenerDispatch().reportAmbiguity(this.parser,t,n,s,i,r,o)}}class ie{constructor(){this.cache=new H}add(t){if(t===U.EMPTY)return U.EMPTY;const e=this.cache.get(t)||null;return null!==e?e:(this.cache.set(t,t),t)}get(t){return this.cache.get(t)||null}get length(){return this.cache.length}}const re={ATN:$,ATNDeserializer:Lt,LexerATNSimulator:Xt,ParserATNSimulator:se,PredictionMode:te,PredictionContextCache:ie};class oe{constructor(t,e,n){this.dfa=t,this.literalNames=e||[],this.symbolicNames=n||[]}toString(){if(null===this.dfa.s0)return null;let t="";const e=this.dfa.sortedStates();for(let n=0;n<e.length;n++){const s=e[n];if(null!==s.edges){const e=s.edges.length;for(let n=0;n<e;n++){const e=s.edges[n]||null;null!==e&&2147483647!==e.stateNumber&&(t=t.concat(this.getStateString(s)),t=t.concat("-"),t=t.concat(this.getEdgeLabel(n)),t=t.concat("->"),t=t.concat(this.getStateString(e)),t=t.concat("\n"))}}}return 0===t.length?null:t}getEdgeLabel(t){return 0===t?"EOF":null!==this.literalNames||null!==this.symbolicNames?this.literalNames[t-1]||this.symbolicNames[t-1]:String.fromCharCode(t-1)}getStateString(t){const e=(t.isAcceptState?":":"")+"s"+t.stateNumber+(t.requiresFullContext?"^":"");return t.isAcceptState?null!==t.predicates?e+"=>"+c(t.predicates):e+"=>"+t.prediction.toString():e}}class ae extends oe{constructor(t){super(t,null)}getEdgeLabel(t){return"'"+String.fromCharCode(t)+"'"}}class le{constructor(t,e){if(void 0===e&&(e=0),this.atnStartState=t,this.decision=e,this._states=new d,this.s0=null,this.precedenceDfa=!1,t instanceof rt&&t.isPrecedenceDecision){this.precedenceDfa=!0;const t=new qt(null,new zt);t.edges=[],t.isAcceptState=!1,t.requiresFullContext=!1,this.s0=t}}getPrecedenceStartState(t){if(!this.precedenceDfa)throw"Only precedence DFAs may contain a precedence start state.";return t<0||t>=this.s0.edges.length?null:this.s0.edges[t]||null}setPrecedenceStartState(t,e){if(!this.precedenceDfa)throw"Only precedence DFAs may contain a precedence start state.";t<0||(this.s0.edges[t]=e)}setPrecedenceDfa(t){if(this.precedenceDfa!==t){if(this._states=new d,t){const t=new qt(null,new zt);t.edges=[],t.isAcceptState=!1,t.requiresFullContext=!1,this.s0=t}else this.s0=null;this.precedenceDfa=t}}sortedStates(){return this._states.values().sort((function(t,e){return t.stateNumber-e.stateNumber}))}toString(t,e){return t=t||null,e=e||null,null===this.s0?"":new oe(this,t,e).toString()}toLexerString(){return null===this.s0?"":new ae(this).toString()}get states(){return this._states}}const he={DFA:le,DFASerializer:oe,LexerDFASerializer:ae,PredPrediction:Jt},ce={PredictionContext:U},ue={Interval:m,IntervalSet:E};class de{visitTerminal(t){}visitErrorNode(t){}enterEveryRule(t){}exitEveryRule(t){}}class pe{visit(t){return Array.isArray(t)?t.map((function(t){return t.accept(this)}),this):t.accept(this)}visitChildren(t){return t.children?this.visit(t.children):null}visitTerminal(t){}visitErrorNode(t){}}class ge{walk(t,e){if(e instanceof b||void 0!==e.isErrorNode&&e.isErrorNode())t.visitErrorNode(e);else if(e instanceof P)t.visitTerminal(e);else{this.enterRule(t,e);for(let n=0;n<e.getChildCount();n++){const s=e.getChild(n);this.walk(t,s)}this.exitRule(t,e)}}enterRule(t,e){const n=e.ruleContext;t.enterEveryRule(n),n.enterRule(t)}exitRule(t,e){const n=e.ruleContext;n.exitRule(t),t.exitEveryRule(n)}}ge.DEFAULT=new ge;const fe={Trees:F,RuleNode:w,ErrorNode:b,TerminalNode:P,ParseTreeListener:de,ParseTreeVisitor:pe,ParseTreeWalker:ge};class xe extends Ft{constructor(t){super({message:"",recognizer:t,input:t.getInputStream(),ctx:t._ctx}),this.offendingToken=t.getCurrentToken()}}class Te extends Ft{constructor(t,e,n){super({message:Se(e,n||null),recognizer:t,input:t.getInputStream(),ctx:t._ctx});const s=t._interp.atn.states[t.state].transitions[0];s instanceof gt?(this.ruleIndex=s.ruleIndex,this.predicateIndex=s.predIndex):(this.ruleIndex=0,this.predicateIndex=0),this.predicate=e,this.offendingToken=t.getCurrentToken()}}function Se(t,e){return null!==e?e:"failed predicate: {"+t+"}?"}class me extends Ot{constructor(t){super(),t=t||!0,this.exactOnly=t}reportAmbiguity(t,e,n,s,i,r,o){if(this.exactOnly&&!i)return;const a="reportAmbiguity d="+this.getDecisionDescription(t,e)+": ambigAlts="+this.getConflictingAlts(r,o)+", input='"+t.getTokenStream().getText(new m(n,s))+"'";t.notifyErrorListeners(a)}reportAttemptingFullContext(t,e,n,s,i,r){const o="reportAttemptingFullContext d="+this.getDecisionDescription(t,e)+", input='"+t.getTokenStream().getText(new m(n,s))+"'";t.notifyErrorListeners(o)}reportContextSensitivity(t,e,n,s,i,r){const o="reportContextSensitivity d="+this.getDecisionDescription(t,e)+", input='"+t.getTokenStream().getText(new m(n,s))+"'";t.notifyErrorListeners(o)}getDecisionDescription(t,e){const n=e.decision,s=e.atnStartState.ruleIndex,i=t.ruleNames;if(s<0||s>=i.length)return""+n;const r=i[s]||null;return null===r||0===r.length?""+n:`${n} (${r})`}getConflictingAlts(t,e){if(null!==t)return t;const n=new j;for(let t=0;t<e.items.length;t++)n.add(e.items[t].alt);return`{${n.values().join(", ")}}`}}class Ee extends Error{constructor(){super(),Error.captureStackTrace(this,Ee)}}class _e{reset(t){}recoverInline(t){}recover(t,e){}sync(t){}inErrorRecoveryMode(t){}reportError(t){}}class Ae extends _e{constructor(){super(),this.errorRecoveryMode=!1,this.lastErrorIndex=-1,this.lastErrorStates=null,this.nextTokensContext=null,this.nextTokenState=0}reset(t){this.endErrorCondition(t)}beginErrorCondition(t){this.errorRecoveryMode=!0}inErrorRecoveryMode(t){return this.errorRecoveryMode}endErrorCondition(t){this.errorRecoveryMode=!1,this.lastErrorStates=null,this.lastErrorIndex=-1}reportMatch(t){this.endErrorCondition(t)}reportError(t,e){this.inErrorRecoveryMode(t)||(this.beginErrorCondition(t),e instanceof ee?this.reportNoViableAlternative(t,e):e instanceof xe?this.reportInputMismatch(t,e):e instanceof Te?this.reportFailedPredicate(t,e):(console.log("unknown recognition error type: "+e.constructor.name),console.log(e.stack),t.notifyErrorListeners(e.getOffendingToken(),e.getMessage(),e)))}recover(t,e){this.lastErrorIndex===t.getInputStream().index&&null!==this.lastErrorStates&&this.lastErrorStates.indexOf(t.state)>=0&&t.consume(),this.lastErrorIndex=t._input.index,null===this.lastErrorStates&&(this.lastErrorStates=[]),this.lastErrorStates.push(t.state);const n=this.getErrorRecoverySet(t);this.consumeUntil(t,n)}sync(e){if(this.inErrorRecoveryMode(e))return;const n=e._interp.atn.states[e.state],s=e.getTokenStream().LA(1),i=e.atn.nextTokens(n);if(i.contains(s))return this.nextTokensContext=null,void(this.nextTokenState=_.INVALID_STATE_NUMBER);if(i.contains(t.EPSILON))null===this.nextTokensContext&&(this.nextTokensContext=e._ctx,this.nextTokensState=e._stateNumber);else switch(n.stateType){case _.BLOCK_START:case _.STAR_BLOCK_START:case _.PLUS_BLOCK_START:case _.STAR_LOOP_ENTRY:if(null!==this.singleTokenDeletion(e))return;throw new xe(e);case _.PLUS_LOOP_BACK:case _.STAR_LOOP_BACK:{this.reportUnwantedToken(e);const t=new E;t.addSet(e.getExpectedTokens());const n=t.addSet(this.getErrorRecoverySet(e));this.consumeUntil(e,n)}}}reportNoViableAlternative(e,n){const s=e.getTokenStream();let i;i=null!==s?n.startToken.type===t.EOF?"<EOF>":s.getText(new m(n.startToken.tokenIndex,n.offendingToken.tokenIndex)):"<unknown input>";const r="no viable alternative at input "+this.escapeWSAndQuote(i);e.notifyErrorListeners(r,n.offendingToken,n)}reportInputMismatch(t,e){const n="mismatched input "+this.getTokenErrorDisplay(e.offendingToken)+" expecting "+e.getExpectedTokens().toString(t.literalNames,t.symbolicNames);t.notifyErrorListeners(n,e.offendingToken,e)}reportFailedPredicate(t,e){const n="rule "+t.ruleNames[t._ctx.ruleIndex]+" "+e.message;t.notifyErrorListeners(n,e.offendingToken,e)}reportUnwantedToken(t){if(this.inErrorRecoveryMode(t))return;this.beginErrorCondition(t);const e=t.getCurrentToken(),n="extraneous input "+this.getTokenErrorDisplay(e)+" expecting "+this.getExpectedTokens(t).toString(t.literalNames,t.symbolicNames);t.notifyErrorListeners(n,e,null)}reportMissingToken(t){if(this.inErrorRecoveryMode(t))return;this.beginErrorCondition(t);const e=t.getCurrentToken(),n="missing "+this.getExpectedTokens(t).toString(t.literalNames,t.symbolicNames)+" at "+this.getTokenErrorDisplay(e);t.notifyErrorListeners(n,e,null)}recoverInline(t){const e=this.singleTokenDeletion(t);if(null!==e)return t.consume(),e;if(this.singleTokenInsertion(t))return this.getMissingSymbol(t);throw new xe(t)}singleTokenInsertion(t){const e=t.getTokenStream().LA(1),n=t._interp.atn,s=n.states[t.state].transitions[0].target;return!!n.nextTokens(s,t._ctx).contains(e)&&(this.reportMissingToken(t),!0)}singleTokenDeletion(t){const e=t.getTokenStream().LA(2);if(this.getExpectedTokens(t).contains(e)){this.reportUnwantedToken(t),t.consume();const e=t.getCurrentToken();return this.reportMatch(t),e}return null}getMissingSymbol(e){const n=e.getCurrentToken(),s=this.getExpectedTokens(e).first();let i;i=s===t.EOF?"<missing EOF>":"<missing "+e.literalNames[s]+">";let r=n;const o=e.getTokenStream().LT(-1);return r.type===t.EOF&&null!==o&&(r=o),e.getTokenFactory().create(r.source,s,i,t.DEFAULT_CHANNEL,-1,-1,r.line,r.column)}getExpectedTokens(t){return t.getExpectedTokens()}getTokenErrorDisplay(e){if(null===e)return"<no token>";let n=e.text;return null===n&&(n=e.type===t.EOF?"<EOF>":"<"+e.type+">"),this.escapeWSAndQuote(n)}escapeWSAndQuote(t){return"'"+(t=(t=(t=t.replace(/\n/g,"\\n")).replace(/\r/g,"\\r")).replace(/\t/g,"\\t"))+"'"}getErrorRecoverySet(e){const n=e._interp.atn;let s=e._ctx;const i=new E;for(;null!==s&&s.invokingState>=0;){const t=n.states[s.invokingState].transitions[0],e=n.nextTokens(t.followState);i.addSet(e),s=s.parentCtx}return i.removeOne(t.EPSILON),i}consumeUntil(e,n){let s=e.getTokenStream().LA(1);for(;s!==t.EOF&&!n.contains(s);)e.consume(),s=e.getTokenStream().LA(1)}}class Ce extends Ae{constructor(){super()}recover(t,e){let n=t._ctx;for(;null!==n;)n.exception=e,n=n.parentCtx;throw new Ee(e)}recoverInline(t){this.recover(t,new xe(t))}sync(t){}}const Ne={RecognitionException:Ft,NoViableAltException:ee,LexerNoViableAltException:Mt,InputMismatchException:xe,FailedPredicateException:Te,DiagnosticErrorListener:me,BailErrorStrategy:Ce,DefaultErrorStrategy:Ae,ErrorListener:Ot};class ye{constructor(t,e){if(this.name="<empty>",this.strdata=t,this.decodeToUnicodeCodePoints=e||!1,this._index=0,this.data=[],this.decodeToUnicodeCodePoints)for(let t=0;t<this.strdata.length;){const e=this.strdata.codePointAt(t);this.data.push(e),t+=e<=65535?1:2}else{this.data=new Array(this.strdata.length);for(let t=0;t<this.strdata.length;t++)this.data[t]=this.strdata.charCodeAt(t)}this._size=this.data.length}reset(){this._index=0}consume(){if(this._index>=this._size)throw"cannot consume EOF";this._index+=1}LA(e){if(0===e)return 0;e<0&&(e+=1);const n=this._index+e-1;return n<0||n>=this._size?t.EOF:this.data[n]}LT(t){return this.LA(t)}mark(){return-1}release(t){}seek(t){t<=this._index?this._index=t:this._index=Math.min(t,this._size)}getText(t,e){if(e>=this._size&&(e=this._size-1),t>=this._size)return"";if(this.decodeToUnicodeCodePoints){let n="";for(let s=t;s<=e;s++)n+=String.fromCodePoint(this.data[s]);return n}return this.strdata.slice(t,e+1)}toString(){return this.strdata}get index(){return this._index}get size(){return this._size}}class Ie extends ye{constructor(t,e){super(t,e)}}var ke=n(92);const Le="undefined"!=typeof process&&null!=process.versions&&null!=process.versions.node;class Oe extends Ie{static fromPath(t,e,n){if(!Le)throw new Error("FileStream is only available when running in Node!");ke.readFile(t,e,(function(t,e){let s=null;null!==e&&(s=new ye(e,!0)),n(t,s)}))}constructor(t,e,n){if(!Le)throw new Error("FileStream is only available when running in Node!");super(ke.readFileSync(t,e||"utf-8"),n),this.fileName=t}}const ve={fromString:function(t){return new ye(t,!0)},fromBlob:function(t,e,n,s){const i=new window.FileReader;i.onload=function(t){const e=new ye(t.target.result,!0);n(e)},i.onerror=s,i.readAsText(t,e)},fromBuffer:function(t,e){return new ye(t.toString(e),!0)},fromPath:function(t,e,n){Oe.fromPath(t,e,n)},fromPathSync:function(t,e){return new Oe(t,e)}},Re={arrayToString:c,stringToCharArray:function(t){let e=new Uint16Array(t.length);for(let n=0;n<t.length;n++)e[n]=t.charCodeAt(n);return e}};class we{}class Pe extends we{constructor(t){super(),this.tokenSource=t,this.tokens=[],this.index=-1,this.fetchedEOF=!1}mark(){return 0}release(t){}reset(){this.seek(0)}seek(t){this.lazyInit(),this.index=this.adjustSeekIndex(t)}get size(){return this.tokens.length}get(t){return this.lazyInit(),this.tokens[t]}consume(){let e=!1;if(e=this.index>=0&&(this.fetchedEOF?this.index<this.tokens.length-1:this.index<this.tokens.length),!e&&this.LA(1)===t.EOF)throw"cannot consume EOF";this.sync(this.index+1)&&(this.index=this.adjustSeekIndex(this.index+1))}sync(t){const e=t-this.tokens.length+1;return!(e>0)||this.fetch(e)>=e}fetch(e){if(this.fetchedEOF)return 0;for(let n=0;n<e;n++){const e=this.tokenSource.nextToken();if(e.tokenIndex=this.tokens.length,this.tokens.push(e),e.type===t.EOF)return this.fetchedEOF=!0,n+1}return e}getTokens(e,n,s){if(void 0===s&&(s=null),e<0||n<0)return null;this.lazyInit();const i=[];n>=this.tokens.length&&(n=this.tokens.length-1);for(let r=e;r<n;r++){const e=this.tokens[r];if(e.type===t.EOF)break;(null===s||s.contains(e.type))&&i.push(e)}return i}LA(t){return this.LT(t).type}LB(t){return this.index-t<0?null:this.tokens[this.index-t]}LT(t){if(this.lazyInit(),0===t)return null;if(t<0)return this.LB(-t);const e=this.index+t-1;return this.sync(e),e>=this.tokens.length?this.tokens[this.tokens.length-1]:this.tokens[e]}adjustSeekIndex(t){return t}lazyInit(){-1===this.index&&this.setup()}setup(){this.sync(0),this.index=this.adjustSeekIndex(0)}setTokenSource(t){this.tokenSource=t,this.tokens=[],this.index=-1,this.fetchedEOF=!1}nextTokenOnChannel(e,n){if(this.sync(e),e>=this.tokens.length)return-1;let s=this.tokens[e];for(;s.channel!==this.channel;){if(s.type===t.EOF)return-1;e+=1,this.sync(e),s=this.tokens[e]}return e}previousTokenOnChannel(t,e){for(;t>=0&&this.tokens[t].channel!==e;)t-=1;return t}getHiddenTokensToRight(t,e){if(void 0===e&&(e=-1),this.lazyInit(),t<0||t>=this.tokens.length)throw t+" not in 0.."+this.tokens.length-1;const n=this.nextTokenOnChannel(t+1,Ut.DEFAULT_TOKEN_CHANNEL),s=t+1,i=-1===n?this.tokens.length-1:n;return this.filterForChannel(s,i,e)}getHiddenTokensToLeft(t,e){if(void 0===e&&(e=-1),this.lazyInit(),t<0||t>=this.tokens.length)throw t+" not in 0.."+this.tokens.length-1;const n=this.previousTokenOnChannel(t-1,Ut.DEFAULT_TOKEN_CHANNEL);if(n===t-1)return null;const s=n+1,i=t-1;return this.filterForChannel(s,i,e)}filterForChannel(t,e,n){const s=[];for(let i=t;i<e+1;i++){const t=this.tokens[i];-1===n?t.channel!==Ut.DEFAULT_TOKEN_CHANNEL&&s.push(t):t.channel===n&&s.push(t)}return 0===s.length?null:s}getSourceName(){return this.tokenSource.getSourceName()}getText(e){this.lazyInit(),this.fill(),e||(e=new m(0,this.tokens.length-1));let n=e.start;n instanceof t&&(n=n.tokenIndex);let s=e.stop;if(s instanceof t&&(s=s.tokenIndex),null===n||null===s||n<0||s<0)return"";s>=this.tokens.length&&(s=this.tokens.length-1);let i="";for(let e=n;e<s+1;e++){const n=this.tokens[e];if(n.type===t.EOF)break;i+=n.text}return i}fill(){for(this.lazyInit();1e3===this.fetch(1e3););}}Object.defineProperty(Pe,"size",{get:function(){return this.tokens.length}});class be extends Pe{constructor(e,n){super(e),this.channel=void 0===n?t.DEFAULT_CHANNEL:n}adjustSeekIndex(t){return this.nextTokenOnChannel(t,this.channel)}LB(t){if(0===t||this.index-t<0)return null;let e=this.index,n=1;for(;n<=t;)e=this.previousTokenOnChannel(e-1,this.channel),n+=1;return e<0?null:this.tokens[e]}LT(t){if(this.lazyInit(),0===t)return null;if(t<0)return this.LB(-t);let e=this.index,n=1;for(;n<t;)this.sync(e+1)&&(e=this.nextTokenOnChannel(e+1,this.channel)),n+=1;return this.tokens[e]}getNumberOfOnChannelTokens(){let e=0;this.fill();for(let n=0;n<this.tokens.length;n++){const s=this.tokens[n];if(s.channel===this.channel&&(e+=1),s.type===t.EOF)break}return e}}class De extends de{constructor(t){super(),this.parser=t}enterEveryRule(t){console.log("enter   "+this.parser.ruleNames[t.ruleIndex]+", LT(1)="+this.parser._input.LT(1).text)}visitTerminal(t){console.log("consume "+t.symbol+" rule "+this.parser.ruleNames[this.parser._ctx.ruleIndex])}exitEveryRule(t){console.log("exit    "+this.parser.ruleNames[t.ruleIndex]+", LT(1)="+this.parser._input.LT(1).text)}}class Fe extends wt{constructor(t){super(),this._input=null,this._errHandler=new Ae,this._precedenceStack=[],this._precedenceStack.push(0),this._ctx=null,this.buildParseTrees=!0,this._tracer=null,this._parseListeners=null,this._syntaxErrors=0,this.setInputStream(t)}reset(){null!==this._input&&this._input.seek(0),this._errHandler.reset(this),this._ctx=null,this._syntaxErrors=0,this.setTrace(!1),this._precedenceStack=[],this._precedenceStack.push(0),null!==this._interp&&this._interp.reset()}match(t){let e=this.getCurrentToken();return e.type===t?(this._errHandler.reportMatch(this),this.consume()):(e=this._errHandler.recoverInline(this),this.buildParseTrees&&-1===e.tokenIndex&&this._ctx.addErrorNode(e)),e}matchWildcard(){let t=this.getCurrentToken();return t.type>0?(this._errHandler.reportMatch(this),this.consume()):(t=this._errHandler.recoverInline(this),this.buildParseTrees&&-1===t.tokenIndex&&this._ctx.addErrorNode(t)),t}getParseListeners(){return this._parseListeners||[]}addParseListener(t){if(null===t)throw"listener";null===this._parseListeners&&(this._parseListeners=[]),this._parseListeners.push(t)}removeParseListener(t){if(null!==this._parseListeners){const e=this._parseListeners.indexOf(t);e>=0&&this._parseListeners.splice(e,1),0===this._parseListeners.length&&(this._parseListeners=null)}}removeParseListeners(){this._parseListeners=null}triggerEnterRuleEvent(){if(null!==this._parseListeners){const t=this._ctx;this._parseListeners.forEach((function(e){e.enterEveryRule(t),t.enterRule(e)}))}}triggerExitRuleEvent(){if(null!==this._parseListeners){const t=this._ctx;this._parseListeners.slice(0).reverse().forEach((function(e){t.exitRule(e),e.exitEveryRule(t)}))}}getTokenFactory(){return this._input.tokenSource._factory}setTokenFactory(t){this._input.tokenSource._factory=t}getATNWithBypassAlts(){const t=this.getSerializedATN();if(null===t)throw"The current parser does not support an ATN with bypass alternatives.";let e=this.bypassAltsAtnCache[t];if(null===e){const n=new Tt;n.generateRuleBypassTransitions=!0,e=new Lt(n).deserialize(t),this.bypassAltsAtnCache[t]=e}return e}getInputStream(){return this.getTokenStream()}setInputStream(t){this.setTokenStream(t)}getTokenStream(){return this._input}setTokenStream(t){this._input=null,this.reset(),this._input=t}get syntaxErrorsCount(){return this._syntaxErrors}getCurrentToken(){return this._input.LT(1)}notifyErrorListeners(t,e,n){n=n||null,null===(e=e||null)&&(e=this.getCurrentToken()),this._syntaxErrors+=1;const s=e.line,i=e.column;this.getErrorListenerDispatch().syntaxError(this,e,s,i,t,n)}consume(){const e=this.getCurrentToken();e.type!==t.EOF&&this.getInputStream().consume();const n=null!==this._parseListeners&&this._parseListeners.length>0;if(this.buildParseTrees||n){let t;t=this._errHandler.inErrorRecoveryMode(this)?this._ctx.addErrorNode(e):this._ctx.addTokenNode(e),t.invokingState=this.state,n&&this._parseListeners.forEach((function(e){t instanceof b||void 0!==t.isErrorNode&&t.isErrorNode()?e.visitErrorNode(t):t instanceof P&&e.visitTerminal(t)}))}return e}addContextToParseTree(){null!==this._ctx.parentCtx&&this._ctx.parentCtx.addChild(this._ctx)}enterRule(t,e,n){this.state=e,this._ctx=t,this._ctx.start=this._input.LT(1),this.buildParseTrees&&this.addContextToParseTree(),this.triggerEnterRuleEvent()}exitRule(){this._ctx.stop=this._input.LT(-1),this.triggerExitRuleEvent(),this.state=this._ctx.invokingState,this._ctx=this._ctx.parentCtx}enterOuterAlt(t,e){t.setAltNumber(e),this.buildParseTrees&&this._ctx!==t&&null!==this._ctx.parentCtx&&(this._ctx.parentCtx.removeLastChild(),this._ctx.parentCtx.addChild(t)),this._ctx=t}getPrecedence(){return 0===this._precedenceStack.length?-1:this._precedenceStack[this._precedenceStack.length-1]}enterRecursionRule(t,e,n,s){this.state=e,this._precedenceStack.push(s),this._ctx=t,this._ctx.start=this._input.LT(1),this.triggerEnterRuleEvent()}pushNewRecursionContext(t,e,n){const s=this._ctx;s.parentCtx=t,s.invokingState=e,s.stop=this._input.LT(-1),this._ctx=t,this._ctx.start=s.start,this.buildParseTrees&&this._ctx.addChild(s),this.triggerEnterRuleEvent()}unrollRecursionContexts(t){this._precedenceStack.pop(),this._ctx.stop=this._input.LT(-1);const e=this._ctx,n=this.getParseListeners();if(null!==n&&n.length>0)for(;this._ctx!==t;)this.triggerExitRuleEvent(),this._ctx=this._ctx.parentCtx;else this._ctx=t;e.parentCtx=t,this.buildParseTrees&&null!==t&&t.addChild(e)}getInvokingContext(t){let e=this._ctx;for(;null!==e;){if(e.ruleIndex===t)return e;e=e.parentCtx}return null}precpred(t,e){return e>=this._precedenceStack[this._precedenceStack.length-1]}inContext(t){return!1}isExpectedToken(e){const n=this._interp.atn;let s=this._ctx;const i=n.states[this.state];let r=n.nextTokens(i);if(r.contains(e))return!0;if(!r.contains(t.EPSILON))return!1;for(;null!==s&&s.invokingState>=0&&r.contains(t.EPSILON);){const t=n.states[s.invokingState].transitions[0];if(r=n.nextTokens(t.followState),r.contains(e))return!0;s=s.parentCtx}return!(!r.contains(t.EPSILON)||e!==t.EOF)}getExpectedTokens(){return this._interp.atn.getExpectedTokens(this.state,this._ctx)}getExpectedTokensWithinCurrentRule(){const t=this._interp.atn,e=t.states[this.state];return t.nextTokens(e)}getRuleIndex(t){const e=this.getRuleIndexMap()[t];return null!==e?e:-1}getRuleInvocationStack(t){null===(t=t||null)&&(t=this._ctx);const e=[];for(;null!==t;){const n=t.ruleIndex;n<0?e.push("n/a"):e.push(this.ruleNames[n]),t=t.parentCtx}return e}getDFAStrings(){return this._interp.decisionToDFA.toString()}dumpDFA(){let t=!1;for(let e=0;e<this._interp.decisionToDFA.length;e++){const n=this._interp.decisionToDFA[e];n.states.length>0&&(t&&console.log(),this.printer.println("Decision "+n.decision+":"),this.printer.print(n.toString(this.literalNames,this.symbolicNames)),t=!0)}}getSourceName(){return this._input.sourceName}setTrace(t){t?(null!==this._tracer&&this.removeParseListener(this._tracer),this._tracer=new De(this),this.addParseListener(this._tracer)):(this.removeParseListener(this._tracer),this._tracer=null)}}Fe.bypassAltsAtnCache={};class Me extends P{constructor(t){super(),this.parentCtx=null,this.symbol=t}getChild(t){return null}getSymbol(){return this.symbol}getParent(){return this.parentCtx}getPayload(){return this.symbol}getSourceInterval(){if(null===this.symbol)return m.INVALID_INTERVAL;const t=this.symbol.tokenIndex;return new m(t,t)}getChildCount(){return 0}accept(t){return t.visitTerminal(this)}getText(){return this.symbol.text}toString(){return this.symbol.type===t.EOF?"<EOF>":this.symbol.text}}class Ue extends Me{constructor(t){super(t)}isErrorNode(){return!0}accept(t){return t.visitErrorNode(this)}}class Be extends M{constructor(t,e){super(t,e),this.children=null,this.start=null,this.stop=null,this.exception=null}copyFrom(t){this.parentCtx=t.parentCtx,this.invokingState=t.invokingState,this.children=null,this.start=t.start,this.stop=t.stop,t.children&&(this.children=[],t.children.map((function(t){t instanceof Ue&&(this.children.push(t),t.parentCtx=this)}),this))}enterRule(t){}exitRule(t){}addChild(t){return null===this.children&&(this.children=[]),this.children.push(t),t}removeLastChild(){null!==this.children&&this.children.pop()}addTokenNode(t){const e=new Me(t);return this.addChild(e),e.parentCtx=this,e}addErrorNode(t){const e=new Ue(t);return this.addChild(e),e.parentCtx=this,e}getChild(t,e){if(e=e||null,null===this.children||t<0||t>=this.children.length)return null;if(null===e)return this.children[t];for(let n=0;n<this.children.length;n++){const s=this.children[n];if(s instanceof e){if(0===t)return s;t-=1}}return null}getToken(t,e){if(null===this.children||e<0||e>=this.children.length)return null;for(let n=0;n<this.children.length;n++){const s=this.children[n];if(s instanceof P&&s.symbol.type===t){if(0===e)return s;e-=1}}return null}getTokens(t){if(null===this.children)return[];{const e=[];for(let n=0;n<this.children.length;n++){const s=this.children[n];s instanceof P&&s.symbol.type===t&&e.push(s)}return e}}getTypedRuleContext(t,e){return this.getChild(e,t)}getTypedRuleContexts(t){if(null===this.children)return[];{const e=[];for(let n=0;n<this.children.length;n++){const s=this.children[n];s instanceof t&&e.push(s)}return e}}getChildCount(){return null===this.children?0:this.children.length}getSourceInterval(){return null===this.start||null===this.stop?m.INVALID_INTERVAL:new m(this.start.tokenIndex,this.stop.tokenIndex)}}M.EMPTY=new Be;class Ve{constructor(t){this.tokens=t,this.programs=new Map}getTokenStream(){return this.tokens}insertAfter(t,e){let n,s=arguments.length>2&&void 0!==arguments[2]?arguments[2]:Ve.DEFAULT_PROGRAM_NAME;n="number"==typeof t?t:t.tokenIndex;let i=this.getProgram(s),r=new Ge(this.tokens,n,i.length,e);i.push(r)}insertBefore(t,e){let n,s=arguments.length>2&&void 0!==arguments[2]?arguments[2]:Ve.DEFAULT_PROGRAM_NAME;n="number"==typeof t?t:t.tokenIndex;const i=this.getProgram(s),r=new Ye(this.tokens,n,i.length,e);i.push(r)}replaceSingle(t,e){let n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:Ve.DEFAULT_PROGRAM_NAME;this.replace(t,t,e,n)}replace(t,e,n){let s=arguments.length>3&&void 0!==arguments[3]?arguments[3]:Ve.DEFAULT_PROGRAM_NAME;if("number"!=typeof t&&(t=t.tokenIndex),"number"!=typeof e&&(e=e.tokenIndex),t>e||t<0||e<0||e>=this.tokens.size)throw new RangeError(`replace: range invalid: ${t}..${e}(size=${this.tokens.size})`);let i=this.getProgram(s),r=new je(this.tokens,t,e,i.length,n);i.push(r)}delete(t,e){let n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:Ve.DEFAULT_PROGRAM_NAME;void 0===e&&(e=t),this.replace(t,e,null,n)}getProgram(t){let e=this.programs.get(t);return null==e&&(e=this.initializeProgram(t)),e}initializeProgram(t){const e=[];return this.programs.set(t,e),e}getText(e){let n,s=arguments.length>1&&void 0!==arguments[1]?arguments[1]:Ve.DEFAULT_PROGRAM_NAME;n=e instanceof m?e:new m(0,this.tokens.size-1),"string"==typeof e&&(s=e);const i=this.programs.get(s);let r=n.start,o=n.stop;if(o>this.tokens.size-1&&(o=this.tokens.size-1),r<0&&(r=0),null==i||0===i.length)return this.tokens.getText(new m(r,o));let a=[],l=this.reduceToSingleOperationPerIndex(i),h=r;for(;h<=o&&h<this.tokens.size;){let e=l.get(h);l.delete(h);let n=this.tokens.get(h);null==e?(n.type!==t.EOF&&a.push(String(n.text)),h++):h=e.execute(a)}if(o===this.tokens.size-1)for(const t of l.values())t.index>=this.tokens.size-1&&a.push(t.text.toString());return a.join("")}reduceToSingleOperationPerIndex(t){for(let e=0;e<t.length;e++){let n=t[e];if(null==n)continue;if(!(n instanceof je))continue;let s=n,i=this.getKindOfOps(t,Ye,e);for(let e of i)e.index===s.index?(t[e.instructionIndex]=void 0,s.text=e.text.toString()+(null!=s.text?s.text.toString():"")):e.index>s.index&&e.index<=s.lastIndex&&(t[e.instructionIndex]=void 0);let r=this.getKindOfOps(t,je,e);for(let e of r){if(e.index>=s.index&&e.lastIndex<=s.lastIndex){t[e.instructionIndex]=void 0;continue}let n=e.lastIndex<s.index||e.index>s.lastIndex;if(null!=e.text||null!=s.text||n){if(!n)throw new Error(`replace op boundaries of ${s} overlap with previous ${e}`)}else t[e.instructionIndex]=void 0,s.index=Math.min(e.index,s.index),s.lastIndex=Math.max(e.lastIndex,s.lastIndex)}}for(let e=0;e<t.length;e++){let n=t[e];if(null==n)continue;if(!(n instanceof Ye))continue;let s=n,i=this.getKindOfOps(t,Ye,e);for(let e of i)e.index===s.index&&(e instanceof Ge?(s.text=this.catOpText(e.text,s.text),t[e.instructionIndex]=void 0):e instanceof Ye&&(s.text=this.catOpText(s.text,e.text),t[e.instructionIndex]=void 0));let r=this.getKindOfOps(t,je,e);for(let n of r)if(s.index!==n.index){if(s.index>=n.index&&s.index<=n.lastIndex)throw new Error(`insert op ${s} within boundaries of previous ${n}`)}else n.text=this.catOpText(s.text,n.text),t[e]=void 0}let e=new Map;for(let n of t)if(null!=n){if(null!=e.get(n.index))throw new Error("should only be one op per index");e.set(n.index,n)}return e}catOpText(t,e){let n="",s="";return null!=t&&(n=t.toString()),null!=e&&(s=e.toString()),n+s}getKindOfOps(t,e,n){return t.slice(0,n).filter((t=>t&&t instanceof e))}}var ze,qe,He;ze=Ve,He="default",(qe=function(t){var e=function(t,e){if("object"!=typeof t||null===t)return t;var n=t[Symbol.toPrimitive];if(void 0!==n){var s=n.call(t,"string");if("object"!=typeof s)return s;throw new TypeError("@@toPrimitive must return a primitive value.")}return String(t)}(t);return"symbol"==typeof e?e:String(e)}(qe="DEFAULT_PROGRAM_NAME"))in ze?Object.defineProperty(ze,qe,{value:He,enumerable:!0,configurable:!0,writable:!0}):ze[qe]=He;class Ke{constructor(t,e,n,s){this.tokens=t,this.instructionIndex=n,this.index=e,this.text=void 0===s?"":s}toString(){let t=this.constructor.name;const e=t.indexOf("$");return t=t.substring(e+1,t.length),"<"+t+"@"+this.tokens.get(this.index)+':"'+this.text+'">'}}class Ye extends Ke{constructor(t,e,n,s){super(t,e,n,s)}execute(e){return this.text&&e.push(this.text.toString()),this.tokens.get(this.index).type!==t.EOF&&e.push(String(this.tokens.get(this.index).text)),this.index+1}}class Ge extends Ye{constructor(t,e,n,s){super(t,e+1,n,s)}}class je extends Ke{constructor(t,e,n,s,i){super(t,e,s,i),this.lastIndex=n}execute(t){return this.text&&t.push(this.text.toString()),this.lastIndex+1}toString(){return null==this.text?"<DeleteOp@"+this.tokens.get(this.index)+".."+this.tokens.get(this.lastIndex)+">":"<ReplaceOp@"+this.tokens.get(this.index)+".."+this.tokens.get(this.lastIndex)+':"'+this.text+'">'}}const We={atn:re,dfa:he,context:ce,misc:ue,tree:fe,error:Ne,Token:t,CommonToken:Pt,CharStreams:ve,CharStream:Ie,InputStream:Ie,CommonTokenStream:be,Lexer:Ut,Parser:Fe,ParserRuleContext:Be,Interval:m,IntervalSet:E,LL1Analyzer:W,Utils:Re,TokenStreamRewriter:Ve}})();var i=exports;for(var r in s)i[r]=s[r];s.__esModule&&Object.defineProperty(i,"__esModule",{value:!0})})();
-//# sourceMappingURL=antlr4.web.cjs.map
 
 /***/ }),
 
