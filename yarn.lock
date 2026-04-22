@@ -4000,6 +4000,11 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
+lzo-ts@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/lzo-ts/-/lzo-ts-0.2.3.tgz#6b35df12f5233e24fdebdfaf8bdb44fe1dc5797b"
+  integrity sha512-Trc7OsInRIUWfZQuGCJR70rx0XCcAh3wnHu4XQ8BJ9YxEHkgT4HUYlIKlkmXu4lSCeuXHYxr9m0wJwfH4ViWDg==
+
 make-dir@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/make-dir/-/make-dir-4.0.0.tgz#c3c2307a771277cd9638305f915c29ae741b614e"

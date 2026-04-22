@@ -18,6 +18,7 @@
         "antlr4": "^4.13.1-patch-1",
         "idb": "^8.0.3",
         "ini": "^5.0.0",
+        "lzo-ts": "^0.2.3",
         "pixi.js": "^7.3.3"
     },
     "devDependencies": {
