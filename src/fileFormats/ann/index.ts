@@ -82,14 +82,19 @@ const parseHeader = (view: BinaryBuffer) => {
 const parseFrame = (view: BinaryBuffer) => {
     const frame = {} as Frame
     frame.hasName = view.getUint32()
-    view.skip(4)
+    const hasUnknownData = view.getUint32()
+    if (hasUnknownData !== 0) {
+        const dataLen = view.getUint32()
+        view.skip(dataLen)
+    }
     frame.positionX = view.getInt16()
     frame.positionY = view.getInt16()
     view.skip(4)
     frame.hasSounds = view.getUint32()
     view.skip(4)
     frame.transparency = view.getUint8()
-    view.skip(5)
+    view.skip(1)
+    view.skip(4)
 
     if (frame.hasName !== 0) {
         const nameSize = view.getUint32()
