@@ -31920,6 +31920,7 @@ const scope_1 = __webpack_require__(/*! ./scope */ "./src/engine/scope.ts");
 const filesystem_1 = __importStar(__webpack_require__(/*! ../filesystem */ "./src/filesystem/index.ts"));
 const audio_1 = __webpack_require__(/*! ./audio */ "./src/engine/audio.ts");
 const logging_1 = __webpack_require__(/*! ./logging */ "./src/engine/logging.ts");
+const logger_1 = __webpack_require__(/*! ../fileFormats/logger */ "./src/fileFormats/logger.ts");
 class Engine {
     constructor(app, options) {
         this.app = app;
@@ -31928,6 +31929,7 @@ class Engine {
         this.currentScene = null;
         this.previousScene = null;
         this.music = null;
+        (0, logger_1.setFormatsLogger)(logging_1.logger);
         this.rendering = new rendering_1.RenderingManager(app);
         this.scripting = new scripting_1.ScriptingManager(this);
         this.scopeManager = new scope_1.ScopeManager();
@@ -39157,7 +39159,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseCNV = void 0;
 const types_1 = __webpack_require__(/*! ./types */ "./src/fileFormats/cnv/types.ts");
 const common_1 = __webpack_require__(/*! ../common */ "./src/fileFormats/common/index.ts");
-const logging_1 = __webpack_require__(/*! ../../engine/logging */ "./src/engine/logging.ts");
+const logger_1 = __webpack_require__(/*! ../logger */ "./src/fileFormats/logger.ts");
 const splitOnce = (text, separator) => {
     const index = text.indexOf(separator);
     return [text.substring(0, index), text.substring(index + 1)];
@@ -39233,7 +39235,7 @@ const parseCNV = (content) => {
                 }
                 catch (err) {
                     if (err instanceof common_1.FieldProcessorRecoverableError) {
-                        logging_1.logger.error('Recoverable error occured', {
+                        logger_1.logger.error('Recoverable error occured', {
                             objectName,
                             objectType: object.TYPE,
                             object,
@@ -39243,7 +39245,7 @@ const parseCNV = (content) => {
                         }, err);
                         continue;
                     }
-                    logging_1.logger.error('Failed to process CNV field', {
+                    logger_1.logger.error('Failed to process CNV field', {
                         objectName,
                         objectType: object.TYPE,
                         object,
@@ -39257,18 +39259,18 @@ const parseCNV = (content) => {
             else {
                 if (variableName.startsWith('ON')) {
                     if (param) {
-                        logging_1.logger.warn(`Unsupported parametrized event callback "${variableName}" with param "${param}" in type ${object.TYPE}`, {
+                        logger_1.logger.warn(`Unsupported parametrized event callback "${variableName}" with param "${param}" in type ${object.TYPE}`, {
                             object,
                         });
                     }
                     else {
-                        logging_1.logger.warn(`Unsupported non-parametrized event callback "${variableName}" in type ${object.TYPE}`, {
+                        logger_1.logger.warn(`Unsupported non-parametrized event callback "${variableName}" in type ${object.TYPE}`, {
                             object,
                         });
                     }
                 }
                 else if (variableName !== 'TYPE') {
-                    logging_1.logger.warn(`Unsupported field ${variableName} in type ${object.TYPE}`, {
+                    logger_1.logger.warn(`Unsupported field ${variableName} in type ${object.TYPE}`, {
                         object,
                     });
                 }
@@ -39281,7 +39283,7 @@ const parseCNV = (content) => {
         for (const field in typeDefinition) {
             const typeInfo = typeDefinition[field];
             if (!(field in object) && !typeInfo?.flags?.optional) {
-                logging_1.logger.warn(`Field '${field}' in type ${object.TYPE} is missing but is not optional`, {
+                logger_1.logger.warn(`Field '${field}' in type ${object.TYPE} is missing but is not optional`, {
                     object,
                 });
             }
@@ -39594,7 +39596,7 @@ exports.structureDefinitions = {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createCallback = exports.callbacks = exports.map = exports.array = exports.reference = exports.code = exports.callback = exports.boolean = exports.number = exports.string = exports.optional = exports.FieldProcessorRecoverableError = void 0;
-const logging_1 = __webpack_require__(/*! ../../engine/logging */ "./src/engine/logging.ts");
+const logger_1 = __webpack_require__(/*! ../logger */ "./src/fileFormats/logger.ts");
 class FieldProcessorRecoverableError extends Error {
 }
 exports.FieldProcessorRecoverableError = FieldProcessorRecoverableError;
@@ -39623,7 +39625,7 @@ exports.number = {
     processor: (object, key, param, value) => {
         const result = Number(value.startsWith('"') ? value.slice(1, -1) : value);
         if (isNaN(result)) {
-            logging_1.logger.warn(`NaN value was provided for number field.\n${fieldAssignmentAsString(object, key, param, value)}`, {
+            logger_1.logger.warn(`NaN value was provided for number field.\n${fieldAssignmentAsString(object, key, param, value)}`, {
                 object,
             });
             return 0;
@@ -39635,7 +39637,7 @@ exports.boolean = {
     name: 'boolean',
     processor: (object, key, param, value) => {
         if (value !== 'TRUE' && value !== 'FALSE' && value !== '0' && value !== '1') {
-            logging_1.logger.warn(`Expected TRUE, FALSE, 0 or 1.\n${fieldAssignmentAsString(object, key, param, value)}`, {
+            logger_1.logger.warn(`Expected TRUE, FALSE, 0 or 1.\n${fieldAssignmentAsString(object, key, param, value)}`, {
                 object,
             });
             return false;
@@ -40137,6 +40139,26 @@ const decompressImageData = (buffer, descriptor) => {
             throw new Error(`Unknown compression type: ${descriptor.compressionType}`);
     }
 };
+
+
+/***/ }),
+
+/***/ "./src/fileFormats/logger.ts":
+/*!***********************************!*\
+  !*** ./src/fileFormats/logger.ts ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.setFormatsLogger = exports.logger = void 0;
+const noop = () => { };
+exports.logger = { warn: noop, error: noop };
+const setFormatsLogger = (newLogger) => {
+    exports.logger = newLogger;
+};
+exports.setFormatsLogger = setFormatsLogger;
 
 
 /***/ }),
