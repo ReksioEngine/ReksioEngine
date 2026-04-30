@@ -16,6 +16,7 @@ import { Type } from './types'
 import Filesystem, { pathJoin } from '../filesystem'
 import { globalAudio, SoundInstance } from './audio'
 import { logger } from './logging'
+import { setFormatsLogger } from '../fileFormats/logger'
 
 export class Engine {
     public debug: Debugging
@@ -38,6 +39,7 @@ export class Engine {
         public readonly app: Application,
         public readonly options: GamePlayerOptions
     ) {
+        setFormatsLogger(logger)
         this.rendering = new RenderingManager(app)
         this.scripting = new ScriptingManager(this)
         this.scopeManager = new ScopeManager()

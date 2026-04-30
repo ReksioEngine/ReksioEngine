@@ -1,4 +1,4 @@
-import { logger } from '../../engine/logging'
+import { logger } from '../logger'
 
 type FieldTypeProcessor = (object: any, key: string, param: string, value: string) => any
 

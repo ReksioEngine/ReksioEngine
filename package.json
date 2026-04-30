@@ -7,7 +7,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "webpack --config webpack.config.app.ts",
         "build-lib": "webpack --config ./webpack.config.library.ts",
-        "build-formats-lib": "tsc -p ./tsconfig.formats.json && cp ./static/formats.package.json ./dist/package.json",
+        "build-formats-lib": "tsc -p ./tsconfig.formats.json && cp ./static/formats.package.json ./dist/formats/package.json",
         "prepare": "husky install",
         "prepublishOnly": "yarn run build-lib",
         "serve": "webpack serve --config webpack.config.app.ts"
@@ -24,6 +24,7 @@
     "devDependencies": {
         "@types/ini": "^4.1.1",
         "@types/jest": "^29.5.14",
+        "@types/webpack-node-externals": "^3.0.4",
         "@typescript-eslint/eslint-plugin": "^6.21.0",
         "@typescript-eslint/parser": "^6.21.0",
         "copy-webpack-plugin": "^12.0.2",
@@ -44,7 +45,8 @@
         "typescript": "^5.3.3",
         "webpack": "^5.89.0",
         "webpack-cli": "^5.1.4",
-        "webpack-dev-server": "^5.1.0"
+        "webpack-dev-server": "^5.1.0",
+        "webpack-node-externals": "^3.0.0"
     },
     "lint-staged": {
         "*.js": "eslint --cache --fix",
