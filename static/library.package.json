@@ -1,14 +1,8 @@
 {
     "name": "reksioengine",
-    "version": "1.0.6",
+    "version": "1.0.8",
     "main": "reksioengine.js",
     "types": "types/index.d.ts",
-    "exports": {
-        ".": {
-            "require": "./reksioengine.js",
-            "types": "./types/index.d.ts"
-        }
-    },
     "author": "Adikso",
     "license": "MIT",
     "repository": {
