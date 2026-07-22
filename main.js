@@ -32417,8 +32417,8 @@ class AdvancedSprite extends pixi_js_1.Sprite {
         this.worldTransform.applyInverse(point, tempPoint);
         const width = this._texture.orig.width;
         const height = this._texture.orig.height;
-        const x = Math.floor(tempPoint.x + width * this.anchor.x);
-        const y = Math.floor(tempPoint.y + height * this.anchor.y);
+        const x = Math.trunc(tempPoint.x + width * this.anchor.x);
+        const y = Math.trunc(tempPoint.y + height * this.anchor.y);
         if (x < 0 || x > width || y < 0 || y > height) {
             return 0; // unsure
         }
@@ -33230,7 +33230,12 @@ let Animo = (() => {
                 const newEvent = eventNameOrFrameIdx.toString();
                 const newEventFrame = Number(frameIdx);
                 const event = this.getEvent(newEvent);
-                (0, errors_1.assert)(event !== null);
+                if (event === null) {
+                    logging_1.logger.warn(`SETFRAME: event "${newEvent}" does not exist, ignoring`, {
+                        animo: this,
+                    });
+                    return;
+                }
                 // Necessary in S63_OBOZ
                 if (newEventFrame < event.framesCount) {
                     this.currentEvent = event;
@@ -33257,15 +33262,15 @@ let Animo = (() => {
             }
             async MOVE(xOffset, yOffset) {
                 (0, errors_1.assert)(this.sprite !== null);
-                this.positionX += Math.floor(xOffset);
-                this.positionY += Math.floor(yOffset);
+                this.positionX += Math.trunc(xOffset);
+                this.positionY += Math.trunc(yOffset);
                 this.syncPosition();
                 await this.onMove();
             }
             async SETPOSITION(x, y) {
                 (0, errors_1.assert)(this.sprite !== null);
-                this.positionX = Math.floor(x);
-                this.positionY = Math.floor(y);
+                this.positionX = Math.trunc(x);
+                this.positionY = Math.trunc(y);
                 this.syncPosition();
                 await this.onMove();
             }
@@ -34453,9 +34458,9 @@ let Button = (() => {
                 }
             }
             onPointerMove(event) {
-                this.lastMousePosition.set(Math.floor(event.screen.x), Math.floor(event.screen.y));
+                this.lastMousePosition.set(Math.trunc(event.screen.x), Math.trunc(event.screen.y));
                 if (this.draggingPosition == null) {
-                    this.draggingPosition = new pixi_js_1.Point(Math.floor(event.screen.x), Math.floor(event.screen.y));
+                    this.draggingPosition = new pixi_js_1.Point(Math.trunc(event.screen.x), Math.trunc(event.screen.y));
                     this.draggingActive = true;
                 }
             }
@@ -34683,8 +34688,8 @@ let CanvasObserver = (() => {
                     : new pixi_js_1.Rectangle(0, 0, this.engine.app.view.width, this.engine.app.view.height);
                 const originalCanvas = await this.engine.app.renderer.extract.image(this.engine.app.stage, undefined, undefined, rectangle);
                 const scaledCanvas = document.createElement('canvas');
-                scaledCanvas.width = Math.floor(originalCanvas.width * scaleX);
-                scaledCanvas.height = Math.floor(originalCanvas.height * scaleY);
+                scaledCanvas.width = Math.trunc(originalCanvas.width * scaleX);
+                scaledCanvas.height = Math.trunc(originalCanvas.height * scaleY);
                 const scaledCanvasCtx = scaledCanvas.getContext('2d');
                 (0, errors_1.assert)(scaledCanvasCtx !== null);
                 scaledCanvasCtx.scale(scaleX, scaleY);
@@ -36518,9 +36523,9 @@ let Integer = (() => {
             async getValue() {
                 return super.getValue();
             }
-            // Force always flooring values
+            // Force integer truncated values
             async setValue(newValue) {
-                return await super.setValue(Math.floor(newValue));
+                return await super.setValue(Math.trunc(newValue));
             }
         },
         (() => {
@@ -39015,7 +39020,7 @@ const serializeArray = (data) => {
             else {
                 // float
                 buffer.setUint32(ValueType.FLOAT);
-                buffer.setInt32(Math.floor(entry * 1000));
+                buffer.setInt32(Math.trunc(entry * 1000));
             }
         }
         else if (entryType === 'string') {
