@@ -523,8 +523,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async MOVE(xOffset: number, yOffset: number) {
         assert(this.sprite !== null)
 
-        this.positionX += Math.floor(xOffset)
-        this.positionY += Math.floor(yOffset)
+        this.positionX += Math.trunc(xOffset)
+        this.positionY += Math.trunc(yOffset)
         this.syncPosition()
         await this.onMove()
     }
@@ -533,8 +533,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async SETPOSITION(x: number, y: number) {
         assert(this.sprite !== null)
 
-        this.positionX = Math.floor(x)
-        this.positionY = Math.floor(y)
+        this.positionX = Math.trunc(x)
+        this.positionY = Math.trunc(y)
         this.syncPosition()
         await this.onMove()
     }

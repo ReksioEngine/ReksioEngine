@@ -94,8 +94,8 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
         )
 
         const scaledCanvas = document.createElement('canvas')
-        scaledCanvas.width = Math.floor(originalCanvas.width * scaleX)
-        scaledCanvas.height = Math.floor(originalCanvas.height * scaleY)
+        scaledCanvas.width = Math.trunc(originalCanvas.width * scaleX)
+        scaledCanvas.height = Math.trunc(originalCanvas.height * scaleY)
         const scaledCanvasCtx = scaledCanvas.getContext('2d')
         assert(scaledCanvasCtx !== null)
 

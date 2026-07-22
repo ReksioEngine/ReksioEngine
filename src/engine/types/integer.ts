@@ -108,8 +108,8 @@ export class Integer extends ValueType<IntegerDefinition, number> {
         return super.getValue()
     }
 
-    // Force always flooring values
+    // Force integer truncated values
     async setValue(newValue: number) {
-        return await super.setValue(Math.floor(newValue))
+        return await super.setValue(Math.trunc(newValue))
     }
 }
