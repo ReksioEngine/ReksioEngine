@@ -478,7 +478,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const newEventFrame = Number(frameIdx)
 
         const event = this.getEvent(newEvent)
-        assert(event !== null)
+        if (event === null) {
+            logger.warn(`SETFRAME: event "${newEvent}" does not exist, ignoring`, {
+                animo: this,
+            })
+            return
+        }
 
         // Necessary in S63_OBOZ
         if (newEventFrame < event.framesCount) {
