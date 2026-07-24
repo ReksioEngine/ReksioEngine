@@ -25,7 +25,7 @@ export class Keyboard extends Type<KeyboardDefinition> {
     private readonly onKeyDownCallback: (event: KeyboardEvent) => void
     private readonly onKeyUpCallback: (event: KeyboardEvent) => void
 
-    constructor(engine: Engine, parent: ParentType<any> | null, definition: MusicDefinition) {
+    constructor(engine: Engine, parent: ParentType<any> | null, definition: KeyboardDefinition) {
         super(engine, parent, definition)
         this.onKeyDownCallback = this.onKeyDown.bind(this)
         this.onKeyUpCallback = this.onKeyUp.bind(this)
