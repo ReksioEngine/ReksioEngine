@@ -2,26 +2,30 @@ import { BinaryBuffer } from '../utils'
 
 export const decompressCRLE = (input: BinaryBuffer, decompressedSize: number, bulk: number = 1): Uint8Array => {
     const output = new Uint8Array(decompressedSize)
-    let outputPosition = 0
+    const src = new Uint8Array(input.view.buffer)
+    let sp = input.offset
+    let dp = 0
 
-    while (outputPosition < decompressedSize) {
-        const count = input.getUint8()
+    const repeated = new Uint8Array(bulk)
+
+    while (dp < decompressedSize) {
+        const count = src[sp++]
         if (count < 128) {
-            for (let i = 0; i < count * bulk; i++) {
-                output[outputPosition++] = input.getUint8()
-            }
+            const bytes = count * bulk
+            output.set(src.subarray(sp, sp + bytes), dp)
+            sp += bytes
+            dp += bytes
         } else {
-            const repeated = new Array(bulk)
-            for (let i = 0; i < bulk; i++) {
-                repeated[i] = input.getUint8()
-            }
-            for (let i = 0; i < (count & 0x7f); i++) {
-                for (let j = 0; j < bulk; j++) {
-                    output[outputPosition++] = repeated[j]
-                }
+            repeated.set(src.subarray(sp, sp + bulk))
+            sp += bulk
+            const len = count & 0x7F
+            for (let i = 0; i < len; i++) {
+                output.set(repeated, dp)
+                dp += bulk
             }
         }
     }
 
+    input.offset = sp
     return output
 }

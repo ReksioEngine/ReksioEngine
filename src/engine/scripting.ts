@@ -1,12 +1,12 @@
 import { callback } from '../fileFormats/common'
-import { runScript } from '../interpreter/script'
 import { Type } from './types'
-import { StackFrame, stackTrace } from '../interpreter/script/stacktrace'
 import { Engine } from './index'
 import { Scope } from './scope'
 import { Behaviour } from './types/behaviour'
 import { assert } from '../common/errors'
 import { logger } from './logging'
+import { runCode } from '../interpreter'
+import { StackFrame, stackTrace } from '../interpreter/stacktrace'
 
 export class ScriptingManager {
     private readonly engine: Engine
@@ -35,10 +35,10 @@ export class ScriptingManager {
             this.engine.scopeManager.pushLocalScope(localScope)
 
             if (callback.code) {
-                return await runScript(this.engine, caller, callback.code, args, callback.isSingleStatement, true)
+                return await runCode(this.engine, caller, callback.code, args ?? [], callback.isSingleStatement)
             } else if (callback.behaviourReference) {
                 if (!this.engine.getObject(callback.behaviourReference, caller?.parentScope)) {
-                    logger.error('Trying to execute behaviour "${callback.behaviourReference}" that doesn\'t exist!', {
+                    logger.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!`, {
                         callback,
                         thisRef,
                     })
@@ -70,9 +70,5 @@ export class ScriptingManager {
                 stackTrace.pop()
             }
         }
-    }
-
-    runScript(code: string, args: any[], isSingleStatement: boolean, printDebug: boolean) {
-        return runScript(this.engine, null, code, args, isSingleStatement, printDebug)
     }
 }

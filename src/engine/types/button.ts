@@ -5,7 +5,7 @@ import { Image } from './image'
 import { FederatedPointerEvent, Graphics, Point, Rectangle } from 'pixi.js'
 import { ButtonLogicComponent, Event, State } from '../components/button'
 import { Animo } from './animo'
-import { assert } from '../../common/errors'
+import { assert, NotImplementedError } from '../../common/errors'
 import { reference } from '../../fileFormats/common'
 import { method } from '../../common/types'
 
@@ -230,10 +230,10 @@ export class Button extends Type<ButtonDefinition> {
     }
 
     private onPointerMove(event: FederatedPointerEvent) {
-        this.lastMousePosition.set(Math.floor(event.screen.x), Math.floor(event.screen.y))
+        this.lastMousePosition.set(Math.trunc(event.screen.x), Math.trunc(event.screen.y))
 
         if (this.draggingPosition == null) {
-            this.draggingPosition = new Point(Math.floor(event.screen.x), Math.floor(event.screen.y))
+            this.draggingPosition = new Point(Math.trunc(event.screen.x), Math.trunc(event.screen.y))
             this.draggingActive = true
         }
     }
@@ -274,6 +274,11 @@ export class Button extends Type<ButtonDefinition> {
     @method()
     SETRECT(objectName: string) {
         this.setRect({ objectName })
+    }
+
+    @method()
+    SETSTD(graphicObjectName: string, removeFromCanvas: boolean = false, onBoundingBox: boolean = false) {
+        throw new NotImplementedError()
     }
 
     private registerInteractive(object: Image | Animo) {

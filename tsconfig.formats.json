@@ -8,8 +8,8 @@
         "skipLibCheck": true,
         "sourceMap": true,
         "declaration": true,
-        "outDir": "./dist",
-        "rootDir": "src/fileFormats"
+        "outDir": "./dist/formats",
+        "rootDir": "src"
     },
     "include": ["src/fileFormats/**/*"]
 }

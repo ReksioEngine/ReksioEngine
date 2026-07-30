@@ -159,8 +159,8 @@ export class AdvancedSprite extends Sprite {
 
         const width = this._texture.orig.width
         const height = this._texture.orig.height
-        const x = Math.floor(tempPoint.x + width * this.anchor.x)
-        const y = Math.floor(tempPoint.y + height * this.anchor.y)
+        const x = Math.trunc(tempPoint.x + width * this.anchor.x)
+        const y = Math.trunc(tempPoint.y + height * this.anchor.y)
 
         if (x < 0 || x > width || y < 0 || y > height) {
             return 0 // unsure

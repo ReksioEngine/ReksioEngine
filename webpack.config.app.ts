@@ -8,9 +8,12 @@ import path from 'path'
 module.exports = (env: any) => ({
     entry: './src/devPlayer.ts',
     mode: 'development',
+    output: {
+        path: path.resolve(__dirname, 'dist/app'),
+    },
     devServer: {
         static: {
-            directory: 'dist',
+            directory: 'dist/app',
         },
         port: 3000,
     },

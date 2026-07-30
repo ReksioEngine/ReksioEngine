@@ -3,13 +3,14 @@ import { typeGuard } from './transformers'
 import path from 'path'
 import CopyPlugin from 'copy-webpack-plugin'
 import * as fs from 'node:fs'
+import nodeExternals from 'webpack-node-externals'
 
 module.exports = (env: any) => ({
     entry: './src/index.ts',
     mode: 'production',
     devtool: 'source-map',
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'dist/engine'),
         filename: 'reksioengine.js',
         library: {
             name: 'ReksioEngine',
@@ -33,7 +34,6 @@ module.exports = (env: any) => ({
 
                         const libraryManifest = JSON.parse(input.toString())
                         libraryManifest.dependencies = pkg.dependencies || {}
-                        libraryManifest.version = pkg.version || {}
 
                         return JSON.stringify(libraryManifest, null, '    ')
                     },
@@ -63,5 +63,5 @@ module.exports = (env: any) => ({
     resolve: {
         extensions: ['.ts', '.js'],
     },
-    externals: fs.readdirSync('node_modules'),
+    externals: [nodeExternals()],
 })

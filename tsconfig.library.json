@@ -8,7 +8,7 @@
         "skipLibCheck": true,
         "sourceMap": true,
         "declaration": true,
-        "outDir": "./dist/types",
+        "outDir": "./dist/engine/types",
         "rootDir": "src"
     },
     "include": ["src/**/*"],

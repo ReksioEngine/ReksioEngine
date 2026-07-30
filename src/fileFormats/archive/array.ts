@@ -71,7 +71,7 @@ export const serializeArray = (data: any[]) => {
             } else {
                 // float
                 buffer.setUint32(ValueType.FLOAT)
-                buffer.setInt32(Math.floor(entry * 1000))
+                buffer.setInt32(Math.trunc(entry * 1000))
             }
         } else if (entryType === 'string') {
             ensureCapacity(4 + 4 + entry.length)

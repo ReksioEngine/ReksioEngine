@@ -1,6 +1,6 @@
 import { structureDefinitions } from './types'
 import { FieldProcessorRecoverableError, FieldTypeEntry } from '../common'
-import { logger } from '../../engine/logging'
+import { logger } from '../logger'
 
 export interface CNVObject {
     TYPE: string

@@ -1,6 +1,6 @@
 {
     "name": "reksioengine",
-    "version": "0.0.1",
+    "version": "1.0.8",
     "main": "reksioengine.js",
     "types": "types/index.d.ts",
     "author": "Adikso",

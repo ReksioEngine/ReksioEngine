@@ -20,6 +20,7 @@ export class Keyboard extends Type<KeyboardDefinition> {
     private keysState = new Map<string, boolean>()
     private changeQueue: KeyState[] = []
     private enabled: boolean = true
+    private autoRepeat: boolean = false
 
     private readonly onKeyDownCallback: (event: KeyboardEvent) => void
     private readonly onKeyUpCallback: (event: KeyboardEvent) => void
@@ -69,7 +70,16 @@ export class Keyboard extends Type<KeyboardDefinition> {
         return this.enabled
     }
 
+    @method()
+    SETAUTOREPEAT(state: boolean) {
+        this.autoRepeat = state
+    }
+
     private onKeyDown(event: KeyboardEvent) {
+        if (!this.autoRepeat && this.keysState.get(keysMapping[event.code])) {
+            return
+        }
+
         if (this.enabled) {
             this.setKeyState(event.code, true)
         }

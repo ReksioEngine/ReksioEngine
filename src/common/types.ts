@@ -1,6 +1,6 @@
 import { assert, UnexpectedError } from './errors'
-import { printStackTrace } from '../interpreter/script/stacktrace'
 import { logger } from '../engine/logging'
+import { printStackTrace } from '../interpreter/stacktrace'
 
 export const valueAsString = (value: any) => {
     if (value === null) {
@@ -37,7 +37,7 @@ export const valueAsBool = (value: any) => {
     return value.toUpperCase() === 'TRUE'
 }
 
-const toNumber = (value: any) => {
+export const toNumber = (value: any) => {
     if (typeof value === 'number') {
         return value
     } else if (typeof value === 'string') {

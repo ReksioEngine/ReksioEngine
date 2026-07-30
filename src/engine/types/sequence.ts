@@ -108,15 +108,23 @@ export class Sequence extends Type<SequenceDefinition> {
         }
 
         const sounds = await Promise.all(
-            soundsNames.map(async (name: string): Promise<Sound> => {
+            soundsNames.map(async (name: string): Promise<Sound | null> => {
                 logger.debug(`Preloading sound ${name}...`, {
                     sequence: this,
                 })
-                return loadSound(this.engine.filesystem, `Wavs/${name}`)
+
+                try {
+                    return await loadSound(this.engine.filesystem, `Wavs/${name}`)
+                } catch (error) {
+                    return null
+                }
             })
         )
         for (let i = 0; i < sounds.length; i++) {
-            this.sounds.set(soundsNames[i], sounds[i])
+            const sound = sounds[i]
+            if (sound !== null) {
+                this.sounds.set(soundsNames[i], sound)
+            }
         }
     }
 
@@ -260,12 +268,14 @@ export class Sequence extends Type<SequenceDefinition> {
                 logger.debug(`Playing sound '${speaking.WAVFN}'`, {
                     sequence: this,
                 })
-                const sound = this.sounds.get(speaking.WAVFN)!
-                this.playingSound = sound.play({
-                    onEnd: () => {
-                        this.endedSpeakingSoundsQueue.push(speaking)
-                    },
-                })
+                const sound = this.sounds.get(speaking.WAVFN)
+                if (sound) {
+                    this.playingSound = sound.play({
+                        onEnd: () => {
+                            this.endedSpeakingSoundsQueue.push(speaking)
+                        },
+                    })
+                }
 
                 const startEvent = speaking.PREFIX + '_START'
                 if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {

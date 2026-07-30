@@ -18,7 +18,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private buttonLogic: ButtonLogicComponent
     readonly collisions: CollisionsComponent
 
-    private isPlaying: boolean = false
+    public isPlaying: boolean = false
     private currentFrame: number = 0
     private currentEvent: Event | null = null
 
@@ -478,7 +478,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const newEventFrame = Number(frameIdx)
 
         const event = this.getEvent(newEvent)
-        assert(event !== null)
+        if (event === null) {
+            logger.warn(`SETFRAME: event "${newEvent}" does not exist, ignoring`, {
+                animo: this,
+            })
+            return
+        }
 
         // Necessary in S63_OBOZ
         if (newEventFrame < event.framesCount) {
@@ -518,8 +523,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async MOVE(xOffset: number, yOffset: number) {
         assert(this.sprite !== null)
 
-        this.positionX += Math.floor(xOffset)
-        this.positionY += Math.floor(yOffset)
+        this.positionX += Math.trunc(xOffset)
+        this.positionY += Math.trunc(yOffset)
         this.syncPosition()
         await this.onMove()
     }
@@ -528,8 +533,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async SETPOSITION(x: number, y: number) {
         assert(this.sprite !== null)
 
-        this.positionX = Math.floor(x)
-        this.positionY = Math.floor(y)
+        this.positionX = Math.trunc(x)
+        this.positionY = Math.trunc(y)
         this.syncPosition()
         await this.onMove()
     }
@@ -620,9 +625,19 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    GETFRAMENAME(): string {
+    GETFRAMENAME(frameID?: string | number, iFrameNo?: number): string {
         assert(this.currentEvent !== null)
-        return this.currentEvent.frames[this.currentFrame].name
+
+        if (frameID === undefined && iFrameNo === undefined) {
+            return this.currentEvent.frames[this.currentFrame].name
+        }
+
+        assert(frameID !== undefined && iFrameNo !== undefined)
+        assert(this.annFile !== null)
+
+        const event = typeof frameID === 'string' ? this.getEvent(frameID) : this.annFile.events[frameID]
+        assert(event !== null)
+        return event?.frames[iFrameNo].name
     }
 
     @method()
@@ -664,6 +679,12 @@ export class Animo extends DisplayType<AnimoDefinition> {
     GETNOF(): number {
         assert(this.annFile !== null)
         return this.annFile.header.framesCount
+    }
+
+    @method()
+    GETNOE(): number {
+        assert(this.annFile !== null)
+        return this.annFile.events.length
     }
 
     @method()

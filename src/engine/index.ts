@@ -16,6 +16,7 @@ import { Type } from './types'
 import Filesystem, { pathJoin } from '../filesystem'
 import { globalAudio, SoundInstance } from './audio'
 import { logger } from './logging'
+import { setFormatsLogger } from '../fileFormats/logger'
 
 export class Engine {
     public debug: Debugging
@@ -40,6 +41,7 @@ export class Engine {
         public readonly app: Application,
         public readonly options: GamePlayerOptions
     ) {
+        setFormatsLogger(logger)
         this.rendering = new RenderingManager(app)
         this.scripting = new ScriptingManager(this)
         this.scopeManager = new ScopeManager()
@@ -78,7 +80,8 @@ export class Engine {
 
             const episode: Episode | null = this.scopeManager.findByType('EPISODE')
             if (episode === null) {
-                throw new IrrecoverableError("Starting episode doesn't exist")
+                logger.error("Starting episode doesn't exist")
+                return
             }
 
             await this.debug.fillSceneSelector()
@@ -87,9 +90,7 @@ export class Engine {
             this.app.ticker.start()
         } catch (err) {
             if (err instanceof CancelTick) {
-                if (err.callback) {
-                    await err.callback()
-                }
+                await err.callback?.()
                 return
             }
 
@@ -112,44 +113,31 @@ export class Engine {
     }
 
     async tick(elapsedMS: number) {
-        if (this.insideTick) {
-            console.debug('skipped tick')
-            return
-        }
-
-        // console.debug("tick",performance.now())
-
-        this.insideTick = true
-        try {
-            for (const scope of this.scopeManager.scopes) {
-                for (const object of scope.objects.filter((object) => object.isReady)) {
-                    try {
-                        await object.tick(elapsedMS)
-                    } catch (err) {
-                        if (err instanceof CancelTick) {
-                            if (err.callback) {
-                                await err.callback()
-                            }
-                            return
-                        } else if (err instanceof IrrecoverableError) {
-                            logger.error(
-                                'Irrecoverable error occurred. Execution paused\n' + 'Call "engine.resume()" to resume',
-                                {
-                                    scopes: this.scopeManager.scopes,
-                                },
-                                err
-                            )
-                        } else {
-                            logger.error(
-                                'Unhandled error occurred during tick. Execution paused\n' +
-                                    'Call "engine.resume()" to resume',
-                                {
-                                    scopes: this.scopeManager.scopes,
-                                },
-                                err
-                            )
-                        }
-                        this.pause()
+        for (const scope of this.scopeManager.scopes) {
+            for (const object of scope.objects.filter((object) => object.isReady)) {
+                try {
+                    await object.tick(elapsedMS)
+                } catch (err) {
+                    if (err instanceof CancelTick) {
+                        await err.callback?.()
+                        return
+                    } else if (err instanceof IrrecoverableError) {
+                        logger.error(
+                            'Irrecoverable error occurred. Execution paused\n' + 'Call "engine.resume()" to resume',
+                            {
+                                scopes: this.scopeManager.scopes,
+                            },
+                            err
+                        )
+                    } else {
+                        logger.error(
+                            'Unhandled error occurred during tick. Execution paused\n' +
+                                'Call "engine.resume()" to resume',
+                            {
+                                scopes: this.scopeManager.scopes,
+                            },
+                            err
+                        )
                     }
                 }
             }
@@ -161,15 +149,9 @@ export class Engine {
     }
 
     async changeScene(sceneName: string) {
-        if (this.options.onSceneChange) {
-            this.options.onSceneChange(sceneName, this.currentScene?.name)
-        }
-
+        this.options.onSceneChange?.(sceneName, this.currentScene?.name)
         this.app.ticker.stop()
-
-        if (this.music !== null) {
-            this.music.pause()
-        }
+        this.music?.pause()
 
         this.rendering.onSceneChange()
 
@@ -267,10 +249,8 @@ export class Engine {
             if (music) {
                 this.music = music.play({
                     loop: true,
+                    muted: this.debug.mutedMusic,
                 })
-                if (this.debug.mutedMusic) {
-                    this.music.muted = true
-                }
             } else if (this.music !== null) {
                 this.music.resume()
             }
@@ -294,7 +274,7 @@ export class Engine {
                 return currentScopeEntry
             }
 
-            return this.scopeManager.findByName(name, parentScope)
+            return currentScopeEntry ?? this.scopeManager.findByName(name, parentScope)
         } else if (name === null) {
             return null
         } else {

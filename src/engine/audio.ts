@@ -3,6 +3,7 @@ export type PlayOptions = {
     loop?: boolean
     rate?: number
     start?: number
+    muted?: boolean
 
     onStart?: () => void
     onEnd?: () => void
@@ -42,7 +43,8 @@ export class SoundInstance extends EventTarget {
         }
 
         this.currentRate = this.initialOpts.rate
-        this._volume = opts.volume ?? 1
+        this.volume = opts.volume ?? 1
+        this.muted = opts.muted ?? false
     }
 
     private cleanupSource() {
