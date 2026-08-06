@@ -137,7 +137,6 @@ export class Engine {
                             err
                         )
                     }
-                    this.pause()
                 }
             }
         }

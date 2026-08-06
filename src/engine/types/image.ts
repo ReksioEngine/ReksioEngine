@@ -21,6 +21,7 @@ export class Image extends DisplayType<ImageDefinition> {
     private async initSprite(path: string) {
         this.sprite = await this.load(path)
         this.sprite.visible = this.definition.VISIBLE
+        this.SETPRIORITY(this.definition.PRIORITY ?? 0)
         this.sprite.eventMode = 'none'
         this.sprite.name = `${this.name} (IMAGE)` // For PIXI Devtools
     }
@@ -181,9 +182,12 @@ export class Image extends DisplayType<ImageDefinition> {
         spriteClone.x = this.sprite.x
         spriteClone.y = this.sprite.y
         spriteClone.hitmap = this.sprite.hitmap
+        spriteClone.visible = this.sprite.visible
 
         const clone = (await super.clone()) as unknown as Image
         clone.sprite = spriteClone
+        this.engine.rendering.addToStage(clone.sprite)
+        clone.SETPRIORITY(this.GETPRIORITY())
         return clone
     }
 
