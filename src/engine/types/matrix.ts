@@ -178,16 +178,16 @@ export class Matrix extends Type<MatrixDefinition> {
             return false
         }
 
-        const canGoTo = [
+        return [
             Field.EMPTY,
             Field.GROUND,
             Field.DYNAMITE,
-            Field.DYNAMITE_FIRED,
             Field.ENEMY,
             Field.EXPLOSION,
-            Field.EXIT,
-        ]
-        return canGoTo.includes(this.board[targetCellIndex])
+            Field.EXIT
+        ].includes(
+            this.board[targetCellIndex]
+        )
     }
 
     @method()
