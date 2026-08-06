@@ -142,10 +142,7 @@ export class Matrix extends Type<MatrixDefinition> {
         if (newPosIndex < 0 || newPosIndex >= this.board.length) {
             return false
         }
-        if (this.board[newPosIndex] !== Field.EMPTY && this.board[newPosIndex] !== Field.MOLE) {
-            return false
-        }
-        return true
+        return this.board[newPosIndex] === Field.EMPTY || this.board[newPosIndex] === Field.MOLE
     }
 
     async canMoveTo(oldPos: number, newPos: number) {
@@ -180,18 +177,17 @@ export class Matrix extends Type<MatrixDefinition> {
         if (targetCellIndex < 0 || targetCellIndex >= this.board.length) {
             return false
         }
-        if (
-            this.board[targetCellIndex] === Field.EMPTY ||
-            this.board[targetCellIndex] === Field.GROUND ||
-            this.board[targetCellIndex] === Field.DYNAMITE ||
-            this.board[targetCellIndex] === Field.DYNAMITE_FIRED ||
-            this.board[targetCellIndex] === Field.ENEMY ||
-            this.board[targetCellIndex] === Field.EXPLOSION ||
-            this.board[targetCellIndex] === Field.EXIT
-        ) {
-            return true
-        }
-        return false
+
+        const canGoTo = [
+            Field.EMPTY,
+            Field.GROUND,
+            Field.DYNAMITE,
+            Field.DYNAMITE_FIRED,
+            Field.ENEMY,
+            Field.EXPLOSION,
+            Field.EXIT,
+        ]
+        return canGoTo.includes(this.board[targetCellIndex])
     }
 
     @method()
@@ -219,14 +215,12 @@ export class Matrix extends Type<MatrixDefinition> {
     // BASEPOS - Offset from the top left corner of the board (in pixels)
     @method()
     async GETCELLPOSX(index: number) {
-        const posx: number = this.getColumnFromIndex(index) * this.definition.CELLWIDTH + this.definition.BASEPOS[0]
-        return posx
+        return this.getColumnFromIndex(index) * this.definition.CELLWIDTH + this.definition.BASEPOS[0]
     }
 
     @method()
     async GETCELLPOSY(index: number) {
-        const posy: number = this.getRowFromIndex(index) * this.definition.CELLHEIGHT + this.definition.BASEPOS[1]
-        return posy
+        return this.getRowFromIndex(index) * this.definition.CELLHEIGHT + this.definition.BASEPOS[1]
     }
 
     @method()
@@ -374,7 +368,7 @@ export class Matrix extends Type<MatrixDefinition> {
                     await this.runCallback('ONNEXT', x, y, callbackAction)
                 }
                 if (remaining === RemainingActions.PLAYER_COLLISION) {
-                    await new Promise(r => setTimeout(r, 1));
+                    await new Promise((r) => setTimeout(r, 1))
                 }
                 return remaining
             }
