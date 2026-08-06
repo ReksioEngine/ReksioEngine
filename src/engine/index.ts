@@ -35,8 +35,6 @@ export class Engine {
     public filesystem: Filesystem
     public music: SoundInstance | null = null
 
-    public insideTick = false
-
     constructor(
         public readonly app: Application,
         public readonly options: GamePlayerOptions
@@ -141,8 +139,6 @@ export class Engine {
                     }
                 }
             }
-        } finally {
-            this.insideTick = false
         }
 
         this.debug.updateXRay()
