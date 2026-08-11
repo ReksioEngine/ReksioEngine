@@ -15,7 +15,7 @@ export abstract class FileLoader {
     abstract hasFile(filename: string): boolean
 }
 
-abstract class SimpleFileLoader extends FileLoader {
+export abstract class SimpleFileLoader extends FileLoader {
     hasFile(filename: string): boolean {
         return this.getFilesListing().includes(normalizePath(filename))
     }

@@ -1,0 +1,8 @@
+[
+    String(
+        DecodedStr(
+            "HELLO",
+            None,
+        ),
+    ),
+]
