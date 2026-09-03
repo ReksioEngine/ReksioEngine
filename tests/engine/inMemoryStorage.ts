@@ -1,4 +1,5 @@
 import { FileStorage } from "../../src"
+import { logger } from "../../src/engine/logging"
 
 
 export class InMemoryStorage extends FileStorage {
@@ -8,7 +9,7 @@ export class InMemoryStorage extends FileStorage {
         super()
     }
 
-    list(): string[] {
+    get list(): string[] {
         return [...this.fileMap.keys()]
     }
 

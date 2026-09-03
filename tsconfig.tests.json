@@ -1,18 +1,25 @@
 {
     "compilerOptions": {
+        // enable latest features
         "target": "es2021",
         "module": "commonjs",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
         "skipLibCheck": true,
-        "sourceMap": true
+        "sourceMap": true,
+
+        "plugins": [
+            { "transform": "./transformers.ts", "type": "program", "import": "typeGuard" }
+        ]
     },
     "include": [
-        "tests/**/*",
-        "src/**/*",
-        ".eslintrc.js",
-        "jest.config.js",
-        "webpack.config.tests.ts"
+        "./tests/**/*.ts",
+        "./src/**/*.ts",
+        "./transformers.ts",
+        "./typeGuardTransformer.ts",
+        "./.eslintrc.js",
+        "./jest.config.ts",
+        "./webpack.config.tests.ts"
     ]
 }

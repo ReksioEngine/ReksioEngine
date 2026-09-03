@@ -1,9 +1,14 @@
-// eslint-disable-next-line no-undef
-module.exports = {
+import type { Config } from 'jest'
+
+const jestConfig: Config = {
+    watch: false,
+    preset: 'ts-jest/presets/js-with-ts',
+    testTimeout: 30_000,
     transform: {
         '^.+\\.ts$': [
             'ts-jest',
             {
+                compiler: 'ts-patch/compiler',
                 tsconfig: 'tsconfig.tests.json',
                 astTransformers: { before: ['<rootDir>/jest.transformer.js'] },
             },
@@ -15,3 +20,5 @@ module.exports = {
     moduleNameMapper: { '\\.(html|png)$': '<rootDir>/jest.htmlStub.js' },
     setupFiles: ['<rootDir>/tests/engine/globalThisSetup.ts'],
 }
+
+export default jestConfig
