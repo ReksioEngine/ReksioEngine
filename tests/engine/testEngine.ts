@@ -1,12 +1,7 @@
-import * as path from 'path'
 import 'pixi.js-legacy'
 import PIXI from 'pixi.js'
 import { GamePlayerOptions } from '../../src'
 import { Engine } from '../../src/engine'
-import { TestFileLoader } from './testFileLoader'
-import { InMemoryStorage } from './inMemoryStorage'
-
-const absoluteTestDirPath = path.join(__dirname, '../scenes')
 
 export class TestPlayerInstance {
     constructor(private engine: Engine) { }
@@ -22,8 +17,7 @@ export class TestPlayerInstance {
         })
 
         this.destroy()
-        const { fileLoader, storage } = this.engine.options
-        this.engine = new Engine(app, { ...this.engine.options, ...(extraOptions ?? {}), fileLoader, storage })
+        this.engine = new Engine(app, { ...this.engine.options, ...(extraOptions ?? {}) })
         await this.engine.init()
         await this.engine.start()
     }
@@ -37,13 +31,10 @@ export class TestPlayerInstance {
     }
 }
 
-export const createTestPlayer = async (relativePath: string, options?: GamePlayerOptions) => {
+export const createTestPlayer = async (options: GamePlayerOptions) => {
     const app = new PIXI.Application({ forceCanvas: true })
 
-    const fileLoader = new TestFileLoader(path.join(absoluteTestDirPath, relativePath))
-    const storage = new InMemoryStorage()
-
-    const engine = new Engine(app, { ...(options ?? {}), fileLoader, storage })
+    const engine = new Engine(app, options)
     await engine.init()
 
     return new TestPlayerInstance(engine)
