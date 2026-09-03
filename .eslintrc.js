@@ -18,7 +18,7 @@ module.exports = {
             env: {
                 node: true,
             },
-            files: ['webpack.config.tests.ts', 'tests/**/*', 'jest.config.js'],
+            files: ['webpack.config.tests.ts', 'tests/**/*', 'jest.config.ts'],
             parserOptions: {
                 project: 'tsconfig.tests.json',
             },

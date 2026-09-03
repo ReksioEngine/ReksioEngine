@@ -30,7 +30,7 @@ const prepareGamePlayerOptions = (relativePath: string): PreparedGamePlayerOptio
 }
 
 describe('snapshot tests', () => {
-    test('load and run empty scene', async () => {
+    test('load and run empty scene (minimal directory structure)', async () => {
         const { options, exitPromise } = prepareGamePlayerOptions('empty-scene')
         exitPromise.catch(_ => { })
         const testPlayer = await createTestPlayer(options)
@@ -45,6 +45,15 @@ describe('snapshot tests', () => {
         await testPlayer.start()
         await exitPromise
         expect(storage.list).toHaveLength(0)
+        testPlayer.destroy()
+    })
+
+    test('load and run empty scene (full directory structure)', async () => {
+        const { options, exitPromise } = prepareGamePlayerOptions('full-structure')
+        exitPromise.catch(_ => { })
+        const testPlayer = await createTestPlayer(options)
+        await testPlayer.start()
+        expect(testPlayer.currentScene).toBe('TESTSCENE')
         testPlayer.destroy()
     })
 
