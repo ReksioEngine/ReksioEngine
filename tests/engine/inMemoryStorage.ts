@@ -8,6 +8,10 @@ export class InMemoryStorage extends FileStorage {
         super()
     }
 
+    list(): string[] {
+        return [...this.fileMap.keys()]
+    }
+
     async init(): Promise<void> { }
 
     async get(filename: string): Promise<ArrayBuffer> {

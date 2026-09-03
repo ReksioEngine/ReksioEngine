@@ -108,6 +108,7 @@ export class Engine {
             this.music.stop()
         }
         globalAudio.stopAll()
+        this.options.onDestroy?.()
     }
 
     async tick(elapsedMS: number) {
