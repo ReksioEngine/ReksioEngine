@@ -29,6 +29,9 @@ const prepareGamePlayerOptions = (relativePath: string): PreparedGamePlayerOptio
     return { options: { fileLoader, storage, onExit: resolve, onDestroy: () => reject('Engine destroyed') }, exitPromise: promise, fileLoader, storage }
 }
 
+const filterExpected = (fileList: string[]) => fileList.filter(e => e.toLowerCase().startsWith('output/'))
+    .filter(e => !e.substring(e.indexOf('/') + 1).startsWith('.'))
+
 describe('snapshot tests', () => {
     test('load and run empty scene (minimal directory structure)', async () => {
         const { options, exitPromise } = prepareGamePlayerOptions('empty-scene')
@@ -62,7 +65,12 @@ describe('snapshot tests', () => {
         const testPlayer = await createTestPlayer(options)
         await testPlayer.start()
         await exitPromise
-        expect(storage.list).toHaveLength(1)
+        const expectedOutputFiles = filterExpected(options.fileLoader.getFilesListing())
+        expect(expectedOutputFiles).toHaveLength(1)
+        for (let expectedOutput of expectedOutputFiles) {
+            expect(await storage.has(expectedOutput)).toBe(true)
+            expect(await storage.get(expectedOutput)).toEqual(await options.fileLoader.getRawFile(expectedOutput))
+        }
         testPlayer.destroy()
     })
 })
