@@ -1,13 +1,19 @@
 name: Deploy to GitHub Pages
 
 on:
-    push:
+    workflow_dispatch:
+    workflow_run:
+        workflows:
+            - 'Run tests'
         branches:
             - master
+        types:
+            - completed
 
 jobs:
     deploy:
         runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
         permissions:
             contents: write
         concurrency:
