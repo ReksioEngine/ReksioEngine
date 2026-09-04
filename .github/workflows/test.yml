@@ -10,10 +10,10 @@ jobs:
         concurrency:
             group: ${{ github.workflow }}-${{ github.ref }}
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v7
 
             - name: Setup Node
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v7
               with:
                   node-version: '22'
                   cache: 'yarn'
