@@ -1,75 +1,50 @@
 import * as path from 'path'
 import { GamePlayerOptions } from '../src'
+import { deserializeArray } from '../src/fileFormats/archive/array'
+import { loadImage } from '../src/fileFormats/img'
 import { InMemoryStorage } from './engine/inMemoryStorage'
-import { createTestPlayer } from './engine/testEngine'
+import { TestPlayerInstance } from './engine/testEngine'
 import { TestFileLoader } from './engine/testFileLoader'
 
-const absoluteTestDirPath = path.join(__dirname, './scenes')
-
-const makeDeferred = () => {
-    const deferred: any = { };
-    deferred.promise = new Promise((resolve, reject) => {
-        deferred.resolve = resolve;
-        deferred.reject = reject;
-    });
-    return deferred;
+export const normalizePath = (path: string) => {
+    return path.toLowerCase()
+        .replace(/\\+/g, '/')
+        .replace(/\/+/g, '/')
+        .replace(/^\//, '')
+        .replace(/[^/]+\/\.\.\//g, '')
 }
 
-type PreparedGamePlayerOptions = {
-    options: GamePlayerOptions;
-    exitPromise: Promise<void>;
-    fileLoader: TestFileLoader;
-    storage: InMemoryStorage;
-}
-
-const prepareGamePlayerOptions = (relativePath: string): PreparedGamePlayerOptions => {
-    const fileLoader = new TestFileLoader(path.join(absoluteTestDirPath, relativePath))
-    const storage = new InMemoryStorage()
-    const { promise, resolve, reject } = makeDeferred();
-    return { options: { fileLoader, storage, onExit: resolve, onDestroy: () => reject('Engine destroyed') }, exitPromise: promise, fileLoader, storage }
-}
+const getAbsoluteGamePath = (gameName: string) => path.join(__dirname, './games', gameName)
 
 const filterExpected = (fileList: string[]) => fileList.filter(e => e.toLowerCase().startsWith('output/'))
     .filter(e => !e.substring(e.indexOf('/') + 1).startsWith('.'))
 
 describe('snapshot tests', () => {
     test('load and run empty scene (minimal directory structure)', async () => {
-        const { options, exitPromise } = prepareGamePlayerOptions('empty-scene')
-        exitPromise.catch(_ => { })
-        const testPlayer = await createTestPlayer(options)
-        await testPlayer.start()
+        const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('empty-scene') })
         expect(testPlayer.currentScene).toBe('TESTSCENE')
         testPlayer.destroy()
     })
 
     test('load and run empty scene, then exit', async () => {
-        const { options, exitPromise, storage } = prepareGamePlayerOptions('empty-scene-exit')
-        const testPlayer = await createTestPlayer(options)
-        await testPlayer.start()
-        await exitPromise
-        expect(storage.list).toHaveLength(0)
+        const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('empty-scene-exit'), waitForExit: true })
+        expect(testPlayer.storage.list).toHaveLength(0)
         testPlayer.destroy()
     })
 
     test('load and run empty scene (full directory structure)', async () => {
-        const { options, exitPromise } = prepareGamePlayerOptions('full-structure')
-        exitPromise.catch(_ => { })
-        const testPlayer = await createTestPlayer(options)
-        await testPlayer.start()
+        const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('full-structure') })
         expect(testPlayer.currentScene).toBe('TESTSCENE')
         testPlayer.destroy()
     })
 
     test('load and run scene writing hello to arr, then exit', async () => {
-        const { options, exitPromise, storage } = prepareGamePlayerOptions('hello-world-arr')
-        const testPlayer = await createTestPlayer(options)
-        await testPlayer.start()
-        await exitPromise
-        const expectedOutputFiles = filterExpected(options.fileLoader.getFilesListing())
-        expect(expectedOutputFiles).toHaveLength(1)
+        const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('hello-world-arr'), waitForExit: true })
+        expect(testPlayer.storage.list).toHaveLength(1)
+        const expectedOutputFiles = filterExpected(testPlayer.fileLoader.getFilesListing())
         for (let expectedOutput of expectedOutputFiles) {
-            expect(await storage.has(expectedOutput)).toBe(true)
-            expect(await storage.get(expectedOutput)).toEqual(await options.fileLoader.getRawFile(expectedOutput))
+            expect(await testPlayer.storage.has(expectedOutput)).toBe(true)
+            expect(await testPlayer.storage.get(expectedOutput)).toEqual(await testPlayer.fileLoader.getRawFile(expectedOutput))
         }
         testPlayer.destroy()
     })
