@@ -1,12 +1,9 @@
 {
+    "extends": "./tsconfig.json",
     "compilerOptions": {
         "target": "es2022",
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "strict": true,
-        "skipLibCheck": true,
-        "sourceMap": true
+        "types": []
     },
-    "include": ["src/**/*", ".eslintrc.js"]
+    "include": ["src/**/*", ".eslintrc.js"],
+    "exclude": []
 }

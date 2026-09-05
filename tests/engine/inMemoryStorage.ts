@@ -1,5 +1,4 @@
 import { FileStorage } from "../../src"
-import { logger } from "../../src/engine/logging"
 
 
 export class InMemoryStorage extends FileStorage {
