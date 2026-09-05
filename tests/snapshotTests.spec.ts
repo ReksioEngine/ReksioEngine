@@ -1,18 +1,5 @@
 import * as path from 'path'
-import { GamePlayerOptions } from '../src'
-import { deserializeArray } from '../src/fileFormats/archive/array'
-import { loadImage } from '../src/fileFormats/img'
-import { InMemoryStorage } from './engine/inMemoryStorage'
 import { TestPlayerInstance } from './engine/testEngine'
-import { TestFileLoader } from './engine/testFileLoader'
-
-export const normalizePath = (path: string) => {
-    return path.toLowerCase()
-        .replace(/\\+/g, '/')
-        .replace(/\/+/g, '/')
-        .replace(/^\//, '')
-        .replace(/[^/]+\/\.\.\//g, '')
-}
 
 const getAbsoluteGamePath = (gameName: string) => path.join(__dirname, './games', gameName)
 

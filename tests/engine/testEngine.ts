@@ -2,6 +2,8 @@ import 'pixi.js-legacy'
 import PIXI from 'pixi.js'
 import { GamePlayerOptions, SaveFile } from '../../src'
 import { Engine } from '../../src/engine'
+import { deserializeArray } from '../../src/fileFormats/archive/array'
+import { loadImage } from '../../src/fileFormats/img'
 import { TestFileLoader } from './testFileLoader'
 import { InMemoryStorage } from './inMemoryStorage'
 
