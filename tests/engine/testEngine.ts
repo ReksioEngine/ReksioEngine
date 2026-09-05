@@ -24,6 +24,10 @@ export type TestPlayerOptions = {
     onSaveFileUpdate?: (saveFile: SaveFile) => void
 }
 
+export type SnapshotTestsOptions = {
+    expectedOutFileCount?: number
+}
+
 export class TestPlayerInstance {
     #engine: Engine
     #fileLoader: TestFileLoader
@@ -60,6 +64,45 @@ export class TestPlayerInstance {
         }
 
         return new TestPlayerInstance(engine, fileLoader, storage, exitPromise)
+    }
+
+    async runSnapshotTests(options?: SnapshotTestsOptions) {
+        const actualOutput = this.#storage.list
+        if (options?.expectedOutFileCount !== undefined) {
+            expect(actualOutput).toHaveLength(options?.expectedOutFileCount)
+        }
+        const filesListing = this.#fileLoader.getFilesListing()
+        const expectedOutput = filesListing.filter(e => e.toLowerCase().startsWith('output/'))
+            .filter(e => !e.substring(e.indexOf('/') + 1).startsWith('.'))
+        expect(expectedOutput).toHaveLength(actualOutput.length)
+
+        for (const filename of expectedOutput) {
+            expect(await this.#storage.has(filename)).toBe(true)
+            const rawExpectedFile = await this.#fileLoader.getRawFile(filename)
+            const rawActualFile = await this.#storage.get(filename)
+
+            const extension = filename.slice(filename.lastIndexOf('.') + 1).toLowerCase()
+            console.debug(`Testing equality of two ${extension.toUpperCase()} files at path: ${filename}`)
+            switch (extension) {
+                case 'arr': {
+                    const expectedArr = deserializeArray(rawExpectedFile)
+                    const actualArr = deserializeArray(rawActualFile)
+                    expect(expectedArr).toEqual(actualArr)
+                    break
+                }
+                case 'img': {
+                    const expectedImg = loadImage(rawExpectedFile)
+                    const actualImg = loadImage(rawActualFile)
+                    expect(expectedImg).toEqual(actualImg)
+                    break
+                }
+                default: {
+                    // text file
+                    expect(rawActualFile).toEqual(rawExpectedFile)
+                    break
+                }
+            }
+        }
     }
 
     destroy() {
