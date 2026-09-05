@@ -19,6 +19,7 @@ export type GamePlayerOptions = {
     saveFile?: SaveFile
     debug?: boolean
     debugContainer?: HTMLElement | null
+    onDestroy?: () => void
     onExit?: () => void
     onSceneChange?: (next: string, previous?: string) => void
     onSaveFileUpdate?: (saveFile: SaveFile) => void

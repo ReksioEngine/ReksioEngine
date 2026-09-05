@@ -64,7 +64,7 @@ export class RenderingManager {
 
     init() {
         this.app.ticker.maxFPS = 60
-        this.app.stage.interactive = true
+        this.app.stage.eventMode = 'static'
 
         this.app.stage.name = 'Scene' // For PIXI Devtools
         this.app.stage.addChild(this.canvasBackground)
