@@ -86,36 +86,27 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
                 ? new Rectangle(left, top, right - left, bottom - top)
                 : new Rectangle(0, 0, this.engine.app.view.width, this.engine.app.view.height)
 
-        const originalCanvas = await this.engine.app.renderer.extract.image(
-            this.engine.app.stage,
-            undefined,
-            undefined,
-            rectangle
-        )
+        const screenshotCanvas = this.engine.app.renderer.extract.canvas(this.engine.app.stage, rectangle)
+        screenshotCanvas.width = Math.trunc(screenshotCanvas.width * scaleX)
+        screenshotCanvas.height = Math.trunc(screenshotCanvas.height * scaleY)
 
-        const scaledCanvas = document.createElement('canvas')
-        scaledCanvas.width = Math.trunc(originalCanvas.width * scaleX)
-        scaledCanvas.height = Math.trunc(originalCanvas.height * scaleY)
-        const scaledCanvasCtx = scaledCanvas.getContext('2d')
-        assert(scaledCanvasCtx !== null)
+        const screenshotCanvasCtx = screenshotCanvas.getContext('2d')
+        assert(screenshotCanvasCtx !== null)
+        screenshotCanvasCtx.scale(scaleX, scaleY)
 
-        scaledCanvasCtx.scale(scaleX, scaleY)
-        scaledCanvasCtx.drawImage(originalCanvas, 0, 0)
-
-        const imageData = scaledCanvasCtx.getImageData(0, 0, scaledCanvas.width, scaledCanvas.height)
-        const pixels = imageData.data
+        const imageData = screenshotCanvasCtx.getImageData(0, 0, screenshotCanvas.width, screenshotCanvas.height)
         const imgFile = buildImage(
             {
                 bpp: 16,
                 positionX: 0,
                 positionY: 0,
                 compressionType: 0,
-                width: Math.floor(this.engine.app.view.width * scaleX),
-                height: Math.floor(this.engine.app.view.height * scaleY),
+                width: imageData.width,
+                height: imageData.height,
                 imageLen: -1,
                 alphaLen: -1,
             },
-            pixels
+            imageData.data
         )
 
         const virtualPath = await this.engine.currentScene.getRelativePath(filename)
