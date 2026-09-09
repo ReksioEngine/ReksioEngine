@@ -13,7 +13,32 @@ function makeDeferred<T>() {
         deferred.resolve = resolve;
         deferred.reject = reject;
     });
-    return deferred;
+    return deferred as {
+        promise: Promise<T>,
+        resolve: () => void,
+        reject: (reason?: any) => void,
+    };
+}
+
+type Color = {
+    r: number
+    g: number
+    b: number
+    a: number
+}
+
+class Pixel {
+    constructor(public index: number, public color: Color) { }
+
+    public static fromUint32ArrayElement(array: Uint32Array, index: number) {
+        const pixel = array[index]
+        return new Pixel(index, {
+            a: (pixel >> 24) & 0xFF,
+            b: (pixel >> 16) & 0xFF,
+            g: (pixel >> 8) & 0xFF,
+            r: pixel & 0xFF,
+        })
+    }
 }
 
 export type TestPlayerOptions = {
@@ -87,13 +112,28 @@ export class TestPlayerInstance {
                 case 'arr': {
                     const expectedArr = deserializeArray(rawExpectedFile)
                     const actualArr = deserializeArray(rawActualFile)
-                    expect(expectedArr).toEqual(actualArr)
+                    expect(actualArr).toEqual(expectedArr)
                     break
                 }
                 case 'img': {
-                    const expectedImg = loadImage(rawExpectedFile)
-                    const actualImg = loadImage(rawActualFile)
-                    expect(expectedImg).toEqual(actualImg)
+                    const { header: expectedHeader, bytes: expectedBytes } = loadImage(rawExpectedFile)
+                    const { header: actualHeader, bytes: actualBytes } = loadImage(rawActualFile)
+
+                    expect(actualHeader.width).toEqual(expectedHeader.width)
+                    expect(actualHeader.height).toEqual(expectedHeader.height)
+                    expect(actualHeader.positionX).toEqual(expectedHeader.positionX)
+                    expect(actualHeader.positionY).toEqual(expectedHeader.positionY)
+                    expect(actualBytes.byteLength).toEqual(expectedBytes.byteLength)
+
+                    const actualPixels = new Uint32Array(actualBytes.buffer, actualBytes.byteOffset)
+                    const expectedPixels = new Uint32Array(expectedBytes.buffer, expectedBytes.byteOffset)
+                    for (let i = 0; i < actualPixels.length; i++) {
+                        if (actualPixels[i] !== expectedPixels[i]) {
+                            const actualPixel = Pixel.fromUint32ArrayElement(actualPixels, i)
+                            const expectedPixel = Pixel.fromUint32ArrayElement(expectedPixels, i)
+                            expect(actualPixel).toEqual(expectedPixel)
+                        }
+                    }
                     break
                 }
                 default: {
@@ -131,20 +171,10 @@ export class TestPlayerInstance {
 
     private static createExitPromise() {
         const { promise, resolve, reject } = makeDeferred<void>()
-        promise.status = 'pending'
-        const onExit = () => {
-            if (promise.status !== 'pending')
-                return
-            promise.status = 'resolved'
-            resolve()
+        return {
+            exitPromise: promise as Promise<void>,
+            onExit: resolve,
+            onDestroy: () => reject('Engine destroyed'),
         }
-        const onDestroy = () => {
-            if (promise.status !== 'pending')
-                return
-            promise.status = 'rejected'
-            reject('Engine destroyed')
-        }
-
-        return { exitPromise: promise as Promise<void>, onExit, onDestroy }
     }
 }

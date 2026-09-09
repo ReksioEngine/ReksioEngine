@@ -24,8 +24,14 @@ describe('snapshot tests', () => {
         testPlayer.destroy()
     })
 
-    test('load and run scene writing hello to arr, then exit', async () => {
+    test('load and run scene writing "HELLO" to arr, then exit', async () => {
         const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('hello-world-arr'), waitForExit: true })
+        await testPlayer.runSnapshotTests({ expectedOutFileCount: 1 })
+        testPlayer.destroy()
+    })
+
+    test('load and run scene displaying a simple img and saving it back to img file, then exit', async () => {
+        const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('basic-image'), waitForExit: true })
         await testPlayer.runSnapshotTests({ expectedOutFileCount: 1 })
         testPlayer.destroy()
     })
