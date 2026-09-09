@@ -19,7 +19,7 @@ interface ImageHeader extends CompressedImageHeader {
 
 export interface Image {
     header: ImageHeader
-    bytes: ArrayBuffer
+    bytes: Uint8Array
 }
 
 export interface CompressionDescriptor {
@@ -139,6 +139,7 @@ export const loadImage = (data: ArrayBuffer): Image => {
         5: [CompressionType.JPEG, CompressionType.CLZW],
     })
     const imgBytes = loadImageWithoutHeader(buffer, colorDescriptor, alphaDescriptor)
+    console.debug({ imgBytes })
     return {
         header,
         bytes: imgBytes,
