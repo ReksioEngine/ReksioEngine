@@ -1,22 +1,30 @@
 name: Run tests
 
 on:
-    push:
-    workflow_dispatch:
+  push:
+  workflow_dispatch:
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        concurrency:
-            group: ${{ github.workflow }}-${{ github.ref }}
-        steps:
-            - uses: actions/checkout@v7
+  test:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: write
+    steps:
+      - uses: actions/checkout@v7
 
-            - name: Setup Node
-              uses: actions/setup-node@v7
-              with:
-                  node-version: '22'
-                  cache: 'yarn'
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
 
-            - run: yarn install --frozen-lockfile
-            - run: yarn test
+      - run: yarn test --json --outputFile=result.json --testLocationInResults
+      - uses: tanmen/jest-reporter@v1
+        if: always()
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
