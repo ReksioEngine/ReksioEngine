@@ -1,8 +1,7 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
-        "target": "es2022",
-        "types": []
+        "target": "es2022"
     },
     "include": ["src/**/*", ".eslintrc.js"],
     "exclude": []
