@@ -1,7 +1,7 @@
 import { DisplayType, Type } from './index'
 import { CanvasObserverDefinition } from '../../fileFormats/cnv/types'
 import { loadTexture } from '../../filesystem/assetsLoader'
-import { Point, Rectangle } from 'pixi.js'
+import { Point, Rectangle, utils } from 'pixi.js'
 import { method } from '../../common/types'
 import { AdvancedSprite } from '../rendering'
 import { assert } from '../../common/errors'
@@ -87,14 +87,17 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
                 : new Rectangle(0, 0, this.engine.app.view.width, this.engine.app.view.height)
 
         const screenshotCanvas = this.engine.app.renderer.extract.canvas(this.engine.app.stage, rectangle)
-        screenshotCanvas.width = Math.trunc(screenshotCanvas.width * scaleX)
-        screenshotCanvas.height = Math.trunc(screenshotCanvas.height * scaleY)
 
-        const screenshotCanvasCtx = screenshotCanvas.getContext('2d')
-        assert(screenshotCanvasCtx !== null)
-        screenshotCanvasCtx.scale(scaleX, scaleY)
+        const scaledWidth = Math.trunc(screenshotCanvas.width * scaleX)
+        const scaledHeight = Math.trunc(screenshotCanvas.height * scaleY)
+        const scaledCanvasBuffer = new utils.CanvasRenderTarget(scaledWidth, scaledHeight, 1)
+        const scaledCtx = scaledCanvasBuffer.context
 
-        const imageData = screenshotCanvasCtx.getImageData(0, 0, screenshotCanvas.width, screenshotCanvas.height)
+        scaledCtx.imageSmoothingEnabled = false
+        scaledCtx.scale(scaleX, scaleY)
+        scaledCtx.drawImage(screenshotCanvas, 0, 0)
+
+        const imageData = scaledCtx.getImageData(0, 0, scaledWidth, scaledHeight)
         const imgFile = buildImage(
             {
                 bpp: 16,
