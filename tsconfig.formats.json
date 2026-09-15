@@ -1,15 +1,11 @@
 {
+    "extends": "./tsconfig.json",
     "compilerOptions": {
-        "target": "es2021",
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "strict": true,
-        "skipLibCheck": true,
-        "sourceMap": true,
+        "types": [],
         "declaration": true,
         "outDir": "./dist/formats",
         "rootDir": "src"
     },
-    "include": ["src/fileFormats/**/*"]
+    "include": ["src/fileFormats/**/*"],
+    "exclude": []
 }

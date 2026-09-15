@@ -1,0 +1,18 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "plugins": [
+            { "transform": "./transformers.ts", "type": "program", "import": "typeGuard" }
+        ]
+    },
+    "include": [
+        "./tests/**/*.ts",
+        "./src/**/*.ts",
+        "./transformers.ts",
+        "./typeGuardTransformer.ts",
+        "./.eslintrc.js",
+        "./jest.config.ts",
+        "./webpack.config.tests.ts"
+    ],
+    "exclude": []
+}

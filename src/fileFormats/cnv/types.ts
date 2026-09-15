@@ -12,6 +12,7 @@ import {
 } from '../common'
 
 export type AnimoDefinition = TypeDefinition & {
+    TYPE: 'ANIMO',
     VISIBLE: boolean
     FILENAME: string
     TOCANVAS: boolean
@@ -57,6 +58,7 @@ const AnimoStructure = {
 }
 
 export type ApplicationDefinition = TypeDefinition & {
+    TYPE: 'APPLICATION',
     DESCRIPTION: string
     CREATIONTIME: string
     LASTMODIFYTIME: string
@@ -79,6 +81,7 @@ const ApplicationStructure = {
 }
 
 export type ArrayDefinition = TypeDefinition & {
+    TYPE: 'ARRAY',
     ONINIT?: callback
 }
 
@@ -87,6 +90,7 @@ const ArrayDefinitionStructure = {
 }
 
 export type BehaviourDefinition = TypeDefinition & {
+    TYPE: 'BEHAVIOUR',
     CODE: callback
     CONDITION?: reference
 }
@@ -97,6 +101,7 @@ const BehaviourStructure = {
 }
 
 export type BoolDefinition = TypeDefinition & {
+    TYPE: 'BOOL',
     VALUE?: boolean
     DEFAULT?: boolean
     ONCHANGED?: callbacks<boolean>
@@ -113,6 +118,7 @@ const BoolDefinitionStructure = {
 }
 
 export type ButtonDefinition = TypeDefinition & {
+    TYPE: 'BUTTON',
     DRAGGABLE?: boolean
     ENABLE: boolean
     VISIBLE?: boolean
@@ -162,10 +168,13 @@ const ButtonDefinitionStructure = {
     ONINIT: optional(callback),
 }
 
-export type CanvasObserverDefinition = TypeDefinition & NonNullable<unknown>
+export type CanvasObserverDefinition = TypeDefinition & {
+    TYPE: 'CANVAS_OBSERVER' | 'CANVASOBSERVER',
+}
 const CanvasObserverStructure = {}
 
 export type ClassDefinition = TypeDefinition & {
+    TYPE: 'CLASS',
     DEF: string
     BASE?: string
 }
@@ -175,10 +184,13 @@ const ClassDefinitionStructure = {
     BASE: optional(string),
 }
 
-export type CNVLoaderDefinition = TypeDefinition & NonNullable<unknown>
+export type CNVLoaderDefinition = TypeDefinition & {
+    TYPE: 'CNVLOADER',
+}
 const CNVLoaderStructure = {}
 
 export type ComplexConditionDefinition = TypeDefinition & {
+    TYPE: 'COMPLEXCONDITION',
     CONDITION1: reference
     CONDITION2: reference
     ONRUNTIMEFAILED?: callback
@@ -195,6 +207,7 @@ const ComplexConditionDefinitionStructure = {
 }
 
 export type ConditionDefinition = TypeDefinition & {
+    TYPE: 'CONDITION',
     OPERAND1: callback
     OPERATOR: 'EQUAL' | 'NOTEQUAL' | 'LESS' | 'GREATER' | 'LESSEQUAL' | 'GREATEREQUAL'
     OPERAND2: callback
@@ -211,6 +224,7 @@ const ConditionDefinitionStructure = {
 }
 
 export type DatabaseDefinition = TypeDefinition & {
+    TYPE: 'DATABASE',
     MODEL: reference
     ONINIT?: callback
 }
@@ -221,6 +235,7 @@ const DatabaseDefinitionStructure = {
 }
 
 export type DoubleDefinition = TypeDefinition & {
+    TYPE: 'DOUBLE',
     VALUE?: string
     DEFAULT?: number
     TOINI?: boolean
@@ -233,6 +248,7 @@ const DoubleStructure = {
 }
 
 export type EpisodeDefinition = TypeDefinition & {
+    TYPE: 'EPISODE',
     DESCRIPTION: string
     CREATIONTIME: string
     LASTMODIFYTIME: string
@@ -255,6 +271,7 @@ const EpisodeStructure = {
 }
 
 export type ExpressionDefinition = TypeDefinition & {
+    TYPE: 'EXPRESSION',
     OPERAND1: callback
     OPERATOR: 'ADD' | 'SUB' | 'MUL' | 'DIV' | 'MOD'
     OPERAND2: callback
@@ -267,6 +284,7 @@ const ExpressionDefinitionStructure = {
 }
 
 export type FilterDefinition = TypeDefinition & {
+    TYPE: 'FILTER',
     ACTION: string
 }
 
@@ -275,6 +293,7 @@ const FilterDefinitionStructure = {
 }
 
 export type FontDefinition = TypeDefinition & {
+    TYPE: 'FONT',
     ONINIT?: callback
     'DEF_%s_%s_%d': string
 }
@@ -285,6 +304,7 @@ const FontDefinitionStructure = {
 }
 
 export type GroupDefinition = TypeDefinition & {
+    TYPE: 'GROUP',
     ONINIT?: callback
 }
 
@@ -293,6 +313,7 @@ const GroupDefinitionStructure = {
 }
 
 export type ImageDefinition = TypeDefinition & {
+    TYPE: 'IMAGE',
     VISIBLE: boolean
     FILENAME: string
     TOCANVAS: boolean
@@ -317,6 +338,7 @@ const ImageStructure = {
 }
 
 export type IntegerDefinition = TypeDefinition & {
+    TYPE: 'INTEGER',
     VALUE?: number
     VARTYPE?: string
     DEFAULT?: number
@@ -337,6 +359,7 @@ const IntegerStructure = {
 }
 
 export type KeyboardDefinition = TypeDefinition & {
+    TYPE: 'KEYBOARD',
     ONKEYDOWN?: callbacks<string>
     ONKEYUP?: callbacks<string>
 }
@@ -347,6 +370,7 @@ const KeyboardStructure = {
 }
 
 export type MouseDefinition = TypeDefinition & {
+    TYPE: 'MOUSE',
     ONCLICK?: callbacks<string>
     ONDBLCLICK?: callbacks<string>
     ONRELEASE?: callbacks<string>
@@ -363,6 +387,7 @@ const MouseStructure = {
 }
 
 export type MultiArrayDefinition = TypeDefinition & {
+    TYPE: 'MULTIARRAY',
     DIMENSIONS: number
 }
 
@@ -371,6 +396,7 @@ const MultiArrayDefinitionStructure = {
 }
 
 export type MusicDefinition = TypeDefinition & {
+    TYPE: 'MUSIC',
     FILENAME: string
 }
 
@@ -378,17 +404,23 @@ const MusicStructure = {
     FILENAME: string,
 }
 
-export type PatternDefinition = TypeDefinition
-
-const PatterDefinitionStructure = {
+export type PatternDefinition = TypeDefinition & {
+    TYPE: 'PATTERN',
     // TODO
 }
 
-export type RandDefinition = TypeDefinition
+const PatternDefinitionStructure = {
+    // TODO
+}
+
+export type RandDefinition = TypeDefinition & {
+    TYPE: 'RAND',
+}
 
 const RandDefinitionStructure = {}
 
 export type SceneDefinition = TypeDefinition & {
+    TYPE: 'SCENE',
     DESCRIPTION?: string
     CREATIONTIME: string
     LASTMODIFYTIME: string
@@ -411,6 +443,7 @@ const SceneStructure = {
 }
 
 export type SequenceDefinition = TypeDefinition & {
+    TYPE: 'SEQUENCE',
     FILENAME: string
     ONFINISHED?: callbacks<string>
     ONSTARTED?: callbacks<string>
@@ -425,6 +458,7 @@ const SequenceDefinitionStructure = {
 }
 
 export type SoundDefinition = TypeDefinition & {
+    TYPE: 'SOUND',
     FILENAME: string
     PRELOAD?: boolean
     RELEASE?: boolean
@@ -445,6 +479,7 @@ const SoundStructure = {
 }
 
 export type StaticFilterDefinition = TypeDefinition & {
+    TYPE: 'STATICFILTER',
     ACTION: string
 }
 
@@ -453,6 +488,7 @@ const StaticFilterDefinitionStructure = {
 }
 
 export type StringDefinition = TypeDefinition & {
+    TYPE: 'STRING',
     TOINI?: boolean
     VALUE?: string
     DEFAULT?: string
@@ -471,6 +507,7 @@ const StringDefinitionStructure = {
 }
 
 export type StructDefinition = TypeDefinition & {
+    TYPE: 'STRUCT',
     FIELDS: string
 }
 
@@ -482,6 +519,7 @@ export type SystemDefinition = TypeDefinition
 const SystemDefinitionStructure = {}
 
 export type TextDefinition = TypeDefinition & {
+    TYPE: 'TEXT',
     VISIBLE: boolean
     VJUSTIFY?: boolean
     TOCANVAS: boolean
@@ -508,6 +546,7 @@ const TextDefinitionStructure = {
 }
 
 export type TimerDefinition = TypeDefinition & {
+    TYPE: 'TIMER',
     ENABLED?: boolean
     ELAPSE: number
     TICKS?: number
@@ -524,6 +563,7 @@ const TimerStructure = {
 }
 
 export type WorldDefinition = TypeDefinition & {
+    TYPE: 'WORLD',
     FILENAME: string
 }
 
@@ -532,6 +572,7 @@ const WorldStructure = {
 }
 
 export type VectorDefinition = TypeDefinition & {
+    TYPE: 'VECTOR',
     SIZE: number
     VALUE: Array<number>
 }
@@ -567,7 +608,7 @@ export const structureDefinitions = {
     MOUSE: MouseStructure,
     MULTIARRAY: MultiArrayDefinitionStructure,
     MUSIC: MusicStructure,
-    PATTERN: PatterDefinitionStructure,
+    PATTERN: PatternDefinitionStructure,
     RAND: RandDefinitionStructure,
     SCENE: SceneStructure,
     SEQUENCE: SequenceDefinitionStructure,

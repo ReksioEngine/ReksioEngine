@@ -1,12 +1,5 @@
 {
-    "compilerOptions": {
-        "target": "es2021",
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "strict": true,
-        "skipLibCheck": true,
-        "sourceMap": true
-    },
-    "include": ["src/**/*", ".eslintrc.js"]
+    "extends": "./tsconfig.json",
+    "include": ["src/**/*", ".eslintrc.js"],
+    "exclude": []
 }

@@ -14,6 +14,15 @@ module.exports = {
                 sourceType: 'script',
             },
         },
+        {
+            env: {
+                node: true,
+            },
+            files: ['webpack.config.tests.ts', 'tests/**/*', 'jest.config.ts'],
+            parserOptions: {
+                project: 'tsconfig.tests.json',
+            },
+        },
     ],
     parser: '@typescript-eslint/parser',
     parserOptions: {

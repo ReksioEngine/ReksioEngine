@@ -9,7 +9,11 @@ import { FileLoader } from './fileLoader'
 import { FileStorage } from './fileStorage'
 
 export const normalizePath = (path: string) => {
-    return path.toLowerCase().replace(/\\+/g, '/').replace(/\/+/g, '/').replace(/^\//, '')
+    return path.toLowerCase()
+        .replace(/\\+/g, '/')
+        .replace(/\/+/g, '/')
+        .replace(/^\//, '')
+        .replace(/[^/]+\/\.\.\//g, '')
 }
 
 export const pathJoin = (...parts: Array<string>) => {

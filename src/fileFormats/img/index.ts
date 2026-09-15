@@ -19,7 +19,7 @@ interface ImageHeader extends CompressedImageHeader {
 
 export interface Image {
     header: ImageHeader
-    bytes: ArrayBuffer
+    bytes: Uint8Array
 }
 
 export interface CompressionDescriptor {
