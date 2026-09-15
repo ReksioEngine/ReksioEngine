@@ -38509,8 +38509,8 @@ let Timer = (() => {
                 this.elapse = newElapse;
             }
             SET(value) {
-                // TODO: I don't really see any other effect than reset
-                this.RESET();
+                this.collectedTime = 0;
+                this.currentTick = value;
             }
             RESET() {
                 this.collectedTime = 0;
