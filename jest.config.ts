@@ -11,7 +11,10 @@ const jestConfig: Config = {
     testRegex: '\\.(spec|test)\\.ts$',
     testEnvironment: 'jsdom',
     moduleFileExtensions: ['ts', 'js'],
-    setupFiles: ['<rootDir>/tests/engine/globalThisSetup.ts']
+    setupFiles: [
+        '<rootDir>/tests/engine/globalThisSetup.ts',
+        '<rootDir>/tests/engine/baseTextureSetup.ts'
+    ]
 }
 
 export default jestConfig
