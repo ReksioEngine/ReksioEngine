@@ -24,6 +24,9 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
     REFRESH() {}
 
     @method()
+    REDRAW() { }
+
+    @method()
     REMOVE(objectName: string) {
         const object = this.engine.getObject(objectName)
         if (object == null || !(object instanceof DisplayType)) {
