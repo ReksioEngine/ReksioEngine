@@ -102,9 +102,7 @@ export class TestPlayerInstance {
         if (options?.expectedOutFileCount !== undefined) {
             expect(actualOutput).toHaveLength(options?.expectedOutFileCount)
         }
-        const filesListing = this.#fileLoader.getFilesListing()
-        const expectedOutput = filesListing.filter(e => e.toLowerCase().startsWith('output/'))
-            .filter(e => !e.substring(e.indexOf('/') + 1).startsWith('.'))
+        const expectedOutput = this.#fileLoader.getSnapshotFilesListing()
         expect(expectedOutput).toHaveLength(actualOutput.length)
 
         for (const filename of expectedOutput) {

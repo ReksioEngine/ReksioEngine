@@ -1,3 +1,4 @@
+import 'setimmediate'
 import { TextEncoder, TextDecoder } from 'util'
 
 Object.assign(globalThis, {

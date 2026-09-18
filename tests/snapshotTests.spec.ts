@@ -30,7 +30,7 @@ describe('snapshot tests', () => {
         testPlayer.destroy()
     })
 
-    test('load and run scene displaying a simple img and saving it back to an IMG file, then exit', async () => {
+    test('load and run scene displaying a colorful background and saving it back to an IMG file, then exit', async () => {
         const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('basic-image'), waitForExit: true })
         await testPlayer.runSnapshotTests({ expectedOutFileCount: 1 })
         testPlayer.destroy()
@@ -39,6 +39,12 @@ describe('snapshot tests', () => {
     test('load and run scene displaying the first frame of a simple ANN and saving it to an IMG file, then exit', async () => {
         const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('basic-animation'), waitForExit: true })
         await testPlayer.runSnapshotTests({ expectedOutFileCount: 1 })
+        testPlayer.destroy()
+    })
+
+    test('load and run scene displaying a colorful background and saving each opacity step to a separate IMG file, then exit', async () => {
+        const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('image-opacity-loop'), waitForExit: true })
+        await testPlayer.runSnapshotTests({ expectedOutFileCount: 256 })
         testPlayer.destroy()
     })
 })
