@@ -41,6 +41,12 @@ class Pixel {
     }
 }
 
+function callIfFieldDiffers<TObject, TValue>(obj1: TObject, obj2: TObject, getter: (object: TObject) => TValue, callback: () => void) {
+    if (getter(obj1) !== getter(obj2)) {
+        callback()
+    }
+}
+
 export type TestPlayerOptions = {
     gameBasePath: string
     waitForExit?: boolean
@@ -108,6 +114,16 @@ export class TestPlayerInstance {
 
             const extension = filename.slice(filename.lastIndexOf('.') + 1).toLowerCase()
             console.debug(`Testing equality of two ${extension.toUpperCase()} files at path: ${filename}`)
+            if (rawActualFile.byteLength !== rawExpectedFile.byteLength) {
+                console.warn(`Compared ${extension.toUpperCase()} files at path ${filename} differ in byte length`)
+            } else {
+                const actualBytes = new Uint8Array(rawActualFile)
+                const expectedBytes = new Uint8Array(rawExpectedFile)
+                let differingCount = actualBytes.reduce((sum, value, index) => sum + (value === expectedBytes[index] ? 0 : 1), 0)
+                if (differingCount > 0) {
+                    console.warn(`Compared ${extension.toUpperCase()} files at path ${filename} differ in content, ${differingCount} bytes in total`)
+                }
+            }
             switch (extension) {
                 case 'arr': {
                     const expectedArr = deserializeArray(rawExpectedFile)
@@ -123,6 +139,13 @@ export class TestPlayerInstance {
                     expect(actualHeader.height).toEqual(expectedHeader.height)
                     expect(actualHeader.positionX).toEqual(expectedHeader.positionX)
                     expect(actualHeader.positionY).toEqual(expectedHeader.positionY)
+
+                    const warner = (what: string) => console.warn(`Compared ${extension.toUpperCase()} files at path ${filename} have different ${what}`)
+                    callIfFieldDiffers(actualHeader, expectedHeader, header => header.bpp, () => warner('bpp'))
+                    callIfFieldDiffers(actualHeader, expectedHeader, header => header.compressionType, () => warner('compressionType'))
+                    callIfFieldDiffers(actualHeader, expectedHeader, header => header.imageLen, () => warner('imageLen'))
+                    callIfFieldDiffers(actualHeader, expectedHeader, header => header.alphaLen, () => warner('alphaLen'))
+
                     expect(actualBytes.byteLength).toEqual(expectedBytes.byteLength)
 
                     const actualPixels = new Uint32Array(actualBytes.buffer, actualBytes.byteOffset)
