@@ -109,6 +109,7 @@ export class TestPlayerInstance {
             expect(await this.#storage.has(filename)).toBe(true)
             const rawExpectedFile = await this.#fileLoader.getRawFile(filename)
             const rawActualFile = await this.#storage.get(filename)
+            await this.#fileLoader.saveActualSnapshotFile(filename, rawActualFile)
 
             const extension = filename.slice(filename.lastIndexOf('.') + 1).toLowerCase()
             console.debug(`Testing equality of two ${extension.toUpperCase()} files at path: ${filename}`)

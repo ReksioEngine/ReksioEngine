@@ -8,6 +8,13 @@ import { deserializeArray } from '../fileFormats/archive/array'
 import { FileLoader } from './fileLoader'
 import { FileStorage } from './fileStorage'
 
+export const normalizePathKeepCase = (path: string) => {
+    return path.replace(/\\+/g, '/')
+        .replace(/\/+/g, '/')
+        .replace(/^\//, '')
+        .replace(/[^/]+\/\.\.\//g, '')
+}
+
 export const normalizePath = (path: string) => {
     return path.toLowerCase()
         .replace(/\\+/g, '/')

@@ -2,11 +2,12 @@ import * as fs from 'fs'
 import * as path from 'path'
 import decompress from 'decompress'
 import { logger } from '../../src/engine/logging'
-import { normalizePath } from '../../src/filesystem'
+import { normalizePath, normalizePathKeepCase } from '../../src/filesystem'
 import { FileNotFoundError, SimpleFileLoader } from '../../src/filesystem/fileLoader'
 
 const snapshotDirPath = 'output'
 const zippedSnapshotDirPath = 'output.zip'
+const actualDirPath = '.output'
 
 function isError(error: any): error is NodeJS.ErrnoException {
     return 'errno' in error
@@ -40,7 +41,7 @@ export class TestFileLoader extends SimpleFileLoader {
     }
 
     getSnapshotFilesListing(): string[] {
-        return this.getFilesListing().filter(e => e.toLowerCase().startsWith(`${snapshotDirPath}/`))
+        return this.getFilesListing().filter(e => e.startsWith(`${snapshotDirPath}/`))
             .filter(e => !e.substring(e.indexOf('/') + 1).startsWith('.'))
     }
 
@@ -62,5 +63,22 @@ export class TestFileLoader extends SimpleFileLoader {
             // throw new FileNotFoundError(normalizedFilename)
             throw e
         }
+    }
+
+    async saveActualSnapshotFile(filename: string, content: ArrayBuffer) {
+        if (!filename.startsWith(`${snapshotDirPath}/`)) {
+            throw new Error('Not a snapshot file')
+        }
+        const existingFilename = this.listing?.get(normalizePath(filename))
+        if (!existingFilename) {
+            throw new Error('The file does not exist')
+        }
+        const actualFilename = normalizePathKeepCase(existingFilename).replace(`${snapshotDirPath}/`, `${actualDirPath}/`)
+        const fullPath = path.join(this.rootDir, actualFilename)
+        const dirPath = path.dirname(fullPath)
+        logger.debug(`Making sure directory exists at: ${actualFilename}...`)
+        await fs.promises.mkdir(dirPath, { recursive: true })
+        logger.debug(`Writing actual snapshot file to: ${actualFilename}...`)
+        await fs.promises.writeFile(fullPath, new Uint8Array(content), { flag: 'wx' })
     }
 }
