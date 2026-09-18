@@ -144,7 +144,7 @@ export class TestPlayerInstance {
                     callIfFieldDiffers(actualHeader, expectedHeader, header => header.imageLen, () => warner('imageLen'))
                     callIfFieldDiffers(actualHeader, expectedHeader, header => header.alphaLen, () => warner('alphaLen'))
 
-                    expect(actualBytes.byteLength).toEqual(expectedBytes.byteLength)
+                    expect(actualBytes.length).toEqual(expectedBytes.length)
 
                     const actualPixels = new Uint32Array(actualBytes.buffer, actualBytes.byteOffset)
                     const expectedPixels = new Uint32Array(expectedBytes.buffer, expectedBytes.byteOffset)
