@@ -76,9 +76,9 @@ export class TestFileLoader extends SimpleFileLoader {
         const actualFilename = normalizePathKeepCase(existingFilename).replace(`${snapshotDirPath}/`, `${actualDirPath}/`)
         const fullPath = path.join(this.rootDir, actualFilename)
         const dirPath = path.dirname(fullPath)
-        logger.debug(`Making sure directory exists at: ${actualFilename}...`)
+        logger.debug(`Making sure directory exists at: ${dirPath}...`)
         await fs.promises.mkdir(dirPath, { recursive: true })
-        logger.debug(`Writing actual snapshot file to: ${actualFilename}...`)
-        await fs.promises.writeFile(fullPath, new Uint8Array(content), { flag: 'wx' })
+        logger.debug(`Writing actual snapshot file to: ${fullPath}...`)
+        await fs.promises.writeFile(fullPath, new Uint8Array(content))
     }
 }
