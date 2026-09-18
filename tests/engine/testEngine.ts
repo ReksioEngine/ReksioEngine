@@ -104,6 +104,12 @@ export class TestPlayerInstance {
         }
         const expectedOutput = this.#fileLoader.getSnapshotFilesListing()
         expect(expectedOutput).toHaveLength(actualOutput.length)
+        
+        for (const filename of expectedOutput) {
+            expect(await this.#storage.has(filename)).toBe(true)
+            const rawActualFile = await this.#storage.get(filename)
+            await this.#fileLoader.saveActualSnapshotFile(filename, rawActualFile)
+        }
 
         for (const filename of expectedOutput) {
             expect(await this.#storage.has(filename)).toBe(true)
