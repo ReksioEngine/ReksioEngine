@@ -512,9 +512,5 @@ function _refToParam(ref: ObjectRef): Parameter {
 }
 
 function _extractArgs(text: string, parenPos: number): string {
-    let rest = text.slice(parenPos + 1).trim()
-    if (rest.endsWith(')')) {
-        rest = rest.slice(0, -1)
-    }
-    return rest.trim()
+    return text.slice(parenPos + 1, -1).trim()
 }
