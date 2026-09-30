@@ -9,11 +9,6 @@ export interface CNVObject {
 
 export type CNV = { [key: string]: CNVObject }
 
-const splitOnce = (text: string, separator: string) => {
-    const index = text.indexOf(separator)
-    return [text.substring(0, index), text.substring(index + 1)]
-}
-
 export const parseCNV = (content: string) => {
     const lines = content.split('\n')
     const objects: CNV = {}
@@ -24,20 +19,26 @@ export const parseCNV = (content: string) => {
             continue
         }
 
-        const parts = splitOnce(line, '=')
-        if (parts.length < 2) {
+        // Each line is split by both `:` and `=`. For lines like `OBJ:ONINIT={THIS^PLAY("2"):;}` it will output
+        // `BEH`, `CODE`, `{THIS^PLAY("2")` and `;}`.
+        // As you can see the `:` (which would normally be an incorrect syntax) disappears.
+        const tokens = line.split(/[:=]/).filter((token) => token !== '')
+        if (tokens.length < 2) {
             continue
         }
 
-        const [key, value] = parts
-        if (key === 'OBJECT' && !objects[value]) {
-            objects[value] = {
-                TYPE: 'unknown',
-                NAME: value,
+        if (tokens[0] === 'OBJECT') {
+            const value = tokens[1]
+            if (!objects[value]) {
+                objects[value] = {
+                    TYPE: 'unknown',
+                    NAME: value,
+                }
             }
         } else {
             // eslint-disable-next-line prefer-const
-            let [objectName, variablePart] = splitOnce(key, ':')
+            let [objectName, variablePart] = tokens
+            const value = tokens.slice(2).join(' ')
 
             // There are sometimes some '?' instead of '_' in object names
             // like some assignments have '?' and some '_'
