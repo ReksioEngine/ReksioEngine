@@ -39161,12 +39161,31 @@ Object.defineProperty(exports, "parseCNV", ({ enumerable: true, get: function ()
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseCNV = void 0;
+exports.parseCNV = exports.splitLines = void 0;
 const types_1 = __webpack_require__(/*! ./types */ "./src/fileFormats/cnv/types.ts");
 const common_1 = __webpack_require__(/*! ../common */ "./src/fileFormats/common/index.ts");
 const logger_1 = __webpack_require__(/*! ../logger */ "./src/fileFormats/logger.ts");
-const parseCNV = (content) => {
+const splitLines = (content) => {
     const lines = content.split('\n');
+    const resultLines = [];
+    // `/` is a line continuation.
+    // This is mirroring the behavior from `CMElementsLoader::getLine`.
+    while (lines.length > 0) {
+        let line = '';
+        while (lines.length > 0) {
+            const subLine = lines.shift();
+            line += subLine.replaceAll('\t', '').replaceAll(/(^ +| +$)/g, '');
+            if (!subLine.includes('/')) {
+                break;
+            }
+        }
+        resultLines.push(line.replaceAll('/', ''));
+    }
+    return resultLines;
+};
+exports.splitLines = splitLines;
+const parseCNV = (content) => {
+    const lines = (0, exports.splitLines)(content);
     const objects = {};
     for (const line of lines) {
         // Ignore comments and empty lines
