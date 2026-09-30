@@ -9,8 +9,29 @@ export interface CNVObject {
 
 export type CNV = { [key: string]: CNVObject }
 
-export const parseCNV = (content: string) => {
+export const splitLines = (content: string) => {
     const lines = content.split('\n')
+    const resultLines = []
+
+    // `/` is a line continuation.
+    // This is mirroring the behavior from `CMElementsLoader::getLine`.
+    while (lines.length > 0) {
+        let line = ''
+        while (lines.length > 0) {
+            const subLine = lines.shift()!
+            line += subLine.replaceAll('\t', '').replaceAll(/(^ +| +$)/g, '')
+            if (!subLine.includes('/')) {
+                break
+            }
+        }
+        resultLines.push(line.replaceAll('/', ''))
+    }
+
+    return resultLines
+}
+
+export const parseCNV = (content: string) => {
+    const lines = splitLines(content)
     const objects: CNV = {}
 
     for (const line of lines) {
