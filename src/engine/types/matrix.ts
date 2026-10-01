@@ -135,7 +135,10 @@ export class Matrix extends Type<MatrixDefinition> {
         if (newPosIndex < 0 || newPosIndex >= this.board.length) {
             return false
         }
-        return this.board[newPosIndex] === Field.EMPTY || this.board[newPosIndex] === Field.MOLE
+        if (this.board[newPosIndex] !== Field.EMPTY && this.board[newPosIndex] !== Field.MOLE) {
+            return false
+        }
+        return !this.isIndexInGate(newPosIndex)
     }
 
     canMoveTo(oldPos: number, newPos: number) {
@@ -171,9 +174,10 @@ export class Matrix extends Type<MatrixDefinition> {
             return false
         }
 
-        return [Field.EMPTY, Field.GROUND, Field.DYNAMITE, Field.ENEMY, Field.EXPLOSION, Field.EXIT].includes(
+        const canEnter = [Field.EMPTY, Field.GROUND, Field.DYNAMITE, Field.ENEMY, Field.EXPLOSION, Field.EXIT].includes(
             this.board[targetCellIndex]
         )
+        return canEnter && !this.isIndexInGate(targetCellIndex)
     }
 
     @method()
@@ -238,8 +242,10 @@ export class Matrix extends Type<MatrixDefinition> {
         if (!this.gateRect) {
             return true
         }
-        for (let column = this.gateRect.left; column < this.gateRect.right; column++) {
-            for (let row = this.gateRect.top; row < this.gateRect.bottom; row++) {
+
+        // Inclusive of right and bottom, unlike ISINGATE
+        for (let column = this.gateRect.left; column <= this.gateRect.right; column++) {
+            for (let row = this.gateRect.top; row <= this.gateRect.bottom; row++) {
                 if (this.board[this.getIndexFromCoordinates(column, row)] === Field.STONE) {
                     return false
                 }
@@ -250,6 +256,10 @@ export class Matrix extends Type<MatrixDefinition> {
 
     @method()
     ISINGATE(index: number) {
+        return this.isIndexInGate(index)
+    }
+
+    isIndexInGate(index: number) {
         if (!this.gateRect) {
             return false
         }
@@ -373,7 +383,7 @@ export class Matrix extends Type<MatrixDefinition> {
 
     @method()
     async SETGATE(startColumn: number, startRow: number, endColumn: number, endRow: number) {
-        this.gateRect = new Rectangle(startColumn, startRow, endColumn - startColumn + 1, endRow - startRow + 1)
+        this.gateRect = new Rectangle(startColumn, startRow, endColumn - startColumn, endRow - startRow)
     }
 
     @method()
