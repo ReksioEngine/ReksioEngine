@@ -142,6 +142,7 @@ export class Engine {
             }
         }
 
+        this.rendering.flushDirty()
         this.debug.updateXRay()
     }
 

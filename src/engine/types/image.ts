@@ -1,6 +1,6 @@
 import { DisplayType } from './index'
 import { ImageDefinition } from '../../fileFormats/cnv/types'
-import { assert, NotImplementedError } from '../../common/errors'
+import { assert } from '../../common/errors'
 import { Container, Graphics, Point, Sprite } from 'pixi.js'
 import { loadSprite } from '../../filesystem/assetsLoader'
 import { AdvancedSprite } from '../rendering'
@@ -9,6 +9,7 @@ import * as PIXI from 'pixi.js'
 
 export class Image extends DisplayType<ImageDefinition> {
     public sprite: AdvancedSprite | null = null
+    private opacity = 255
 
     async init() {
         await this.initSprite(this.definition.FILENAME)
@@ -48,7 +49,7 @@ export class Image extends DisplayType<ImageDefinition> {
     @method()
     SETOPACITY(opacity: number) {
         assert(this.sprite !== null)
-        this.sprite.alpha = opacity / 255
+        this.opacity = opacity
     }
 
     @method()
@@ -56,6 +57,7 @@ export class Image extends DisplayType<ImageDefinition> {
         assert(this.sprite !== null)
         this.sprite.x += xOffset
         this.sprite.y += yOffset
+        this.invalidate()
     }
 
     @method()
@@ -63,6 +65,7 @@ export class Image extends DisplayType<ImageDefinition> {
         assert(this.sprite !== null)
         this.sprite.x = x
         this.sprite.y = y
+        this.invalidate()
     }
 
     @method()
@@ -145,7 +148,12 @@ export class Image extends DisplayType<ImageDefinition> {
 
     @method()
     INVALIDATE() {
-        throw new NotImplementedError()
+        this.invalidate()
+    }
+
+    private invalidate() {
+        assert(this.sprite !== null)
+        this.engine.rendering.invalidate(this.sprite.getBounds())
     }
 
     @method()
@@ -193,5 +201,10 @@ export class Image extends DisplayType<ImageDefinition> {
 
     getRenderObject() {
         return this.sprite
+    }
+
+    public repaint() {
+        assert(this.sprite !== null)
+        this.sprite.alpha = this.opacity / 255
     }
 }

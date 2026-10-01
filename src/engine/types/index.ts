@@ -132,6 +132,8 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
         throw new NotImplementedError()
     }
 
+    repaint() {}
+
     __getXRayInfo(): XRayInfo | null {
         const renderObject = this.getRenderObject()
         if (renderObject === null) {

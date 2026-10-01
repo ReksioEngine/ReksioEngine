@@ -21,6 +21,8 @@ export class RenderingManager {
     private readonly blackTexture
     public readonly loadingOverlay: Container
 
+    private dirtyRects: Rectangle[] = []
+
     constructor(private app: Application) {
         this.blackTexture = createColorTexture(
             this.app,
@@ -144,6 +146,29 @@ export class RenderingManager {
 
             return renderingOrderA - renderingOrderB
         })
+    }
+
+    invalidate(rect: Rectangle) {
+        this.dirtyRects.push(rect.clone())
+    }
+
+    flushDirty() {
+        if (this.dirtyRects.length === 0) {
+            return
+        }
+
+        for (const object of this.displayObjectsInDefinitionOrder) {
+            const sprite = object.getRenderObject()
+            if (!sprite?.visible) {
+                continue
+            }
+
+            const bounds = sprite.getBounds()
+            if (this.dirtyRects.some((r) => r.intersects(bounds))) {
+                object.repaint?.()
+            }
+        }
+        this.dirtyRects = []
     }
 }
 
