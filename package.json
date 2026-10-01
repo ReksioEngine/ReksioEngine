@@ -5,12 +5,12 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "webpack --config webpack.config.app.ts",
-        "build-lib": "webpack --config ./webpack.config.library.ts",
+        "build": "cross-env TS_NODE_PROJECT=tsconfig.app.json webpack --config webpack.config.app.ts",
+        "build-lib": "cross-env TS_NODE_PROJECT=tsconfig.library.json webpack --config ./webpack.config.library.ts",
         "build-formats-lib": "tsc -p ./tsconfig.formats.json && cp ./static/formats.package.json ./dist/formats/package.json",
         "prepare": "husky install",
         "prepublishOnly": "yarn run build-lib",
-        "serve": "webpack serve --config webpack.config.app.ts"
+        "serve": "cross-env TS_NODE_PROJECT=tsconfig.app.json webpack serve --config webpack.config.app.ts"
     },
     "private": true,
     "dependencies": {
