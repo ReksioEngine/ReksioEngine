@@ -1,11 +1,11 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./node_modules/@pixi/accessibility/lib/AccessibilityManager.js":
+/***/ "./node_modules/@pixi/accessibility/lib/AccessibilityManager.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/@pixi/accessibility/lib/AccessibilityManager.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -203,13 +203,13 @@ exports.AccessibilityManager = AccessibilityManager;
 //# sourceMappingURL=AccessibilityManager.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/accessibility/lib/accessibleTarget.js":
+/***/ "./node_modules/@pixi/accessibility/lib/accessibleTarget.js"
 /*!******************************************************************!*\
   !*** ./node_modules/@pixi/accessibility/lib/accessibleTarget.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -283,13 +283,13 @@ exports.accessibleTarget = accessibleTarget;
 //# sourceMappingURL=accessibleTarget.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/accessibility/lib/index.js":
+/***/ "./node_modules/@pixi/accessibility/lib/index.js"
 /*!*******************************************************!*\
   !*** ./node_modules/@pixi/accessibility/lib/index.js ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -299,13 +299,13 @@ exports.accessibleTarget = accessibleTarget.accessibleTarget;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/app/lib/Application.js":
+/***/ "./node_modules/@pixi/app/lib/Application.js"
 /*!***************************************************!*\
   !*** ./node_modules/@pixi/app/lib/Application.js ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -367,13 +367,13 @@ exports.Application = Application;
 //# sourceMappingURL=Application.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/app/lib/ResizePlugin.js":
+/***/ "./node_modules/@pixi/app/lib/ResizePlugin.js"
 /*!****************************************************!*\
   !*** ./node_modules/@pixi/app/lib/ResizePlugin.js ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -437,13 +437,13 @@ exports.ResizePlugin = ResizePlugin;
 //# sourceMappingURL=ResizePlugin.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/app/lib/index.js":
+/***/ "./node_modules/@pixi/app/lib/index.js"
 /*!*********************************************!*\
   !*** ./node_modules/@pixi/app/lib/index.js ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -453,13 +453,13 @@ exports.ResizePlugin = ResizePlugin.ResizePlugin;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/AssetExtension.js":
+/***/ "./node_modules/@pixi/assets/lib/AssetExtension.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/AssetExtension.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -485,13 +485,13 @@ core.extensions.handle(core.ExtensionType.Asset, (extension) => {
 //# sourceMappingURL=AssetExtension.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/Assets.js":
+/***/ "./node_modules/@pixi/assets/lib/Assets.js"
 /*!*************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/Assets.js ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -824,13 +824,13 @@ exports.AssetsClass = AssetsClass;
 //# sourceMappingURL=Assets.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/BackgroundLoader.js":
+/***/ "./node_modules/@pixi/assets/lib/BackgroundLoader.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/BackgroundLoader.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -880,13 +880,13 @@ exports.BackgroundLoader = BackgroundLoader;
 //# sourceMappingURL=BackgroundLoader.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/cache/Cache.js":
+/***/ "./node_modules/@pixi/assets/lib/cache/Cache.js"
 /*!******************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/cache/Cache.js ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -977,26 +977,26 @@ exports.Cache = Cache;
 //# sourceMappingURL=Cache.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/cache/CacheParser.js":
+/***/ "./node_modules/@pixi/assets/lib/cache/CacheParser.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/cache/CacheParser.js ***!
   \************************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=CacheParser.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/cache/index.js":
+/***/ "./node_modules/@pixi/assets/lib/cache/index.js"
 /*!******************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/cache/index.js ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1007,13 +1007,13 @@ exports.Cache = Cache.Cache;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/cache/parsers/cacheTextureArray.js":
+/***/ "./node_modules/@pixi/assets/lib/cache/parsers/cacheTextureArray.js"
 /*!**************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/cache/parsers/cacheTextureArray.js ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1035,13 +1035,13 @@ exports.cacheTextureArray = cacheTextureArray;
 //# sourceMappingURL=cacheTextureArray.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/cache/parsers/index.js":
+/***/ "./node_modules/@pixi/assets/lib/cache/parsers/index.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/cache/parsers/index.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1050,13 +1050,13 @@ exports.cacheTextureArray = cacheTextureArray.cacheTextureArray;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/detections/index.js":
+/***/ "./node_modules/@pixi/assets/lib/detections/index.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/detections/index.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -1064,13 +1064,13 @@ __webpack_require__(/*! ./parsers/index.js */ "./node_modules/@pixi/assets/lib/d
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/detections/parsers/detectAvif.js":
+/***/ "./node_modules/@pixi/assets/lib/detections/parsers/detectAvif.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/detections/parsers/detectAvif.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1092,13 +1092,13 @@ exports.detectAvif = detectAvif;
 //# sourceMappingURL=detectAvif.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/detections/parsers/detectDefaults.js":
+/***/ "./node_modules/@pixi/assets/lib/detections/parsers/detectDefaults.js"
 /*!****************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/detections/parsers/detectDefaults.js ***!
   \****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1117,13 +1117,13 @@ exports.detectDefaults = detectDefaults;
 //# sourceMappingURL=detectDefaults.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/detections/parsers/detectMp4.js":
+/***/ "./node_modules/@pixi/assets/lib/detections/parsers/detectMp4.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/detections/parsers/detectMp4.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1142,13 +1142,13 @@ exports.detectMp4 = detectMp4;
 //# sourceMappingURL=detectMp4.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/detections/parsers/detectOgv.js":
+/***/ "./node_modules/@pixi/assets/lib/detections/parsers/detectOgv.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/detections/parsers/detectOgv.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1167,13 +1167,13 @@ exports.detectOgv = detectOgv;
 //# sourceMappingURL=detectOgv.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/detections/parsers/detectWebm.js":
+/***/ "./node_modules/@pixi/assets/lib/detections/parsers/detectWebm.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/detections/parsers/detectWebm.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1192,13 +1192,13 @@ exports.detectWebm = detectWebm;
 //# sourceMappingURL=detectWebm.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/detections/parsers/detectWebp.js":
+/***/ "./node_modules/@pixi/assets/lib/detections/parsers/detectWebp.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/detections/parsers/detectWebp.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1219,13 +1219,13 @@ exports.detectWebp = detectWebp;
 //# sourceMappingURL=detectWebp.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/detections/parsers/index.js":
+/***/ "./node_modules/@pixi/assets/lib/detections/parsers/index.js"
 /*!*******************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/detections/parsers/index.js ***!
   \*******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1239,13 +1239,13 @@ exports.detectOgv = detectOgv.detectOgv;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/detections/utils/testImageFormat.js":
+/***/ "./node_modules/@pixi/assets/lib/detections/utils/testImageFormat.js"
 /*!***************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/detections/utils/testImageFormat.js ***!
   \***************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -1274,13 +1274,13 @@ exports.testImageFormat = testImageFormat;
 //# sourceMappingURL=testImageFormat.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/detections/utils/testVideoFormat.js":
+/***/ "./node_modules/@pixi/assets/lib/detections/utils/testVideoFormat.js"
 /*!***************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/detections/utils/testVideoFormat.js ***!
   \***************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -1292,13 +1292,13 @@ exports.testVideoFormat = testVideoFormat;
 //# sourceMappingURL=testVideoFormat.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/index.js":
+/***/ "./node_modules/@pixi/assets/lib/index.js"
 /*!************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/index.js ***!
   \************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1341,13 +1341,13 @@ exports.isSingleItem = isSingleItem.isSingleItem;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/Loader.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/Loader.js"
 /*!********************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/Loader.js ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1448,13 +1448,13 @@ exports.Loader = Loader;
 //# sourceMappingURL=Loader.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/index.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/index.js"
 /*!*******************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/index.js ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -1462,13 +1462,13 @@ __webpack_require__(/*! ./parsers/index.js */ "./node_modules/@pixi/assets/lib/l
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/parsers/LoaderParser.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/parsers/LoaderParser.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/parsers/LoaderParser.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -1477,13 +1477,13 @@ exports.LoaderParserPriority = LoaderParserPriority;
 //# sourceMappingURL=LoaderParser.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/parsers/WorkerManager.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/parsers/WorkerManager.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/parsers/WorkerManager.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -1611,13 +1611,13 @@ exports.WorkerManager = WorkerManager;
 //# sourceMappingURL=WorkerManager.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/parsers/index.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/parsers/index.js"
 /*!***************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/parsers/index.js ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1631,13 +1631,13 @@ exports.loadWebFont = loadWebFont.loadWebFont;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/parsers/loadJson.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/parsers/loadJson.js"
 /*!******************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/parsers/loadJson.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1660,13 +1660,13 @@ exports.loadJson = loadJson;
 //# sourceMappingURL=loadJson.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/parsers/loadTxt.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/parsers/loadTxt.js"
 /*!*****************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/parsers/loadTxt.js ***!
   \*****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1689,13 +1689,13 @@ exports.loadTxt = loadTxt;
 //# sourceMappingURL=loadTxt.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/parsers/loadWebFont.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/parsers/loadWebFont.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/parsers/loadWebFont.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1767,13 +1767,13 @@ exports.loadWebFont = loadWebFont;
 //# sourceMappingURL=loadWebFont.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/parsers/textures/index.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/parsers/textures/index.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/parsers/textures/index.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1786,13 +1786,13 @@ exports.loadVideo = loadVideo.loadVideo;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/parsers/textures/loadSVG.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/parsers/textures/loadSVG.js"
 /*!**************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/parsers/textures/loadSVG.js ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1828,13 +1828,13 @@ exports.loadSVG = loadSVG;
 //# sourceMappingURL=loadSVG.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/parsers/textures/loadTextures.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/parsers/textures/loadTextures.js"
 /*!*******************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/parsers/textures/loadTextures.js ***!
   \*******************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1888,13 +1888,13 @@ exports.loadTextures = loadTextures;
 //# sourceMappingURL=loadTextures.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/parsers/textures/loadVideo.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/parsers/textures/loadVideo.js"
 /*!****************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/parsers/textures/loadVideo.js ***!
   \****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1946,13 +1946,13 @@ exports.loadVideo = loadVideo;
 //# sourceMappingURL=loadVideo.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/parsers/textures/utils/createTexture.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/parsers/textures/utils/createTexture.js"
 /*!**************************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/parsers/textures/utils/createTexture.js ***!
   \**************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1972,13 +1972,13 @@ exports.createTexture = createTexture;
 //# sourceMappingURL=createTexture.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/loader/parsers/textures/utils/index.js":
+/***/ "./node_modules/@pixi/assets/lib/loader/parsers/textures/utils/index.js"
 /*!******************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/loader/parsers/textures/utils/index.js ***!
   \******************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1987,13 +1987,13 @@ exports.createTexture = createTexture.createTexture;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/resolver/Resolver.js":
+/***/ "./node_modules/@pixi/assets/lib/resolver/Resolver.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/resolver/Resolver.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -2385,13 +2385,13 @@ exports.Resolver = Resolver;
 //# sourceMappingURL=Resolver.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/resolver/index.js":
+/***/ "./node_modules/@pixi/assets/lib/resolver/index.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/resolver/index.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -2400,13 +2400,13 @@ __webpack_require__(/*! ./types.js */ "./node_modules/@pixi/assets/lib/resolver/
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/resolver/parsers/index.js":
+/***/ "./node_modules/@pixi/assets/lib/resolver/parsers/index.js"
 /*!*****************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/resolver/parsers/index.js ***!
   \*****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -2415,13 +2415,13 @@ exports.resolveTextureUrl = resolveTextureUrl.resolveTextureUrl;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/resolver/parsers/resolveTextureUrl.js":
+/***/ "./node_modules/@pixi/assets/lib/resolver/parsers/resolveTextureUrl.js"
 /*!*****************************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/resolver/parsers/resolveTextureUrl.js ***!
   \*****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -2442,39 +2442,39 @@ exports.resolveTextureUrl = resolveTextureUrl;
 //# sourceMappingURL=resolveTextureUrl.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/resolver/types.js":
+/***/ "./node_modules/@pixi/assets/lib/resolver/types.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/resolver/types.js ***!
   \*********************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=types.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/types.js":
+/***/ "./node_modules/@pixi/assets/lib/types.js"
 /*!************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/types.js ***!
   \************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=types.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/utils/checkDataUrl.js":
+/***/ "./node_modules/@pixi/assets/lib/utils/checkDataUrl.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/utils/checkDataUrl.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -2491,13 +2491,13 @@ exports.checkDataUrl = checkDataUrl;
 //# sourceMappingURL=checkDataUrl.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/utils/checkExtension.js":
+/***/ "./node_modules/@pixi/assets/lib/utils/checkExtension.js"
 /*!***************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/utils/checkExtension.js ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -2510,13 +2510,13 @@ exports.checkExtension = checkExtension;
 //# sourceMappingURL=checkExtension.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/utils/convertToList.js":
+/***/ "./node_modules/@pixi/assets/lib/utils/convertToList.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/utils/convertToList.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -2525,13 +2525,13 @@ exports.convertToList = convertToList;
 //# sourceMappingURL=convertToList.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/utils/copySearchParams.js":
+/***/ "./node_modules/@pixi/assets/lib/utils/copySearchParams.js"
 /*!*****************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/utils/copySearchParams.js ***!
   \*****************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -2543,13 +2543,13 @@ exports.copySearchParams = copySearchParams;
 //# sourceMappingURL=copySearchParams.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/utils/createStringVariations.js":
+/***/ "./node_modules/@pixi/assets/lib/utils/createStringVariations.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/utils/createStringVariations.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -2576,13 +2576,13 @@ exports.createStringVariations = createStringVariations;
 //# sourceMappingURL=createStringVariations.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/utils/index.js":
+/***/ "./node_modules/@pixi/assets/lib/utils/index.js"
 /*!******************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/utils/index.js ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -2596,13 +2596,13 @@ exports.isSingleItem = isSingleItem.isSingleItem;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/assets/lib/utils/isSingleItem.js":
+/***/ "./node_modules/@pixi/assets/lib/utils/isSingleItem.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/assets/lib/utils/isSingleItem.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -2611,13 +2611,13 @@ exports.isSingleItem = isSingleItem;
 //# sourceMappingURL=isSingleItem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/color/lib/Color.js":
+/***/ "./node_modules/@pixi/color/lib/Color.js"
 /*!***********************************************!*\
   !*** ./node_modules/@pixi/color/lib/Color.js ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -2895,13 +2895,13 @@ exports.Color = Color;
 //# sourceMappingURL=Color.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/color/lib/index.js":
+/***/ "./node_modules/@pixi/color/lib/index.js"
 /*!***********************************************!*\
   !*** ./node_modules/@pixi/color/lib/index.js ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -2910,35 +2910,43 @@ exports.Color = Color.Color;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/colord/index.js":
+/***/ "./node_modules/@pixi/colord/index.js"
 /*!********************************************!*\
   !*** ./node_modules/@pixi/colord/index.js ***!
   \********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
-Object.defineProperty(exports, "__esModule", ({value:!0}));var r={grad:.9,turn:360,rad:360/(2*Math.PI)},t=function(r){return"string"==typeof r?r.length>0:"number"==typeof r},n=function(r,t,n){return void 0===t&&(t=0),void 0===n&&(n=Math.pow(10,t)),Math.round(n*r)/n+0},e=function(r,t,n){return void 0===t&&(t=0),void 0===n&&(n=1),r>n?n:r>t?r:t},u=function(r){return(r=isFinite(r)?r%360:0)>0?r:r+360},o=function(r){return{r:e(r.r,0,255),g:e(r.g,0,255),b:e(r.b,0,255),a:e(r.a)}},a=function(r){return{r:n(r.r),g:n(r.g),b:n(r.b),a:n(r.a,3)}},s=/^#([0-9a-f]{3,8})$/i,i=function(r){var t=r.toString(16);return t.length<2?"0"+t:t},h=function(r){var t=r.r,n=r.g,e=r.b,u=r.a,o=Math.max(t,n,e),a=o-Math.min(t,n,e),s=a?o===t?(n-e)/a:o===n?2+(e-t)/a:4+(t-n)/a:0;return{h:60*(s<0?s+6:s),s:o?a/o*100:0,v:o/255*100,a:u}},b=function(r){var t=r.h,n=r.s,e=r.v,u=r.a;t=t/360*6,n/=100,e/=100;var o=Math.floor(t),a=e*(1-n),s=e*(1-(t-o)*n),i=e*(1-(1-t+o)*n),h=o%6;return{r:255*[e,s,a,a,i,e][h],g:255*[i,e,e,s,a,a][h],b:255*[a,a,i,e,e,s][h],a:u}},d=function(r){return{h:u(r.h),s:e(r.s,0,100),l:e(r.l,0,100),a:e(r.a)}},g=function(r){return{h:n(r.h),s:n(r.s),l:n(r.l),a:n(r.a,3)}},f=function(r){return b((n=(t=r).s,{h:t.h,s:(n*=((e=t.l)<50?e:100-e)/100)>0?2*n/(e+n)*100:0,v:e+n,a:t.a}));var t,n,e},p=function(r){return{h:(t=h(r)).h,s:(u=(200-(n=t.s))*(e=t.v)/100)>0&&u<200?n*e/100/(u<=100?u:200-u)*100:0,l:u/2,a:t.a};var t,n,e,u},l=/^hsla?\(\s*([+-]?\d*\.?\d+)(deg|rad|grad|turn)?\s*,\s*([+-]?\d*\.?\d+)%\s*,\s*([+-]?\d*\.?\d+)%\s*(?:,\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,c=/^hsla?\(\s*([+-]?\d*\.?\d+)(deg|rad|grad|turn)?\s+([+-]?\d*\.?\d+)%\s+([+-]?\d*\.?\d+)%\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,v=/^rgba?\(\s*([+-]?\d*\.?\d+)(%)?\s*,\s*([+-]?\d*\.?\d+)(%)?\s*,\s*([+-]?\d*\.?\d+)(%)?\s*(?:,\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,m=/^rgba?\(\s*([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,y={string:[[function(r){var t=s.exec(r);return t?(r=t[1]).length<=4?{r:parseInt(r[0]+r[0],16),g:parseInt(r[1]+r[1],16),b:parseInt(r[2]+r[2],16),a:4===r.length?n(parseInt(r[3]+r[3],16)/255,2):1}:6===r.length||8===r.length?{r:parseInt(r.substr(0,2),16),g:parseInt(r.substr(2,2),16),b:parseInt(r.substr(4,2),16),a:8===r.length?n(parseInt(r.substr(6,2),16)/255,2):1}:null:null},"hex"],[function(r){var t=v.exec(r)||m.exec(r);return t?t[2]!==t[4]||t[4]!==t[6]?null:o({r:Number(t[1])/(t[2]?100/255:1),g:Number(t[3])/(t[4]?100/255:1),b:Number(t[5])/(t[6]?100/255:1),a:void 0===t[7]?1:Number(t[7])/(t[8]?100:1)}):null},"rgb"],[function(t){var n=l.exec(t)||c.exec(t);if(!n)return null;var e,u,o=d({h:(e=n[1],u=n[2],void 0===u&&(u="deg"),Number(e)*(r[u]||1)),s:Number(n[3]),l:Number(n[4]),a:void 0===n[5]?1:Number(n[5])/(n[6]?100:1)});return f(o)},"hsl"]],object:[[function(r){var n=r.r,e=r.g,u=r.b,a=r.a,s=void 0===a?1:a;return t(n)&&t(e)&&t(u)?o({r:Number(n),g:Number(e),b:Number(u),a:Number(s)}):null},"rgb"],[function(r){var n=r.h,e=r.s,u=r.l,o=r.a,a=void 0===o?1:o;if(!t(n)||!t(e)||!t(u))return null;var s=d({h:Number(n),s:Number(e),l:Number(u),a:Number(a)});return f(s)},"hsl"],[function(r){var n=r.h,o=r.s,a=r.v,s=r.a,i=void 0===s?1:s;if(!t(n)||!t(o)||!t(a))return null;var h=function(r){return{h:u(r.h),s:e(r.s,0,100),v:e(r.v,0,100),a:e(r.a)}}({h:Number(n),s:Number(o),v:Number(a),a:Number(i)});return b(h)},"hsv"]]},N=function(r,t){for(var n=0;n<t.length;n++){var e=t[n][0](r);if(e)return[e,t[n][1]]}return[null,void 0]},x=function(r){return"string"==typeof r?N(r.trim(),y.string):"object"==typeof r&&null!==r?N(r,y.object):[null,void 0]},M=function(r,t){var n=p(r);return{h:n.h,s:e(n.s+100*t,0,100),l:n.l,a:n.a}},I=function(r){return(299*r.r+587*r.g+114*r.b)/1e3/255},H=function(r,t){var n=p(r);return{h:n.h,s:n.s,l:e(n.l+100*t,0,100),a:n.a}},$=function(){function r(r){this.parsed=x(r)[0],this.rgba=this.parsed||{r:0,g:0,b:0,a:1}}return r.prototype.isValid=function(){return null!==this.parsed},r.prototype.brightness=function(){return n(I(this.rgba),2)},r.prototype.isDark=function(){return I(this.rgba)<.5},r.prototype.isLight=function(){return I(this.rgba)>=.5},r.prototype.toHex=function(){return r=a(this.rgba),t=r.r,e=r.g,u=r.b,s=(o=r.a)<1?i(n(255*o)):"","#"+i(t)+i(e)+i(u)+s;var r,t,e,u,o,s},r.prototype.toRgb=function(){return a(this.rgba)},r.prototype.toRgbString=function(){return r=a(this.rgba),t=r.r,n=r.g,e=r.b,(u=r.a)<1?"rgba("+t+", "+n+", "+e+", "+u+")":"rgb("+t+", "+n+", "+e+")";var r,t,n,e,u},r.prototype.toHsl=function(){return g(p(this.rgba))},r.prototype.toHslString=function(){return r=g(p(this.rgba)),t=r.h,n=r.s,e=r.l,(u=r.a)<1?"hsla("+t+", "+n+"%, "+e+"%, "+u+")":"hsl("+t+", "+n+"%, "+e+"%)";var r,t,n,e,u},r.prototype.toHsv=function(){return r=h(this.rgba),{h:n(r.h),s:n(r.s),v:n(r.v),a:n(r.a,3)};var r},r.prototype.invert=function(){return j({r:255-(r=this.rgba).r,g:255-r.g,b:255-r.b,a:r.a});var r},r.prototype.saturate=function(r){return void 0===r&&(r=.1),j(M(this.rgba,r))},r.prototype.desaturate=function(r){return void 0===r&&(r=.1),j(M(this.rgba,-r))},r.prototype.grayscale=function(){return j(M(this.rgba,-1))},r.prototype.lighten=function(r){return void 0===r&&(r=.1),j(H(this.rgba,r))},r.prototype.darken=function(r){return void 0===r&&(r=.1),j(H(this.rgba,-r))},r.prototype.rotate=function(r){return void 0===r&&(r=15),this.hue(this.hue()+r)},r.prototype.alpha=function(r){return"number"==typeof r?j({r:(t=this.rgba).r,g:t.g,b:t.b,a:r}):n(this.rgba.a,3);var t},r.prototype.hue=function(r){var t=p(this.rgba);return"number"==typeof r?j({h:r,s:t.s,l:t.l,a:t.a}):n(t.h)},r.prototype.isEqual=function(r){return this.toHex()===j(r).toHex()},r}(),j=function(r){return r instanceof $?r:new $(r)},w=[];exports.Colord=$,exports.colord=j,exports.extend=function(r){r.forEach(function(r){w.indexOf(r)<0&&(r($,y),w.push(r))})},exports.getFormat=function(r){return x(r)[1]},exports.random=function(){return new $({r:255*Math.random(),g:255*Math.random(),b:255*Math.random()})};
+Object.defineProperty(exports, "__esModule", ({value:!0}));var r={grad:.9,turn:360,rad:360/(2*Math.PI)},t=function(r){return"string"==typeof r?r.length>0:"number"==typeof r},n=function(r,t,n){return void 0===t&&(t=0),void 0===n&&(n=Math.pow(10,t)),Math.round(n*r)/n+0},e=function(r,t,n){return void 0===t&&(t=0),void 0===n&&(n=1),r>n?n:r>t?r:t},u=function(r){return(r=isFinite(r)?r%360:0)>0?r:r+360},o=function(r){return{r:e(r.r,0,255),g:e(r.g,0,255),b:e(r.b,0,255),a:e(r.a)}},a=function(r){return{r:n(r.r),g:n(r.g),b:n(r.b),a:n(r.a,3)}},s=/^#([0-9a-f]{3,8})$/i,i=function(r){var t=r.toString(16);return t.length<2?"0"+t:t},h=function(r){var t=r.r,n=r.g,e=r.b,u=r.a,o=Math.max(t,n,e),a=o-Math.min(t,n,e),s=a?o===t?(n-e)/a:o===n?2+(e-t)/a:4+(t-n)/a:0;return{h:60*(s<0?s+6:s),s:o?a/o*100:0,v:o/255*100,a:u}},b=function(r){var t=r.h,n=r.s,e=r.v,u=r.a;t=t/360*6,n/=100,e/=100;var o=Math.floor(t),a=e*(1-n),s=e*(1-(t-o)*n),i=e*(1-(1-t+o)*n),h=o%6;return{r:255*[e,s,a,a,i,e][h],g:255*[i,e,e,s,a,a][h],b:255*[a,a,i,e,e,s][h],a:u}},d=function(r){return{h:u(r.h),s:e(r.s,0,100),l:e(r.l,0,100),a:e(r.a)}},g=function(r){return{h:n(r.h),s:n(r.s),l:n(r.l),a:n(r.a,3)}},f=function(r){return b((n=(t=r).s,{h:t.h,s:(n*=((e=t.l)<50?e:100-e)/100)>0?2*n/(e+n)*100:0,v:e+n,a:t.a}));// removed by dead control flow
+ var t, n, e; },p=function(r){return{h:(t=h(r)).h,s:(u=(200-(n=t.s))*(e=t.v)/100)>0&&u<200?n*e/100/(u<=100?u:200-u)*100:0,l:u/2,a:t.a};// removed by dead control flow
+ var t, n, e, u; },l=/^hsla?\(\s*([+-]?\d*\.?\d+)(deg|rad|grad|turn)?\s*,\s*([+-]?\d*\.?\d+)%\s*,\s*([+-]?\d*\.?\d+)%\s*(?:,\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,c=/^hsla?\(\s*([+-]?\d*\.?\d+)(deg|rad|grad|turn)?\s+([+-]?\d*\.?\d+)%\s+([+-]?\d*\.?\d+)%\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,v=/^rgba?\(\s*([+-]?\d*\.?\d+)(%)?\s*,\s*([+-]?\d*\.?\d+)(%)?\s*,\s*([+-]?\d*\.?\d+)(%)?\s*(?:,\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,m=/^rgba?\(\s*([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,y={string:[[function(r){var t=s.exec(r);return t?(r=t[1]).length<=4?{r:parseInt(r[0]+r[0],16),g:parseInt(r[1]+r[1],16),b:parseInt(r[2]+r[2],16),a:4===r.length?n(parseInt(r[3]+r[3],16)/255,2):1}:6===r.length||8===r.length?{r:parseInt(r.substr(0,2),16),g:parseInt(r.substr(2,2),16),b:parseInt(r.substr(4,2),16),a:8===r.length?n(parseInt(r.substr(6,2),16)/255,2):1}:null:null},"hex"],[function(r){var t=v.exec(r)||m.exec(r);return t?t[2]!==t[4]||t[4]!==t[6]?null:o({r:Number(t[1])/(t[2]?100/255:1),g:Number(t[3])/(t[4]?100/255:1),b:Number(t[5])/(t[6]?100/255:1),a:void 0===t[7]?1:Number(t[7])/(t[8]?100:1)}):null},"rgb"],[function(t){var n=l.exec(t)||c.exec(t);if(!n)return null;var e,u,o=d({h:(e=n[1],u=n[2],void 0===u&&(u="deg"),Number(e)*(r[u]||1)),s:Number(n[3]),l:Number(n[4]),a:void 0===n[5]?1:Number(n[5])/(n[6]?100:1)});return f(o)},"hsl"]],object:[[function(r){var n=r.r,e=r.g,u=r.b,a=r.a,s=void 0===a?1:a;return t(n)&&t(e)&&t(u)?o({r:Number(n),g:Number(e),b:Number(u),a:Number(s)}):null},"rgb"],[function(r){var n=r.h,e=r.s,u=r.l,o=r.a,a=void 0===o?1:o;if(!t(n)||!t(e)||!t(u))return null;var s=d({h:Number(n),s:Number(e),l:Number(u),a:Number(a)});return f(s)},"hsl"],[function(r){var n=r.h,o=r.s,a=r.v,s=r.a,i=void 0===s?1:s;if(!t(n)||!t(o)||!t(a))return null;var h=function(r){return{h:u(r.h),s:e(r.s,0,100),v:e(r.v,0,100),a:e(r.a)}}({h:Number(n),s:Number(o),v:Number(a),a:Number(i)});return b(h)},"hsv"]]},N=function(r,t){for(var n=0;n<t.length;n++){var e=t[n][0](r);if(e)return[e,t[n][1]]}return[null,void 0]},x=function(r){return"string"==typeof r?N(r.trim(),y.string):"object"==typeof r&&null!==r?N(r,y.object):[null,void 0]},M=function(r,t){var n=p(r);return{h:n.h,s:e(n.s+100*t,0,100),l:n.l,a:n.a}},I=function(r){return(299*r.r+587*r.g+114*r.b)/1e3/255},H=function(r,t){var n=p(r);return{h:n.h,s:n.s,l:e(n.l+100*t,0,100),a:n.a}},$=function(){function r(r){this.parsed=x(r)[0],this.rgba=this.parsed||{r:0,g:0,b:0,a:1}}return r.prototype.isValid=function(){return null!==this.parsed},r.prototype.brightness=function(){return n(I(this.rgba),2)},r.prototype.isDark=function(){return I(this.rgba)<.5},r.prototype.isLight=function(){return I(this.rgba)>=.5},r.prototype.toHex=function(){return r=a(this.rgba),t=r.r,e=r.g,u=r.b,s=(o=r.a)<1?i(n(255*o)):"","#"+i(t)+i(e)+i(u)+s;// removed by dead control flow
+ var r, t, e, u, o, s; },r.prototype.toRgb=function(){return a(this.rgba)},r.prototype.toRgbString=function(){return r=a(this.rgba),t=r.r,n=r.g,e=r.b,(u=r.a)<1?"rgba("+t+", "+n+", "+e+", "+u+")":"rgb("+t+", "+n+", "+e+")";// removed by dead control flow
+ var r, t, n, e, u; },r.prototype.toHsl=function(){return g(p(this.rgba))},r.prototype.toHslString=function(){return r=g(p(this.rgba)),t=r.h,n=r.s,e=r.l,(u=r.a)<1?"hsla("+t+", "+n+"%, "+e+"%, "+u+")":"hsl("+t+", "+n+"%, "+e+"%)";// removed by dead control flow
+ var r, t, n, e, u; },r.prototype.toHsv=function(){return r=h(this.rgba),{h:n(r.h),s:n(r.s),v:n(r.v),a:n(r.a,3)};// removed by dead control flow
+ var r; },r.prototype.invert=function(){return j({r:255-(r=this.rgba).r,g:255-r.g,b:255-r.b,a:r.a});// removed by dead control flow
+ var r; },r.prototype.saturate=function(r){return void 0===r&&(r=.1),j(M(this.rgba,r))},r.prototype.desaturate=function(r){return void 0===r&&(r=.1),j(M(this.rgba,-r))},r.prototype.grayscale=function(){return j(M(this.rgba,-1))},r.prototype.lighten=function(r){return void 0===r&&(r=.1),j(H(this.rgba,r))},r.prototype.darken=function(r){return void 0===r&&(r=.1),j(H(this.rgba,-r))},r.prototype.rotate=function(r){return void 0===r&&(r=15),this.hue(this.hue()+r)},r.prototype.alpha=function(r){return"number"==typeof r?j({r:(t=this.rgba).r,g:t.g,b:t.b,a:r}):n(this.rgba.a,3);// removed by dead control flow
+ var t; },r.prototype.hue=function(r){var t=p(this.rgba);return"number"==typeof r?j({h:r,s:t.s,l:t.l,a:t.a}):n(t.h)},r.prototype.isEqual=function(r){return this.toHex()===j(r).toHex()},r}(),j=function(r){return r instanceof $?r:new $(r)},w=[];exports.Colord=$,exports.colord=j,exports.extend=function(r){r.forEach(function(r){w.indexOf(r)<0&&(r($,y),w.push(r))})},exports.getFormat=function(r){return x(r)[1]},exports.random=function(){return new $({r:255*Math.random(),g:255*Math.random(),b:255*Math.random()})};
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/colord/plugins/names.js":
+/***/ "./node_modules/@pixi/colord/plugins/names.js"
 /*!****************************************************!*\
   !*** ./node_modules/@pixi/colord/plugins/names.js ***!
   \****************************************************/
-/***/ ((module) => {
+(module) {
 
 module.exports=function(e,f){var a={white:"#ffffff",bisque:"#ffe4c4",blue:"#0000ff",cadetblue:"#5f9ea0",chartreuse:"#7fff00",chocolate:"#d2691e",coral:"#ff7f50",antiquewhite:"#faebd7",aqua:"#00ffff",azure:"#f0ffff",whitesmoke:"#f5f5f5",papayawhip:"#ffefd5",plum:"#dda0dd",blanchedalmond:"#ffebcd",black:"#000000",gold:"#ffd700",goldenrod:"#daa520",gainsboro:"#dcdcdc",cornsilk:"#fff8dc",cornflowerblue:"#6495ed",burlywood:"#deb887",aquamarine:"#7fffd4",beige:"#f5f5dc",crimson:"#dc143c",cyan:"#00ffff",darkblue:"#00008b",darkcyan:"#008b8b",darkgoldenrod:"#b8860b",darkkhaki:"#bdb76b",darkgray:"#a9a9a9",darkgreen:"#006400",darkgrey:"#a9a9a9",peachpuff:"#ffdab9",darkmagenta:"#8b008b",darkred:"#8b0000",darkorchid:"#9932cc",darkorange:"#ff8c00",darkslateblue:"#483d8b",gray:"#808080",darkslategray:"#2f4f4f",darkslategrey:"#2f4f4f",deeppink:"#ff1493",deepskyblue:"#00bfff",wheat:"#f5deb3",firebrick:"#b22222",floralwhite:"#fffaf0",ghostwhite:"#f8f8ff",darkviolet:"#9400d3",magenta:"#ff00ff",green:"#008000",dodgerblue:"#1e90ff",grey:"#808080",honeydew:"#f0fff0",hotpink:"#ff69b4",blueviolet:"#8a2be2",forestgreen:"#228b22",lawngreen:"#7cfc00",indianred:"#cd5c5c",indigo:"#4b0082",fuchsia:"#ff00ff",brown:"#a52a2a",maroon:"#800000",mediumblue:"#0000cd",lightcoral:"#f08080",darkturquoise:"#00ced1",lightcyan:"#e0ffff",ivory:"#fffff0",lightyellow:"#ffffe0",lightsalmon:"#ffa07a",lightseagreen:"#20b2aa",linen:"#faf0e6",mediumaquamarine:"#66cdaa",lemonchiffon:"#fffacd",lime:"#00ff00",khaki:"#f0e68c",mediumseagreen:"#3cb371",limegreen:"#32cd32",mediumspringgreen:"#00fa9a",lightskyblue:"#87cefa",lightblue:"#add8e6",midnightblue:"#191970",lightpink:"#ffb6c1",mistyrose:"#ffe4e1",moccasin:"#ffe4b5",mintcream:"#f5fffa",lightslategray:"#778899",lightslategrey:"#778899",navajowhite:"#ffdead",navy:"#000080",mediumvioletred:"#c71585",powderblue:"#b0e0e6",palegoldenrod:"#eee8aa",oldlace:"#fdf5e6",paleturquoise:"#afeeee",mediumturquoise:"#48d1cc",mediumorchid:"#ba55d3",rebeccapurple:"#663399",lightsteelblue:"#b0c4de",mediumslateblue:"#7b68ee",thistle:"#d8bfd8",tan:"#d2b48c",orchid:"#da70d6",mediumpurple:"#9370db",purple:"#800080",pink:"#ffc0cb",skyblue:"#87ceeb",springgreen:"#00ff7f",palegreen:"#98fb98",red:"#ff0000",yellow:"#ffff00",slateblue:"#6a5acd",lavenderblush:"#fff0f5",peru:"#cd853f",palevioletred:"#db7093",violet:"#ee82ee",teal:"#008080",slategray:"#708090",slategrey:"#708090",aliceblue:"#f0f8ff",darkseagreen:"#8fbc8f",darkolivegreen:"#556b2f",greenyellow:"#adff2f",seagreen:"#2e8b57",seashell:"#fff5ee",tomato:"#ff6347",silver:"#c0c0c0",sienna:"#a0522d",lavender:"#e6e6fa",lightgreen:"#90ee90",orange:"#ffa500",orangered:"#ff4500",steelblue:"#4682b4",royalblue:"#4169e1",turquoise:"#40e0d0",yellowgreen:"#9acd32",salmon:"#fa8072",saddlebrown:"#8b4513",sandybrown:"#f4a460",rosybrown:"#bc8f8f",darksalmon:"#e9967a",lightgoldenrodyellow:"#fafad2",snow:"#fffafa",lightgrey:"#d3d3d3",lightgray:"#d3d3d3",dimgray:"#696969",dimgrey:"#696969",olivedrab:"#6b8e23",olive:"#808000"},r={};for(var d in a)r[a[d]]=d;var l={};e.prototype.toName=function(f){if(!(this.rgba.a||this.rgba.r||this.rgba.g||this.rgba.b))return"transparent";var d,i,o=r[this.toHex()];if(o)return o;if(null==f?void 0:f.closest){var n=this.toRgb(),t=1/0,b="black";if(!l.length)for(var c in a)l[c]=new e(a[c]).toRgb();for(var g in a){var u=(d=n,i=l[g],Math.pow(d.r-i.r,2)+Math.pow(d.g-i.g,2)+Math.pow(d.b-i.b,2));u<t&&(t=u,b=g)}return b}};f.string.push([function(f){var r=f.toLowerCase(),d="transparent"===r?"#0000":a[r];return d?new e(d).toRgb():null},"name"])};
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/const.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/const.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/const.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -2989,13 +2997,13 @@ exports.INTERNAL_FORMAT_TO_BYTES_PER_PIXEL = INTERNAL_FORMAT_TO_BYTES_PER_PIXEL;
 //# sourceMappingURL=const.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/index.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/index.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/index.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3020,26 +3028,26 @@ exports.CompressedTextureResource = CompressedTextureResource.CompressedTextureR
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/loaders/compressedTextureExtensions.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/loaders/compressedTextureExtensions.js"
 /*!*******************************************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/loaders/compressedTextureExtensions.js ***!
   \*******************************************************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=compressedTextureExtensions.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/loaders/detectCompressedTextures.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/loaders/detectCompressedTextures.js"
 /*!****************************************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/loaders/detectCompressedTextures.js ***!
   \****************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3080,13 +3088,13 @@ exports.detectCompressedTextures = detectCompressedTextures;
 //# sourceMappingURL=detectCompressedTextures.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/loaders/index.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/loaders/index.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/loaders/index.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3099,13 +3107,13 @@ exports.resolveCompressedTextureUrl = resolveCompressedTextureUrl.resolveCompres
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/loaders/loadDDS.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/loaders/loadDDS.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/loaders/loadDDS.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3142,13 +3150,13 @@ exports.loadDDS = loadDDS;
 //# sourceMappingURL=loadDDS.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/loaders/loadKTX.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/loaders/loadKTX.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/loaders/loadKTX.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3189,13 +3197,13 @@ exports.loadKTX = loadKTX;
 //# sourceMappingURL=loadKTX.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/loaders/resolveCompressedTextureUrl.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/loaders/resolveCompressedTextureUrl.js"
 /*!*******************************************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/loaders/resolveCompressedTextureUrl.js ***!
   \*******************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3237,13 +3245,13 @@ exports.resolveCompressedTextureUrl = resolveCompressedTextureUrl;
 //# sourceMappingURL=resolveCompressedTextureUrl.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/parsers/index.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/parsers/index.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/parsers/index.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3256,13 +3264,13 @@ exports.parseKTX = parseKTX.parseKTX;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/parsers/parseDDS.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/parsers/parseDDS.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/parsers/parseDDS.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3367,13 +3375,13 @@ exports.parseDDS = parseDDS;
 //# sourceMappingURL=parseDDS.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/parsers/parseKTX.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/parsers/parseKTX.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/parsers/parseKTX.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3542,13 +3550,13 @@ exports.parseKTX = parseKTX;
 //# sourceMappingURL=parseKTX.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/resources/BlobResource.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/resources/BlobResource.js"
 /*!******************************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/resources/BlobResource.js ***!
   \******************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3578,13 +3586,13 @@ exports.BlobResource = BlobResource;
 //# sourceMappingURL=BlobResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/resources/CompressedTextureResource.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/resources/CompressedTextureResource.js"
 /*!*******************************************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/resources/CompressedTextureResource.js ***!
   \*******************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3690,13 +3698,13 @@ exports.CompressedTextureResource = CompressedTextureResource;
 //# sourceMappingURL=CompressedTextureResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/compressed-textures/lib/resources/index.js":
+/***/ "./node_modules/@pixi/compressed-textures/lib/resources/index.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/@pixi/compressed-textures/lib/resources/index.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3706,13 +3714,13 @@ exports.CompressedTextureResource = CompressedTextureResource.CompressedTextureR
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/constants/lib/index.js":
+/***/ "./node_modules/@pixi/constants/lib/index.js"
 /*!***************************************************!*\
   !*** ./node_modules/@pixi/constants/lib/index.js ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -3740,26 +3748,26 @@ exports.WRAP_MODES = WRAP_MODES;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/IRenderer.js":
+/***/ "./node_modules/@pixi/core/lib/IRenderer.js"
 /*!**************************************************!*\
   !*** ./node_modules/@pixi/core/lib/IRenderer.js ***!
   \**************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=IRenderer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/Renderer.js":
+/***/ "./node_modules/@pixi/core/lib/Renderer.js"
 /*!*************************************************!*\
   !*** ./node_modules/@pixi/core/lib/Renderer.js ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -4017,13 +4025,13 @@ exports.Renderer = Renderer;
 //# sourceMappingURL=Renderer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/autoDetectRenderer.js":
+/***/ "./node_modules/@pixi/core/lib/autoDetectRenderer.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/autoDetectRenderer.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -4040,13 +4048,13 @@ exports.autoDetectRenderer = autoDetectRenderer;
 //# sourceMappingURL=autoDetectRenderer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/background/BackgroundSystem.js":
+/***/ "./node_modules/@pixi/core/lib/background/BackgroundSystem.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/background/BackgroundSystem.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -4123,13 +4131,13 @@ exports.BackgroundSystem = BackgroundSystem;
 //# sourceMappingURL=BackgroundSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/batch/BatchDrawCall.js":
+/***/ "./node_modules/@pixi/core/lib/batch/BatchDrawCall.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/batch/BatchDrawCall.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -4143,13 +4151,13 @@ exports.BatchDrawCall = BatchDrawCall;
 //# sourceMappingURL=BatchDrawCall.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/batch/BatchGeometry.js":
+/***/ "./node_modules/@pixi/core/lib/batch/BatchGeometry.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/batch/BatchGeometry.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -4167,13 +4175,13 @@ exports.BatchGeometry = BatchGeometry;
 //# sourceMappingURL=BatchGeometry.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/batch/BatchRenderer.js":
+/***/ "./node_modules/@pixi/core/lib/batch/BatchRenderer.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/batch/BatchRenderer.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -4440,13 +4448,13 @@ exports.BatchRenderer = BatchRenderer;
 //# sourceMappingURL=BatchRenderer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/batch/BatchShaderGenerator.js":
+/***/ "./node_modules/@pixi/core/lib/batch/BatchShaderGenerator.js"
 /*!*******************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/batch/BatchShaderGenerator.js ***!
   \*******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -4498,13 +4506,13 @@ exports.BatchShaderGenerator = BatchShaderGenerator;
 //# sourceMappingURL=BatchShaderGenerator.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/batch/BatchSystem.js":
+/***/ "./node_modules/@pixi/core/lib/batch/BatchSystem.js"
 /*!**********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/batch/BatchSystem.js ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -4590,13 +4598,13 @@ exports.BatchSystem = BatchSystem;
 //# sourceMappingURL=BatchSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/batch/BatchTextureArray.js":
+/***/ "./node_modules/@pixi/core/lib/batch/BatchTextureArray.js"
 /*!****************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/batch/BatchTextureArray.js ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -4614,13 +4622,13 @@ exports.BatchTextureArray = BatchTextureArray;
 //# sourceMappingURL=BatchTextureArray.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/batch/ObjectRenderer.js":
+/***/ "./node_modules/@pixi/core/lib/batch/ObjectRenderer.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/batch/ObjectRenderer.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -4662,13 +4670,13 @@ exports.ObjectRenderer = ObjectRenderer;
 //# sourceMappingURL=ObjectRenderer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/batch/canUploadSameBuffer.js":
+/***/ "./node_modules/@pixi/core/lib/batch/canUploadSameBuffer.js"
 /*!******************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/batch/canUploadSameBuffer.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -4680,13 +4688,13 @@ exports.canUploadSameBuffer = canUploadSameBuffer;
 //# sourceMappingURL=canUploadSameBuffer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/batch/maxRecommendedTextures.js":
+/***/ "./node_modules/@pixi/core/lib/batch/maxRecommendedTextures.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/batch/maxRecommendedTextures.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -4710,13 +4718,13 @@ exports.maxRecommendedTextures = maxRecommendedTextures;
 //# sourceMappingURL=maxRecommendedTextures.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/batch/texture.frag.js":
+/***/ "./node_modules/@pixi/core/lib/batch/texture.frag.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/batch/texture.frag.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -4736,13 +4744,13 @@ exports["default"] = defaultFragment;
 //# sourceMappingURL=texture.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/batch/texture.vert.js":
+/***/ "./node_modules/@pixi/core/lib/batch/texture.vert.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/batch/texture.vert.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -4773,13 +4781,13 @@ exports["default"] = defaultVertex;
 //# sourceMappingURL=texture.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/context/ContextSystem.js":
+/***/ "./node_modules/@pixi/core/lib/context/ContextSystem.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/context/ContextSystem.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -4960,13 +4968,13 @@ exports.ContextSystem = ContextSystem;
 //# sourceMappingURL=ContextSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/filters/Filter.js":
+/***/ "./node_modules/@pixi/core/lib/filters/Filter.js"
 /*!*******************************************************!*\
   !*** ./node_modules/@pixi/core/lib/filters/Filter.js ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -5046,13 +5054,13 @@ exports.Filter = Filter;
 //# sourceMappingURL=Filter.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/filters/FilterState.js":
+/***/ "./node_modules/@pixi/core/lib/filters/FilterState.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/filters/FilterState.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -5070,13 +5078,13 @@ exports.FilterState = FilterState;
 //# sourceMappingURL=FilterState.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/filters/FilterSystem.js":
+/***/ "./node_modules/@pixi/core/lib/filters/FilterSystem.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/filters/FilterSystem.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -5314,26 +5322,26 @@ exports.FilterSystem = FilterSystem;
 //# sourceMappingURL=FilterSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/filters/IFilterTarget.js":
+/***/ "./node_modules/@pixi/core/lib/filters/IFilterTarget.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/filters/IFilterTarget.js ***!
   \**************************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=IFilterTarget.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/filters/defaultFilter.frag.js":
+/***/ "./node_modules/@pixi/core/lib/filters/defaultFilter.frag.js"
 /*!*******************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/filters/defaultFilter.frag.js ***!
   \*******************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -5350,13 +5358,13 @@ exports["default"] = defaultFragment;
 //# sourceMappingURL=defaultFilter.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/filters/defaultFilter.vert.js":
+/***/ "./node_modules/@pixi/core/lib/filters/defaultFilter.vert.js"
 /*!*******************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/filters/defaultFilter.vert.js ***!
   \*******************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -5392,13 +5400,13 @@ exports["default"] = defaultVertex;
 //# sourceMappingURL=defaultFilter.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/filters/spriteMask/SpriteMaskFilter.js":
+/***/ "./node_modules/@pixi/core/lib/filters/spriteMask/SpriteMaskFilter.js"
 /*!****************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/filters/spriteMask/SpriteMaskFilter.js ***!
   \****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -5435,13 +5443,13 @@ exports.SpriteMaskFilter = SpriteMaskFilter;
 //# sourceMappingURL=SpriteMaskFilter.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/filters/spriteMask/spriteMaskFilter.frag.js":
+/***/ "./node_modules/@pixi/core/lib/filters/spriteMask/spriteMaskFilter.frag.js"
 /*!*********************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/filters/spriteMask/spriteMaskFilter.frag.js ***!
   \*********************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -5476,13 +5484,13 @@ exports["default"] = fragment;
 //# sourceMappingURL=spriteMaskFilter.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/filters/spriteMask/spriteMaskFilter.vert.js":
+/***/ "./node_modules/@pixi/core/lib/filters/spriteMask/spriteMaskFilter.vert.js"
 /*!*********************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/filters/spriteMask/spriteMaskFilter.vert.js ***!
   \*********************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -5508,13 +5516,13 @@ exports["default"] = vertex;
 //# sourceMappingURL=spriteMaskFilter.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/fragments/default.vert.js":
+/***/ "./node_modules/@pixi/core/lib/fragments/default.vert.js"
 /*!***************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/fragments/default.vert.js ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -5535,13 +5543,13 @@ exports["default"] = $defaultVertex;
 //# sourceMappingURL=default.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/fragments/defaultFilter.vert.js":
+/***/ "./node_modules/@pixi/core/lib/fragments/defaultFilter.vert.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/fragments/defaultFilter.vert.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -5577,13 +5585,13 @@ exports["default"] = $defaultFilterVertex;
 //# sourceMappingURL=defaultFilter.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/fragments/index.js":
+/***/ "./node_modules/@pixi/core/lib/fragments/index.js"
 /*!********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/fragments/index.js ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -5594,13 +5602,13 @@ exports.defaultVertex = defaultVertex;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/framebuffer/Framebuffer.js":
+/***/ "./node_modules/@pixi/core/lib/framebuffer/Framebuffer.js"
 /*!****************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/framebuffer/Framebuffer.js ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -5692,13 +5700,13 @@ exports.Framebuffer = Framebuffer;
 //# sourceMappingURL=Framebuffer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/framebuffer/FramebufferSystem.js":
+/***/ "./node_modules/@pixi/core/lib/framebuffer/FramebufferSystem.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/framebuffer/FramebufferSystem.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -6001,13 +6009,13 @@ exports.FramebufferSystem = FramebufferSystem;
 //# sourceMappingURL=FramebufferSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/framebuffer/GLFramebuffer.js":
+/***/ "./node_modules/@pixi/core/lib/framebuffer/GLFramebuffer.js"
 /*!******************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/framebuffer/GLFramebuffer.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -6021,13 +6029,13 @@ exports.GLFramebuffer = GLFramebuffer;
 //# sourceMappingURL=GLFramebuffer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/framebuffer/MultisampleSystem.js":
+/***/ "./node_modules/@pixi/core/lib/framebuffer/MultisampleSystem.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/framebuffer/MultisampleSystem.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -6059,13 +6067,13 @@ exports.MultisampleSystem = MultisampleSystem;
 //# sourceMappingURL=MultisampleSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/geometry/Attribute.js":
+/***/ "./node_modules/@pixi/core/lib/geometry/Attribute.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/geometry/Attribute.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -6105,13 +6113,13 @@ exports.Attribute = Attribute;
 //# sourceMappingURL=Attribute.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/geometry/Buffer.js":
+/***/ "./node_modules/@pixi/core/lib/geometry/Buffer.js"
 /*!********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/geometry/Buffer.js ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -6169,13 +6177,13 @@ exports.Buffer = Buffer;
 //# sourceMappingURL=Buffer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/geometry/BufferSystem.js":
+/***/ "./node_modules/@pixi/core/lib/geometry/BufferSystem.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/geometry/BufferSystem.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -6290,13 +6298,13 @@ exports.BufferSystem = BufferSystem;
 //# sourceMappingURL=BufferSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/geometry/GLBuffer.js":
+/***/ "./node_modules/@pixi/core/lib/geometry/GLBuffer.js"
 /*!**********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/geometry/GLBuffer.js ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -6309,13 +6317,13 @@ exports.GLBuffer = GLBuffer;
 //# sourceMappingURL=GLBuffer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/geometry/Geometry.js":
+/***/ "./node_modules/@pixi/core/lib/geometry/Geometry.js"
 /*!**********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/geometry/Geometry.js ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -6501,13 +6509,13 @@ exports.Geometry = Geometry;
 //# sourceMappingURL=Geometry.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/geometry/GeometrySystem.js":
+/***/ "./node_modules/@pixi/core/lib/geometry/GeometrySystem.js"
 /*!****************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/geometry/GeometrySystem.js ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -6711,13 +6719,13 @@ exports.GeometrySystem = GeometrySystem;
 //# sourceMappingURL=GeometrySystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/geometry/ViewableBuffer.js":
+/***/ "./node_modules/@pixi/core/lib/geometry/ViewableBuffer.js"
 /*!****************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/geometry/ViewableBuffer.js ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -6779,13 +6787,13 @@ exports.ViewableBuffer = ViewableBuffer;
 //# sourceMappingURL=ViewableBuffer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/geometry/utils/interleaveTypedArrays.js":
+/***/ "./node_modules/@pixi/core/lib/geometry/utils/interleaveTypedArrays.js"
 /*!*****************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/geometry/utils/interleaveTypedArrays.js ***!
   \*****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -6818,13 +6826,13 @@ exports.interleaveTypedArrays = interleaveTypedArrays;
 //# sourceMappingURL=interleaveTypedArrays.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/index.js":
+/***/ "./node_modules/@pixi/core/lib/index.js"
 /*!**********************************************!*\
   !*** ./node_modules/@pixi/core/lib/index.js ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -6998,13 +7006,13 @@ Object.keys(ticker).forEach(function(k) {
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/mask/AbstractMaskSystem.js":
+/***/ "./node_modules/@pixi/core/lib/mask/AbstractMaskSystem.js"
 /*!****************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/mask/AbstractMaskSystem.js ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -7044,13 +7052,13 @@ exports.AbstractMaskSystem = AbstractMaskSystem;
 //# sourceMappingURL=AbstractMaskSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/mask/MaskData.js":
+/***/ "./node_modules/@pixi/core/lib/mask/MaskData.js"
 /*!******************************************************!*\
   !*** ./node_modules/@pixi/core/lib/mask/MaskData.js ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7090,13 +7098,13 @@ exports.MaskData = MaskData;
 //# sourceMappingURL=MaskData.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/mask/MaskSystem.js":
+/***/ "./node_modules/@pixi/core/lib/mask/MaskSystem.js"
 /*!********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/mask/MaskSystem.js ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7245,13 +7253,13 @@ exports.MaskSystem = MaskSystem;
 //# sourceMappingURL=MaskSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/mask/ScissorSystem.js":
+/***/ "./node_modules/@pixi/core/lib/mask/ScissorSystem.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/mask/ScissorSystem.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7350,13 +7358,13 @@ exports.ScissorSystem = ScissorSystem;
 //# sourceMappingURL=ScissorSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/mask/StencilSystem.js":
+/***/ "./node_modules/@pixi/core/lib/mask/StencilSystem.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/mask/StencilSystem.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7423,13 +7431,13 @@ exports.StencilSystem = StencilSystem;
 //# sourceMappingURL=StencilSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/plugin/PluginSystem.js":
+/***/ "./node_modules/@pixi/core/lib/plugin/PluginSystem.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/plugin/PluginSystem.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7483,13 +7491,13 @@ exports.PluginSystem = PluginSystem;
 //# sourceMappingURL=PluginSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/projection/ProjectionSystem.js":
+/***/ "./node_modules/@pixi/core/lib/projection/ProjectionSystem.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/projection/ProjectionSystem.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7552,13 +7560,13 @@ exports.ProjectionSystem = ProjectionSystem;
 //# sourceMappingURL=ProjectionSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/render/ObjectRendererSystem.js":
+/***/ "./node_modules/@pixi/core/lib/render/ObjectRendererSystem.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/render/ObjectRendererSystem.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7597,13 +7605,13 @@ exports.ObjectRendererSystem = ObjectRendererSystem;
 //# sourceMappingURL=ObjectRendererSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/renderTexture/BaseRenderTexture.js":
+/***/ "./node_modules/@pixi/core/lib/renderTexture/BaseRenderTexture.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/renderTexture/BaseRenderTexture.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7677,13 +7685,13 @@ exports.BaseRenderTexture = BaseRenderTexture;
 //# sourceMappingURL=BaseRenderTexture.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/renderTexture/GenerateTextureSystem.js":
+/***/ "./node_modules/@pixi/core/lib/renderTexture/GenerateTextureSystem.js"
 /*!****************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/renderTexture/GenerateTextureSystem.js ***!
   \****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7732,13 +7740,13 @@ exports.GenerateTextureSystem = GenerateTextureSystem;
 //# sourceMappingURL=GenerateTextureSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/renderTexture/RenderTexture.js":
+/***/ "./node_modules/@pixi/core/lib/renderTexture/RenderTexture.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/renderTexture/RenderTexture.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7806,13 +7814,13 @@ exports.RenderTexture = RenderTexture;
 //# sourceMappingURL=RenderTexture.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/renderTexture/RenderTexturePool.js":
+/***/ "./node_modules/@pixi/core/lib/renderTexture/RenderTexturePool.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/renderTexture/RenderTexturePool.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7929,13 +7937,13 @@ exports.RenderTexturePool = RenderTexturePool;
 //# sourceMappingURL=RenderTexturePool.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/renderTexture/RenderTextureSystem.js":
+/***/ "./node_modules/@pixi/core/lib/renderTexture/RenderTextureSystem.js"
 /*!**************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/renderTexture/RenderTextureSystem.js ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -8002,13 +8010,13 @@ exports.RenderTextureSystem = RenderTextureSystem;
 //# sourceMappingURL=RenderTextureSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/settings.js":
+/***/ "./node_modules/@pixi/core/lib/settings.js"
 /*!*************************************************!*\
   !*** ./node_modules/@pixi/core/lib/settings.js ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -8268,13 +8276,13 @@ Object.defineProperties(settings.settings, {
 //# sourceMappingURL=settings.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/GLProgram.js":
+/***/ "./node_modules/@pixi/core/lib/shader/GLProgram.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/GLProgram.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -8299,13 +8307,13 @@ exports.IGLUniformData = IGLUniformData;
 //# sourceMappingURL=GLProgram.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/Program.js":
+/***/ "./node_modules/@pixi/core/lib/shader/Program.js"
 /*!*******************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/Program.js ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -8375,13 +8383,13 @@ exports.Program = Program;
 //# sourceMappingURL=Program.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/Shader.js":
+/***/ "./node_modules/@pixi/core/lib/shader/Shader.js"
 /*!******************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/Shader.js ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -8431,13 +8439,13 @@ exports.Shader = Shader;
 //# sourceMappingURL=Shader.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/ShaderSystem.js":
+/***/ "./node_modules/@pixi/core/lib/shader/ShaderSystem.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/ShaderSystem.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -8604,13 +8612,13 @@ exports.ShaderSystem = ShaderSystem;
 //# sourceMappingURL=ShaderSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/UniformGroup.js":
+/***/ "./node_modules/@pixi/core/lib/shader/UniformGroup.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/UniformGroup.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -8650,13 +8658,13 @@ exports.UniformGroup = UniformGroup;
 //# sourceMappingURL=UniformGroup.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/defaultProgram.frag.js":
+/***/ "./node_modules/@pixi/core/lib/shader/defaultProgram.frag.js"
 /*!*******************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/defaultProgram.frag.js ***!
   \*******************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -8672,13 +8680,13 @@ exports["default"] = defaultFragment;
 //# sourceMappingURL=defaultProgram.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/defaultProgram.vert.js":
+/***/ "./node_modules/@pixi/core/lib/shader/defaultProgram.vert.js"
 /*!*******************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/defaultProgram.vert.js ***!
   \*******************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -8699,13 +8707,13 @@ exports["default"] = defaultVertex;
 //# sourceMappingURL=defaultProgram.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/checkMaxIfStatementsInShader.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/checkMaxIfStatementsInShader.js"
 /*!**********************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/checkMaxIfStatementsInShader.js ***!
   \**********************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -8742,13 +8750,13 @@ exports.checkMaxIfStatementsInShader = checkMaxIfStatementsInShader;
 //# sourceMappingURL=checkMaxIfStatementsInShader.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/compileShader.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/compileShader.js"
 /*!*******************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/compileShader.js ***!
   \*******************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -8760,13 +8768,13 @@ exports.compileShader = compileShader;
 //# sourceMappingURL=compileShader.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/defaultValue.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/defaultValue.js"
 /*!******************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/defaultValue.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -8856,13 +8864,13 @@ exports.defaultValue = defaultValue;
 //# sourceMappingURL=defaultValue.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/generateProgram.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/generateProgram.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/generateProgram.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -8897,13 +8905,13 @@ exports.generateProgram = generateProgram;
 //# sourceMappingURL=generateProgram.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/generateUniformBufferSync.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/generateUniformBufferSync.js"
 /*!*******************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/generateUniformBufferSync.js ***!
   \*******************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -9080,13 +9088,13 @@ exports.getUBOData = getUBOData;
 //# sourceMappingURL=generateUniformBufferSync.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/generateUniformsSync.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/generateUniformsSync.js"
 /*!**************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/generateUniformsSync.js ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -9315,13 +9323,13 @@ exports.generateUniformsSync = generateUniformsSync;
 //# sourceMappingURL=generateUniformsSync.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/getAttributeData.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/getAttributeData.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/getAttributeData.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -9346,13 +9354,13 @@ exports.getAttributeData = getAttributeData;
 //# sourceMappingURL=getAttributeData.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/getMaxFragmentPrecision.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/getMaxFragmentPrecision.js"
 /*!*****************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/getMaxFragmentPrecision.js ***!
   \*****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -9373,13 +9381,13 @@ exports.getMaxFragmentPrecision = getMaxFragmentPrecision;
 //# sourceMappingURL=getMaxFragmentPrecision.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/getTestContext.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/getTestContext.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/getTestContext.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -9398,13 +9406,13 @@ exports.getTestContext = getTestContext;
 //# sourceMappingURL=getTestContext.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/getUniformData.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/getUniformData.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/getUniformData.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -9428,13 +9436,13 @@ exports.getUniformData = getUniformData;
 //# sourceMappingURL=getUniformData.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/index.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/index.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/index.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -9454,13 +9462,13 @@ exports.unsafeEvalSupported = unsafeEvalSupported.unsafeEvalSupported;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/logProgramError.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/logProgramError.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/logProgramError.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -9482,13 +9490,13 @@ exports.logProgramError = logProgramError;
 //# sourceMappingURL=logProgramError.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/mapSize.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/mapSize.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/mapSize.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -9521,13 +9529,13 @@ exports.mapSize = mapSize;
 //# sourceMappingURL=mapSize.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/mapType.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/mapType.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/mapType.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -9577,13 +9585,13 @@ exports.mapType = mapType;
 //# sourceMappingURL=mapType.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/setPrecision.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/setPrecision.js"
 /*!******************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/setPrecision.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -9601,13 +9609,13 @@ exports.setPrecision = setPrecision;
 //# sourceMappingURL=setPrecision.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/uniformParsers.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/uniformParsers.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/uniformParsers.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -9793,13 +9801,13 @@ exports.uniformParsers = uniformParsers;
 //# sourceMappingURL=uniformParsers.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/shader/utils/unsafeEvalSupported.js":
+/***/ "./node_modules/@pixi/core/lib/shader/utils/unsafeEvalSupported.js"
 /*!*************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/shader/utils/unsafeEvalSupported.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -9818,13 +9826,13 @@ exports.unsafeEvalSupported = unsafeEvalSupported;
 //# sourceMappingURL=unsafeEvalSupported.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/startup/StartupSystem.js":
+/***/ "./node_modules/@pixi/core/lib/startup/StartupSystem.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/startup/StartupSystem.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -9864,13 +9872,13 @@ exports.StartupSystem = StartupSystem;
 //# sourceMappingURL=StartupSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/state/State.js":
+/***/ "./node_modules/@pixi/core/lib/state/State.js"
 /*!****************************************************!*\
   !*** ./node_modules/@pixi/core/lib/state/State.js ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -9973,13 +9981,13 @@ exports.State = State;
 //# sourceMappingURL=State.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/state/StateSystem.js":
+/***/ "./node_modules/@pixi/core/lib/state/StateSystem.js"
 /*!**********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/state/StateSystem.js ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -10129,13 +10137,13 @@ exports.StateSystem = StateSystem;
 //# sourceMappingURL=StateSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/state/utils/mapWebGLBlendModesToPixi.js":
+/***/ "./node_modules/@pixi/core/lib/state/utils/mapWebGLBlendModesToPixi.js"
 /*!*****************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/state/utils/mapWebGLBlendModesToPixi.js ***!
   \*****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -10147,26 +10155,26 @@ exports.mapWebGLBlendModesToPixi = mapWebGLBlendModesToPixi;
 //# sourceMappingURL=mapWebGLBlendModesToPixi.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/system/ISystem.js":
+/***/ "./node_modules/@pixi/core/lib/system/ISystem.js"
 /*!*******************************************************!*\
   !*** ./node_modules/@pixi/core/lib/system/ISystem.js ***!
   \*******************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=ISystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/system/SystemManager.js":
+/***/ "./node_modules/@pixi/core/lib/system/SystemManager.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/system/SystemManager.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -10255,13 +10263,13 @@ exports.SystemManager = SystemManager;
 //# sourceMappingURL=SystemManager.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/systems.js":
+/***/ "./node_modules/@pixi/core/lib/systems.js"
 /*!************************************************!*\
   !*** ./node_modules/@pixi/core/lib/systems.js ***!
   \************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -10290,13 +10298,13 @@ exports.ViewSystem = ViewSystem.ViewSystem;
 //# sourceMappingURL=systems.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/BaseTexture.js":
+/***/ "./node_modules/@pixi/core/lib/textures/BaseTexture.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/BaseTexture.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -10612,13 +10620,13 @@ exports.BaseTexture = BaseTexture;
 //# sourceMappingURL=BaseTexture.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/GLTexture.js":
+/***/ "./node_modules/@pixi/core/lib/textures/GLTexture.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/GLTexture.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -10632,13 +10640,13 @@ exports.GLTexture = GLTexture;
 //# sourceMappingURL=GLTexture.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/Texture.js":
+/***/ "./node_modules/@pixi/core/lib/textures/Texture.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/Texture.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -10908,13 +10916,13 @@ exports.Texture = Texture;
 //# sourceMappingURL=Texture.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/TextureGCSystem.js":
+/***/ "./node_modules/@pixi/core/lib/textures/TextureGCSystem.js"
 /*!*****************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/TextureGCSystem.js ***!
   \*****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -10986,13 +10994,13 @@ exports.TextureGCSystem = TextureGCSystem;
 //# sourceMappingURL=TextureGCSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/TextureMatrix.js":
+/***/ "./node_modules/@pixi/core/lib/textures/TextureMatrix.js"
 /*!***************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/TextureMatrix.js ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -11057,13 +11065,13 @@ exports.TextureMatrix = TextureMatrix;
 //# sourceMappingURL=TextureMatrix.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/TextureSystem.js":
+/***/ "./node_modules/@pixi/core/lib/textures/TextureSystem.js"
 /*!***************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/TextureSystem.js ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -11235,13 +11243,13 @@ exports.TextureSystem = TextureSystem;
 //# sourceMappingURL=TextureSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/TextureUvs.js":
+/***/ "./node_modules/@pixi/core/lib/textures/TextureUvs.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/TextureUvs.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -11274,13 +11282,13 @@ exports.TextureUvs = TextureUvs;
 //# sourceMappingURL=TextureUvs.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/AbstractMultiResource.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/AbstractMultiResource.js"
 /*!*********************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/AbstractMultiResource.js ***!
   \*********************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -11368,13 +11376,13 @@ exports.AbstractMultiResource = AbstractMultiResource;
 //# sourceMappingURL=AbstractMultiResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/ArrayResource.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/ArrayResource.js"
 /*!*************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/ArrayResource.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -11460,13 +11468,13 @@ exports.ArrayResource = ArrayResource;
 //# sourceMappingURL=ArrayResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/BaseImageResource.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/BaseImageResource.js"
 /*!*****************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/BaseImageResource.js ***!
   \*****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -11524,13 +11532,13 @@ exports.BaseImageResource = BaseImageResource;
 //# sourceMappingURL=BaseImageResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/BufferResource.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/BufferResource.js"
 /*!**************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/BufferResource.js ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -11599,13 +11607,13 @@ exports.BufferResource = BufferResource;
 //# sourceMappingURL=BufferResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/CanvasResource.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/CanvasResource.js"
 /*!**************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/CanvasResource.js ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -11632,13 +11640,13 @@ exports.CanvasResource = CanvasResource;
 //# sourceMappingURL=CanvasResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/CubeResource.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/CubeResource.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/CubeResource.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -11722,13 +11730,13 @@ exports.CubeResource = CubeResource;
 //# sourceMappingURL=CubeResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/ImageBitmapResource.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/ImageBitmapResource.js"
 /*!*******************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/ImageBitmapResource.js ***!
   \*******************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -11808,13 +11816,13 @@ exports.ImageBitmapResource = ImageBitmapResource;
 //# sourceMappingURL=ImageBitmapResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/ImageResource.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/ImageResource.js"
 /*!*************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/ImageResource.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -11923,13 +11931,13 @@ exports.ImageResource = ImageResource;
 //# sourceMappingURL=ImageResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/Resource.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/Resource.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/Resource.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -12032,13 +12040,13 @@ exports.Resource = Resource;
 //# sourceMappingURL=Resource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/SVGResource.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/SVGResource.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/SVGResource.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -12119,13 +12127,13 @@ exports.SVGResource = SVGResource;
 //# sourceMappingURL=SVGResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/VideoResource.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/VideoResource.js"
 /*!*************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/VideoResource.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -12289,13 +12297,13 @@ exports.VideoResource = VideoResource;
 //# sourceMappingURL=VideoResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/autoDetectResource.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/autoDetectResource.js"
 /*!******************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/autoDetectResource.js ***!
   \******************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -12320,13 +12328,13 @@ exports.autoDetectResource = autoDetectResource;
 //# sourceMappingURL=autoDetectResource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/resources/index.js":
+/***/ "./node_modules/@pixi/core/lib/textures/resources/index.js"
 /*!*****************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/resources/index.js ***!
   \*****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -12357,13 +12365,13 @@ exports.AbstractMultiResource = AbstractMultiResource.AbstractMultiResource;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/utils/mapInternalFormatToSamplerType.js":
+/***/ "./node_modules/@pixi/core/lib/textures/utils/mapInternalFormatToSamplerType.js"
 /*!**************************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/utils/mapInternalFormatToSamplerType.js ***!
   \**************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -12444,13 +12452,13 @@ exports.mapInternalFormatToSamplerType = mapInternalFormatToSamplerType;
 //# sourceMappingURL=mapInternalFormatToSamplerType.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/textures/utils/mapTypeAndFormatToInternalFormat.js":
+/***/ "./node_modules/@pixi/core/lib/textures/utils/mapTypeAndFormatToInternalFormat.js"
 /*!****************************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/textures/utils/mapTypeAndFormatToInternalFormat.js ***!
   \****************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -12568,13 +12576,13 @@ exports.mapTypeAndFormatToInternalFormat = mapTypeAndFormatToInternalFormat;
 //# sourceMappingURL=mapTypeAndFormatToInternalFormat.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/transformFeedback/TransformFeedback.js":
+/***/ "./node_modules/@pixi/core/lib/transformFeedback/TransformFeedback.js"
 /*!****************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/transformFeedback/TransformFeedback.js ***!
   \****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -12600,13 +12608,13 @@ exports.TransformFeedback = TransformFeedback;
 //# sourceMappingURL=TransformFeedback.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/transformFeedback/TransformFeedbackSystem.js":
+/***/ "./node_modules/@pixi/core/lib/transformFeedback/TransformFeedbackSystem.js"
 /*!**********************************************************************************!*\
   !*** ./node_modules/@pixi/core/lib/transformFeedback/TransformFeedbackSystem.js ***!
   \**********************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -12695,13 +12703,13 @@ exports.TransformFeedbackSystem = TransformFeedbackSystem;
 //# sourceMappingURL=TransformFeedbackSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/utils/Quad.js":
+/***/ "./node_modules/@pixi/core/lib/utils/Quad.js"
 /*!***************************************************!*\
   !*** ./node_modules/@pixi/core/lib/utils/Quad.js ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -12724,13 +12732,13 @@ exports.Quad = Quad;
 //# sourceMappingURL=Quad.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/utils/QuadUv.js":
+/***/ "./node_modules/@pixi/core/lib/utils/QuadUv.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/core/lib/utils/QuadUv.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -12779,13 +12787,13 @@ exports.QuadUv = QuadUv;
 //# sourceMappingURL=QuadUv.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/core/lib/view/ViewSystem.js":
+/***/ "./node_modules/@pixi/core/lib/view/ViewSystem.js"
 /*!********************************************************!*\
   !*** ./node_modules/@pixi/core/lib/view/ViewSystem.js ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -12858,13 +12866,13 @@ exports.ViewSystem = ViewSystem;
 //# sourceMappingURL=ViewSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/display/lib/Bounds.js":
+/***/ "./node_modules/@pixi/display/lib/Bounds.js"
 /*!**************************************************!*\
   !*** ./node_modules/@pixi/display/lib/Bounds.js ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -13049,13 +13057,13 @@ exports.Bounds = Bounds;
 //# sourceMappingURL=Bounds.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/display/lib/Container.js":
+/***/ "./node_modules/@pixi/display/lib/Container.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/display/lib/Container.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -13382,13 +13390,13 @@ exports.Container = Container;
 //# sourceMappingURL=Container.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/display/lib/DisplayObject.js":
+/***/ "./node_modules/@pixi/display/lib/DisplayObject.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/display/lib/DisplayObject.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -13758,13 +13766,13 @@ exports.TemporaryDisplayObject = TemporaryDisplayObject;
 //# sourceMappingURL=DisplayObject.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/display/lib/index.js":
+/***/ "./node_modules/@pixi/display/lib/index.js"
 /*!*************************************************!*\
   !*** ./node_modules/@pixi/display/lib/index.js ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -13777,13 +13785,13 @@ exports.TemporaryDisplayObject = DisplayObject.TemporaryDisplayObject;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/display/lib/settings.js":
+/***/ "./node_modules/@pixi/display/lib/settings.js"
 /*!****************************************************!*\
   !*** ./node_modules/@pixi/display/lib/settings.js ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -13816,13 +13824,13 @@ Object.defineProperty(exports, "settings", ({
 //# sourceMappingURL=settings.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/events/lib/EventBoundary.js":
+/***/ "./node_modules/@pixi/events/lib/EventBoundary.js"
 /*!********************************************************!*\
   !*** ./node_modules/@pixi/events/lib/EventBoundary.js ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -14437,13 +14445,13 @@ exports.EventBoundary = EventBoundary;
 //# sourceMappingURL=EventBoundary.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/events/lib/EventSystem.js":
+/***/ "./node_modules/@pixi/events/lib/EventSystem.js"
 /*!******************************************************!*\
   !*** ./node_modules/@pixi/events/lib/EventSystem.js ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -14722,13 +14730,13 @@ exports.EventSystem = EventSystem;
 //# sourceMappingURL=EventSystem.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/events/lib/EventTicker.js":
+/***/ "./node_modules/@pixi/events/lib/EventTicker.js"
 /*!******************************************************!*\
   !*** ./node_modules/@pixi/events/lib/EventTicker.js ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -14793,13 +14801,13 @@ exports.EventsTicker = EventsTicker;
 //# sourceMappingURL=EventTicker.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/events/lib/FederatedEvent.js":
+/***/ "./node_modules/@pixi/events/lib/FederatedEvent.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/events/lib/FederatedEvent.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -14885,26 +14893,26 @@ exports.FederatedEvent = FederatedEvent;
 //# sourceMappingURL=FederatedEvent.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/events/lib/FederatedEventMap.js":
+/***/ "./node_modules/@pixi/events/lib/FederatedEventMap.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/events/lib/FederatedEventMap.js ***!
   \************************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=FederatedEventMap.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/events/lib/FederatedEventTarget.js":
+/***/ "./node_modules/@pixi/events/lib/FederatedEventTarget.js"
 /*!***************************************************************!*\
   !*** ./node_modules/@pixi/events/lib/FederatedEventTarget.js ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -15412,13 +15420,13 @@ exports.FederatedDisplayObject = FederatedDisplayObject;
 //# sourceMappingURL=FederatedEventTarget.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/events/lib/FederatedMouseEvent.js":
+/***/ "./node_modules/@pixi/events/lib/FederatedMouseEvent.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/events/lib/FederatedMouseEvent.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -15536,13 +15544,13 @@ exports.FederatedMouseEvent = FederatedMouseEvent;
 //# sourceMappingURL=FederatedMouseEvent.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/events/lib/FederatedPointerEvent.js":
+/***/ "./node_modules/@pixi/events/lib/FederatedPointerEvent.js"
 /*!****************************************************************!*\
   !*** ./node_modules/@pixi/events/lib/FederatedPointerEvent.js ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -15564,13 +15572,13 @@ exports.FederatedPointerEvent = FederatedPointerEvent;
 //# sourceMappingURL=FederatedPointerEvent.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/events/lib/FederatedWheelEvent.js":
+/***/ "./node_modules/@pixi/events/lib/FederatedWheelEvent.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/events/lib/FederatedWheelEvent.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -15587,13 +15595,13 @@ exports.FederatedWheelEvent = FederatedWheelEvent;
 //# sourceMappingURL=FederatedWheelEvent.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/events/lib/index.js":
+/***/ "./node_modules/@pixi/events/lib/index.js"
 /*!************************************************!*\
   !*** ./node_modules/@pixi/events/lib/index.js ***!
   \************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -15610,13 +15618,13 @@ exports.FederatedWheelEvent = FederatedWheelEvent.FederatedWheelEvent;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/extensions/lib/index.js":
+/***/ "./node_modules/@pixi/extensions/lib/index.js"
 /*!****************************************************!*\
   !*** ./node_modules/@pixi/extensions/lib/index.js ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -15719,13 +15727,13 @@ exports.extensions = extensions;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/extract/lib/Extract.js":
+/***/ "./node_modules/@pixi/extract/lib/Extract.js"
 /*!***************************************************!*\
   !*** ./node_modules/@pixi/extract/lib/Extract.js ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -15876,13 +15884,13 @@ exports.Extract = Extract;
 //# sourceMappingURL=Extract.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/extract/lib/index.js":
+/***/ "./node_modules/@pixi/extract/lib/index.js"
 /*!*************************************************!*\
   !*** ./node_modules/@pixi/extract/lib/index.js ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -15891,13 +15899,13 @@ exports.Extract = Extract.Extract;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-alpha/lib/AlphaFilter.js":
+/***/ "./node_modules/@pixi/filter-alpha/lib/AlphaFilter.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/filter-alpha/lib/AlphaFilter.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -15924,13 +15932,13 @@ exports.AlphaFilter = AlphaFilter;
 //# sourceMappingURL=AlphaFilter.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-alpha/lib/alpha.frag.js":
+/***/ "./node_modules/@pixi/filter-alpha/lib/alpha.frag.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/filter-alpha/lib/alpha.frag.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -15949,13 +15957,13 @@ exports["default"] = fragment;
 //# sourceMappingURL=alpha.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-alpha/lib/index.js":
+/***/ "./node_modules/@pixi/filter-alpha/lib/index.js"
 /*!******************************************************!*\
   !*** ./node_modules/@pixi/filter-alpha/lib/index.js ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -15964,13 +15972,13 @@ exports.AlphaFilter = AlphaFilter.AlphaFilter;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-blur/lib/BlurFilter.js":
+/***/ "./node_modules/@pixi/filter-blur/lib/BlurFilter.js"
 /*!**********************************************************!*\
   !*** ./node_modules/@pixi/filter-blur/lib/BlurFilter.js ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -16068,13 +16076,13 @@ exports.BlurFilter = BlurFilter;
 //# sourceMappingURL=BlurFilter.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-blur/lib/BlurFilterPass.js":
+/***/ "./node_modules/@pixi/filter-blur/lib/BlurFilterPass.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/filter-blur/lib/BlurFilterPass.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -16144,13 +16152,13 @@ exports.BlurFilterPass = BlurFilterPass;
 //# sourceMappingURL=BlurFilterPass.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-blur/lib/generateBlurFragSource.js":
+/***/ "./node_modules/@pixi/filter-blur/lib/generateBlurFragSource.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/@pixi/filter-blur/lib/generateBlurFragSource.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -16187,13 +16195,13 @@ exports.generateBlurFragSource = generateBlurFragSource;
 //# sourceMappingURL=generateBlurFragSource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-blur/lib/generateBlurVertSource.js":
+/***/ "./node_modules/@pixi/filter-blur/lib/generateBlurVertSource.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/@pixi/filter-blur/lib/generateBlurVertSource.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -16243,13 +16251,13 @@ exports.generateBlurVertSource = generateBlurVertSource;
 //# sourceMappingURL=generateBlurVertSource.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-blur/lib/index.js":
+/***/ "./node_modules/@pixi/filter-blur/lib/index.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/filter-blur/lib/index.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -16259,13 +16267,13 @@ exports.BlurFilterPass = BlurFilterPass.BlurFilterPass;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-color-matrix/lib/ColorMatrixFilter.js":
+/***/ "./node_modules/@pixi/filter-color-matrix/lib/ColorMatrixFilter.js"
 /*!*************************************************************************!*\
   !*** ./node_modules/@pixi/filter-color-matrix/lib/ColorMatrixFilter.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -16988,13 +16996,13 @@ exports.ColorMatrixFilter = ColorMatrixFilter;
 //# sourceMappingURL=ColorMatrixFilter.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-color-matrix/lib/colorMatrix.frag.js":
+/***/ "./node_modules/@pixi/filter-color-matrix/lib/colorMatrix.frag.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@pixi/filter-color-matrix/lib/colorMatrix.frag.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -17056,13 +17064,13 @@ exports["default"] = fragment;
 //# sourceMappingURL=colorMatrix.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-color-matrix/lib/index.js":
+/***/ "./node_modules/@pixi/filter-color-matrix/lib/index.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/filter-color-matrix/lib/index.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -17071,13 +17079,13 @@ exports.ColorMatrixFilter = ColorMatrixFilter.ColorMatrixFilter;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-displacement/lib/DisplacementFilter.js":
+/***/ "./node_modules/@pixi/filter-displacement/lib/DisplacementFilter.js"
 /*!**************************************************************************!*\
   !*** ./node_modules/@pixi/filter-displacement/lib/DisplacementFilter.js ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -17120,13 +17128,13 @@ exports.DisplacementFilter = DisplacementFilter;
 //# sourceMappingURL=DisplacementFilter.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-displacement/lib/displacement.frag.js":
+/***/ "./node_modules/@pixi/filter-displacement/lib/displacement.frag.js"
 /*!*************************************************************************!*\
   !*** ./node_modules/@pixi/filter-displacement/lib/displacement.frag.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -17156,13 +17164,13 @@ exports["default"] = fragment;
 //# sourceMappingURL=displacement.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-displacement/lib/displacement.vert.js":
+/***/ "./node_modules/@pixi/filter-displacement/lib/displacement.vert.js"
 /*!*************************************************************************!*\
   !*** ./node_modules/@pixi/filter-displacement/lib/displacement.vert.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -17201,13 +17209,13 @@ exports["default"] = vertex;
 //# sourceMappingURL=displacement.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-displacement/lib/index.js":
+/***/ "./node_modules/@pixi/filter-displacement/lib/index.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/filter-displacement/lib/index.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -17216,13 +17224,13 @@ exports.DisplacementFilter = DisplacementFilter.DisplacementFilter;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-fxaa/lib/FXAAFilter.js":
+/***/ "./node_modules/@pixi/filter-fxaa/lib/FXAAFilter.js"
 /*!**********************************************************!*\
   !*** ./node_modules/@pixi/filter-fxaa/lib/FXAAFilter.js ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -17236,13 +17244,13 @@ exports.FXAAFilter = FXAAFilter;
 //# sourceMappingURL=FXAAFilter.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-fxaa/lib/fxaa.frag.js":
+/***/ "./node_modules/@pixi/filter-fxaa/lib/fxaa.frag.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/filter-fxaa/lib/fxaa.frag.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -17373,13 +17381,13 @@ exports["default"] = fragment;
 //# sourceMappingURL=fxaa.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-fxaa/lib/fxaa.vert.js":
+/***/ "./node_modules/@pixi/filter-fxaa/lib/fxaa.vert.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/filter-fxaa/lib/fxaa.vert.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -17431,13 +17439,13 @@ exports["default"] = vertex;
 //# sourceMappingURL=fxaa.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-fxaa/lib/index.js":
+/***/ "./node_modules/@pixi/filter-fxaa/lib/index.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/filter-fxaa/lib/index.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -17446,13 +17454,13 @@ exports.FXAAFilter = FXAAFilter.FXAAFilter;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-noise/lib/NoiseFilter.js":
+/***/ "./node_modules/@pixi/filter-noise/lib/NoiseFilter.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/filter-noise/lib/NoiseFilter.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -17490,13 +17498,13 @@ exports.NoiseFilter = NoiseFilter;
 //# sourceMappingURL=NoiseFilter.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-noise/lib/index.js":
+/***/ "./node_modules/@pixi/filter-noise/lib/index.js"
 /*!******************************************************!*\
   !*** ./node_modules/@pixi/filter-noise/lib/index.js ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -17505,13 +17513,13 @@ exports.NoiseFilter = NoiseFilter.NoiseFilter;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/filter-noise/lib/noise.frag.js":
+/***/ "./node_modules/@pixi/filter-noise/lib/noise.frag.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/filter-noise/lib/noise.frag.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -17555,13 +17563,13 @@ exports["default"] = fragment;
 //# sourceMappingURL=noise.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/Graphics.js":
+/***/ "./node_modules/@pixi/graphics/lib/Graphics.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/Graphics.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -18120,13 +18128,13 @@ exports.Graphics = Graphics;
 //# sourceMappingURL=Graphics.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/GraphicsData.js":
+/***/ "./node_modules/@pixi/graphics/lib/GraphicsData.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/GraphicsData.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -18161,13 +18169,13 @@ exports.GraphicsData = GraphicsData;
 //# sourceMappingURL=GraphicsData.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/GraphicsGeometry.js":
+/***/ "./node_modules/@pixi/graphics/lib/GraphicsGeometry.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/GraphicsGeometry.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -18484,13 +18492,13 @@ exports.GraphicsGeometry = GraphicsGeometry;
 //# sourceMappingURL=GraphicsGeometry.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/const.js":
+/***/ "./node_modules/@pixi/graphics/lib/const.js"
 /*!**************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/const.js ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -18515,13 +18523,13 @@ exports.curves = curves;
 //# sourceMappingURL=const.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/index.js":
+/***/ "./node_modules/@pixi/graphics/lib/index.js"
 /*!**************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/index.js ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -18553,13 +18561,13 @@ exports.graphicsUtils = graphicsUtils;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/styles/FillStyle.js":
+/***/ "./node_modules/@pixi/graphics/lib/styles/FillStyle.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/styles/FillStyle.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -18586,13 +18594,13 @@ exports.FillStyle = FillStyle;
 //# sourceMappingURL=FillStyle.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/styles/LineStyle.js":
+/***/ "./node_modules/@pixi/graphics/lib/styles/LineStyle.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/styles/LineStyle.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -18615,13 +18623,13 @@ exports.LineStyle = LineStyle;
 //# sourceMappingURL=LineStyle.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/utils/ArcUtils.js":
+/***/ "./node_modules/@pixi/graphics/lib/utils/ArcUtils.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/utils/ArcUtils.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -18686,13 +18694,13 @@ exports.ArcUtils = ArcUtils;
 //# sourceMappingURL=ArcUtils.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/utils/BatchPart.js":
+/***/ "./node_modules/@pixi/graphics/lib/utils/BatchPart.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/utils/BatchPart.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -18725,13 +18733,13 @@ exports.BatchPart = BatchPart;
 //# sourceMappingURL=BatchPart.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/utils/BezierUtils.js":
+/***/ "./node_modules/@pixi/graphics/lib/utils/BezierUtils.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/utils/BezierUtils.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -18790,13 +18798,13 @@ exports.BezierUtils = BezierUtils;
 //# sourceMappingURL=BezierUtils.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/utils/QuadraticUtils.js":
+/***/ "./node_modules/@pixi/graphics/lib/utils/QuadraticUtils.js"
 /*!*****************************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/utils/QuadraticUtils.js ***!
   \*****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -18847,13 +18855,13 @@ exports.QuadraticUtils = QuadraticUtils;
 //# sourceMappingURL=QuadraticUtils.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/utils/buildCircle.js":
+/***/ "./node_modules/@pixi/graphics/lib/utils/buildCircle.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/utils/buildCircle.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -18928,13 +18936,13 @@ exports.buildCircle = buildCircle;
 //# sourceMappingURL=buildCircle.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/utils/buildLine.js":
+/***/ "./node_modules/@pixi/graphics/lib/utils/buildLine.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/utils/buildLine.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -19236,13 +19244,13 @@ exports.buildLine = buildLine;
 //# sourceMappingURL=buildLine.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/utils/buildPoly.js":
+/***/ "./node_modules/@pixi/graphics/lib/utils/buildPoly.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/utils/buildPoly.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -19293,13 +19301,13 @@ exports.buildPoly = buildPoly;
 //# sourceMappingURL=buildPoly.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/utils/buildRectangle.js":
+/***/ "./node_modules/@pixi/graphics/lib/utils/buildRectangle.js"
 /*!*****************************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/utils/buildRectangle.js ***!
   \*****************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -19345,13 +19353,13 @@ exports.buildRectangle = buildRectangle;
 //# sourceMappingURL=buildRectangle.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/utils/buildRoundedRectangle.js":
+/***/ "./node_modules/@pixi/graphics/lib/utils/buildRoundedRectangle.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/utils/buildRoundedRectangle.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -19368,13 +19376,13 @@ exports.buildRoundedRectangle = buildRoundedRectangle;
 //# sourceMappingURL=buildRoundedRectangle.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/graphics/lib/utils/index.js":
+/***/ "./node_modules/@pixi/graphics/lib/utils/index.js"
 /*!********************************************************!*\
   !*** ./node_modules/@pixi/graphics/lib/utils/index.js ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -19401,39 +19409,39 @@ exports.FILL_COMMANDS = FILL_COMMANDS;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/IPoint.js":
+/***/ "./node_modules/@pixi/math/lib/IPoint.js"
 /*!***********************************************!*\
   !*** ./node_modules/@pixi/math/lib/IPoint.js ***!
   \***********************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=IPoint.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/IPointData.js":
+/***/ "./node_modules/@pixi/math/lib/IPointData.js"
 /*!***************************************************!*\
   !*** ./node_modules/@pixi/math/lib/IPointData.js ***!
   \***************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=IPointData.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/Matrix.js":
+/***/ "./node_modules/@pixi/math/lib/Matrix.js"
 /*!***********************************************!*\
   !*** ./node_modules/@pixi/math/lib/Matrix.js ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -19647,13 +19655,13 @@ exports.Matrix = Matrix;
 //# sourceMappingURL=Matrix.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/ObservablePoint.js":
+/***/ "./node_modules/@pixi/math/lib/ObservablePoint.js"
 /*!********************************************************!*\
   !*** ./node_modules/@pixi/math/lib/ObservablePoint.js ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -19736,13 +19744,13 @@ exports.ObservablePoint = ObservablePoint;
 //# sourceMappingURL=ObservablePoint.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/Point.js":
+/***/ "./node_modules/@pixi/math/lib/Point.js"
 /*!**********************************************!*\
   !*** ./node_modules/@pixi/math/lib/Point.js ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -19804,13 +19812,13 @@ exports.Point = Point;
 //# sourceMappingURL=Point.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/Transform.js":
+/***/ "./node_modules/@pixi/math/lib/Transform.js"
 /*!**************************************************!*\
   !*** ./node_modules/@pixi/math/lib/Transform.js ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -19867,13 +19875,13 @@ exports.Transform = Transform;
 //# sourceMappingURL=Transform.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/const.js":
+/***/ "./node_modules/@pixi/math/lib/const.js"
 /*!**********************************************!*\
   !*** ./node_modules/@pixi/math/lib/const.js ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -19886,13 +19894,13 @@ exports.SHAPES = SHAPES;
 //# sourceMappingURL=const.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/groupD8.js":
+/***/ "./node_modules/@pixi/math/lib/groupD8.js"
 /*!************************************************!*\
   !*** ./node_modules/@pixi/math/lib/groupD8.js ***!
   \************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20096,13 +20104,13 @@ exports.groupD8 = groupD8;
 //# sourceMappingURL=groupD8.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/index.js":
+/***/ "./node_modules/@pixi/math/lib/index.js"
 /*!**********************************************!*\
   !*** ./node_modules/@pixi/math/lib/index.js ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20127,13 +20135,13 @@ exports.SHAPES = _const.SHAPES;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/shapes/Circle.js":
+/***/ "./node_modules/@pixi/math/lib/shapes/Circle.js"
 /*!******************************************************!*\
   !*** ./node_modules/@pixi/math/lib/shapes/Circle.js ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20182,13 +20190,13 @@ exports.Circle = Circle;
 //# sourceMappingURL=Circle.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/shapes/Ellipse.js":
+/***/ "./node_modules/@pixi/math/lib/shapes/Ellipse.js"
 /*!*******************************************************!*\
   !*** ./node_modules/@pixi/math/lib/shapes/Ellipse.js ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20237,13 +20245,13 @@ exports.Ellipse = Ellipse;
 //# sourceMappingURL=Ellipse.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/shapes/Polygon.js":
+/***/ "./node_modules/@pixi/math/lib/shapes/Polygon.js"
 /*!*******************************************************!*\
   !*** ./node_modules/@pixi/math/lib/shapes/Polygon.js ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20297,13 +20305,13 @@ exports.Polygon = Polygon;
 //# sourceMappingURL=Polygon.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/shapes/Rectangle.js":
+/***/ "./node_modules/@pixi/math/lib/shapes/Rectangle.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/math/lib/shapes/Rectangle.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20449,13 +20457,13 @@ exports.Rectangle = Rectangle;
 //# sourceMappingURL=Rectangle.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/math/lib/shapes/RoundedRectangle.js":
+/***/ "./node_modules/@pixi/math/lib/shapes/RoundedRectangle.js"
 /*!****************************************************************!*\
   !*** ./node_modules/@pixi/math/lib/shapes/RoundedRectangle.js ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20506,13 +20514,13 @@ exports.RoundedRectangle = RoundedRectangle;
 //# sourceMappingURL=RoundedRectangle.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh-extras/lib/NineSlicePlane.js":
+/***/ "./node_modules/@pixi/mesh-extras/lib/NineSlicePlane.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/mesh-extras/lib/NineSlicePlane.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20610,13 +20618,13 @@ exports.NineSlicePlane = NineSlicePlane;
 //# sourceMappingURL=NineSlicePlane.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh-extras/lib/SimpleMesh.js":
+/***/ "./node_modules/@pixi/mesh-extras/lib/SimpleMesh.js"
 /*!**********************************************************!*\
   !*** ./node_modules/@pixi/mesh-extras/lib/SimpleMesh.js ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20653,13 +20661,13 @@ exports.SimpleMesh = SimpleMesh;
 //# sourceMappingURL=SimpleMesh.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh-extras/lib/SimplePlane.js":
+/***/ "./node_modules/@pixi/mesh-extras/lib/SimplePlane.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/mesh-extras/lib/SimplePlane.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20700,13 +20708,13 @@ exports.SimplePlane = SimplePlane;
 //# sourceMappingURL=SimplePlane.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh-extras/lib/SimpleRope.js":
+/***/ "./node_modules/@pixi/mesh-extras/lib/SimpleRope.js"
 /*!**********************************************************!*\
   !*** ./node_modules/@pixi/mesh-extras/lib/SimpleRope.js ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20733,13 +20741,13 @@ exports.SimpleRope = SimpleRope;
 //# sourceMappingURL=SimpleRope.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh-extras/lib/geometry/PlaneGeometry.js":
+/***/ "./node_modules/@pixi/mesh-extras/lib/geometry/PlaneGeometry.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/@pixi/mesh-extras/lib/geometry/PlaneGeometry.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20783,13 +20791,13 @@ exports.PlaneGeometry = PlaneGeometry;
 //# sourceMappingURL=PlaneGeometry.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh-extras/lib/geometry/RopeGeometry.js":
+/***/ "./node_modules/@pixi/mesh-extras/lib/geometry/RopeGeometry.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/@pixi/mesh-extras/lib/geometry/RopeGeometry.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20874,13 +20882,13 @@ exports.RopeGeometry = RopeGeometry;
 //# sourceMappingURL=RopeGeometry.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh-extras/lib/index.js":
+/***/ "./node_modules/@pixi/mesh-extras/lib/index.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/mesh-extras/lib/index.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -20894,13 +20902,13 @@ exports.SimpleRope = SimpleRope.SimpleRope;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh/lib/Mesh.js":
+/***/ "./node_modules/@pixi/mesh/lib/Mesh.js"
 /*!*********************************************!*\
   !*** ./node_modules/@pixi/mesh/lib/Mesh.js ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -21083,13 +21091,13 @@ exports.Mesh = Mesh;
 //# sourceMappingURL=Mesh.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh/lib/MeshBatchUvs.js":
+/***/ "./node_modules/@pixi/mesh/lib/MeshBatchUvs.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/mesh/lib/MeshBatchUvs.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -21117,13 +21125,13 @@ exports.MeshBatchUvs = MeshBatchUvs;
 //# sourceMappingURL=MeshBatchUvs.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh/lib/MeshGeometry.js":
+/***/ "./node_modules/@pixi/mesh/lib/MeshGeometry.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/mesh/lib/MeshGeometry.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -21152,13 +21160,13 @@ exports.MeshGeometry = MeshGeometry;
 //# sourceMappingURL=MeshGeometry.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh/lib/MeshMaterial.js":
+/***/ "./node_modules/@pixi/mesh/lib/MeshMaterial.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/mesh/lib/MeshMaterial.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -21234,13 +21242,13 @@ exports.MeshMaterial = MeshMaterial;
 //# sourceMappingURL=MeshMaterial.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh/lib/index.js":
+/***/ "./node_modules/@pixi/mesh/lib/index.js"
 /*!**********************************************!*\
   !*** ./node_modules/@pixi/mesh/lib/index.js ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -21252,13 +21260,13 @@ exports.MeshMaterial = MeshMaterial.MeshMaterial;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh/lib/shader/mesh.frag.js":
+/***/ "./node_modules/@pixi/mesh/lib/shader/mesh.frag.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/mesh/lib/shader/mesh.frag.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -21277,13 +21285,13 @@ exports["default"] = fragment;
 //# sourceMappingURL=mesh.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mesh/lib/shader/mesh.vert.js":
+/***/ "./node_modules/@pixi/mesh/lib/shader/mesh.vert.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/mesh/lib/shader/mesh.vert.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -21308,13 +21316,13 @@ exports["default"] = vertex;
 //# sourceMappingURL=mesh.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mixin-cache-as-bitmap/lib/index.js":
+/***/ "./node_modules/@pixi/mixin-cache-as-bitmap/lib/index.js"
 /*!***************************************************************!*\
   !*** ./node_modules/@pixi/mixin-cache-as-bitmap/lib/index.js ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -21451,13 +21459,13 @@ exports.CacheData = CacheData;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mixin-get-child-by-name/lib/index.js":
+/***/ "./node_modules/@pixi/mixin-get-child-by-name/lib/index.js"
 /*!*****************************************************************!*\
   !*** ./node_modules/@pixi/mixin-get-child-by-name/lib/index.js ***!
   \*****************************************************************/
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -21481,13 +21489,13 @@ display.Container.prototype.getChildByName = function(name, deep) {
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/mixin-get-global-position/lib/index.js":
+/***/ "./node_modules/@pixi/mixin-get-global-position/lib/index.js"
 /*!*******************************************************************!*\
   !*** ./node_modules/@pixi/mixin-get-global-position/lib/index.js ***!
   \*******************************************************************/
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -21498,13 +21506,13 @@ display.DisplayObject.prototype.getGlobalPosition = function(point = new core.Po
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/particle-container/lib/ParticleBuffer.js":
+/***/ "./node_modules/@pixi/particle-container/lib/ParticleBuffer.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/@pixi/particle-container/lib/ParticleBuffer.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -21622,13 +21630,13 @@ exports.ParticleBuffer = ParticleBuffer;
 //# sourceMappingURL=ParticleBuffer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/particle-container/lib/ParticleContainer.js":
+/***/ "./node_modules/@pixi/particle-container/lib/ParticleContainer.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@pixi/particle-container/lib/ParticleContainer.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -21718,13 +21726,13 @@ exports.ParticleContainer = ParticleContainer;
 //# sourceMappingURL=ParticleContainer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/particle-container/lib/ParticleRenderer.js":
+/***/ "./node_modules/@pixi/particle-container/lib/ParticleRenderer.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/@pixi/particle-container/lib/ParticleRenderer.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -21909,13 +21917,13 @@ exports.ParticleRenderer = ParticleRenderer;
 //# sourceMappingURL=ParticleRenderer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/particle-container/lib/index.js":
+/***/ "./node_modules/@pixi/particle-container/lib/index.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/particle-container/lib/index.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -21925,13 +21933,13 @@ exports.ParticleRenderer = ParticleRenderer.ParticleRenderer;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/particle-container/lib/particles.frag.js":
+/***/ "./node_modules/@pixi/particle-container/lib/particles.frag.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/@pixi/particle-container/lib/particles.frag.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -21949,13 +21957,13 @@ exports["default"] = fragment;
 //# sourceMappingURL=particles.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/particle-container/lib/particles.vert.js":
+/***/ "./node_modules/@pixi/particle-container/lib/particles.vert.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/@pixi/particle-container/lib/particles.vert.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -21990,13 +21998,13 @@ exports["default"] = vertex;
 //# sourceMappingURL=particles.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/prepare/lib/BasePrepare.js":
+/***/ "./node_modules/@pixi/prepare/lib/BasePrepare.js"
 /*!*******************************************************!*\
   !*** ./node_modules/@pixi/prepare/lib/BasePrepare.js ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22146,13 +22154,13 @@ exports.BasePrepare = BasePrepare;
 //# sourceMappingURL=BasePrepare.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/prepare/lib/CountLimiter.js":
+/***/ "./node_modules/@pixi/prepare/lib/CountLimiter.js"
 /*!********************************************************!*\
   !*** ./node_modules/@pixi/prepare/lib/CountLimiter.js ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -22179,13 +22187,13 @@ exports.CountLimiter = CountLimiter;
 //# sourceMappingURL=CountLimiter.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/prepare/lib/Prepare.js":
+/***/ "./node_modules/@pixi/prepare/lib/Prepare.js"
 /*!***************************************************!*\
   !*** ./node_modules/@pixi/prepare/lib/Prepare.js ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22225,13 +22233,13 @@ exports.Prepare = Prepare;
 //# sourceMappingURL=Prepare.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/prepare/lib/TimeLimiter.js":
+/***/ "./node_modules/@pixi/prepare/lib/TimeLimiter.js"
 /*!*******************************************************!*\
   !*** ./node_modules/@pixi/prepare/lib/TimeLimiter.js ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -22256,13 +22264,13 @@ exports.TimeLimiter = TimeLimiter;
 //# sourceMappingURL=TimeLimiter.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/prepare/lib/index.js":
+/***/ "./node_modules/@pixi/prepare/lib/index.js"
 /*!*************************************************!*\
   !*** ./node_modules/@pixi/prepare/lib/index.js ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22275,13 +22283,13 @@ exports.TimeLimiter = TimeLimiter.TimeLimiter;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/prepare/lib/settings.js":
+/***/ "./node_modules/@pixi/prepare/lib/settings.js"
 /*!****************************************************!*\
   !*** ./node_modules/@pixi/prepare/lib/settings.js ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22314,13 +22322,13 @@ Object.defineProperty(exports, "settings", ({
 //# sourceMappingURL=settings.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/runner/lib/Runner.js":
+/***/ "./node_modules/@pixi/runner/lib/Runner.js"
 /*!*************************************************!*\
   !*** ./node_modules/@pixi/runner/lib/Runner.js ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -22428,13 +22436,13 @@ exports.Runner = Runner;
 //# sourceMappingURL=Runner.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/runner/lib/index.js":
+/***/ "./node_modules/@pixi/runner/lib/index.js"
 /*!************************************************!*\
   !*** ./node_modules/@pixi/runner/lib/index.js ***!
   \************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22443,39 +22451,39 @@ exports.Runner = Runner.Runner;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/settings/lib/ICanvas.js":
+/***/ "./node_modules/@pixi/settings/lib/ICanvas.js"
 /*!****************************************************!*\
   !*** ./node_modules/@pixi/settings/lib/ICanvas.js ***!
   \****************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=ICanvas.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/settings/lib/ICanvasRenderingContext2D.js":
+/***/ "./node_modules/@pixi/settings/lib/ICanvasRenderingContext2D.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/@pixi/settings/lib/ICanvasRenderingContext2D.js ***!
   \**********************************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=ICanvasRenderingContext2D.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/settings/lib/adapter.js":
+/***/ "./node_modules/@pixi/settings/lib/adapter.js"
 /*!****************************************************!*\
   !*** ./node_modules/@pixi/settings/lib/adapter.js ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -22502,13 +22510,13 @@ exports.BrowserAdapter = BrowserAdapter;
 //# sourceMappingURL=adapter.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/settings/lib/index.js":
+/***/ "./node_modules/@pixi/settings/lib/index.js"
 /*!**************************************************!*\
   !*** ./node_modules/@pixi/settings/lib/index.js ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22522,13 +22530,13 @@ exports.isMobile = isMobile.isMobile;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/settings/lib/settings.js":
+/***/ "./node_modules/@pixi/settings/lib/settings.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/settings/lib/settings.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22580,13 +22588,13 @@ exports.settings = settings;
 //# sourceMappingURL=settings.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/settings/lib/utils/isMobile.js":
+/***/ "./node_modules/@pixi/settings/lib/utils/isMobile.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/settings/lib/utils/isMobile.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22596,13 +22604,13 @@ exports.isMobile = isMobile;
 //# sourceMappingURL=isMobile.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/sprite-animated/lib/AnimatedSprite.js":
+/***/ "./node_modules/@pixi/sprite-animated/lib/AnimatedSprite.js"
 /*!******************************************************************!*\
   !*** ./node_modules/@pixi/sprite-animated/lib/AnimatedSprite.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22750,13 +22758,13 @@ exports.AnimatedSprite = AnimatedSprite;
 //# sourceMappingURL=AnimatedSprite.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/sprite-animated/lib/index.js":
+/***/ "./node_modules/@pixi/sprite-animated/lib/index.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/sprite-animated/lib/index.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22765,13 +22773,13 @@ exports.AnimatedSprite = AnimatedSprite.AnimatedSprite;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/sprite-tiling/lib/TilingSprite.js":
+/***/ "./node_modules/@pixi/sprite-tiling/lib/TilingSprite.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/sprite-tiling/lib/TilingSprite.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22905,13 +22913,13 @@ exports.TilingSprite = TilingSprite;
 //# sourceMappingURL=TilingSprite.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/sprite-tiling/lib/TilingSpriteRenderer.js":
+/***/ "./node_modules/@pixi/sprite-tiling/lib/TilingSpriteRenderer.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/@pixi/sprite-tiling/lib/TilingSpriteRenderer.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22962,13 +22970,13 @@ exports.TilingSpriteRenderer = TilingSpriteRenderer;
 //# sourceMappingURL=TilingSpriteRenderer.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/sprite-tiling/lib/index.js":
+/***/ "./node_modules/@pixi/sprite-tiling/lib/index.js"
 /*!*******************************************************!*\
   !*** ./node_modules/@pixi/sprite-tiling/lib/index.js ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -22978,13 +22986,13 @@ exports.TilingSpriteRenderer = TilingSpriteRenderer.TilingSpriteRenderer;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/sprite-tiling/lib/sprite-tiling-fallback.frag.js":
+/***/ "./node_modules/@pixi/sprite-tiling/lib/sprite-tiling-fallback.frag.js"
 /*!*****************************************************************************!*\
   !*** ./node_modules/@pixi/sprite-tiling/lib/sprite-tiling-fallback.frag.js ***!
   \*****************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -23027,13 +23035,13 @@ exports["default"] = gl1FragmentSrc;
 //# sourceMappingURL=sprite-tiling-fallback.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/sprite-tiling/lib/sprite-tiling-fallback.vert.js":
+/***/ "./node_modules/@pixi/sprite-tiling/lib/sprite-tiling-fallback.vert.js"
 /*!*****************************************************************************!*\
   !*** ./node_modules/@pixi/sprite-tiling/lib/sprite-tiling-fallback.vert.js ***!
   \*****************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -23063,13 +23071,13 @@ exports["default"] = gl1VertexSrc;
 //# sourceMappingURL=sprite-tiling-fallback.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/sprite-tiling/lib/sprite-tiling-simple.frag.js":
+/***/ "./node_modules/@pixi/sprite-tiling/lib/sprite-tiling-simple.frag.js"
 /*!***************************************************************************!*\
   !*** ./node_modules/@pixi/sprite-tiling/lib/sprite-tiling-simple.frag.js ***!
   \***************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -23094,13 +23102,13 @@ exports["default"] = fragmentSimpleSrc;
 //# sourceMappingURL=sprite-tiling-simple.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/sprite-tiling/lib/sprite-tiling.frag.js":
+/***/ "./node_modules/@pixi/sprite-tiling/lib/sprite-tiling.frag.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/sprite-tiling/lib/sprite-tiling.frag.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -23136,13 +23144,13 @@ exports["default"] = gl2FragmentSrc;
 //# sourceMappingURL=sprite-tiling.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/sprite-tiling/lib/sprite-tiling.vert.js":
+/***/ "./node_modules/@pixi/sprite-tiling/lib/sprite-tiling.vert.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/sprite-tiling/lib/sprite-tiling.vert.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -23172,13 +23180,13 @@ exports["default"] = gl2VertexSrc;
 //# sourceMappingURL=sprite-tiling.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/sprite/lib/Sprite.js":
+/***/ "./node_modules/@pixi/sprite/lib/Sprite.js"
 /*!*************************************************!*\
   !*** ./node_modules/@pixi/sprite/lib/Sprite.js ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -23380,13 +23388,13 @@ exports.Sprite = Sprite;
 //# sourceMappingURL=Sprite.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/sprite/lib/index.js":
+/***/ "./node_modules/@pixi/sprite/lib/index.js"
 /*!************************************************!*\
   !*** ./node_modules/@pixi/sprite/lib/index.js ***!
   \************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -23395,13 +23403,13 @@ exports.Sprite = Sprite.Sprite;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/spritesheet/lib/Spritesheet.js":
+/***/ "./node_modules/@pixi/spritesheet/lib/Spritesheet.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/spritesheet/lib/Spritesheet.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -23524,13 +23532,13 @@ exports.Spritesheet = Spritesheet;
 //# sourceMappingURL=Spritesheet.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/spritesheet/lib/index.js":
+/***/ "./node_modules/@pixi/spritesheet/lib/index.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/spritesheet/lib/index.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -23540,13 +23548,13 @@ exports.spritesheetAsset = spritesheetAsset.spritesheetAsset;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/spritesheet/lib/spritesheetAsset.js":
+/***/ "./node_modules/@pixi/spritesheet/lib/spritesheetAsset.js"
 /*!****************************************************************!*\
   !*** ./node_modules/@pixi/spritesheet/lib/spritesheetAsset.js ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -23647,13 +23655,13 @@ exports.spritesheetAsset = spritesheetAsset;
 //# sourceMappingURL=spritesheetAsset.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/BitmapFont.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/BitmapFont.js"
 /*!**********************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/BitmapFont.js ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -23885,13 +23893,13 @@ exports.BitmapFont = BitmapFont;
 //# sourceMappingURL=BitmapFont.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/BitmapFontData.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/BitmapFontData.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/BitmapFontData.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -23904,13 +23912,13 @@ exports.BitmapFontData = BitmapFontData;
 //# sourceMappingURL=BitmapFontData.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/BitmapText.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/BitmapText.js"
 /*!**********************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/BitmapText.js ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -24232,26 +24240,26 @@ exports.BitmapText = BitmapText;
 //# sourceMappingURL=BitmapText.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/BitmapTextStyle.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/BitmapTextStyle.js"
 /*!***************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/BitmapTextStyle.js ***!
   \***************************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=BitmapTextStyle.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/formats/TextFormat.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/formats/TextFormat.js"
 /*!******************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/formats/TextFormat.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -24322,13 +24330,13 @@ exports.TextFormat = TextFormat;
 //# sourceMappingURL=TextFormat.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/formats/XMLFormat.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/formats/XMLFormat.js"
 /*!*****************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/formats/XMLFormat.js ***!
   \*****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -24396,13 +24404,13 @@ exports.XMLFormat = XMLFormat;
 //# sourceMappingURL=XMLFormat.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/formats/XMLStringFormat.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/formats/XMLStringFormat.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/formats/XMLStringFormat.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -24429,13 +24437,13 @@ exports.XMLStringFormat = XMLStringFormat;
 //# sourceMappingURL=XMLStringFormat.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/formats/index.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/formats/index.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/formats/index.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -24458,13 +24466,13 @@ exports.autoDetectFormat = autoDetectFormat;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/index.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/index.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/index.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -24482,13 +24490,13 @@ exports.XMLStringFormat = XMLStringFormat.XMLStringFormat;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/loadBitmapFont.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/loadBitmapFont.js"
 /*!**************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/loadBitmapFont.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -24529,13 +24537,13 @@ exports.loadBitmapFont = loadBitmapFont;
 //# sourceMappingURL=loadBitmapFont.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/shader/msdf.frag.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/shader/msdf.frag.js"
 /*!****************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/shader/msdf.frag.js ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -24583,13 +24591,13 @@ exports["default"] = msdfFrag;
 //# sourceMappingURL=msdf.frag.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/shader/msdf.vert.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/shader/msdf.vert.js"
 /*!****************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/shader/msdf.vert.js ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -24615,13 +24623,13 @@ exports["default"] = msdfVert;
 //# sourceMappingURL=msdf.vert.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/utils/drawGlyph.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/utils/drawGlyph.js"
 /*!***************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/utils/drawGlyph.js ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -24641,13 +24649,13 @@ exports.drawGlyph = drawGlyph;
 //# sourceMappingURL=drawGlyph.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/utils/extractCharCode.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/utils/extractCharCode.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/utils/extractCharCode.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -24658,13 +24666,13 @@ exports.extractCharCode = extractCharCode;
 //# sourceMappingURL=extractCharCode.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/utils/generateFillStyle.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/utils/generateFillStyle.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/utils/generateFillStyle.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -24712,13 +24720,13 @@ exports.generateFillStyle = generateFillStyle;
 //# sourceMappingURL=generateFillStyle.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/utils/index.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/utils/index.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/utils/index.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -24731,13 +24739,13 @@ exports.splitTextToCharacters = splitTextToCharacters.splitTextToCharacters;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/utils/resolveCharacters.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/utils/resolveCharacters.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/utils/resolveCharacters.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -24766,13 +24774,13 @@ exports.resolveCharacters = resolveCharacters;
 //# sourceMappingURL=resolveCharacters.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-bitmap/lib/utils/splitTextToCharacters.js":
+/***/ "./node_modules/@pixi/text-bitmap/lib/utils/splitTextToCharacters.js"
 /*!***************************************************************************!*\
   !*** ./node_modules/@pixi/text-bitmap/lib/utils/splitTextToCharacters.js ***!
   \***************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -24783,13 +24791,13 @@ exports.splitTextToCharacters = splitTextToCharacters;
 //# sourceMappingURL=splitTextToCharacters.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-html/lib/HTMLText.js":
+/***/ "./node_modules/@pixi/text-html/lib/HTMLText.js"
 /*!******************************************************!*\
   !*** ./node_modules/@pixi/text-html/lib/HTMLText.js ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -25000,13 +25008,13 @@ exports.HTMLText = HTMLText;
 //# sourceMappingURL=HTMLText.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-html/lib/HTMLTextStyle.js":
+/***/ "./node_modules/@pixi/text-html/lib/HTMLTextStyle.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/text-html/lib/HTMLTextStyle.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -25285,13 +25293,13 @@ exports.HTMLTextStyle = HTMLTextStyle;
 //# sourceMappingURL=HTMLTextStyle.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text-html/lib/index.js":
+/***/ "./node_modules/@pixi/text-html/lib/index.js"
 /*!***************************************************!*\
   !*** ./node_modules/@pixi/text-html/lib/index.js ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -25301,13 +25309,13 @@ exports.HTMLTextStyle = HTMLTextStyle.HTMLTextStyle;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text/lib/Text.js":
+/***/ "./node_modules/@pixi/text/lib/Text.js"
 /*!*********************************************!*\
   !*** ./node_modules/@pixi/text/lib/Text.js ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -25573,13 +25581,13 @@ exports.Text = Text;
 //# sourceMappingURL=Text.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text/lib/TextMetrics.js":
+/***/ "./node_modules/@pixi/text/lib/TextMetrics.js"
 /*!****************************************************!*\
   !*** ./node_modules/@pixi/text/lib/TextMetrics.js ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -26004,13 +26012,13 @@ exports.TextMetrics = TextMetrics;
 //# sourceMappingURL=TextMetrics.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text/lib/TextStyle.js":
+/***/ "./node_modules/@pixi/text/lib/TextStyle.js"
 /*!**************************************************!*\
   !*** ./node_modules/@pixi/text/lib/TextStyle.js ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -26467,13 +26475,13 @@ exports.TextStyle = TextStyle;
 //# sourceMappingURL=TextStyle.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text/lib/const.js":
+/***/ "./node_modules/@pixi/text/lib/const.js"
 /*!**********************************************!*\
   !*** ./node_modules/@pixi/text/lib/const.js ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -26482,13 +26490,13 @@ exports.TEXT_GRADIENT = TEXT_GRADIENT;
 //# sourceMappingURL=const.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/text/lib/index.js":
+/***/ "./node_modules/@pixi/text/lib/index.js"
 /*!**********************************************!*\
   !*** ./node_modules/@pixi/text/lib/index.js ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -26500,13 +26508,13 @@ exports.TextStyle = TextStyle.TextStyle;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/ticker/lib/Ticker.js":
+/***/ "./node_modules/@pixi/ticker/lib/Ticker.js"
 /*!*************************************************!*\
   !*** ./node_modules/@pixi/ticker/lib/Ticker.js ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -26787,13 +26795,13 @@ exports.Ticker = Ticker;
 //# sourceMappingURL=Ticker.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/ticker/lib/TickerListener.js":
+/***/ "./node_modules/@pixi/ticker/lib/TickerListener.js"
 /*!*********************************************************!*\
   !*** ./node_modules/@pixi/ticker/lib/TickerListener.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -26855,13 +26863,13 @@ exports.TickerListener = TickerListener;
 //# sourceMappingURL=TickerListener.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/ticker/lib/TickerPlugin.js":
+/***/ "./node_modules/@pixi/ticker/lib/TickerPlugin.js"
 /*!*******************************************************!*\
   !*** ./node_modules/@pixi/ticker/lib/TickerPlugin.js ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -26912,13 +26920,13 @@ exports.TickerPlugin = TickerPlugin;
 //# sourceMappingURL=TickerPlugin.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/ticker/lib/const.js":
+/***/ "./node_modules/@pixi/ticker/lib/const.js"
 /*!************************************************!*\
   !*** ./node_modules/@pixi/ticker/lib/const.js ***!
   \************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -26927,13 +26935,13 @@ exports.UPDATE_PRIORITY = UPDATE_PRIORITY;
 //# sourceMappingURL=const.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/ticker/lib/index.js":
+/***/ "./node_modules/@pixi/ticker/lib/index.js"
 /*!************************************************!*\
   !*** ./node_modules/@pixi/ticker/lib/index.js ***!
   \************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -26945,13 +26953,13 @@ exports.TickerPlugin = TickerPlugin.TickerPlugin;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/ticker/lib/settings.js":
+/***/ "./node_modules/@pixi/ticker/lib/settings.js"
 /*!***************************************************!*\
   !*** ./node_modules/@pixi/ticker/lib/settings.js ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -26984,13 +26992,13 @@ Object.defineProperty(exports, "settings", ({
 //# sourceMappingURL=settings.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/browser/detectVideoAlphaMode.js":
+/***/ "./node_modules/@pixi/utils/lib/browser/detectVideoAlphaMode.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/browser/detectVideoAlphaMode.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -27025,13 +27033,13 @@ exports.detectVideoAlphaMode = detectVideoAlphaMode;
 //# sourceMappingURL=detectVideoAlphaMode.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/browser/hello.js":
+/***/ "./node_modules/@pixi/utils/lib/browser/hello.js"
 /*!*******************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/browser/hello.js ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -27047,13 +27055,13 @@ exports.skipHello = skipHello;
 //# sourceMappingURL=hello.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/browser/isWebGLSupported.js":
+/***/ "./node_modules/@pixi/utils/lib/browser/isWebGLSupported.js"
 /*!******************************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/browser/isWebGLSupported.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -27086,13 +27094,13 @@ exports.isWebGLSupported = isWebGLSupported;
 //# sourceMappingURL=isWebGLSupported.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/color/hex.js":
+/***/ "./node_modules/@pixi/utils/lib/color/hex.js"
 /*!***************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/color/hex.js ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -27116,13 +27124,13 @@ exports.string2hex = string2hex;
 //# sourceMappingURL=hex.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/color/premultiply.js":
+/***/ "./node_modules/@pixi/utils/lib/color/premultiply.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/color/premultiply.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -27156,13 +27164,13 @@ exports.premultiplyTintToRgba = premultiplyTintToRgba;
 //# sourceMappingURL=premultiply.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/const.js":
+/***/ "./node_modules/@pixi/utils/lib/const.js"
 /*!***********************************************!*\
   !*** ./node_modules/@pixi/utils/lib/const.js ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -27171,13 +27179,13 @@ exports.DATA_URI = DATA_URI;
 //# sourceMappingURL=const.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/data/createIndicesForQuads.js":
+/***/ "./node_modules/@pixi/utils/lib/data/createIndicesForQuads.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/data/createIndicesForQuads.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -27193,13 +27201,13 @@ exports.createIndicesForQuads = createIndicesForQuads;
 //# sourceMappingURL=createIndicesForQuads.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/data/getBufferType.js":
+/***/ "./node_modules/@pixi/utils/lib/data/getBufferType.js"
 /*!************************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/data/getBufferType.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -27217,13 +27225,13 @@ exports.getBufferType = getBufferType;
 //# sourceMappingURL=getBufferType.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/data/interleaveTypedArrays.js":
+/***/ "./node_modules/@pixi/utils/lib/data/interleaveTypedArrays.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/data/interleaveTypedArrays.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -27251,13 +27259,13 @@ exports.interleaveTypedArrays = interleaveTypedArrays;
 //# sourceMappingURL=interleaveTypedArrays.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/data/pow2.js":
+/***/ "./node_modules/@pixi/utils/lib/data/pow2.js"
 /*!***************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/data/pow2.js ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -27279,13 +27287,13 @@ exports.nextPow2 = nextPow2;
 //# sourceMappingURL=pow2.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/data/removeItems.js":
+/***/ "./node_modules/@pixi/utils/lib/data/removeItems.js"
 /*!**********************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/data/removeItems.js ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -27304,13 +27312,13 @@ exports.removeItems = removeItems;
 //# sourceMappingURL=removeItems.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/data/sign.js":
+/***/ "./node_modules/@pixi/utils/lib/data/sign.js"
 /*!***************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/data/sign.js ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -27321,13 +27329,13 @@ exports.sign = sign;
 //# sourceMappingURL=sign.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/data/uid.js":
+/***/ "./node_modules/@pixi/utils/lib/data/uid.js"
 /*!**************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/data/uid.js ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -27339,13 +27347,13 @@ exports.uid = uid;
 //# sourceMappingURL=uid.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/index.js":
+/***/ "./node_modules/@pixi/utils/lib/index.js"
 /*!***********************************************!*\
   !*** ./node_modules/@pixi/utils/lib/index.js ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -27401,13 +27409,13 @@ exports.getResolutionOfUrl = getResolutionOfUrl.getResolutionOfUrl;
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/logging/deprecation.js":
+/***/ "./node_modules/@pixi/utils/lib/logging/deprecation.js"
 /*!*************************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/logging/deprecation.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -27432,13 +27440,13 @@ exports.deprecation = deprecation;
 //# sourceMappingURL=deprecation.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/media/BoundingBox.js":
+/***/ "./node_modules/@pixi/utils/lib/media/BoundingBox.js"
 /*!***********************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/media/BoundingBox.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -27471,13 +27479,13 @@ exports.BoundingBox = BoundingBox;
 //# sourceMappingURL=BoundingBox.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/media/CanvasRenderTarget.js":
+/***/ "./node_modules/@pixi/utils/lib/media/CanvasRenderTarget.js"
 /*!******************************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/media/CanvasRenderTarget.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -27547,13 +27555,13 @@ exports.CanvasRenderTarget = CanvasRenderTarget;
 //# sourceMappingURL=CanvasRenderTarget.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/media/caches.js":
+/***/ "./node_modules/@pixi/utils/lib/media/caches.js"
 /*!******************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/media/caches.js ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -27580,13 +27588,13 @@ exports.destroyTextureCache = destroyTextureCache;
 //# sourceMappingURL=caches.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/media/getCanvasBoundingBox.js":
+/***/ "./node_modules/@pixi/utils/lib/media/getCanvasBoundingBox.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/media/getCanvasBoundingBox.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -27628,13 +27636,13 @@ exports.getCanvasBoundingBox = getCanvasBoundingBox;
 //# sourceMappingURL=getCanvasBoundingBox.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/media/trimCanvas.js":
+/***/ "./node_modules/@pixi/utils/lib/media/trimCanvas.js"
 /*!**********************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/media/trimCanvas.js ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -27659,13 +27667,13 @@ exports.trimCanvas = trimCanvas;
 //# sourceMappingURL=trimCanvas.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/network/decomposeDataUri.js":
+/***/ "./node_modules/@pixi/utils/lib/network/decomposeDataUri.js"
 /*!******************************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/network/decomposeDataUri.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -27685,13 +27693,13 @@ exports.decomposeDataUri = decomposeDataUri;
 //# sourceMappingURL=decomposeDataUri.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/network/determineCrossOrigin.js":
+/***/ "./node_modules/@pixi/utils/lib/network/determineCrossOrigin.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/network/determineCrossOrigin.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -27706,13 +27714,13 @@ exports.determineCrossOrigin = determineCrossOrigin;
 //# sourceMappingURL=determineCrossOrigin.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/network/getResolutionOfUrl.js":
+/***/ "./node_modules/@pixi/utils/lib/network/getResolutionOfUrl.js"
 /*!********************************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/network/getResolutionOfUrl.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -27726,13 +27734,13 @@ exports.getResolutionOfUrl = getResolutionOfUrl;
 //# sourceMappingURL=getResolutionOfUrl.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/path.js":
+/***/ "./node_modules/@pixi/utils/lib/path.js"
 /*!**********************************************!*\
   !*** ./node_modules/@pixi/utils/lib/path.js ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -28021,13 +28029,13 @@ exports.path = path;
 //# sourceMappingURL=path.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/settings.js":
+/***/ "./node_modules/@pixi/utils/lib/settings.js"
 /*!**************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/settings.js ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -28043,26 +28051,26 @@ Object.defineProperty(exports, "settings", ({
 //# sourceMappingURL=settings.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/types/index.js":
+/***/ "./node_modules/@pixi/utils/lib/types/index.js"
 /*!*****************************************************!*\
   !*** ./node_modules/@pixi/utils/lib/types/index.js ***!
   \*****************************************************/
-/***/ (() => {
+() {
 
 "use strict";
 
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/utils/lib/url.js":
+/***/ "./node_modules/@pixi/utils/lib/url.js"
 /*!*********************************************!*\
   !*** ./node_modules/@pixi/utils/lib/url.js ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -28091,13 +28099,13 @@ exports.url = url;
 //# sourceMappingURL=url.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/earcut/src/earcut.js":
+/***/ "./node_modules/earcut/src/earcut.js"
 /*!*******************************************!*\
   !*** ./node_modules/earcut/src/earcut.js ***!
   \*******************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 
@@ -28783,13 +28791,13 @@ earcut.flatten = function (data) {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/eventemitter3/index.js":
+/***/ "./node_modules/eventemitter3/index.js"
 /*!*********************************************!*\
   !*** ./node_modules/eventemitter3/index.js ***!
   \*********************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 
@@ -29130,13 +29138,13 @@ if (true) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/function-bind/implementation.js":
+/***/ "./node_modules/function-bind/implementation.js"
 /*!******************************************************!*\
   !*** ./node_modules/function-bind/implementation.js ***!
   \******************************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 
@@ -29225,13 +29233,13 @@ module.exports = function bind(that) {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/function-bind/index.js":
+/***/ "./node_modules/function-bind/index.js"
 /*!*********************************************!*\
   !*** ./node_modules/function-bind/index.js ***!
   \*********************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -29241,13 +29249,13 @@ var implementation = __webpack_require__(/*! ./implementation */ "./node_modules
 module.exports = Function.prototype.bind || implementation;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/get-intrinsic/index.js":
+/***/ "./node_modules/get-intrinsic/index.js"
 /*!*********************************************!*\
   !*** ./node_modules/get-intrinsic/index.js ***!
   \*********************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -29603,13 +29611,13 @@ module.exports = function GetIntrinsic(name, allowMissing) {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/gopd/index.js":
+/***/ "./node_modules/gopd/index.js"
 /*!************************************!*\
   !*** ./node_modules/gopd/index.js ***!
   \************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -29630,13 +29638,13 @@ if ($gOPD) {
 module.exports = $gOPD;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/has-property-descriptors/index.js":
+/***/ "./node_modules/has-property-descriptors/index.js"
 /*!********************************************************!*\
   !*** ./node_modules/has-property-descriptors/index.js ***!
   \********************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -29674,13 +29682,13 @@ hasPropertyDescriptors.hasArrayLengthDefineBug = function hasArrayLengthDefineBu
 module.exports = hasPropertyDescriptors;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/has-proto/index.js":
+/***/ "./node_modules/has-proto/index.js"
 /*!*****************************************!*\
   !*** ./node_modules/has-proto/index.js ***!
   \*****************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 
@@ -29696,13 +29704,13 @@ module.exports = function hasProto() {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/has-symbols/index.js":
+/***/ "./node_modules/has-symbols/index.js"
 /*!*******************************************!*\
   !*** ./node_modules/has-symbols/index.js ***!
   \*******************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -29720,13 +29728,13 @@ module.exports = function hasNativeSymbols() {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/has-symbols/shams.js":
+/***/ "./node_modules/has-symbols/shams.js"
 /*!*******************************************!*\
   !*** ./node_modules/has-symbols/shams.js ***!
   \*******************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 
@@ -29773,13 +29781,13 @@ module.exports = function hasSymbols() {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/hasown/index.js":
+/***/ "./node_modules/hasown/index.js"
 /*!**************************************!*\
   !*** ./node_modules/hasown/index.js ***!
   \**************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -29792,13 +29800,13 @@ var bind = __webpack_require__(/*! function-bind */ "./node_modules/function-bin
 module.exports = bind.call(call, $hasOwn);
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/debugging.html":
+/***/ "./src/engine/debugging.html"
 /*!***********************************!*\
   !*** ./src/engine/debugging.html ***!
   \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -29913,13 +29921,13 @@ var code = `<style>
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (code);
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/ini/lib/ini.js":
+/***/ "./node_modules/ini/lib/ini.js"
 /*!*************************************!*\
   !*** ./node_modules/ini/lib/ini.js ***!
   \*************************************/
-/***/ ((module) => {
+(module) {
 
 const { hasOwnProperty } = Object.prototype
 
@@ -30203,13 +30211,13 @@ module.exports = {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/ismobilejs/esm/index.js":
+/***/ "./node_modules/ismobilejs/esm/index.js"
 /*!**********************************************!*\
   !*** ./node_modules/ismobilejs/esm/index.js ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -30221,13 +30229,13 @@ __webpack_require__.r(__webpack_exports__);
 
 //# sourceMappingURL=index.js.map
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/ismobilejs/esm/isMobile.js":
+/***/ "./node_modules/ismobilejs/esm/isMobile.js"
 /*!*************************************************!*\
   !*** ./node_modules/ismobilejs/esm/isMobile.js ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -30360,13 +30368,13 @@ function isMobile(param) {
 }
 //# sourceMappingURL=isMobile.js.map
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/lzo-ts/dist/index.js":
+/***/ "./node_modules/lzo-ts/dist/index.js"
 /*!*******************************************!*\
   !*** ./node_modules/lzo-ts/dist/index.js ***!
   \*******************************************/
-/***/ ((module) => {
+(module) {
 
 var r=Object.defineProperty;var n=Object.getOwnPropertyDescriptor;var l=Object.getOwnPropertyNames;var f=Object.prototype.hasOwnProperty;var p=(t,i)=>{for(var s in i)r(t,s,{get:i[s],enumerable:!0})},v=(t,i,s,h)=>{if(i&&typeof i=="object"||typeof i=="function")for(let e of l(i))!f.call(t,e)&&e!==s&&r(t,e,{get:()=>i[e],enumerable:!(h=n(i,e))||h.enumerable});return t};var u=t=>v(r({},"__esModule",{value:!0}),t);var w={};p(w,{LZO:()=>a});module.exports=u(w);var a=class t{constructor(){this.B=128*1024;this.l=this.blockSize;this.d=0;this.t=new Uint8Array(256*1024);this.u=0;this.y=0;this.C=0;this.s=0;this.h=0;this.i=0;this.r=0;this.a=0;this.n=0;this.g=0;this.A=0;this.x=0;this.E=0;this.f=0;this.v=0;this.p=0;this.D=new Uint32Array(16384);this.k=new Uint32Array(16384);this.U=!1}get blockSize(){return this.B}set blockSize(i){if(i<=0)throw new Error("Block size must be a positive integer");this.B=i}b(){var i=new Uint8Array(this.l+(this.blockSize-this.l%this.blockSize));i.set(this.t),this.t=i,this.u=this.t.length}z(){this.l=this.i+3,this.l>this.u&&this.b(),this.t[this.i++]=this.e[this.h++],this.s>1&&(this.t[this.i++]=this.e[this.h++],this.s>2&&(this.t[this.i++]=this.e[this.h++])),this.s=this.e[this.h++]}j(){return this.s=this.e[this.h-2]&3,this.s}T(){this.s+=2,this.l=this.i+this.s,this.l>this.u&&this.b();do this.t[this.i++]=this.t[this.r++];while(--this.s>0)}q(){this.l=this.i+this.s,this.l>this.u&&this.b();do this.t[this.i++]=this.e[this.h++];while(--this.s>0)}S(){for(;;){if(this.s>=64)this.r=this.i-1-(this.s>>2&7)-(this.e[this.h++]<<3),this.s=(this.s>>5)-1,this.T();else if(this.s>=32){if(this.s&=31,this.s===0){for(;this.e[this.h]===0;)this.s+=255,this.h++;this.s+=31+this.e[this.h++]}this.r=this.i-1-(this.e[this.h]>>2)-(this.e[this.h+1]<<6),this.h+=2,this.T()}else if(this.s>=16){if(this.r=this.i-((this.s&8)<<11),this.s&=7,this.s===0){for(;this.e[this.h]===0;)this.s+=255,this.h++;this.s+=7+this.e[this.h++]}if(this.r-=(this.e[this.h]>>2)+(this.e[this.h+1]<<6),this.h+=2,this.r===this.i)return this.t.subarray(0,this.i);this.r-=16384,this.T()}else this.r=this.i-1-(this.s>>2)-(this.e[this.h++]<<2),this.l=this.i+2,this.l>this.u&&this.b(),this.t[this.i++]=this.t[this.r++],this.t[this.i++]=this.t[this.r];if(this.j()===0)return!0;this.z()}}F(i){if(this.e=i,this.y=this.e.length,this.C=this.t.length,this.u=this.t.length,this.s=0,this.h=0,this.i=0,this.r=0,this.U=!1,this.e[this.h]>17)if(this.s=this.e[this.h++]-17,this.s<4){this.z();let s=this.S();if(s!==!0)return s}else this.q(),this.U=!0;for(;;){if(this.U)this.U=!1;else{if(this.s=this.e[this.h++],this.s>=16){let h=this.S();if(h!==!0)return h;continue}else if(this.s===0){for(;this.e[this.h]===0;)this.s+=255,this.h++;this.s+=15+this.e[this.h++]}this.s+=3,this.q()}if(this.s=this.e[this.h++],this.s<16){if(this.r=this.i-2049,this.r-=this.s>>2,this.r-=this.e[this.h++]<<2,this.l=this.i+3,this.l>this.u&&this.b(),this.t[this.i++]=this.t[this.r++],this.t[this.i++]=this.t[this.r++],this.t[this.i++]=this.t[this.r],this.j()===0)continue;this.z()}let s=this.S();if(s!==!0)return s}}G(){for(this.m=this.h,this.y=this.h+this.o-20,this.f=this.h,this.c=this.s,this.h+=this.c<4?4-this.c:0,this.h+=1+(this.h-this.f>>5);!(this.h>=this.y);){if(this.A=this.e[this.h]|this.e[this.h+1]<<8,this.g=this.e[this.h+2]|this.e[this.h+3]<<8,this.x=((this.A*17053>>>16)+this.g*17053+this.A*6180&65535)>>>2,this.r=this.m+this.k[this.x],this.k[this.x]=this.h-this.m,(this.g<<16)+this.A!=(this.e[this.r]|this.e[this.r+1]<<8|this.e[this.r+2]<<16|this.e[this.r+3]<<24)){this.h+=1+(this.h-this.f>>5);continue}if(this.f-=this.c,this.c=0,this.p=this.h-this.f,this.p!==0)if(this.p<=3){this.t[this.i-2]|=this.p;do this.t[this.i++]=this.e[this.f++];while(--this.p>0)}else{if(this.p<=18)this.t[this.i++]=this.p-3;else{for(this.v=this.p-18,this.t[this.i++]=0;this.v>255;)this.v-=255,this.t[this.i++]=0;this.t[this.i++]=this.v}do this.t[this.i++]=this.e[this.f++];while(--this.p>0)}for(this.a=4;this.e[this.h+this.a]===this.e[this.r+this.a]&&(this.a+=1,!(this.e[this.h+this.a]!==this.e[this.r+this.a]||this.h+this.a>=this.y)););if(this.n=this.h-this.r,this.h+=this.a,this.f=this.h,this.a<=8&&this.n<=2048)this.n-=1,this.t[this.i++]=this.a-1<<5|(this.n&7)<<2,this.t[this.i++]=this.n>>3;else if(this.n<=16384){if(this.n-=1,this.a<=33)this.t[this.i++]=32|this.a-2;else{for(this.a-=33,this.t[this.i++]=32;this.a>255;)this.a-=255,this.t[this.i++]=0;this.t[this.i++]=this.a}this.t[this.i++]=this.n<<2,this.t[this.i++]=this.n>>6}else{if(this.n-=16384,this.a<=9)this.t[this.i++]=16|this.n>>11&8|this.a-2;else{for(this.a-=9,this.t[this.i++]=16|this.n>>11&8;this.a>255;)this.a-=255,this.t[this.i++]=0;this.t[this.i++]=this.a}this.t[this.i++]=this.n<<2,this.t[this.i++]=this.n>>6}}this.s=this.o-(this.f-this.m-this.c)}H(i){for(this.e=i,this.h=this.i=this.s=0,this.i=0,this.s=0,this.w=this.e.length,this.d=this.w+Math.ceil(this.e.length/16)+64+3,this.d>this.t.length&&(this.t=new Uint8Array(this.d));this.w>20&&(this.o=this.w<=49152?this.w:49152,!(this.s+this.o>>5<=0));)this.k.set(this.D),this.M=this.h,this.G(),this.h=this.M+this.o,this.w-=this.o;if(this.s+=this.w,this.s>0){if(this.E=this.e.length-this.s,this.i===0&&this.s<=238)this.t[this.i++]=17+this.s;else if(this.s<=3)this.t[this.i-2]|=this.s;else if(this.s<=18)this.t[this.i++]=this.s-3;else{for(this.v=this.s-18,this.t[this.i++]=0;this.v>255;)this.v-=255,this.t[this.i++]=0;this.t[this.i++]=this.v}do this.t[this.i++]=this.e[this.E++];while(--this.s>0)}return this.t[this.i++]=17,this.t[this.i++]=0,this.t[this.i++]=0,this.t.subarray(0,this.i)}static compress(i){return new t().H(i)}static decompress(i){return new t().F(i)}};0&&(0);
 /**
@@ -30375,13 +30383,13 @@ var r=Object.defineProperty;var n=Object.getOwnPropertyDescriptor;var l=Object.g
  */
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/pixi.js/lib/filters.js":
+/***/ "./node_modules/pixi.js/lib/filters.js"
 /*!*********************************************!*\
   !*** ./node_modules/pixi.js/lib/filters.js ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -30448,13 +30456,13 @@ exports.filters = filters;
 //# sourceMappingURL=filters.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/pixi.js/lib/index.js":
+/***/ "./node_modules/pixi.js/lib/index.js"
 /*!*******************************************!*\
   !*** ./node_modules/pixi.js/lib/index.js ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -30674,18 +30682,19 @@ Object.keys(textHtml).forEach(function(k) {
 //# sourceMappingURL=index.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/common/errors.ts":
+/***/ "./src/common/errors.ts"
 /*!******************************!*\
   !*** ./src/common/errors.ts ***!
   \******************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.assert = exports.IgnorableError = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.IrrecoverableError = exports.EngineError = void 0;
+exports.IgnorableError = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.IrrecoverableError = exports.EngineError = void 0;
+exports.assert = assert;
 class EngineError extends Error {
     constructor(message, stackTrace = null) {
         super(message);
@@ -30719,21 +30728,21 @@ function assert(expr, message) {
         throw new Error('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''));
     }
 }
-exports.assert = assert;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/common/stateMachine.ts":
+/***/ "./src/common/stateMachine.ts"
 /*!************************************!*\
   !*** ./src/common/stateMachine.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.t = exports.StateMachine = void 0;
+exports.StateMachine = void 0;
+exports.t = t;
 class StateMachine {
     constructor(initialState, transitions = [], onStateChange) {
         this.transitions = transitions;
@@ -30764,21 +30773,21 @@ function t(from, event, to) {
         to,
     };
 }
-exports.t = t;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/common/types.ts":
+/***/ "./src/common/types.ts"
 /*!*****************************!*\
   !*** ./src/common/types.ts ***!
   \*****************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.method = exports.InvalidMethodParameter = exports.compareType = exports.isDirectlyConvertible = exports.Compare = exports.ForceNumber = exports.valueAsDouble = exports.toNumber = exports.valueAsBool = exports.valueAsString = void 0;
+exports.InvalidMethodParameter = exports.compareType = exports.isDirectlyConvertible = exports.Compare = exports.ForceNumber = exports.valueAsDouble = exports.toNumber = exports.valueAsBool = exports.valueAsString = void 0;
+exports.method = method;
 const errors_1 = __webpack_require__(/*! ./errors */ "./src/common/errors.ts");
 const logging_1 = __webpack_require__(/*! ../engine/logging */ "./src/engine/logging.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
@@ -30997,16 +31006,15 @@ function method(...types) {
         return typeGuardWrapper;
     };
 }
-exports.method = method;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/audio.ts":
+/***/ "./src/engine/audio.ts"
 /*!*****************************!*\
   !*** ./src/engine/audio.ts ***!
   \*****************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -31228,13 +31236,13 @@ exports.AudioManager = AudioManager;
 exports.globalAudio = new AudioManager();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/components/button.ts":
+/***/ "./src/engine/components/button.ts"
 /*!*****************************************!*\
   !*** ./src/engine/components/button.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -31352,13 +31360,13 @@ class ButtonLogicComponent {
 exports.ButtonLogicComponent = ButtonLogicComponent;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/components/callbacks.ts":
+/***/ "./src/engine/components/callbacks.ts"
 /*!********************************************!*\
   !*** ./src/engine/components/callbacks.ts ***!
   \********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -31410,7 +31418,7 @@ class CallbacksComponent {
         (0, errors_1.assert)(callbacks !== undefined);
         return callbacks.nonParametrized !== null || callbacks.parametrized.size > 0;
     }
-    async run(type, param, thisOverride) {
+    async run(type, param, thisOverride, args) {
         if (!this.has(type)) {
             return;
         }
@@ -31428,10 +31436,10 @@ class CallbacksComponent {
             if (param !== null && param !== undefined && callbackGroup.parametrized.has(param)) {
                 const callback = callbackGroup.parametrized.get(param);
                 (0, errors_1.assert)(callback !== undefined, 'Callbacks should not happen to be undefined values');
-                await this.engine.scripting.executeCallback(thisReference, thisReference, callback);
+                await this.engine.scripting.executeCallback(thisReference, thisReference, callback, args);
             }
             else if (callbackGroup.nonParametrized) {
-                await this.engine.scripting.executeCallback(thisReference, thisReference, callbackGroup.nonParametrized);
+                await this.engine.scripting.executeCallback(thisReference, thisReference, callbackGroup.nonParametrized, args);
             }
         }
         catch (err) {
@@ -31466,13 +31474,13 @@ class CallbacksComponent {
 exports.CallbacksComponent = CallbacksComponent;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/components/collisions.ts":
+/***/ "./src/engine/components/collisions.ts"
 /*!*********************************************!*\
   !*** ./src/engine/components/collisions.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -31524,13 +31532,13 @@ class CollisionsComponent {
 exports.CollisionsComponent = CollisionsComponent;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/components/events.ts":
+/***/ "./src/engine/components/events.ts"
 /*!*****************************************!*\
   !*** ./src/engine/components/events.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -31566,13 +31574,13 @@ class EventsComponent {
 exports.EventsComponent = EventsComponent;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/debugging.ts":
+/***/ "./src/engine/debugging.ts"
 /*!*********************************!*\
   !*** ./src/engine/debugging.ts ***!
   \*********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -31871,13 +31879,13 @@ class Debugging {
 exports.Debugging = Debugging;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/index.ts":
+/***/ "./src/engine/index.ts"
 /*!*****************************!*\
   !*** ./src/engine/index.ts ***!
   \*****************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -31897,13 +31905,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CancelTick = exports.Engine = void 0;
 const scripting_1 = __webpack_require__(/*! ./scripting */ "./src/engine/scripting.ts");
@@ -32163,13 +32181,13 @@ class CancelTick extends errors_1.IgnorableError {
 exports.CancelTick = CancelTick;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/logging.ts":
+/***/ "./src/engine/logging.ts"
 /*!*******************************!*\
   !*** ./src/engine/logging.ts ***!
   \*******************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -32291,13 +32309,13 @@ class Logger {
 exports.logger = new Logger();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/rendering.ts":
+/***/ "./src/engine/rendering.ts"
 /*!*********************************!*\
   !*** ./src/engine/rendering.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -32464,13 +32482,13 @@ const createColorTexture = (app, dimensions, color, alpha) => {
 exports.createColorTexture = createColorTexture;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/saveFile.ts":
+/***/ "./src/engine/saveFile.ts"
 /*!********************************!*\
   !*** ./src/engine/saveFile.ts ***!
   \********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -32564,13 +32582,13 @@ class SaveFileManager {
 exports.SaveFileManager = SaveFileManager;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/scope.ts":
+/***/ "./src/engine/scope.ts"
 /*!*****************************!*\
   !*** ./src/engine/scope.ts ***!
   \*****************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -32676,13 +32694,13 @@ class Scope {
 exports.Scope = Scope;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/scripting.ts":
+/***/ "./src/engine/scripting.ts"
 /*!*********************************!*\
   !*** ./src/engine/scripting.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -32725,10 +32743,10 @@ class ScriptingManager {
                 const behaviour = this.engine.getObject(callback.behaviourReference, caller?.parentScope);
                 (0, errors_1.assert)(behaviour !== null);
                 if (forwardInterrupts) {
-                    return await behaviour.executeConditionalCallback(callback.constantArguments);
+                    return await behaviour.executeConditionalCallback(args ?? callback.constantArguments);
                 }
                 else {
-                    return await behaviour.RUNC(...callback.constantArguments);
+                    return await behaviour.RUNC(...(args ?? callback.constantArguments));
                 }
             }
         }
@@ -32743,13 +32761,13 @@ class ScriptingManager {
 exports.ScriptingManager = ScriptingManager;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/animo.ts":
+/***/ "./src/engine/types/animo.ts"
 /*!***********************************!*\
   !*** ./src/engine/types/animo.ts ***!
   \***********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -32803,13 +32821,23 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Animo = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
@@ -32865,7 +32893,7 @@ let Animo = (() => {
     return _a = class Animo extends _classSuper {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition);
-                this.buttonLogic = (__runInitializers(this, _instanceExtraInitializers), void 0);
+                this.buttonLogic = __runInitializers(this, _instanceExtraInitializers);
                 this.isPlaying = false;
                 this.currentFrame = 0;
                 this.currentEvent = null;
@@ -33178,7 +33206,7 @@ let Animo = (() => {
             async STOP(shouldSignal) {
                 this.isPlaying = false;
                 this.currentFrame = 0;
-                if (shouldSignal !== false) {
+                if (shouldSignal !== false && shouldSignal !== 'FALSE') {
                     await this.ONFINISHED();
                 }
             }
@@ -33481,6 +33509,7 @@ let Animo = (() => {
                 clone.anchorOffsetY = this.anchorOffsetY;
                 await clone.initSprite();
                 clone.sprite.visible = this.sprite.visible;
+                clone.SETPRIORITY(this.GETPRIORITY());
                 return clone;
             }
             __getXRayInfo() {
@@ -33587,13 +33616,13 @@ let Animo = (() => {
 exports.Animo = Animo;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/application.ts":
+/***/ "./src/engine/types/application.ts"
 /*!*****************************************!*\
   !*** ./src/engine/types/application.ts ***!
   \*****************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -33730,13 +33759,13 @@ let Application = (() => {
 exports.Application = Application;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/array.ts":
+/***/ "./src/engine/types/array.ts"
 /*!***********************************!*\
   !*** ./src/engine/types/array.ts ***!
   \***********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -33976,16 +34005,23 @@ let ArrayObject = (() => {
 exports.ArrayObject = ArrayObject;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/behaviour.ts":
+/***/ "./src/engine/types/behaviour.ts"
 /*!***************************************!*\
   !*** ./src/engine/types/behaviour.ts ***!
   \***************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -34012,13 +34048,6 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     }
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
-};
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Behaviour = void 0;
@@ -34116,13 +34145,13 @@ let Behaviour = (() => {
 exports.Behaviour = Behaviour;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/bool.ts":
+/***/ "./src/engine/types/bool.ts"
 /*!**********************************!*\
   !*** ./src/engine/types/bool.ts ***!
   \**********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -34202,13 +34231,13 @@ let Bool = (() => {
 exports.Bool = Bool;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/button.ts":
+/***/ "./src/engine/types/button.ts"
 /*!************************************!*\
   !*** ./src/engine/types/button.ts ***!
   \************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -34267,7 +34296,7 @@ let Button = (() => {
     return _a = class Button extends _classSuper {
             constructor(engine, parent, definition) {
                 super(engine, parent, definition);
-                this.logic = (__runInitializers(this, _instanceExtraInitializers), void 0);
+                this.logic = __runInitializers(this, _instanceExtraInitializers);
                 this.lastMousePosition = new pixi_js_1.Point();
                 this.originalPriority = 0;
                 this.draggingActive = false;
@@ -34573,16 +34602,23 @@ let Button = (() => {
 exports.Button = Button;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/canvasObserver.ts":
+/***/ "./src/engine/types/canvasObserver.ts"
 /*!********************************************!*\
   !*** ./src/engine/types/canvasObserver.ts ***!
   \********************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -34609,13 +34645,6 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     }
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
-};
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CanvasObserver = void 0;
@@ -34736,13 +34765,13 @@ let CanvasObserver = (() => {
 exports.CanvasObserver = CanvasObserver;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/class.ts":
+/***/ "./src/engine/types/class.ts"
 /*!***********************************!*\
   !*** ./src/engine/types/class.ts ***!
   \***********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -34867,16 +34896,23 @@ class ClassInstance extends index_1.ParentType {
 exports.ClassInstance = ClassInstance;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/cnvloader.ts":
+/***/ "./src/engine/types/cnvloader.ts"
 /*!***************************************!*\
   !*** ./src/engine/types/cnvloader.ts ***!
   \***************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -34903,13 +34939,6 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     }
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
-};
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CNVLoader = void 0;
@@ -34946,16 +34975,23 @@ let CNVLoader = (() => {
 exports.CNVLoader = CNVLoader;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/complexCondition.ts":
+/***/ "./src/engine/types/complexCondition.ts"
 /*!**********************************************!*\
   !*** ./src/engine/types/complexCondition.ts ***!
   \**********************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -34982,13 +35018,6 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     }
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
-};
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ComplexCondition = void 0;
@@ -35057,16 +35086,23 @@ let ComplexCondition = (() => {
 exports.ComplexCondition = ComplexCondition;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/condition.ts":
+/***/ "./src/engine/types/condition.ts"
 /*!***************************************!*\
   !*** ./src/engine/types/condition.ts ***!
   \***************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -35093,13 +35129,6 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     }
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
-};
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Condition = void 0;
@@ -35199,13 +35228,13 @@ let Condition = (() => {
 exports.Condition = Condition;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/database.ts":
+/***/ "./src/engine/types/database.ts"
 /*!**************************************!*\
   !*** ./src/engine/types/database.ts ***!
   \**************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -35376,13 +35405,13 @@ let Database = (() => {
 exports.Database = Database;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/double.ts":
+/***/ "./src/engine/types/double.ts"
 /*!************************************!*\
   !*** ./src/engine/types/double.ts ***!
   \************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -35518,16 +35547,23 @@ let Double = (() => {
 exports.Double = Double;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/episode.ts":
+/***/ "./src/engine/types/episode.ts"
 /*!*************************************!*\
   !*** ./src/engine/types/episode.ts ***!
   \*************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -35554,13 +35590,6 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     }
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
-};
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Episode = void 0;
@@ -35632,13 +35661,13 @@ let Episode = (() => {
 exports.Episode = Episode;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/expression.ts":
+/***/ "./src/engine/types/expression.ts"
 /*!****************************************!*\
   !*** ./src/engine/types/expression.ts ***!
   \****************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -35679,13 +35708,13 @@ class Expression extends index_1.ValueType {
 exports.Expression = Expression;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/filter.ts":
+/***/ "./src/engine/types/filter.ts"
 /*!************************************!*\
   !*** ./src/engine/types/filter.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -35697,13 +35726,13 @@ class Filter extends index_1.Type {
 exports.Filter = Filter;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/font.ts":
+/***/ "./src/engine/types/font.ts"
 /*!**********************************!*\
   !*** ./src/engine/types/font.ts ***!
   \**********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -35740,13 +35769,13 @@ class Font extends index_1.Type {
 exports.Font = Font;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/group.ts":
+/***/ "./src/engine/types/group.ts"
 /*!***********************************!*\
   !*** ./src/engine/types/group.ts ***!
   \***********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -35853,13 +35882,13 @@ let Group = (() => {
 exports.Group = Group;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/image.ts":
+/***/ "./src/engine/types/image.ts"
 /*!***********************************!*\
   !*** ./src/engine/types/image.ts ***!
   \***********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -35913,13 +35942,23 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Image = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
@@ -35961,6 +36000,7 @@ let Image = (() => {
             async initSprite(path) {
                 this.sprite = await this.load(path);
                 this.sprite.visible = this.definition.VISIBLE;
+                this.SETPRIORITY(this.definition.PRIORITY ?? 0);
                 this.sprite.eventMode = 'none';
                 this.sprite.name = `${this.name} (IMAGE)`; // For PIXI Devtools
             }
@@ -36077,8 +36117,11 @@ let Image = (() => {
                 spriteClone.x = this.sprite.x;
                 spriteClone.y = this.sprite.y;
                 spriteClone.hitmap = this.sprite.hitmap;
+                spriteClone.visible = this.sprite.visible;
                 const clone = (await super.clone());
                 clone.sprite = spriteClone;
+                this.engine.rendering.addToStage(clone.sprite);
+                clone.SETPRIORITY(this.GETPRIORITY());
                 return clone;
             }
             getRenderObject() {
@@ -36118,13 +36161,13 @@ let Image = (() => {
 exports.Image = Image;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/index.ts":
+/***/ "./src/engine/types/index.ts"
 /*!***********************************!*\
   !*** ./src/engine/types/index.ts ***!
   \***********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -36177,7 +36220,7 @@ let Type = (() => {
     let _GETCLONEINDEX_decorators;
     return _a = class Type {
             constructor(engine, parent, definition) {
-                this.callbacks = (__runInitializers(this, _instanceExtraInitializers), void 0);
+                this.callbacks = __runInitializers(this, _instanceExtraInitializers);
                 this.events = new events_1.EventsComponent();
                 this.name = '';
                 this.clones = [];
@@ -36311,7 +36354,7 @@ let ValueType = (() => {
     return _a = class ValueType extends _classSuper {
             constructor(engine, parent, definition, defaultValue, autoSave = true) {
                 super(engine, parent, definition);
-                this.value = (__runInitializers(this, _instanceExtraInitializers), void 0);
+                this.value = __runInitializers(this, _instanceExtraInitializers);
                 this.defaultValue = defaultValue;
                 this.value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue;
                 this.autoSave = autoSave;
@@ -36385,13 +36428,13 @@ class ParentType extends Type {
 exports.ParentType = ParentType;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/integer.ts":
+/***/ "./src/engine/types/integer.ts"
 /*!*************************************!*\
   !*** ./src/engine/types/integer.ts ***!
   \*************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -36565,13 +36608,13 @@ let Integer = (() => {
 exports.Integer = Integer;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/keyboard.ts":
+/***/ "./src/engine/types/keyboard.ts"
 /*!**************************************!*\
   !*** ./src/engine/types/keyboard.ts ***!
   \**************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -36716,13 +36759,473 @@ let Keyboard = (() => {
 exports.Keyboard = Keyboard;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/mouse.ts":
+/***/ "./src/engine/types/matrix.ts"
+/*!************************************!*\
+  !*** ./src/engine/types/matrix.ts ***!
+  \************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Matrix = void 0;
+const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
+var Field;
+(function (Field) {
+    Field[Field["EMPTY"] = 0] = "EMPTY";
+    Field[Field["GROUND"] = 1] = "GROUND";
+    Field[Field["STONE"] = 2] = "STONE";
+    Field[Field["DYNAMITE"] = 3] = "DYNAMITE";
+    Field[Field["WALL_WEAK"] = 4] = "WALL_WEAK";
+    Field[Field["ENEMY"] = 5] = "ENEMY";
+    Field[Field["WALL_STRONG"] = 6] = "WALL_STRONG";
+    Field[Field["DYNAMITE_FIRED"] = 7] = "DYNAMITE_FIRED";
+    Field[Field["EXPLOSION"] = 8] = "EXPLOSION";
+    Field[Field["EXIT"] = 9] = "EXIT";
+    Field[Field["MOLE"] = 99] = "MOLE";
+})(Field || (Field = {}));
+var Direction;
+(function (Direction) {
+    Direction[Direction["LEFT"] = 0] = "LEFT";
+    Direction[Direction["UP"] = 1] = "UP";
+    Direction[Direction["RIGHT"] = 2] = "RIGHT";
+    Direction[Direction["DOWN"] = 3] = "DOWN";
+    Direction[Direction["NONE"] = 4] = "NONE";
+})(Direction || (Direction = {}));
+var Actions;
+(function (Actions) {
+    Actions[Actions["NONE"] = 0] = "NONE";
+    Actions[Actions["DOWN"] = 1] = "DOWN";
+    Actions[Actions["DOWNLEFT"] = 2] = "DOWNLEFT";
+    Actions[Actions["DOWNRIGHT"] = 3] = "DOWNRIGHT";
+    Actions[Actions["EXPLODE"] = 4] = "EXPLODE";
+})(Actions || (Actions = {}));
+var RemainingActions;
+(function (RemainingActions) {
+    RemainingActions[RemainingActions["NONE"] = 0] = "NONE";
+    RemainingActions[RemainingActions["STONE_UPDATES"] = 1] = "STONE_UPDATES";
+    RemainingActions[RemainingActions["PLAYER_COLLISION"] = 2] = "PLAYER_COLLISION";
+    RemainingActions[RemainingActions["ENEMY_COLLISIONS"] = 3] = "ENEMY_COLLISIONS";
+})(RemainingActions || (RemainingActions = {}));
+let Matrix = (() => {
+    var _a;
+    let _classSuper = index_1.Type;
+    let _instanceExtraInitializers = [];
+    let _CALCENEMYMOVEDEST_decorators;
+    let _CALCENEMYMOVEDIR_decorators;
+    let _CANHEROGOTO_decorators;
+    let _GET_decorators;
+    let _GETCELLOFFSET_decorators;
+    let _GETCELLPOSX_decorators;
+    let _GETCELLPOSY_decorators;
+    let _GETCELLSNO_decorators;
+    let _ISGATEEMPTY_decorators;
+    let _ISINGATE_decorators;
+    let _MOVE_decorators;
+    let _NEXT_decorators;
+    let _SET_decorators;
+    let _SETGATE_decorators;
+    let _SETROW_decorators;
+    let _TICK_decorators;
+    return _a = class Matrix extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
+                this.width = (__runInitializers(this, _instanceExtraInitializers), 0);
+                this.height = 0;
+                this.board = [];
+                this.gateRect = null;
+                this.stoneActions = [];
+                // How the stone in each cell got there
+                this.stoneStates = [];
+                this.cursorX = 0;
+                this.cursorY = 0;
+            }
+            initializeEmptyBoard(value) {
+                let board = [];
+                if (this.width > 0 && this.height > 0) {
+                    board = new Array(this.width * this.height).fill(value ?? 0);
+                }
+                return board;
+            }
+            init() {
+                this.width = this.definition.SIZE[0];
+                this.height = this.definition.SIZE[1];
+                this.board = this.initializeEmptyBoard();
+                this.stoneActions = this.initializeEmptyBoard();
+                this.stoneStates = this.initializeEmptyBoard();
+            }
+            // Returns new position
+            CALCENEMYMOVEDEST(oldPos, dir) {
+                switch (dir) {
+                    case Direction.LEFT:
+                        return oldPos - 1;
+                    case Direction.UP:
+                        return oldPos - this.width;
+                    case Direction.RIGHT:
+                        return oldPos + 1;
+                    case Direction.DOWN:
+                        return oldPos + this.width;
+                    default:
+                        return oldPos;
+                }
+            }
+            rotateLeft(dir) {
+                switch (dir) {
+                    case Direction.LEFT:
+                        return Direction.DOWN;
+                    case Direction.UP:
+                        return Direction.LEFT;
+                    case Direction.DOWN:
+                        return Direction.RIGHT;
+                    default: // any direction other than LEFT, UP, DOWN is treated as RIGHT
+                        return Direction.UP;
+                }
+            }
+            rotateRight(dir) {
+                switch (dir) {
+                    case Direction.LEFT:
+                        return Direction.UP;
+                    case Direction.UP:
+                        return Direction.RIGHT;
+                    case Direction.DOWN:
+                        return Direction.LEFT;
+                    default: // any direction other than LEFT, UP, DOWN is treated as RIGHT
+                        return Direction.DOWN;
+                }
+            }
+            opositeDirection(dir) {
+                switch (dir) {
+                    case Direction.LEFT:
+                        return Direction.RIGHT;
+                    case Direction.UP:
+                        return Direction.DOWN;
+                    case Direction.DOWN:
+                        return Direction.UP;
+                    default: // any direction other than LEFT, UP, DOWN is treated as RIGHT
+                        return Direction.LEFT;
+                }
+            }
+            isNewPositionValid(newPosIndex) {
+                if (newPosIndex < 0 || newPosIndex >= this.board.length) {
+                    return false;
+                }
+                if (this.board[newPosIndex] !== Field.EMPTY && this.board[newPosIndex] !== Field.MOLE) {
+                    return false;
+                }
+                return !this.isIndexInGate(newPosIndex);
+            }
+            canMoveTo(oldPos, newPos) {
+                const newPosIndex = this.CALCENEMYMOVEDEST(oldPos, newPos);
+                return this.isNewPositionValid(newPosIndex);
+            }
+            CALCENEMYMOVEDIR(oldPos, currentMoveDir) {
+                let newDir = this.rotateLeft(currentMoveDir);
+                if (this.canMoveTo(oldPos, newDir)) {
+                    return newDir;
+                }
+                if (this.canMoveTo(oldPos, currentMoveDir)) {
+                    return currentMoveDir;
+                }
+                newDir = this.rotateRight(currentMoveDir);
+                if (this.canMoveTo(oldPos, newDir)) {
+                    return newDir;
+                }
+                newDir = this.opositeDirection(currentMoveDir);
+                if (this.canMoveTo(oldPos, newDir)) {
+                    return newDir;
+                }
+                return Direction.NONE;
+            }
+            CANHEROGOTO(targetCellIndex) {
+                if (targetCellIndex < 0 || targetCellIndex >= this.board.length) {
+                    return false;
+                }
+                const canEnter = [Field.EMPTY, Field.GROUND, Field.DYNAMITE, Field.ENEMY, Field.EXPLOSION, Field.EXIT].includes(this.board[targetCellIndex]);
+                return canEnter && !this.isIndexInGate(targetCellIndex);
+            }
+            GET(...args) {
+                return this.board[args[0]];
+            }
+            getIndexFromCoordinates(column, row) {
+                return row * this.width + column;
+            }
+            getColumnFromIndex(index) {
+                return index % this.width;
+            }
+            getRowFromIndex(index) {
+                return Math.floor(index / this.width);
+            }
+            GETCELLOFFSET(x, y) {
+                return this.getIndexFromCoordinates(x, y);
+            }
+            GETCELLPOSX(index) {
+                return this.getColumnFromIndex(index) * this.definition.CELLWIDTH + this.definition.BASEPOS[0];
+            }
+            GETCELLPOSY(index) {
+                return this.getRowFromIndex(index) * this.definition.CELLHEIGHT + this.definition.BASEPOS[1];
+            }
+            GETCELLSNO(cellType) {
+                if (cellType === undefined) {
+                    return this.width * this.height;
+                }
+                return this.board.filter((e) => e === cellType).length;
+            }
+            ISGATEEMPTY() {
+                if (!this.gateRect) {
+                    return true;
+                }
+                // Inclusive of right and bottom, unlike ISINGATE
+                for (let column = this.gateRect.left; column <= this.gateRect.right; column++) {
+                    for (let row = this.gateRect.top; row <= this.gateRect.bottom; row++) {
+                        if (this.board[this.getIndexFromCoordinates(column, row)] === Field.STONE) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            ISINGATE(index) {
+                return this.isIndexInGate(index);
+            }
+            isIndexInGate(index) {
+                if (!this.gateRect) {
+                    return false;
+                }
+                const x = this.getColumnFromIndex(index);
+                const y = this.getRowFromIndex(index);
+                // Manual comparison, so that it is non-inclusive of right and bottom
+                return this.gateRect.left <= x && x < this.gateRect.right && this.gateRect.top <= y && y < this.gateRect.bottom;
+            }
+            MOVE(previousPos, newPos) {
+                this.moveCell(previousPos, newPos, Actions.NONE);
+            }
+            // Moving into an explosion destroys the moved cell and keeps the explosion
+            moveCell(from, to, code) {
+                if (this.board[to] !== Field.EXPLOSION) {
+                    this.board[to] = this.board[from];
+                    if (this.board[to] === Field.STONE) {
+                        this.stoneStates[to] = code;
+                    }
+                }
+                this.board[from] = Field.EMPTY;
+                this.stoneStates[from] = Actions.NONE;
+            }
+            hasActionsFrom(startX, startY) {
+                for (let y = startY; y >= 0; y--) {
+                    for (let x = y === startY ? startX : 0; x < this.width; x++) {
+                        if (this.stoneActions[this.getIndexFromCoordinates(x, y)] !== Actions.NONE) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            async NEXT() {
+                let result = RemainingActions.NONE;
+                for (let y = this.cursorY; y >= 0; y--) {
+                    for (let x = y === this.cursorY ? this.cursorX : 0; x < this.width; x++) {
+                        const index = this.getIndexFromCoordinates(x, y);
+                        const action = this.stoneActions[index];
+                        if (action === Actions.NONE) {
+                            continue;
+                        }
+                        const indexUnder = index + this.width;
+                        switch (action) {
+                            case Actions.DOWN:
+                                this.moveCell(index, indexUnder, action);
+                                if (this.board[indexUnder + this.width] === Field.MOLE) {
+                                    result = RemainingActions.PLAYER_COLLISION;
+                                }
+                                break;
+                            case Actions.DOWNLEFT:
+                                this.moveCell(index, indexUnder - 1, action);
+                                break;
+                            case Actions.DOWNRIGHT:
+                                this.moveCell(index, indexUnder + 1, action);
+                                break;
+                            case Actions.EXPLODE:
+                                // Only a stone that fell straight down last tick crushes the enemy
+                                if (this.stoneStates[index] !== Actions.DOWN) {
+                                    continue;
+                                }
+                                this.stoneStates[index] = Actions.NONE;
+                                break;
+                        }
+                        const wraps = x + 1 >= this.width;
+                        const nextX = wraps ? 0 : x + 1;
+                        const nextY = wraps ? y - 1 : y;
+                        const isLast = !this.hasActionsFrom(nextX, nextY);
+                        this.cursorX = isLast ? this.width : nextX;
+                        this.cursorY = isLast ? -1 : nextY;
+                        await this.callbacks.run(isLast ? 'ONLATEST' : 'ONNEXT', null, null, [x, y, action]);
+                        return isLast ? result : result || RemainingActions.STONE_UPDATES;
+                    }
+                }
+                return RemainingActions.NONE;
+            }
+            setByIndex(index, cellType) {
+                (0, errors_1.assert)(index >= 0 && index < this.board.length, `Index ${index} out of bounds for board of length ${this.board.length}`);
+                this.board[index] = cellType;
+            }
+            setByPosition(x, y, cellType) {
+                (0, errors_1.assert)(x >= 0 && x < this.width, `X position ${x} out of bounds for width ${this.width}`);
+                (0, errors_1.assert)(y >= 0 && y < this.height, `Y position ${y} out of bounds for height ${this.height}`);
+                const index = this.getIndexFromCoordinates(x, y);
+                this.setByIndex(index, cellType);
+            }
+            async SET(...args) {
+                if (args.length === 2) {
+                    const [index, cellType] = args;
+                    this.setByIndex(index, cellType);
+                }
+                if (args.length === 3) {
+                    const [x, y, cellType] = args;
+                    this.setByPosition(Math.floor(x), Math.floor(y), cellType);
+                }
+            }
+            async SETGATE(startColumn, startRow, endColumn, endRow) {
+                this.gateRect = new pixi_js_1.Rectangle(startColumn, startRow, endColumn - startColumn, endRow - startRow);
+            }
+            async SETROW(row, ...cells) {
+                for (let i = 0; i < Math.min(this.width, cells.length); i++) {
+                    this.board[row * this.width + i] = cells[i];
+                }
+            }
+            // Can the stone at index (column x) roll one column sideways (dx = -1 or 1) and down?
+            // A neighbor that already has an action this tick blocks the roll
+            canRoll(index, x, dx) {
+                const hasAction = (offset) => {
+                    const column = x + offset;
+                    return column >= 0 && column < this.width && this.stoneActions[index + offset] !== Actions.NONE;
+                };
+                return (!hasAction(dx) &&
+                    !hasAction(2 * dx) &&
+                    this.board[index + dx] === Field.EMPTY &&
+                    this.board[index + this.width + dx] === Field.EMPTY);
+            }
+            async TICK() {
+                this.cursorX = 0;
+                this.cursorY = this.height - 2;
+                this.stoneActions = this.initializeEmptyBoard();
+                for (let x = 0; x < this.width; x++) {
+                    for (let y = this.height - 2; y >= 0; y--) {
+                        const index = this.getIndexFromCoordinates(x, y);
+                        if (this.board[index] !== Field.STONE) {
+                            continue;
+                        }
+                        const under = this.board[index + this.width];
+                        if (under === Field.EMPTY || under === Field.ENEMY) {
+                            this.stoneActions[index] = under === Field.EMPTY ? Actions.DOWN : Actions.EXPLODE;
+                            // Stones stacked directly above wait for a later tick
+                            while (y > 0 && this.board[this.getIndexFromCoordinates(x, y - 1)] === Field.STONE) {
+                                y--;
+                            }
+                            continue;
+                        }
+                        // Resting stone: it may roll off another stone if nothing is stacked on it
+                        let roll = Actions.NONE;
+                        const stoneAbove = y > 0 && this.board[index - this.width] === Field.STONE;
+                        if (under === Field.STONE && !stoneAbove) {
+                            if (this.canRoll(index, x, -1)) {
+                                roll = Actions.DOWNLEFT;
+                            }
+                            else if (this.canRoll(index, x, 1)) {
+                                roll = Actions.DOWNRIGHT;
+                            }
+                        }
+                        this.stoneActions[index] = roll;
+                        this.stoneStates[index] = roll;
+                    }
+                }
+            }
+        },
+        (() => {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _CALCENEMYMOVEDEST_decorators = [(0, types_1.method)({ name: "oldPos", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "dir", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _CALCENEMYMOVEDIR_decorators = [(0, types_1.method)({ name: "oldPos", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "currentMoveDir", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _CANHEROGOTO_decorators = [(0, types_1.method)({ name: "targetCellIndex", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _GET_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            _GETCELLOFFSET_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETCELLPOSX_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETCELLPOSY_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETCELLSNO_decorators = [(0, types_1.method)({ name: "cellType", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
+            _ISGATEEMPTY_decorators = [(0, types_1.method)()];
+            _ISINGATE_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _MOVE_decorators = [(0, types_1.method)({ name: "previousPos", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "newPos", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _NEXT_decorators = [(0, types_1.method)()];
+            _SET_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
+            _SETGATE_decorators = [(0, types_1.method)({ name: "startColumn", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "startRow", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "endColumn", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "endRow", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETROW_decorators = [(0, types_1.method)({ name: "row", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "cells", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
+            _TICK_decorators = [(0, types_1.method)()];
+            __esDecorate(_a, null, _CALCENEMYMOVEDEST_decorators, { kind: "method", name: "CALCENEMYMOVEDEST", static: false, private: false, access: { has: obj => "CALCENEMYMOVEDEST" in obj, get: obj => obj.CALCENEMYMOVEDEST }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CALCENEMYMOVEDIR_decorators, { kind: "method", name: "CALCENEMYMOVEDIR", static: false, private: false, access: { has: obj => "CALCENEMYMOVEDIR" in obj, get: obj => obj.CALCENEMYMOVEDIR }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CANHEROGOTO_decorators, { kind: "method", name: "CANHEROGOTO", static: false, private: false, access: { has: obj => "CANHEROGOTO" in obj, get: obj => obj.CANHEROGOTO }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCELLOFFSET_decorators, { kind: "method", name: "GETCELLOFFSET", static: false, private: false, access: { has: obj => "GETCELLOFFSET" in obj, get: obj => obj.GETCELLOFFSET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCELLPOSX_decorators, { kind: "method", name: "GETCELLPOSX", static: false, private: false, access: { has: obj => "GETCELLPOSX" in obj, get: obj => obj.GETCELLPOSX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCELLPOSY_decorators, { kind: "method", name: "GETCELLPOSY", static: false, private: false, access: { has: obj => "GETCELLPOSY" in obj, get: obj => obj.GETCELLPOSY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCELLSNO_decorators, { kind: "method", name: "GETCELLSNO", static: false, private: false, access: { has: obj => "GETCELLSNO" in obj, get: obj => obj.GETCELLSNO }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISGATEEMPTY_decorators, { kind: "method", name: "ISGATEEMPTY", static: false, private: false, access: { has: obj => "ISGATEEMPTY" in obj, get: obj => obj.ISGATEEMPTY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISINGATE_decorators, { kind: "method", name: "ISINGATE", static: false, private: false, access: { has: obj => "ISINGATE" in obj, get: obj => obj.ISINGATE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _NEXT_decorators, { kind: "method", name: "NEXT", static: false, private: false, access: { has: obj => "NEXT" in obj, get: obj => obj.NEXT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETGATE_decorators, { kind: "method", name: "SETGATE", static: false, private: false, access: { has: obj => "SETGATE" in obj, get: obj => obj.SETGATE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETROW_decorators, { kind: "method", name: "SETROW", static: false, private: false, access: { has: obj => "SETROW" in obj, get: obj => obj.SETROW }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _TICK_decorators, { kind: "method", name: "TICK", static: false, private: false, access: { has: obj => "TICK" in obj, get: obj => obj.TICK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+})();
+exports.Matrix = Matrix;
+
+
+/***/ },
+
+/***/ "./src/engine/types/mouse.ts"
 /*!***********************************!*\
   !*** ./src/engine/types/mouse.ts ***!
   \***********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -36788,7 +37291,7 @@ let Mouse = (() => {
     return _a = class Mouse extends _classSuper {
             constructor() {
                 super(...arguments);
-                this.mouseMoveListener = (__runInitializers(this, _instanceExtraInitializers), void 0);
+                this.mouseMoveListener = __runInitializers(this, _instanceExtraInitializers);
                 this.clicksQueue = [];
                 this.lastClicksTime = {};
                 this.mousePosition = new pixi_js_1.Point(0, 0);
@@ -36940,13 +37443,13 @@ let Mouse = (() => {
 exports.Mouse = Mouse;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/multiArray.ts":
+/***/ "./src/engine/types/multiArray.ts"
 /*!****************************************!*\
   !*** ./src/engine/types/multiArray.ts ***!
   \****************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -37033,13 +37536,13 @@ let MultiArray = (() => {
 exports.MultiArray = MultiArray;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/music.ts":
+/***/ "./src/engine/types/music.ts"
 /*!***********************************!*\
   !*** ./src/engine/types/music.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -37051,16 +37554,23 @@ class Music extends index_1.Type {
 exports.Music = Music;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/rand.ts":
+/***/ "./src/engine/types/rand.ts"
 /*!**********************************!*\
   !*** ./src/engine/types/rand.ts ***!
   \**********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -37087,13 +37597,6 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     }
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
-};
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Rand = void 0;
@@ -37144,13 +37647,13 @@ let Rand = (() => {
 exports.Rand = Rand;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/scene.ts":
+/***/ "./src/engine/types/scene.ts"
 /*!***********************************!*\
   !*** ./src/engine/types/scene.ts ***!
   \***********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -37321,13 +37824,13 @@ let Scene = (() => {
 exports.Scene = Scene;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/sequence.ts":
+/***/ "./src/engine/types/sequence.ts"
 /*!**************************************!*\
   !*** ./src/engine/types/sequence.ts ***!
   \**************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -37692,13 +38195,13 @@ let Sequence = (() => {
 exports.Sequence = Sequence;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/sound.ts":
+/***/ "./src/engine/types/sound.ts"
 /*!***********************************!*\
   !*** ./src/engine/types/sound.ts ***!
   \***********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -37864,13 +38367,13 @@ let Sound = (() => {
 exports.Sound = Sound;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/staticFilter.ts":
+/***/ "./src/engine/types/staticFilter.ts"
 /*!******************************************!*\
   !*** ./src/engine/types/staticFilter.ts ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -37990,13 +38493,13 @@ let StaticFilter = (() => {
 exports.StaticFilter = StaticFilter;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/string.ts":
+/***/ "./src/engine/types/string.ts"
 /*!************************************!*\
   !*** ./src/engine/types/string.ts ***!
   \************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38105,13 +38608,13 @@ let String = (() => {
 exports.String = String;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/struct.ts":
+/***/ "./src/engine/types/struct.ts"
 /*!************************************!*\
   !*** ./src/engine/types/struct.ts ***!
   \************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38236,16 +38739,23 @@ let Struct = (() => {
 exports.Struct = Struct;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/system.ts":
+/***/ "./src/engine/types/system.ts"
 /*!************************************!*\
   !*** ./src/engine/types/system.ts ***!
   \************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -38272,13 +38782,6 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     }
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
-};
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.System = void 0;
@@ -38310,13 +38813,13 @@ let System = (() => {
 exports.System = System;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/text.ts":
+/***/ "./src/engine/types/text.ts"
 /*!**********************************!*\
   !*** ./src/engine/types/text.ts ***!
   \**********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38409,13 +38912,13 @@ let Text = (() => {
 exports.Text = Text;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/timer.ts":
+/***/ "./src/engine/types/timer.ts"
 /*!***********************************!*\
   !*** ./src/engine/types/timer.ts ***!
   \***********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38543,13 +39046,13 @@ let Timer = (() => {
 exports.Timer = Timer;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/vector.ts":
+/***/ "./src/engine/types/vector.ts"
 /*!************************************!*\
   !*** ./src/engine/types/vector.ts ***!
   \************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38670,16 +39173,23 @@ let Vector = (() => {
 exports.Vector = Vector;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/engine/types/world.ts":
+/***/ "./src/engine/types/world.ts"
 /*!***********************************!*\
   !*** ./src/engine/types/world.ts ***!
   \***********************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -38706,13 +39216,6 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     }
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
-};
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.World = void 0;
@@ -38798,13 +39301,13 @@ let World = (() => {
 exports.World = World;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/ann/index.ts":
+/***/ "./src/fileFormats/ann/index.ts"
 /*!**************************************!*\
   !*** ./src/fileFormats/ann/index.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38943,13 +39446,13 @@ const loadAnn = (data) => {
 exports.loadAnn = loadAnn;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/archive/array.ts":
+/***/ "./src/fileFormats/archive/array.ts"
 /*!******************************************!*\
   !*** ./src/fileFormats/archive/array.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -39042,13 +39545,13 @@ const serializeArray = (data) => {
 exports.serializeArray = serializeArray;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/cnv/decryptor.ts":
+/***/ "./src/fileFormats/cnv/decryptor.ts"
 /*!******************************************!*\
   !*** ./src/fileFormats/cnv/decryptor.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -39131,13 +39634,13 @@ const decryptCNV = (content) => {
 exports.decryptCNV = decryptCNV;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/cnv/index.ts":
+/***/ "./src/fileFormats/cnv/index.ts"
 /*!**************************************!*\
   !*** ./src/fileFormats/cnv/index.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -39150,13 +39653,13 @@ var parser_1 = __webpack_require__(/*! ./parser */ "./src/fileFormats/cnv/parser
 Object.defineProperty(exports, "parseCNV", ({ enumerable: true, get: function () { return parser_1.parseCNV; } }));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/cnv/parser.ts":
+/***/ "./src/fileFormats/cnv/parser.ts"
 /*!***************************************!*\
   !*** ./src/fileFormats/cnv/parser.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -39322,13 +39825,13 @@ const parseCNV = (content) => {
 exports.parseCNV = parseCNV;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/cnv/types.ts":
+/***/ "./src/fileFormats/cnv/types.ts"
 /*!**************************************!*\
   !*** ./src/fileFormats/cnv/types.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -39487,6 +39990,14 @@ const KeyboardStructure = {
     ONKEYDOWN: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONKEYUP: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
 };
+const MatrixDefinitionStructure = {
+    BASEPOS: (0, common_1.array)(common_1.number),
+    CELLHEIGHT: common_1.number,
+    CELLWIDTH: common_1.number,
+    SIZE: (0, common_1.array)(common_1.number),
+    ONNEXT: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONLATEST: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+};
 const MouseStructure = {
     ONCLICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONDBLCLICK: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
@@ -39593,6 +40104,7 @@ exports.structureDefinitions = {
     IMAGE: ImageStructure,
     INTEGER: IntegerStructure,
     KEYBOARD: KeyboardStructure,
+    MATRIX: MatrixDefinitionStructure,
     MOUSE: MouseStructure,
     MULTIARRAY: MultiArrayDefinitionStructure,
     MUSIC: MusicStructure,
@@ -39612,13 +40124,13 @@ exports.structureDefinitions = {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/common/index.ts":
+/***/ "./src/fileFormats/common/index.ts"
 /*!*****************************************!*\
   !*** ./src/fileFormats/common/index.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -39768,13 +40280,13 @@ const createCallback = (value) => {
 exports.createCallback = createCallback;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/compression/clzw.ts":
+/***/ "./src/fileFormats/compression/clzw.ts"
 /*!*********************************************!*\
   !*** ./src/fileFormats/compression/clzw.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -39789,13 +40301,13 @@ const decompressCLZW = (buffer) => {
 exports.decompressCLZW = decompressCLZW;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/compression/crle.ts":
+/***/ "./src/fileFormats/compression/crle.ts"
 /*!*********************************************!*\
   !*** ./src/fileFormats/compression/crle.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -39831,13 +40343,13 @@ const decompressCRLE = (input, decompressedSize, bulk = 1) => {
 exports.decompressCRLE = decompressCRLE;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/compression/index.ts":
+/***/ "./src/fileFormats/compression/index.ts"
 /*!**********************************************!*\
   !*** ./src/fileFormats/compression/index.ts ***!
   \**********************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -39857,13 +40369,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CompressionType = exports.CRLE = exports.CLZW = void 0;
 exports.CLZW = __importStar(__webpack_require__(/*! ./clzw */ "./src/fileFormats/compression/clzw.ts"));
@@ -39878,13 +40400,13 @@ var CompressionType;
 })(CompressionType || (exports.CompressionType = CompressionType = {}));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/fnt/index.ts":
+/***/ "./src/fileFormats/fnt/index.ts"
 /*!**************************************!*\
   !*** ./src/fileFormats/fnt/index.ts ***!
   \**************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -39904,13 +40426,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseFont = void 0;
 const utils_1 = __webpack_require__(/*! ../utils */ "./src/fileFormats/utils.ts");
@@ -40004,13 +40536,13 @@ const parseFont = (data) => {
 exports.parseFont = parseFont;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/img/index.ts":
+/***/ "./src/fileFormats/img/index.ts"
 /*!**************************************!*\
   !*** ./src/fileFormats/img/index.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -40169,13 +40701,13 @@ const decompressImageData = (buffer, descriptor) => {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/logger.ts":
+/***/ "./src/fileFormats/logger.ts"
 /*!***********************************!*\
   !*** ./src/fileFormats/logger.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -40189,13 +40721,13 @@ const setFormatsLogger = (newLogger) => {
 exports.setFormatsLogger = setFormatsLogger;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/seq/index.ts":
+/***/ "./src/fileFormats/seq/index.ts"
 /*!**************************************!*\
   !*** ./src/fileFormats/seq/index.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -40260,13 +40792,13 @@ exports.structureDefinitions = {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/fileFormats/utils.ts":
+/***/ "./src/fileFormats/utils.ts"
 /*!**********************************!*\
   !*** ./src/fileFormats/utils.ts ***!
   \**********************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -40447,13 +40979,13 @@ const stringUntilNull = (text) => {
 exports.stringUntilNull = stringUntilNull;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/filesystem/assetsLoader.ts":
+/***/ "./src/filesystem/assetsLoader.ts"
 /*!****************************************!*\
   !*** ./src/filesystem/assetsLoader.ts ***!
   \****************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -40473,13 +41005,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.loadTexture = exports.loadSprite = exports.loadSound = void 0;
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
@@ -40510,13 +41052,13 @@ const loadTexture = async (fileLoader, filename) => {
 exports.loadTexture = loadTexture;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/filesystem/definitionLoader.ts":
+/***/ "./src/filesystem/definitionLoader.ts"
 /*!********************************************!*\
   !*** ./src/filesystem/definitionLoader.ts ***!
   \********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -40561,6 +41103,7 @@ const class_1 = __webpack_require__(/*! ../engine/types/class */ "./src/engine/t
 const logging_1 = __webpack_require__(/*! ../engine/logging */ "./src/engine/logging.ts");
 const world_1 = __webpack_require__(/*! ../engine/types/world */ "./src/engine/types/world.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
+const matrix_1 = __webpack_require__(/*! ../engine/types/matrix */ "./src/engine/types/matrix.ts");
 const createTypeInstance = (engine, parent, definition) => {
     switch (definition.TYPE) {
         case 'ANIMO':
@@ -40607,6 +41150,8 @@ const createTypeInstance = (engine, parent, definition) => {
             return new integer_1.Integer(engine, parent, definition);
         case 'KEYBOARD':
             return new keyboard_1.Keyboard(engine, parent, definition);
+        case 'MATRIX':
+            return new matrix_1.Matrix(engine, parent, definition);
         case 'MOUSE':
             return new mouse_1.Mouse(engine, parent, definition);
         case 'MULTIARRAY':
@@ -40741,13 +41286,13 @@ const createObject = async (engine, definition, parent) => {
 exports.createObject = createObject;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/filesystem/fileLoader.ts":
+/***/ "./src/filesystem/fileLoader.ts"
 /*!**************************************!*\
   !*** ./src/filesystem/fileLoader.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -40886,13 +41431,13 @@ class ListingJSONUrlFileLoader extends UrlFileLoader {
 exports.ListingJSONUrlFileLoader = ListingJSONUrlFileLoader;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/filesystem/fileStorage.ts":
+/***/ "./src/filesystem/fileStorage.ts"
 /*!***************************************!*\
   !*** ./src/filesystem/fileStorage.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -40932,13 +41477,13 @@ class IndexedDBStorage extends FileStorage {
 exports.IndexedDBStorage = IndexedDBStorage;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/filesystem/index.ts":
+/***/ "./src/filesystem/index.ts"
 /*!*********************************!*\
   !*** ./src/filesystem/index.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -41025,13 +41570,13 @@ class Filesystem {
 exports["default"] = Filesystem;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/filesystem/iso9660.ts":
+/***/ "./src/filesystem/iso9660.ts"
 /*!***********************************!*\
   !*** ./src/filesystem/iso9660.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -41175,13 +41720,13 @@ class RemoteIso9660Reader extends Iso9660Reader {
 exports.RemoteIso9660Reader = RemoteIso9660Reader;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/index.ts":
+/***/ "./src/index.ts"
 /*!**********************!*\
   !*** ./src/index.ts ***!
   \**********************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -41201,13 +41746,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createGamePlayer = exports.GamePlayerInstance = exports.BUILD_VARS = exports.IndexedDBStorage = exports.FileStorage = exports.createSaveFileLocalStorageHandler = exports.SaveFileManager = exports.SaveFile = exports.FileLoaders = void 0;
 const engine_1 = __webpack_require__(/*! ./engine */ "./src/engine/index.ts");
@@ -41270,13 +41825,13 @@ const createGamePlayer = (element, options) => {
 exports.createGamePlayer = createGamePlayer;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/interpreter/ast.ts":
+/***/ "./src/interpreter/ast.ts"
 /*!********************************!*\
   !*** ./src/interpreter/ast.ts ***!
   \********************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -41298,18 +41853,18 @@ exports.EXPR_OP_SYMBOL = {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/interpreter/expression/index.ts":
+/***/ "./src/interpreter/expression/index.ts"
 /*!*********************************************!*\
   !*** ./src/interpreter/expression/index.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseLogicExpression = void 0;
+exports.parseLogicExpression = parseLogicExpression;
 const parser_1 = __webpack_require__(/*! ../parser */ "./src/interpreter/parser.ts");
 /**
  * Parse a logical condition expression like:
@@ -41373,7 +41928,6 @@ function parseLogicExpression(text, offset = 0) {
         end: trimOffset + text.length,
     };
 }
-exports.parseLogicExpression = parseLogicExpression;
 /**
  * Find a logical operator in text, respecting parentheses and quotes.
  */
@@ -41555,13 +42109,13 @@ function _findComparisonOperator(text) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/interpreter/index.ts":
+/***/ "./src/interpreter/index.ts"
 /*!**********************************!*\
   !*** ./src/interpreter/index.ts ***!
   \**********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -41581,18 +42135,19 @@ Object.defineProperty(exports, "RuntimeError", ({ enumerable: true, get: functio
 Object.defineProperty(exports, "InterruptScriptExecution", ({ enumerable: true, get: function () { return interpreter_1.InterruptScriptExecution; } }));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/interpreter/interpreter.ts":
+/***/ "./src/interpreter/interpreter.ts"
 /*!****************************************!*\
   !*** ./src/interpreter/interpreter.ts ***!
   \****************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.runCode = exports.Interpreter = exports.InterruptScriptExecution = exports.RuntimeContext = exports.RuntimeError = void 0;
+exports.Interpreter = exports.InterruptScriptExecution = exports.RuntimeContext = exports.RuntimeError = void 0;
+exports.runCode = runCode;
 const types_1 = __webpack_require__(/*! ../engine/types */ "./src/engine/types/index.ts");
 const struct_1 = __webpack_require__(/*! ../engine/types/struct */ "./src/engine/types/struct.ts");
 const types_2 = __webpack_require__(/*! ../common/types */ "./src/common/types.ts");
@@ -41987,7 +42542,6 @@ async function runCode(engine, caller, script, args, isSingleStatement) {
             throw err;
     }
 }
-exports.runCode = runCode;
 async function substituteArguments(script, args) {
     const regex = /\$(\d+)/g;
     const parts = [];
@@ -42019,18 +42573,23 @@ async function substituteArguments(script, args) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/interpreter/parser.ts":
+/***/ "./src/interpreter/parser.ts"
 /*!***********************************!*\
   !*** ./src/interpreter/parser.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseExpression = exports.parseParameter = exports.parseParameters = exports.parseLine = exports.parseCode = exports.ParseError = void 0;
+exports.ParseError = void 0;
+exports.parseCode = parseCode;
+exports.parseLine = parseLine;
+exports.parseParameters = parseParameters;
+exports.parseParameter = parseParameter;
+exports.parseExpression = parseExpression;
 const ast_1 = __webpack_require__(/*! ./ast */ "./src/interpreter/ast.ts");
 const types_1 = __webpack_require__(/*! ../common/types */ "./src/common/types.ts");
 const OPERATOR_CHARS = ['+', '-', '*', '@', '%'];
@@ -42074,7 +42633,6 @@ function parseCode(code) {
     }
     return results;
 }
-exports.parseCode = parseCode;
 /**
  * Parse one line of CMC code into Statement.
  *
@@ -42157,7 +42715,6 @@ function parseLine(text, offset = 0) {
         end: trimOffset + text.length,
     };
 }
-exports.parseLine = parseLine;
 /**
  * Split a comma-separated parameter string respecting `(` / `)` depth.
  *
@@ -42194,7 +42751,6 @@ function parseParameters(text, offset = 0) {
     }
     return params;
 }
-exports.parseParameters = parseParameters;
 /**
  * Classify and parse a single parameter expression.
  *
@@ -42286,7 +42842,6 @@ function parseParameter(text, offset = 0) {
         end: trimOffset + text.length,
     };
 }
-exports.parseParameter = parseParameter;
 function parseExpression(text, trimOffset, offset = 0) {
     const parts = splitExpression(text, offset);
     // parts[0] is always the first operand (may be empty string for leading operator)
@@ -42320,7 +42875,6 @@ function parseExpression(text, trimOffset, offset = 0) {
         end: offset + text.length,
     };
 }
-exports.parseExpression = parseExpression;
 function splitExpression(text, offset = 0) {
     const parts = [];
     let start = 0;
@@ -42494,13 +43048,13 @@ function _extractArgs(text, parenPos) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/interpreter/stacktrace.ts":
+/***/ "./src/interpreter/stacktrace.ts"
 /*!***************************************!*\
   !*** ./src/interpreter/stacktrace.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -42603,13 +43157,13 @@ const printStackTrace = (stackTraceSource = null) => {
 exports.printStackTrace = printStackTrace;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/node_modules/call-bind/callBound.js":
+/***/ "./node_modules/url/node_modules/call-bind/callBound.js"
 /*!**************************************************************!*\
   !*** ./node_modules/url/node_modules/call-bind/callBound.js ***!
   \**************************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -42629,13 +43183,13 @@ module.exports = function callBoundIntrinsic(name, allowMissing) {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/node_modules/call-bind/index.js":
+/***/ "./node_modules/url/node_modules/call-bind/index.js"
 /*!**********************************************************!*\
   !*** ./node_modules/url/node_modules/call-bind/index.js ***!
   \**********************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -42684,13 +43238,13 @@ if ($defineProperty) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/node_modules/define-data-property/index.js":
+/***/ "./node_modules/url/node_modules/define-data-property/index.js"
 /*!*********************************************************************!*\
   !*** ./node_modules/url/node_modules/define-data-property/index.js ***!
   \*********************************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -42763,13 +43317,13 @@ module.exports = function defineDataProperty(
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/node_modules/object-inspect/index.js":
+/***/ "./node_modules/url/node_modules/object-inspect/index.js"
 /*!***************************************************************!*\
   !*** ./node_modules/url/node_modules/object-inspect/index.js ***!
   \***************************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 var hasMap = typeof Map === 'function' && Map.prototype;
 var mapSizeDescriptor = Object.getOwnPropertyDescriptor && hasMap ? Object.getOwnPropertyDescriptor(Map.prototype, 'size') : null;
@@ -43297,13 +43851,13 @@ function arrObjKeys(obj, inspect) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/node_modules/punycode/punycode.js":
+/***/ "./node_modules/url/node_modules/punycode/punycode.js"
 /*!************************************************************!*\
   !*** ./node_modules/url/node_modules/punycode/punycode.js ***!
   \************************************************************/
-/***/ (function(module, exports, __webpack_require__) {
+(module, exports, __webpack_require__) {
 
 /* module decorator */ module = __webpack_require__.nmd(module);
 var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/punycode v1.4.1 by @mathias */
@@ -43822,18 +44376,19 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/punycode v1.4.1 by @mathia
 			return punycode;
 		}).call(exports, __webpack_require__, exports, module),
 		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	} else {}
+	} else // removed by dead control flow
+{}
 
 }(this));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/node_modules/qs/lib/formats.js":
+/***/ "./node_modules/url/node_modules/qs/lib/formats.js"
 /*!*********************************************************!*\
   !*** ./node_modules/url/node_modules/qs/lib/formats.js ***!
   \*********************************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 
@@ -43861,13 +44416,13 @@ module.exports = {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/node_modules/qs/lib/index.js":
+/***/ "./node_modules/url/node_modules/qs/lib/index.js"
 /*!*******************************************************!*\
   !*** ./node_modules/url/node_modules/qs/lib/index.js ***!
   \*******************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -43883,13 +44438,13 @@ module.exports = {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/node_modules/qs/lib/parse.js":
+/***/ "./node_modules/url/node_modules/qs/lib/parse.js"
 /*!*******************************************************!*\
   !*** ./node_modules/url/node_modules/qs/lib/parse.js ***!
   \*******************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -44158,13 +44713,13 @@ module.exports = function (str, opts) {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/node_modules/qs/lib/stringify.js":
+/***/ "./node_modules/url/node_modules/qs/lib/stringify.js"
 /*!***********************************************************!*\
   !*** ./node_modules/url/node_modules/qs/lib/stringify.js ***!
   \***********************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -44489,13 +45044,13 @@ module.exports = function (object, opts) {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/node_modules/qs/lib/utils.js":
+/***/ "./node_modules/url/node_modules/qs/lib/utils.js"
 /*!*******************************************************!*\
   !*** ./node_modules/url/node_modules/qs/lib/utils.js ***!
   \*******************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -44752,13 +45307,13 @@ module.exports = {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/node_modules/set-function-length/index.js":
+/***/ "./node_modules/url/node_modules/set-function-length/index.js"
 /*!********************************************************************!*\
   !*** ./node_modules/url/node_modules/set-function-length/index.js ***!
   \********************************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -44804,13 +45359,13 @@ module.exports = function setFunctionLength(fn, length) {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/node_modules/side-channel/index.js":
+/***/ "./node_modules/url/node_modules/side-channel/index.js"
 /*!*************************************************************!*\
   !*** ./node_modules/url/node_modules/side-channel/index.js ***!
   \*************************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 
@@ -44939,13 +45494,13 @@ module.exports = function getSideChannel() {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/url/url.js":
+/***/ "./node_modules/url/url.js"
 /*!*********************************!*\
   !*** ./node_modules/url/url.js ***!
   \*********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 /*
@@ -45726,35 +46281,35 @@ exports.format = urlFormat;
 exports.Url = Url;
 
 
-/***/ }),
+/***/ },
 
-/***/ "?06c6":
+/***/ "?06c6"
 /*!********************************!*\
   !*** ./util.inspect (ignored) ***!
   \********************************/
-/***/ (() => {
+() {
 
 /* (ignored) */
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@pixi/devtools/dist/index.cjs":
+/***/ "./node_modules/@pixi/devtools/dist/index.cjs"
 /*!****************************************************!*\
   !*** ./node_modules/@pixi/devtools/dist/index.cjs ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
-var r=Object.create;var t=Object.defineProperty;var s=Object.getOwnPropertyDescriptor;var _=Object.getOwnPropertyNames;var d=Object.getPrototypeOf,g=Object.prototype.hasOwnProperty;var l=(i,e,a,o)=>{if(e&&typeof e=="object"||typeof e=="function")for(let p of _(e))!g.call(i,p)&&p!==a&&t(i,p,{get:()=>e[p],enumerable:!(o=s(e,p))||o.enumerable});return i};var w=(i,e,a)=>(a=i!=null?r(d(i)):{},l(e||!i||!i.__esModule?t(a,"default",{value:i,enumerable:!0}):a,i));Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});var n=(i=>(i[i.Low=-1]="Low",i[i.Normal=0]="Normal",i[i.High=1]="High",i))(n||{});async function O(i){var a;const e={importPixi:!1,...i};e.app&&(e.renderer=e.app.renderer,e.stage=e.app.stage),e.importPixi&&!e.pixi&&(e.pixi=await __webpack_require__.e(/*! import() */ "vendors-node_modules_pixi_js_lib_index_mjs").then(__webpack_require__.bind(__webpack_require__, /*! pixi.js */ "./node_modules/pixi.js/lib/index.mjs"))),window.__PIXI_DEVTOOLS__={...window.__PIXI_DEVTOOLS__||{},app:e.app,stage:e.stage,renderer:e.renderer,extensions:[...((a=window.__PIXI_DEVTOOLS__)==null?void 0:a.extensions)||[],...e.extensions||[]],plugins:{}}}exports.ExtensionPriority=n;exports.initDevtools=O;
+var r=Object.create;var t=Object.defineProperty;var s=Object.getOwnPropertyDescriptor;var _=Object.getOwnPropertyNames;var d=Object.getPrototypeOf,g=Object.prototype.hasOwnProperty;var l=(i,e,a,o)=>{if(e&&typeof e=="object"||typeof e=="function")for(let p of _(e))!g.call(i,p)&&p!==a&&t(i,p,{get:()=>e[p],enumerable:!(o=s(e,p))||o.enumerable});return i};var w=(i,e,a)=>(a=i!=null?r(d(i)):{},l(e||!i||!i.__esModule?t(a,"default",{value:i,enumerable:!0}):a,i));Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});var n=(i=>(i[i.Low=-1]="Low",i[i.Normal=0]="Normal",i[i.High=1]="High",i))(n||{});async function O(i){var a;const e={importPixi:!1,...i};e.app&&(e.renderer=e.app.renderer,e.stage=e.app.stage),e.importPixi&&!e.pixi&&(e.pixi=await __webpack_require__.e(/*! import() */ "vendors-node_modules_pixi_js_lib_index_mjs").then(() => (__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.mjs")))),window.__PIXI_DEVTOOLS__={...window.__PIXI_DEVTOOLS__||{},app:e.app,stage:e.stage,renderer:e.renderer,extensions:[...((a=window.__PIXI_DEVTOOLS__)==null?void 0:a.extensions)||[],...e.extensions||[]],plugins:{}}}exports.ExtensionPriority=n;exports.initDevtools=O;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/idb/build/index.js":
+/***/ "./node_modules/idb/build/index.js"
 /*!*****************************************!*\
   !*** ./node_modules/idb/build/index.js ***!
   \*****************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -46071,28 +46626,34 @@ replaceTraps((oldTraps) => ({
 
 
 
-/***/ })
+/***/ }
 
 /******/ 	});
 /************************************************************************/
 /******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
+/******/ 	const __webpack_module_cache__ = {};
 /******/ 	
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		const cachedModule = __webpack_module_cache__[moduleId];
 /******/ 		if (cachedModule !== undefined) {
 /******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 		const module = __webpack_module_cache__[moduleId] = {
 /******/ 			id: moduleId,
 /******/ 			loaded: false,
 /******/ 			exports: {}
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
+/******/ 		if (!(moduleId in __webpack_modules__)) {
+/******/ 			delete __webpack_module_cache__[moduleId];
+/******/ 			const e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
+/******/ 		}
 /******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Flag the module as loaded
@@ -46107,68 +46668,54 @@ replaceTraps((oldTraps) => ({
 /******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
+/******/ 	// define getter/value functions for harmony exports
+/******/ 	__webpack_require__.d = (exports, definition) => {
+/******/ 		for(var key in definition) {
+/******/ 			if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
 /******/ 			}
-/******/ 		};
-/******/ 	})();
+/******/ 		}
+/******/ 	};
 /******/ 	
 /******/ 	/* webpack/runtime/ensure chunk */
-/******/ 	(() => {
-/******/ 		__webpack_require__.f = {};
-/******/ 		// This file contains only the entry chunk.
-/******/ 		// The chunk loading function for additional chunks
-/******/ 		__webpack_require__.e = (chunkId) => {
-/******/ 			return Promise.all(Object.keys(__webpack_require__.f).reduce((promises, key) => {
-/******/ 				__webpack_require__.f[key](chunkId, promises);
-/******/ 				return promises;
-/******/ 			}, []));
-/******/ 		};
-/******/ 	})();
+/******/ 	__webpack_require__.f = {};
+/******/ 	// This file contains only the entry chunk.
+/******/ 	// The chunk loading function for additional chunks
+/******/ 	__webpack_require__.e = (chunkId) => {
+/******/ 		const promises = [];
+/******/ 		__webpack_require__.f.j(chunkId, promises);
+/******/ 		return Promise.all(promises);
+/******/ 	};
 /******/ 	
 /******/ 	/* webpack/runtime/get javascript chunk filename */
-/******/ 	(() => {
-/******/ 		// This function allow to reference async chunks
-/******/ 		__webpack_require__.u = (chunkId) => {
-/******/ 			// return url for filenames based on template
-/******/ 			return "" + chunkId + ".js";
-/******/ 		};
-/******/ 	})();
+/******/ 	// This function allow to reference async chunks
+/******/ 	__webpack_require__.u = (chunkId) => (chunkId + ".js");
 /******/ 	
 /******/ 	/* webpack/runtime/global */
-/******/ 	(() => {
-/******/ 		__webpack_require__.g = (function() {
-/******/ 			if (typeof globalThis === 'object') return globalThis;
-/******/ 			try {
-/******/ 				return this || new Function('return this')();
-/******/ 			} catch (e) {
-/******/ 				if (typeof window === 'object') return window;
-/******/ 			}
-/******/ 		})();
+/******/ 	__webpack_require__.g = (function() {
+/******/ 		if (typeof globalThis === 'object') return globalThis;
+/******/ 		try {
+/******/ 			return this || new Function('return this')();
+/******/ 		} catch (e) {
+/******/ 			if (typeof window === 'object') return window;
+/******/ 		}
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
+/******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop));
 /******/ 	
 /******/ 	/* webpack/runtime/load script */
 /******/ 	(() => {
-/******/ 		var inProgress = {};
-/******/ 		var dataWebpackPrefix = "reksioengine:";
+/******/ 		const inProgress = {};
+/******/ 		const dataWebpackPrefix = "reksioengine:";
 /******/ 		// loadScript function to load a script via script tag
 /******/ 		__webpack_require__.l = (url, done, key, chunkId) => {
 /******/ 			if(inProgress[url]) { inProgress[url].push(done); return; }
-/******/ 			var script, needAttach;
+/******/ 			let script, needAttach;
 /******/ 			if(key !== undefined) {
-/******/ 				var scripts = document.getElementsByTagName("script");
+/******/ 				const scripts = document.getElementsByTagName("script");
 /******/ 				for(var i = 0; i < scripts.length; i++) {
-/******/ 					var s = scripts[i];
+/******/ 					const s = scripts[i];
 /******/ 					if(s.getAttribute("src") == url || s.getAttribute("data-webpack") == dataWebpackPrefix + key) { script = s; break; }
 /******/ 				}
 /******/ 			}
@@ -46177,7 +46724,6 @@ replaceTraps((oldTraps) => ({
 /******/ 				script = document.createElement('script');
 /******/ 		
 /******/ 				script.charset = 'utf-8';
-/******/ 				script.timeout = 120;
 /******/ 				if (__webpack_require__.nc) {
 /******/ 					script.setAttribute("nonce", __webpack_require__.nc);
 /******/ 				}
@@ -46186,17 +46732,17 @@ replaceTraps((oldTraps) => ({
 /******/ 				script.src = url;
 /******/ 			}
 /******/ 			inProgress[url] = [done];
-/******/ 			var onScriptComplete = (prev, event) => {
+/******/ 			const onScriptComplete = (prev, event) => {
 /******/ 				// avoid mem leaks in IE.
 /******/ 				script.onerror = script.onload = null;
 /******/ 				clearTimeout(timeout);
-/******/ 				var doneFns = inProgress[url];
+/******/ 				const doneFns = inProgress[url];
 /******/ 				delete inProgress[url];
-/******/ 				script.parentNode && script.parentNode.removeChild(script);
-/******/ 				doneFns && doneFns.forEach((fn) => (fn(event)));
+/******/ 				script.parentNode?.removeChild(script);
+/******/ 				doneFns?.forEach((fn) => (fn(event)));
 /******/ 				if(prev) return prev(event);
 /******/ 			}
-/******/ 			var timeout = setTimeout(onScriptComplete.bind(null, undefined, { type: 'timeout', target: script }), 120000);
+/******/ 			const timeout = setTimeout(onScriptComplete.bind(null, undefined, { type: 'timeout', target: script }), 120000);
 /******/ 			script.onerror = onScriptComplete.bind(null, script.onerror);
 /******/ 			script.onload = onScriptComplete.bind(null, script.onload);
 /******/ 			needAttach && document.head.appendChild(script);
@@ -46204,45 +46750,48 @@ replaceTraps((oldTraps) => ({
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__webpack_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = (exports) => {
+/******/ 		Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
 /******/ 	
 /******/ 	/* webpack/runtime/node module decorator */
-/******/ 	(() => {
-/******/ 		__webpack_require__.nmd = (module) => {
-/******/ 			module.paths = [];
-/******/ 			if (!module.children) module.children = [];
-/******/ 			return module;
-/******/ 		};
-/******/ 	})();
+/******/ 	__webpack_require__.nmd = (module) => {
+/******/ 		module.paths = [];
+/******/ 		if (!module.children) module.children = [];
+/******/ 		return module;
+/******/ 	};
+/******/ 	
+/******/ 	/* webpack/runtime/set anonymous default export name */
+/******/ 	// set .name for anonymous default exports per ES spec
+/******/ 	// skipped when the property is non-configurable (pre-ES2015 engines),
+/******/ 	// where Object.defineProperty would throw
+/******/ 	__webpack_require__.dn = (x) => {
+/******/ 		var descriptor = Object.getOwnPropertyDescriptor(x, "name");
+/******/ 		if (!descriptor || (!descriptor.writable && descriptor.configurable)) Object.defineProperty(x, "name", { value: "default", configurable: true });
+/******/ 	};
 /******/ 	
 /******/ 	/* webpack/runtime/publicPath */
 /******/ 	(() => {
-/******/ 		var scriptUrl;
+/******/ 		let scriptUrl;
 /******/ 		if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
-/******/ 		var document = __webpack_require__.g.document;
+/******/ 		const document = __webpack_require__.g.document;
 /******/ 		if (!scriptUrl && document) {
-/******/ 			if (document.currentScript && document.currentScript.tagName.toUpperCase() === 'SCRIPT')
+/******/ 			if (document.currentScript?.tagName.toUpperCase() === 'SCRIPT')
 /******/ 				scriptUrl = document.currentScript.src;
 /******/ 			if (!scriptUrl) {
-/******/ 				var scripts = document.getElementsByTagName("script");
+/******/ 				const scripts = document.getElementsByTagName("script");
 /******/ 				if(scripts.length) {
-/******/ 					var i = scripts.length - 1;
-/******/ 					while (i > -1 && (!scriptUrl || !/^http(s?):/.test(scriptUrl))) scriptUrl = scripts[i--].src;
+/******/ 					let i = scripts.length - 1;
+/******/ 					while (i > -1 && (!scriptUrl || !/^https?:/.test(scriptUrl))) scriptUrl = scripts[i--].src;
 /******/ 				}
 /******/ 			}
 /******/ 		}
 /******/ 		// When supporting browsers where an automatic publicPath is not supported you must specify an output.publicPath manually via configuration
 /******/ 		// or pass an empty string ("") and set the __webpack_public_path__ variable from your code to use your own logic.
 /******/ 		if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
-/******/ 		scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/[^\/]+$/, "/");
+/******/ 		scriptUrl = scriptUrl.replace(/^blob:|[?#].*$/g, "").replace(/\/[^/]+$/, "/");
 /******/ 		__webpack_require__.p = scriptUrl;
 /******/ 	})();
 /******/ 	
@@ -46253,13 +46802,13 @@ replaceTraps((oldTraps) => ({
 /******/ 		// object to store loaded and loading chunks
 /******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
-/******/ 		var installedChunks = {
+/******/ 		const installedChunks = {
 /******/ 			"main": 0
 /******/ 		};
 /******/ 		
 /******/ 		__webpack_require__.f.j = (chunkId, promises) => {
 /******/ 				// JSONP chunk loading for javascript
-/******/ 				var installedChunkData = __webpack_require__.o(installedChunks, chunkId) ? installedChunks[chunkId] : undefined;
+/******/ 				let installedChunkData = __webpack_require__.o(installedChunks, chunkId) ? installedChunks[chunkId] : undefined;
 /******/ 				if(installedChunkData !== 0) { // 0 means "already installed".
 /******/ 		
 /******/ 					// a Promise means "currently loading".
@@ -46268,29 +46817,28 @@ replaceTraps((oldTraps) => ({
 /******/ 					} else {
 /******/ 						if(true) { // all chunks have JS
 /******/ 							// setup Promise in chunk cache
-/******/ 							var promise = new Promise((resolve, reject) => (installedChunkData = installedChunks[chunkId] = [resolve, reject]));
+/******/ 							const promise = new Promise((resolve, reject) => (installedChunkData = installedChunks[chunkId] = [resolve, reject]));
 /******/ 							promises.push(installedChunkData[2] = promise);
 /******/ 		
-/******/ 							// start chunk loading
-/******/ 							var url = __webpack_require__.p + __webpack_require__.u(chunkId);
 /******/ 							// create error before stack unwound to get useful stacktrace later
-/******/ 							var error = new Error();
-/******/ 							var loadingEnded = (event) => {
+/******/ 							const error = new Error();
+/******/ 							const loadingEnded = (event) => {
 /******/ 								if(__webpack_require__.o(installedChunks, chunkId)) {
 /******/ 									installedChunkData = installedChunks[chunkId];
 /******/ 									if(installedChunkData !== 0) installedChunks[chunkId] = undefined;
 /******/ 									if(installedChunkData) {
-/******/ 										var errorType = event && (event.type === 'load' ? 'missing' : event.type);
-/******/ 										var realSrc = event && event.target && event.target.src;
+/******/ 										const errorType = event && (event.type === 'load' ? 'missing' : event.type);
+/******/ 										const realSrc = event && event.target && event.target.src;
 /******/ 										error.message = 'Loading chunk ' + chunkId + ' failed.\n(' + errorType + ': ' + realSrc + ')';
 /******/ 										error.name = 'ChunkLoadError';
 /******/ 										error.type = errorType;
 /******/ 										error.request = realSrc;
+/******/ 										error.event = event;
 /******/ 										installedChunkData[1](error);
 /******/ 									}
 /******/ 								}
 /******/ 							};
-/******/ 							__webpack_require__.l(url, loadingEnded, "chunk-" + chunkId, chunkId);
+/******/ 							__webpack_require__.l(__webpack_require__.p + __webpack_require__.u(chunkId), loadingEnded, "chunk-" + chunkId, chunkId);
 /******/ 						}
 /******/ 					}
 /******/ 				}
@@ -46307,8 +46855,8 @@ replaceTraps((oldTraps) => ({
 /******/ 		// no on chunks loaded
 /******/ 		
 /******/ 		// install a JSONP callback for chunk loading
-/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
-/******/ 			var [chunkIds, moreModules, runtime] = data;
+/******/ 		const webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
+/******/ 			let [chunkIds, moreModules, runtime] = data;
 /******/ 			// add "moreModules" to the modules object,
 /******/ 			// then flag all "chunkIds" as loaded and fire callback
 /******/ 			var moduleId, chunkId, i = 0;
@@ -46331,17 +46879,17 @@ replaceTraps((oldTraps) => ({
 /******/ 		
 /******/ 		}
 /******/ 		
-/******/ 		var chunkLoadingGlobal = self["webpackChunkreksioengine"] = self["webpackChunkreksioengine"] || [];
+/******/ 		const chunkLoadingGlobal = self["webpackChunkreksioengine"] = self["webpackChunkreksioengine"] || [];
 /******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
 /******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
 /******/ 	})();
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
+let __webpack_exports__ = {};
 // This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
 (() => {
 "use strict";
-var exports = __webpack_exports__;
+let exports = __webpack_exports__;
 /*!**************************!*\
   !*** ./src/devPlayer.ts ***!
   \**************************/
