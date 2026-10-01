@@ -71,25 +71,20 @@ export class Matrix extends Type<MatrixDefinition> {
         this.stoneActions = this.initializeEmptyBoard()
     }
 
-    //Returns new position
+    // Returns new position
     @method()
     async CALCENEMYMOVEDEST(oldPos: number, dir: number) {
         switch (dir) {
-            case Direction.LEFT: {
+            case Direction.LEFT:
                 return oldPos - 1
-            }
-            case Direction.UP: {
+            case Direction.UP:
                 return oldPos - this.width
-            }
-            case Direction.RIGHT: {
+            case Direction.RIGHT:
                 return oldPos + 1
-            }
-            case Direction.DOWN: {
+            case Direction.DOWN:
                 return oldPos + this.width
-            }
-            default: {
+            default:
                 return oldPos
-            }
         }
     }
 
@@ -150,7 +145,7 @@ export class Matrix extends Type<MatrixDefinition> {
         return this.isNewPositionValid(newPosIndex)
     }
 
-    //Returns direction
+    // Returns direction
     @method()
     async CALCENEMYMOVEDIR(oldPos: number, currentMoveDir: number) {
         let newDir: number = this.rotateLeft(currentMoveDir)
@@ -184,7 +179,7 @@ export class Matrix extends Type<MatrixDefinition> {
             Field.DYNAMITE,
             Field.ENEMY,
             Field.EXPLOSION,
-            Field.EXIT
+            Field.EXIT,
         ].includes(
             this.board[targetCellIndex]
         )
@@ -409,16 +404,12 @@ export class Matrix extends Type<MatrixDefinition> {
     @method()
     async SET(...args: number[]) {
         if (args.length === 2) {
-            // args[0] - Index
-            // args[1] - cellType
-            await this.setByIndex(args[0], args[1])
+            const [index, cellType] = args;
+            await this.setByIndex(index, cellType)
         }
         if (args.length === 3) {
-            // args[0] - x
-            // args[1] - y
-            // position in matrix
-            // args[2] - cellType
-            await this.setByPosition(Math.floor(args[0]), Math.floor(args[1]), args[2])
+            const [x, y, cellType] = args;
+            await this.setByPosition(Math.floor(x), Math.floor(y), cellType)
         }
     }
 
