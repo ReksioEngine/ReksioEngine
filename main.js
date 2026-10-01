@@ -32030,6 +32030,7 @@ class Engine {
                 }
             }
         }
+        this.rendering.flushDirty();
         this.debug.updateXRay();
     }
     async changeScene(sceneName) {
@@ -32328,6 +32329,7 @@ class RenderingManager {
         this.app = app;
         this.displayObjectsInDefinitionOrder = [];
         this.sameZIndexUpdateOrder = new Map(); // The later in array the higher zindex
+        this.dirtyRects = [];
         this.blackTexture = (0, exports.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0);
         this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
         this.canvasBackground.zIndex = -99999;
@@ -32421,6 +32423,25 @@ class RenderingManager {
             const renderingOrderB = this.displayObjectsInDefinitionOrder.indexOf(objectB);
             return renderingOrderA - renderingOrderB;
         });
+    }
+    invalidate(rect) {
+        this.dirtyRects.push(rect.clone());
+    }
+    flushDirty() {
+        if (this.dirtyRects.length === 0) {
+            return;
+        }
+        for (const object of this.displayObjectsInDefinitionOrder) {
+            const sprite = object.getRenderObject();
+            if (!sprite?.visible) {
+                continue;
+            }
+            const bounds = sprite.getBounds();
+            if (this.dirtyRects.some((r) => r.intersects(bounds))) {
+                object.repaint?.();
+            }
+        }
+        this.dirtyRects = [];
     }
 }
 exports.RenderingManager = RenderingManager;
@@ -35988,6 +36009,7 @@ let Image = (() => {
             constructor() {
                 super(...arguments);
                 this.sprite = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.opacity = 255;
                 this.maskContainer = null;
                 this.otherObjectsAlphaSpriteCache = new Map();
             }
@@ -36021,17 +36043,19 @@ let Image = (() => {
             }
             SETOPACITY(opacity) {
                 (0, errors_1.assert)(this.sprite !== null);
-                this.sprite.alpha = opacity / 255;
+                this.opacity = opacity;
             }
             MOVE(xOffset, yOffset) {
                 (0, errors_1.assert)(this.sprite !== null);
                 this.sprite.x += xOffset;
                 this.sprite.y += yOffset;
+                this.invalidate();
             }
             SETPOSITION(x, y) {
                 (0, errors_1.assert)(this.sprite !== null);
                 this.sprite.x = x;
                 this.sprite.y = y;
+                this.invalidate();
             }
             SHOW() {
                 (0, errors_1.assert)(this.sprite !== null);
@@ -36089,7 +36113,11 @@ let Image = (() => {
                 this.sprite.hitmap = newSprite.hitmap;
             }
             INVALIDATE() {
-                throw new errors_1.NotImplementedError();
+                this.invalidate();
+            }
+            invalidate() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.engine.rendering.invalidate(this.sprite.getBounds());
             }
             SETCLIPPING(x1, y1, x2, y2) {
                 (0, errors_1.assert)(this.sprite !== null);
@@ -36126,6 +36154,10 @@ let Image = (() => {
             }
             getRenderObject() {
                 return this.sprite;
+            }
+            repaint() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.alpha = this.opacity / 255;
             }
         },
         (() => {
@@ -36321,6 +36353,7 @@ let DisplayType = (() => {
             getRenderObject() {
                 throw new errors_1.NotImplementedError();
             }
+            repaint() { }
             __getXRayInfo() {
                 const renderObject = this.getRenderObject();
                 if (renderObject === null) {
