@@ -149,8 +149,6 @@ export class Engine {
     async changeScene(sceneName: string) {
         this.options.onSceneChange?.(sceneName, this.currentScene?.name)
         this.app.ticker.stop()
-        this.music?.pause()
-
         this.rendering.onSceneChange()
 
         this.app.stage.addChild(this.rendering.loadingOverlay)
@@ -249,8 +247,6 @@ export class Engine {
                     loop: true,
                     muted: this.debug.mutedMusic,
                 })
-            } else if (this.music !== null) {
-                this.music.resume()
             }
 
             if (newScope) {
