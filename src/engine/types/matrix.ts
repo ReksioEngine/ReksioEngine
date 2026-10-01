@@ -213,15 +213,12 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async GETCELLSNO(cellType: number) {
-        let count: number = 0
-        for (let i = 0; i < this.board.length; i++) {
-            if (this.board[i] === cellType) {
-                count++
-            }
+    async GETCELLSNO(cellType?: number) {
+        if (cellType === undefined) {
+            return this.width * this.height
         }
 
-        return count
+        return this.board.filter(e => e === cellType).length
     }
 
     @method()
