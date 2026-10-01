@@ -39209,13 +39209,8 @@ const parseCNV = (content) => {
             }
         }
         else {
-            // eslint-disable-next-line prefer-const
-            let [objectName, variablePart] = tokens;
+            const [objectName, variablePart] = tokens;
             const value = tokens.slice(2).join(' ');
-            // There are sometimes some '?' instead of '_' in object names
-            // like some assignments have '?' and some '_'
-            // probably some game editor fault
-            objectName = objectName.replace('/?/g', '_');
             const [variableName, param] = variablePart.split('^');
             const object = objects[objectName];
             if (object === undefined) {
