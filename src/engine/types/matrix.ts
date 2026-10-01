@@ -410,7 +410,9 @@ export class Matrix extends Type<MatrixDefinition> {
 
     @method()
     async SETROW(row: number, ...cells: number[]) {
-        this.board.splice(row * this.width, this.width, ...cells)
+        for (let i = 0; i < this.width; i++) {
+            this.board[row * this.width + i] = cells[i]
+        }
     }
 
     @method()
