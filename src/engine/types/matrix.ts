@@ -265,7 +265,12 @@ export class Matrix extends Type<MatrixDefinition> {
         if (!this.gateRect) {
             return false
         }
-        return this.gateRect.contains(this.getColumnFromIndex(index), this.getRowFromIndex(index))
+
+        const x = this.getColumnFromIndex(index)
+        const y = this.getRowFromIndex(index)
+
+        // Manual comparison, so that it is non-inclusive of right and bottom
+        return this.gateRect.left <= x && x < this.gateRect.right && this.gateRect.top <= y && y < this.gateRect.bottom
     }
 
     @method()
