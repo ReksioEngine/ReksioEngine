@@ -375,7 +375,7 @@ export class Matrix extends Type<MatrixDefinition> {
         return remaining
     }
 
-    async setByIndex(index: number, cellType: number) {
+    setByIndex(index: number, cellType: number) {
         assert(
             index >= 0 && index < this.board.length,
             `Index ${index} out of bounds for board of length ${this.board.length}`
@@ -389,29 +389,23 @@ export class Matrix extends Type<MatrixDefinition> {
         this.board[index] = cellType
     }
 
-    async setByPosition(x: number, y: number, cellType: number) {
+    setByPosition(x: number, y: number, cellType: number) {
         assert(x >= 0 && x < this.width, `X position ${x} out of bounds for width ${this.width}`)
         assert(y >= 0 && y < this.height, `Y position ${y} out of bounds for height ${this.height}`)
+
         const index = this.getIndexFromCoordinates(x, y)
-
-        if (cellType === Field.ENEMY) {
-            if (this.board[index] !== Field.EMPTY) {
-                return
-            }
-        }
-
-        this.board[index] = cellType
+        this.setByIndex(index, cellType)
     }
 
     @method()
     async SET(...args: number[]) {
         if (args.length === 2) {
             const [index, cellType] = args;
-            await this.setByIndex(index, cellType)
+            this.setByIndex(index, cellType)
         }
         if (args.length === 3) {
             const [x, y, cellType] = args;
-            await this.setByPosition(Math.floor(x), Math.floor(y), cellType)
+            this.setByPosition(Math.floor(x), Math.floor(y), cellType)
         }
     }
 
