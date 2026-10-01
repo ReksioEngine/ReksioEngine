@@ -31,6 +31,131 @@ export const getLines = (content: string) => {
     return resultLines.filter((line) => !line.startsWith('#') && line.trim())
 }
 
+export const processTokens = (tokens: string[], objects: CNV) => {
+    if (tokens[0] === 'OBJECT') {
+        const value = tokens[1]
+        if (!objects[value]) {
+            objects[value] = {
+                TYPE: 'unknown',
+                NAME: value,
+            }
+        }
+
+        // When parsing OBJECT line it doesn't ignore the rest of the tokens
+        // and processes them like next line
+        if (tokens.length > 2) {
+            processTokens(tokens.slice(2), objects)
+            return
+        }
+    } else {
+        const [objectName, variablePart] = tokens
+        const value = tokens.slice(2).join(' ')
+
+        const [variableName, param] = variablePart.split('^')
+        const object = objects[objectName]
+        if (object === undefined) {
+            return
+        }
+
+        if (variableName !== 'TYPE' && !Object.prototype.hasOwnProperty.call(structureDefinitions, object.TYPE)) {
+            throw new Error(`Objects of type ${object.TYPE} are not supported`)
+        }
+
+        const definition = structureDefinitions[object.TYPE]
+        const supportedVariablesRaw = definition ? Object.keys(definition) : []
+        const supportedVariables = supportedVariablesRaw.map((name) => {
+            if (!name.includes('%')) {
+                return {
+                    pattern: name,
+                    name: name,
+                }
+            }
+
+            const regexName = name.replaceAll('%s', '([a-zA-Z]+)').replaceAll('%d', '([0-9]+)')
+
+            const pattern = new RegExp(`^${regexName}$`, 'g')
+            return {
+                pattern,
+                name,
+            }
+        })
+
+        const supportedVariable = supportedVariables.find((entry) => {
+            const { pattern } = entry
+            if (pattern instanceof RegExp) {
+                return pattern.test(variableName)
+            } else {
+                return pattern === variableName
+            }
+        })
+
+        if (definition && supportedVariable) {
+            const fieldName = supportedVariable.name
+            const fieldTypeDefinition: FieldTypeEntry = definition[fieldName]
+            try {
+                const cleanedValue = value.trim()
+                const processedValue = fieldTypeDefinition.processor(object, fieldName, param, cleanedValue)
+                if (processedValue !== undefined) {
+                    object[fieldName] = processedValue
+                }
+            } catch (err) {
+                if (err instanceof FieldProcessorRecoverableError) {
+                    logger.error(
+                        'Recoverable error occured',
+                        {
+                            objectName,
+                            objectType: object.TYPE,
+                            object,
+                            fieldName,
+                            param,
+                            value,
+                        },
+                        err
+                    )
+                    return
+                }
+
+                logger.error(
+                    'Failed to process CNV field',
+                    {
+                        objectName,
+                        objectType: object.TYPE,
+                        object,
+                        fieldName,
+                        param,
+                        value,
+                    },
+                    err
+                )
+                throw err
+            }
+        } else {
+            if (variableName.startsWith('ON')) {
+                if (param) {
+                    logger.warn(
+                        `Unsupported parametrized event callback "${variableName}" with param "${param}" in type ${object.TYPE}`,
+                        {
+                            object,
+                        }
+                    )
+                } else {
+                    logger.warn(
+                        `Unsupported non-parametrized event callback "${variableName}" in type ${object.TYPE}`,
+                        {
+                            object,
+                        }
+                    )
+                }
+            } else if (variableName !== 'TYPE') {
+                logger.warn(`Unsupported field ${variableName} in type ${object.TYPE}`, {
+                    object,
+                })
+            }
+            object[variableName] = value
+        }
+    }
+}
+
 export const parseCNV = (content: string) => {
     const lines = getLines(content)
     const objects: CNV = {}
@@ -44,121 +169,7 @@ export const parseCNV = (content: string) => {
             continue
         }
 
-        if (tokens[0] === 'OBJECT') {
-            const value = tokens[1]
-            if (!objects[value]) {
-                objects[value] = {
-                    TYPE: 'unknown',
-                    NAME: value,
-                }
-            }
-        } else {
-            const [objectName, variablePart] = tokens
-            const value = tokens.slice(2).join(' ')
-
-            const [variableName, param] = variablePart.split('^')
-            const object = objects[objectName]
-            if (object === undefined) {
-                continue
-            }
-
-            if (variableName !== 'TYPE' && !Object.prototype.hasOwnProperty.call(structureDefinitions, object.TYPE)) {
-                throw new Error(`Objects of type ${object.TYPE} are not supported`)
-            }
-
-            const definition = structureDefinitions[object.TYPE]
-            const supportedVariablesRaw = definition ? Object.keys(definition) : []
-            const supportedVariables = supportedVariablesRaw.map((name) => {
-                if (!name.includes('%')) {
-                    return {
-                        pattern: name,
-                        name: name,
-                    }
-                }
-
-                const regexName = name.replaceAll('%s', '([a-zA-Z]+)').replaceAll('%d', '([0-9]+)')
-
-                const pattern = new RegExp(`^${regexName}$`, 'g')
-                return {
-                    pattern,
-                    name,
-                }
-            })
-
-            const supportedVariable = supportedVariables.find((entry) => {
-                const { pattern } = entry
-                if (pattern instanceof RegExp) {
-                    return pattern.test(variableName)
-                } else {
-                    return pattern === variableName
-                }
-            })
-
-            if (definition && supportedVariable) {
-                const fieldName = supportedVariable.name
-                const fieldTypeDefinition: FieldTypeEntry = definition[fieldName]
-                try {
-                    const cleanedValue = value.trim()
-                    const processedValue = fieldTypeDefinition.processor(object, fieldName, param, cleanedValue)
-                    if (processedValue !== undefined) {
-                        object[fieldName] = processedValue
-                    }
-                } catch (err) {
-                    if (err instanceof FieldProcessorRecoverableError) {
-                        logger.error(
-                            'Recoverable error occured',
-                            {
-                                objectName,
-                                objectType: object.TYPE,
-                                object,
-                                fieldName,
-                                param,
-                                value,
-                            },
-                            err
-                        )
-                        continue
-                    }
-
-                    logger.error(
-                        'Failed to process CNV field',
-                        {
-                            objectName,
-                            objectType: object.TYPE,
-                            object,
-                            fieldName,
-                            param,
-                            value,
-                        },
-                        err
-                    )
-                    throw err
-                }
-            } else {
-                if (variableName.startsWith('ON')) {
-                    if (param) {
-                        logger.warn(
-                            `Unsupported parametrized event callback "${variableName}" with param "${param}" in type ${object.TYPE}`,
-                            {
-                                object,
-                            }
-                        )
-                    } else {
-                        logger.warn(
-                            `Unsupported non-parametrized event callback "${variableName}" in type ${object.TYPE}`,
-                            {
-                                object,
-                            }
-                        )
-                    }
-                } else if (variableName !== 'TYPE') {
-                    logger.warn(`Unsupported field ${variableName} in type ${object.TYPE}`, {
-                        object,
-                    })
-                }
-                object[variableName] = value
-            }
-        }
+        processTokens(tokens, objects)
     }
 
     for (const object of Object.values(objects)) {
