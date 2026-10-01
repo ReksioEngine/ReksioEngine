@@ -146,7 +146,6 @@ export class Matrix extends Type<MatrixDefinition> {
         return this.isNewPositionValid(newPosIndex)
     }
 
-    // Returns direction
     @method()
     CALCENEMYMOVEDIR(oldPos: number, currentMoveDir: number) {
         let newDir: number = this.rotateLeft(currentMoveDir)
@@ -202,7 +201,6 @@ export class Matrix extends Type<MatrixDefinition> {
         return this.getIndexFromCoordinates(x, y)
     }
 
-    // BASEPOS - Offset from the top left corner of the board (in pixels)
     @method()
     GETCELLPOSX(index: number) {
         return this.getColumnFromIndex(index) * this.definition.CELLWIDTH + this.definition.BASEPOS[0]
@@ -394,7 +392,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     // Can the stone at index (column x) roll one column sideways (dx = -1 or 1) and down?
-    // A neighbour that already has an action this tick blocks the roll
+    // A neighbor that already has an action this tick blocks the roll
     canRoll(index: number, x: number, dx: number) {
         const hasAction = (offset: number) => {
             const column = x + offset

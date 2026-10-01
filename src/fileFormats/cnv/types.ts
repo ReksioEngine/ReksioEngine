@@ -347,7 +347,7 @@ const KeyboardStructure = {
 }
 
 export type MatrixDefinition = TypeDefinition & {
-    BASEPOS: Array<number>
+    BASEPOS: Array<number> // offset from the top left corner of the board (in pixels)
     CELLHEIGHT: number
     CELLWIDTH: number
     SIZE: Array<number>
