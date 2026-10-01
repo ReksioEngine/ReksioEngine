@@ -221,21 +221,6 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    GETFIELDPOSX(...args: any[]) {
-        throw new NotImplementedError()
-    }
-
-    @method()
-    GETFIELDPOSY(...args: any[]) {
-        throw new NotImplementedError()
-    }
-
-    @method()
-    GETOFFSET(...args: any[]) {
-        throw new NotImplementedError()
-    }
-
-    @method()
     ISGATEEMPTY() {
         if (!this.gateRect) {
             return true
