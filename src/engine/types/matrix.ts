@@ -270,7 +270,9 @@ export class Matrix extends Type<MatrixDefinition> {
 
     @method()
     async MOVE(previousPos: number, newPos: number) {
-        this.board[newPos] = this.board[previousPos]
+        if (this.board[newPos] !== Field.EXPLOSION) {
+            this.board[newPos] = this.board[previousPos]
+        }
         this.board[previousPos] = Field.EMPTY
     }
 
