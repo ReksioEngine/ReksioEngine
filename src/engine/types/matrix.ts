@@ -282,10 +282,6 @@ export class Matrix extends Type<MatrixDefinition> {
         return false
     }
 
-    async runCallback(name: string, x: number, y: number, code: number) {
-        await this.callbacks.run(name, null, null, [x, y, code])
-    }
-
     @method()
     async NEXT() {
         let result = RemainingActions.NONE
@@ -327,7 +323,7 @@ export class Matrix extends Type<MatrixDefinition> {
                 this.cursorX = isLast ? this.width : nextX
                 this.cursorY = isLast ? -1 : nextY
 
-                await this.runCallback(isLast ? 'ONLATEST' : 'ONNEXT', x, y, action)
+                await this.callbacks.run(isLast ? 'ONLATEST' : 'ONNEXT', null, null, [x, y, action])
                 return isLast ? result : result || RemainingActions.STONE_UPDATES
             }
         }
