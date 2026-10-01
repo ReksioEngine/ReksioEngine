@@ -1,7 +1,7 @@
 import { Type, ParentType } from './index'
 import { MatrixDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
-import { assert, NotImplementedError } from '../../common/errors'
+import { assert } from '../../common/errors'
 import { method } from '../../common/types'
 import { Rectangle } from 'pixi.js'
 
