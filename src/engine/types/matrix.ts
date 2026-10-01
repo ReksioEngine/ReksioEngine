@@ -73,7 +73,7 @@ export class Matrix extends Type<MatrixDefinition> {
 
     // Returns new position
     @method()
-    async CALCENEMYMOVEDEST(oldPos: number, dir: number) {
+    CALCENEMYMOVEDEST(oldPos: number, dir: number) {
         switch (dir) {
             case Direction.LEFT:
                 return oldPos - 1
@@ -134,27 +134,27 @@ export class Matrix extends Type<MatrixDefinition> {
         return this.board[newPosIndex] === Field.EMPTY || this.board[newPosIndex] === Field.MOLE
     }
 
-    async canMoveTo(oldPos: number, newPos: number) {
-        const newPosIndex: number = await this.CALCENEMYMOVEDEST(oldPos, newPos)
+    canMoveTo(oldPos: number, newPos: number) {
+        const newPosIndex: number = this.CALCENEMYMOVEDEST(oldPos, newPos)
         return this.isNewPositionValid(newPosIndex)
     }
 
     // Returns direction
     @method()
-    async CALCENEMYMOVEDIR(oldPos: number, currentMoveDir: number) {
+    CALCENEMYMOVEDIR(oldPos: number, currentMoveDir: number) {
         let newDir: number = this.rotateLeft(currentMoveDir)
-        if (await this.canMoveTo(oldPos, newDir)) {
+        if (this.canMoveTo(oldPos, newDir)) {
             return newDir
         }
-        if (await this.canMoveTo(oldPos, currentMoveDir)) {
+        if (this.canMoveTo(oldPos, currentMoveDir)) {
             return currentMoveDir
         }
         newDir = this.rotateRight(currentMoveDir)
-        if (await this.canMoveTo(oldPos, newDir)) {
+        if (this.canMoveTo(oldPos, newDir)) {
             return newDir
         }
         newDir = this.opositeDirection(currentMoveDir)
-        if (await this.canMoveTo(oldPos, newDir)) {
+        if (this.canMoveTo(oldPos, newDir)) {
             return newDir
         }
 
@@ -162,7 +162,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async CANHEROGOTO(targetCellIndex: number) {
+    CANHEROGOTO(targetCellIndex: number) {
         if (targetCellIndex < 0 || targetCellIndex >= this.board.length) {
             return false
         }
@@ -180,7 +180,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async GET(...args: any[]) {
+    GET(...args: any[]) {
         return this.board[args[0]]
     }
 
@@ -197,23 +197,23 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async GETCELLOFFSET(x: number, y: number) {
+    GETCELLOFFSET(x: number, y: number) {
         return this.getIndexFromCoordinates(x, y)
     }
 
     // BASEPOS - Offset from the top left corner of the board (in pixels)
     @method()
-    async GETCELLPOSX(index: number) {
+    GETCELLPOSX(index: number) {
         return this.getColumnFromIndex(index) * this.definition.CELLWIDTH + this.definition.BASEPOS[0]
     }
 
     @method()
-    async GETCELLPOSY(index: number) {
+    GETCELLPOSY(index: number) {
         return this.getRowFromIndex(index) * this.definition.CELLHEIGHT + this.definition.BASEPOS[1]
     }
 
     @method()
-    async GETCELLSNO(cellType?: number) {
+    GETCELLSNO(cellType?: number) {
         if (cellType === undefined) {
             return this.width * this.height
         }
@@ -222,22 +222,22 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async GETFIELDPOSX(...args: any[]) {
+    GETFIELDPOSX(...args: any[]) {
         throw new NotImplementedError()
     }
 
     @method()
-    async GETFIELDPOSY(...args: any[]) {
+    GETFIELDPOSY(...args: any[]) {
         throw new NotImplementedError()
     }
 
     @method()
-    async GETOFFSET(...args: any[]) {
+    GETOFFSET(...args: any[]) {
         throw new NotImplementedError()
     }
 
     @method()
-    async ISGATEEMPTY() {
+    ISGATEEMPTY() {
         if (!this.gateRect) {
             return true
         }
@@ -252,7 +252,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async ISINGATE(index: number) {
+    ISINGATE(index: number) {
         if (!this.gateRect) {
             return false
         }
@@ -265,7 +265,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async MOVE(previousPos: number, newPos: number) {
+    MOVE(previousPos: number, newPos: number) {
         if (this.board[newPos] !== Field.EXPLOSION) {
             this.board[newPos] = this.board[previousPos]
         }
@@ -286,7 +286,7 @@ export class Matrix extends Type<MatrixDefinition> {
         return true
     }
 
-    async getNextCursor(currentX: number, currentY: number) {
+    getNextCursor(currentX: number, currentY: number) {
         let nextX = currentX + 1
         let nextY = currentY
         if (nextX >= this.width) {
@@ -349,7 +349,7 @@ export class Matrix extends Type<MatrixDefinition> {
                         remaining = RemainingActions.PLAYER_COLLISION
                     }
                 }
-                await this.getNextCursor(x, y)
+                this.getNextCursor(x, y)
                 if (this.stoneActionsDone()) {
                     this.cursorX = this.width
                     this.cursorY = -1
