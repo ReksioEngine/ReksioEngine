@@ -9,7 +9,7 @@ export interface CNVObject {
 
 export type CNV = { [key: string]: CNVObject }
 
-export const splitLines = (content: string) => {
+export const getLines = (content: string) => {
     const lines = content.split('\n')
     const resultLines = []
 
@@ -27,19 +27,15 @@ export const splitLines = (content: string) => {
         resultLines.push(line.replaceAll('/', ''))
     }
 
-    return resultLines
+    // Ignore comments and empty lines
+    return resultLines.filter((line) => !line.startsWith('#') && line.trim())
 }
 
 export const parseCNV = (content: string) => {
-    const lines = splitLines(content)
+    const lines = getLines(content)
     const objects: CNV = {}
 
     for (const line of lines) {
-        // Ignore comments and empty lines
-        if (line.startsWith('#') || line.trim() === '') {
-            continue
-        }
-
         // Each line is split by both `:` and `=`. For lines like `OBJ:ONINIT={THIS^PLAY("2"):;}` it will output
         // `BEH`, `CODE`, `{THIS^PLAY("2")` and `;}`.
         // As you can see the `:` (which would normally be an incorrect syntax) disappears.
