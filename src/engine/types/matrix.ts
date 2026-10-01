@@ -94,12 +94,10 @@ export class Matrix extends Type<MatrixDefinition> {
                 return Direction.DOWN
             case Direction.UP:
                 return Direction.LEFT
-            case Direction.RIGHT:
-                return Direction.UP
             case Direction.DOWN:
                 return Direction.RIGHT
-            default:
-                return dir
+            default: // any direction other than LEFT, UP, DOWN is treated as RIGHT
+                return Direction.UP
         }
     }
 
@@ -109,12 +107,10 @@ export class Matrix extends Type<MatrixDefinition> {
                 return Direction.UP
             case Direction.UP:
                 return Direction.RIGHT
-            case Direction.RIGHT:
-                return Direction.DOWN
             case Direction.DOWN:
                 return Direction.LEFT
-            default:
-                return dir
+            default: // any direction other than LEFT, UP, DOWN is treated as RIGHT
+                return Direction.DOWN
         }
     }
 
@@ -124,12 +120,10 @@ export class Matrix extends Type<MatrixDefinition> {
                 return Direction.RIGHT
             case Direction.UP:
                 return Direction.DOWN
-            case Direction.RIGHT:
-                return Direction.LEFT
             case Direction.DOWN:
                 return Direction.UP
-            default:
-                return dir
+            default: // any direction other than LEFT, UP, DOWN is treated as RIGHT
+                return Direction.LEFT
         }
     }
 
