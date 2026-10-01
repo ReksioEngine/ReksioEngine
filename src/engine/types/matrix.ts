@@ -378,7 +378,7 @@ export class Matrix extends Type<MatrixDefinition> {
 
     @method()
     async SETROW(row: number, ...cells: number[]) {
-        for (let i = 0; i < this.width; i++) {
+        for (let i = 0; i < Math.min(this.width, cells.length); i++) {
             this.board[row * this.width + i] = cells[i]
         }
     }
