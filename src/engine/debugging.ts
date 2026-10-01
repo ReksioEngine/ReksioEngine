@@ -1,5 +1,5 @@
 import { Episode } from './types/episode'
-import { Type } from './types'
+import { Type, ValueType } from './types'
 import { Engine } from './index'
 import { Container, Graphics, Rectangle, Text } from 'pixi.js'
 import { Animo } from './types/animo'
@@ -117,7 +117,17 @@ export class Debugging {
 
         sceneSelector.addEventListener('change', async () => {
             try {
-                await this.engine.changeScene(sceneSelector.value)
+                const selectedOption = sceneSelector.selectedOptions[0]
+                const arcadeSceneName = selectedOption.getAttribute('data-arcade-scene-name')
+                if (arcadeSceneName) {
+                    const G_SARCADEOBJECTS: ValueType<any, any> | null = this.engine.scopeManager.findByName('G_SARCADEOBJECTS')
+                    if (G_SARCADEOBJECTS) {
+                        await G_SARCADEOBJECTS.setValue(arcadeSceneName)
+                        await this.engine.changeScene('ARCADE')
+                    }
+                } else {
+                    await this.engine.changeScene(sceneSelector.value)
+                }
             } catch (err) {
                 console.error(err)
                 if (err instanceof EngineError) {
@@ -213,13 +223,32 @@ export class Debugging {
             }
 
             const sceneDefPath = await scene.getRelativePath(`${sceneName}.cnv`)
-            const canGoTo = this.engine.filesystem.hasFile(sceneDefPath.toLowerCase())
+            const canGoTo = await this.engine.filesystem.hasFile(sceneDefPath.toLowerCase())
 
             const option = document.createElement('option')
             option.value = sceneName
             option.text = sceneName
             option.disabled = !canGoTo
             sceneSelector.appendChild(option)
+        }
+
+        if (this.engine.filesystem.fileLoader.hasFile('Dane/Game/Przygoda/Arcade/Arcade.cnv')) {
+            for (const filename of this.engine.filesystem.fileLoader.getFilesListing()) {
+                const pathPrefix = /dane\/game\/przygoda\/arcade\/([a-zA-Z0-9]+)\.cnv/g.exec(filename)
+                if (!pathPrefix) {
+                    continue
+                }
+
+                const [cnvPath, sceneName] = pathPrefix
+                const cnv = await this.engine.filesystem.getCNVFile(cnvPath)
+                if (cnv.BEHINITSCRIPT) {
+                    const option = document.createElement('option')
+                    option.value = sceneName
+                    option.text = sceneName
+                    option.setAttribute('data-arcade-scene-name', sceneName)
+                    sceneSelector.appendChild(option)
+                }
+            }
         }
     }
 
