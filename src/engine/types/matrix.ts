@@ -380,11 +380,6 @@ export class Matrix extends Type<MatrixDefinition> {
             index >= 0 && index < this.board.length,
             `Index ${index} out of bounds for board of length ${this.board.length}`
         )
-        if (cellType === Field.ENEMY) {
-            if (this.board[index] !== Field.EMPTY) {
-                return
-            }
-        }
 
         this.board[index] = cellType
     }
