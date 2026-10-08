@@ -31,6 +31,11 @@ export class Double extends ValueType<DoubleDefinition, number> {
     }
 
     @method()
+    async DIV(value: number) {
+        return await this.setValue(this.value / value)
+    }
+
+    @method()
     async MAXA(...values: number[]) {
         return await this.setValue(Math.max(...values))
     }
