@@ -33,6 +33,10 @@ export const valueAsBool = (value: any) => {
         return value
     }
 
+    if (value === 0 || value === 1) {
+        return Boolean(value)
+    }
+
     assert(value.toUpperCase() === 'TRUE' || value.toUpperCase() === 'FALSE')
     return value.toUpperCase() === 'TRUE'
 }
@@ -137,7 +141,8 @@ export const isDirectlyConvertible = (value: any, type: parameterType) => {
                 typeof value === 'boolean' ||
                 value === null ||
                 value.toString().toUpperCase() === 'TRUE' ||
-                value.toString().toUpperCase() === 'FALSE'
+                value.toString().toUpperCase() === 'FALSE' ||
+                value == 0 || value == 1
             )
         case 'number':
             return typeof value === 'number' || value === null || !Number.isNaN(toNumber(value))
