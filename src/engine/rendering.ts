@@ -170,6 +170,17 @@ export class RenderingManager {
         }
         this.dirtyRects = []
     }
+
+    redrawAll() {
+        for (const object of this.displayObjectsInDefinitionOrder) {
+            const sprite = object.getRenderObject()
+            if (!sprite?.visible) {
+                continue
+            }
+
+            object.repaint?.()
+        }
+    }
 }
 
 export class AdvancedSprite extends Sprite {

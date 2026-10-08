@@ -21,7 +21,9 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
     }
 
     @method()
-    REFRESH() {}
+    REFRESH() {
+        this.engine.rendering.redrawAll()
+    }
 
     @method()
     REMOVE(objectName: string) {
