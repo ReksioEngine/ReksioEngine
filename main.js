@@ -31681,7 +31681,18 @@ class Debugging {
         });
         sceneSelector.addEventListener('change', async () => {
             try {
-                await this.engine.changeScene(sceneSelector.value);
+                const selectedOption = sceneSelector.selectedOptions[0];
+                const arcadeSceneName = selectedOption.getAttribute('data-arcade-scene-name');
+                if (arcadeSceneName) {
+                    const G_SARCADEOBJECTS = this.engine.scopeManager.findByName('G_SARCADEOBJECTS');
+                    if (G_SARCADEOBJECTS) {
+                        await G_SARCADEOBJECTS.setValue(arcadeSceneName);
+                        await this.engine.changeScene('ARCADE');
+                    }
+                }
+                else {
+                    await this.engine.changeScene(sceneSelector.value);
+                }
             }
             catch (err) {
                 console.error(err);
@@ -31766,12 +31777,29 @@ class Debugging {
                 continue;
             }
             const sceneDefPath = await scene.getRelativePath(`${sceneName}.cnv`);
-            const canGoTo = this.engine.filesystem.hasFile(sceneDefPath.toLowerCase());
+            const canGoTo = await this.engine.filesystem.hasFile(sceneDefPath.toLowerCase());
             const option = document.createElement('option');
             option.value = sceneName;
             option.text = sceneName;
             option.disabled = !canGoTo;
             sceneSelector.appendChild(option);
+        }
+        if (this.engine.filesystem.fileLoader.hasFile('Dane/Game/Przygoda/Arcade/Arcade.cnv')) {
+            for (const filename of this.engine.filesystem.fileLoader.getFilesListing()) {
+                const pathPrefix = /dane\/game\/przygoda\/arcade\/([a-zA-Z0-9]+)\.cnv/g.exec(filename);
+                if (!pathPrefix) {
+                    continue;
+                }
+                const [cnvPath, sceneName] = pathPrefix;
+                const cnv = await this.engine.filesystem.getCNVFile(cnvPath);
+                if (cnv.BEHINITSCRIPT) {
+                    const option = document.createElement('option');
+                    option.value = sceneName;
+                    option.text = sceneName;
+                    option.setAttribute('data-arcade-scene-name', sceneName);
+                    sceneSelector.appendChild(option);
+                }
+            }
         }
     }
     updateCurrentScene() {
@@ -32438,6 +32466,15 @@ class RenderingManager {
             }
         }
         this.dirtyRects = [];
+    }
+    redrawAll() {
+        for (const object of this.displayObjectsInDefinitionOrder) {
+            const sprite = object.getRenderObject();
+            if (!sprite?.visible) {
+                continue;
+            }
+            object.repaint?.();
+        }
     }
 }
 exports.RenderingManager = RenderingManager;
@@ -34691,7 +34728,9 @@ let CanvasObserver = (() => {
                 }
                 this.engine.rendering.setBackground(texture);
             }
-            REFRESH() { }
+            REFRESH() {
+                this.engine.rendering.redrawAll();
+            }
             REMOVE(objectName) {
                 const object = this.engine.getObject(objectName);
                 if (object == null || !(object instanceof index_1.DisplayType)) {
