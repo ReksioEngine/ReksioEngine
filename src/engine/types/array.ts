@@ -101,11 +101,8 @@ export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
 
     @method()
     FIND(value: any) {
-        let position = this.value.indexOf(value)
-        if (position == -1) {
-            position = this.value.indexOf(valueAsString(value))
-        }
-        return position
+        const allValuesStrings = this.value.map((v: any) => valueAsString(v).toLowerCase())
+        return allValuesStrings.indexOf(value.toLowerCase())
     }
 
     @method()
