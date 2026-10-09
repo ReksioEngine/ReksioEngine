@@ -44,6 +44,14 @@ export class InterruptScriptExecution extends IgnorableError {
     }
 }
 
+class Return extends IgnorableError {
+    public value: boolean
+    constructor(value: any) {
+        super()
+        this.value = value
+    }
+}
+
 type CompareOpString = '_' | '!_' | '>' | '<' | '>_' | '<_'
 const COMPARE_OP_MAP: Record<CompareOpString, CompareOp> = {
     _: 'EQ',
@@ -116,6 +124,7 @@ export class Interpreter {
             ['BREAK', this.handleBreak.bind(this)],
             ['LOOP', this.handleLoop.bind(this)],
             ['WHILE', this.handleWhile.bind(this)],
+            ['RETURN', this.handleReturn.bind(this)],
         ])
     }
 
@@ -156,6 +165,10 @@ export class Interpreter {
 
     private async handleBreak(_args: any[]): Promise<never> {
         throw new InterruptScriptExecution(false)
+    }
+
+    private async handleReturn(args: any[]): Promise<void> {
+        throw new Return(args[0])
     }
 
     private async handleLoop(args: any[]): Promise<void> {
@@ -454,8 +467,15 @@ export async function runCode(
     const interpreter = new Interpreter(context)
 
     try {
-        return isSingleStatement ? await interpreter.executeStatement(ast[0]) : await interpreter.execute(ast)
+        if (isSingleStatement) {
+            return await interpreter.executeStatement(ast[0])
+        } else {
+            await interpreter.execute(ast)
+        }
     } catch (err) {
+        if (err instanceof Return) {
+            return err.value
+        }
         if (err instanceof IgnorableError) throw err
         if (!(err instanceof SilentError)) throw err
     }
