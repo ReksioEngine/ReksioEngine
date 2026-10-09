@@ -647,9 +647,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    GETNOFINEVENT(): number {
-        assert(this.currentEvent !== null)
-        return this.currentEvent.framesCount
+    GETNOFINEVENT(name: string): number {
+        return this.getEvent(name)?.framesCount ?? 0
     }
 
     @method()
