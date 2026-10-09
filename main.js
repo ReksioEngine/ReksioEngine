@@ -30816,6 +30816,9 @@ const valueAsBool = (value) => {
     if (typeof value === 'boolean') {
         return value;
     }
+    if (value === 0 || value === 1) {
+        return Boolean(value);
+    }
     (0, errors_1.assert)(value.toUpperCase() === 'TRUE' || value.toUpperCase() === 'FALSE');
     return value.toUpperCase() === 'TRUE';
 };
@@ -30911,7 +30914,8 @@ const isDirectlyConvertible = (value, type) => {
             return (typeof value === 'boolean' ||
                 value === null ||
                 value.toString().toUpperCase() === 'TRUE' ||
-                value.toString().toUpperCase() === 'FALSE');
+                value.toString().toUpperCase() === 'FALSE' ||
+                value == 0 || value == 1);
         case 'number':
             return typeof value === 'number' || value === null || !Number.isNaN((0, exports.toNumber)(value));
         default:
@@ -33443,9 +33447,8 @@ let Animo = (() => {
                 (0, errors_1.assert)(this.annFile !== null);
                 return Math.max(...this.annFile.annImages.map((e) => e.width));
             }
-            GETNOFINEVENT() {
-                (0, errors_1.assert)(this.currentEvent !== null);
-                return this.currentEvent.framesCount;
+            GETNOFINEVENT(name) {
+                return this.getEvent(name)?.framesCount ?? 0;
             }
             GETEVENTNAME(eventIndex) {
                 if (eventIndex === undefined) {
@@ -33609,7 +33612,7 @@ let Animo = (() => {
             _GETPOSITIONY_decorators = [(0, types_1.method)()];
             _GETFRAMENAME_decorators = [(0, types_1.method)({ name: "frameID", types: [{ name: "string", literal: null, isArray: false }, { name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "iFrameNo", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _GETMAXWIDTH_decorators = [(0, types_1.method)()];
-            _GETNOFINEVENT_decorators = [(0, types_1.method)()];
+            _GETNOFINEVENT_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _GETEVENTNAME_decorators = [(0, types_1.method)({ name: "eventIndex", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _GETFRAME_decorators = [(0, types_1.method)()];
             _GETCFRAMEINEVENT_decorators = [(0, types_1.method)()];
@@ -33953,11 +33956,8 @@ let ArrayObject = (() => {
                 this.value = [];
             }
             FIND(value) {
-                let position = this.value.indexOf(value);
-                if (position == -1) {
-                    position = this.value.indexOf((0, types_1.valueAsString)(value));
-                }
-                return position;
+                const allValuesStrings = this.value.map((v) => (0, types_1.valueAsString)(v).toLowerCase());
+                return allValuesStrings.indexOf(value.toLowerCase());
             }
             REVERSEFIND(value) {
                 let position = this.value.lastIndexOf(value);
@@ -35518,6 +35518,7 @@ let Double = (() => {
     let _ADD_decorators;
     let _SUB_decorators;
     let _SET_decorators;
+    let _DIV_decorators;
     let _MAXA_decorators;
     let _MINA_decorators;
     let _SINUS_decorators;
@@ -35541,6 +35542,9 @@ let Double = (() => {
             }
             async SET(newValue) {
                 await this.setValue(newValue);
+            }
+            async DIV(value) {
+                return await this.setValue(this.value / value);
             }
             async MAXA(...values) {
                 return await this.setValue(Math.max(...values));
@@ -35578,6 +35582,7 @@ let Double = (() => {
             _ADD_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SUB_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SET_decorators = [(0, types_1.method)({ name: "newValue", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _DIV_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _MAXA_decorators = [(0, types_1.method)({ name: "values", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
             _MINA_decorators = [(0, types_1.method)({ name: "values", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
             _SINUS_decorators = [(0, types_1.method)({ name: "angle", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
@@ -35589,6 +35594,7 @@ let Double = (() => {
             __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DIV_decorators, { kind: "method", name: "DIV", static: false, private: false, access: { has: obj => "DIV" in obj, get: obj => obj.DIV }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _MAXA_decorators, { kind: "method", name: "MAXA", static: false, private: false, access: { has: obj => "MAXA" in obj, get: obj => obj.MAXA }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _MINA_decorators, { kind: "method", name: "MINA", static: false, private: false, access: { has: obj => "MINA" in obj, get: obj => obj.MINA }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _SINUS_decorators, { kind: "method", name: "SINUS", static: false, private: false, access: { has: obj => "SINUS" in obj, get: obj => obj.SINUS }, metadata: _metadata }, null, _instanceExtraInitializers);
