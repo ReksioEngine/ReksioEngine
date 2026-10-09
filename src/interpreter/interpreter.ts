@@ -248,10 +248,8 @@ export class Interpreter {
 
     private async evaluateLogicExpression(expr: ConditionExpr): Promise<boolean> {
         if (expr.type === 'Condition') {
-            const [left, right] = await Promise.all([
-                this.evaluateParameter(expr.left),
-                this.evaluateParameter(expr.right),
-            ])
+            const left = await this.evaluateParameter(expr.left)
+            const right = await this.evaluateParameter(expr.right)
             return applyComparison(left, expr.operator, right)
         }
 
@@ -262,10 +260,8 @@ export class Interpreter {
 
         const isOr = operator === 'OR'
         for (const condition of conditions) {
-            const [left, right] = await Promise.all([
-                this.evaluateParameter(condition.left),
-                this.evaluateParameter(condition.right),
-            ])
+            const left = await this.evaluateParameter(condition.left)
+            const right = await this.evaluateParameter(condition.right)
             if (applyComparison(left, condition.operator, right) === isOr) {
                 return isOr
             }
@@ -275,7 +271,10 @@ export class Interpreter {
     }
 
     private async executeFunctionCall(call: FunctionCall): Promise<any> {
-        const args = await Promise.all(call.args.map((arg) => this.evaluateParameter(arg)))
+        const args = []
+        for (const arg of call.args) {
+            args.push(await this.evaluateParameter(arg))
+        }
 
         if (!call.target) {
             throw new RuntimeError('Bare methods not implemented')
