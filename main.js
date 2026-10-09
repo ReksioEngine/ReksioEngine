@@ -30693,7 +30693,7 @@ Object.keys(textHtml).forEach(function(k) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.IgnorableError = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.IrrecoverableError = exports.EngineError = void 0;
+exports.CancelTick = exports.IgnorableError = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.IrrecoverableError = exports.EngineError = void 0;
 exports.assert = assert;
 class EngineError extends Error {
     constructor(message, stackTrace = null) {
@@ -30723,6 +30723,13 @@ exports.NotImplementedError = NotImplementedError;
 class IgnorableError {
 }
 exports.IgnorableError = IgnorableError;
+class CancelTick extends IgnorableError {
+    constructor(callback) {
+        super();
+        this.callback = callback;
+    }
+}
+exports.CancelTick = CancelTick;
 function assert(expr, message) {
     if (!expr) {
         throw new Error('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''));
@@ -31202,12 +31209,24 @@ class Sound {
 exports.Sound = Sound;
 class AudioManager {
     constructor() {
-        this.ctx = new AudioContext();
-        this.master = new GainNode(this.ctx);
+        this._ctx = null;
+        this._master = null;
         this.sounds = [];
         this.speed = 1;
-        this.master.connect(this.ctx.destination);
-        this.master.gain.value = 1;
+    }
+    get ctx() {
+        if (this._ctx === null) {
+            this._ctx = new AudioContext();
+        }
+        return this._ctx;
+    }
+    get master() {
+        if (this._master === null) {
+            this._master = new GainNode(this.ctx);
+            this._master.connect(this.ctx.destination);
+            this._master.gain.value = 1;
+        }
+        return this._master;
     }
     setMasterVolume(v) {
         this.master.gain.value = Math.max(0, Math.min(1, v));
@@ -31955,7 +31974,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.CancelTick = exports.Engine = void 0;
+exports.Engine = void 0;
 const scripting_1 = __webpack_require__(/*! ./scripting */ "./src/engine/scripting.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../filesystem/definitionLoader */ "./src/filesystem/definitionLoader.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
@@ -32020,7 +32039,7 @@ class Engine {
             this.app.ticker.start();
         }
         catch (err) {
-            if (err instanceof CancelTick) {
+            if (err instanceof errors_1.CancelTick) {
                 await err.callback?.();
                 return;
             }
@@ -32043,7 +32062,7 @@ class Engine {
                     await object.tick(elapsedMS);
                 }
                 catch (err) {
-                    if (err instanceof CancelTick) {
+                    if (err instanceof errors_1.CancelTick) {
                         await err.callback?.();
                         return;
                     }
@@ -32201,13 +32220,6 @@ class Engine {
     }
 }
 exports.Engine = Engine;
-class CancelTick extends errors_1.IgnorableError {
-    constructor(callback) {
-        super();
-        this.callback = callback;
-    }
-}
-exports.CancelTick = CancelTick;
 
 
 /***/ },
@@ -34129,7 +34141,7 @@ let Behaviour = (() => {
             }
             async RUN(...args) {
                 try {
-                    await this.executeCallback(args);
+                    return await this.executeCallback(args);
                 }
                 catch (err) {
                     if (!(err instanceof interpreter_1.InterruptScriptExecution)) {
@@ -34139,7 +34151,7 @@ let Behaviour = (() => {
             }
             async RUNC(...args) {
                 if (await this.shouldRun()) {
-                    await this.RUN(...args);
+                    return await this.RUN(...args);
                 }
             }
             async RUNLOOPED(start, len, step = 1, ...args) {
@@ -34168,7 +34180,7 @@ let Behaviour = (() => {
             }
             async executeConditionalCallback(args = []) {
                 if (await this.shouldRun()) {
-                    await this.executeCallback(args);
+                    return await this.executeCallback(args);
                 }
             }
             async shouldRun() {
@@ -35659,7 +35671,6 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../../filesystem/definitionLoader */ "./src/filesystem/definitionLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
-const index_2 = __webpack_require__(/*! ../index */ "./src/engine/index.ts");
 const filesystem_1 = __webpack_require__(/*! ../../filesystem */ "./src/filesystem/index.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Episode = (() => {
@@ -35683,7 +35694,7 @@ let Episode = (() => {
             }
             GOTO(sceneName) {
                 (0, errors_1.assert)(this.definition.SCENES.includes(sceneName));
-                throw new index_2.CancelTick(async () => await this.engine.changeScene(sceneName));
+                throw new errors_1.CancelTick(async () => await this.engine.changeScene(sceneName));
             }
             GETLATESTSCENE() {
                 return this.engine.previousScene?.definition.NAME ?? null;
@@ -42263,6 +42274,12 @@ class InterruptScriptExecution extends errors_1.IgnorableError {
     }
 }
 exports.InterruptScriptExecution = InterruptScriptExecution;
+class Return extends errors_1.IgnorableError {
+    constructor(value) {
+        super();
+        this.value = value;
+    }
+}
 const COMPARE_OP_MAP = {
     _: 'EQ',
     '!_': 'NE',
@@ -42321,6 +42338,7 @@ class Interpreter {
             ['BREAK', this.handleBreak.bind(this)],
             ['LOOP', this.handleLoop.bind(this)],
             ['WHILE', this.handleWhile.bind(this)],
+            ['RETURN', this.handleReturn.bind(this)],
         ]);
     }
     async handleIf(args) {
@@ -42357,6 +42375,9 @@ class Interpreter {
     }
     async handleBreak(_args) {
         throw new InterruptScriptExecution(false);
+    }
+    async handleReturn(args) {
+        throw new Return(args[0]);
     }
     async handleLoop(args) {
         const [codeOrBehaviour, start, len, step] = args;
@@ -42607,9 +42628,17 @@ async function runCode(engine, caller, script, args, isSingleStatement) {
     const context = new RuntimeContext(engine, caller, processedScript);
     const interpreter = new Interpreter(context);
     try {
-        return isSingleStatement ? await interpreter.executeStatement(ast[0]) : await interpreter.execute(ast);
+        if (isSingleStatement) {
+            return await interpreter.executeStatement(ast[0]);
+        }
+        else {
+            await interpreter.execute(ast);
+        }
     }
     catch (err) {
+        if (err instanceof Return) {
+            return err.value;
+        }
         if (err instanceof errors_1.IgnorableError)
             throw err;
         if (!(err instanceof SilentError))
