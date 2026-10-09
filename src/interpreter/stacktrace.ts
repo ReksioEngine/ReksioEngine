@@ -75,19 +75,19 @@ export const generateStackTrace = (stackTraceSource: StackFrame[]) => {
 
         switch (frame.type) {
             case 'callback':
-                lines.push(`at ${frame.object?.name ?? '<unknown>'}@${frame.callback}(${argsString})`)
+                lines.push(`@ ${frame.object?.name ?? '<unknown>'}@${frame.callback}(${argsString})`)
                 break
             case 'method':
-                lines.push(`at ${frame.object?.name ?? '<unknown>'}^${frame.methodName}(${argsString})`)
+                lines.push(`@ ${frame.object?.name ?? '<unknown>'}^${frame.methodName}(${argsString})`)
                 break
             case 'specialCall':
-                lines.push(`at ${frame.methodName}(${argsString})`)
+                lines.push(`@ ${frame.methodName}(${argsString})`)
                 break
             case 'stage':
-                lines.push(`at ${frame.object?.name ?? '<unknown>'}::${frame.methodName}()`)
+                lines.push(`@ ${frame.object?.name ?? '<unknown>'}::${frame.methodName}()`)
                 break
             case 'behaviour':
-                lines.push(`at ${frame.behaviour}(${argsString})`)
+                lines.push(`@ ${frame.behaviour}(${argsString})`)
                 break
         }
     }
