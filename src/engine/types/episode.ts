@@ -1,9 +1,8 @@
 import { ParentType } from './index'
 import { EpisodeDefinition } from '../../fileFormats/cnv/types'
-import { assert } from '../../common/errors'
+import { assert, CancelTick } from '../../common/errors'
 import { loadDefinition, doReady } from '../../filesystem/definitionLoader'
 import { method } from '../../common/types'
-import { CancelTick } from '../index'
 import { pathJoin } from '../../filesystem'
 import { logger } from '../logging'
 

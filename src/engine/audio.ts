@@ -221,14 +221,25 @@ export class Sound {
 }
 
 export class AudioManager {
-    readonly ctx = new AudioContext()
-    readonly master = new GainNode(this.ctx)
+    private _ctx: AudioContext | null = null
+    private _master: GainNode | null = null
     private sounds: Sound[] = []
     public speed: number = 1
 
-    constructor() {
-        this.master.connect(this.ctx.destination)
-        this.master.gain.value = 1
+    get ctx(): AudioContext {
+        if (this._ctx === null) {
+            this._ctx = new AudioContext()
+        }
+        return this._ctx
+    }
+
+    get master(): GainNode {
+        if (this._master === null) {
+            this._master = new GainNode(this.ctx)
+            this._master.connect(this.ctx.destination)
+            this._master.gain.value = 1
+        }
+        return this._master
     }
 
     setMasterVolume(v: number) {

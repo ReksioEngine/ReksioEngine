@@ -22,6 +22,11 @@ export class NotImplementedError extends EngineError {
 }
 
 export class IgnorableError {}
+export class CancelTick extends IgnorableError {
+    constructor(public callback?: () => Promise<void>) {
+        super()
+    }
+}
 export function assert(expr: any, message?: string): asserts expr {
     if (!expr) {
         throw new Error('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''))

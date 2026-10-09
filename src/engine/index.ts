@@ -6,7 +6,7 @@ import { Scene } from './types/scene'
 import { loadSound, loadTexture } from '../filesystem/assetsLoader'
 import { SaveFile, SaveFileManager } from './saveFile'
 import { Debugging } from './debugging'
-import { assert, IgnorableError, IrrecoverableError } from '../common/errors'
+import { assert, CancelTick, IrrecoverableError } from '../common/errors'
 import { initDevtools } from '@pixi/devtools'
 import { RenderingManager } from './rendering'
 import { BUILD_VARS, GamePlayerOptions } from '../index'
@@ -313,11 +313,5 @@ export class Engine {
         for (const object of sceneScope.objects) {
             object.pause()
         }
-    }
-}
-
-export class CancelTick extends IgnorableError {
-    constructor(public callback?: () => Promise<void>) {
-        super()
     }
 }

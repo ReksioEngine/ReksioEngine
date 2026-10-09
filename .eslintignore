@@ -1,2 +1,4 @@
 src/interpreter/ReksioLang*.ts
 jest.config.js
+jest.transformer.js
+jest.htmlStub.js
