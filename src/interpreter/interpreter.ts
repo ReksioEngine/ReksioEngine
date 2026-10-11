@@ -295,7 +295,7 @@ export class Interpreter {
                         .build()
                     pushStackFrame(stackFrame)
 
-                    return handler(args)
+                    return await handler(args)
                 } catch (err) {
                     captureStackTrace(err)
                     throw err
@@ -321,7 +321,7 @@ export class Interpreter {
                     )
 
                     const method = (targetObj as any)[call.method]
-                    return method !== undefined ? method.bind(targetObj)(...args) : targetObj.__call(call.method, args)
+                    return method !== undefined ? await method.bind(targetObj)(...args) : await targetObj.__call(call.method, args)
                 } catch (err) {
                     if (err instanceof IgnorableError) throw err
 
