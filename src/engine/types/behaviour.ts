@@ -5,6 +5,7 @@ import { method } from '../../common/types'
 import { assert } from '../../common/errors'
 import { ClassInstance } from './class'
 import { InterruptScriptExecution } from '../../interpreter'
+import { captureStackTrace, popStackFrame, pushStackFrame, StackFrame } from '../../interpreter/stacktrace'
 
 export class Behaviour extends Type<BehaviourDefinition> {
     async ready() {
@@ -57,8 +58,22 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     async executeCallback(args: any[] = []): Promise<any> {
-        // Don't resolve args, it will fail in S33_METEORY
-        return await this.engine.scripting.executeCallback(null, this, this.definition.CODE, args)
+        try {
+            pushStackFrame(
+                StackFrame.builder()
+                .type('behaviour')
+                .behaviour(this.name)
+                .args(...args)
+                .build()
+            )
+
+            return await this.engine.scripting.executeCallback(null, this, this.definition.CODE, args)
+        } catch (err) {
+            captureStackTrace(err)
+            throw err
+        } finally {
+            popStackFrame()
+        }
     }
 
     async executeConditionalCallback(args: any[] = []) {

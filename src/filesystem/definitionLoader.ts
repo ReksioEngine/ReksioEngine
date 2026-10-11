@@ -39,7 +39,7 @@ import { Database } from '../engine/types/database'
 import { Class } from '../engine/types/class'
 import { logger } from '../engine/logging'
 import { World } from '../engine/types/world'
-import { StackFrame, stackTrace } from '../interpreter/stacktrace'
+import { captureStackTrace, popStackFrame, pushStackFrame, StackFrame } from '../interpreter/stacktrace'
 import { Matrix } from '../engine/types/matrix'
 
 const createTypeInstance = (engine: Engine, parent: ParentType<any> | null, definition: any) => {
@@ -166,10 +166,10 @@ export const loadDefinition = async (engine: Engine, scope: Scope, definition: C
     const promisesResults = await Promise.allSettled(
         orderedScope.map((entry) => {
             try {
-                stackTrace.push(StackFrame.builder().type('stage').object(entry).method('init').build())
+                pushStackFrame(StackFrame.builder().type('stage').object(entry).method('init').build())
                 return entry.init()
             } finally {
-                stackTrace.pop()
+                popStackFrame()
             }
         })
     )
@@ -192,10 +192,13 @@ export const loadDefinition = async (engine: Engine, scope: Scope, definition: C
 
     for (const object of goodObjects) {
         try {
-            stackTrace.push(StackFrame.builder().type('stage').object(object).method('applyDefaults').build())
+            pushStackFrame(StackFrame.builder().type('stage').object(object).method('applyDefaults').build())
             await object.applyDefaults()
+        } catch (err) {
+            captureStackTrace(err)
+            throw err
         } finally {
-            stackTrace.pop()
+            popStackFrame()
         }
     }
 }
@@ -208,10 +211,13 @@ export const doReady = async (scope: Scope) => {
         object.isReady = true
 
         try {
-            stackTrace.push(StackFrame.builder().type('stage').object(object).method('ready').build())
+            pushStackFrame(StackFrame.builder().type('stage').object(object).method('ready').build())
             await object.ready()
+        } catch (err) {
+            captureStackTrace(err)
+            throw err
         } finally {
-            stackTrace.pop()
+            popStackFrame()
         }
     }
 }

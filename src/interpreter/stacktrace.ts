@@ -1,5 +1,6 @@
 import { Type } from '../engine/types'
 import { valueAsString } from '../common/types'
+import { IgnorableError } from '../common/errors'
 
 type StackFrameTypes = 'method' | 'behaviour' | 'callback' | 'stage' | 'specialCall'
 
@@ -54,7 +55,29 @@ class StackFrameBuilder {
     }
 }
 
-export const stackTrace: StackFrame[] = []
+const stackTrace: StackFrame[] = []
+
+export const pushStackFrame = (frame: StackFrame) => {
+    stackTrace.push(frame)
+}
+
+export const popStackFrame = () => {
+    stackTrace.pop()
+}
+
+const capturedStackTraces = new WeakMap<object, StackFrame[]>()
+export const captureStackTrace = (err: unknown): StackFrame[] | null => {
+    if (typeof err !== 'object' || err === null || err instanceof IgnorableError) {
+        return null
+    }
+
+    let captured = capturedStackTraces.get(err)
+    if (captured === undefined) {
+        captured = [...stackTrace]
+        capturedStackTraces.set(err, captured)
+    }
+    return captured
+}
 
 export const generateStackTrace = (stackTraceSource: StackFrame[]) => {
     const lines: string[] = []

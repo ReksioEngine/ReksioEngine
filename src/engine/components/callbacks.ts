@@ -3,7 +3,7 @@ import { Engine } from '../index'
 import { Type } from '../types'
 import { assert } from '../../common/errors'
 import { structureDefinitions } from '../../fileFormats/cnv/types'
-import { StackFrame, stackTrace } from '../../interpreter/stacktrace'
+import { captureStackTrace, popStackFrame, pushStackFrame, StackFrame } from '../../interpreter/stacktrace'
 import { InterruptScriptExecution } from '../../interpreter'
 
 export class CallbacksComponent {
@@ -65,17 +65,17 @@ export class CallbacksComponent {
             return
         }
 
-        const stackFrame = StackFrame.builder()
-            .type('callback')
-            .object(this.object)
-            .callback(type)
-            .args(...(param !== undefined && param !== null ? [param] : []))
-            .build()
-        stackTrace.push(stackFrame)
-
-        const thisReference = thisOverride !== undefined ? thisOverride : this.object
-
         try {
+            const stackFrame = StackFrame.builder()
+                .type('callback')
+                .object(this.object)
+                .callback(type)
+                .args(...(param !== undefined && param !== null ? [param] : []))
+                .build()
+            pushStackFrame(stackFrame)
+
+            const thisReference = thisOverride !== undefined ? thisOverride : this.object
+
             const callbackGroup = this.registry.get(type)
             assert(callbackGroup !== undefined)
 
@@ -88,10 +88,11 @@ export class CallbacksComponent {
             }
         } catch (err) {
             if (!(err instanceof InterruptScriptExecution)) {
+                captureStackTrace(err)
                 throw err
             }
         } finally {
-            stackTrace.pop()
+            popStackFrame()
         }
     }
 

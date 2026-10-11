@@ -15,7 +15,7 @@ import { parseCode } from './parser'
 import { parseLogicExpression } from './expression'
 import { CompareOp, ConditionExpr } from './expression/ast'
 import { color, fmt, logger } from '../engine/logging'
-import { printStackTrace, StackFrame, stackTrace } from './stacktrace'
+import { captureStackTrace, popStackFrame, printStackTrace, pushStackFrame, StackFrame } from './stacktrace'
 
 export class RuntimeError extends Error {
     constructor(message: string) {
@@ -293,11 +293,14 @@ export class Interpreter {
                         .method(call.method)
                         .args(...args)
                         .build()
-                    stackTrace.push(stackFrame)
+                    pushStackFrame(stackFrame)
 
                     return handler(args)
+                } catch (err) {
+                    captureStackTrace(err)
+                    throw err
                 } finally {
-                    stackTrace.pop()
+                    popStackFrame()
                 }
             }
 
@@ -308,13 +311,14 @@ export class Interpreter {
                 }
 
                 try {
-                    const stackFrame = StackFrame.builder()
-                        .type('method')
-                        .object(targetObj)
-                        .method(call.method)
-                        .args(...args)
-                        .build()
-                    stackTrace.push(stackFrame)
+                    pushStackFrame(
+                        StackFrame.builder()
+                            .type('method')
+                            .object(targetObj)
+                            .method(call.method)
+                            .args(...args)
+                            .build()
+                    )
 
                     const method = (targetObj as any)[call.method]
                     return method !== undefined ? method.bind(targetObj)(...args) : targetObj.__call(call.method, args)
@@ -331,14 +335,14 @@ export class Interpreter {
                         },
                         err
                     )
-                    printStackTrace()
+                    printStackTrace(captureStackTrace(err))
 
                     if (err instanceof NotImplementedError) return null
                     // eslint-disable-next-line no-debugger
                     debugger
                     throw new SilentError(err)
                 } finally {
-                    stackTrace.pop()
+                    popStackFrame()
                 }
             }
 

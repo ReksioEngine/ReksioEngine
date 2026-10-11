@@ -6,7 +6,6 @@ import { Behaviour } from './types/behaviour'
 import { assert } from '../common/errors'
 import { logger } from './logging'
 import { runCode } from '../interpreter'
-import { StackFrame, stackTrace } from '../interpreter/stacktrace'
 
 export class ScriptingManager {
     private readonly engine: Engine
@@ -23,7 +22,6 @@ export class ScriptingManager {
         localScopeEntries?: Record<string, any>,
         forwardInterrupts: boolean = false
     ) {
-        let stackFrame = null
         try {
             const localScope = new Scope(
                 'local',
@@ -45,13 +43,6 @@ export class ScriptingManager {
                     return
                 }
 
-                stackFrame = StackFrame.builder()
-                    .type('behaviour')
-                    .behaviour(callback.behaviourReference)
-                    .args(...(args !== undefined ? args : []))
-                    .build()
-                stackTrace.push(stackFrame)
-
                 const behaviour: Behaviour | null = this.engine.getObject(
                     callback.behaviourReference,
                     caller?.parentScope
@@ -66,9 +57,6 @@ export class ScriptingManager {
             }
         } finally {
             this.engine.scopeManager.popLocalScope()
-            if (stackFrame !== null) {
-                stackTrace.pop()
-            }
         }
     }
 }

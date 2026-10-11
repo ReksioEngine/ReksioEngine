@@ -8,7 +8,6 @@ import { Behaviour } from '../engine/types/behaviour'
 import { createCallback, reference } from '../fileFormats/common'
 import { allLogs } from '../engine/logging'
 import { runCode } from './interpreter'
-import { stackTrace } from './stacktrace'
 
 export class TestEngine {
     public scopeManager = new ScopeManager()
@@ -18,7 +17,6 @@ export class TestEngine {
 
     constructor() {
         allLogs.length = 0
-        stackTrace.length = 0
     }
 
     asEngine(): Engine {
