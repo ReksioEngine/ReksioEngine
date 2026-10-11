@@ -52,9 +52,8 @@ export class Database extends Type<DatabaseDefinition> {
     }
 
     @method()
-    FIND(column: string, value: any, offset: number) {
-        // Should be ok without await for getValue as these types don't have async get
-        const index = this.content.findIndex((entry) => entry.GETFIELD(column)?.getValue() === value)
+    async FIND(column: string, value: any, offset: number) {
+        const index = await this.findEntryWithValue(column, value)
         if (index == -1) {
             return -1
         }
@@ -65,6 +64,17 @@ export class Database extends Type<DatabaseDefinition> {
         }
 
         return index
+    }
+
+    private async findEntryWithValue(column: string, value: any) {
+        for (let i = 0; i < this.content.length; i++) {
+            const entry = this.content[i]
+            const entryValue = await entry.GETFIELD(column)?.getValue()
+            if (entryValue === value) {
+                return i
+            }
+        }
+        return -1
     }
 
     @method()
