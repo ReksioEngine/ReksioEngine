@@ -148,23 +148,13 @@ export class Matrix extends Type<MatrixDefinition> {
 
     @method()
     CALCENEMYMOVEDIR(oldPos: number, currentMoveDir: number) {
-        let newDir: number = this.rotateLeft(currentMoveDir)
-        if (this.canMoveTo(oldPos, newDir)) {
-            return newDir
-        }
-        if (this.canMoveTo(oldPos, currentMoveDir)) {
-            return currentMoveDir
-        }
-        newDir = this.rotateRight(currentMoveDir)
-        if (this.canMoveTo(oldPos, newDir)) {
-            return newDir
-        }
-        newDir = this.opositeDirection(currentMoveDir)
-        if (this.canMoveTo(oldPos, newDir)) {
-            return newDir
-        }
-
-        return Direction.NONE
+        const directions = [
+            this.rotateLeft(currentMoveDir),
+            currentMoveDir,
+            this.rotateRight(currentMoveDir),
+            this.opositeDirection(currentMoveDir),
+        ]
+        return directions.find((dir) => this.canMoveTo(oldPos, dir)) ?? Direction.NONE
     }
 
     @method()
