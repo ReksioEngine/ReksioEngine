@@ -41,7 +41,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
         for (let i = start; i < start + len; i += step) {
             try {
                 if (await this.shouldRun()) {
-                    await this.engine.scripting.executeCallback(null, this, this.definition.CODE, [i, step, ...args])
+                    await this.executeCallback([i, step, ...args])
                 }
             } catch (err) {
                 if (err instanceof InterruptScriptExecution) {
