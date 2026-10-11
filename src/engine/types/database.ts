@@ -1,7 +1,7 @@
 import { Type } from './index'
 import { DatabaseDefinition } from '../../fileFormats/cnv/types'
 import { Struct } from './struct'
-import { method } from '../../common/types'
+import { method, valueAsBool, valueAsDouble, valueAsString } from '../../common/types'
 import { assert } from '../../common/errors'
 
 const decoder = new TextDecoder('windows-1250')
@@ -107,13 +107,30 @@ export class Database extends Type<DatabaseDefinition> {
 
             for (let i = 0; i < structFieldsNames.length; i++) {
                 const fieldName = structFieldsNames[i]
+                const fieldType = this.baseStruct.structure.get(fieldName)!
                 const fieldValue = fieldContents[i]
-                await newEntry.setField(fieldName, fieldValue === 'NULL' ? null : fieldValue)
+                await newEntry.setField(fieldName, this.convertFieldValue(fieldType, fieldValue))
             }
             this.content.push(newEntry)
         }
 
         this.updateCursorValue()
+    }
+
+    private convertFieldValue(fieldType: string, value: string) {
+        if (value === 'NULL') {
+            return null
+        }
+
+        switch (fieldType) {
+            case 'INTEGER':
+            case 'DOUBLE':
+                return valueAsDouble(value)
+            case 'BOOL':
+                return valueAsBool(value)
+            default:
+                return value
+        }
     }
 
     private updateCursorValue() {
