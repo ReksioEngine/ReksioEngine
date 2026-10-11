@@ -35398,9 +35398,8 @@ let Database = (() => {
                 this.cursorPosition = index;
                 this.updateCursorValue();
             }
-            FIND(column, value, offset) {
-                // Should be ok without await for getValue as these types don't have async get
-                const index = this.content.findIndex((entry) => entry.GETFIELD(column)?.getValue() === value);
+            async FIND(column, value, offset) {
+                const index = await this.findEntryWithValue(column, value);
                 if (index == -1) {
                     return -1;
                 }
@@ -35409,6 +35408,16 @@ let Database = (() => {
                     return this.content.length + index;
                 }
                 return index;
+            }
+            async findEntryWithValue(column, value) {
+                for (let i = 0; i < this.content.length; i++) {
+                    const entry = this.content[i];
+                    const entryValue = await entry.GETFIELD(column)?.getValue();
+                    if (entryValue === value) {
+                        return i;
+                    }
+                }
+                return -1;
             }
             REMOVEAT(index) {
                 this.content.splice(index, 1);
@@ -35432,12 +35441,27 @@ let Database = (() => {
                     const newEntry = await this.baseStruct.clone();
                     for (let i = 0; i < structFieldsNames.length; i++) {
                         const fieldName = structFieldsNames[i];
+                        const fieldType = this.baseStruct.structure.get(fieldName);
                         const fieldValue = fieldContents[i];
-                        await newEntry.setField(fieldName, fieldValue === 'NULL' ? null : fieldValue);
+                        await newEntry.setField(fieldName, this.convertFieldValue(fieldType, fieldValue));
                     }
                     this.content.push(newEntry);
                 }
                 this.updateCursorValue();
+            }
+            convertFieldValue(fieldType, value) {
+                if (value === 'NULL') {
+                    return null;
+                }
+                switch (fieldType) {
+                    case 'INTEGER':
+                    case 'DOUBLE':
+                        return (0, types_1.valueAsDouble)(value);
+                    case 'BOOL':
+                        return (0, types_1.valueAsBool)(value);
+                    default:
+                        return value;
+                }
             }
             updateCursorValue() {
                 (0, errors_1.assert)(this.parentScope !== null);
