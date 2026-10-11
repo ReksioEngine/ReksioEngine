@@ -31445,15 +31445,15 @@ class CallbacksComponent {
         if (!this.has(type)) {
             return;
         }
-        const stackFrame = stacktrace_1.StackFrame.builder()
-            .type('callback')
-            .object(this.object)
-            .callback(type)
-            .args(...(param !== undefined && param !== null ? [param] : []))
-            .build();
-        stacktrace_1.stackTrace.push(stackFrame);
-        const thisReference = thisOverride !== undefined ? thisOverride : this.object;
         try {
+            const stackFrame = stacktrace_1.StackFrame.builder()
+                .type('callback')
+                .object(this.object)
+                .callback(type)
+                .args(...(param !== undefined && param !== null ? [param] : []))
+                .build();
+            (0, stacktrace_1.pushStackFrame)(stackFrame);
+            const thisReference = thisOverride !== undefined ? thisOverride : this.object;
             const callbackGroup = this.registry.get(type);
             (0, errors_1.assert)(callbackGroup !== undefined);
             if (param !== null && param !== undefined && callbackGroup.parametrized.has(param)) {
@@ -31467,11 +31467,12 @@ class CallbacksComponent {
         }
         catch (err) {
             if (!(err instanceof interpreter_1.InterruptScriptExecution)) {
+                (0, stacktrace_1.captureStackTrace)(err);
                 throw err;
             }
         }
         finally {
-            stacktrace_1.stackTrace.pop();
+            (0, stacktrace_1.popStackFrame)();
         }
     }
     addBehaviour(callbackString, behaviourName) {
@@ -32780,13 +32781,11 @@ const scope_1 = __webpack_require__(/*! ./scope */ "./src/engine/scope.ts");
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 const logging_1 = __webpack_require__(/*! ./logging */ "./src/engine/logging.ts");
 const interpreter_1 = __webpack_require__(/*! ../interpreter */ "./src/interpreter/index.ts");
-const stacktrace_1 = __webpack_require__(/*! ../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
 class ScriptingManager {
     constructor(engine) {
         this.engine = engine;
     }
     async executeCallback(thisRef, caller, callback, args, localScopeEntries, forwardInterrupts = false) {
-        let stackFrame = null;
         try {
             const localScope = new scope_1.Scope('local', localScopeEntries ? new Map(Object.entries(localScopeEntries)) : undefined);
             if (thisRef !== null) {
@@ -32804,12 +32803,6 @@ class ScriptingManager {
                     });
                     return;
                 }
-                stackFrame = stacktrace_1.StackFrame.builder()
-                    .type('behaviour')
-                    .behaviour(callback.behaviourReference)
-                    .args(...(args !== undefined ? args : []))
-                    .build();
-                stacktrace_1.stackTrace.push(stackFrame);
                 const behaviour = this.engine.getObject(callback.behaviourReference, caller?.parentScope);
                 (0, errors_1.assert)(behaviour !== null);
                 if (forwardInterrupts) {
@@ -32822,9 +32815,6 @@ class ScriptingManager {
         }
         finally {
             this.engine.scopeManager.popLocalScope();
-            if (stackFrame !== null) {
-                stacktrace_1.stackTrace.pop();
-            }
         }
     }
 }
@@ -34122,6 +34112,7 @@ const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/type
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const class_1 = __webpack_require__(/*! ./class */ "./src/engine/types/class.ts");
 const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
+const stacktrace_1 = __webpack_require__(/*! ../../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
 let Behaviour = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -34158,7 +34149,7 @@ let Behaviour = (() => {
                 for (let i = start; i < start + len; i += step) {
                     try {
                         if (await this.shouldRun()) {
-                            await this.engine.scripting.executeCallback(null, this, this.definition.CODE, [i, step, ...args]);
+                            await this.executeCallback([i, step, ...args]);
                         }
                     }
                     catch (err) {
@@ -34175,8 +34166,21 @@ let Behaviour = (() => {
                 }
             }
             async executeCallback(args = []) {
-                // Don't resolve args, it will fail in S33_METEORY
-                return await this.engine.scripting.executeCallback(null, this, this.definition.CODE, args);
+                try {
+                    (0, stacktrace_1.pushStackFrame)(stacktrace_1.StackFrame.builder()
+                        .type('behaviour')
+                        .behaviour(this.name)
+                        .args(...args)
+                        .build());
+                    return await this.engine.scripting.executeCallback(null, this, this.definition.CODE, args);
+                }
+                catch (err) {
+                    (0, stacktrace_1.captureStackTrace)(err);
+                    throw err;
+                }
+                finally {
+                    (0, stacktrace_1.popStackFrame)();
+                }
             }
             async executeConditionalCallback(args = []) {
                 if (await this.shouldRun()) {
@@ -41307,11 +41311,11 @@ const loadDefinition = async (engine, scope, definition, parent) => {
     const orderedScope = sortByPriority(entries);
     const promisesResults = await Promise.allSettled(orderedScope.map((entry) => {
         try {
-            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(entry).method('init').build());
+            (0, stacktrace_1.pushStackFrame)(stacktrace_1.StackFrame.builder().type('stage').object(entry).method('init').build());
             return entry.init();
         }
         finally {
-            stacktrace_1.stackTrace.pop();
+            (0, stacktrace_1.popStackFrame)();
         }
     }));
     const failedObjects = [];
@@ -41329,11 +41333,15 @@ const loadDefinition = async (engine, scope, definition, parent) => {
     const goodObjects = orderedScope.filter((entry) => !failedObjects.includes(entry));
     for (const object of goodObjects) {
         try {
-            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(object).method('applyDefaults').build());
+            (0, stacktrace_1.pushStackFrame)(stacktrace_1.StackFrame.builder().type('stage').object(object).method('applyDefaults').build());
             await object.applyDefaults();
         }
+        catch (err) {
+            (0, stacktrace_1.captureStackTrace)(err);
+            throw err;
+        }
         finally {
-            stacktrace_1.stackTrace.pop();
+            (0, stacktrace_1.popStackFrame)();
         }
     }
 };
@@ -41345,11 +41353,15 @@ const doReady = async (scope) => {
         }
         object.isReady = true;
         try {
-            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(object).method('ready').build());
+            (0, stacktrace_1.pushStackFrame)(stacktrace_1.StackFrame.builder().type('stage').object(object).method('ready').build());
             await object.ready();
         }
+        catch (err) {
+            (0, stacktrace_1.captureStackTrace)(err);
+            throw err;
+        }
         finally {
-            stacktrace_1.stackTrace.pop();
+            (0, stacktrace_1.popStackFrame)();
         }
     }
 };
@@ -42436,10 +42448,8 @@ class Interpreter {
     }
     async evaluateLogicExpression(expr) {
         if (expr.type === 'Condition') {
-            const [left, right] = await Promise.all([
-                this.evaluateParameter(expr.left),
-                this.evaluateParameter(expr.right),
-            ]);
+            const left = await this.evaluateParameter(expr.left);
+            const right = await this.evaluateParameter(expr.right);
             return applyComparison(left, expr.operator, right);
         }
         const { operator, conditions } = expr;
@@ -42448,10 +42458,8 @@ class Interpreter {
         }
         const isOr = operator === 'OR';
         for (const condition of conditions) {
-            const [left, right] = await Promise.all([
-                this.evaluateParameter(condition.left),
-                this.evaluateParameter(condition.right),
-            ]);
+            const left = await this.evaluateParameter(condition.left);
+            const right = await this.evaluateParameter(condition.right);
             if (applyComparison(left, condition.operator, right) === isOr) {
                 return isOr;
             }
@@ -42459,7 +42467,10 @@ class Interpreter {
         return !isOr;
     }
     async executeFunctionCall(call) {
-        const args = await Promise.all(call.args.map((arg) => this.evaluateParameter(arg)));
+        const args = [];
+        for (const arg of call.args) {
+            args.push(await this.evaluateParameter(arg));
+        }
         if (!call.target) {
             throw new RuntimeError('Bare methods not implemented');
         }
@@ -42475,11 +42486,15 @@ class Interpreter {
                         .method(call.method)
                         .args(...args)
                         .build();
-                    stacktrace_1.stackTrace.push(stackFrame);
-                    return handler(args);
+                    (0, stacktrace_1.pushStackFrame)(stackFrame);
+                    return await handler(args);
+                }
+                catch (err) {
+                    (0, stacktrace_1.captureStackTrace)(err);
+                    throw err;
                 }
                 finally {
-                    stacktrace_1.stackTrace.pop();
+                    (0, stacktrace_1.popStackFrame)();
                 }
             }
             case 'ObjectTarget': {
@@ -42488,15 +42503,14 @@ class Interpreter {
                     return null;
                 }
                 try {
-                    const stackFrame = stacktrace_1.StackFrame.builder()
+                    (0, stacktrace_1.pushStackFrame)(stacktrace_1.StackFrame.builder()
                         .type('method')
                         .object(targetObj)
                         .method(call.method)
                         .args(...args)
-                        .build();
-                    stacktrace_1.stackTrace.push(stackFrame);
+                        .build());
                     const method = targetObj[call.method];
-                    return method !== undefined ? method.bind(targetObj)(...args) : targetObj.__call(call.method, args);
+                    return method !== undefined ? await method.bind(targetObj)(...args) : await targetObj.__call(call.method, args);
                 }
                 catch (err) {
                     if (err instanceof errors_1.IgnorableError)
@@ -42507,7 +42521,7 @@ class Interpreter {
                     logging_1.logger.error((0, logging_1.fmt) `Error occured during method execution:\n${beforePart}${(0, logging_1.color)('red', callPart)}${afterPart}\n`, {
                         args,
                     }, err);
-                    (0, stacktrace_1.printStackTrace)();
+                    (0, stacktrace_1.printStackTrace)((0, stacktrace_1.captureStackTrace)(err));
                     if (err instanceof errors_1.NotImplementedError)
                         return null;
                     // eslint-disable-next-line no-debugger
@@ -42515,7 +42529,7 @@ class Interpreter {
                     throw new SilentError(err);
                 }
                 finally {
-                    stacktrace_1.stackTrace.pop();
+                    (0, stacktrace_1.popStackFrame)();
                 }
             }
             default:
@@ -43162,8 +43176,9 @@ function _extractArgs(text, parenPos) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.printStackTrace = exports.generateStackTrace = exports.stackTrace = exports.StackFrame = void 0;
+exports.printStackTrace = exports.generateStackTrace = exports.captureStackTrace = exports.popStackFrame = exports.pushStackFrame = exports.StackFrame = void 0;
 const types_1 = __webpack_require__(/*! ../common/types */ "./src/common/types.ts");
+const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 class StackFrame {
     constructor() {
         this.type = null;
@@ -43210,7 +43225,28 @@ class StackFrameBuilder {
         return this.stackFrame;
     }
 }
-exports.stackTrace = [];
+const stackTrace = [];
+const pushStackFrame = (frame) => {
+    stackTrace.push(frame);
+};
+exports.pushStackFrame = pushStackFrame;
+const popStackFrame = () => {
+    stackTrace.pop();
+};
+exports.popStackFrame = popStackFrame;
+const capturedStackTraces = new WeakMap();
+const captureStackTrace = (err) => {
+    if (typeof err !== 'object' || err === null || err instanceof errors_1.IgnorableError) {
+        return null;
+    }
+    let captured = capturedStackTraces.get(err);
+    if (captured === undefined) {
+        captured = [...stackTrace];
+        capturedStackTraces.set(err, captured);
+    }
+    return captured;
+};
+exports.captureStackTrace = captureStackTrace;
 const generateStackTrace = (stackTraceSource) => {
     const lines = [];
     for (const frame of stackTraceSource) {
@@ -43230,19 +43266,19 @@ const generateStackTrace = (stackTraceSource) => {
             .join(',');
         switch (frame.type) {
             case 'callback':
-                lines.push(`at ${frame.object?.name ?? '<unknown>'}@${frame.callback}(${argsString})`);
+                lines.push(`@ ${frame.object?.name ?? '<unknown>'}@${frame.callback}(${argsString})`);
                 break;
             case 'method':
-                lines.push(`at ${frame.object?.name ?? '<unknown>'}^${frame.methodName}(${argsString})`);
+                lines.push(`@ ${frame.object?.name ?? '<unknown>'}^${frame.methodName}(${argsString})`);
                 break;
             case 'specialCall':
-                lines.push(`at ${frame.methodName}(${argsString})`);
+                lines.push(`@ ${frame.methodName}(${argsString})`);
                 break;
             case 'stage':
-                lines.push(`at ${frame.object?.name ?? '<unknown>'}::${frame.methodName}()`);
+                lines.push(`@ ${frame.object?.name ?? '<unknown>'}::${frame.methodName}()`);
                 break;
             case 'behaviour':
-                lines.push(`at ${frame.behaviour}(${argsString})`);
+                lines.push(`@ ${frame.behaviour}(${argsString})`);
                 break;
         }
     }
@@ -43250,12 +43286,12 @@ const generateStackTrace = (stackTraceSource) => {
 };
 exports.generateStackTrace = generateStackTrace;
 const printStackTrace = (stackTraceSource = null) => {
-    const selectedStackTrace = stackTraceSource ?? exports.stackTrace;
+    const selectedStackTrace = stackTraceSource ?? stackTrace;
     if (selectedStackTrace.length === 0) {
         console.error('Stack trace is empty');
         return;
     }
-    console.error((0, exports.generateStackTrace)(stackTraceSource ?? exports.stackTrace));
+    console.error((0, exports.generateStackTrace)(stackTraceSource ?? stackTrace));
 };
 exports.printStackTrace = printStackTrace;
 
