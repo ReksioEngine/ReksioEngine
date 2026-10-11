@@ -486,7 +486,7 @@ export async function runCode(
 
 async function substituteArguments(script: string, args: any[]): Promise<string> {
     const regex = /\$(\d+)/g
-    const parts: (string | Promise<string>)[] = []
+    const parts: string[] = []
     let lastIndex = 0
     let match: RegExpExecArray | null
 
@@ -513,7 +513,5 @@ async function substituteArguments(script: string, args: any[]): Promise<string>
     }
 
     parts.push(script.slice(lastIndex))
-
-    const resolved = await Promise.all(parts)
-    return resolved.join('')
+    return parts.join('')
 }
