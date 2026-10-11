@@ -42709,8 +42709,7 @@ async function substituteArguments(script, args) {
         lastIndex = regex.lastIndex;
     }
     parts.push(script.slice(lastIndex));
-    const resolved = await Promise.all(parts);
-    return resolved.join('');
+    return parts.join('');
 }
 
 
