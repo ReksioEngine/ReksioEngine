@@ -2,7 +2,7 @@ import { Type } from './index'
 import { ConditionDefinition } from '../../fileFormats/cnv/types'
 import { Compare, method } from '../../common/types'
 import { logger } from '../logging'
-import { InterruptScriptExecution } from '../../interpreter'
+import { InterruptScriptExecution } from '../../common/errors'
 
 export class Condition extends Type<ConditionDefinition> {
     // arg is always true in ReksioIUfo

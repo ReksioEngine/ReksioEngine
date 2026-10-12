@@ -27,6 +27,13 @@ export class CancelTick extends IgnorableError {
         super()
     }
 }
+export class InterruptScriptExecution extends IgnorableError {
+    public one: boolean
+    constructor(one: boolean = false) {
+        super()
+        this.one = one
+    }
+}
 export function assert(expr: any, message?: string): asserts expr {
     if (!expr) {
         throw new Error('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''))

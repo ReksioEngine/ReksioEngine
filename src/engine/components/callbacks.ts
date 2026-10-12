@@ -1,10 +1,9 @@
 import { callback, callbacks, FieldTypeEntry } from '../../fileFormats/common'
 import { Engine } from '../index'
 import { Type } from '../types'
-import { assert } from '../../common/errors'
+import { assert, InterruptScriptExecution } from '../../common/errors'
 import { structureDefinitions } from '../../fileFormats/cnv/types'
 import { captureStackTrace, popStackFrame, pushStackFrame, StackFrame } from '../../interpreter/stacktrace'
-import { InterruptScriptExecution } from '../../interpreter'
 
 export class CallbacksComponent {
     private readonly engine: Engine

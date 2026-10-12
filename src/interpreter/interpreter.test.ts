@@ -1,4 +1,4 @@
-import { TestEngine } from './testUtils'
+import { TestEngine } from '../common/testUtils'
 import { logger } from '../engine/logging'
 
 describe('interpreter', () => {

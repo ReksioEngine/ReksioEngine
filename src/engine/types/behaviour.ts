@@ -2,9 +2,8 @@ import { Type } from './index'
 import { BehaviourDefinition } from '../../fileFormats/cnv/types'
 import { Condition } from './condition'
 import { method } from '../../common/types'
-import { assert } from '../../common/errors'
+import { assert, InterruptScriptExecution } from '../../common/errors'
 import { ClassInstance } from './class'
-import { InterruptScriptExecution } from '../../interpreter'
 import { captureStackTrace, popStackFrame, pushStackFrame, StackFrame } from '../../interpreter/stacktrace'
 
 export class Behaviour extends Type<BehaviourDefinition> {

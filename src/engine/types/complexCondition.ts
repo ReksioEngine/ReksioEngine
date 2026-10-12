@@ -2,8 +2,7 @@ import { Type } from './index'
 import { ComplexConditionDefinition } from '../../fileFormats/cnv/types'
 import { method } from '../../common/types'
 import { Condition } from './condition'
-import { assert } from '../../common/errors'
-import { InterruptScriptExecution } from '../../interpreter'
+import { assert, InterruptScriptExecution } from '../../common/errors'
 
 export class ComplexCondition extends Type<ComplexConditionDefinition> {
     // In loops its like 'break'

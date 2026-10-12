@@ -8,7 +8,7 @@ import { System } from '../engine/types/system'
 import { CNVLoader } from '../engine/types/cnvloader'
 import { createCallback } from '../fileFormats/common'
 import { Behaviour } from '../engine/types/behaviour'
-import { IgnorableError, IrrecoverableError, NotImplementedError } from '../common/errors'
+import { IgnorableError, InterruptScriptExecution, IrrecoverableError, NotImplementedError } from '../common/errors'
 import { Integer } from '../engine/types/integer'
 import { String as CMCString } from '../engine/types/string'
 import { parseCode } from './parser'
@@ -34,14 +34,6 @@ export class RuntimeContext {
         public readonly caller: Type<any> | null,
         public readonly script: string
     ) {}
-}
-
-export class InterruptScriptExecution extends IgnorableError {
-    public one: boolean
-    constructor(one: boolean = false) {
-        super()
-        this.one = one
-    }
 }
 
 class Return extends IgnorableError {

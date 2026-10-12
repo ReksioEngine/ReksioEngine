@@ -22,4 +22,5 @@ export { EXPR_OP_CODE, EXPR_OP_SYMBOL } from './ast'
 
 export { parseCode, ParseError } from './parser'
 export { parseLogicExpression } from './expression'
-export { runCode, RuntimeError, InterruptScriptExecution } from './interpreter'
+export { runCode, RuntimeError } from './interpreter'
+export { InterruptScriptExecution } from '../common/errors'
