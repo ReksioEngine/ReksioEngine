@@ -32174,9 +32174,6 @@ class Engine {
     getObject(name, parentScope = null) {
         if (typeof name == 'string') {
             const currentScopeEntry = parentScope?.get(name);
-            if (currentScopeEntry) {
-                return currentScopeEntry;
-            }
             return currentScopeEntry ?? this.scopeManager.findByName(name, parentScope);
         }
         else if (name === null) {
@@ -32716,19 +32713,6 @@ class ScopeManager {
             return this._find(callback, scopes, level + 1);
         }
     }
-    getScopeOf(object, level = 0) {
-        const scope = this.scopes[this.scopes.length - 1 - level];
-        if (!scope) {
-            return null;
-        }
-        const result = [...scope.content.values()].includes(object);
-        if (result) {
-            return scope;
-        }
-        else {
-            return this.getScopeOf(object, level + 1);
-        }
-    }
     get APPLICATION() {
         const application = this.findByType('APPLICATION');
         (0, errors_1.assert)(application != null);
@@ -32778,7 +32762,6 @@ exports.Scope = Scope;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ScriptingManager = void 0;
 const scope_1 = __webpack_require__(/*! ./scope */ "./src/engine/scope.ts");
-const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 const logging_1 = __webpack_require__(/*! ./logging */ "./src/engine/logging.ts");
 const interpreter_1 = __webpack_require__(/*! ../interpreter */ "./src/interpreter/index.ts");
 class ScriptingManager {
@@ -32796,15 +32779,14 @@ class ScriptingManager {
                 return await (0, interpreter_1.runCode)(this.engine, caller, callback.code, args ?? [], callback.isSingleStatement);
             }
             else if (callback.behaviourReference) {
-                if (!this.engine.getObject(callback.behaviourReference, caller?.parentScope)) {
+                const behaviour = this.engine.getObject(callback.behaviourReference, caller?.parentScope);
+                if (!behaviour) {
                     logging_1.logger.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!`, {
                         callback,
                         thisRef,
                     });
                     return;
                 }
-                const behaviour = this.engine.getObject(callback.behaviourReference, caller?.parentScope);
-                (0, errors_1.assert)(behaviour !== null);
                 if (forwardInterrupts) {
                     return await behaviour.executeConditionalCallback(args ?? callback.constantArguments);
                 }
@@ -37071,22 +37053,13 @@ let Matrix = (() => {
                 return this.isNewPositionValid(newPosIndex);
             }
             CALCENEMYMOVEDIR(oldPos, currentMoveDir) {
-                let newDir = this.rotateLeft(currentMoveDir);
-                if (this.canMoveTo(oldPos, newDir)) {
-                    return newDir;
-                }
-                if (this.canMoveTo(oldPos, currentMoveDir)) {
-                    return currentMoveDir;
-                }
-                newDir = this.rotateRight(currentMoveDir);
-                if (this.canMoveTo(oldPos, newDir)) {
-                    return newDir;
-                }
-                newDir = this.opositeDirection(currentMoveDir);
-                if (this.canMoveTo(oldPos, newDir)) {
-                    return newDir;
-                }
-                return Direction.NONE;
+                const directions = [
+                    this.rotateLeft(currentMoveDir),
+                    currentMoveDir,
+                    this.rotateRight(currentMoveDir),
+                    this.opositeDirection(currentMoveDir),
+                ];
+                return directions.find((dir) => this.canMoveTo(oldPos, dir)) ?? Direction.NONE;
             }
             CANHEROGOTO(targetCellIndex) {
                 if (targetCellIndex < 0 || targetCellIndex >= this.board.length) {
