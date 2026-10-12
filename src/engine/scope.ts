@@ -66,20 +66,6 @@ export class ScopeManager {
         }
     }
 
-    public getScopeOf(object: Type<any>, level = 0): Scope | null {
-        const scope = this.scopes[this.scopes.length - 1 - level]
-        if (!scope) {
-            return null
-        }
-
-        const result = [...scope.content.values()].includes(object)
-        if (result) {
-            return scope
-        } else {
-            return this.getScopeOf(object, level + 1)
-        }
-    }
-
     public get APPLICATION() {
         const application: Application | null = this.findByType('APPLICATION')
         assert(application != null)
