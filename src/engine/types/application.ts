@@ -60,7 +60,7 @@ export class Application extends ParentType<ApplicationDefinition> {
 
     @method()
     async RUNENV(sceneName: string, behaviourName: string, ...args: any[]) {
-        const object: Type<any> | null = this.getObject(sceneName)
+        const object = this.getObject(sceneName)
         if (object === null) {
             return
         }
@@ -68,7 +68,7 @@ export class Application extends ParentType<ApplicationDefinition> {
         assert(object instanceof Scene, 'attempted RUNENV on non-SCENE object')
         assert(object.scope)
 
-        const behaviour: Type<any> | null = object.scope.get(behaviourName)
+        const behaviour = object.scope.get(behaviourName)
         if (behaviour === null) {
             return
         }

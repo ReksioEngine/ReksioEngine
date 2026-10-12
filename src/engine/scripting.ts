@@ -35,7 +35,7 @@ export class ScriptingManager {
             if (callback.code) {
                 return await runCode(this.engine, caller, callback.code, args ?? [], callback.isSingleStatement)
             } else if (callback.behaviourReference) {
-                const behaviour: Behaviour | null = this.engine.getObject(
+                const behaviour = this.engine.getObject<Behaviour>(
                     callback.behaviourReference,
                     caller?.parentScope
                 )

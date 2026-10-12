@@ -21,7 +21,7 @@ export class Scene extends ParentType<SceneDefinition> {
     @method()
     async RUNCLONES(baseObjectName: string, startingIdx: number, endingIdx: number, behaviourName: string) {
         const baseObject: Type<any> | null = this.getObject(baseObjectName)
-        const behaviour: Behaviour | null = this.getObject(behaviourName)
+        const behaviour = this.getObject<Behaviour>(behaviourName)
         assert(baseObject !== null && behaviour !== null)
 
         if (startingIdx < 1) {
@@ -83,7 +83,7 @@ export class Scene extends ParentType<SceneDefinition> {
 
     @method()
     GETPLAYINGANIMO(targetGroupName: string) {
-        const targetGroup = this.engine.getObject(targetGroupName)
+        const targetGroup = this.engine.getObject<Group>(targetGroupName)
         if (targetGroup === null || !(targetGroup instanceof Group)) {
             return
         }

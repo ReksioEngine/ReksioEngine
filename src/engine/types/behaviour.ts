@@ -84,7 +84,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
 
     async shouldRun() {
         if (this.definition.CONDITION) {
-            const condition: Condition | null = this.getObject(this.definition.CONDITION.objectName)
+            const condition = this.getObject<Condition>(this.definition.CONDITION.objectName)
             assert(condition !== null)
             return await condition.CHECK(true)
         }

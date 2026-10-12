@@ -192,7 +192,7 @@ export class Engine {
             }
 
             this.previousScene = this.currentScene
-            this.currentScene = this.getObject(sceneName) as Scene
+            this.currentScene = this.getObject<Scene>(sceneName)
             assert(this.currentScene !== null, 'could not find scene')
 
             if (this.music !== null && this.currentScene.definition.MUSIC !== this.previousScene?.definition.MUSIC) {

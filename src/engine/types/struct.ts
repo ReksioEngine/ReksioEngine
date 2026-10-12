@@ -48,7 +48,7 @@ export class Struct extends Type<StructDefinition> {
 
     @method()
     async SET(otherObjectName: string) {
-        const otherObject: Struct | null = this.getObject(otherObjectName)
+        const otherObject = this.getObject<Struct>(otherObjectName)
         assert(otherObject !== null, 'object does not exist')
 
         for (const key of otherObject.structure.keys()) {

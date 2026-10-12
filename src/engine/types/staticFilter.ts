@@ -21,7 +21,7 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
 
     @method()
     LINK(arg: any) {
-        const object: DisplayType<any> | null = this.getObject(arg)
+        const object = this.getObject<DisplayType<any>>(arg)
         assert(object !== null)
 
         const renderObject = object.getRenderObject()
@@ -51,7 +51,7 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
 
     @method()
     UNLINK(arg: any) {
-        const object: Animo | null = this.getObject(arg)
+        const object = this.getObject<Animo>(arg)
         assert(object !== null)
 
         const properties = this.linked.get(object)

@@ -77,7 +77,7 @@ export class ClassInstance extends ParentType<TypeDefinition> {
     }
 
     async __call(methodName: string, args: any[]) {
-        const object = this.engine.getObject(methodName, this.scope)
+        const object = this.engine.getObject<Behaviour>(methodName, this.scope)
         if (object === null || !(object instanceof Behaviour)) {
             return
         }

@@ -329,13 +329,13 @@ export class Sequence extends Type<SequenceDefinition> {
 
     private async getAnimo(nameOrFilename: string): Promise<Animo> {
         // Get object by name
-        const object: Animo | null = this.getObject(nameOrFilename)
+        const object = this.getObject<Animo>(nameOrFilename)
         if (object) {
             return object
         }
 
         // Get existing object by filename
-        const existingObject: Animo | null = this.engine.scopeManager.find(
+        const existingObject = this.engine.scopeManager.find<Animo>(
             (key: string, object) => object instanceof Animo && object.definition.FILENAME === nameOrFilename
         )
         if (existingObject != null) {
