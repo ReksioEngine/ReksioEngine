@@ -67,7 +67,7 @@ export class Struct extends Type<StructDefinition> {
     async setField(name: string, value: any) {
         const fieldObject = this.getField(name)
         if (fieldObject !== undefined) {
-            await fieldObject.setValue(value)
+            await fieldObject.setValue(value ?? fieldObject.defaultValue)
         }
     }
 

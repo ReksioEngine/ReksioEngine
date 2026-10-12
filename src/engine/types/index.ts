@@ -151,7 +151,7 @@ export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends T
 
 export class ValueType<DefinitionType extends ValueTypeDefinition, TypeOfValue> extends Type<DefinitionType> {
     protected value: TypeOfValue
-    private readonly defaultValue: number | string | boolean | any[]
+    readonly defaultValue: number | string | boolean | any[]
     private readonly autoSave: boolean
 
     constructor(

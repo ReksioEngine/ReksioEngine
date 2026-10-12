@@ -146,6 +146,10 @@ export class Database extends Type<DatabaseDefinition> {
             return null
         }
 
+        if (value === undefined) {
+            return undefined
+        }
+
         switch (fieldType) {
             case 'INTEGER':
             case 'DOUBLE':
