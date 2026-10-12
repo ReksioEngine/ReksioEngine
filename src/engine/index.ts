@@ -264,10 +264,6 @@ export class Engine {
     getObject<T extends Type<any>>(name: string | reference | null, parentScope: Scope | null = null): T | null {
         if (typeof name == 'string') {
             const currentScopeEntry = parentScope?.get<T>(name)
-            if (currentScopeEntry) {
-                return currentScopeEntry
-            }
-
             return currentScopeEntry ?? this.scopeManager.findByName(name, parentScope)
         } else if (name === null) {
             return null
