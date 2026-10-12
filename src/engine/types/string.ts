@@ -51,4 +51,8 @@ export class String extends ValueType<StringDefinition, string> {
         }
         await this.callbacks.run('ONBRUTALCHANGED', newValue)
     }
+
+    public async toString(): Promise<string> {
+        return this.getValue()
+    }
 }
