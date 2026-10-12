@@ -90,7 +90,7 @@ export class Double extends ValueType<DoubleDefinition, number> {
         // |value| >= 1
         if (!fixed.startsWith('0.')) return sign + fixed
 
-        if (value === 0) return '0'
+        if (value === 0) return '00000'
 
         // 0 < |value| < 1
         let zeros = ''
