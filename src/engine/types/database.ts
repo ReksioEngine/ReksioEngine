@@ -1,10 +1,11 @@
 import { Type } from './index'
 import { DatabaseDefinition } from '../../fileFormats/cnv/types'
 import { Struct } from './struct'
-import { method, valueAsBool, valueAsDouble, valueAsString } from '../../common/types'
+import { method, valueAsBool, valueAsDouble } from '../../common/types'
 import { assert } from '../../common/errors'
 
 const decoder = new TextDecoder('windows-1250')
+const encoder = new TextEncoder()
 
 export class Database extends Type<DatabaseDefinition> {
     private baseStruct: Struct | null = null
@@ -115,6 +116,29 @@ export class Database extends Type<DatabaseDefinition> {
         }
 
         this.updateCursorValue()
+    }
+
+    @method()
+    async SAVE(path: string) {
+        assert(this.engine.currentScene !== null)
+        assert(this.baseStruct !== null)
+
+        const relativePath = await this.engine.currentScene.getRelativePath(path)
+        const structFieldsNames = Array.from(this.baseStruct.structure.keys())
+
+        const lines: string[] = []
+        for (const entry of this.content) {
+            const fieldValues: string[] = []
+            for (const fieldName of structFieldsNames) {
+                const fieldValue = entry.GETFIELD(fieldName)!
+                fieldValues.push(await fieldValue.toString())
+            }
+            lines.push(fieldValues.join('|'))
+        }
+
+        const content = lines.join('\r\n')
+        const data = encoder.encode(content)
+        await this.engine.filesystem.saveFile(relativePath, data)
     }
 
     private convertFieldValue(fieldType: string, value: string) {
