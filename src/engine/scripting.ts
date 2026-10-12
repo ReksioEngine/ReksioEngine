@@ -35,19 +35,17 @@ export class ScriptingManager {
             if (callback.code) {
                 return await runCode(this.engine, caller, callback.code, args ?? [], callback.isSingleStatement)
             } else if (callback.behaviourReference) {
-                if (!this.engine.getObject(callback.behaviourReference, caller?.parentScope)) {
+                const behaviour: Behaviour | null = this.engine.getObject(
+                    callback.behaviourReference,
+                    caller?.parentScope
+                )
+                if (!behaviour) {
                     logger.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!`, {
                         callback,
                         thisRef,
                     })
                     return
                 }
-
-                const behaviour: Behaviour | null = this.engine.getObject(
-                    callback.behaviourReference,
-                    caller?.parentScope
-                )
-                assert(behaviour !== null)
 
                 if (forwardInterrupts) {
                     return await behaviour.executeConditionalCallback(args ?? callback.constantArguments)
