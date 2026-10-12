@@ -30693,7 +30693,7 @@ Object.keys(textHtml).forEach(function(k) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.CancelTick = exports.IgnorableError = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.IrrecoverableError = exports.EngineError = void 0;
+exports.InterruptScriptExecution = exports.CancelTick = exports.IgnorableError = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.IrrecoverableError = exports.EngineError = void 0;
 exports.assert = assert;
 class EngineError extends Error {
     constructor(message, stackTrace = null) {
@@ -30730,6 +30730,13 @@ class CancelTick extends IgnorableError {
     }
 }
 exports.CancelTick = CancelTick;
+class InterruptScriptExecution extends IgnorableError {
+    constructor(one = false) {
+        super();
+        this.one = one;
+    }
+}
+exports.InterruptScriptExecution = InterruptScriptExecution;
 function assert(expr, message) {
     if (!expr) {
         throw new Error('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''));
@@ -31398,7 +31405,6 @@ exports.CallbacksComponent = void 0;
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../fileFormats/cnv/types */ "./src/fileFormats/cnv/types.ts");
 const stacktrace_1 = __webpack_require__(/*! ../../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
-const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
 class CallbacksComponent {
     constructor(engine, object) {
         this.registry = new Map();
@@ -31466,7 +31472,7 @@ class CallbacksComponent {
             }
         }
         catch (err) {
-            if (!(err instanceof interpreter_1.InterruptScriptExecution)) {
+            if (!(err instanceof errors_1.InterruptScriptExecution)) {
                 (0, stacktrace_1.captureStackTrace)(err);
                 throw err;
             }
@@ -34093,7 +34099,6 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const class_1 = __webpack_require__(/*! ./class */ "./src/engine/types/class.ts");
-const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
 const stacktrace_1 = __webpack_require__(/*! ../../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
 let Behaviour = (() => {
     var _a;
@@ -34117,7 +34122,7 @@ let Behaviour = (() => {
                     return await this.executeCallback(args);
                 }
                 catch (err) {
-                    if (!(err instanceof interpreter_1.InterruptScriptExecution)) {
+                    if (!(err instanceof errors_1.InterruptScriptExecution)) {
                         throw err;
                     }
                 }
@@ -34135,7 +34140,7 @@ let Behaviour = (() => {
                         }
                     }
                     catch (err) {
-                        if (err instanceof interpreter_1.InterruptScriptExecution) {
+                        if (err instanceof errors_1.InterruptScriptExecution) {
                             if (err.one) {
                                 continue;
                             }
@@ -34268,6 +34273,9 @@ let Bool = (() => {
                     await this.callbacks.run('ONCHANGED', newValue);
                 }
                 await this.callbacks.run('ONBRUTALCHANGED', newValue);
+            }
+            async toString() {
+                return this.getValue() ? 'TRUE' : 'FALSE';
             }
         },
         (() => {
@@ -35078,7 +35086,6 @@ exports.ComplexCondition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
-const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
 let ComplexCondition = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -35090,13 +35097,13 @@ let ComplexCondition = (() => {
             // In loops its like 'break'
             async BREAK(arg) {
                 if (await this.CHECK(arg)) {
-                    throw new interpreter_1.InterruptScriptExecution(false);
+                    throw new errors_1.InterruptScriptExecution(false);
                 }
             }
             // In loops its like 'continue'
             async ONE_BREAK(arg) {
                 if (await this.CHECK(arg)) {
-                    throw new interpreter_1.InterruptScriptExecution(true);
+                    throw new errors_1.InterruptScriptExecution(true);
                 }
             }
             async CHECK(arg) {
@@ -35189,7 +35196,7 @@ exports.Condition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
-const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
+const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 let Condition = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -35202,14 +35209,14 @@ let Condition = (() => {
             // In loops its like 'break'
             async BREAK(arg) {
                 if (await this.CHECK(arg)) {
-                    throw new interpreter_1.InterruptScriptExecution(false);
+                    throw new errors_1.InterruptScriptExecution(false);
                 }
             }
             // arg is always true in ReksioIUfo
             // In loops its like 'continue'
             async ONE_BREAK(arg) {
                 if (await this.CHECK(arg)) {
-                    throw new interpreter_1.InterruptScriptExecution(true);
+                    throw new errors_1.InterruptScriptExecution(true);
                 }
             }
             async CHECK(shouldSignal) {
@@ -35332,6 +35339,7 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const decoder = new TextDecoder('windows-1250');
+const encoder = new TextEncoder();
 let Database = (() => {
     var _a;
     let _classSuper = index_1.Type;
@@ -35345,6 +35353,7 @@ let Database = (() => {
     let _REMOVEAT_decorators;
     let _REMOVEALL_decorators;
     let _LOAD_decorators;
+    let _SAVE_decorators;
     return _a = class Database extends _classSuper {
             constructor() {
                 super(...arguments);
@@ -35419,7 +35428,7 @@ let Database = (() => {
                 const lines = content.replaceAll('\r\n', '\n').trim().split('\n');
                 const structFieldsNames = Array.from(this.baseStruct.structure.keys());
                 for (const line of lines) {
-                    const fieldContents = line.split('|');
+                    const fieldContents = line.split('|').filter(cell => cell !== '');
                     const newEntry = await this.baseStruct.clone();
                     for (let i = 0; i < structFieldsNames.length; i++) {
                         const fieldName = structFieldsNames[i];
@@ -35430,6 +35439,24 @@ let Database = (() => {
                     this.content.push(newEntry);
                 }
                 this.updateCursorValue();
+            }
+            async SAVE(path) {
+                (0, errors_1.assert)(this.engine.currentScene !== null);
+                (0, errors_1.assert)(this.baseStruct !== null);
+                const relativePath = await this.engine.currentScene.getRelativePath(path);
+                const structFieldsNames = Array.from(this.baseStruct.structure.keys());
+                const lines = [];
+                for (const entry of this.content) {
+                    const fieldValues = [];
+                    for (const fieldName of structFieldsNames) {
+                        const fieldValue = entry.GETFIELD(fieldName);
+                        fieldValues.push(await fieldValue.toString());
+                    }
+                    lines.push(fieldValues.join('|'));
+                }
+                const content = lines.join('\r\n');
+                const data = encoder.encode(content);
+                await this.engine.filesystem.saveFile(relativePath, data);
             }
             convertFieldValue(fieldType, value) {
                 if (value === 'NULL') {
@@ -35467,6 +35494,7 @@ let Database = (() => {
             _REMOVEAT_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _REMOVEALL_decorators = [(0, types_1.method)()];
             _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _SAVE_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             __esDecorate(_a, null, _GETROWSNO_decorators, { kind: "method", name: "GETROWSNO", static: false, private: false, access: { has: obj => "GETROWSNO" in obj, get: obj => obj.GETROWSNO }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _GETCURSORPOS_decorators, { kind: "method", name: "GETCURSORPOS", static: false, private: false, access: { has: obj => "GETCURSORPOS" in obj, get: obj => obj.GETCURSORPOS }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _NEXT_decorators, { kind: "method", name: "NEXT", static: false, private: false, access: { has: obj => "NEXT" in obj, get: obj => obj.NEXT }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -35476,6 +35504,7 @@ let Database = (() => {
             __esDecorate(_a, null, _REMOVEAT_decorators, { kind: "method", name: "REMOVEAT", static: false, private: false, access: { has: obj => "REMOVEAT" in obj, get: obj => obj.REMOVEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _REMOVEALL_decorators, { kind: "method", name: "REMOVEALL", static: false, private: false, access: { has: obj => "REMOVEALL" in obj, get: obj => obj.REMOVEALL }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SAVE_decorators, { kind: "method", name: "SAVE", static: false, private: false, access: { has: obj => "SAVE" in obj, get: obj => obj.SAVE }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         })(),
         _a;
@@ -35596,6 +35625,23 @@ let Double = (() => {
             }
             GET() {
                 return this.value;
+            }
+            async toString() {
+                const value = this.value;
+                const abs = Math.abs(value);
+                const fixed = abs < 1e21 ? abs.toFixed(5) : BigInt(abs) + '.00000';
+                const sign = value < 0 ? '-' : '';
+                // |value| >= 1
+                if (!fixed.startsWith('0.'))
+                    return sign + fixed;
+                if (value === 0)
+                    return '0';
+                // 0 < |value| < 1
+                let zeros = '';
+                for (let v = value; v > 0 && v * 10.0001 < 1; v *= 10)
+                    zeros += '0';
+                const digits = fixed.slice(2).replace(/^0+/, '') || '0';
+                return '0.' + sign + zeros + digits;
             }
         },
         (() => {
@@ -36502,6 +36548,9 @@ let ValueType = (() => {
             deserialize(value) {
                 return value;
             }
+            async toString() {
+                throw new errors_1.NotImplementedError();
+            }
         },
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
@@ -36658,12 +36707,12 @@ let Integer = (() => {
                 }
                 await this.callbacks.run('ONBRUTALCHANGED', newValue);
             }
-            async getValue() {
-                return super.getValue();
-            }
             // Force integer truncated values
             async setValue(newValue) {
                 return await super.setValue(Math.trunc(newValue));
+            }
+            async toString() {
+                return this.getValue().toString();
             }
         },
         (() => {
@@ -42226,7 +42275,8 @@ Object.defineProperty(exports, "parseLogicExpression", ({ enumerable: true, get:
 var interpreter_1 = __webpack_require__(/*! ./interpreter */ "./src/interpreter/interpreter.ts");
 Object.defineProperty(exports, "runCode", ({ enumerable: true, get: function () { return interpreter_1.runCode; } }));
 Object.defineProperty(exports, "RuntimeError", ({ enumerable: true, get: function () { return interpreter_1.RuntimeError; } }));
-Object.defineProperty(exports, "InterruptScriptExecution", ({ enumerable: true, get: function () { return interpreter_1.InterruptScriptExecution; } }));
+var errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
+Object.defineProperty(exports, "InterruptScriptExecution", ({ enumerable: true, get: function () { return errors_1.InterruptScriptExecution; } }));
 
 
 /***/ },
@@ -42240,7 +42290,7 @@ Object.defineProperty(exports, "InterruptScriptExecution", ({ enumerable: true, 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Interpreter = exports.InterruptScriptExecution = exports.RuntimeContext = exports.RuntimeError = void 0;
+exports.Interpreter = exports.RuntimeContext = exports.RuntimeError = void 0;
 exports.runCode = runCode;
 const types_1 = __webpack_require__(/*! ../engine/types */ "./src/engine/types/index.ts");
 const struct_1 = __webpack_require__(/*! ../engine/types/struct */ "./src/engine/types/struct.ts");
@@ -42276,13 +42326,6 @@ class RuntimeContext {
     }
 }
 exports.RuntimeContext = RuntimeContext;
-class InterruptScriptExecution extends errors_1.IgnorableError {
-    constructor(one = false) {
-        super();
-        this.one = one;
-    }
-}
-exports.InterruptScriptExecution = InterruptScriptExecution;
 class Return extends errors_1.IgnorableError {
     constructor(value) {
         super();
@@ -42383,7 +42426,7 @@ class Interpreter {
         }
     }
     async handleBreak(_args) {
-        throw new InterruptScriptExecution(false);
+        throw new errors_1.InterruptScriptExecution(false);
     }
     async handleReturn(args) {
         throw new Return(args[0]);
@@ -42405,7 +42448,7 @@ class Interpreter {
                 await this.context.engine.scripting.executeCallback(null, this.context.caller, callback, [], { _I_: counter }, true);
             }
             catch (err) {
-                if (err instanceof InterruptScriptExecution) {
+                if (err instanceof errors_1.InterruptScriptExecution) {
                     if (err.one)
                         continue;
                     break;
@@ -42434,7 +42477,7 @@ class Interpreter {
                 await this.context.engine.scripting.executeCallback(null, this.context.caller, callback, [], undefined, true);
             }
             catch (err) {
-                if (err instanceof InterruptScriptExecution) {
+                if (err instanceof errors_1.InterruptScriptExecution) {
                     if (err.one)
                         continue;
                     break;
