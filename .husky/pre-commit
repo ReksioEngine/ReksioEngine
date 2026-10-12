@@ -1,2 +1,2 @@
 npx lint-staged
-scripts/check-staged-build.sh
+scripts/check-staged.sh

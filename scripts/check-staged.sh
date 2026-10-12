@@ -17,3 +17,12 @@ if ! output="$(npm run --silent build 2>&1)"; then
     exit 1
 fi
 echo "Build OK."
+
+echo "Running tests on the staged changes..."
+if ! output="$(npm test --silent 2>&1)"; then
+    echo "$output"
+    echo
+    echo "Tests failed for staged changes. Commit aborted." >&2
+    exit 1
+fi
+echo "Tests OK."
