@@ -104,12 +104,12 @@ export class Integer extends ValueType<IntegerDefinition, number> {
         await this.callbacks.run('ONBRUTALCHANGED', newValue)
     }
 
-    async getValue() {
-        return super.getValue()
-    }
-
     // Force integer truncated values
     async setValue(newValue: number) {
         return await super.setValue(Math.trunc(newValue))
+    }
+
+    public async toString(): Promise<string> {
+        return this.getValue().toString()
     }
 }

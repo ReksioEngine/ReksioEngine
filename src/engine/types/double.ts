@@ -80,4 +80,23 @@ export class Double extends ValueType<DoubleDefinition, number> {
     GET() {
         return this.value
     }
+
+    public async toString(): Promise<string> {
+        const value = this.value as number
+        const abs = Math.abs(value)
+        const fixed = abs < 1e21 ? abs.toFixed(5) : BigInt(abs) + '.00000'
+        const sign = value < 0 ? '-' : ''
+
+        // |value| >= 1
+        if (!fixed.startsWith('0.')) return sign + fixed
+
+        if (value === 0) return '0'
+
+        // 0 < |value| < 1
+        let zeros = ''
+        for (let v = value; v > 0 && v * 10.0001 < 1; v *= 10) zeros += '0'
+
+        const digits = fixed.slice(2).replace(/^0+/, '') || '0'
+        return '0.' + sign + zeros + digits
+    }
 }

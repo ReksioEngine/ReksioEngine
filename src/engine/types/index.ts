@@ -234,6 +234,10 @@ export class ValueType<DefinitionType extends ValueTypeDefinition, TypeOfValue> 
     protected deserialize(value: string): any {
         return value
     }
+
+    public async toString(): Promise<string> {
+        throw new NotImplementedError()
+    }
 }
 
 export class ParentType<DefinitionType extends ValueTypeDefinition> extends Type<DefinitionType> {

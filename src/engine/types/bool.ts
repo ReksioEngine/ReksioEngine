@@ -25,4 +25,8 @@ export class Bool extends ValueType<BoolDefinition, boolean> {
         }
         await this.callbacks.run('ONBRUTALCHANGED', newValue)
     }
+
+    public async toString(): Promise<string> {
+        return this.getValue() ? 'TRUE' : 'FALSE'
+    }
 }
