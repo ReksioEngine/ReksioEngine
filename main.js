@@ -35462,6 +35462,9 @@ let Database = (() => {
                 if (value === 'NULL') {
                     return null;
                 }
+                if (value === undefined) {
+                    return undefined;
+                }
                 switch (fieldType) {
                     case 'INTEGER':
                     case 'DOUBLE':
@@ -35635,7 +35638,7 @@ let Double = (() => {
                 if (!fixed.startsWith('0.'))
                     return sign + fixed;
                 if (value === 0)
-                    return '0';
+                    return '00000';
                 // 0 < |value| < 1
                 let zeros = '';
                 for (let v = value; v > 0 && v * 10.0001 < 1; v *= 10)
@@ -38721,6 +38724,9 @@ let String = (() => {
                 }
                 await this.callbacks.run('ONBRUTALCHANGED', newValue);
             }
+            async toString() {
+                return this.getValue();
+            }
         },
         (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
@@ -38845,7 +38851,7 @@ let Struct = (() => {
             async setField(name, value) {
                 const fieldObject = this.getField(name);
                 if (fieldObject !== undefined) {
-                    await fieldObject.setValue(value);
+                    await fieldObject.setValue(value ?? fieldObject.defaultValue);
                 }
             }
             parseFieldsString(definition) {
@@ -39629,52 +39635,49 @@ const deserializeArray = (data) => {
     return entries;
 };
 exports.deserializeArray = deserializeArray;
+const checkInt32 = (value) => {
+    if (!Number.isInteger(value) || value < -0x80000000 || value > 0x7fffffff) {
+        throw new RangeError(`Value ${value} cannot be serialized as a 32-bit integer`);
+    }
+    return value;
+};
 const serializeArray = (data) => {
-    let tempBuffer = new Uint8Array(4096);
-    let buffer = new utils_1.BinaryBuffer(new DataView(tempBuffer.buffer));
-    let size = 0;
-    buffer.setUint32(data.length);
-    size += 4;
-    const ensureCapacity = (extraBytesCount) => {
-        const requiredSize = size + extraBytesCount;
-        if (requiredSize > tempBuffer.byteLength) {
-            const newSize = Math.max(tempBuffer.byteLength * 2, requiredSize);
-            const newBuffer = new Uint8Array(newSize);
-            newBuffer.set(tempBuffer);
-            tempBuffer = newBuffer;
-            buffer = new utils_1.BinaryBuffer(new DataView(tempBuffer.buffer));
+    // Strings are pre-encoded so that we know their sizes up front
+    const entries = data.map((entry) => (typeof entry === 'string' ? encoder.encode(entry) : entry));
+    let size = 4;
+    for (const entry of entries) {
+        if (entry instanceof Uint8Array) {
+            size += 4 + 4 + entry.length;
         }
-        size = requiredSize;
-    };
-    for (const entry of data) {
-        const entryType = typeof entry;
-        if (entryType === 'number') {
-            ensureCapacity(4 + 4);
-            if (Number.isInteger(entry)) {
-                // integer
-                buffer.setUint32(ValueType.INTEGER);
-                buffer.setInt32(entry);
-            }
-            else {
-                // float
-                buffer.setUint32(ValueType.FLOAT);
-                buffer.setInt32(Math.trunc(entry * 1000));
-            }
+        else if (typeof entry === 'number' || typeof entry === 'boolean') {
+            size += 4 + 4;
         }
-        else if (entryType === 'string') {
-            ensureCapacity(4 + 4 + entry.length);
-            buffer.setUint32(ValueType.STRING);
-            buffer.setUint32(entry.length);
-            buffer.write(encoder.encode(entry));
-        }
-        else if (entryType === 'boolean') {
-            ensureCapacity(4 + 4);
-            buffer.setUint32(ValueType.BOOLEAN);
-            buffer.setUint32(Number(entry));
+        else {
+            throw new TypeError(`Cannot serialize value of type ${typeof entry} in array`);
         }
     }
     const result = new Uint8Array(size);
-    result.set(tempBuffer.slice(0, size));
+    const buffer = new utils_1.BinaryBuffer(new DataView(result.buffer));
+    buffer.setUint32(entries.length);
+    for (const entry of entries) {
+        if (entry instanceof Uint8Array) {
+            buffer.setUint32(ValueType.STRING);
+            buffer.setUint32(entry.length);
+            buffer.write(entry);
+        }
+        else if (typeof entry === 'boolean') {
+            buffer.setUint32(ValueType.BOOLEAN);
+            buffer.setUint32(Number(entry));
+        }
+        else if (Number.isInteger(entry)) {
+            buffer.setUint32(ValueType.INTEGER);
+            buffer.setInt32(checkInt32(entry));
+        }
+        else {
+            buffer.setUint32(ValueType.FLOAT);
+            buffer.setInt32(checkInt32(Math.trunc(entry * 1000)));
+        }
+    }
     return result.buffer;
 };
 exports.serializeArray = serializeArray;
@@ -41100,11 +41103,9 @@ class BinaryBuffer {
         this.offset += size;
         return slice;
     }
-    // Not the fastest
     write(data) {
-        for (let i = 0; i < data.length; i++) {
-            this.setUint8(data[i]);
-        }
+        new Uint8Array(this.view.buffer, this.view.byteOffset, this.view.byteLength).set(data, this.offset);
+        this.offset += data.length;
     }
 }
 exports.BinaryBuffer = BinaryBuffer;
