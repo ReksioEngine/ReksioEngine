@@ -32095,8 +32095,7 @@ class Engine {
         this.options.onSceneChange?.(sceneName, this.currentScene?.name);
         this.app.ticker.stop();
         this.rendering.onSceneChange();
-        this.app.stage.addChild(this.rendering.loadingOverlay);
-        this.app.renderer.render(this.app.stage);
+        this.rendering.setLoadingCursor();
         const loadingFreezeOverlay = pixi_js_1.Sprite.from(await this.app.renderer.extract.image(this.app.stage, undefined, undefined, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height)));
         loadingFreezeOverlay.name = 'Loading freeze overlay';
         loadingFreezeOverlay.zIndex = 9999999;
@@ -32113,7 +32112,7 @@ class Engine {
             }
             // Alert when rendering stage wasn't completely cleared after all destroys.
             // For debugging purposes.
-            const leakedObjects = this.app.stage.children.filter((obj) => ![loadingFreezeOverlay, this.rendering.loadingOverlay, this.rendering.canvasBackground].includes(obj));
+            const leakedObjects = this.app.stage.children.filter((obj) => ![loadingFreezeOverlay, this.rendering.canvasBackground].includes(obj));
             if (leakedObjects.length > 0) {
                 logging_1.logger.error('Display objects leak detected', {
                     leakedObjects,
@@ -32171,8 +32170,8 @@ class Engine {
             }
         }
         finally {
+            this.rendering.resetCursor();
             this.app.stage.removeChild(loadingFreezeOverlay);
-            this.app.stage.removeChild(this.rendering.loadingOverlay);
             this.app.ticker.start();
             this.debug.updateCurrentScene();
         }
@@ -32364,10 +32363,14 @@ exports.logger = new Logger();
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createColorTexture = exports.drawRectangle = exports.createHitmapFromImageBytes = exports.AdvancedSprite = exports.RenderingManager = void 0;
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
+const loading_cursor_png_1 = __importDefault(__webpack_require__(/*! ../../static/loading-cursor.png */ "./static/loading-cursor.png"));
 class RenderingManager {
     constructor(app) {
         this.app = app;
@@ -32378,29 +32381,6 @@ class RenderingManager {
         this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
         this.canvasBackground.zIndex = -99999;
         this.canvasBackground.name = 'Scene Background'; // For PIXI Devtools
-        const loadingDarkOverlay = pixi_js_1.Sprite.from((0, exports.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0x000000, 0.5));
-        const loadingText = new pixi_js_1.Text('Loading..', new pixi_js_1.TextStyle({
-            fontFamily: 'Arial',
-            fontSize: 36,
-            fontWeight: 'bold',
-            fill: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 5,
-            dropShadow: true,
-            dropShadowColor: '#000000',
-            dropShadowBlur: 4,
-            dropShadowAngle: Math.PI / 6,
-            dropShadowDistance: 6,
-            wordWrap: true,
-            wordWrapWidth: 440,
-            lineJoin: 'round',
-        }));
-        loadingText.x = this.app.view.width / 2;
-        loadingText.y = this.app.view.height / 2;
-        loadingText.anchor.set(0.5, 0.5);
-        this.loadingOverlay = new pixi_js_1.Container();
-        this.loadingOverlay.addChild(loadingDarkOverlay);
-        this.loadingOverlay.addChild(loadingText);
     }
     init() {
         this.app.ticker.maxFPS = 60;
@@ -32421,6 +32401,9 @@ class RenderingManager {
     setCursor(mode) {
         this.app.renderer.events.cursorStyles.default = mode;
         this.app.renderer.events.setCursor(mode);
+    }
+    setLoadingCursor() {
+        this.setCursor(`url('${loading_cursor_png_1.default}') 16 16, wait`);
     }
     resetCursor() {
         this.app.stage.eventMode = 'static';
@@ -46459,6 +46442,17 @@ exports.format = urlFormat;
 
 exports.Url = Url;
 
+
+/***/ },
+
+/***/ "./static/loading-cursor.png"
+/*!***********************************!*\
+  !*** ./static/loading-cursor.png ***!
+  \***********************************/
+(module) {
+
+"use strict";
+module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABGklEQVRYR9WVQRLDIAgA9f+PtgMRBxFqQDJt9qK1AismbS2ltJJDHTMHENRaizvUOuq+WICOcEi4AwBIVLiLynpqQXfW92IsfeflfQL8if1JB0T7gZQrADAx5L/xGHBcmyWTAP89AAmSsUbaSpMIMvi2BG2hSRSZYLqG3ajEu9ES3JIwYt1oSbbXQF/R5AQrye6NUBcjWImmLhDZpwesRGv1GSvOjZYIivM/JvlM4JoR60ZLIgWuxW7xtIBWnI6P6zhJlJAJVIH+NjwuoBVfyO4CD9YEsBgjvQu80FK8tx4mOPZFHIVkWMISWIp/kUgXWIrKEQOueb4ALipF5dhJEcCiCYQkUKAfPITohpv/EBg6Z8Q7MD6dERL4AIY0GjCaKAEmAAAAEGRlQkdDMjk1NjUzREIxMUUxMjcwxFpr/AAAAABJRU5ErkJggg==";
 
 /***/ },
 
