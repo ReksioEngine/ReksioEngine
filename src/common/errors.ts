@@ -34,7 +34,7 @@ export class InterruptScriptExecution extends IgnorableError {
         this.one = one
     }
 }
-export function assert(expr: any, message?: string): asserts expr {
+export function assert(expr: boolean, message?: string): asserts expr {
     if (!expr) {
         throw new Error('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''))
     }

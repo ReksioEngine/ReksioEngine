@@ -119,7 +119,7 @@ export class Debugging {
             try {
                 const selectedOption = sceneSelector.selectedOptions[0]
                 const arcadeSceneName = selectedOption.getAttribute('data-arcade-scene-name')
-                if (arcadeSceneName) {
+                if (arcadeSceneName !== null) {
                     const G_SARCADEOBJECTS: ValueType<any, any> | null = this.engine.scopeManager.findByName('G_SARCADEOBJECTS')
                     if (G_SARCADEOBJECTS) {
                         await G_SARCADEOBJECTS.setValue(arcadeSceneName)
@@ -241,7 +241,7 @@ export class Debugging {
 
                 const [cnvPath, sceneName] = pathPrefix
                 const cnv = await this.engine.filesystem.getCNVFile(cnvPath)
-                if (cnv.BEHINITSCRIPT) {
+                if (cnv.BEHINITSCRIPT !== undefined) {
                     const option = document.createElement('option')
                     option.value = sceneName
                     option.text = sceneName
@@ -285,8 +285,9 @@ export class Debugging {
             return
         }
 
-        const sceneScope = this.engine.currentScene?.scope
-        assert(sceneScope)
+        assert(this.engine.currentScene !== null)
+        const sceneScope = this.engine.currentScene.scope
+        assert(sceneScope !== null)
 
         for (const object of sceneScope.objects) {
             const info = object.__getXRayInfo()

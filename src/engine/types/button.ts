@@ -208,8 +208,9 @@ export class Button extends Type<ButtonDefinition> {
             await this.callbacks.run('ONCLICKED')
 
             if (this.definition.DRAGGABLE) {
-                const renderObject = this.gfxStandard?.getRenderObject()
-                assert(renderObject)
+                assert(this.gfxStandard !== null)
+                const renderObject = this.gfxStandard.getRenderObject()
+                assert(renderObject !== null)
 
                 this.originalPriority = renderObject.zIndex
                 this.gfxStandard?.SETPRIORITY(99999999)

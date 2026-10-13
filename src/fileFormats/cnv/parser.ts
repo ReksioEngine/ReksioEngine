@@ -34,7 +34,7 @@ export const getLines = (content: string) => {
 export const processTokens = (tokens: string[], objects: CNV) => {
     if (tokens[0] === 'OBJECT') {
         const value = tokens[1]
-        if (!objects[value]) {
+        if (objects[value] === undefined) {
             objects[value] = {
                 TYPE: 'unknown',
                 NAME: value,
@@ -62,7 +62,7 @@ export const processTokens = (tokens: string[], objects: CNV) => {
         }
 
         const definition = structureDefinitions[object.TYPE]
-        const supportedVariablesRaw = definition ? Object.keys(definition) : []
+        const supportedVariablesRaw = definition !== undefined ? Object.keys(definition) : []
         const supportedVariables = supportedVariablesRaw.map((name) => {
             if (!name.includes('%')) {
                 return {
@@ -89,7 +89,7 @@ export const processTokens = (tokens: string[], objects: CNV) => {
             }
         })
 
-        if (definition && supportedVariable) {
+        if (definition !== undefined && supportedVariable) {
             const fieldName = supportedVariable.name
             const fieldTypeDefinition: FieldTypeEntry = definition[fieldName]
             try {

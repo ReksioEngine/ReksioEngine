@@ -29,7 +29,7 @@ export class CallbacksComponent {
 
     autoRegister() {
         const structure = structureDefinitions[this.object.definition.TYPE]
-        if (!structure) {
+        if (structure === undefined) {
             return
         }
 

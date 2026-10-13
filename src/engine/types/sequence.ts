@@ -96,7 +96,7 @@ export class Sequence extends Type<SequenceDefinition> {
                 this.allAnimoFilenames.add(definition.FILENAME)
             }
 
-            if (definition.ADD) {
+            if (definition.ADD !== undefined) {
                 let subEntries: SequenceFileEntry[] = []
                 if (this.subEntries.has(definition.ADD)) {
                     subEntries = this.subEntries.get(definition.ADD)!
@@ -205,13 +205,13 @@ export class Sequence extends Type<SequenceDefinition> {
         assert(this.activeAnimo !== null)
 
         if (this.runningSubSequence?.TYPE === 'SPEAKING') {
-            if (this.runningSubSequence.STARTING && eventName === this.runningSubSequence.PREFIX + '_START') {
+            if (this.runningSubSequence.STARTING !== undefined && eventName === this.runningSubSequence.PREFIX + '_START') {
                 if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
                     this.loop = true
                     this.loopIndex = 1
                     await this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1')
                 }
-            } else if (this.runningSubSequence.ENDING && eventName === this.runningSubSequence.PREFIX + '_STOP') {
+            } else if (this.runningSubSequence.ENDING !== undefined && eventName === this.runningSubSequence.PREFIX + '_STOP') {
                 await this.progressNext()
             } else if (this.loop) {
                 let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`

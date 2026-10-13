@@ -31,7 +31,7 @@ export const parseSequence = (content: string): SequenceFile => {
             }
 
             const definition = structureDefinitions[object.TYPE]
-            if (definition && variableName in definition) {
+            if (definition !== undefined && variableName in definition) {
                 const typeDefinition = definition[variableName]
                 object[variableName] = typeDefinition.processor(object, variableName, subKey, value)
             } else {

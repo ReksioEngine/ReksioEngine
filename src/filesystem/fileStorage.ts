@@ -3,7 +3,7 @@ import { assert } from '../common/errors'
 
 export abstract class FileStorage {
     abstract init(): Promise<void>
-    abstract get(filename: string): Promise<ArrayBuffer>
+    abstract get(filename: string): Promise<ArrayBuffer | null>
     abstract has(filename: string): Promise<boolean>
     abstract save(filename: string, content: ArrayBuffer): Promise<void>
 }

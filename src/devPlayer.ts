@@ -56,7 +56,7 @@ if (urlParams.get('loader') === 'iso-local') {
     const getFileLoader = () => {
         const loader = urlParams.get('loader')
         const source = urlParams.get('source')
-        if (loader && source) {
+        if (loader !== null && source !== null) {
             if (loader === 'github') {
                 return new GithubFileLoader(source)
             } else if (loader === 'archiveorg') {

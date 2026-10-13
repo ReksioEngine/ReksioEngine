@@ -70,7 +70,7 @@ class Logger {
         let richTextCopy = richText
         const richArgsCopy: any[] = [...richArgs]
 
-        if (extraData && Object.entries(extraData).length > 0) {
+        if (extraData !== undefined && Object.entries(extraData).length > 0) {
             richTextCopy += '\n'
             for (const [key, value] of Object.entries(extraData)) {
                 if (key.startsWith('_')) {

@@ -32,9 +32,9 @@ export class ScriptingManager {
             }
             this.engine.scopeManager.pushLocalScope(localScope)
 
-            if (callback.code) {
+            if (callback.code !== undefined) {
                 return await runCode(this.engine, caller, callback.code, args ?? [], callback.isSingleStatement)
-            } else if (callback.behaviourReference) {
+            } else if (callback.behaviourReference !== undefined) {
                 const behaviour = this.engine.getObject<Behaviour>(
                     callback.behaviourReference,
                     caller?.parentScope

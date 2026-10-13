@@ -90,7 +90,7 @@ export class SaveFileManager {
 
     static fromLocalStorage(key = 'saveFile') {
         const content = localStorage.getItem(key)
-        return new SaveFile(content ? JSON.parse(content) : null, createSaveFileLocalStorageHandler(key))
+        return new SaveFile(content !== null ? JSON.parse(content) : null, createSaveFileLocalStorageHandler(key))
     }
 
     static fromINI(content: string, updateCallback?: GameFileUpdateCallback) {

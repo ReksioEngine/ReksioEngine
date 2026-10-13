@@ -27,6 +27,6 @@ export class Bool extends ValueType<BoolDefinition, boolean> {
     }
 
     public async toString(): Promise<string> {
-        return this.getValue() ? 'TRUE' : 'FALSE'
+        return await this.getValue() ? 'TRUE' : 'FALSE'
     }
 }

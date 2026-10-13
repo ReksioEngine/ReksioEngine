@@ -11,7 +11,7 @@ export const valueAsString = (value: any) => {
         return value
     }
 
-    if (value?.name) {
+    if (value?.name !== undefined) {
         return value.name
     }
 
@@ -114,7 +114,7 @@ const convertValue = (value: any, targetType: string) => {
     }
 }
 
-export const isDirectlyConvertible = (value: any, type: parameterType) => {
+export const isDirectlyConvertible = (value: any, type: parameterType): boolean => {
     if (type.isArray !== Array.isArray(value)) {
         return false
     }

@@ -54,12 +54,12 @@ export class ScopeManager {
         level = 0
     ): TYPE | null {
         const scope = scopes[scopes.length - 1 - level]
-        if (!scope) {
+        if (scope === undefined) {
             return null
         }
 
         const result = scope.find(callback)
-        if (result) {
+        if (result !== null) {
             return result
         } else {
             return this._find(callback, scopes, level + 1)
@@ -100,7 +100,7 @@ export class Scope {
         return null
     }
 
-    public get objects() {
+    public get objects(): Type<any>[] {
         return [...this.content.values()]
     }
 }

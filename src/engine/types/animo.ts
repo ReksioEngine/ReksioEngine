@@ -164,9 +164,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const soundsNames = new Set<string>()
         for (const event of annFile.events) {
             for (const frame of event.frames) {
-                if (frame.sounds) {
-                    frame.sounds.forEach((name) => soundsNames.add(name))
-                }
+                frame.sounds.forEach((name) => soundsNames.add(name))
             }
         }
 
@@ -258,7 +256,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         // Random sound out of them?
         const eventFrame = event.frames[this.currentFrame]
-        if (eventFrame.sounds) {
+        if (eventFrame.sounds.length > 0) {
             const filenames = eventFrame.sounds
             const randomFilename = filenames[Math.floor(Math.random() * filenames.length)]
 

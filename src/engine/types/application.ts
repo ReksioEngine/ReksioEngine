@@ -51,7 +51,7 @@ export class Application extends ParentType<ApplicationDefinition> {
             return
         }
 
-        if (object[methodName]) {
+        if (Object.hasOwn(object, methodName)) {
             return await object[methodName](...args)
         } else {
             return await object.__call(methodName, args)
@@ -66,7 +66,7 @@ export class Application extends ParentType<ApplicationDefinition> {
         }
 
         assert(object instanceof Scene, 'attempted RUNENV on non-SCENE object')
-        assert(object.scope)
+        assert(object.scope !== null)
 
         const behaviour = object.scope.get(behaviourName)
         if (behaviour === null) {

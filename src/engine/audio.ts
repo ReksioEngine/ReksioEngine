@@ -247,8 +247,15 @@ export class AudioManager {
     }
 
     async load(dataBuffer: ArrayBuffer) {
-        const buf = await this.ctx.decodeAudioData(dataBuffer)
-        if (!buf) throw new Error('Failed to decode audio data')
+        if (dataBuffer.byteLength === 0) throw new Error('Failed to decode audio data: empty buffer')
+
+        let buf: AudioBuffer
+        try {
+            buf = await this.ctx.decodeAudioData(dataBuffer)
+        } catch (err) {
+            throw new Error(`Failed to decode audio data: ${err instanceof Error ? err.message : String(err)}`)
+        }
+
         const sound = new Sound(this, buf)
         this.sounds.push(sound)
         return sound

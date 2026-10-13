@@ -197,7 +197,7 @@ export class Engine {
 
             // Set background image
             let texturePromise: Promise<Texture> | null = null
-            if (this.currentScene.definition.BACKGROUND) {
+            if (this.currentScene.definition.BACKGROUND !== undefined) {
                 texturePromise = loadTexture(
                     this.filesystem,
                     await this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND)
@@ -209,7 +209,7 @@ export class Engine {
             // Play new scene background music.
             // We keep playing the same music if it was the same in previous scene
             let musicPromise = null
-            if (this.music == null && this.currentScene.definition.MUSIC) {
+            if (this.music == null && this.currentScene.definition.MUSIC !== undefined) {
                 musicPromise = loadSound(this.filesystem, this.currentScene.definition.MUSIC)
             }
 
@@ -244,9 +244,7 @@ export class Engine {
                 })
             }
 
-            if (newScope) {
-                await doReady(newScope)
-            }
+            await doReady(newScope)
         } finally {
             this.rendering.resetCursor()
             this.app.stage.removeChild(loadingFreezeOverlay)
@@ -285,8 +283,9 @@ export class Engine {
     }
 
     resume() {
-        const sceneScope = this.currentScene?.scope
-        assert(sceneScope)
+        assert(this.currentScene !== null, 'there is no active scene')
+        const sceneScope = this.currentScene.scope
+        assert(sceneScope !== null, 'there is no active scope')
 
         globalAudio.resume()
         for (const object of sceneScope.objects) {
@@ -296,8 +295,9 @@ export class Engine {
     }
 
     pause() {
-        const sceneScope = this.currentScene?.scope
-        assert(sceneScope)
+        assert(this.currentScene !== null, 'there is no active scene')
+        const sceneScope = this.currentScene.scope
+        assert(sceneScope !== null, 'there is no active scope')
 
         this.app.ticker.stop()
         globalAudio.pause()

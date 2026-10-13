@@ -559,7 +559,7 @@ const VectorDefinitionStructure = {
     VALUE: array(number),
 }
 
-export const structureDefinitions = {
+export const structureDefinitions: Record<string, any> = {
     ANIMO: AnimoStructure,
     APPLICATION: ApplicationStructure,
     ARRAY: ArrayDefinitionStructure,

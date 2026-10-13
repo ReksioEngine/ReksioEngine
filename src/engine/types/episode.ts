@@ -8,7 +8,7 @@ import { logger } from '../logging'
 
 export class Episode extends ParentType<EpisodeDefinition> {
     async init() {
-        if (this.definition.PATH) {
+        if (this.definition.PATH !== undefined) {
             const applicationDefinition = await this.engine.filesystem.getCNVFile(
                 pathJoin('DANE', this.definition.PATH, this.name + '.cnv')
             )
