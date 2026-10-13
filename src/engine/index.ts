@@ -150,9 +150,7 @@ export class Engine {
         this.options.onSceneChange?.(sceneName, this.currentScene?.name)
         this.app.ticker.stop()
         this.rendering.onSceneChange()
-
-        this.app.stage.addChild(this.rendering.loadingOverlay)
-        this.app.renderer.render(this.app.stage)
+        this.rendering.setLoadingCursor()
 
         const loadingFreezeOverlay = Sprite.from(
             await this.app.renderer.extract.image(
@@ -180,10 +178,7 @@ export class Engine {
             // Alert when rendering stage wasn't completely cleared after all destroys.
             // For debugging purposes.
             const leakedObjects = this.app.stage.children.filter(
-                (obj) =>
-                    ![loadingFreezeOverlay, this.rendering.loadingOverlay, this.rendering.canvasBackground].includes(
-                        obj as any
-                    )
+                (obj) => ![loadingFreezeOverlay, this.rendering.canvasBackground].includes(obj as any)
             )
             if (leakedObjects.length > 0) {
                 logger.error('Display objects leak detected', {
@@ -253,8 +248,8 @@ export class Engine {
                 await doReady(newScope)
             }
         } finally {
+            this.rendering.resetCursor()
             this.app.stage.removeChild(loadingFreezeOverlay)
-            this.app.stage.removeChild(this.rendering.loadingOverlay)
 
             this.app.ticker.start()
             this.debug.updateCurrentScene()

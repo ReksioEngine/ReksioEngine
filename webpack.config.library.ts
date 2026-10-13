@@ -58,6 +58,10 @@ module.exports = (env: any) => ({
                 test: /\.html$/i,
                 loader: 'html-loader',
             },
+            {
+                test: /\.png$/i,
+                type: 'asset/inline',
+            },
         ],
     },
     resolve: {

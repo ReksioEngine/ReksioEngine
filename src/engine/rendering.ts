@@ -1,17 +1,7 @@
-import {
-    Application,
-    Container,
-    DisplayObject,
-    Graphics,
-    IPointData,
-    Rectangle,
-    Sprite,
-    Text,
-    TextStyle,
-    Texture,
-} from 'pixi.js'
+import { Application, DisplayObject, Graphics, IPointData, Rectangle, Sprite, Texture } from 'pixi.js'
 import { assert } from '../common/errors'
 import { DisplayType } from './types'
+import loadingCursor from '../../static/loading-cursor.png'
 
 export class RenderingManager {
     public displayObjectsInDefinitionOrder: DisplayType<any>[] = []
@@ -19,7 +9,6 @@ export class RenderingManager {
 
     public readonly canvasBackground: Sprite
     private readonly blackTexture
-    public readonly loadingOverlay: Container
 
     private dirtyRects: Rectangle[] = []
 
@@ -33,35 +22,6 @@ export class RenderingManager {
         this.canvasBackground.zIndex = -99999
         this.canvasBackground.name = 'Scene Background' // For PIXI Devtools
 
-        const loadingDarkOverlay = Sprite.from(
-            createColorTexture(this.app, new Rectangle(0, 0, this.app.view.width, this.app.view.height), 0x000000, 0.5)
-        )
-        const loadingText = new Text(
-            'Loading..',
-            new TextStyle({
-                fontFamily: 'Arial',
-                fontSize: 36,
-                fontWeight: 'bold',
-                fill: '#ffffff',
-                stroke: '#000000',
-                strokeThickness: 5,
-                dropShadow: true,
-                dropShadowColor: '#000000',
-                dropShadowBlur: 4,
-                dropShadowAngle: Math.PI / 6,
-                dropShadowDistance: 6,
-                wordWrap: true,
-                wordWrapWidth: 440,
-                lineJoin: 'round',
-            })
-        )
-        loadingText.x = this.app.view.width / 2
-        loadingText.y = this.app.view.height / 2
-        loadingText.anchor.set(0.5, 0.5)
-
-        this.loadingOverlay = new Container()
-        this.loadingOverlay.addChild(loadingDarkOverlay)
-        this.loadingOverlay.addChild(loadingText)
     }
 
     init() {
@@ -88,6 +48,10 @@ export class RenderingManager {
     setCursor(mode: string) {
         this.app.renderer.events.cursorStyles.default = mode
         this.app.renderer.events.setCursor(mode)
+    }
+
+    setLoadingCursor() {
+        this.setCursor(`url('${loadingCursor}') 16 16, wait`)
     }
 
     resetCursor() {

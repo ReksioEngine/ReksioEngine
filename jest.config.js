@@ -11,5 +11,5 @@ module.exports = {
     },
     testEnvironment: 'node',
     moduleFileExtensions: ['ts', 'js'],
-    moduleNameMapper: { '\\.html$': '<rootDir>/jest.htmlStub.js' },
+    moduleNameMapper: { '\\.(html|png)$': '<rootDir>/jest.htmlStub.js' },
 }
