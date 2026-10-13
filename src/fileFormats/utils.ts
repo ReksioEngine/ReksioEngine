@@ -169,11 +169,9 @@ export class BinaryBuffer {
         return slice
     }
 
-    // Not the fastest
     write(data: Uint8Array) {
-        for (let i = 0; i < data.length; i++) {
-            this.setUint8(data[i])
-        }
+        new Uint8Array(this.view.buffer, this.view.byteOffset, this.view.byteLength).set(data, this.offset)
+        this.offset += data.length
     }
 }
 
