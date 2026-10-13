@@ -53,7 +53,10 @@ export const serializeArray = (data: any[]) => {
             const newBuffer = new Uint8Array(newSize)
             newBuffer.set(tempBuffer)
             tempBuffer = newBuffer
+
+            const offset = buffer.offset
             buffer = new BinaryBuffer(new DataView(tempBuffer.buffer))
+            buffer.offset = offset
         }
         size = requiredSize
     }
