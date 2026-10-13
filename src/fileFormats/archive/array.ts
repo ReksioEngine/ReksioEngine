@@ -38,59 +38,48 @@ export const deserializeArray = (data: ArrayBuffer) => {
     return entries
 }
 
-export const serializeArray = (data: any[]) => {
-    let tempBuffer = new Uint8Array(4096)
-    let buffer = new BinaryBuffer(new DataView(tempBuffer.buffer))
-    let size = 0
-
-    buffer.setUint32(data.length)
-    size += 4
-
-    const ensureCapacity = (extraBytesCount: number) => {
-        const requiredSize = size + extraBytesCount
-        if (requiredSize > tempBuffer.byteLength) {
-            const newSize = Math.max(tempBuffer.byteLength * 2, requiredSize)
-            const newBuffer = new Uint8Array(newSize)
-            newBuffer.set(tempBuffer)
-            tempBuffer = newBuffer
-
-            const offset = buffer.offset
-            buffer = new BinaryBuffer(new DataView(tempBuffer.buffer))
-            buffer.offset = offset
-        }
-        size = requiredSize
+const checkInt32 = (value: number) => {
+    if (!Number.isInteger(value) || value < -0x80000000 || value > 0x7fffffff) {
+        throw new RangeError(`Value ${value} cannot be serialized as a 32-bit integer`)
     }
+    return value
+}
 
-    for (const entry of data) {
-        const entryType = typeof entry
+export const serializeArray = (data: any[]) => {
+    // Strings are pre-encoded so that we know their sizes up front
+    const entries = data.map((entry) => (typeof entry === 'string' ? encoder.encode(entry) : entry))
 
-        if (entryType === 'number') {
-            ensureCapacity(4 + 4)
-
-            if (Number.isInteger(entry)) {
-                // integer
-                buffer.setUint32(ValueType.INTEGER)
-                buffer.setInt32(entry)
-            } else {
-                // float
-                buffer.setUint32(ValueType.FLOAT)
-                buffer.setInt32(Math.trunc(entry * 1000))
-            }
-        } else if (entryType === 'string') {
-            ensureCapacity(4 + 4 + entry.length)
-
-            buffer.setUint32(ValueType.STRING)
-            buffer.setUint32(entry.length)
-            buffer.write(encoder.encode(entry))
-        } else if (entryType === 'boolean') {
-            ensureCapacity(4 + 4)
-
-            buffer.setUint32(ValueType.BOOLEAN)
-            buffer.setUint32(Number(entry))
+    let size = 4
+    for (const entry of entries) {
+        if (entry instanceof Uint8Array) {
+            size += 4 + 4 + entry.length
+        } else if (typeof entry === 'number' || typeof entry === 'boolean') {
+            size += 4 + 4
+        } else {
+            throw new TypeError(`Cannot serialize value of type ${typeof entry} in array`)
         }
     }
 
     const result = new Uint8Array(size)
-    result.set(tempBuffer.slice(0, size))
+    const buffer = new BinaryBuffer(new DataView(result.buffer))
+    buffer.setUint32(entries.length)
+
+    for (const entry of entries) {
+        if (entry instanceof Uint8Array) {
+            buffer.setUint32(ValueType.STRING)
+            buffer.setUint32(entry.length)
+            buffer.write(entry)
+        } else if (typeof entry === 'boolean') {
+            buffer.setUint32(ValueType.BOOLEAN)
+            buffer.setUint32(Number(entry))
+        } else if (Number.isInteger(entry)) {
+            buffer.setUint32(ValueType.INTEGER)
+            buffer.setInt32(checkInt32(entry))
+        } else {
+            buffer.setUint32(ValueType.FLOAT)
+            buffer.setInt32(checkInt32(Math.trunc(entry * 1000)))
+        }
+    }
+
     return result.buffer
 }
