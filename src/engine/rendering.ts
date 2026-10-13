@@ -21,7 +21,6 @@ export class RenderingManager {
         this.canvasBackground = new Sprite(this.blackTexture)
         this.canvasBackground.zIndex = -99999
         this.canvasBackground.name = 'Scene Background' // For PIXI Devtools
-
     }
 
     init() {

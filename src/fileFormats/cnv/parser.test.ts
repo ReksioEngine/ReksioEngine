@@ -23,7 +23,7 @@ TEST1:VISIBLE=TRUE
                 NAME: 'TEST1',
                 TYPE: 'ANIMO',
                 VISIBLE: true,
-            }
+            },
         })
     })
 

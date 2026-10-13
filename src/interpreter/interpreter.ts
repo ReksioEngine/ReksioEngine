@@ -313,7 +313,9 @@ export class Interpreter {
                     )
 
                     const method = (targetObj as any)[call.method]
-                    return method !== undefined ? await method.bind(targetObj)(...args) : await targetObj.__call(call.method, args)
+                    return method !== undefined
+                        ? await method.bind(targetObj)(...args)
+                        : await targetObj.__call(call.method, args)
                 } catch (err) {
                     if (err instanceof IgnorableError) throw err
 

@@ -60,10 +60,10 @@ export class Behaviour extends Type<BehaviourDefinition> {
         try {
             pushStackFrame(
                 StackFrame.builder()
-                .type('behaviour')
-                .behaviour(this.name)
-                .args(...args)
-                .build()
+                    .type('behaviour')
+                    .behaviour(this.name)
+                    .args(...args)
+                    .build()
             )
 
             return await this.engine.scripting.executeCallback(null, this, this.definition.CODE, args)

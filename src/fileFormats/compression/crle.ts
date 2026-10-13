@@ -18,7 +18,7 @@ export const decompressCRLE = (input: BinaryBuffer, decompressedSize: number, bu
         } else {
             repeated.set(src.subarray(sp, sp + bulk))
             sp += bulk
-            const len = count & 0x7F
+            const len = count & 0x7f
             for (let i = 0; i < len; i++) {
                 output.set(repeated, dp)
                 dp += bulk

@@ -83,7 +83,12 @@ export class CallbacksComponent {
                 assert(callback !== undefined, 'Callbacks should not happen to be undefined values')
                 await this.engine.scripting.executeCallback(thisReference, thisReference, callback, args)
             } else if (callbackGroup.nonParametrized) {
-                await this.engine.scripting.executeCallback(thisReference, thisReference, callbackGroup.nonParametrized, args)
+                await this.engine.scripting.executeCallback(
+                    thisReference,
+                    thisReference,
+                    callbackGroup.nonParametrized,
+                    args
+                )
             }
         } catch (err) {
             if (!(err instanceof InterruptScriptExecution)) {

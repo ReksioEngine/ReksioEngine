@@ -120,7 +120,8 @@ export class Debugging {
                 const selectedOption = sceneSelector.selectedOptions[0]
                 const arcadeSceneName = selectedOption.getAttribute('data-arcade-scene-name')
                 if (arcadeSceneName !== null) {
-                    const G_SARCADEOBJECTS: ValueType<any, any> | null = this.engine.scopeManager.findByName('G_SARCADEOBJECTS')
+                    const G_SARCADEOBJECTS: ValueType<any, any> | null =
+                        this.engine.scopeManager.findByName('G_SARCADEOBJECTS')
                     if (G_SARCADEOBJECTS) {
                         await G_SARCADEOBJECTS.setValue(arcadeSceneName)
                         await this.engine.changeScene('ARCADE')

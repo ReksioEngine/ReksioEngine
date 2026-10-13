@@ -205,13 +205,19 @@ export class Sequence extends Type<SequenceDefinition> {
         assert(this.activeAnimo !== null)
 
         if (this.runningSubSequence?.TYPE === 'SPEAKING') {
-            if (this.runningSubSequence.STARTING !== undefined && eventName === this.runningSubSequence.PREFIX + '_START') {
+            if (
+                this.runningSubSequence.STARTING !== undefined &&
+                eventName === this.runningSubSequence.PREFIX + '_START'
+            ) {
                 if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
                     this.loop = true
                     this.loopIndex = 1
                     await this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1')
                 }
-            } else if (this.runningSubSequence.ENDING !== undefined && eventName === this.runningSubSequence.PREFIX + '_STOP') {
+            } else if (
+                this.runningSubSequence.ENDING !== undefined &&
+                eventName === this.runningSubSequence.PREFIX + '_STOP'
+            ) {
                 await this.progressNext()
             } else if (this.loop) {
                 let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`

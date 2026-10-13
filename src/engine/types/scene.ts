@@ -95,7 +95,7 @@ export class Scene extends ParentType<SceneDefinition> {
             return
         }
 
-        for (const [key, value] of scope.content.entries()) {
+        for (const value of scope.content.values()) {
             if (value instanceof Animo && value.isPlaying) {
                 targetGroup.add(value)
             }

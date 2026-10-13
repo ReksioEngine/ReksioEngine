@@ -103,7 +103,7 @@ export class Database extends Type<DatabaseDefinition> {
 
         const structFieldsNames = Array.from(this.baseStruct.structure.keys())
         for (const line of lines) {
-            const fieldContents = line.split('|').filter(cell => cell !== '')
+            const fieldContents = line.split('|').filter((cell) => cell !== '')
             const newEntry = await this.baseStruct.clone()
 
             for (let i = 0; i < structFieldsNames.length; i++) {

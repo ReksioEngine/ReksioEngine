@@ -84,19 +84,28 @@ export class Double extends ValueType<DoubleDefinition, number> {
     public async toString(): Promise<string> {
         const value = this.value as number
         const abs = Math.abs(value)
-        const fixed = abs < 1e21 ? abs.toFixed(5) : BigInt(abs) + '.00000'
+
+        // Use fixed‑point for numbers below 1e21, otherwise fallback to bigint representation
+        const fixed = abs < 1e21 ? abs.toFixed(5) : `${BigInt(abs)}.00000`
         const sign = value < 0 ? '-' : ''
 
-        // |value| >= 1
-        if (!fixed.startsWith('0.')) return sign + fixed
+        // Values with absolute magnitude >= 1
+        if (!fixed.startsWith('0.')) {
+            return sign + fixed
+        }
 
-        if (value === 0) return '00000'
+        // Zero value
+        if (value === 0) {
+            return '00000'
+        }
 
-        // 0 < |value| < 1
-        let zeros = ''
-        for (let v = value; v > 0 && v * 10.0001 < 1; v *= 10) zeros += '0'
+        // Values between 0 and 1 (exclusive)
+        let leadingZeros = ''
+        for (let v = value; v > 0 && v * 10.0001 < 1; v *= 10) {
+            leadingZeros += '0'
+        }
 
         const digits = fixed.slice(2).replace(/^0+/, '') || '0'
-        return '0.' + sign + zeros + digits
+        return `0.${sign}${leadingZeros}${digits}`
     }
 }
