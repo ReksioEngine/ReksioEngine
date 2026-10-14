@@ -24,6 +24,7 @@ module.exports = {
     },
     plugins: ['@typescript-eslint'],
     rules: {
+        curly: ['error', 'all'],
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-unused-vars': 'off',
         '@typescript-eslint/no-floating-promises': 'error',

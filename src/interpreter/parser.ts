@@ -39,9 +39,11 @@ export function parseCode(code: string): Statement[] {
 
     for (let i = 0; i < code.length; i++) {
         const ch = code[i]
-        if (ch === '(') depth++
-        else if (ch === ')') depth--
-        else if (ch === ';' && depth === 0) {
+        if (ch === '(') {
+            depth++
+        } else if (ch === ')') {
+            depth--
+        } else if (ch === ';' && depth === 0) {
             const stmt = code.slice(start, i).trim()
             if (stmt) {
                 const stmtStart = code.indexOf(stmt, start)
@@ -74,7 +76,9 @@ export function parseLine(text: string, offset = 0): Statement {
     text = text.trim()
     const trimOffset = offset + originalText.indexOf(text)
 
-    if (!text) throw new ParseError('empty line', text)
+    if (!text) {
+        throw new ParseError('empty line', text)
+    }
 
     const parenPos = text.indexOf('(')
 
@@ -158,7 +162,9 @@ export function parseLine(text: string, offset = 0): Statement {
 export function parseParameters(text: string, offset = 0): Parameter[] {
     const originalText = text
     text = text.trim()
-    if (!text) return []
+    if (!text) {
+        return []
+    }
 
     const trimOffset = offset + (originalText.length - originalText.trimStart().length)
     const params: Parameter[] = []
@@ -167,9 +173,11 @@ export function parseParameters(text: string, offset = 0): Parameter[] {
 
     for (let i = 0; i < text.length; i++) {
         const ch = text[i]
-        if (ch === '(') depth++
-        else if (ch === ')') depth--
-        else if (ch === ',' && depth === 0) {
+        if (ch === '(') {
+            depth++
+        } else if (ch === ')') {
+            depth--
+        } else if (ch === ',' && depth === 0) {
             const part = text.slice(start, i).trim()
             if (part) {
                 const partStart = trimOffset + text.indexOf(part, start)
@@ -204,14 +212,18 @@ export function parseParameter(text: string, offset = 0): Parameter {
     text = text.trim()
     const trimOffset = offset + originalText.indexOf(text)
 
-    if (!text) throw new ParseError('empty parameter')
+    if (!text) {
+        throw new ParseError('empty parameter')
+    }
 
     const first = text[0]
 
     // 1. bracket expression [...] -> parsed via CMC_Expression
     if (first === '[') {
         let inner = text.slice(1)
-        if (inner.endsWith(']')) inner = inner.slice(0, -1)
+        if (inner.endsWith(']')) {
+            inner = inner.slice(0, -1)
+        }
         const raw = inner.trim()
         const expression = parseExpression(raw, trimOffset, 0)
         return {
@@ -240,7 +252,9 @@ export function parseParameter(text: string, offset = 0): Parameter {
 
     if (first === '"') {
         let value = text.slice(1)
-        if (value.endsWith('"')) value = value.slice(0, -1)
+        if (value.endsWith('"')) {
+            value = value.slice(0, -1)
+        }
         return {
             type: 'StringLiteral',
             value,

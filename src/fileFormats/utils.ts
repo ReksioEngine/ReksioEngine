@@ -42,7 +42,9 @@ export class BinaryBuffer {
      */
     getInt16(advance = true, littleEndian = true): number {
         const value = this.view.getInt16(this.offset, littleEndian)
-        if (advance) this.offset += 2
+        if (advance) {
+            this.offset += 2
+        }
         return value
     }
     /**
@@ -50,7 +52,9 @@ export class BinaryBuffer {
      */
     getInt32(advance = true, littleEndian = true): number {
         const value = this.view.getInt32(this.offset, littleEndian)
-        if (advance) this.offset += 4
+        if (advance) {
+            this.offset += 4
+        }
         return value
     }
 
@@ -59,7 +63,9 @@ export class BinaryBuffer {
      */
     getUint8(advance = true): number {
         const value = this.view.getUint8(this.offset)
-        if (advance) this.offset += 1
+        if (advance) {
+            this.offset += 1
+        }
         return value
     }
 
@@ -68,7 +74,9 @@ export class BinaryBuffer {
      */
     getUint16(advance = true, littleEndian = true): number {
         const value = this.view.getUint16(this.offset, littleEndian)
-        if (advance) this.offset += 2
+        if (advance) {
+            this.offset += 2
+        }
         return value
     }
 
@@ -77,7 +85,9 @@ export class BinaryBuffer {
      */
     getUint32(advance = true, littleEndian = true): number {
         const value = this.view.getUint32(this.offset, littleEndian)
-        if (advance) this.offset += 4
+        if (advance) {
+            this.offset += 4
+        }
         return value
     }
 
@@ -86,7 +96,9 @@ export class BinaryBuffer {
      */
     setFloat32(value: number, advance = true, littleEndian = true): void {
         this.view.setFloat32(this.offset, value, littleEndian)
-        if (advance) this.offset += 4
+        if (advance) {
+            this.offset += 4
+        }
     }
 
     /**
@@ -94,7 +106,9 @@ export class BinaryBuffer {
      */
     setFloat64(value: number, advance = true, littleEndian = true): void {
         this.view.setFloat64(this.offset, value, littleEndian)
-        if (advance) this.offset += 8
+        if (advance) {
+            this.offset += 8
+        }
     }
 
     /**
@@ -102,7 +116,9 @@ export class BinaryBuffer {
      */
     setInt8(value: number, advance = true): void {
         this.view.setInt8(this.offset, value)
-        if (advance) this.offset += 1
+        if (advance) {
+            this.offset += 1
+        }
     }
 
     /**
@@ -110,7 +126,9 @@ export class BinaryBuffer {
      */
     setInt16(value: number, advance = true, littleEndian = true): void {
         this.view.setInt16(this.offset, value, littleEndian)
-        if (advance) this.offset += 2
+        if (advance) {
+            this.offset += 2
+        }
     }
 
     /**
@@ -118,7 +136,9 @@ export class BinaryBuffer {
      */
     setInt32(value: number, advance = true, littleEndian = true): void {
         this.view.setInt32(this.offset, value, littleEndian)
-        if (advance) this.offset += 4
+        if (advance) {
+            this.offset += 4
+        }
     }
 
     /**
@@ -126,7 +146,9 @@ export class BinaryBuffer {
      */
     setUint8(value: number, advance = true): void {
         this.view.setUint8(this.offset, value)
-        if (advance) this.offset += 1
+        if (advance) {
+            this.offset += 1
+        }
     }
 
     /**
@@ -134,7 +156,9 @@ export class BinaryBuffer {
      */
     setUint16(value: number, advance = true, littleEndian = true): void {
         this.view.setUint16(this.offset, value, littleEndian)
-        if (advance) this.offset += 2
+        if (advance) {
+            this.offset += 2
+        }
     }
 
     /**
@@ -142,7 +166,9 @@ export class BinaryBuffer {
      */
     setUint32(value: number, advance = true, littleEndian = true): void {
         this.view.setUint32(this.offset, value, littleEndian)
-        if (advance) this.offset += 4
+        if (advance) {
+            this.offset += 4
+        }
     }
 
     /**

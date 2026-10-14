@@ -53,7 +53,9 @@ export function parseLogicExpression(text: string, offset: number = 0): Conditio
     let currentOffset = trimOffset
     for (const part of parts) {
         const trimmedPart = part.trim()
-        if (!trimmedPart) continue
+        if (!trimmedPart) {
+            continue
+        }
 
         const partStart = trimOffset + text.indexOf(trimmedPart, currentOffset - trimOffset)
         conditions.push(_parseCondition(trimmedPart, partStart))
@@ -88,7 +90,9 @@ function _findLogicOperator(text: string, operator: string): number {
             continue
         }
 
-        if (inQuotes) continue
+        if (inQuotes) {
+            continue
+        }
 
         if (ch === '(') {
             parenDepth++
@@ -121,7 +125,9 @@ function _splitByLogicOperator(text: string, operator: string): string[] {
             continue
         }
 
-        if (inQuotes) continue
+        if (inQuotes) {
+            continue
+        }
 
         if (ch === '(') {
             parenDepth++
@@ -212,7 +218,9 @@ function _findComparisonOperator(
             continue
         }
 
-        if (inQuotes) continue
+        if (inQuotes) {
+            continue
+        }
 
         if (ch === '(') {
             parenDepth++
@@ -249,7 +257,9 @@ function _findComparisonOperator(
             continue
         }
 
-        if (inQuotes) continue
+        if (inQuotes) {
+            continue
+        }
 
         if (ch === '(') {
             parenDepth++

@@ -48,7 +48,9 @@ export class SoundInstance extends EventTarget {
     }
 
     private cleanupSource() {
-        if (!this.source) return
+        if (!this.source) {
+            return
+        }
         try {
             this.source.disconnect()
         } catch {
@@ -58,7 +60,9 @@ export class SoundInstance extends EventTarget {
     }
 
     private finalize(reason: 'end' | 'stop' | 'pause') {
-        if (this.finished) return
+        if (this.finished) {
+            return
+        }
         this.finished = true
 
         this._isPlaying = false
@@ -67,8 +71,12 @@ export class SoundInstance extends EventTarget {
         // Remove from parent list so instances don’t accumulate
         this.parentSound._removeInstance(this)
 
-        if (reason === 'end') this.initialOpts.onEnd?.()
-        if (reason === 'stop') this.initialOpts.onStop?.()
+        if (reason === 'end') {
+            this.initialOpts.onEnd?.()
+        }
+        if (reason === 'stop') {
+            this.initialOpts.onStop?.()
+        }
     }
 
     private buildSource() {
@@ -78,8 +86,11 @@ export class SoundInstance extends EventTarget {
         src.connect(this.gain)
 
         src.addEventListener('ended', () => {
-            if (this.stopRequested) this.finalize('stop')
-            else this.finalize('end')
+            if (this.stopRequested) {
+                this.finalize('stop')
+            } else {
+                this.finalize('end')
+            }
         })
 
         this.source = src
@@ -103,7 +114,9 @@ export class SoundInstance extends EventTarget {
     }
 
     stop() {
-        if (!this.source || this.finished) return
+        if (!this.source || this.finished) {
+            return
+        }
         this.stopRequested = true
 
         try {
@@ -116,7 +129,9 @@ export class SoundInstance extends EventTarget {
     }
 
     pause() {
-        if (!this.source || this.finished) return
+        if (!this.source || this.finished) {
+            return
+        }
 
         const elapsed = (this.ctx.currentTime - this.startedAt) * this.currentRate
         this.offset = (this.offset + elapsed) % this.parentSound.buffer.duration
@@ -130,7 +145,9 @@ export class SoundInstance extends EventTarget {
     }
 
     resume() {
-        if (this.source || !this.finished) return
+        if (this.source || !this.finished) {
+            return
+        }
         this.play()
     }
 
@@ -189,7 +206,9 @@ export class Sound {
 
     _removeInstance(inst: SoundInstance) {
         const i = this.instances.indexOf(inst)
-        if (i >= 0) this.instances.splice(i, 1)
+        if (i >= 0) {
+            this.instances.splice(i, 1)
+        }
     }
 
     play(opts: PlayOptions = {}) {
@@ -247,7 +266,9 @@ export class AudioManager {
     }
 
     async load(dataBuffer: ArrayBuffer) {
-        if (dataBuffer.byteLength === 0) throw new Error('Failed to decode audio data: empty buffer')
+        if (dataBuffer.byteLength === 0) {
+            throw new Error('Failed to decode audio data: empty buffer')
+        }
 
         let buf: AudioBuffer
         try {

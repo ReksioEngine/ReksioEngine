@@ -191,7 +191,9 @@ export class Interpreter {
                 )
             } catch (err) {
                 if (err instanceof InterruptScriptExecution) {
-                    if (err.one) continue
+                    if (err.one) {
+                        continue
+                    }
                     break
                 }
                 throw err
@@ -230,7 +232,9 @@ export class Interpreter {
                 )
             } catch (err) {
                 if (err instanceof InterruptScriptExecution) {
-                    if (err.one) continue
+                    if (err.one) {
+                        continue
+                    }
                     break
                 }
                 throw err
@@ -317,7 +321,9 @@ export class Interpreter {
                         ? await method.bind(targetObj)(...args)
                         : await targetObj.__call(call.method, args)
                 } catch (err) {
-                    if (err instanceof IgnorableError) throw err
+                    if (err instanceof IgnorableError) {
+                        throw err
+                    }
 
                     const beforePart = this.context.script.substring(0, call.start).replaceAll(';', ';\n')
                     const callPart = this.context.script.substring(call.start, call.end)
@@ -331,7 +337,9 @@ export class Interpreter {
                     )
                     printStackTrace(captureStackTrace(err))
 
-                    if (err instanceof NotImplementedError) return null
+                    if (err instanceof NotImplementedError) {
+                        return null
+                    }
                     // eslint-disable-next-line no-debugger
                     debugger
                     throw new SilentError(err)
@@ -411,11 +419,15 @@ export class Interpreter {
                     result = result * operand
                     break
                 case 'DIV':
-                    if (operand === 0) throw new RuntimeError('Division by zero')
+                    if (operand === 0) {
+                        throw new RuntimeError('Division by zero')
+                    }
                     result = result / operand
                     break
                 case 'MOD':
-                    if (operand === 0) throw new RuntimeError('Modulo by zero')
+                    if (operand === 0) {
+                        throw new RuntimeError('Modulo by zero')
+                    }
                     result = result % operand
                     break
                 default:
@@ -473,8 +485,12 @@ export async function runCode(
         if (err instanceof Return) {
             return err.value
         }
-        if (err instanceof IgnorableError) throw err
-        if (!(err instanceof SilentError)) throw err
+        if (err instanceof IgnorableError) {
+            throw err
+        }
+        if (!(err instanceof SilentError)) {
+            throw err
+        }
     }
 }
 
