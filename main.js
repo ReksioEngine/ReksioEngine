@@ -36638,7 +36638,7 @@ let Integer = (() => {
             _MOD_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _CLAMP_decorators = [(0, types_1.method)({ name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _AND_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SET_decorators = [(0, types_1.method)({ name: "newValue", types: [{ name: "number", literal: null, isArray: false }, { name: "string", literal: null, isArray: false }], optional: true, rest: false })];
+            _SET_decorators = [(0, types_1.method)({ name: "newValue", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _GET_decorators = [(0, types_1.method)()];
             _SWITCH_decorators = [(0, types_1.method)({ name: "first", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "second", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _ABS_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
@@ -36693,21 +36693,8 @@ let Integer = (() => {
         async AND(value) {
             return this.setValue(this.value & value);
         }
-        // TODO: Maybe type guard could try to resolve references
         async SET(newValue) {
-            if (typeof newValue == 'string') {
-                const possibleInteger = this.getObject(newValue);
-                if (possibleInteger instanceof Integer) {
-                    await this.setValue(possibleInteger.value);
-                    return;
-                }
-            }
-            // That's how the game works
-            if (newValue === undefined) {
-                await this.setValue(0);
-                return;
-            }
-            await this.setValue((0, types_1.ForceNumber)(newValue));
+            await this.setValue(newValue);
         }
         async GET() {
             return this.value;
