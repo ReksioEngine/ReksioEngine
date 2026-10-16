@@ -58,23 +58,8 @@ export class Integer extends ValueType<IntegerDefinition, number> {
     }
 
     @method()
-    // TODO: Maybe type guard could try to resolve references
-    async SET(newValue?: number | string) {
-        if (typeof newValue == 'string') {
-            const possibleInteger = this.getObject(newValue)
-            if (possibleInteger instanceof Integer) {
-                await this.setValue(possibleInteger.value)
-                return
-            }
-        }
-
-        // That's how the game works
-        if (newValue === undefined) {
-            await this.setValue(0)
-            return
-        }
-
-        await this.setValue(ForceNumber(newValue))
+    async SET(newValue: number) {
+        await this.setValue(newValue)
     }
 
     @method()
