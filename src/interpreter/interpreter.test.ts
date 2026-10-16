@@ -112,4 +112,12 @@ describe('interpreter', () => {
         await engine.run('@IF("1","_","1","{VALUE^SET(1234);}","");')
         expect(await a.getValue()).toBe(1234)
     })
+
+    test('value references', async () => {
+        const a = engine.integer('VALUE1')
+        const b = engine.integer('VALUE2')
+        await engine.run('VALUE1^SET(1234);VALUE2^SET(VALUE1);')
+        expect(await a.getValue()).toBe(1234)
+        expect(await b.getValue()).toBe(1234)
+    })
 })
