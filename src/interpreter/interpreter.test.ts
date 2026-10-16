@@ -94,9 +94,11 @@ describe('interpreter', () => {
 
     test('last result is not used as behavior return value', async () => {
         const a = engine.integer('A')
+        const b = engine.integer('B')
         engine.behaviour('BODY', '{A^ADD(1234);}')
-        await engine.run('A^SET(BODY^RUN());')
-        expect(await a.getValue()).toBe(0)
+        await engine.run('B^SET(BODY^RUN());')
+        expect(await a.getValue()).toBe(1234)
+        expect(await b.getValue()).toBe(0)
     })
 
     test('call on missing object is skipped', async () => {
