@@ -7,7 +7,6 @@ import { Rand } from '../engine/types/rand'
 import { System } from '../engine/types/system'
 import { CNVLoader } from '../engine/types/cnvloader'
 import { createCallback } from '../fileFormats/common'
-import { Behaviour } from '../engine/types/behaviour'
 import { IgnorableError, InterruptScriptExecution, IrrecoverableError, NotImplementedError } from '../common/errors'
 import { Integer } from '../engine/types/integer'
 import { String as CMCString } from '../engine/types/string'
@@ -122,11 +121,11 @@ export class Interpreter {
 
     private async handleIf(args: any[]): Promise<void> {
         let result: boolean
-        let onTrue: Behaviour | null
-        let onFalse: Behaviour | null
+        let ifTrue: string
+        let ifFalse: string
 
         if (args.length === 5) {
-            const [a, operator, b, ifTrue, ifFalse] = args
+            const [a, operator, b, trueBranch, falseBranch] = args
 
             const left = typeof a === 'string' ? await this.execute(parseCode(a)) : a
             const right = typeof b === 'string' ? await this.execute(parseCode(b)) : b
@@ -136,23 +135,24 @@ export class Interpreter {
             }
 
             result = applyComparison(left, op, right)
-            onTrue = this.getObject(ifTrue)
-            onFalse = this.getObject(ifFalse)
+            ifTrue = trueBranch
+            ifFalse = falseBranch
         } else if (args.length === 3) {
-            const [expression, ifTrue, ifFalse] = args
+            const [expression, trueBranch, falseBranch] = args
 
             result = await this.evaluateLogicExpression(parseLogicExpression(expression))
-            onTrue = this.getObject(ifTrue)
-            onFalse = this.getObject(ifFalse)
+            ifTrue = trueBranch
+            ifFalse = falseBranch
         } else {
             throw new RuntimeError(`Invalid @IF arguments: expected 3 or 5, got ${args.length}`)
         }
 
-        if (result && onTrue) {
-            await onTrue.executeConditionalCallback()
-        } else if (!result && onFalse) {
-            await onFalse.executeConditionalCallback()
+        const callback = createCallback(result ? ifTrue : ifFalse)
+        if (callback === undefined) {
+            return
         }
+
+        await this.context.engine.scripting.executeCallback(null, this.context.caller, callback, [], undefined, true)
     }
 
     private async handleBreak(_args: any[]): Promise<never> {

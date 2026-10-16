@@ -104,4 +104,10 @@ describe('interpreter', () => {
         await engine.run('MISSING^SET(1);A^SET(2);')
         expect(await a.getValue()).toBe(2)
     })
+
+    test('inline code behavior in @IF', async () => {
+        const a = engine.integer('VALUE')
+        await engine.run('@IF("1","_","1","{VALUE^SET(1234);}","");')
+        expect(await a.getValue()).toBe(1234)
+    })
 })
