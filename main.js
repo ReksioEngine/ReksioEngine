@@ -30693,10 +30693,9 @@ Object.keys(textHtml).forEach(function(k) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.InterruptScriptExecution = exports.CancelTick = exports.IgnorableError = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.IrrecoverableError = exports.EngineError = void 0;
+exports.CancelTick = exports.IgnorableError = exports.NotImplementedError = exports.InvalidObjectError = exports.UnexpectedError = exports.IrrecoverableError = exports.EngineError = void 0;
 exports.assert = assert;
 class EngineError extends Error {
-    stackTrace;
     constructor(message, stackTrace = null) {
         super(message);
         this.stackTrace = stackTrace;
@@ -30725,21 +30724,12 @@ class IgnorableError {
 }
 exports.IgnorableError = IgnorableError;
 class CancelTick extends IgnorableError {
-    callback;
     constructor(callback) {
         super();
         this.callback = callback;
     }
 }
 exports.CancelTick = CancelTick;
-class InterruptScriptExecution extends IgnorableError {
-    one;
-    constructor(one = false) {
-        super();
-        this.one = one;
-    }
-}
-exports.InterruptScriptExecution = InterruptScriptExecution;
 function assert(expr, message) {
     if (!expr) {
         throw new Error('Unexpected error occurred' + (message !== undefined ? `: ${message}` : ''));
@@ -30761,9 +30751,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.StateMachine = void 0;
 exports.t = t;
 class StateMachine {
-    transitions;
-    currentState;
-    onStateChange;
     constructor(initialState, transitions = [], onStateChange) {
         this.transitions = transitions;
         this.currentState = initialState;
@@ -30818,7 +30805,7 @@ const valueAsString = (value) => {
     if (typeof value === 'string') {
         return value;
     }
-    if (value?.name !== undefined) {
+    if (value?.name) {
         return value.name;
     }
     if (typeof value === 'boolean') {
@@ -30935,8 +30922,7 @@ const isDirectlyConvertible = (value, type) => {
                 value === null ||
                 value.toString().toUpperCase() === 'TRUE' ||
                 value.toString().toUpperCase() === 'FALSE' ||
-                value == 0 ||
-                value == 1);
+                value == 0 || value == 1);
         case 'number':
             return typeof value === 'number' || value === null || !Number.isNaN((0, exports.toNumber)(value));
         default:
@@ -31046,21 +31032,16 @@ function method(...types) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.globalAudio = exports.AudioManager = exports.Sound = exports.SoundInstance = void 0;
 class SoundInstance extends EventTarget {
-    parentSound;
-    ctx;
-    gain;
-    _isPlaying = false;
-    _volume = 1;
-    _muted = false;
-    source = null;
-    startedAt = 0;
-    offset = 0;
-    currentRate;
-    initialOpts;
-    finished = false;
-    stopRequested = false;
     constructor(ctx, parentSound, master, opts = {}) {
         super();
+        this._isPlaying = false;
+        this._volume = 1;
+        this._muted = false;
+        this.source = null;
+        this.startedAt = 0;
+        this.offset = 0;
+        this.finished = false;
+        this.stopRequested = false;
         this.ctx = ctx;
         this.parentSound = parentSound;
         this.gain = new GainNode(ctx);
@@ -31075,9 +31056,8 @@ class SoundInstance extends EventTarget {
         this.muted = opts.muted ?? false;
     }
     cleanupSource() {
-        if (!this.source) {
+        if (!this.source)
             return;
-        }
         try {
             this.source.disconnect();
         }
@@ -31087,20 +31067,17 @@ class SoundInstance extends EventTarget {
         this.source = null;
     }
     finalize(reason) {
-        if (this.finished) {
+        if (this.finished)
             return;
-        }
         this.finished = true;
         this._isPlaying = false;
         this.cleanupSource();
         // Remove from parent list so instances don’t accumulate
         this.parentSound._removeInstance(this);
-        if (reason === 'end') {
+        if (reason === 'end')
             this.initialOpts.onEnd?.();
-        }
-        if (reason === 'stop') {
+        if (reason === 'stop')
             this.initialOpts.onStop?.();
-        }
     }
     buildSource() {
         const src = new AudioBufferSourceNode(this.ctx, { buffer: this.parentSound.buffer });
@@ -31108,12 +31085,10 @@ class SoundInstance extends EventTarget {
         src.playbackRate.value = this.initialOpts.rate;
         src.connect(this.gain);
         src.addEventListener('ended', () => {
-            if (this.stopRequested) {
+            if (this.stopRequested)
                 this.finalize('stop');
-            }
-            else {
+            else
                 this.finalize('end');
-            }
         });
         this.source = src;
         return src;
@@ -31131,9 +31106,8 @@ class SoundInstance extends EventTarget {
         return this;
     }
     stop() {
-        if (!this.source || this.finished) {
+        if (!this.source || this.finished)
             return;
-        }
         this.stopRequested = true;
         try {
             this.source.stop();
@@ -31145,9 +31119,8 @@ class SoundInstance extends EventTarget {
         this.offset = 0;
     }
     pause() {
-        if (!this.source || this.finished) {
+        if (!this.source || this.finished)
             return;
-        }
         const elapsed = (this.ctx.currentTime - this.startedAt) * this.currentRate;
         this.offset = (this.offset + elapsed) % this.parentSound.buffer.duration;
         try {
@@ -31159,9 +31132,8 @@ class SoundInstance extends EventTarget {
         this.finalize('pause');
     }
     resume() {
-        if (this.source || !this.finished) {
+        if (this.source || !this.finished)
             return;
-        }
         this.play();
     }
     get isPlaying() {
@@ -31201,18 +31173,15 @@ class SoundInstance extends EventTarget {
 }
 exports.SoundInstance = SoundInstance;
 class Sound {
-    manager;
-    buffer;
-    instances = [];
     constructor(manager, buffer) {
         this.manager = manager;
         this.buffer = buffer;
+        this.instances = [];
     }
     _removeInstance(inst) {
         const i = this.instances.indexOf(inst);
-        if (i >= 0) {
+        if (i >= 0)
             this.instances.splice(i, 1);
-        }
     }
     play(opts = {}) {
         const instance = new SoundInstance(this.manager.ctx, this, this.manager.master, {
@@ -31239,10 +31208,12 @@ class Sound {
 }
 exports.Sound = Sound;
 class AudioManager {
-    _ctx = null;
-    _master = null;
-    sounds = [];
-    speed = 1;
+    constructor() {
+        this._ctx = null;
+        this._master = null;
+        this.sounds = [];
+        this.speed = 1;
+    }
     get ctx() {
         if (this._ctx === null) {
             this._ctx = new AudioContext();
@@ -31261,16 +31232,9 @@ class AudioManager {
         this.master.gain.value = Math.max(0, Math.min(1, v));
     }
     async load(dataBuffer) {
-        if (dataBuffer.byteLength === 0) {
-            throw new Error('Failed to decode audio data: empty buffer');
-        }
-        let buf;
-        try {
-            buf = await this.ctx.decodeAudioData(dataBuffer);
-        }
-        catch (err) {
-            throw new Error(`Failed to decode audio data: ${err instanceof Error ? err.message : String(err)}`);
-        }
+        const buf = await this.ctx.decodeAudioData(dataBuffer);
+        if (!buf)
+            throw new Error('Failed to decode audio data');
         const sound = new Sound(this, buf);
         this.sounds.push(sound);
         return sound;
@@ -31328,14 +31292,8 @@ var Event;
     Event["DISABLE_BUT_VISIBLE"] = "DISABLE_BUT_VISIBLE";
 })(Event || (exports.Event = Event = {}));
 class ButtonLogicComponent {
-    stateMachine;
-    onStateChangeCallback;
-    onMouseOverCallback;
-    onMouseOutCallback;
-    onMouseDownCallback;
-    onMouseUpCallback;
-    eventsQueue = [];
     constructor(onStateChange) {
+        this.eventsQueue = [];
         this.onStateChangeCallback = onStateChange;
         this.onMouseOverCallback = this.onMouseOver.bind(this);
         this.onMouseOutCallback = this.onMouseOut.bind(this);
@@ -31440,11 +31398,10 @@ exports.CallbacksComponent = void 0;
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../fileFormats/cnv/types */ "./src/fileFormats/cnv/types.ts");
 const stacktrace_1 = __webpack_require__(/*! ../../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
+const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
 class CallbacksComponent {
-    engine;
-    object;
-    registry = new Map();
     constructor(engine, object) {
+        this.registry = new Map();
         this.engine = engine;
         this.object = object;
     }
@@ -31459,7 +31416,7 @@ class CallbacksComponent {
     }
     autoRegister() {
         const structure = types_1.structureDefinitions[this.object.definition.TYPE];
-        if (structure === undefined) {
+        if (!structure) {
             return;
         }
         for (const [key, value] of Object.entries(structure)) {
@@ -31488,15 +31445,15 @@ class CallbacksComponent {
         if (!this.has(type)) {
             return;
         }
+        const stackFrame = stacktrace_1.StackFrame.builder()
+            .type('callback')
+            .object(this.object)
+            .callback(type)
+            .args(...(param !== undefined && param !== null ? [param] : []))
+            .build();
+        stacktrace_1.stackTrace.push(stackFrame);
+        const thisReference = thisOverride !== undefined ? thisOverride : this.object;
         try {
-            const stackFrame = stacktrace_1.StackFrame.builder()
-                .type('callback')
-                .object(this.object)
-                .callback(type)
-                .args(...(param !== undefined && param !== null ? [param] : []))
-                .build();
-            (0, stacktrace_1.pushStackFrame)(stackFrame);
-            const thisReference = thisOverride !== undefined ? thisOverride : this.object;
             const callbackGroup = this.registry.get(type);
             (0, errors_1.assert)(callbackGroup !== undefined);
             if (param !== null && param !== undefined && callbackGroup.parametrized.has(param)) {
@@ -31509,13 +31466,12 @@ class CallbacksComponent {
             }
         }
         catch (err) {
-            if (!(err instanceof errors_1.InterruptScriptExecution)) {
-                (0, stacktrace_1.captureStackTrace)(err);
+            if (!(err instanceof interpreter_1.InterruptScriptExecution)) {
                 throw err;
             }
         }
         finally {
-            (0, stacktrace_1.popStackFrame)();
+            stacktrace_1.stackTrace.pop();
         }
     }
     addBehaviour(callbackString, behaviourName) {
@@ -31567,11 +31523,9 @@ const testAABB = (a, b) => {
         boundsA.y + boundsA.height > boundsB.y);
 };
 class CollisionsComponent {
-    engine;
-    object;
-    enabled = false;
-    collisionTestedThisTick = false;
     constructor(engine, object) {
+        this.enabled = false;
+        this.collisionTestedThisTick = false;
         this.engine = engine;
         this.object = object;
         this.enabled = object.definition.MONITORCOLLISION ?? false;
@@ -31614,7 +31568,9 @@ exports.CollisionsComponent = CollisionsComponent;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.EventsComponent = void 0;
 class EventsComponent {
-    listeners = new Map();
+    constructor() {
+        this.listeners = new Map();
+    }
     register(eventName, callback) {
         let callbacks = this.listeners.get(eventName);
         if (callbacks === undefined) {
@@ -31666,14 +31622,12 @@ const debugging_html_1 = __importDefault(__webpack_require__(/*! ./debugging.htm
 const audio_1 = __webpack_require__(/*! ./audio */ "./src/engine/audio.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
 class Debugging {
-    engine;
-    enabled = false;
-    mutedMusic = false;
-    debugContainer;
-    xrays = new Map();
-    enableXRay = false;
-    enableXRayInvisible = false;
     constructor(engine, isDebug, debugContainer = null) {
+        this.enabled = false;
+        this.mutedMusic = false;
+        this.xrays = new Map();
+        this.enableXRay = false;
+        this.enableXRayInvisible = false;
         this.engine = engine;
         this.enabled = isDebug;
         this.debugContainer = debugContainer;
@@ -31752,7 +31706,7 @@ class Debugging {
             try {
                 const selectedOption = sceneSelector.selectedOptions[0];
                 const arcadeSceneName = selectedOption.getAttribute('data-arcade-scene-name');
-                if (arcadeSceneName !== null) {
+                if (arcadeSceneName) {
                     const G_SARCADEOBJECTS = this.engine.scopeManager.findByName('G_SARCADEOBJECTS');
                     if (G_SARCADEOBJECTS) {
                         await G_SARCADEOBJECTS.setValue(arcadeSceneName);
@@ -31861,7 +31815,7 @@ class Debugging {
                 }
                 const [cnvPath, sceneName] = pathPrefix;
                 const cnv = await this.engine.filesystem.getCNVFile(cnvPath);
-                if (cnv.BEHINITSCRIPT !== undefined) {
+                if (cnv.BEHINITSCRIPT) {
                     const option = document.createElement('option');
                     option.value = sceneName;
                     option.text = sceneName;
@@ -31899,9 +31853,8 @@ class Debugging {
             }
             return;
         }
-        (0, errors_1.assert)(this.engine.currentScene !== null);
-        const sceneScope = this.engine.currentScene.scope;
-        (0, errors_1.assert)(sceneScope !== null);
+        const sceneScope = this.engine.currentScene?.scope;
+        (0, errors_1.assert)(sceneScope);
         for (const object of sceneScope.objects) {
             const info = object.__getXRayInfo();
             if (info == null || (!this.enableXRayInvisible && !info.visible)) {
@@ -32038,21 +31991,13 @@ const audio_1 = __webpack_require__(/*! ./audio */ "./src/engine/audio.ts");
 const logging_1 = __webpack_require__(/*! ./logging */ "./src/engine/logging.ts");
 const logger_1 = __webpack_require__(/*! ../fileFormats/logger */ "./src/fileFormats/logger.ts");
 class Engine {
-    app;
-    options;
-    debug;
-    speed = 1;
-    scopeManager;
-    rendering;
-    scripting;
-    currentScene = null;
-    previousScene = null;
-    saveFile;
-    filesystem;
-    music = null;
     constructor(app, options) {
         this.app = app;
         this.options = options;
+        this.speed = 1;
+        this.currentScene = null;
+        this.previousScene = null;
+        this.music = null;
         (0, logger_1.setFormatsLogger)(logging_1.logger);
         this.rendering = new rendering_1.RenderingManager(app);
         this.scripting = new scripting_1.ScriptingManager(this);
@@ -32143,7 +32088,8 @@ class Engine {
         this.options.onSceneChange?.(sceneName, this.currentScene?.name);
         this.app.ticker.stop();
         this.rendering.onSceneChange();
-        this.rendering.setLoadingCursor();
+        this.app.stage.addChild(this.rendering.loadingOverlay);
+        this.app.renderer.render(this.app.stage);
         const loadingFreezeOverlay = pixi_js_1.Sprite.from(await this.app.renderer.extract.image(this.app.stage, undefined, undefined, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height)));
         loadingFreezeOverlay.name = 'Loading freeze overlay';
         loadingFreezeOverlay.zIndex = 9999999;
@@ -32160,7 +32106,7 @@ class Engine {
             }
             // Alert when rendering stage wasn't completely cleared after all destroys.
             // For debugging purposes.
-            const leakedObjects = this.app.stage.children.filter((obj) => ![loadingFreezeOverlay, this.rendering.canvasBackground].includes(obj));
+            const leakedObjects = this.app.stage.children.filter((obj) => ![loadingFreezeOverlay, this.rendering.loadingOverlay, this.rendering.canvasBackground].includes(obj));
             if (leakedObjects.length > 0) {
                 logging_1.logger.error('Display objects leak detected', {
                     leakedObjects,
@@ -32175,7 +32121,7 @@ class Engine {
             }
             // Set background image
             let texturePromise = null;
-            if (this.currentScene.definition.BACKGROUND !== undefined) {
+            if (this.currentScene.definition.BACKGROUND) {
                 texturePromise = (0, assetsLoader_1.loadTexture)(this.filesystem, await this.currentScene.getRelativePath(this.currentScene.definition.BACKGROUND));
             }
             else {
@@ -32184,7 +32130,7 @@ class Engine {
             // Play new scene background music.
             // We keep playing the same music if it was the same in previous scene
             let musicPromise = null;
-            if (this.music == null && this.currentScene.definition.MUSIC !== undefined) {
+            if (this.music == null && this.currentScene.definition.MUSIC) {
                 musicPromise = (0, assetsLoader_1.loadSound)(this.filesystem, this.currentScene.definition.MUSIC);
             }
             const sceneDefinitionPromise = this.filesystem.getCNVFile(await this.currentScene.getRelativePath(sceneName + '.cnv'));
@@ -32213,11 +32159,13 @@ class Engine {
                     muted: this.debug.mutedMusic,
                 });
             }
-            await (0, definitionLoader_1.doReady)(newScope);
+            if (newScope) {
+                await (0, definitionLoader_1.doReady)(newScope);
+            }
         }
         finally {
-            this.rendering.resetCursor();
             this.app.stage.removeChild(loadingFreezeOverlay);
+            this.app.stage.removeChild(this.rendering.loadingOverlay);
             this.app.ticker.start();
             this.debug.updateCurrentScene();
         }
@@ -32225,6 +32173,9 @@ class Engine {
     getObject(name, parentScope = null) {
         if (typeof name == 'string') {
             const currentScopeEntry = parentScope?.get(name);
+            if (currentScopeEntry) {
+                return currentScopeEntry;
+            }
             return currentScopeEntry ?? this.scopeManager.findByName(name, parentScope);
         }
         else if (name === null) {
@@ -32250,9 +32201,8 @@ class Engine {
         }
     }
     resume() {
-        (0, errors_1.assert)(this.currentScene !== null, 'there is no active scene');
-        const sceneScope = this.currentScene.scope;
-        (0, errors_1.assert)(sceneScope !== null, 'there is no active scope');
+        const sceneScope = this.currentScene?.scope;
+        (0, errors_1.assert)(sceneScope);
         audio_1.globalAudio.resume();
         for (const object of sceneScope.objects) {
             object.resume();
@@ -32260,9 +32210,8 @@ class Engine {
         this.app.ticker.start();
     }
     pause() {
-        (0, errors_1.assert)(this.currentScene !== null, 'there is no active scene');
-        const sceneScope = this.currentScene.scope;
-        (0, errors_1.assert)(sceneScope !== null, 'there is no active scope');
+        const sceneScope = this.currentScene?.scope;
+        (0, errors_1.assert)(sceneScope);
         this.app.ticker.stop();
         audio_1.globalAudio.pause();
         for (const object of sceneScope.objects) {
@@ -32286,9 +32235,6 @@ exports.Engine = Engine;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.logger = exports.allLogs = exports.fmt = exports.codeHighlight = exports.bold = exports.red = exports.color = void 0;
 class TextFormatting {
-    text;
-    richText;
-    args;
     constructor(text, richText, args) {
         this.text = text;
         this.richText = richText;
@@ -32338,17 +32284,19 @@ const fmt = (strings, ...values) => {
 exports.fmt = fmt;
 exports.allLogs = [];
 class Logger {
-    severityMapping = {
-        info: console.log,
-        warn: console.warn,
-        error: console.error,
-        debug: console.debug,
-    };
+    constructor() {
+        this.severityMapping = {
+            info: console.log,
+            warn: console.warn,
+            error: console.error,
+            debug: console.debug,
+        };
+    }
     appendExtraData(formatting, extraData) {
         const { text, richText, richArgs } = formatting;
         let richTextCopy = richText;
         const richArgsCopy = [...richArgs];
-        if (extraData !== undefined && Object.entries(extraData).length > 0) {
+        if (extraData && Object.entries(extraData).length > 0) {
             richTextCopy += '\n';
             for (const [key, value] of Object.entries(extraData)) {
                 if (key.startsWith('_')) {
@@ -32412,27 +32360,43 @@ exports.logger = new Logger();
 
 "use strict";
 
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createColorTexture = exports.drawRectangle = exports.createHitmapFromImageBytes = exports.AdvancedSprite = exports.RenderingManager = void 0;
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
-const loading_cursor_png_1 = __importDefault(__webpack_require__(/*! ../../static/loading-cursor.png */ "./static/loading-cursor.png"));
 class RenderingManager {
-    app;
-    displayObjectsInDefinitionOrder = [];
-    sameZIndexUpdateOrder = new Map(); // The later in array the higher zindex
-    canvasBackground;
-    blackTexture;
-    dirtyRects = [];
     constructor(app) {
         this.app = app;
+        this.displayObjectsInDefinitionOrder = [];
+        this.sameZIndexUpdateOrder = new Map(); // The later in array the higher zindex
+        this.dirtyRects = [];
         this.blackTexture = (0, exports.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0);
         this.canvasBackground = new pixi_js_1.Sprite(this.blackTexture);
         this.canvasBackground.zIndex = -99999;
         this.canvasBackground.name = 'Scene Background'; // For PIXI Devtools
+        const loadingDarkOverlay = pixi_js_1.Sprite.from((0, exports.createColorTexture)(this.app, new pixi_js_1.Rectangle(0, 0, this.app.view.width, this.app.view.height), 0x000000, 0.5));
+        const loadingText = new pixi_js_1.Text('Loading..', new pixi_js_1.TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 36,
+            fontWeight: 'bold',
+            fill: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 5,
+            dropShadow: true,
+            dropShadowColor: '#000000',
+            dropShadowBlur: 4,
+            dropShadowAngle: Math.PI / 6,
+            dropShadowDistance: 6,
+            wordWrap: true,
+            wordWrapWidth: 440,
+            lineJoin: 'round',
+        }));
+        loadingText.x = this.app.view.width / 2;
+        loadingText.y = this.app.view.height / 2;
+        loadingText.anchor.set(0.5, 0.5);
+        this.loadingOverlay = new pixi_js_1.Container();
+        this.loadingOverlay.addChild(loadingDarkOverlay);
+        this.loadingOverlay.addChild(loadingText);
     }
     init() {
         this.app.ticker.maxFPS = 60;
@@ -32453,9 +32417,6 @@ class RenderingManager {
     setCursor(mode) {
         this.app.renderer.events.cursorStyles.default = mode;
         this.app.renderer.events.setCursor(mode);
-    }
-    setLoadingCursor() {
-        this.setCursor(`url('${loading_cursor_png_1.default}') 16 16, wait`);
     }
     resetCursor() {
         this.app.stage.eventMode = 'static';
@@ -32534,8 +32495,10 @@ class RenderingManager {
 }
 exports.RenderingManager = RenderingManager;
 class AdvancedSprite extends pixi_js_1.Sprite {
-    hitmap;
-    checkPixelPerfect = false;
+    constructor() {
+        super(...arguments);
+        this.checkPixelPerfect = false;
+    }
     getAlphaAt(point) {
         (0, errors_1.assert)(this.hitmap !== undefined);
         const tempPoint = { x: 0, y: 0 };
@@ -32606,9 +32569,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SaveFileManager = exports.createSaveFileLocalStorageHandler = exports.SaveFile = void 0;
 const ini_1 = __importDefault(__webpack_require__(/*! ini */ "./node_modules/ini/lib/ini.js"));
 class SaveFile {
-    content = new Map();
-    onChange;
     constructor(initialContent, onChange) {
+        this.content = new Map();
         if (initialContent !== null) {
             this.content = this.fromObject(initialContent);
         }
@@ -32678,7 +32640,7 @@ class SaveFileManager {
     }
     static fromLocalStorage(key = 'saveFile') {
         const content = localStorage.getItem(key);
-        return new SaveFile(content !== null ? JSON.parse(content) : null, (0, exports.createSaveFileLocalStorageHandler)(key));
+        return new SaveFile(content ? JSON.parse(content) : null, (0, exports.createSaveFileLocalStorageHandler)(key));
     }
     static fromINI(content, updateCallback) {
         return new SaveFile(ini_1.default.parse(content), updateCallback);
@@ -32706,8 +32668,10 @@ const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/error
 const byName = (name) => (key, object) => key === name;
 const byType = (type) => (key, object) => object.definition.TYPE === type;
 class ScopeManager {
-    scopes = [];
-    localScopes = [];
+    constructor() {
+        this.scopes = [];
+        this.localScopes = [];
+    }
     newScope(type) {
         const newScope = new Scope(type);
         this.scopes.push(newScope);
@@ -32740,15 +32704,28 @@ class ScopeManager {
     }
     _find(callback, scopes, level = 0) {
         const scope = scopes[scopes.length - 1 - level];
-        if (scope === undefined) {
+        if (!scope) {
             return null;
         }
         const result = scope.find(callback);
-        if (result !== null) {
+        if (result) {
             return result;
         }
         else {
             return this._find(callback, scopes, level + 1);
+        }
+    }
+    getScopeOf(object, level = 0) {
+        const scope = this.scopes[this.scopes.length - 1 - level];
+        if (!scope) {
+            return null;
+        }
+        const result = [...scope.content.values()].includes(object);
+        if (result) {
+            return scope;
+        }
+        else {
+            return this.getScopeOf(object, level + 1);
         }
     }
     get APPLICATION() {
@@ -32759,8 +32736,6 @@ class ScopeManager {
 }
 exports.ScopeManager = ScopeManager;
 class Scope {
-    type;
-    content;
     constructor(type, content = new Map()) {
         this.type = type;
         this.content = content;
@@ -32802,32 +32777,41 @@ exports.Scope = Scope;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ScriptingManager = void 0;
 const scope_1 = __webpack_require__(/*! ./scope */ "./src/engine/scope.ts");
+const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 const logging_1 = __webpack_require__(/*! ./logging */ "./src/engine/logging.ts");
 const interpreter_1 = __webpack_require__(/*! ../interpreter */ "./src/interpreter/index.ts");
+const stacktrace_1 = __webpack_require__(/*! ../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
 class ScriptingManager {
-    engine;
     constructor(engine) {
         this.engine = engine;
     }
     async executeCallback(thisRef, caller, callback, args, localScopeEntries, forwardInterrupts = false) {
+        let stackFrame = null;
         try {
             const localScope = new scope_1.Scope('local', localScopeEntries ? new Map(Object.entries(localScopeEntries)) : undefined);
             if (thisRef !== null) {
                 localScope.set('THIS', thisRef);
             }
             this.engine.scopeManager.pushLocalScope(localScope);
-            if (callback.code !== undefined) {
+            if (callback.code) {
                 return await (0, interpreter_1.runCode)(this.engine, caller, callback.code, args ?? [], callback.isSingleStatement);
             }
-            else if (callback.behaviourReference !== undefined) {
-                const behaviour = this.engine.getObject(callback.behaviourReference, caller?.parentScope);
-                if (!behaviour) {
+            else if (callback.behaviourReference) {
+                if (!this.engine.getObject(callback.behaviourReference, caller?.parentScope)) {
                     logging_1.logger.error(`Trying to execute behaviour "${callback.behaviourReference}" that doesn't exist!`, {
                         callback,
                         thisRef,
                     });
                     return;
                 }
+                stackFrame = stacktrace_1.StackFrame.builder()
+                    .type('behaviour')
+                    .behaviour(callback.behaviourReference)
+                    .args(...(args !== undefined ? args : []))
+                    .build();
+                stacktrace_1.stackTrace.push(stackFrame);
+                const behaviour = this.engine.getObject(callback.behaviourReference, caller?.parentScope);
+                (0, errors_1.assert)(behaviour !== null);
                 if (forwardInterrupts) {
                     return await behaviour.executeConditionalCallback(args ?? callback.constantArguments);
                 }
@@ -32838,6 +32822,9 @@ class ScriptingManager {
         }
         finally {
             this.engine.scopeManager.popLocalScope();
+            if (stackFrame !== null) {
+                stacktrace_1.stackTrace.pop();
+            }
         }
     }
 }
@@ -32935,6 +32922,7 @@ const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/type
 const collisions_1 = __webpack_require__(/*! ../components/collisions */ "./src/engine/components/collisions.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Animo = (() => {
+    var _a;
     let _classSuper = index_1.DisplayType;
     let _instanceExtraInitializers = [];
     let _PLAY_decorators;
@@ -32972,8 +32960,649 @@ let Animo = (() => {
     let _REMOVEMONITORCOLLISION_decorators;
     let _SETOPACITY_decorators;
     let _LOAD_decorators;
-    return class Animo extends _classSuper {
-        static {
+    return _a = class Animo extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
+                this.buttonLogic = __runInitializers(this, _instanceExtraInitializers);
+                this.isPlaying = false;
+                this.currentFrame = 0;
+                this.currentEvent = null;
+                this.eventEndedLastTick = null;
+                this.buttonInteractArea = null;
+                this.fps = 16;
+                this.timeSinceLastFrame = 0;
+                this.positionX = 0;
+                this.positionOffsetX = 0;
+                this.positionY = 0;
+                this.positionOffsetY = 0;
+                this.anchorOffsetX = 0;
+                this.anchorOffsetY = 0;
+                this.annFile = null;
+                this.sprite = null;
+                this.textures = new Map();
+                this.hitmaps = new Map();
+                this.sounds = new Map();
+                this.fps = definition.FPS ?? 16;
+                this.collisions = new collisions_1.CollisionsComponent(engine, this);
+                this.buttonLogic = new button_1.ButtonLogicComponent(this.onButtonStateChange.bind(this));
+            }
+            async init() {
+                this.annFile = await this.loadAnimation(this.definition.FILENAME);
+            }
+            async applyDefaults() {
+                const existingObjectWithFilename = this.engine.scopeManager.find((key, object) => object != this &&
+                    object instanceof _a &&
+                    object.definition.FILENAME === this.definition.FILENAME &&
+                    object.sprite != null);
+                if (existingObjectWithFilename != null) {
+                    this.sprite = existingObjectWithFilename.sprite;
+                }
+                else {
+                    await this.initSprite();
+                }
+            }
+            async ready() {
+                await this.callbacks.run('ONINIT');
+            }
+            destroy() {
+                if (this.sprite !== null) {
+                    this.engine.rendering.removeFromStage(this.sprite);
+                }
+                if (this.buttonInteractArea !== null) {
+                    this.buttonLogic.unregisterInteractive(this.buttonInteractArea);
+                    this.engine.rendering.removeFromStage(this.buttonInteractArea);
+                }
+                for (const sound of this.sounds.values()) {
+                    sound.stop();
+                }
+                this.sounds.clear();
+            }
+            async tick(elapsedMS) {
+                await this.buttonLogic.tick();
+                this.collisions.tick();
+                if (!this.isPlaying) {
+                    return;
+                }
+                this.timeSinceLastFrame += elapsedMS * this.engine.speed;
+                const frameLength = (1 / this.fps) * 1000;
+                while (this.isPlaying && this.timeSinceLastFrame >= frameLength) {
+                    await this.tickAnimation();
+                    this.timeSinceLastFrame -= frameLength;
+                }
+            }
+            getDefaultEvent() {
+                (0, errors_1.assert)(this.annFile !== null);
+                // Find first event with any frames
+                const defaultEvent = this.annFile.events.find((event) => event.framesCount > 0);
+                if (defaultEvent !== undefined) {
+                    return defaultEvent.name;
+                }
+                return null;
+            }
+            async loadAnimation(path) {
+                try {
+                    const relativePath = this.engine.currentScene
+                        ? await this.engine.currentScene.getRelativePath(path)
+                        : await this.engine.resolvePath(path);
+                    const annFile = await this.engine.filesystem.getANNFile(relativePath);
+                    await this.loadSfx(annFile);
+                    logging_1.logger.debug(`ANN file '${path}' loaded successfully!`, {
+                        animo: this,
+                        annFile,
+                    });
+                    return annFile;
+                }
+                catch (err) {
+                    if (err instanceof fileLoader_1.FileNotFoundError) {
+                        throw new errors_1.InvalidObjectError('ANN file not found');
+                    }
+                    throw err;
+                }
+            }
+            async loadSfx(annFile) {
+                const loadSoundIfNotExists = async (filename) => {
+                    const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '');
+                    const resolvedPath = await this.engine.resolvePath(normalizedSFXFilename, 'wavs/sfx');
+                    try {
+                        const sound = await (0, assetsLoader_1.loadSound)(this.engine.filesystem, resolvedPath);
+                        this.sounds.set(filename, sound);
+                    }
+                    catch (err) {
+                        logging_1.logger.warn('Failed to load sfx sound', {
+                            animo: this,
+                            filename,
+                            resolvedPath,
+                        }, err);
+                    }
+                };
+                const soundsNames = new Set();
+                for (const event of annFile.events) {
+                    for (const frame of event.frames) {
+                        if (frame.sounds) {
+                            frame.sounds.forEach((name) => soundsNames.add(name));
+                        }
+                    }
+                }
+                await Promise.all([...soundsNames].map(loadSoundIfNotExists));
+            }
+            async initSprite() {
+                (0, errors_1.assert)(this.annFile !== null);
+                this.sprite = new rendering_1.AdvancedSprite();
+                this.sprite.name = `${this.name} [ANIMO]`; // For PIXI Devtools
+                this.sprite.eventMode = 'none';
+                this.sprite.visible = this.definition.VISIBLE;
+                this.SETPRIORITY(this.definition.PRIORITY ?? 0);
+                if (this.definition.TOCANVAS) {
+                    this.engine.rendering.addToStage(this.sprite);
+                }
+                this.currentEvent = this.getEvent(this.getDefaultEvent() ?? '');
+                if (this.currentEvent) {
+                    await this.changeFrame(this.currentEvent, 0, false);
+                }
+            }
+            getTexture(imageIndex) {
+                (0, errors_1.assert)(this.annFile != null);
+                // Check if cached already
+                if (this.textures.has(imageIndex)) {
+                    return this.textures.get(imageIndex);
+                }
+                const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(this.annFile.images[imageIndex]), this.annFile.annImages[imageIndex].width, this.annFile.annImages[imageIndex].height);
+                const texture = new PIXI.Texture(baseTexture);
+                this.textures.set(imageIndex, texture);
+                return texture;
+            }
+            getHitmap(imageIndex) {
+                (0, errors_1.assert)(this.annFile != null);
+                if (this.hitmaps.has(imageIndex)) {
+                    return this.hitmaps.get(imageIndex);
+                }
+                const hitmap = (0, rendering_1.createHitmapFromImageBytes)(this.annFile.images[imageIndex]);
+                this.hitmaps.set(imageIndex, hitmap);
+                return hitmap;
+            }
+            async tickAnimation() {
+                (0, errors_1.assert)(this.annFile !== null && this.sprite !== null);
+                const event = this.currentEvent;
+                if (!event) {
+                    return;
+                }
+                if (this.eventEndedLastTick == this.currentEvent) {
+                    this.eventEndedLastTick = null;
+                    await this.STOP(true);
+                    return;
+                }
+                await this.changeFrame(event, this.currentFrame);
+                if (this.currentFrame === 0) {
+                    await this.ONSTARTED();
+                }
+                // Animation might get stopped in ONFRAMECHANGED callback like in UFO:S65_ZAMEK
+                // If we wouldn't return there then if ONFINISHED has PLAY then it will never stop running
+                // because PLAY is changing isPlaying back to true
+                if (!this.isPlaying) {
+                    return;
+                }
+                // Event might be changed in ONFRAMECHANGED or ONSTARTED
+                // event.name might be lowercase
+                if (event !== this.currentEvent) {
+                    return;
+                }
+                // Random sound out of them?
+                const eventFrame = event.frames[this.currentFrame];
+                if (eventFrame.sounds) {
+                    const filenames = eventFrame.sounds;
+                    const randomFilename = filenames[Math.floor(Math.random() * filenames.length)];
+                    if (this.sounds.has(randomFilename)) {
+                        logging_1.logger.debug(`Playing sound '${randomFilename}'`, {
+                            animo: this,
+                        });
+                        const sound = this.sounds.get(randomFilename);
+                        sound.play();
+                    }
+                }
+                if (event.loopFramesEndIndex != 0 && this.currentFrame == event.loopFramesEndIndex) {
+                    // TODO: handle event.loopRepeatsCount
+                    this.currentFrame = event.loopFramesStartIndex;
+                }
+                else if (this.currentFrame + 1 >= event.framesCount) {
+                    this.currentFrame = 0;
+                    this.eventEndedLastTick = this.currentEvent;
+                }
+                else {
+                    this.currentFrame++;
+                }
+            }
+            syncPosition() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.x =
+                    this.positionX + this.positionOffsetX - this.anchorOffsetX + this.sprite.width * this.sprite.anchor.x;
+                this.sprite.y =
+                    this.positionY + this.positionOffsetY - this.anchorOffsetY + this.sprite.height * this.sprite.anchor.y;
+            }
+            async changeFrame(event, frameIdx, signal = true) {
+                (0, errors_1.assert)(this.annFile !== null);
+                (0, errors_1.assert)(this.sprite !== null);
+                (0, errors_1.assert)(event !== null);
+                const eventFrame = event.frames[frameIdx];
+                if (eventFrame === undefined) {
+                    logging_1.logger.warn(`Attempted to change to non-existent frame ${frameIdx}`, {
+                        animo: this,
+                    });
+                    return;
+                }
+                const imageIndex = event.framesImageMapping[frameIdx];
+                const annImage = this.annFile.annImages[imageIndex];
+                this.sprite.texture = this.getTexture(imageIndex);
+                this.sprite.hitmap = this.getHitmap(imageIndex);
+                this.sprite.name = `${this.name} (${event.name}) (ANIMO)`; // For PIXI Devtools
+                this.positionOffsetX = annImage.positionX + eventFrame.positionX;
+                this.positionOffsetY = annImage.positionY + eventFrame.positionY;
+                this.syncPosition();
+                this.sprite.width = annImage.width;
+                this.sprite.height = annImage.height;
+                if (this.buttonInteractArea !== null) {
+                    this.buttonInteractArea.hitArea = this.sprite.getBounds();
+                }
+                if (signal) {
+                    await this.callbacks.run('ONFRAMECHANGED', event.name);
+                }
+            }
+            changeImage(imageIndex) {
+                (0, errors_1.assert)(this.annFile !== null);
+                (0, errors_1.assert)(this.sprite !== null);
+                const annImage = this.annFile.annImages[imageIndex];
+                if (annImage === undefined) {
+                    logging_1.logger.warn(`Attempted to change to non-existent frame image ${imageIndex}`, {
+                        animo: this,
+                    });
+                    return;
+                }
+                this.sprite.texture = this.getTexture(imageIndex);
+                this.sprite.hitmap = this.getHitmap(imageIndex);
+                this.positionOffsetX = annImage.positionX;
+                this.positionOffsetY = annImage.positionY;
+                this.syncPosition();
+                this.sprite.width = annImage.width;
+                this.sprite.height = annImage.height;
+                if (this.buttonInteractArea !== null) {
+                    this.buttonInteractArea.hitArea = this.sprite.getBounds();
+                }
+            }
+            async PLAY(name) {
+                if (name === undefined) {
+                    this.SHOW();
+                    this.RESUME();
+                    return;
+                }
+                await this.playEvent(name);
+            }
+            async playEvent(name) {
+                if (!this.hasEvent(name.toString())) {
+                    return;
+                }
+                const event = this.getEvent(name);
+                (0, errors_1.assert)(event !== null);
+                if (event.framesCount === 0) {
+                    await this.ONFINISHED();
+                    return;
+                }
+                this.eventEndedLastTick = null;
+                this.isPlaying = true;
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.visible = true;
+                this.currentFrame = 0;
+                this.currentEvent = this.getEvent(name);
+                // Animation could be paused before next tick, and it wouldn't render new frame
+                // Tick animation so that it's not signaling twice for 0 frame
+                // + it has to call ONSTARTED instantly
+                await this.tickAnimation();
+            }
+            async forceRender() {
+                (0, errors_1.assert)(this.currentEvent !== null);
+                await this.changeFrame(this.currentEvent, this.currentFrame, true);
+            }
+            async ONFINISHED() {
+                (0, errors_1.assert)(this.currentEvent !== null);
+                const index = this.currentEvent.name.toUpperCase();
+                await this.callbacks.run('ONFINISHED', index);
+                await this.events?.trigger('ONFINISHED', index);
+            }
+            async ONSTARTED() {
+                (0, errors_1.assert)(this.currentEvent !== null);
+                const index = this.currentEvent.name.toUpperCase();
+                await this.callbacks.run('ONSTARTED', index);
+                await this.events?.trigger('ONSTARTED', index);
+            }
+            // For some reason there is sometimes a string passed
+            async STOP(shouldSignal) {
+                this.isPlaying = false;
+                this.currentFrame = 0;
+                if (shouldSignal !== false && shouldSignal !== 'FALSE') {
+                    await this.ONFINISHED();
+                }
+            }
+            PAUSE() {
+                this.isPlaying = false;
+            }
+            RESUME() {
+                this.isPlaying = true;
+            }
+            SETANCHOR(anchor) {
+                (0, errors_1.assert)(this.sprite !== null);
+                switch (anchor) {
+                    case 'CENTER':
+                        this.anchorOffsetX = this.positionOffsetX + Math.round(this.sprite.width / 2);
+                        this.anchorOffsetY = this.positionOffsetY + Math.round(this.sprite.height / 2);
+                        break;
+                    case 'LEFTUPPER':
+                        this.anchorOffsetX = this.positionOffsetX;
+                        this.anchorOffsetY = this.positionOffsetY;
+                        break;
+                    case 'LEFTLOWER':
+                        this.anchorOffsetX = this.positionOffsetX;
+                        this.anchorOffsetY = this.positionOffsetY + this.sprite.height;
+                        break;
+                    case 'RIGHTUPPER':
+                        this.anchorOffsetX = this.positionOffsetX + this.sprite.width;
+                        this.anchorOffsetY = this.positionOffsetY;
+                        break;
+                    case 'RIGHTLOWER':
+                        this.anchorOffsetX = this.positionOffsetX + this.sprite.width;
+                        this.anchorOffsetY = this.positionOffsetY + this.sprite.height;
+                        break;
+                    default:
+                        logging_1.logger.warn('Invalid anchor specifier - resetting anchor values.', {
+                            animo: this,
+                        });
+                        this.anchorOffsetX = 0;
+                        this.anchorOffsetY = 0;
+                        break;
+                }
+            }
+            async SETFRAME(eventNameOrFrameIdx, frameIdx) {
+                if (frameIdx === undefined) {
+                    const imageIndex = Number(eventNameOrFrameIdx);
+                    (0, errors_1.assert)(!Number.isNaN(imageIndex));
+                    this.changeImage(imageIndex);
+                    return;
+                }
+                const newEvent = eventNameOrFrameIdx.toString();
+                const newEventFrame = Number(frameIdx);
+                const event = this.getEvent(newEvent);
+                if (event === null) {
+                    logging_1.logger.warn(`SETFRAME: event "${newEvent}" does not exist, ignoring`, {
+                        animo: this,
+                    });
+                    return;
+                }
+                // Necessary in S63_OBOZ
+                if (newEventFrame < event.framesCount) {
+                    this.currentEvent = event;
+                    this.currentFrame = newEventFrame;
+                    // Force render because some animations might not be playing,
+                    // but they display something (like a keypad screen in S73_0_KOD in UFO)
+                    await this.forceRender();
+                }
+            }
+            SETFPS(fps) {
+                this.fps = fps;
+            }
+            SHOW() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.visible = true;
+            }
+            HIDE() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.visible = false;
+            }
+            ISVISIBLE() {
+                (0, errors_1.assert)(this.sprite !== null);
+                return this.sprite.visible;
+            }
+            async MOVE(xOffset, yOffset) {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.positionX += Math.trunc(xOffset);
+                this.positionY += Math.trunc(yOffset);
+                this.syncPosition();
+                await this.onMove();
+            }
+            async SETPOSITION(x, y) {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.positionX = Math.trunc(x);
+                this.positionY = Math.trunc(y);
+                this.syncPosition();
+                await this.onMove();
+            }
+            async SETASBUTTON(enabled, showPointer) {
+                (0, errors_1.assert)(this.sprite !== null);
+                if (enabled) {
+                    if (this.buttonInteractArea === null) {
+                        this.buttonInteractArea = new pixi_js_1.Graphics();
+                        this.engine.rendering.addToStage(this.buttonInteractArea);
+                        this.buttonLogic.registerInteractive(this.buttonInteractArea, showPointer);
+                    }
+                    this.buttonInteractArea.name = `${this.name} (ANIMO Button)`; // For PIXI Devtools
+                    this.buttonInteractArea.hitArea = this.sprite.getBounds();
+                    this.buttonInteractArea.zIndex = this.sprite.zIndex;
+                    await this.buttonLogic.enable();
+                    await this.playEvent('ONNOEVENT');
+                }
+                else {
+                    if (this.buttonInteractArea) {
+                        this.buttonLogic.unregisterInteractive(this.buttonInteractArea);
+                        this.engine.rendering.removeFromStage(this.buttonInteractArea);
+                        this.buttonInteractArea = null;
+                    }
+                    await this.buttonLogic?.disable();
+                }
+            }
+            async DISABLE() {
+                await this.buttonLogic.disable(); // not sure
+            }
+            async onButtonStateChange(prevState, event, newState) {
+                const playEventIfExists = async (eventName) => {
+                    if (this.hasEvent(eventName)) {
+                        await this.playEvent(eventName);
+                    }
+                    else if (this.hasEvent('PLAY')) {
+                        await this.playEvent('PLAY');
+                    }
+                };
+                switch (newState) {
+                    case button_1.State.HOVERED:
+                        await playEventIfExists('ONFOCUSON');
+                        await this.callbacks.run(event === button_1.Event.UP ? 'ONRELEASE' : 'ONFOCUSON');
+                        break;
+                    case button_1.State.STANDARD:
+                        if (event === button_1.Event.ENABLE) {
+                            await playEventIfExists('ONNOEVENT');
+                        }
+                        else {
+                            await playEventIfExists('ONFOCUSOFF');
+                            await this.callbacks.run('ONFOCUSOFF');
+                        }
+                        break;
+                    case button_1.State.PRESSED:
+                        await playEventIfExists('ONCLICK');
+                        await this.callbacks.run('ONCLICKED');
+                        await this.callbacks.run('ONCLICK');
+                        break;
+                }
+            }
+            GETCENTERX() {
+                (0, errors_1.assert)(this.sprite !== null);
+                return Math.round(this.sprite.getGlobalPosition().x + this.sprite.width / 2);
+            }
+            GETCENTERY() {
+                (0, errors_1.assert)(this.sprite !== null);
+                return Math.round(this.sprite.getGlobalPosition().y + this.sprite.height / 2);
+            }
+            GETPOSITIONX() {
+                (0, errors_1.assert)(this.sprite !== null);
+                return this.sprite.getGlobalPosition().x;
+            }
+            GETPOSITIONY() {
+                (0, errors_1.assert)(this.sprite !== null);
+                return this.sprite.getGlobalPosition().y;
+            }
+            GETFRAMENAME(frameID, iFrameNo) {
+                (0, errors_1.assert)(this.currentEvent !== null);
+                if (frameID === undefined && iFrameNo === undefined) {
+                    return this.currentEvent.frames[this.currentFrame].name;
+                }
+                (0, errors_1.assert)(frameID !== undefined && iFrameNo !== undefined);
+                (0, errors_1.assert)(this.annFile !== null);
+                const event = typeof frameID === 'string' ? this.getEvent(frameID) : this.annFile.events[frameID];
+                (0, errors_1.assert)(event !== null);
+                return event?.frames[iFrameNo].name;
+            }
+            GETMAXWIDTH() {
+                (0, errors_1.assert)(this.annFile !== null);
+                return Math.max(...this.annFile.annImages.map((e) => e.width));
+            }
+            GETNOFINEVENT(name) {
+                return this.getEvent(name)?.framesCount ?? 0;
+            }
+            GETEVENTNAME(eventIndex) {
+                if (eventIndex === undefined) {
+                    (0, errors_1.assert)(this.currentEvent !== null);
+                    return this.currentEvent.name.toUpperCase();
+                }
+                else {
+                    const event = this.getAllEvents()[eventIndex];
+                    (0, errors_1.assert)(event !== undefined);
+                    return event.name.toUpperCase();
+                }
+            }
+            GETFRAME() {
+                (0, errors_1.assert)(this.currentEvent !== null);
+                return this.currentEvent.framesImageMapping[this.currentFrame];
+            }
+            GETCFRAMEINEVENT() {
+                return this.currentFrame;
+            }
+            GETNOF() {
+                (0, errors_1.assert)(this.annFile !== null);
+                return this.annFile.header.framesCount;
+            }
+            GETNOE() {
+                (0, errors_1.assert)(this.annFile !== null);
+                return this.annFile.events.length;
+            }
+            GETCURRFRAMEPOSX() {
+                (0, errors_1.assert)(this.currentEvent !== null);
+                return this.currentEvent.frames[this.currentFrame].positionX;
+            }
+            GETCURRFRAMEPOSY() {
+                (0, errors_1.assert)(this.currentEvent !== null);
+                return this.currentEvent.frames[this.currentFrame].positionY;
+            }
+            ISPLAYING(animName) {
+                (0, errors_1.assert)(this.currentEvent !== null);
+                return this.isPlaying && (animName === undefined || this.currentEvent.name.toUpperCase() == animName);
+            }
+            ISNEAR(objectName, percentage) {
+                const otherObject = this.getObject(objectName);
+                if (otherObject === null || !(otherObject instanceof index_1.DisplayType)) {
+                    return false;
+                }
+                const otherSprite = otherObject.getRenderObject();
+                (0, errors_1.assert)(otherSprite !== null);
+                const thisSprite = this.getRenderObject();
+                (0, errors_1.assert)(thisSprite !== null);
+                const boundsThis = thisSprite.getBounds();
+                const boundsOther = otherSprite.getBounds();
+                const x1 = Math.max(boundsThis.x, boundsOther.x);
+                const y1 = Math.max(boundsThis.y, boundsOther.y);
+                const x2 = Math.min(boundsThis.x + boundsThis.width, boundsOther.x + boundsOther.width);
+                const y2 = Math.min(boundsThis.y + boundsThis.height, boundsOther.y + boundsOther.height);
+                const intersectionWidth = Math.max(0, x2 - x1);
+                const intersectionHeight = Math.max(0, y2 - y1);
+                const intersectionArea = intersectionWidth * intersectionHeight;
+                const areaThis = boundsThis.width * boundsThis.height;
+                const val = intersectionArea / areaThis;
+                return val * 100 > percentage;
+            }
+            ADDBEHAVIOUR(callbackString, behaviourName) {
+                this.callbacks.addBehaviour(callbackString, behaviourName);
+            }
+            MONITORCOLLISION(newState) {
+                this.collisions.enabled = true;
+            }
+            REMOVEMONITORCOLLISION() {
+                this.collisions.enabled = false;
+            }
+            SETOPACITY(opacity) {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.alpha = opacity / 255;
+            }
+            async LOAD(path) {
+                this.destroy();
+                this.annFile = await this.loadAnimation(path);
+                await this.initSprite();
+            }
+            // Only triggered on explicit position change
+            // Animation offset change doesn't trigger it
+            async onMove() {
+                await this.collisions.handle(async (object) => {
+                    await this.callbacks.run('ONCOLLISION', object.name);
+                });
+            }
+            getEvent(name) {
+                (0, errors_1.assert)(this.annFile !== null);
+                return this.annFile.events.find((event) => event.name.toUpperCase() === name.toUpperCase()) ?? null;
+            }
+            hasEvent(name) {
+                return this.getEvent(name) !== null;
+            }
+            getAllEvents() {
+                (0, errors_1.assert)(this.annFile !== null);
+                return this.annFile.events;
+            }
+            getRenderObject() {
+                return this.sprite;
+            }
+            async clone() {
+                const clone = (await super.clone());
+                clone.isPlaying = this.isPlaying;
+                clone.currentFrame = this.currentFrame;
+                clone.currentEvent = this.currentEvent;
+                clone.annFile = this.annFile;
+                clone.textures = this.textures;
+                clone.sounds = this.sounds;
+                clone.fps = this.fps;
+                clone.positionX = this.positionX;
+                clone.positionOffsetX = this.positionOffsetX;
+                clone.positionY = this.positionY;
+                clone.positionOffsetY = this.positionOffsetY;
+                clone.anchorOffsetX = this.anchorOffsetX;
+                clone.anchorOffsetY = this.anchorOffsetY;
+                await clone.initSprite();
+                clone.sprite.visible = this.sprite.visible;
+                clone.SETPRIORITY(this.GETPRIORITY());
+                return clone;
+            }
+            __getXRayInfo() {
+                if (this.buttonInteractArea) {
+                    return {
+                        type: 'button',
+                        bounds: this.buttonInteractArea.hitArea,
+                        color: this.buttonLogic.enabled ? 0x00ff00 : 0x0000ff,
+                        position: 'outside',
+                        visible: this.buttonLogic.state != button_1.State.DISABLED,
+                    };
+                }
+                else if (this.sprite?.visible) {
+                    return {
+                        type: 'sprite',
+                        bounds: this.sprite.getBounds(),
+                        position: 'inside',
+                        visible: this.sprite.visible,
+                    };
+                }
+                return null;
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _PLAY_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: true, rest: false })];
             _STOP_decorators = [(0, types_1.method)({ name: "shouldSignal", types: [{ name: "boolean", literal: null, isArray: false }, { name: "string", literal: null, isArray: false }], optional: true, rest: false })];
@@ -33010,687 +33639,48 @@ let Animo = (() => {
             _REMOVEMONITORCOLLISION_decorators = [(0, types_1.method)()];
             _SETOPACITY_decorators = [(0, types_1.method)({ name: "opacity", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _PAUSE_decorators, { kind: "method", name: "PAUSE", static: false, private: false, access: { has: obj => "PAUSE" in obj, get: obj => obj.PAUSE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _RESUME_decorators, { kind: "method", name: "RESUME", static: false, private: false, access: { has: obj => "RESUME" in obj, get: obj => obj.RESUME }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETANCHOR_decorators, { kind: "method", name: "SETANCHOR", static: false, private: false, access: { has: obj => "SETANCHOR" in obj, get: obj => obj.SETANCHOR }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETFRAME_decorators, { kind: "method", name: "SETFRAME", static: false, private: false, access: { has: obj => "SETFRAME" in obj, get: obj => obj.SETFRAME }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETFPS_decorators, { kind: "method", name: "SETFPS", static: false, private: false, access: { has: obj => "SETFPS" in obj, get: obj => obj.SETFPS }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ISVISIBLE_decorators, { kind: "method", name: "ISVISIBLE", static: false, private: false, access: { has: obj => "ISVISIBLE" in obj, get: obj => obj.ISVISIBLE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETASBUTTON_decorators, { kind: "method", name: "SETASBUTTON", static: false, private: false, access: { has: obj => "SETASBUTTON" in obj, get: obj => obj.SETASBUTTON }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETCENTERX_decorators, { kind: "method", name: "GETCENTERX", static: false, private: false, access: { has: obj => "GETCENTERX" in obj, get: obj => obj.GETCENTERX }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETCENTERY_decorators, { kind: "method", name: "GETCENTERY", static: false, private: false, access: { has: obj => "GETCENTERY" in obj, get: obj => obj.GETCENTERY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETPOSITIONX_decorators, { kind: "method", name: "GETPOSITIONX", static: false, private: false, access: { has: obj => "GETPOSITIONX" in obj, get: obj => obj.GETPOSITIONX }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETPOSITIONY_decorators, { kind: "method", name: "GETPOSITIONY", static: false, private: false, access: { has: obj => "GETPOSITIONY" in obj, get: obj => obj.GETPOSITIONY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETFRAMENAME_decorators, { kind: "method", name: "GETFRAMENAME", static: false, private: false, access: { has: obj => "GETFRAMENAME" in obj, get: obj => obj.GETFRAMENAME }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETMAXWIDTH_decorators, { kind: "method", name: "GETMAXWIDTH", static: false, private: false, access: { has: obj => "GETMAXWIDTH" in obj, get: obj => obj.GETMAXWIDTH }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETNOFINEVENT_decorators, { kind: "method", name: "GETNOFINEVENT", static: false, private: false, access: { has: obj => "GETNOFINEVENT" in obj, get: obj => obj.GETNOFINEVENT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETEVENTNAME_decorators, { kind: "method", name: "GETEVENTNAME", static: false, private: false, access: { has: obj => "GETEVENTNAME" in obj, get: obj => obj.GETEVENTNAME }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETFRAME_decorators, { kind: "method", name: "GETFRAME", static: false, private: false, access: { has: obj => "GETFRAME" in obj, get: obj => obj.GETFRAME }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETCFRAMEINEVENT_decorators, { kind: "method", name: "GETCFRAMEINEVENT", static: false, private: false, access: { has: obj => "GETCFRAMEINEVENT" in obj, get: obj => obj.GETCFRAMEINEVENT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETNOF_decorators, { kind: "method", name: "GETNOF", static: false, private: false, access: { has: obj => "GETNOF" in obj, get: obj => obj.GETNOF }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETNOE_decorators, { kind: "method", name: "GETNOE", static: false, private: false, access: { has: obj => "GETNOE" in obj, get: obj => obj.GETNOE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETCURRFRAMEPOSX_decorators, { kind: "method", name: "GETCURRFRAMEPOSX", static: false, private: false, access: { has: obj => "GETCURRFRAMEPOSX" in obj, get: obj => obj.GETCURRFRAMEPOSX }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETCURRFRAMEPOSY_decorators, { kind: "method", name: "GETCURRFRAMEPOSY", static: false, private: false, access: { has: obj => "GETCURRFRAMEPOSY" in obj, get: obj => obj.GETCURRFRAMEPOSY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ISPLAYING_decorators, { kind: "method", name: "ISPLAYING", static: false, private: false, access: { has: obj => "ISPLAYING" in obj, get: obj => obj.ISPLAYING }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ISNEAR_decorators, { kind: "method", name: "ISNEAR", static: false, private: false, access: { has: obj => "ISNEAR" in obj, get: obj => obj.ISNEAR }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ADDBEHAVIOUR_decorators, { kind: "method", name: "ADDBEHAVIOUR", static: false, private: false, access: { has: obj => "ADDBEHAVIOUR" in obj, get: obj => obj.ADDBEHAVIOUR }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MONITORCOLLISION_decorators, { kind: "method", name: "MONITORCOLLISION", static: false, private: false, access: { has: obj => "MONITORCOLLISION" in obj, get: obj => obj.MONITORCOLLISION }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _REMOVEMONITORCOLLISION_decorators, { kind: "method", name: "REMOVEMONITORCOLLISION", static: false, private: false, access: { has: obj => "REMOVEMONITORCOLLISION" in obj, get: obj => obj.REMOVEMONITORCOLLISION }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETOPACITY_decorators, { kind: "method", name: "SETOPACITY", static: false, private: false, access: { has: obj => "SETOPACITY" in obj, get: obj => obj.SETOPACITY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        buttonLogic = __runInitializers(this, _instanceExtraInitializers);
-        collisions;
-        isPlaying = false;
-        currentFrame = 0;
-        currentEvent = null;
-        eventEndedLastTick = null;
-        buttonInteractArea = null;
-        fps = 16;
-        timeSinceLastFrame = 0;
-        positionX = 0;
-        positionOffsetX = 0;
-        positionY = 0;
-        positionOffsetY = 0;
-        anchorOffsetX = 0;
-        anchorOffsetY = 0;
-        annFile = null;
-        sprite = null;
-        textures = new Map();
-        hitmaps = new Map();
-        sounds = new Map();
-        static Events = {
+            __esDecorate(_a, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _PAUSE_decorators, { kind: "method", name: "PAUSE", static: false, private: false, access: { has: obj => "PAUSE" in obj, get: obj => obj.PAUSE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RESUME_decorators, { kind: "method", name: "RESUME", static: false, private: false, access: { has: obj => "RESUME" in obj, get: obj => obj.RESUME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETANCHOR_decorators, { kind: "method", name: "SETANCHOR", static: false, private: false, access: { has: obj => "SETANCHOR" in obj, get: obj => obj.SETANCHOR }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETFRAME_decorators, { kind: "method", name: "SETFRAME", static: false, private: false, access: { has: obj => "SETFRAME" in obj, get: obj => obj.SETFRAME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETFPS_decorators, { kind: "method", name: "SETFPS", static: false, private: false, access: { has: obj => "SETFPS" in obj, get: obj => obj.SETFPS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISVISIBLE_decorators, { kind: "method", name: "ISVISIBLE", static: false, private: false, access: { has: obj => "ISVISIBLE" in obj, get: obj => obj.ISVISIBLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETASBUTTON_decorators, { kind: "method", name: "SETASBUTTON", static: false, private: false, access: { has: obj => "SETASBUTTON" in obj, get: obj => obj.SETASBUTTON }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCENTERX_decorators, { kind: "method", name: "GETCENTERX", static: false, private: false, access: { has: obj => "GETCENTERX" in obj, get: obj => obj.GETCENTERX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCENTERY_decorators, { kind: "method", name: "GETCENTERY", static: false, private: false, access: { has: obj => "GETCENTERY" in obj, get: obj => obj.GETCENTERY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPOSITIONX_decorators, { kind: "method", name: "GETPOSITIONX", static: false, private: false, access: { has: obj => "GETPOSITIONX" in obj, get: obj => obj.GETPOSITIONX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPOSITIONY_decorators, { kind: "method", name: "GETPOSITIONY", static: false, private: false, access: { has: obj => "GETPOSITIONY" in obj, get: obj => obj.GETPOSITIONY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETFRAMENAME_decorators, { kind: "method", name: "GETFRAMENAME", static: false, private: false, access: { has: obj => "GETFRAMENAME" in obj, get: obj => obj.GETFRAMENAME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETMAXWIDTH_decorators, { kind: "method", name: "GETMAXWIDTH", static: false, private: false, access: { has: obj => "GETMAXWIDTH" in obj, get: obj => obj.GETMAXWIDTH }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETNOFINEVENT_decorators, { kind: "method", name: "GETNOFINEVENT", static: false, private: false, access: { has: obj => "GETNOFINEVENT" in obj, get: obj => obj.GETNOFINEVENT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETEVENTNAME_decorators, { kind: "method", name: "GETEVENTNAME", static: false, private: false, access: { has: obj => "GETEVENTNAME" in obj, get: obj => obj.GETEVENTNAME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETFRAME_decorators, { kind: "method", name: "GETFRAME", static: false, private: false, access: { has: obj => "GETFRAME" in obj, get: obj => obj.GETFRAME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCFRAMEINEVENT_decorators, { kind: "method", name: "GETCFRAMEINEVENT", static: false, private: false, access: { has: obj => "GETCFRAMEINEVENT" in obj, get: obj => obj.GETCFRAMEINEVENT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETNOF_decorators, { kind: "method", name: "GETNOF", static: false, private: false, access: { has: obj => "GETNOF" in obj, get: obj => obj.GETNOF }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETNOE_decorators, { kind: "method", name: "GETNOE", static: false, private: false, access: { has: obj => "GETNOE" in obj, get: obj => obj.GETNOE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCURRFRAMEPOSX_decorators, { kind: "method", name: "GETCURRFRAMEPOSX", static: false, private: false, access: { has: obj => "GETCURRFRAMEPOSX" in obj, get: obj => obj.GETCURRFRAMEPOSX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCURRFRAMEPOSY_decorators, { kind: "method", name: "GETCURRFRAMEPOSY", static: false, private: false, access: { has: obj => "GETCURRFRAMEPOSY" in obj, get: obj => obj.GETCURRFRAMEPOSY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISPLAYING_decorators, { kind: "method", name: "ISPLAYING", static: false, private: false, access: { has: obj => "ISPLAYING" in obj, get: obj => obj.ISPLAYING }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISNEAR_decorators, { kind: "method", name: "ISNEAR", static: false, private: false, access: { has: obj => "ISNEAR" in obj, get: obj => obj.ISNEAR }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ADDBEHAVIOUR_decorators, { kind: "method", name: "ADDBEHAVIOUR", static: false, private: false, access: { has: obj => "ADDBEHAVIOUR" in obj, get: obj => obj.ADDBEHAVIOUR }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MONITORCOLLISION_decorators, { kind: "method", name: "MONITORCOLLISION", static: false, private: false, access: { has: obj => "MONITORCOLLISION" in obj, get: obj => obj.MONITORCOLLISION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVEMONITORCOLLISION_decorators, { kind: "method", name: "REMOVEMONITORCOLLISION", static: false, private: false, access: { has: obj => "REMOVEMONITORCOLLISION" in obj, get: obj => obj.REMOVEMONITORCOLLISION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETOPACITY_decorators, { kind: "method", name: "SETOPACITY", static: false, private: false, access: { has: obj => "SETOPACITY" in obj, get: obj => obj.SETOPACITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a.Events = {
             ONFINISHED: 'ONFINISHED',
             ONSTARTED: 'ONSTARTED',
-        };
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition);
-            this.fps = definition.FPS ?? 16;
-            this.collisions = new collisions_1.CollisionsComponent(engine, this);
-            this.buttonLogic = new button_1.ButtonLogicComponent(this.onButtonStateChange.bind(this));
-        }
-        async init() {
-            this.annFile = await this.loadAnimation(this.definition.FILENAME);
-        }
-        async applyDefaults() {
-            const existingObjectWithFilename = this.engine.scopeManager.find((key, object) => object != this &&
-                object instanceof Animo &&
-                object.definition.FILENAME === this.definition.FILENAME &&
-                object.sprite != null);
-            if (existingObjectWithFilename != null) {
-                this.sprite = existingObjectWithFilename.sprite;
-            }
-            else {
-                await this.initSprite();
-            }
-        }
-        async ready() {
-            await this.callbacks.run('ONINIT');
-        }
-        destroy() {
-            if (this.sprite !== null) {
-                this.engine.rendering.removeFromStage(this.sprite);
-            }
-            if (this.buttonInteractArea !== null) {
-                this.buttonLogic.unregisterInteractive(this.buttonInteractArea);
-                this.engine.rendering.removeFromStage(this.buttonInteractArea);
-            }
-            for (const sound of this.sounds.values()) {
-                sound.stop();
-            }
-            this.sounds.clear();
-        }
-        async tick(elapsedMS) {
-            await this.buttonLogic.tick();
-            this.collisions.tick();
-            if (!this.isPlaying) {
-                return;
-            }
-            this.timeSinceLastFrame += elapsedMS * this.engine.speed;
-            const frameLength = (1 / this.fps) * 1000;
-            while (this.isPlaying && this.timeSinceLastFrame >= frameLength) {
-                await this.tickAnimation();
-                this.timeSinceLastFrame -= frameLength;
-            }
-        }
-        getDefaultEvent() {
-            (0, errors_1.assert)(this.annFile !== null);
-            // Find first event with any frames
-            const defaultEvent = this.annFile.events.find((event) => event.framesCount > 0);
-            if (defaultEvent !== undefined) {
-                return defaultEvent.name;
-            }
-            return null;
-        }
-        async loadAnimation(path) {
-            try {
-                const relativePath = this.engine.currentScene
-                    ? await this.engine.currentScene.getRelativePath(path)
-                    : await this.engine.resolvePath(path);
-                const annFile = await this.engine.filesystem.getANNFile(relativePath);
-                await this.loadSfx(annFile);
-                logging_1.logger.debug(`ANN file '${path}' loaded successfully!`, {
-                    animo: this,
-                    annFile,
-                });
-                return annFile;
-            }
-            catch (err) {
-                if (err instanceof fileLoader_1.FileNotFoundError) {
-                    throw new errors_1.InvalidObjectError('ANN file not found');
-                }
-                throw err;
-            }
-        }
-        async loadSfx(annFile) {
-            const loadSoundIfNotExists = async (filename) => {
-                const normalizedSFXFilename = filename.toLowerCase().replace('sfx\\', '');
-                const resolvedPath = await this.engine.resolvePath(normalizedSFXFilename, 'wavs/sfx');
-                try {
-                    const sound = await (0, assetsLoader_1.loadSound)(this.engine.filesystem, resolvedPath);
-                    this.sounds.set(filename, sound);
-                }
-                catch (err) {
-                    logging_1.logger.warn('Failed to load sfx sound', {
-                        animo: this,
-                        filename,
-                        resolvedPath,
-                    }, err);
-                }
-            };
-            const soundsNames = new Set();
-            for (const event of annFile.events) {
-                for (const frame of event.frames) {
-                    frame.sounds.forEach((name) => soundsNames.add(name));
-                }
-            }
-            await Promise.all([...soundsNames].map(loadSoundIfNotExists));
-        }
-        async initSprite() {
-            (0, errors_1.assert)(this.annFile !== null);
-            this.sprite = new rendering_1.AdvancedSprite();
-            this.sprite.name = `${this.name} [ANIMO]`; // For PIXI Devtools
-            this.sprite.eventMode = 'none';
-            this.sprite.visible = this.definition.VISIBLE;
-            this.SETPRIORITY(this.definition.PRIORITY ?? 0);
-            if (this.definition.TOCANVAS) {
-                this.engine.rendering.addToStage(this.sprite);
-            }
-            this.currentEvent = this.getEvent(this.getDefaultEvent() ?? '');
-            if (this.currentEvent) {
-                await this.changeFrame(this.currentEvent, 0, false);
-            }
-        }
-        getTexture(imageIndex) {
-            (0, errors_1.assert)(this.annFile != null);
-            // Check if cached already
-            if (this.textures.has(imageIndex)) {
-                return this.textures.get(imageIndex);
-            }
-            const baseTexture = PIXI.BaseTexture.fromBuffer(new Uint8Array(this.annFile.images[imageIndex]), this.annFile.annImages[imageIndex].width, this.annFile.annImages[imageIndex].height);
-            const texture = new PIXI.Texture(baseTexture);
-            this.textures.set(imageIndex, texture);
-            return texture;
-        }
-        getHitmap(imageIndex) {
-            (0, errors_1.assert)(this.annFile != null);
-            if (this.hitmaps.has(imageIndex)) {
-                return this.hitmaps.get(imageIndex);
-            }
-            const hitmap = (0, rendering_1.createHitmapFromImageBytes)(this.annFile.images[imageIndex]);
-            this.hitmaps.set(imageIndex, hitmap);
-            return hitmap;
-        }
-        async tickAnimation() {
-            (0, errors_1.assert)(this.annFile !== null && this.sprite !== null);
-            const event = this.currentEvent;
-            if (!event) {
-                return;
-            }
-            if (this.eventEndedLastTick == this.currentEvent) {
-                this.eventEndedLastTick = null;
-                await this.STOP(true);
-                return;
-            }
-            await this.changeFrame(event, this.currentFrame);
-            if (this.currentFrame === 0) {
-                await this.ONSTARTED();
-            }
-            // Animation might get stopped in ONFRAMECHANGED callback like in UFO:S65_ZAMEK
-            // If we wouldn't return there then if ONFINISHED has PLAY then it will never stop running
-            // because PLAY is changing isPlaying back to true
-            if (!this.isPlaying) {
-                return;
-            }
-            // Event might be changed in ONFRAMECHANGED or ONSTARTED
-            // event.name might be lowercase
-            if (event !== this.currentEvent) {
-                return;
-            }
-            // Random sound out of them?
-            const eventFrame = event.frames[this.currentFrame];
-            if (eventFrame.sounds.length > 0) {
-                const filenames = eventFrame.sounds;
-                const randomFilename = filenames[Math.floor(Math.random() * filenames.length)];
-                if (this.sounds.has(randomFilename)) {
-                    logging_1.logger.debug(`Playing sound '${randomFilename}'`, {
-                        animo: this,
-                    });
-                    const sound = this.sounds.get(randomFilename);
-                    sound.play();
-                }
-            }
-            if (event.loopFramesEndIndex != 0 && this.currentFrame == event.loopFramesEndIndex) {
-                // TODO: handle event.loopRepeatsCount
-                this.currentFrame = event.loopFramesStartIndex;
-            }
-            else if (this.currentFrame + 1 >= event.framesCount) {
-                this.currentFrame = 0;
-                this.eventEndedLastTick = this.currentEvent;
-            }
-            else {
-                this.currentFrame++;
-            }
-        }
-        syncPosition() {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.sprite.x =
-                this.positionX + this.positionOffsetX - this.anchorOffsetX + this.sprite.width * this.sprite.anchor.x;
-            this.sprite.y =
-                this.positionY + this.positionOffsetY - this.anchorOffsetY + this.sprite.height * this.sprite.anchor.y;
-        }
-        async changeFrame(event, frameIdx, signal = true) {
-            (0, errors_1.assert)(this.annFile !== null);
-            (0, errors_1.assert)(this.sprite !== null);
-            (0, errors_1.assert)(event !== null);
-            const eventFrame = event.frames[frameIdx];
-            if (eventFrame === undefined) {
-                logging_1.logger.warn(`Attempted to change to non-existent frame ${frameIdx}`, {
-                    animo: this,
-                });
-                return;
-            }
-            const imageIndex = event.framesImageMapping[frameIdx];
-            const annImage = this.annFile.annImages[imageIndex];
-            this.sprite.texture = this.getTexture(imageIndex);
-            this.sprite.hitmap = this.getHitmap(imageIndex);
-            this.sprite.name = `${this.name} (${event.name}) (ANIMO)`; // For PIXI Devtools
-            this.positionOffsetX = annImage.positionX + eventFrame.positionX;
-            this.positionOffsetY = annImage.positionY + eventFrame.positionY;
-            this.syncPosition();
-            this.sprite.width = annImage.width;
-            this.sprite.height = annImage.height;
-            if (this.buttonInteractArea !== null) {
-                this.buttonInteractArea.hitArea = this.sprite.getBounds();
-            }
-            if (signal) {
-                await this.callbacks.run('ONFRAMECHANGED', event.name);
-            }
-        }
-        changeImage(imageIndex) {
-            (0, errors_1.assert)(this.annFile !== null);
-            (0, errors_1.assert)(this.sprite !== null);
-            const annImage = this.annFile.annImages[imageIndex];
-            if (annImage === undefined) {
-                logging_1.logger.warn(`Attempted to change to non-existent frame image ${imageIndex}`, {
-                    animo: this,
-                });
-                return;
-            }
-            this.sprite.texture = this.getTexture(imageIndex);
-            this.sprite.hitmap = this.getHitmap(imageIndex);
-            this.positionOffsetX = annImage.positionX;
-            this.positionOffsetY = annImage.positionY;
-            this.syncPosition();
-            this.sprite.width = annImage.width;
-            this.sprite.height = annImage.height;
-            if (this.buttonInteractArea !== null) {
-                this.buttonInteractArea.hitArea = this.sprite.getBounds();
-            }
-        }
-        async PLAY(name) {
-            if (name === undefined) {
-                this.SHOW();
-                this.RESUME();
-                return;
-            }
-            await this.playEvent(name);
-        }
-        async playEvent(name) {
-            if (!this.hasEvent(name.toString())) {
-                return;
-            }
-            const event = this.getEvent(name);
-            (0, errors_1.assert)(event !== null);
-            if (event.framesCount === 0) {
-                await this.ONFINISHED();
-                return;
-            }
-            this.eventEndedLastTick = null;
-            this.isPlaying = true;
-            (0, errors_1.assert)(this.sprite !== null);
-            this.sprite.visible = true;
-            this.currentFrame = 0;
-            this.currentEvent = this.getEvent(name);
-            // Animation could be paused before next tick, and it wouldn't render new frame
-            // Tick animation so that it's not signaling twice for 0 frame
-            // + it has to call ONSTARTED instantly
-            await this.tickAnimation();
-        }
-        async forceRender() {
-            (0, errors_1.assert)(this.currentEvent !== null);
-            await this.changeFrame(this.currentEvent, this.currentFrame, true);
-        }
-        async ONFINISHED() {
-            (0, errors_1.assert)(this.currentEvent !== null);
-            const index = this.currentEvent.name.toUpperCase();
-            await this.callbacks.run('ONFINISHED', index);
-            await this.events?.trigger('ONFINISHED', index);
-        }
-        async ONSTARTED() {
-            (0, errors_1.assert)(this.currentEvent !== null);
-            const index = this.currentEvent.name.toUpperCase();
-            await this.callbacks.run('ONSTARTED', index);
-            await this.events?.trigger('ONSTARTED', index);
-        }
-        // For some reason there is sometimes a string passed
-        async STOP(shouldSignal) {
-            this.isPlaying = false;
-            this.currentFrame = 0;
-            if (shouldSignal !== false && shouldSignal !== 'FALSE') {
-                await this.ONFINISHED();
-            }
-        }
-        PAUSE() {
-            this.isPlaying = false;
-        }
-        RESUME() {
-            this.isPlaying = true;
-        }
-        SETANCHOR(anchor) {
-            (0, errors_1.assert)(this.sprite !== null);
-            switch (anchor) {
-                case 'CENTER':
-                    this.anchorOffsetX = this.positionOffsetX + Math.round(this.sprite.width / 2);
-                    this.anchorOffsetY = this.positionOffsetY + Math.round(this.sprite.height / 2);
-                    break;
-                case 'LEFTUPPER':
-                    this.anchorOffsetX = this.positionOffsetX;
-                    this.anchorOffsetY = this.positionOffsetY;
-                    break;
-                case 'LEFTLOWER':
-                    this.anchorOffsetX = this.positionOffsetX;
-                    this.anchorOffsetY = this.positionOffsetY + this.sprite.height;
-                    break;
-                case 'RIGHTUPPER':
-                    this.anchorOffsetX = this.positionOffsetX + this.sprite.width;
-                    this.anchorOffsetY = this.positionOffsetY;
-                    break;
-                case 'RIGHTLOWER':
-                    this.anchorOffsetX = this.positionOffsetX + this.sprite.width;
-                    this.anchorOffsetY = this.positionOffsetY + this.sprite.height;
-                    break;
-                default:
-                    logging_1.logger.warn('Invalid anchor specifier - resetting anchor values.', {
-                        animo: this,
-                    });
-                    this.anchorOffsetX = 0;
-                    this.anchorOffsetY = 0;
-                    break;
-            }
-        }
-        async SETFRAME(eventNameOrFrameIdx, frameIdx) {
-            if (frameIdx === undefined) {
-                const imageIndex = Number(eventNameOrFrameIdx);
-                (0, errors_1.assert)(!Number.isNaN(imageIndex));
-                this.changeImage(imageIndex);
-                return;
-            }
-            const newEvent = eventNameOrFrameIdx.toString();
-            const newEventFrame = Number(frameIdx);
-            const event = this.getEvent(newEvent);
-            if (event === null) {
-                logging_1.logger.warn(`SETFRAME: event "${newEvent}" does not exist, ignoring`, {
-                    animo: this,
-                });
-                return;
-            }
-            // Necessary in S63_OBOZ
-            if (newEventFrame < event.framesCount) {
-                this.currentEvent = event;
-                this.currentFrame = newEventFrame;
-                // Force render because some animations might not be playing,
-                // but they display something (like a keypad screen in S73_0_KOD in UFO)
-                await this.forceRender();
-            }
-        }
-        SETFPS(fps) {
-            this.fps = fps;
-        }
-        SHOW() {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.sprite.visible = true;
-        }
-        HIDE() {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.sprite.visible = false;
-        }
-        ISVISIBLE() {
-            (0, errors_1.assert)(this.sprite !== null);
-            return this.sprite.visible;
-        }
-        async MOVE(xOffset, yOffset) {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.positionX += Math.trunc(xOffset);
-            this.positionY += Math.trunc(yOffset);
-            this.syncPosition();
-            await this.onMove();
-        }
-        async SETPOSITION(x, y) {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.positionX = Math.trunc(x);
-            this.positionY = Math.trunc(y);
-            this.syncPosition();
-            await this.onMove();
-        }
-        async SETASBUTTON(enabled, showPointer) {
-            (0, errors_1.assert)(this.sprite !== null);
-            if (enabled) {
-                if (this.buttonInteractArea === null) {
-                    this.buttonInteractArea = new pixi_js_1.Graphics();
-                    this.engine.rendering.addToStage(this.buttonInteractArea);
-                    this.buttonLogic.registerInteractive(this.buttonInteractArea, showPointer);
-                }
-                this.buttonInteractArea.name = `${this.name} (ANIMO Button)`; // For PIXI Devtools
-                this.buttonInteractArea.hitArea = this.sprite.getBounds();
-                this.buttonInteractArea.zIndex = this.sprite.zIndex;
-                await this.buttonLogic.enable();
-                await this.playEvent('ONNOEVENT');
-            }
-            else {
-                if (this.buttonInteractArea) {
-                    this.buttonLogic.unregisterInteractive(this.buttonInteractArea);
-                    this.engine.rendering.removeFromStage(this.buttonInteractArea);
-                    this.buttonInteractArea = null;
-                }
-                await this.buttonLogic?.disable();
-            }
-        }
-        async DISABLE() {
-            await this.buttonLogic.disable(); // not sure
-        }
-        async onButtonStateChange(prevState, event, newState) {
-            const playEventIfExists = async (eventName) => {
-                if (this.hasEvent(eventName)) {
-                    await this.playEvent(eventName);
-                }
-                else if (this.hasEvent('PLAY')) {
-                    await this.playEvent('PLAY');
-                }
-            };
-            switch (newState) {
-                case button_1.State.HOVERED:
-                    await playEventIfExists('ONFOCUSON');
-                    await this.callbacks.run(event === button_1.Event.UP ? 'ONRELEASE' : 'ONFOCUSON');
-                    break;
-                case button_1.State.STANDARD:
-                    if (event === button_1.Event.ENABLE) {
-                        await playEventIfExists('ONNOEVENT');
-                    }
-                    else {
-                        await playEventIfExists('ONFOCUSOFF');
-                        await this.callbacks.run('ONFOCUSOFF');
-                    }
-                    break;
-                case button_1.State.PRESSED:
-                    await playEventIfExists('ONCLICK');
-                    await this.callbacks.run('ONCLICKED');
-                    await this.callbacks.run('ONCLICK');
-                    break;
-            }
-        }
-        GETCENTERX() {
-            (0, errors_1.assert)(this.sprite !== null);
-            return Math.round(this.sprite.getGlobalPosition().x + this.sprite.width / 2);
-        }
-        GETCENTERY() {
-            (0, errors_1.assert)(this.sprite !== null);
-            return Math.round(this.sprite.getGlobalPosition().y + this.sprite.height / 2);
-        }
-        GETPOSITIONX() {
-            (0, errors_1.assert)(this.sprite !== null);
-            return this.sprite.getGlobalPosition().x;
-        }
-        GETPOSITIONY() {
-            (0, errors_1.assert)(this.sprite !== null);
-            return this.sprite.getGlobalPosition().y;
-        }
-        GETFRAMENAME(frameID, iFrameNo) {
-            (0, errors_1.assert)(this.currentEvent !== null);
-            if (frameID === undefined && iFrameNo === undefined) {
-                return this.currentEvent.frames[this.currentFrame].name;
-            }
-            (0, errors_1.assert)(frameID !== undefined && iFrameNo !== undefined);
-            (0, errors_1.assert)(this.annFile !== null);
-            const event = typeof frameID === 'string' ? this.getEvent(frameID) : this.annFile.events[frameID];
-            (0, errors_1.assert)(event !== null);
-            return event?.frames[iFrameNo].name;
-        }
-        GETMAXWIDTH() {
-            (0, errors_1.assert)(this.annFile !== null);
-            return Math.max(...this.annFile.annImages.map((e) => e.width));
-        }
-        GETNOFINEVENT(name) {
-            return this.getEvent(name)?.framesCount ?? 0;
-        }
-        GETEVENTNAME(eventIndex) {
-            if (eventIndex === undefined) {
-                (0, errors_1.assert)(this.currentEvent !== null);
-                return this.currentEvent.name.toUpperCase();
-            }
-            else {
-                const event = this.getAllEvents()[eventIndex];
-                (0, errors_1.assert)(event !== undefined);
-                return event.name.toUpperCase();
-            }
-        }
-        GETFRAME() {
-            (0, errors_1.assert)(this.currentEvent !== null);
-            return this.currentEvent.framesImageMapping[this.currentFrame];
-        }
-        GETCFRAMEINEVENT() {
-            return this.currentFrame;
-        }
-        GETNOF() {
-            (0, errors_1.assert)(this.annFile !== null);
-            return this.annFile.header.framesCount;
-        }
-        GETNOE() {
-            (0, errors_1.assert)(this.annFile !== null);
-            return this.annFile.events.length;
-        }
-        GETCURRFRAMEPOSX() {
-            (0, errors_1.assert)(this.currentEvent !== null);
-            return this.currentEvent.frames[this.currentFrame].positionX;
-        }
-        GETCURRFRAMEPOSY() {
-            (0, errors_1.assert)(this.currentEvent !== null);
-            return this.currentEvent.frames[this.currentFrame].positionY;
-        }
-        ISPLAYING(animName) {
-            (0, errors_1.assert)(this.currentEvent !== null);
-            return this.isPlaying && (animName === undefined || this.currentEvent.name.toUpperCase() == animName);
-        }
-        ISNEAR(objectName, percentage) {
-            const otherObject = this.getObject(objectName);
-            if (otherObject === null || !(otherObject instanceof index_1.DisplayType)) {
-                return false;
-            }
-            const otherSprite = otherObject.getRenderObject();
-            (0, errors_1.assert)(otherSprite !== null);
-            const thisSprite = this.getRenderObject();
-            (0, errors_1.assert)(thisSprite !== null);
-            const boundsThis = thisSprite.getBounds();
-            const boundsOther = otherSprite.getBounds();
-            const x1 = Math.max(boundsThis.x, boundsOther.x);
-            const y1 = Math.max(boundsThis.y, boundsOther.y);
-            const x2 = Math.min(boundsThis.x + boundsThis.width, boundsOther.x + boundsOther.width);
-            const y2 = Math.min(boundsThis.y + boundsThis.height, boundsOther.y + boundsOther.height);
-            const intersectionWidth = Math.max(0, x2 - x1);
-            const intersectionHeight = Math.max(0, y2 - y1);
-            const intersectionArea = intersectionWidth * intersectionHeight;
-            const areaThis = boundsThis.width * boundsThis.height;
-            const val = intersectionArea / areaThis;
-            return val * 100 > percentage;
-        }
-        ADDBEHAVIOUR(callbackString, behaviourName) {
-            this.callbacks.addBehaviour(callbackString, behaviourName);
-        }
-        MONITORCOLLISION(newState) {
-            this.collisions.enabled = true;
-        }
-        REMOVEMONITORCOLLISION() {
-            this.collisions.enabled = false;
-        }
-        SETOPACITY(opacity) {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.sprite.alpha = opacity / 255;
-        }
-        async LOAD(path) {
-            this.destroy();
-            this.annFile = await this.loadAnimation(path);
-            await this.initSprite();
-        }
-        // Only triggered on explicit position change
-        // Animation offset change doesn't trigger it
-        async onMove() {
-            await this.collisions.handle(async (object) => {
-                await this.callbacks.run('ONCOLLISION', object.name);
-            });
-        }
-        getEvent(name) {
-            (0, errors_1.assert)(this.annFile !== null);
-            return this.annFile.events.find((event) => event.name.toUpperCase() === name.toUpperCase()) ?? null;
-        }
-        hasEvent(name) {
-            return this.getEvent(name) !== null;
-        }
-        getAllEvents() {
-            (0, errors_1.assert)(this.annFile !== null);
-            return this.annFile.events;
-        }
-        getRenderObject() {
-            return this.sprite;
-        }
-        async clone() {
-            const clone = (await super.clone());
-            clone.isPlaying = this.isPlaying;
-            clone.currentFrame = this.currentFrame;
-            clone.currentEvent = this.currentEvent;
-            clone.annFile = this.annFile;
-            clone.textures = this.textures;
-            clone.sounds = this.sounds;
-            clone.fps = this.fps;
-            clone.positionX = this.positionX;
-            clone.positionOffsetX = this.positionOffsetX;
-            clone.positionY = this.positionY;
-            clone.positionOffsetY = this.positionOffsetY;
-            clone.anchorOffsetX = this.anchorOffsetX;
-            clone.anchorOffsetY = this.anchorOffsetY;
-            await clone.initSprite();
-            clone.sprite.visible = this.sprite.visible;
-            clone.SETPRIORITY(this.GETPRIORITY());
-            return clone;
-        }
-        __getXRayInfo() {
-            if (this.buttonInteractArea) {
-                return {
-                    type: 'button',
-                    bounds: this.buttonInteractArea.hitArea,
-                    color: this.buttonLogic.enabled ? 0x00ff00 : 0x0000ff,
-                    position: 'outside',
-                    visible: this.buttonLogic.state != button_1.State.DISABLED,
-                };
-            }
-            else if (this.sprite?.visible) {
-                return {
-                    type: 'sprite',
-                    bounds: this.sprite.getBounds(),
-                    position: 'inside',
-                    visible: this.sprite.visible,
-                };
-            }
-            return null;
-        }
-    };
+        },
+        _a;
 })();
 exports.Animo = Animo;
 
@@ -33758,6 +33748,7 @@ const langCodeMapping = {
     '041B': 'SLO',
 };
 let Application = (() => {
+    var _a;
     let _classSuper = index_1.ParentType;
     let _instanceExtraInitializers = [];
     let _SETLANGUAGE_decorators;
@@ -33765,70 +33756,74 @@ let Application = (() => {
     let _RUN_decorators;
     let _RUNENV_decorators;
     let _EXIT_decorators;
-    return class Application extends _classSuper {
-        static {
+    return _a = class Application extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.language = (__runInitializers(this, _instanceExtraInitializers), 'POL');
+            }
+            async init() {
+                if (this.definition.PATH) {
+                    const applicationDefinition = await this.engine.filesystem.getCNVFile((0, filesystem_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
+                    this.engine.app.ticker.stop();
+                    this.scope = this.engine.scopeManager.newScope('application');
+                    await (0, definitionLoader_1.loadDefinition)(this.engine, this.scope, applicationDefinition, this);
+                    await (0, definitionLoader_1.doReady)(this.scope);
+                    this.engine.app.ticker.start();
+                }
+            }
+            SETLANGUAGE(langCode) {
+                this.language = langCodeMapping[langCode];
+            }
+            GETLANGUAGE() {
+                return this.language;
+            }
+            async RUN(objectName, methodName, ...args) {
+                const object = this.getObject(objectName);
+                if (object === null) {
+                    return;
+                }
+                if (object[methodName]) {
+                    return await object[methodName](...args);
+                }
+                else {
+                    return await object.__call(methodName, args);
+                }
+            }
+            async RUNENV(sceneName, behaviourName, ...args) {
+                const object = this.getObject(sceneName);
+                if (object === null) {
+                    return;
+                }
+                (0, errors_1.assert)(object instanceof scene_1.Scene, 'attempted RUNENV on non-SCENE object');
+                (0, errors_1.assert)(object.scope);
+                const behaviour = object.scope.get(behaviourName);
+                if (behaviour === null) {
+                    return;
+                }
+                (0, errors_1.assert)(behaviour instanceof behaviour_1.Behaviour);
+                await behaviour.RUNC(...args);
+            }
+            EXIT() {
+                if (this.engine.options.onExit) {
+                    this.engine.options.onExit();
+                }
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SETLANGUAGE_decorators = [(0, types_1.method)({ name: "langCode", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _GETLANGUAGE_decorators = [(0, types_1.method)()];
             _RUN_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "methodName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
             _RUNENV_decorators = [(0, types_1.method)({ name: "sceneName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
             _EXIT_decorators = [(0, types_1.method)()];
-            __esDecorate(this, null, _SETLANGUAGE_decorators, { kind: "method", name: "SETLANGUAGE", static: false, private: false, access: { has: obj => "SETLANGUAGE" in obj, get: obj => obj.SETLANGUAGE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETLANGUAGE_decorators, { kind: "method", name: "GETLANGUAGE", static: false, private: false, access: { has: obj => "GETLANGUAGE" in obj, get: obj => obj.GETLANGUAGE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _RUNENV_decorators, { kind: "method", name: "RUNENV", static: false, private: false, access: { has: obj => "RUNENV" in obj, get: obj => obj.RUNENV }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _EXIT_decorators, { kind: "method", name: "EXIT", static: false, private: false, access: { has: obj => "EXIT" in obj, get: obj => obj.EXIT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        language = (__runInitializers(this, _instanceExtraInitializers), 'POL');
-        async init() {
-            if (this.definition.PATH) {
-                const applicationDefinition = await this.engine.filesystem.getCNVFile((0, filesystem_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
-                this.engine.app.ticker.stop();
-                this.scope = this.engine.scopeManager.newScope('application');
-                await (0, definitionLoader_1.loadDefinition)(this.engine, this.scope, applicationDefinition, this);
-                await (0, definitionLoader_1.doReady)(this.scope);
-                this.engine.app.ticker.start();
-            }
-        }
-        SETLANGUAGE(langCode) {
-            this.language = langCodeMapping[langCode];
-        }
-        GETLANGUAGE() {
-            return this.language;
-        }
-        async RUN(objectName, methodName, ...args) {
-            const object = this.getObject(objectName);
-            if (object === null) {
-                return;
-            }
-            if (Object.hasOwn(object, methodName)) {
-                return await object[methodName](...args);
-            }
-            else {
-                return await object.__call(methodName, args);
-            }
-        }
-        async RUNENV(sceneName, behaviourName, ...args) {
-            const object = this.getObject(sceneName);
-            if (object === null) {
-                return;
-            }
-            (0, errors_1.assert)(object instanceof scene_1.Scene, 'attempted RUNENV on non-SCENE object');
-            (0, errors_1.assert)(object.scope !== null);
-            const behaviour = object.scope.get(behaviourName);
-            if (behaviour === null) {
-                return;
-            }
-            (0, errors_1.assert)(behaviour instanceof behaviour_1.Behaviour);
-            await behaviour.RUNC(...args);
-        }
-        EXIT() {
-            if (this.engine.options.onExit) {
-                this.engine.options.onExit();
-            }
-        }
-    };
+            __esDecorate(_a, null, _SETLANGUAGE_decorators, { kind: "method", name: "SETLANGUAGE", static: false, private: false, access: { has: obj => "SETLANGUAGE" in obj, get: obj => obj.SETLANGUAGE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETLANGUAGE_decorators, { kind: "method", name: "GETLANGUAGE", static: false, private: false, access: { has: obj => "GETLANGUAGE" in obj, get: obj => obj.GETLANGUAGE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RUNENV_decorators, { kind: "method", name: "RUNENV", static: false, private: false, access: { has: obj => "RUNENV" in obj, get: obj => obj.RUNENV }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _EXIT_decorators, { kind: "method", name: "EXIT", static: false, private: false, access: { has: obj => "EXIT" in obj, get: obj => obj.EXIT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Application = Application;
 
@@ -33889,6 +33884,7 @@ const generateMessage = (action, position, value) => {
     return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`;
 };
 let ArrayObject = (() => {
+    var _a;
     let _classSuper = index_1.ValueType;
     let _instanceExtraInitializers = [];
     let _ADD_decorators;
@@ -33912,8 +33908,119 @@ let ArrayObject = (() => {
     let _SAVEINI_decorators;
     let _LOADINI_decorators;
     let _MSGBOX_decorators;
-    return class ArrayObject extends _classSuper {
-        static {
+    return _a = class ArrayObject extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, [], false);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+            async ready() {
+                await this.callbacks.run('ONINIT');
+            }
+            ADD(...args) {
+                this.value.push(...args);
+            }
+            ADDAT(position, value) {
+                (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
+                this.value[position] += value;
+            }
+            MODAT(position, value) {
+                (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
+                this.value[position] %= value;
+            }
+            CLAMPAT(position, min, max) {
+                (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
+                this.value[position] = Math.min(Math.max(this.value[position], min), max);
+            }
+            MULAT(position, value) {
+                (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
+                this.value[position] *= value;
+            }
+            CONTAINS(value) {
+                return this.value.includes(value) || this.value.includes((0, types_1.valueAsString)(value));
+            }
+            SUM(arg) {
+                this.value = this.value.map((value) => value + arg);
+            }
+            SUBAT(position, value) {
+                (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
+                this.value[position] -= value;
+            }
+            GET(position) {
+                (0, errors_1.assert)(position < this.value.length, generateMessage('access', position, this.value));
+                return this.value[position];
+            }
+            GETSIZE() {
+                return this.value.length;
+            }
+            CHANGEAT(position, value) {
+                (0, errors_1.assert)(position < this.value.length, generateMessage('set', position, this.value));
+                this.value[position] = value;
+            }
+            REMOVEAT(position) {
+                (0, errors_1.assert)(position < this.value.length, generateMessage('remove', position, this.value));
+                this.value.splice(position, 1);
+            }
+            INSERTAT(position, value) {
+                (0, errors_1.assert)(position < this.value.length, generateMessage('insert', position, this.value));
+                this.value.splice(position, 0, value);
+            }
+            REMOVEALL() {
+                this.value = [];
+            }
+            FIND(value) {
+                const allValuesStrings = this.value.map((v) => (0, types_1.valueAsString)(v).toLowerCase());
+                return allValuesStrings.indexOf(value.toLowerCase());
+            }
+            REVERSEFIND(value) {
+                let position = this.value.lastIndexOf(value);
+                if (position == -1) {
+                    position = this.value.lastIndexOf((0, types_1.valueAsString)(value));
+                }
+                return position;
+            }
+            async LOAD(path) {
+                (0, errors_1.assert)(this.engine.currentScene !== null);
+                try {
+                    this.value = await this.engine.filesystem.getARRFile(await this.engine.currentScene.getRelativePath(path));
+                }
+                catch (err) {
+                    if (err instanceof fileLoader_1.FileNotFoundError) {
+                        logging_1.logger.error(`Failed to load array from "${path}"`, {
+                            array: this,
+                        }, err);
+                    }
+                    else {
+                        throw err;
+                    }
+                }
+            }
+            async SAVE(path) {
+                (0, errors_1.assert)(this.engine.currentScene !== null);
+                await this.engine.filesystem.saveFile(await this.engine.currentScene.getRelativePath(path), (0, array_1.serializeArray)(this.value));
+            }
+            SAVEINI() {
+                this.saveToINI();
+            }
+            LOADINI() {
+                this.value = this.getFromINI() ?? [];
+            }
+            MSGBOX() { }
+            async clone() {
+                const cloned = (await super.clone());
+                cloned.value = [...this.value];
+                return cloned;
+            }
+            serialize() {
+                return this.value.join(',');
+            }
+            deserialize(value) {
+                if (value === '') {
+                    return [];
+                }
+                return value.split(',');
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _ADD_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
             _ADDAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
@@ -33936,140 +34043,30 @@ let ArrayObject = (() => {
             _SAVEINI_decorators = [(0, types_1.method)()];
             _LOADINI_decorators = [(0, types_1.method)()];
             _MSGBOX_decorators = [(0, types_1.method)()];
-            __esDecorate(this, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ADDAT_decorators, { kind: "method", name: "ADDAT", static: false, private: false, access: { has: obj => "ADDAT" in obj, get: obj => obj.ADDAT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MODAT_decorators, { kind: "method", name: "MODAT", static: false, private: false, access: { has: obj => "MODAT" in obj, get: obj => obj.MODAT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _CLAMPAT_decorators, { kind: "method", name: "CLAMPAT", static: false, private: false, access: { has: obj => "CLAMPAT" in obj, get: obj => obj.CLAMPAT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MULAT_decorators, { kind: "method", name: "MULAT", static: false, private: false, access: { has: obj => "MULAT" in obj, get: obj => obj.MULAT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _CONTAINS_decorators, { kind: "method", name: "CONTAINS", static: false, private: false, access: { has: obj => "CONTAINS" in obj, get: obj => obj.CONTAINS }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SUM_decorators, { kind: "method", name: "SUM", static: false, private: false, access: { has: obj => "SUM" in obj, get: obj => obj.SUM }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SUBAT_decorators, { kind: "method", name: "SUBAT", static: false, private: false, access: { has: obj => "SUBAT" in obj, get: obj => obj.SUBAT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETSIZE_decorators, { kind: "method", name: "GETSIZE", static: false, private: false, access: { has: obj => "GETSIZE" in obj, get: obj => obj.GETSIZE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _CHANGEAT_decorators, { kind: "method", name: "CHANGEAT", static: false, private: false, access: { has: obj => "CHANGEAT" in obj, get: obj => obj.CHANGEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _REMOVEAT_decorators, { kind: "method", name: "REMOVEAT", static: false, private: false, access: { has: obj => "REMOVEAT" in obj, get: obj => obj.REMOVEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _INSERTAT_decorators, { kind: "method", name: "INSERTAT", static: false, private: false, access: { has: obj => "INSERTAT" in obj, get: obj => obj.INSERTAT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _REMOVEALL_decorators, { kind: "method", name: "REMOVEALL", static: false, private: false, access: { has: obj => "REMOVEALL" in obj, get: obj => obj.REMOVEALL }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _REVERSEFIND_decorators, { kind: "method", name: "REVERSEFIND", static: false, private: false, access: { has: obj => "REVERSEFIND" in obj, get: obj => obj.REVERSEFIND }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SAVE_decorators, { kind: "method", name: "SAVE", static: false, private: false, access: { has: obj => "SAVE" in obj, get: obj => obj.SAVE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SAVEINI_decorators, { kind: "method", name: "SAVEINI", static: false, private: false, access: { has: obj => "SAVEINI" in obj, get: obj => obj.SAVEINI }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _LOADINI_decorators, { kind: "method", name: "LOADINI", static: false, private: false, access: { has: obj => "LOADINI" in obj, get: obj => obj.LOADINI }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MSGBOX_decorators, { kind: "method", name: "MSGBOX", static: false, private: false, access: { has: obj => "MSGBOX" in obj, get: obj => obj.MSGBOX }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition, [], false);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-        async ready() {
-            await this.callbacks.run('ONINIT');
-        }
-        ADD(...args) {
-            this.value.push(...args);
-        }
-        ADDAT(position, value) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
-            this.value[position] += value;
-        }
-        MODAT(position, value) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
-            this.value[position] %= value;
-        }
-        CLAMPAT(position, min, max) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
-            this.value[position] = Math.min(Math.max(this.value[position], min), max);
-        }
-        MULAT(position, value) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
-            this.value[position] *= value;
-        }
-        CONTAINS(value) {
-            return this.value.includes(value) || this.value.includes((0, types_1.valueAsString)(value));
-        }
-        SUM(arg) {
-            this.value = this.value.map((value) => value + arg);
-        }
-        SUBAT(position, value) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
-            this.value[position] -= value;
-        }
-        GET(position) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('access', position, this.value));
-            return this.value[position];
-        }
-        GETSIZE() {
-            return this.value.length;
-        }
-        CHANGEAT(position, value) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('set', position, this.value));
-            this.value[position] = value;
-        }
-        REMOVEAT(position) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('remove', position, this.value));
-            this.value.splice(position, 1);
-        }
-        INSERTAT(position, value) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('insert', position, this.value));
-            this.value.splice(position, 0, value);
-        }
-        REMOVEALL() {
-            this.value = [];
-        }
-        FIND(value) {
-            const allValuesStrings = this.value.map((v) => (0, types_1.valueAsString)(v).toLowerCase());
-            return allValuesStrings.indexOf((0, types_1.valueAsString)(value).toLowerCase());
-        }
-        REVERSEFIND(value) {
-            let position = this.value.lastIndexOf(value);
-            if (position == -1) {
-                position = this.value.lastIndexOf((0, types_1.valueAsString)(value));
-            }
-            return position;
-        }
-        async LOAD(path) {
-            (0, errors_1.assert)(this.engine.currentScene !== null);
-            try {
-                this.value = await this.engine.filesystem.getARRFile(await this.engine.currentScene.getRelativePath(path));
-            }
-            catch (err) {
-                if (err instanceof fileLoader_1.FileNotFoundError) {
-                    logging_1.logger.error(`Failed to load array from "${path}"`, {
-                        array: this,
-                    }, err);
-                }
-                else {
-                    throw err;
-                }
-            }
-        }
-        async SAVE(path) {
-            (0, errors_1.assert)(this.engine.currentScene !== null);
-            await this.engine.filesystem.saveFile(await this.engine.currentScene.getRelativePath(path), (0, array_1.serializeArray)(this.value));
-        }
-        SAVEINI() {
-            this.saveToINI();
-        }
-        LOADINI() {
-            this.value = this.getFromINI() ?? [];
-        }
-        MSGBOX() { }
-        async clone() {
-            const cloned = (await super.clone());
-            cloned.value = [...this.value];
-            return cloned;
-        }
-        serialize() {
-            return this.value.join(',');
-        }
-        deserialize(value) {
-            if (value === '') {
-                return [];
-            }
-            return value.split(',');
-        }
-    };
+            __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ADDAT_decorators, { kind: "method", name: "ADDAT", static: false, private: false, access: { has: obj => "ADDAT" in obj, get: obj => obj.ADDAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MODAT_decorators, { kind: "method", name: "MODAT", static: false, private: false, access: { has: obj => "MODAT" in obj, get: obj => obj.MODAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CLAMPAT_decorators, { kind: "method", name: "CLAMPAT", static: false, private: false, access: { has: obj => "CLAMPAT" in obj, get: obj => obj.CLAMPAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MULAT_decorators, { kind: "method", name: "MULAT", static: false, private: false, access: { has: obj => "MULAT" in obj, get: obj => obj.MULAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CONTAINS_decorators, { kind: "method", name: "CONTAINS", static: false, private: false, access: { has: obj => "CONTAINS" in obj, get: obj => obj.CONTAINS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SUM_decorators, { kind: "method", name: "SUM", static: false, private: false, access: { has: obj => "SUM" in obj, get: obj => obj.SUM }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SUBAT_decorators, { kind: "method", name: "SUBAT", static: false, private: false, access: { has: obj => "SUBAT" in obj, get: obj => obj.SUBAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETSIZE_decorators, { kind: "method", name: "GETSIZE", static: false, private: false, access: { has: obj => "GETSIZE" in obj, get: obj => obj.GETSIZE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CHANGEAT_decorators, { kind: "method", name: "CHANGEAT", static: false, private: false, access: { has: obj => "CHANGEAT" in obj, get: obj => obj.CHANGEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVEAT_decorators, { kind: "method", name: "REMOVEAT", static: false, private: false, access: { has: obj => "REMOVEAT" in obj, get: obj => obj.REMOVEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _INSERTAT_decorators, { kind: "method", name: "INSERTAT", static: false, private: false, access: { has: obj => "INSERTAT" in obj, get: obj => obj.INSERTAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVEALL_decorators, { kind: "method", name: "REMOVEALL", static: false, private: false, access: { has: obj => "REMOVEALL" in obj, get: obj => obj.REMOVEALL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REVERSEFIND_decorators, { kind: "method", name: "REVERSEFIND", static: false, private: false, access: { has: obj => "REVERSEFIND" in obj, get: obj => obj.REVERSEFIND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SAVE_decorators, { kind: "method", name: "SAVE", static: false, private: false, access: { has: obj => "SAVE" in obj, get: obj => obj.SAVE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SAVEINI_decorators, { kind: "method", name: "SAVEINI", static: false, private: false, access: { has: obj => "SAVEINI" in obj, get: obj => obj.SAVEINI }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LOADINI_decorators, { kind: "method", name: "LOADINI", static: false, private: false, access: { has: obj => "LOADINI" in obj, get: obj => obj.LOADINI }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MSGBOX_decorators, { kind: "method", name: "MSGBOX", static: false, private: false, access: { has: obj => "MSGBOX" in obj, get: obj => obj.MSGBOX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.ArrayObject = ArrayObject;
 
@@ -34124,103 +34121,92 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const class_1 = __webpack_require__(/*! ./class */ "./src/engine/types/class.ts");
-const stacktrace_1 = __webpack_require__(/*! ../../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
+const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
 let Behaviour = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _RUN_decorators;
     let _RUNC_decorators;
     let _RUNLOOPED_decorators;
-    return class Behaviour extends _classSuper {
-        static {
+    return _a = class Behaviour extends _classSuper {
+            async ready() {
+                if (this.definition.NAME === '__INIT__') {
+                    await this.RUN();
+                }
+                if (this.definition.NAME === 'CONSTRUCTOR') {
+                    (0, errors_1.assert)(this.parent !== null && this.parent instanceof class_1.ClassInstance);
+                    await this.RUN(...this.parent.args);
+                }
+            }
+            async RUN(...args) {
+                try {
+                    return await this.executeCallback(args);
+                }
+                catch (err) {
+                    if (!(err instanceof interpreter_1.InterruptScriptExecution)) {
+                        throw err;
+                    }
+                }
+            }
+            async RUNC(...args) {
+                if (await this.shouldRun()) {
+                    return await this.RUN(...args);
+                }
+            }
+            async RUNLOOPED(start, len, step = 1, ...args) {
+                for (let i = start; i < start + len; i += step) {
+                    try {
+                        if (await this.shouldRun()) {
+                            await this.engine.scripting.executeCallback(null, this, this.definition.CODE, [i, step, ...args]);
+                        }
+                    }
+                    catch (err) {
+                        if (err instanceof interpreter_1.InterruptScriptExecution) {
+                            if (err.one) {
+                                continue;
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                        throw err;
+                    }
+                }
+            }
+            async executeCallback(args = []) {
+                // Don't resolve args, it will fail in S33_METEORY
+                return await this.engine.scripting.executeCallback(null, this, this.definition.CODE, args);
+            }
+            async executeConditionalCallback(args = []) {
+                if (await this.shouldRun()) {
+                    return await this.executeCallback(args);
+                }
+            }
+            async shouldRun() {
+                if (this.definition.CONDITION) {
+                    const condition = this.getObject(this.definition.CONDITION.objectName);
+                    (0, errors_1.assert)(condition !== null);
+                    return await condition.CHECK(true);
+                }
+                return true;
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _RUN_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
             _RUNC_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
             _RUNLOOPED_decorators = [(0, types_1.method)({ name: "start", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "len", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "step", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
-            __esDecorate(this, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _RUNC_decorators, { kind: "method", name: "RUNC", static: false, private: false, access: { has: obj => "RUNC" in obj, get: obj => obj.RUNC }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _RUNLOOPED_decorators, { kind: "method", name: "RUNLOOPED", static: false, private: false, access: { has: obj => "RUNLOOPED" in obj, get: obj => obj.RUNLOOPED }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        async ready() {
-            if (this.definition.NAME === '__INIT__') {
-                await this.RUN();
-            }
-            if (this.definition.NAME === 'CONSTRUCTOR') {
-                (0, errors_1.assert)(this.parent !== null && this.parent instanceof class_1.ClassInstance);
-                await this.RUN(...this.parent.args);
-            }
-        }
-        async RUN(...args) {
-            try {
-                return await this.executeCallback(args);
-            }
-            catch (err) {
-                if (!(err instanceof errors_1.InterruptScriptExecution)) {
-                    throw err;
-                }
-            }
-        }
-        async RUNC(...args) {
-            if (await this.shouldRun()) {
-                return await this.RUN(...args);
-            }
-        }
-        async RUNLOOPED(start, len, step = 1, ...args) {
-            for (let i = start; i < start + len; i += step) {
-                try {
-                    if (await this.shouldRun()) {
-                        await this.executeCallback([i, step, ...args]);
-                    }
-                }
-                catch (err) {
-                    if (err instanceof errors_1.InterruptScriptExecution) {
-                        if (err.one) {
-                            continue;
-                        }
-                        else {
-                            break;
-                        }
-                    }
-                    throw err;
-                }
-            }
-        }
-        async executeCallback(args = []) {
-            try {
-                (0, stacktrace_1.pushStackFrame)(stacktrace_1.StackFrame.builder()
-                    .type('behaviour')
-                    .behaviour(this.name)
-                    .args(...args)
-                    .build());
-                return await this.engine.scripting.executeCallback(null, this, this.definition.CODE, args);
-            }
-            catch (err) {
-                (0, stacktrace_1.captureStackTrace)(err);
-                throw err;
-            }
-            finally {
-                (0, stacktrace_1.popStackFrame)();
-            }
-        }
-        async executeConditionalCallback(args = []) {
-            if (await this.shouldRun()) {
-                return await this.executeCallback(args);
-            }
-        }
-        async shouldRun() {
-            if (this.definition.CONDITION) {
-                const condition = this.getObject(this.definition.CONDITION.objectName);
-                (0, errors_1.assert)(condition !== null);
-                return await condition.CHECK(true);
-            }
-            return true;
-        }
-        constructor() {
-            super(...arguments);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-    };
+            __esDecorate(_a, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RUNC_decorators, { kind: "method", name: "RUNC", static: false, private: false, access: { has: obj => "RUNC" in obj, get: obj => obj.RUNC }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RUNLOOPED_decorators, { kind: "method", name: "RUNLOOPED", static: false, private: false, access: { has: obj => "RUNLOOPED" in obj, get: obj => obj.RUNLOOPED }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Behaviour = Behaviour;
 
@@ -34274,40 +34260,39 @@ exports.Bool = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Bool = (() => {
+    var _a;
     let _classSuper = index_1.ValueType;
     let _instanceExtraInitializers = [];
     let _SWITCH_decorators;
     let _SET_decorators;
-    return class Bool extends _classSuper {
-        static {
+    return _a = class Bool extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, false);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+            // The arguments don't seem to matter
+            async SWITCH(arg1, arg2) {
+                await this.setValue(!this.value);
+            }
+            async SET(newValue) {
+                await this.setValue(newValue);
+            }
+            async valueChanged(oldValue, newValue) {
+                if (oldValue !== newValue) {
+                    await this.callbacks.run('ONCHANGED', newValue);
+                }
+                await this.callbacks.run('ONBRUTALCHANGED', newValue);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SWITCH_decorators = [(0, types_1.method)({ name: "arg1", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg2", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             _SET_decorators = [(0, types_1.method)({ name: "newValue", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _SWITCH_decorators, { kind: "method", name: "SWITCH", static: false, private: false, access: { has: obj => "SWITCH" in obj, get: obj => obj.SWITCH }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition, false);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-        // The arguments don't seem to matter
-        async SWITCH(arg1, arg2) {
-            await this.setValue(!this.value);
-        }
-        async SET(newValue) {
-            await this.setValue(newValue);
-        }
-        async valueChanged(oldValue, newValue) {
-            if (oldValue !== newValue) {
-                await this.callbacks.run('ONCHANGED', newValue);
-            }
-            await this.callbacks.run('ONBRUTALCHANGED', newValue);
-        }
-        async toString() {
-            return (await this.getValue()) ? 'TRUE' : 'FALSE';
-        }
-    };
+            __esDecorate(_a, null, _SWITCH_decorators, { kind: "method", name: "SWITCH", static: false, private: false, access: { has: obj => "SWITCH" in obj, get: obj => obj.SWITCH }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Bool = Bool;
 
@@ -34365,6 +34350,7 @@ const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/c
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Button = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _ENABLE_decorators;
@@ -34373,8 +34359,295 @@ let Button = (() => {
     let _SETPRIORITY_decorators;
     let _SETRECT_decorators;
     let _SETSTD_decorators;
-    return class Button extends _classSuper {
-        static {
+    return _a = class Button extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
+                this.logic = __runInitializers(this, _instanceExtraInitializers);
+                this.lastMousePosition = new pixi_js_1.Point();
+                this.originalPriority = 0;
+                this.draggingActive = false;
+                this.draggingEnded = false;
+                this.draggingPosition = null;
+                this.gfxStandard = null;
+                this.gfxOnClick = null;
+                this.gfxOnMove = null;
+                this.interactArea = null;
+                this.rect = null;
+                this.logic = new button_1.ButtonLogicComponent(this.onStateChange.bind(this));
+                this.onPointerMoveHandler = this.onPointerMove.bind(this);
+                this.onPointerUpHandler = this.onPointerUp.bind(this);
+            }
+            init() {
+                if (this.definition.GFXSTANDARD) {
+                    this.gfxStandard = this.getObject(this.definition.GFXSTANDARD);
+                }
+                if (this.definition.GFXONCLICK) {
+                    this.gfxOnClick = this.getObject(this.definition.GFXONCLICK);
+                }
+                if (this.definition.GFXONMOVE) {
+                    this.gfxOnMove = this.getObject(this.definition.GFXONMOVE);
+                }
+            }
+            async applyDefaults() {
+                this.prepareGraphic(this.gfxStandard);
+                this.prepareGraphic(this.gfxOnClick);
+                this.prepareGraphic(this.gfxOnMove);
+                if (this.definition.RECT) {
+                    this.setRect(this.definition.RECT);
+                }
+                if (this.definition.ENABLE) {
+                    await this.logic.enable();
+                }
+                else {
+                    await this.logic.disable();
+                }
+            }
+            async ready() {
+                await this.callbacks.run('ONINIT');
+            }
+            async tick() {
+                await this.logic.tick();
+                if (this.draggingActive && this.draggingPosition) {
+                    const offsetX = this.lastMousePosition.x - this.draggingPosition.x;
+                    const offsetY = this.lastMousePosition.y - this.draggingPosition.y;
+                    this.draggingPosition.set(this.lastMousePosition.x, this.lastMousePosition.y);
+                    await this.gfxStandard?.MOVE(offsetX, offsetY);
+                    await this.gfxOnClick?.MOVE(offsetX, offsetY);
+                    await this.gfxOnMove?.MOVE(offsetX, offsetY);
+                    await this.callbacks.run('ONDRAGGING');
+                }
+                if (this.draggingEnded) {
+                    await this.callbacks.run('ONENDDRAGGING');
+                    this.draggingEnded = false;
+                }
+            }
+            setRect(rect) {
+                if (this.gfxStandard) {
+                    // this won't be registered ever again as the original engine prefers RECT over GFXSTANDARD
+                    // and there is no known way of removing the rect (neither SETSTD nor SETRECT with no/empty argument works)
+                    this.unregisterInteractive(this.gfxStandard);
+                }
+                let shape;
+                if (Array.isArray(rect)) {
+                    shape = rect;
+                }
+                else {
+                    const object = this.getObject(rect);
+                    (0, errors_1.assert)(object !== null, 'object referred by RECT should exist');
+                    const sprite = object.getRenderObject();
+                    (0, errors_1.assert)(sprite !== null);
+                    shape = [sprite.x, sprite.y, sprite.x + sprite.width, sprite.y + sprite.height];
+                }
+                const [x1, y1, x2, y2] = shape;
+                const rectangle = new pixi_js_1.Rectangle(x1, y1, x2 - x1, y2 - y1);
+                if (this.interactArea === null) {
+                    this.interactArea = new pixi_js_1.Graphics();
+                    this.interactArea.visible = this.definition.ENABLE;
+                    this.interactArea.name = `${this.name} (Button)`; // For PIXI Devtools
+                    this.engine.rendering.addToStage(this.interactArea);
+                }
+                this.rect = rectangle;
+                this.interactArea.hitArea = rectangle;
+                this.interactArea.zIndex = 9999999 - rectangle.top;
+            }
+            destroy() {
+                if (this.interactArea) {
+                    this.logic.unregisterInteractive(this.interactArea);
+                    this.engine.rendering.removeFromStage(this.interactArea);
+                }
+                else if (this.gfxStandard) {
+                    this.unregisterInteractive(this.gfxStandard);
+                }
+            }
+            async onStateChange(prevState, event, state) {
+                if (this.draggingActive) {
+                    return;
+                }
+                if (this.interactArea) {
+                    // For area button
+                    this.interactArea.visible = state != button_1.State.DISABLED;
+                }
+                if (state == button_1.State.DISABLED) {
+                    this.gfxStandard?.HIDE();
+                    this.gfxOnMove?.HIDE();
+                    this.gfxOnClick?.HIDE();
+                }
+                else if (state == button_1.State.DISABLED_BUT_VISIBLE) {
+                    this.gfxStandard?.SHOW();
+                    this.setSpriteAlpha(this.gfxStandard, 1);
+                    if (this.gfxStandard !== this.gfxOnMove) {
+                        this.gfxOnMove?.HIDE();
+                    }
+                    if (this.gfxStandard !== this.gfxOnClick) {
+                        this.gfxOnClick?.HIDE();
+                    }
+                }
+                else if (state == button_1.State.HOVERED && this.gfxOnMove) {
+                    this.gfxStandard?.SHOW();
+                    if (this.gfxStandard !== this.gfxOnMove) {
+                        // Setting alpha to 0 instead of hiding so that the mouse interactions still work
+                        this.setSpriteAlpha(this.gfxStandard, 0);
+                    }
+                    this.gfxOnMove?.SHOW();
+                    if (this.gfxStandard !== this.gfxOnClick) {
+                        this.gfxOnClick?.HIDE();
+                    }
+                }
+                else if (state == button_1.State.PRESSED && this.gfxOnClick) {
+                    this.gfxStandard?.SHOW();
+                    if (this.gfxStandard !== this.gfxOnMove) {
+                        this.setSpriteAlpha(this.gfxStandard, 0);
+                        this.gfxOnMove?.HIDE();
+                    }
+                    this.gfxOnClick?.SHOW();
+                }
+                else {
+                    this.gfxStandard?.SHOW();
+                    this.setSpriteAlpha(this.gfxStandard, 1);
+                    if (this.gfxStandard !== this.gfxOnMove) {
+                        this.gfxOnMove?.HIDE();
+                    }
+                    if (this.gfxStandard !== this.gfxOnClick) {
+                        this.gfxOnClick?.HIDE();
+                    }
+                }
+                if (event == button_1.Event.ENABLE) {
+                    if (this.gfxStandard) {
+                        this.registerInteractive(this.gfxStandard);
+                    }
+                    if (this.interactArea) {
+                        this.logic.registerInteractive(this.interactArea);
+                    }
+                }
+                else if (event == button_1.Event.DISABLE || event == button_1.Event.DISABLE_BUT_VISIBLE) {
+                    if (this.gfxStandard) {
+                        this.unregisterInteractive(this.gfxStandard);
+                    }
+                    if (this.interactArea) {
+                        this.logic.unregisterInteractive(this.interactArea);
+                    }
+                }
+                else if (event == button_1.Event.DOWN) {
+                    await this.callbacks.run('ONCLICKED');
+                    if (this.definition.DRAGGABLE) {
+                        const renderObject = this.gfxStandard?.getRenderObject();
+                        (0, errors_1.assert)(renderObject);
+                        this.originalPriority = renderObject.zIndex;
+                        this.gfxStandard?.SETPRIORITY(99999999);
+                        await this.callbacks.run('ONSTARTDRAGGING');
+                        this.engine.app.stage.on('pointerup', this.onPointerUpHandler);
+                        if (this.callbacks.has('ONDRAGGING')) {
+                            this.engine.app.stage.on('pointermove', this.onPointerMoveHandler);
+                        }
+                    }
+                }
+                else if (event == button_1.Event.UP) {
+                    await this.callbacks.run('ONRELEASED');
+                    await this.callbacks.run('ONACTION');
+                }
+                else if (event == button_1.Event.OVER) {
+                    await this.callbacks.run('ONFOCUSON');
+                }
+                else if (event == button_1.Event.OUT) {
+                    await this.callbacks.run('ONFOCUSOFF');
+                }
+            }
+            onPointerMove(event) {
+                this.lastMousePosition.set(Math.trunc(event.screen.x), Math.trunc(event.screen.y));
+                if (this.draggingPosition == null) {
+                    this.draggingPosition = new pixi_js_1.Point(Math.trunc(event.screen.x), Math.trunc(event.screen.y));
+                    this.draggingActive = true;
+                }
+            }
+            onPointerUp(event) {
+                if (this.draggingActive) {
+                    this.draggingActive = false;
+                    this.draggingEnded = true;
+                    this.draggingPosition = null;
+                    this.engine.app.stage.off('pointermove', this.onPointerMoveHandler);
+                    this.engine.app.stage.off('pointerup', this.onPointerMoveHandler);
+                    this.gfxStandard?.SETPRIORITY(this.originalPriority);
+                }
+            }
+            async ENABLE() {
+                await this.logic.enable();
+            }
+            async DISABLE() {
+                await this.logic.disable();
+            }
+            async DISABLEBUTVISIBLE() {
+                await this.logic.disableButVisible();
+            }
+            SETPRIORITY(priority) {
+                this.gfxStandard?.SETPRIORITY(priority);
+                this.gfxOnMove?.SETPRIORITY(priority);
+                this.gfxOnClick?.SETPRIORITY(priority);
+            }
+            SETRECT(objectName) {
+                this.setRect({ objectName });
+            }
+            SETSTD(graphicObjectName, removeFromCanvas = false, onBoundingBox = false) {
+                throw new errors_1.NotImplementedError();
+            }
+            registerInteractive(object) {
+                const renderObject = object.getRenderObject();
+                (0, errors_1.assert)(renderObject !== null);
+                this.logic.registerInteractive(renderObject);
+                renderObject.checkPixelPerfect = true;
+                if (object instanceof image_1.Image) {
+                    renderObject.eventMode = 'dynamic';
+                }
+            }
+            unregisterInteractive(object) {
+                const renderObject = object.getRenderObject();
+                (0, errors_1.assert)(renderObject !== null);
+                this.logic.unregisterInteractive(renderObject);
+                renderObject.checkPixelPerfect = true;
+                if (object instanceof image_1.Image) {
+                    renderObject.eventMode = 'none';
+                }
+            }
+            setSpriteAlpha(object, alpha) {
+                if (object) {
+                    const renderObject = object.getRenderObject();
+                    if (renderObject) {
+                        renderObject.alpha = alpha;
+                    }
+                }
+            }
+            prepareGraphic(object) {
+                const renderObject = object?.getRenderObject() ?? null;
+                if (renderObject === null) {
+                    return;
+                }
+                // Add object to stage if it had TOCANVAS=FALSE, and wasn't added
+                if (renderObject.parent === null) {
+                    this.engine.rendering.addToStage(renderObject);
+                }
+            }
+            __getXRayInfo() {
+                if (this.rect !== null) {
+                    return {
+                        type: 'button',
+                        bounds: this.rect,
+                        color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
+                        position: 'outside',
+                        visible: this.logic.state != button_1.State.DISABLED,
+                    };
+                }
+                else if (this.gfxStandard?.getRenderObject()?.visible) {
+                    return {
+                        type: 'button',
+                        bounds: this.gfxStandard.getRenderObject().getBounds(),
+                        color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
+                        position: 'outside',
+                        visible: this.gfxStandard.getRenderObject()?.visible ?? false,
+                    };
+                }
+                return null;
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _ENABLE_decorators = [(0, types_1.method)()];
             _DISABLE_decorators = [(0, types_1.method)()];
@@ -34382,304 +34655,15 @@ let Button = (() => {
             _SETPRIORITY_decorators = [(0, types_1.method)({ name: "priority", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SETRECT_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _SETSTD_decorators = [(0, types_1.method)({ name: "graphicObjectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "removeFromCanvas", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false }, { name: "onBoundingBox", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
-            __esDecorate(this, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _DISABLEBUTVISIBLE_decorators, { kind: "method", name: "DISABLEBUTVISIBLE", static: false, private: false, access: { has: obj => "DISABLEBUTVISIBLE" in obj, get: obj => obj.DISABLEBUTVISIBLE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETPRIORITY_decorators, { kind: "method", name: "SETPRIORITY", static: false, private: false, access: { has: obj => "SETPRIORITY" in obj, get: obj => obj.SETPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETRECT_decorators, { kind: "method", name: "SETRECT", static: false, private: false, access: { has: obj => "SETRECT" in obj, get: obj => obj.SETRECT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETSTD_decorators, { kind: "method", name: "SETSTD", static: false, private: false, access: { has: obj => "SETSTD" in obj, get: obj => obj.SETSTD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        logic = __runInitializers(this, _instanceExtraInitializers);
-        lastMousePosition = new pixi_js_1.Point();
-        originalPriority = 0;
-        draggingActive = false;
-        draggingEnded = false;
-        draggingPosition = null;
-        onPointerMoveHandler;
-        onPointerUpHandler;
-        gfxStandard = null;
-        gfxOnClick = null;
-        gfxOnMove = null;
-        interactArea = null;
-        rect = null;
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition);
-            this.logic = new button_1.ButtonLogicComponent(this.onStateChange.bind(this));
-            this.onPointerMoveHandler = this.onPointerMove.bind(this);
-            this.onPointerUpHandler = this.onPointerUp.bind(this);
-        }
-        init() {
-            if (this.definition.GFXSTANDARD) {
-                this.gfxStandard = this.getObject(this.definition.GFXSTANDARD);
-            }
-            if (this.definition.GFXONCLICK) {
-                this.gfxOnClick = this.getObject(this.definition.GFXONCLICK);
-            }
-            if (this.definition.GFXONMOVE) {
-                this.gfxOnMove = this.getObject(this.definition.GFXONMOVE);
-            }
-        }
-        async applyDefaults() {
-            this.prepareGraphic(this.gfxStandard);
-            this.prepareGraphic(this.gfxOnClick);
-            this.prepareGraphic(this.gfxOnMove);
-            if (this.definition.RECT) {
-                this.setRect(this.definition.RECT);
-            }
-            if (this.definition.ENABLE) {
-                await this.logic.enable();
-            }
-            else {
-                await this.logic.disable();
-            }
-        }
-        async ready() {
-            await this.callbacks.run('ONINIT');
-        }
-        async tick() {
-            await this.logic.tick();
-            if (this.draggingActive && this.draggingPosition) {
-                const offsetX = this.lastMousePosition.x - this.draggingPosition.x;
-                const offsetY = this.lastMousePosition.y - this.draggingPosition.y;
-                this.draggingPosition.set(this.lastMousePosition.x, this.lastMousePosition.y);
-                await this.gfxStandard?.MOVE(offsetX, offsetY);
-                await this.gfxOnClick?.MOVE(offsetX, offsetY);
-                await this.gfxOnMove?.MOVE(offsetX, offsetY);
-                await this.callbacks.run('ONDRAGGING');
-            }
-            if (this.draggingEnded) {
-                await this.callbacks.run('ONENDDRAGGING');
-                this.draggingEnded = false;
-            }
-        }
-        setRect(rect) {
-            if (this.gfxStandard) {
-                // this won't be registered ever again as the original engine prefers RECT over GFXSTANDARD
-                // and there is no known way of removing the rect (neither SETSTD nor SETRECT with no/empty argument works)
-                this.unregisterInteractive(this.gfxStandard);
-            }
-            let shape;
-            if (Array.isArray(rect)) {
-                shape = rect;
-            }
-            else {
-                const object = this.getObject(rect);
-                (0, errors_1.assert)(object !== null, 'object referred by RECT should exist');
-                const sprite = object.getRenderObject();
-                (0, errors_1.assert)(sprite !== null);
-                shape = [sprite.x, sprite.y, sprite.x + sprite.width, sprite.y + sprite.height];
-            }
-            const [x1, y1, x2, y2] = shape;
-            const rectangle = new pixi_js_1.Rectangle(x1, y1, x2 - x1, y2 - y1);
-            if (this.interactArea === null) {
-                this.interactArea = new pixi_js_1.Graphics();
-                this.interactArea.visible = this.definition.ENABLE;
-                this.interactArea.name = `${this.name} (Button)`; // For PIXI Devtools
-                this.engine.rendering.addToStage(this.interactArea);
-            }
-            this.rect = rectangle;
-            this.interactArea.hitArea = rectangle;
-            this.interactArea.zIndex = 9999999 - rectangle.top;
-        }
-        destroy() {
-            if (this.interactArea) {
-                this.logic.unregisterInteractive(this.interactArea);
-                this.engine.rendering.removeFromStage(this.interactArea);
-            }
-            else if (this.gfxStandard) {
-                this.unregisterInteractive(this.gfxStandard);
-            }
-        }
-        async onStateChange(prevState, event, state) {
-            if (this.draggingActive) {
-                return;
-            }
-            if (this.interactArea) {
-                // For area button
-                this.interactArea.visible = state != button_1.State.DISABLED;
-            }
-            if (state == button_1.State.DISABLED) {
-                this.gfxStandard?.HIDE();
-                this.gfxOnMove?.HIDE();
-                this.gfxOnClick?.HIDE();
-            }
-            else if (state == button_1.State.DISABLED_BUT_VISIBLE) {
-                this.gfxStandard?.SHOW();
-                this.setSpriteAlpha(this.gfxStandard, 1);
-                if (this.gfxStandard !== this.gfxOnMove) {
-                    this.gfxOnMove?.HIDE();
-                }
-                if (this.gfxStandard !== this.gfxOnClick) {
-                    this.gfxOnClick?.HIDE();
-                }
-            }
-            else if (state == button_1.State.HOVERED && this.gfxOnMove) {
-                this.gfxStandard?.SHOW();
-                if (this.gfxStandard !== this.gfxOnMove) {
-                    // Setting alpha to 0 instead of hiding so that the mouse interactions still work
-                    this.setSpriteAlpha(this.gfxStandard, 0);
-                }
-                this.gfxOnMove?.SHOW();
-                if (this.gfxStandard !== this.gfxOnClick) {
-                    this.gfxOnClick?.HIDE();
-                }
-            }
-            else if (state == button_1.State.PRESSED && this.gfxOnClick) {
-                this.gfxStandard?.SHOW();
-                if (this.gfxStandard !== this.gfxOnMove) {
-                    this.setSpriteAlpha(this.gfxStandard, 0);
-                    this.gfxOnMove?.HIDE();
-                }
-                this.gfxOnClick?.SHOW();
-            }
-            else {
-                this.gfxStandard?.SHOW();
-                this.setSpriteAlpha(this.gfxStandard, 1);
-                if (this.gfxStandard !== this.gfxOnMove) {
-                    this.gfxOnMove?.HIDE();
-                }
-                if (this.gfxStandard !== this.gfxOnClick) {
-                    this.gfxOnClick?.HIDE();
-                }
-            }
-            if (event == button_1.Event.ENABLE) {
-                if (this.gfxStandard) {
-                    this.registerInteractive(this.gfxStandard);
-                }
-                if (this.interactArea) {
-                    this.logic.registerInteractive(this.interactArea);
-                }
-            }
-            else if (event == button_1.Event.DISABLE || event == button_1.Event.DISABLE_BUT_VISIBLE) {
-                if (this.gfxStandard) {
-                    this.unregisterInteractive(this.gfxStandard);
-                }
-                if (this.interactArea) {
-                    this.logic.unregisterInteractive(this.interactArea);
-                }
-            }
-            else if (event == button_1.Event.DOWN) {
-                await this.callbacks.run('ONCLICKED');
-                if (this.definition.DRAGGABLE) {
-                    (0, errors_1.assert)(this.gfxStandard !== null);
-                    const renderObject = this.gfxStandard.getRenderObject();
-                    (0, errors_1.assert)(renderObject !== null);
-                    this.originalPriority = renderObject.zIndex;
-                    this.gfxStandard?.SETPRIORITY(99999999);
-                    await this.callbacks.run('ONSTARTDRAGGING');
-                    this.engine.app.stage.on('pointerup', this.onPointerUpHandler);
-                    if (this.callbacks.has('ONDRAGGING')) {
-                        this.engine.app.stage.on('pointermove', this.onPointerMoveHandler);
-                    }
-                }
-            }
-            else if (event == button_1.Event.UP) {
-                await this.callbacks.run('ONRELEASED');
-                await this.callbacks.run('ONACTION');
-            }
-            else if (event == button_1.Event.OVER) {
-                await this.callbacks.run('ONFOCUSON');
-            }
-            else if (event == button_1.Event.OUT) {
-                await this.callbacks.run('ONFOCUSOFF');
-            }
-        }
-        onPointerMove(event) {
-            this.lastMousePosition.set(Math.trunc(event.screen.x), Math.trunc(event.screen.y));
-            if (this.draggingPosition == null) {
-                this.draggingPosition = new pixi_js_1.Point(Math.trunc(event.screen.x), Math.trunc(event.screen.y));
-                this.draggingActive = true;
-            }
-        }
-        onPointerUp(event) {
-            if (this.draggingActive) {
-                this.draggingActive = false;
-                this.draggingEnded = true;
-                this.draggingPosition = null;
-                this.engine.app.stage.off('pointermove', this.onPointerMoveHandler);
-                this.engine.app.stage.off('pointerup', this.onPointerMoveHandler);
-                this.gfxStandard?.SETPRIORITY(this.originalPriority);
-            }
-        }
-        async ENABLE() {
-            await this.logic.enable();
-        }
-        async DISABLE() {
-            await this.logic.disable();
-        }
-        async DISABLEBUTVISIBLE() {
-            await this.logic.disableButVisible();
-        }
-        SETPRIORITY(priority) {
-            this.gfxStandard?.SETPRIORITY(priority);
-            this.gfxOnMove?.SETPRIORITY(priority);
-            this.gfxOnClick?.SETPRIORITY(priority);
-        }
-        SETRECT(objectName) {
-            this.setRect({ objectName });
-        }
-        SETSTD(graphicObjectName, removeFromCanvas = false, onBoundingBox = false) {
-            throw new errors_1.NotImplementedError();
-        }
-        registerInteractive(object) {
-            const renderObject = object.getRenderObject();
-            (0, errors_1.assert)(renderObject !== null);
-            this.logic.registerInteractive(renderObject);
-            renderObject.checkPixelPerfect = true;
-            if (object instanceof image_1.Image) {
-                renderObject.eventMode = 'dynamic';
-            }
-        }
-        unregisterInteractive(object) {
-            const renderObject = object.getRenderObject();
-            (0, errors_1.assert)(renderObject !== null);
-            this.logic.unregisterInteractive(renderObject);
-            renderObject.checkPixelPerfect = true;
-            if (object instanceof image_1.Image) {
-                renderObject.eventMode = 'none';
-            }
-        }
-        setSpriteAlpha(object, alpha) {
-            if (object) {
-                const renderObject = object.getRenderObject();
-                if (renderObject) {
-                    renderObject.alpha = alpha;
-                }
-            }
-        }
-        prepareGraphic(object) {
-            const renderObject = object?.getRenderObject() ?? null;
-            if (renderObject === null) {
-                return;
-            }
-            // Add object to stage if it had TOCANVAS=FALSE, and wasn't added
-            if (renderObject.parent === null) {
-                this.engine.rendering.addToStage(renderObject);
-            }
-        }
-        __getXRayInfo() {
-            if (this.rect !== null) {
-                return {
-                    type: 'button',
-                    bounds: this.rect,
-                    color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
-                    position: 'outside',
-                    visible: this.logic.state != button_1.State.DISABLED,
-                };
-            }
-            else if (this.gfxStandard?.getRenderObject()?.visible) {
-                return {
-                    type: 'button',
-                    bounds: this.gfxStandard.getRenderObject().getBounds(),
-                    color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
-                    position: 'outside',
-                    visible: this.gfxStandard.getRenderObject()?.visible ?? false,
-                };
-            }
-            return null;
-        }
-    };
+            __esDecorate(_a, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DISABLEBUTVISIBLE_decorators, { kind: "method", name: "DISABLEBUTVISIBLE", static: false, private: false, access: { has: obj => "DISABLEBUTVISIBLE" in obj, get: obj => obj.DISABLEBUTVISIBLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETPRIORITY_decorators, { kind: "method", name: "SETPRIORITY", static: false, private: false, access: { has: obj => "SETPRIORITY" in obj, get: obj => obj.SETPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETRECT_decorators, { kind: "method", name: "SETRECT", static: false, private: false, access: { has: obj => "SETRECT" in obj, get: obj => obj.SETRECT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETSTD_decorators, { kind: "method", name: "SETSTD", static: false, private: false, access: { has: obj => "SETSTD" in obj, get: obj => obj.SETSTD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Button = Button;
 
@@ -34739,6 +34723,7 @@ const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/er
 const img_1 = __webpack_require__(/*! ../../fileFormats/img */ "./src/fileFormats/img/index.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let CanvasObserver = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _SETBACKGROUND_decorators;
@@ -34746,103 +34731,104 @@ let CanvasObserver = (() => {
     let _REMOVE_decorators;
     let _GETGRAPHICSAT_decorators;
     let _SAVE_decorators;
-    return class CanvasObserver extends _classSuper {
-        static {
+    return _a = class CanvasObserver extends _classSuper {
+            async SETBACKGROUND(filename) {
+                const relativePath = await this.engine.currentScene?.getRelativePath(filename);
+                const texture = await (0, assetsLoader_1.loadTexture)(this.engine.filesystem, relativePath);
+                if (texture == null) {
+                    throw new Error(`Cannot load image '${filename}'`);
+                }
+                this.engine.rendering.setBackground(texture);
+            }
+            REFRESH() {
+                this.engine.rendering.redrawAll();
+            }
+            REMOVE(objectName) {
+                const object = this.engine.getObject(objectName);
+                if (object == null || !(object instanceof index_1.DisplayType)) {
+                    return;
+                }
+                const renderObject = object.getRenderObject();
+                if (renderObject != null) {
+                    this.engine.rendering.removeFromStage(renderObject);
+                }
+            }
+            GETGRAPHICSAT(x, y, onlyVisible = false, minZ = Number.MIN_SAFE_INTEGER, maxZ = Number.MAX_SAFE_INTEGER, ignoreAlpha = false) {
+                const point = new pixi_js_1.Point(x, y);
+                for (let i = this.engine.app.stage.children.length - 1; i >= 0; i--) {
+                    const renderObject = this.engine.app.stage.children[i];
+                    if (!(renderObject instanceof rendering_1.AdvancedSprite)) {
+                        continue;
+                    }
+                    if (onlyVisible && !renderObject.visible) {
+                        continue;
+                    }
+                    const position = renderObject.getGlobalPosition();
+                    if (position === null) {
+                        continue;
+                    }
+                    const containsPoint = renderObject.containsPoint(point, !ignoreAlpha);
+                    if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
+                        const object = this.engine.scopeManager.find((key, obj) => obj instanceof index_1.DisplayType && obj.getRenderObject() === renderObject);
+                        if (object === null) {
+                            continue;
+                        }
+                        return object.name;
+                    }
+                }
+                return null;
+            }
+            async SAVE(filename, scaleX, scaleY, left = 0, top = 0, right = 0, bottom = 0) {
+                (0, errors_1.assert)(this.engine.currentScene !== null);
+                const rectangle = right != left && bottom != top
+                    ? new pixi_js_1.Rectangle(left, top, right - left, bottom - top)
+                    : new pixi_js_1.Rectangle(0, 0, this.engine.app.view.width, this.engine.app.view.height);
+                const originalCanvas = await this.engine.app.renderer.extract.image(this.engine.app.stage, undefined, undefined, rectangle);
+                const scaledCanvas = document.createElement('canvas');
+                scaledCanvas.width = Math.trunc(originalCanvas.width * scaleX);
+                scaledCanvas.height = Math.trunc(originalCanvas.height * scaleY);
+                const scaledCanvasCtx = scaledCanvas.getContext('2d');
+                (0, errors_1.assert)(scaledCanvasCtx !== null);
+                scaledCanvasCtx.scale(scaleX, scaleY);
+                scaledCanvasCtx.drawImage(originalCanvas, 0, 0);
+                const imageData = scaledCanvasCtx.getImageData(0, 0, scaledCanvas.width, scaledCanvas.height);
+                const pixels = imageData.data;
+                const imgFile = (0, img_1.buildImage)({
+                    bpp: 16,
+                    positionX: 0,
+                    positionY: 0,
+                    compressionType: 0,
+                    width: Math.floor(this.engine.app.view.width * scaleX),
+                    height: Math.floor(this.engine.app.view.height * scaleY),
+                    imageLen: -1,
+                    alphaLen: -1,
+                }, pixels);
+                const virtualPath = await this.engine.currentScene.getRelativePath(filename);
+                logging_1.logger.debug(`Saving canvas to "${virtualPath}"`, {
+                    observer: this,
+                });
+                await this.engine.filesystem.saveFile(virtualPath, imgFile);
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SETBACKGROUND_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _REFRESH_decorators = [(0, types_1.method)()];
             _REMOVE_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _GETGRAPHICSAT_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "onlyVisible", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false }, { name: "minZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "maxZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "ignoreAlpha", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
             _SAVE_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "scaleX", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "scaleY", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _SETBACKGROUND_decorators, { kind: "method", name: "SETBACKGROUND", static: false, private: false, access: { has: obj => "SETBACKGROUND" in obj, get: obj => obj.SETBACKGROUND }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _REFRESH_decorators, { kind: "method", name: "REFRESH", static: false, private: false, access: { has: obj => "REFRESH" in obj, get: obj => obj.REFRESH }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _REMOVE_decorators, { kind: "method", name: "REMOVE", static: false, private: false, access: { has: obj => "REMOVE" in obj, get: obj => obj.REMOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETGRAPHICSAT_decorators, { kind: "method", name: "GETGRAPHICSAT", static: false, private: false, access: { has: obj => "GETGRAPHICSAT" in obj, get: obj => obj.GETGRAPHICSAT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SAVE_decorators, { kind: "method", name: "SAVE", static: false, private: false, access: { has: obj => "SAVE" in obj, get: obj => obj.SAVE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        async SETBACKGROUND(filename) {
-            const relativePath = await this.engine.currentScene?.getRelativePath(filename);
-            const texture = await (0, assetsLoader_1.loadTexture)(this.engine.filesystem, relativePath);
-            if (texture == null) {
-                throw new Error(`Cannot load image '${filename}'`);
-            }
-            this.engine.rendering.setBackground(texture);
-        }
-        REFRESH() {
-            this.engine.rendering.redrawAll();
-        }
-        REMOVE(objectName) {
-            const object = this.engine.getObject(objectName);
-            if (object == null || !(object instanceof index_1.DisplayType)) {
-                return;
-            }
-            const renderObject = object.getRenderObject();
-            if (renderObject != null) {
-                this.engine.rendering.removeFromStage(renderObject);
-            }
-        }
-        GETGRAPHICSAT(x, y, onlyVisible = false, minZ = Number.MIN_SAFE_INTEGER, maxZ = Number.MAX_SAFE_INTEGER, ignoreAlpha = false) {
-            const point = new pixi_js_1.Point(x, y);
-            for (let i = this.engine.app.stage.children.length - 1; i >= 0; i--) {
-                const renderObject = this.engine.app.stage.children[i];
-                if (!(renderObject instanceof rendering_1.AdvancedSprite)) {
-                    continue;
-                }
-                if (onlyVisible && !renderObject.visible) {
-                    continue;
-                }
-                const position = renderObject.getGlobalPosition();
-                if (position === null) {
-                    continue;
-                }
-                const containsPoint = renderObject.containsPoint(point, !ignoreAlpha);
-                if (containsPoint && renderObject.zIndex >= minZ && renderObject.zIndex <= maxZ) {
-                    const object = this.engine.scopeManager.find((key, obj) => obj instanceof index_1.DisplayType && obj.getRenderObject() === renderObject);
-                    if (object === null) {
-                        continue;
-                    }
-                    return object.name;
-                }
-            }
-            return null;
-        }
-        async SAVE(filename, scaleX, scaleY, left = 0, top = 0, right = 0, bottom = 0) {
-            (0, errors_1.assert)(this.engine.currentScene !== null);
-            const rectangle = right != left && bottom != top
-                ? new pixi_js_1.Rectangle(left, top, right - left, bottom - top)
-                : new pixi_js_1.Rectangle(0, 0, this.engine.app.view.width, this.engine.app.view.height);
-            const originalCanvas = await this.engine.app.renderer.extract.image(this.engine.app.stage, undefined, undefined, rectangle);
-            const scaledCanvas = document.createElement('canvas');
-            scaledCanvas.width = Math.trunc(originalCanvas.width * scaleX);
-            scaledCanvas.height = Math.trunc(originalCanvas.height * scaleY);
-            const scaledCanvasCtx = scaledCanvas.getContext('2d');
-            (0, errors_1.assert)(scaledCanvasCtx !== null);
-            scaledCanvasCtx.scale(scaleX, scaleY);
-            scaledCanvasCtx.drawImage(originalCanvas, 0, 0);
-            const imageData = scaledCanvasCtx.getImageData(0, 0, scaledCanvas.width, scaledCanvas.height);
-            const pixels = imageData.data;
-            const imgFile = (0, img_1.buildImage)({
-                bpp: 16,
-                positionX: 0,
-                positionY: 0,
-                compressionType: 0,
-                width: Math.floor(this.engine.app.view.width * scaleX),
-                height: Math.floor(this.engine.app.view.height * scaleY),
-                imageLen: -1,
-                alphaLen: -1,
-            }, pixels);
-            const virtualPath = await this.engine.currentScene.getRelativePath(filename);
-            logging_1.logger.debug(`Saving canvas to "${virtualPath}"`, {
-                observer: this,
-            });
-            await this.engine.filesystem.saveFile(virtualPath, imgFile);
-        }
-        constructor() {
-            super(...arguments);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-    };
+            __esDecorate(_a, null, _SETBACKGROUND_decorators, { kind: "method", name: "SETBACKGROUND", static: false, private: false, access: { has: obj => "SETBACKGROUND" in obj, get: obj => obj.SETBACKGROUND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REFRESH_decorators, { kind: "method", name: "REFRESH", static: false, private: false, access: { has: obj => "REFRESH" in obj, get: obj => obj.REFRESH }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVE_decorators, { kind: "method", name: "REMOVE", static: false, private: false, access: { has: obj => "REMOVE" in obj, get: obj => obj.REMOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETGRAPHICSAT_decorators, { kind: "method", name: "GETGRAPHICSAT", static: false, private: false, access: { has: obj => "GETGRAPHICSAT" in obj, get: obj => obj.GETGRAPHICSAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SAVE_decorators, { kind: "method", name: "SAVE", static: false, private: false, access: { has: obj => "SAVE" in obj, get: obj => obj.SAVE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.CanvasObserver = CanvasObserver;
 
@@ -34901,48 +34887,52 @@ const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/er
 const behaviour_1 = __webpack_require__(/*! ./behaviour */ "./src/engine/types/behaviour.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Class = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _NEW_decorators;
-    return class Class extends _classSuper {
-        static {
+    return _a = class Class extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.innerDefinition = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.instances = [];
+            }
+            async init() {
+                this.innerDefinition = await this.engine.filesystem.getCNVFile(await this.engine.resolvePath(this.definition.DEF, 'common/classes'));
+            }
+            destroy() {
+                this.instances.forEach((instance) => instance.destroy());
+            }
+            async tick(elapsedMS) {
+                for (const instance of this.instances) {
+                    await instance.tick(elapsedMS);
+                }
+            }
+            async NEW(name, ...args) {
+                (0, errors_1.assert)(this.innerDefinition !== null);
+                const instance = new ClassInstance(this.engine, this, name, args);
+                await instance.init();
+                this.instances.push(instance);
+                this.parentScope?.set(name, instance);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _NEW_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
-            __esDecorate(this, null, _NEW_decorators, { kind: "method", name: "NEW", static: false, private: false, access: { has: obj => "NEW" in obj, get: obj => obj.NEW }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        innerDefinition = (__runInitializers(this, _instanceExtraInitializers), null);
-        instances = [];
-        async init() {
-            this.innerDefinition = await this.engine.filesystem.getCNVFile(await this.engine.resolvePath(this.definition.DEF, 'common/classes'));
-        }
-        destroy() {
-            this.instances.forEach((instance) => instance.destroy());
-        }
-        async tick(elapsedMS) {
-            for (const instance of this.instances) {
-                await instance.tick(elapsedMS);
-            }
-        }
-        async NEW(name, ...args) {
-            (0, errors_1.assert)(this.innerDefinition !== null);
-            const instance = new ClassInstance(this.engine, this, name, args);
-            await instance.init();
-            this.instances.push(instance);
-            this.parentScope?.set(name, instance);
-        }
-    };
+            __esDecorate(_a, null, _NEW_decorators, { kind: "method", name: "NEW", static: false, private: false, access: { has: obj => "NEW" in obj, get: obj => obj.NEW }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Class = Class;
 class ClassInstance extends index_1.ParentType {
-    class;
-    scope = new scope_1.Scope('class_instance');
-    args = [];
     constructor(engine, classObject, name, args) {
         super(engine, classObject.parent, {
             TYPE: 'CLASS_INSTANCE',
             NAME: name,
         });
+        this.scope = new scope_1.Scope('class_instance');
+        this.args = [];
         this.class = classObject;
         this.args = args;
     }
@@ -35025,28 +35015,30 @@ const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/er
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../../filesystem/definitionLoader */ "./src/filesystem/definitionLoader.ts");
 let CNVLoader = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _LOAD_decorators;
-    return class CNVLoader extends _classSuper {
-        static {
+    return _a = class CNVLoader extends _classSuper {
+            async LOAD(filename) {
+                (0, errors_1.assert)(this.engine.currentScene !== null);
+                const definition = await this.engine.filesystem.getCNVFile(await this.engine.currentScene.getRelativePath(filename));
+                (0, errors_1.assert)(this.parent?.scope);
+                await (0, definitionLoader_1.loadDefinition)(this.engine, this.parent.scope, definition, this.engine.currentScene);
+                await (0, definitionLoader_1.doReady)(this.parent.scope);
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _LOAD_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        async LOAD(filename) {
-            (0, errors_1.assert)(this.engine.currentScene !== null);
-            const definition = await this.engine.filesystem.getCNVFile(await this.engine.currentScene.getRelativePath(filename));
-            (0, errors_1.assert)(this.parent !== null && this.parent.scope !== null);
-            await (0, definitionLoader_1.loadDefinition)(this.engine, this.parent.scope, definition, this.engine.currentScene);
-            await (0, definitionLoader_1.doReady)(this.parent.scope);
-        }
-        constructor() {
-            super(...arguments);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-    };
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.CNVLoader = CNVLoader;
 
@@ -35100,61 +35092,64 @@ exports.ComplexCondition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
 let ComplexCondition = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _BREAK_decorators;
     let _ONE_BREAK_decorators;
     let _CHECK_decorators;
-    return class ComplexCondition extends _classSuper {
-        static {
+    return _a = class ComplexCondition extends _classSuper {
+            // In loops its like 'break'
+            async BREAK(arg) {
+                if (await this.CHECK(arg)) {
+                    throw new interpreter_1.InterruptScriptExecution(false);
+                }
+            }
+            // In loops its like 'continue'
+            async ONE_BREAK(arg) {
+                if (await this.CHECK(arg)) {
+                    throw new interpreter_1.InterruptScriptExecution(true);
+                }
+            }
+            async CHECK(arg) {
+                const condition1 = this.getObject(this.definition.CONDITION1);
+                const condition2 = this.getObject(this.definition.CONDITION2);
+                (0, errors_1.assert)(condition1 !== null && condition2 !== null);
+                let result;
+                switch (this.definition.OPERATOR) {
+                    case 'AND':
+                        result = (await condition1.CHECK(arg)) && (await condition2.CHECK(arg));
+                        break;
+                    case 'OR':
+                        result = (await condition1.CHECK(arg)) || (await condition2.CHECK(arg));
+                        break;
+                }
+                if (result) {
+                    await this.callbacks.run('ONRUNTIMESUCCESS');
+                }
+                else {
+                    await this.callbacks.run('ONRUNTIMEFAILED');
+                }
+                return result;
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             _ONE_BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             _CHECK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _BREAK_decorators, { kind: "method", name: "BREAK", static: false, private: false, access: { has: obj => "BREAK" in obj, get: obj => obj.BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ONE_BREAK_decorators, { kind: "method", name: "ONE_BREAK", static: false, private: false, access: { has: obj => "ONE_BREAK" in obj, get: obj => obj.ONE_BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _CHECK_decorators, { kind: "method", name: "CHECK", static: false, private: false, access: { has: obj => "CHECK" in obj, get: obj => obj.CHECK }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        // In loops its like 'break'
-        async BREAK(arg) {
-            if (await this.CHECK(arg)) {
-                throw new errors_1.InterruptScriptExecution(false);
-            }
-        }
-        // In loops its like 'continue'
-        async ONE_BREAK(arg) {
-            if (await this.CHECK(arg)) {
-                throw new errors_1.InterruptScriptExecution(true);
-            }
-        }
-        async CHECK(arg) {
-            const condition1 = this.getObject(this.definition.CONDITION1);
-            const condition2 = this.getObject(this.definition.CONDITION2);
-            (0, errors_1.assert)(condition1 !== null && condition2 !== null);
-            let result;
-            switch (this.definition.OPERATOR) {
-                case 'AND':
-                    result = (await condition1.CHECK(arg)) && (await condition2.CHECK(arg));
-                    break;
-                case 'OR':
-                    result = (await condition1.CHECK(arg)) || (await condition2.CHECK(arg));
-                    break;
-            }
-            if (result) {
-                await this.callbacks.run('ONRUNTIMESUCCESS');
-            }
-            else {
-                await this.callbacks.run('ONRUNTIMEFAILED');
-            }
-            return result;
-        }
-        constructor() {
-            super(...arguments);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-    };
+            __esDecorate(_a, null, _BREAK_decorators, { kind: "method", name: "BREAK", static: false, private: false, access: { has: obj => "BREAK" in obj, get: obj => obj.BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ONE_BREAK_decorators, { kind: "method", name: "ONE_BREAK", static: false, private: false, access: { has: obj => "ONE_BREAK" in obj, get: obj => obj.ONE_BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CHECK_decorators, { kind: "method", name: "CHECK", static: false, private: false, access: { has: obj => "CHECK" in obj, get: obj => obj.CHECK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.ComplexCondition = ComplexCondition;
 
@@ -35208,93 +35203,95 @@ exports.Condition = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
-const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const interpreter_1 = __webpack_require__(/*! ../../interpreter */ "./src/interpreter/index.ts");
 let Condition = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _BREAK_decorators;
     let _ONE_BREAK_decorators;
     let _CHECK_decorators;
-    return class Condition extends _classSuper {
-        static {
+    return _a = class Condition extends _classSuper {
+            // arg is always true in ReksioIUfo
+            // In loops its like 'break'
+            async BREAK(arg) {
+                if (await this.CHECK(arg)) {
+                    throw new interpreter_1.InterruptScriptExecution(false);
+                }
+            }
+            // arg is always true in ReksioIUfo
+            // In loops its like 'continue'
+            async ONE_BREAK(arg) {
+                if (await this.CHECK(arg)) {
+                    throw new interpreter_1.InterruptScriptExecution(true);
+                }
+            }
+            async CHECK(shouldSignal) {
+                const operand1 = await this.engine.scripting.executeCallback(null, this, this.definition.OPERAND1);
+                const operand2 = await this.engine.scripting.executeCallback(null, this, this.definition.OPERAND2);
+                let result;
+                if (operand1 !== undefined && operand2 !== undefined) {
+                    try {
+                        switch (this.definition.OPERATOR) {
+                            case 'EQUAL':
+                                result = types_1.Compare.Equal(operand1, operand2);
+                                break;
+                            case 'NOTEQUAL':
+                                result = types_1.Compare.NotEqual(operand1, operand2);
+                                break;
+                            case 'LESS':
+                                result = types_1.Compare.Less(operand1, operand2);
+                                break;
+                            case 'GREATER':
+                                result = types_1.Compare.Greater(operand1, operand2);
+                                break;
+                            case 'LESSEQUAL':
+                                result = types_1.Compare.LessOrEqual(operand1, operand2);
+                                break;
+                            case 'GREATEREQUAL':
+                                result = types_1.Compare.GreaterOrEqual(operand1, operand2);
+                                break;
+                        }
+                    }
+                    catch (err) {
+                        logging_1.logger.error('Error occured while evaluating condition', {
+                            condition: this,
+                        }, err);
+                        throw err;
+                    }
+                }
+                else {
+                    result = false;
+                    logging_1.logger.warn(`Condition ${this.name} has an operand that resolved to undefined. operand1=${operand1}, operand2=${operand2}`, {
+                        condition: this,
+                    });
+                }
+                if (shouldSignal) {
+                    if (result) {
+                        await this.callbacks.run('ONRUNTIMESUCCESS', null, null);
+                    }
+                    else {
+                        await this.callbacks.run('ONRUNTIMEFAILED', null, null);
+                    }
+                }
+                return result;
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             _ONE_BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
             _CHECK_decorators = [(0, types_1.method)({ name: "shouldSignal", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _BREAK_decorators, { kind: "method", name: "BREAK", static: false, private: false, access: { has: obj => "BREAK" in obj, get: obj => obj.BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ONE_BREAK_decorators, { kind: "method", name: "ONE_BREAK", static: false, private: false, access: { has: obj => "ONE_BREAK" in obj, get: obj => obj.ONE_BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _CHECK_decorators, { kind: "method", name: "CHECK", static: false, private: false, access: { has: obj => "CHECK" in obj, get: obj => obj.CHECK }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        // arg is always true in ReksioIUfo
-        // In loops its like 'break'
-        async BREAK(arg) {
-            if (await this.CHECK(arg)) {
-                throw new errors_1.InterruptScriptExecution(false);
-            }
-        }
-        // arg is always true in ReksioIUfo
-        // In loops its like 'continue'
-        async ONE_BREAK(arg) {
-            if (await this.CHECK(arg)) {
-                throw new errors_1.InterruptScriptExecution(true);
-            }
-        }
-        async CHECK(shouldSignal) {
-            const operand1 = await this.engine.scripting.executeCallback(null, this, this.definition.OPERAND1);
-            const operand2 = await this.engine.scripting.executeCallback(null, this, this.definition.OPERAND2);
-            let result;
-            if (operand1 !== undefined && operand2 !== undefined) {
-                try {
-                    switch (this.definition.OPERATOR) {
-                        case 'EQUAL':
-                            result = types_1.Compare.Equal(operand1, operand2);
-                            break;
-                        case 'NOTEQUAL':
-                            result = types_1.Compare.NotEqual(operand1, operand2);
-                            break;
-                        case 'LESS':
-                            result = types_1.Compare.Less(operand1, operand2);
-                            break;
-                        case 'GREATER':
-                            result = types_1.Compare.Greater(operand1, operand2);
-                            break;
-                        case 'LESSEQUAL':
-                            result = types_1.Compare.LessOrEqual(operand1, operand2);
-                            break;
-                        case 'GREATEREQUAL':
-                            result = types_1.Compare.GreaterOrEqual(operand1, operand2);
-                            break;
-                    }
-                }
-                catch (err) {
-                    logging_1.logger.error('Error occured while evaluating condition', {
-                        condition: this,
-                    }, err);
-                    throw err;
-                }
-            }
-            else {
-                result = false;
-                logging_1.logger.warn(`Condition ${this.name} has an operand that resolved to undefined. operand1=${operand1}, operand2=${operand2}`, {
-                    condition: this,
-                });
-            }
-            if (shouldSignal) {
-                if (result) {
-                    await this.callbacks.run('ONRUNTIMESUCCESS', null, null);
-                }
-                else {
-                    await this.callbacks.run('ONRUNTIMEFAILED', null, null);
-                }
-            }
-            return result;
-        }
-        constructor() {
-            super(...arguments);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-    };
+            __esDecorate(_a, null, _BREAK_decorators, { kind: "method", name: "BREAK", static: false, private: false, access: { has: obj => "BREAK" in obj, get: obj => obj.BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ONE_BREAK_decorators, { kind: "method", name: "ONE_BREAK", static: false, private: false, access: { has: obj => "ONE_BREAK" in obj, get: obj => obj.ONE_BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CHECK_decorators, { kind: "method", name: "CHECK", static: false, private: false, access: { has: obj => "CHECK" in obj, get: obj => obj.CHECK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Condition = Condition;
 
@@ -35349,8 +35346,8 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const decoder = new TextDecoder('windows-1250');
-const encoder = new TextEncoder();
 let Database = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _GETROWSNO_decorators;
@@ -35362,9 +35359,94 @@ let Database = (() => {
     let _REMOVEAT_decorators;
     let _REMOVEALL_decorators;
     let _LOAD_decorators;
-    let _SAVE_decorators;
-    return class Database extends _classSuper {
-        static {
+    return _a = class Database extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.baseStruct = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.content = [];
+                this.cursorPosition = 0;
+            }
+            init() {
+                this.baseStruct = this.getObject(this.definition.MODEL);
+            }
+            async ready() {
+                await this.callbacks.run('ONINIT');
+            }
+            GETROWSNO() {
+                return this.content.length;
+            }
+            GETCURSORPOS() {
+                return this.cursorPosition;
+            }
+            NEXT() {
+                this.cursorPosition = (this.cursorPosition + 1) % this.content.length;
+                this.updateCursorValue();
+            }
+            PREV() {
+                this.cursorPosition += 1;
+                if (this.cursorPosition < 0) {
+                    this.cursorPosition = this.content.length - 1;
+                }
+                this.updateCursorValue();
+            }
+            SELECT(index) {
+                (0, errors_1.assert)(index < this.content.length && index >= 0, 'out of bounds');
+                this.cursorPosition = index;
+                this.updateCursorValue();
+            }
+            FIND(column, value, offset) {
+                // Should be ok without await for getValue as these types don't have async get
+                const index = this.content.findIndex((entry) => entry.GETFIELD(column)?.getValue() === value);
+                if (index == -1) {
+                    return -1;
+                }
+                // Simulating stupid behavior
+                if (index < offset) {
+                    return this.content.length + index;
+                }
+                return index;
+            }
+            REMOVEAT(index) {
+                this.content.splice(index, 1);
+                this.updateCursorValue();
+            }
+            REMOVEALL() {
+                this.content.forEach((item) => item.destroy());
+                this.content = [];
+                this.updateCursorValue();
+            }
+            async LOAD(path) {
+                (0, errors_1.assert)(this.engine.currentScene !== null);
+                (0, errors_1.assert)(this.baseStruct !== null);
+                const relativePath = await this.engine.currentScene.getRelativePath(path);
+                const data = await this.engine.filesystem.getFile(relativePath);
+                const content = decoder.decode(data);
+                const lines = content.replaceAll('\r\n', '\n').trim().split('\n');
+                const structFieldsNames = Array.from(this.baseStruct.structure.keys());
+                for (const line of lines) {
+                    const fieldContents = line.split('|');
+                    const newEntry = await this.baseStruct.clone();
+                    for (let i = 0; i < structFieldsNames.length; i++) {
+                        const fieldName = structFieldsNames[i];
+                        const fieldValue = fieldContents[i];
+                        await newEntry.setField(fieldName, fieldValue === 'NULL' ? null : fieldValue);
+                    }
+                    this.content.push(newEntry);
+                }
+                this.updateCursorValue();
+            }
+            updateCursorValue() {
+                (0, errors_1.assert)(this.parentScope !== null);
+                const cursorName = this.name + '_CURSOR';
+                if (this.content.length == 0) {
+                    this.parentScope.remove(cursorName);
+                }
+                else {
+                    this.parentScope.set(cursorName, this.content[this.cursorPosition]);
+                }
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _GETROWSNO_decorators = [(0, types_1.method)()];
             _GETCURSORPOS_decorators = [(0, types_1.method)()];
@@ -35375,147 +35457,18 @@ let Database = (() => {
             _REMOVEAT_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _REMOVEALL_decorators = [(0, types_1.method)()];
             _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _SAVE_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _GETROWSNO_decorators, { kind: "method", name: "GETROWSNO", static: false, private: false, access: { has: obj => "GETROWSNO" in obj, get: obj => obj.GETROWSNO }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETCURSORPOS_decorators, { kind: "method", name: "GETCURSORPOS", static: false, private: false, access: { has: obj => "GETCURSORPOS" in obj, get: obj => obj.GETCURSORPOS }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _NEXT_decorators, { kind: "method", name: "NEXT", static: false, private: false, access: { has: obj => "NEXT" in obj, get: obj => obj.NEXT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _PREV_decorators, { kind: "method", name: "PREV", static: false, private: false, access: { has: obj => "PREV" in obj, get: obj => obj.PREV }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SELECT_decorators, { kind: "method", name: "SELECT", static: false, private: false, access: { has: obj => "SELECT" in obj, get: obj => obj.SELECT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _REMOVEAT_decorators, { kind: "method", name: "REMOVEAT", static: false, private: false, access: { has: obj => "REMOVEAT" in obj, get: obj => obj.REMOVEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _REMOVEALL_decorators, { kind: "method", name: "REMOVEALL", static: false, private: false, access: { has: obj => "REMOVEALL" in obj, get: obj => obj.REMOVEALL }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SAVE_decorators, { kind: "method", name: "SAVE", static: false, private: false, access: { has: obj => "SAVE" in obj, get: obj => obj.SAVE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        baseStruct = (__runInitializers(this, _instanceExtraInitializers), null);
-        content = [];
-        cursorPosition = 0;
-        init() {
-            this.baseStruct = this.getObject(this.definition.MODEL);
-        }
-        async ready() {
-            await this.callbacks.run('ONINIT');
-        }
-        GETROWSNO() {
-            return this.content.length;
-        }
-        GETCURSORPOS() {
-            return this.cursorPosition;
-        }
-        NEXT() {
-            this.cursorPosition = (this.cursorPosition + 1) % this.content.length;
-            this.updateCursorValue();
-        }
-        PREV() {
-            this.cursorPosition += 1;
-            if (this.cursorPosition < 0) {
-                this.cursorPosition = this.content.length - 1;
-            }
-            this.updateCursorValue();
-        }
-        SELECT(index) {
-            (0, errors_1.assert)(index < this.content.length && index >= 0, 'out of bounds');
-            this.cursorPosition = index;
-            this.updateCursorValue();
-        }
-        async FIND(column, value, offset) {
-            const index = await this.findEntryWithValue(column, value);
-            if (index == -1) {
-                return -1;
-            }
-            // Simulating stupid behavior
-            if (index < offset) {
-                return this.content.length + index;
-            }
-            return index;
-        }
-        async findEntryWithValue(column, value) {
-            for (let i = 0; i < this.content.length; i++) {
-                const entry = this.content[i];
-                const entryValue = await entry.GETFIELD(column)?.getValue();
-                if (entryValue === value) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-        REMOVEAT(index) {
-            this.content.splice(index, 1);
-            this.updateCursorValue();
-        }
-        REMOVEALL() {
-            this.content.forEach((item) => item.destroy());
-            this.content = [];
-            this.updateCursorValue();
-        }
-        async LOAD(path) {
-            (0, errors_1.assert)(this.engine.currentScene !== null);
-            (0, errors_1.assert)(this.baseStruct !== null);
-            const relativePath = await this.engine.currentScene.getRelativePath(path);
-            const data = await this.engine.filesystem.getFile(relativePath);
-            const content = decoder.decode(data);
-            const lines = content.replaceAll('\r\n', '\n').trim().split('\n');
-            const structFieldsNames = Array.from(this.baseStruct.structure.keys());
-            for (const line of lines) {
-                const fieldContents = line.split('|').filter((cell) => cell !== '');
-                const newEntry = await this.baseStruct.clone();
-                for (let i = 0; i < structFieldsNames.length; i++) {
-                    const fieldName = structFieldsNames[i];
-                    const fieldType = this.baseStruct.structure.get(fieldName);
-                    const fieldValue = fieldContents[i];
-                    await newEntry.setField(fieldName, this.convertFieldValue(fieldType, fieldValue));
-                }
-                this.content.push(newEntry);
-            }
-            this.updateCursorValue();
-        }
-        async SAVE(path) {
-            (0, errors_1.assert)(this.engine.currentScene !== null);
-            (0, errors_1.assert)(this.baseStruct !== null);
-            const relativePath = await this.engine.currentScene.getRelativePath(path);
-            const structFieldsNames = Array.from(this.baseStruct.structure.keys());
-            const lines = [];
-            for (const entry of this.content) {
-                const fieldValues = [];
-                for (const fieldName of structFieldsNames) {
-                    const fieldValue = entry.GETFIELD(fieldName);
-                    fieldValues.push(await fieldValue.toString());
-                }
-                lines.push(fieldValues.join('|'));
-            }
-            const content = lines.join('\r\n');
-            const data = encoder.encode(content);
-            await this.engine.filesystem.saveFile(relativePath, data);
-        }
-        convertFieldValue(fieldType, value) {
-            if (value === 'NULL') {
-                return null;
-            }
-            if (value === undefined) {
-                return undefined;
-            }
-            switch (fieldType) {
-                case 'INTEGER':
-                case 'DOUBLE':
-                    return (0, types_1.valueAsDouble)(value);
-                case 'BOOL':
-                    return (0, types_1.valueAsBool)(value);
-                default:
-                    return value;
-            }
-        }
-        updateCursorValue() {
-            (0, errors_1.assert)(this.parentScope !== null);
-            const cursorName = this.name + '_CURSOR';
-            if (this.content.length == 0) {
-                this.parentScope.remove(cursorName);
-            }
-            else {
-                this.parentScope.set(cursorName, this.content[this.cursorPosition]);
-            }
-        }
-    };
+            __esDecorate(_a, null, _GETROWSNO_decorators, { kind: "method", name: "GETROWSNO", static: false, private: false, access: { has: obj => "GETROWSNO" in obj, get: obj => obj.GETROWSNO }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCURSORPOS_decorators, { kind: "method", name: "GETCURSORPOS", static: false, private: false, access: { has: obj => "GETCURSORPOS" in obj, get: obj => obj.GETCURSORPOS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _NEXT_decorators, { kind: "method", name: "NEXT", static: false, private: false, access: { has: obj => "NEXT" in obj, get: obj => obj.NEXT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _PREV_decorators, { kind: "method", name: "PREV", static: false, private: false, access: { has: obj => "PREV" in obj, get: obj => obj.PREV }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SELECT_decorators, { kind: "method", name: "SELECT", static: false, private: false, access: { has: obj => "SELECT" in obj, get: obj => obj.SELECT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVEAT_decorators, { kind: "method", name: "REMOVEAT", static: false, private: false, access: { has: obj => "REMOVEAT" in obj, get: obj => obj.REMOVEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVEALL_decorators, { kind: "method", name: "REMOVEALL", static: false, private: false, access: { has: obj => "REMOVEALL" in obj, get: obj => obj.REMOVEALL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Database = Database;
 
@@ -35570,6 +35523,7 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const radianMultiplier = Math.PI / 180;
 let Double = (() => {
+    var _a;
     let _classSuper = index_1.ValueType;
     let _instanceExtraInitializers = [];
     let _MUL_decorators;
@@ -35584,8 +35538,57 @@ let Double = (() => {
     let _ARCTANEX_decorators;
     let _LENGTH_decorators;
     let _GET_decorators;
-    return class Double extends _classSuper {
-        static {
+    return _a = class Double extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, 0.0);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+            async MUL(value) {
+                return await this.setValue(this.value * value);
+            }
+            async ADD(value) {
+                return await this.setValue(this.value + value);
+            }
+            async SUB(value) {
+                return await this.setValue(this.value - value);
+            }
+            async SET(newValue) {
+                await this.setValue(newValue);
+            }
+            async DIV(value) {
+                return await this.setValue(this.value / value);
+            }
+            async MAXA(...values) {
+                return await this.setValue(Math.max(...values));
+            }
+            async MINA(...values) {
+                return await this.setValue(Math.min(...values));
+            }
+            async SINUS(angle) {
+                return await this.setValue(Math.sin(angle * radianMultiplier));
+            }
+            async COSINUS(angle) {
+                return await this.setValue(Math.cos(angle * radianMultiplier));
+            }
+            // Source: https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=1909841994#gid=1909841994
+            async ARCTANEX(y, x, summand) {
+                let value = Math.atan2(y, x) / radianMultiplier;
+                if (value < 0) {
+                    value += 360;
+                }
+                if (summand !== undefined) {
+                    value = Math.floor(value) + summand;
+                }
+                return await this.setValue(value);
+            }
+            async LENGTH(pointX, pointY) {
+                return await this.setValue(Math.sqrt(pointX * pointX + pointY * pointY));
+            }
+            GET() {
+                return this.value;
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _MUL_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _ADD_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
@@ -35599,91 +35602,21 @@ let Double = (() => {
             _ARCTANEX_decorators = [(0, types_1.method)({ name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "summand", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _LENGTH_decorators = [(0, types_1.method)({ name: "pointX", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "pointY", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _GET_decorators = [(0, types_1.method)()];
-            __esDecorate(this, null, _MUL_decorators, { kind: "method", name: "MUL", static: false, private: false, access: { has: obj => "MUL" in obj, get: obj => obj.MUL }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _DIV_decorators, { kind: "method", name: "DIV", static: false, private: false, access: { has: obj => "DIV" in obj, get: obj => obj.DIV }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MAXA_decorators, { kind: "method", name: "MAXA", static: false, private: false, access: { has: obj => "MAXA" in obj, get: obj => obj.MAXA }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MINA_decorators, { kind: "method", name: "MINA", static: false, private: false, access: { has: obj => "MINA" in obj, get: obj => obj.MINA }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SINUS_decorators, { kind: "method", name: "SINUS", static: false, private: false, access: { has: obj => "SINUS" in obj, get: obj => obj.SINUS }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _COSINUS_decorators, { kind: "method", name: "COSINUS", static: false, private: false, access: { has: obj => "COSINUS" in obj, get: obj => obj.COSINUS }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ARCTANEX_decorators, { kind: "method", name: "ARCTANEX", static: false, private: false, access: { has: obj => "ARCTANEX" in obj, get: obj => obj.ARCTANEX }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _LENGTH_decorators, { kind: "method", name: "LENGTH", static: false, private: false, access: { has: obj => "LENGTH" in obj, get: obj => obj.LENGTH }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition, 0.0);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-        async MUL(value) {
-            return await this.setValue(this.value * value);
-        }
-        async ADD(value) {
-            return await this.setValue(this.value + value);
-        }
-        async SUB(value) {
-            return await this.setValue(this.value - value);
-        }
-        async SET(newValue) {
-            await this.setValue(newValue);
-        }
-        async DIV(value) {
-            return await this.setValue(this.value / value);
-        }
-        async MAXA(...values) {
-            return await this.setValue(Math.max(...values));
-        }
-        async MINA(...values) {
-            return await this.setValue(Math.min(...values));
-        }
-        async SINUS(angle) {
-            return await this.setValue(Math.sin(angle * radianMultiplier));
-        }
-        async COSINUS(angle) {
-            return await this.setValue(Math.cos(angle * radianMultiplier));
-        }
-        // Source: https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=1909841994#gid=1909841994
-        async ARCTANEX(y, x, summand) {
-            let value = Math.atan2(y, x) / radianMultiplier;
-            if (value < 0) {
-                value += 360;
-            }
-            if (summand !== undefined) {
-                value = Math.floor(value) + summand;
-            }
-            return await this.setValue(value);
-        }
-        async LENGTH(pointX, pointY) {
-            return await this.setValue(Math.sqrt(pointX * pointX + pointY * pointY));
-        }
-        GET() {
-            return this.value;
-        }
-        async toString() {
-            const value = this.value;
-            const abs = Math.abs(value);
-            // Use fixed‑point for numbers below 1e21, otherwise fallback to bigint representation
-            const fixed = abs < 1e21 ? abs.toFixed(5) : `${BigInt(abs)}.00000`;
-            const sign = value < 0 ? '-' : '';
-            // Values with absolute magnitude >= 1
-            if (!fixed.startsWith('0.')) {
-                return sign + fixed;
-            }
-            // Zero value
-            if (value === 0) {
-                return '00000';
-            }
-            // Values between 0 and 1 (exclusive)
-            let leadingZeros = '';
-            for (let v = value; v > 0 && v * 10.0001 < 1; v *= 10) {
-                leadingZeros += '0';
-            }
-            const digits = fixed.slice(2).replace(/^0+/, '') || '0';
-            return `0.${sign}${leadingZeros}${digits}`;
-        }
-    };
+            __esDecorate(_a, null, _MUL_decorators, { kind: "method", name: "MUL", static: false, private: false, access: { has: obj => "MUL" in obj, get: obj => obj.MUL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DIV_decorators, { kind: "method", name: "DIV", static: false, private: false, access: { has: obj => "DIV" in obj, get: obj => obj.DIV }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MAXA_decorators, { kind: "method", name: "MAXA", static: false, private: false, access: { has: obj => "MAXA" in obj, get: obj => obj.MAXA }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MINA_decorators, { kind: "method", name: "MINA", static: false, private: false, access: { has: obj => "MINA" in obj, get: obj => obj.MINA }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SINUS_decorators, { kind: "method", name: "SINUS", static: false, private: false, access: { has: obj => "SINUS" in obj, get: obj => obj.SINUS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _COSINUS_decorators, { kind: "method", name: "COSINUS", static: false, private: false, access: { has: obj => "COSINUS" in obj, get: obj => obj.COSINUS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ARCTANEX_decorators, { kind: "method", name: "ARCTANEX", static: false, private: false, access: { has: obj => "ARCTANEX" in obj, get: obj => obj.ARCTANEX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LENGTH_decorators, { kind: "method", name: "LENGTH", static: false, private: false, access: { has: obj => "LENGTH" in obj, get: obj => obj.LENGTH }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Double = Double;
 
@@ -35741,60 +35674,62 @@ const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/type
 const filesystem_1 = __webpack_require__(/*! ../../filesystem */ "./src/filesystem/index.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Episode = (() => {
+    var _a;
     let _classSuper = index_1.ParentType;
     let _instanceExtraInitializers = [];
     let _GOTO_decorators;
     let _GETLATESTSCENE_decorators;
     let _GETCURRENTSCENE_decorators;
     let _BACK_decorators;
-    return class Episode extends _classSuper {
-        static {
+    return _a = class Episode extends _classSuper {
+            async init() {
+                if (this.definition.PATH) {
+                    const applicationDefinition = await this.engine.filesystem.getCNVFile((0, filesystem_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
+                    this.engine.app.ticker.stop();
+                    this.scope = this.engine.scopeManager.newScope('episode');
+                    await (0, definitionLoader_1.loadDefinition)(this.engine, this.scope, applicationDefinition, this);
+                    await (0, definitionLoader_1.doReady)(this.scope);
+                    this.engine.app.ticker.start();
+                }
+            }
+            GOTO(sceneName) {
+                (0, errors_1.assert)(this.definition.SCENES.includes(sceneName));
+                throw new errors_1.CancelTick(async () => await this.engine.changeScene(sceneName));
+            }
+            GETLATESTSCENE() {
+                return this.engine.previousScene?.definition.NAME ?? null;
+            }
+            GETCURRENTSCENE() {
+                return this.engine.currentScene?.name ?? null;
+            }
+            BACK() {
+                if (this.engine.previousScene) {
+                    this.GOTO(this.engine.previousScene.definition.NAME);
+                }
+                else {
+                    logging_1.logger.warn('Attempted EPISODE^BACK() but there is no previous scene', {
+                        episode: this,
+                    });
+                }
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _GOTO_decorators = [(0, types_1.method)({ name: "sceneName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _GETLATESTSCENE_decorators = [(0, types_1.method)()];
             _GETCURRENTSCENE_decorators = [(0, types_1.method)()];
             _BACK_decorators = [(0, types_1.method)()];
-            __esDecorate(this, null, _GOTO_decorators, { kind: "method", name: "GOTO", static: false, private: false, access: { has: obj => "GOTO" in obj, get: obj => obj.GOTO }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETLATESTSCENE_decorators, { kind: "method", name: "GETLATESTSCENE", static: false, private: false, access: { has: obj => "GETLATESTSCENE" in obj, get: obj => obj.GETLATESTSCENE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETCURRENTSCENE_decorators, { kind: "method", name: "GETCURRENTSCENE", static: false, private: false, access: { has: obj => "GETCURRENTSCENE" in obj, get: obj => obj.GETCURRENTSCENE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _BACK_decorators, { kind: "method", name: "BACK", static: false, private: false, access: { has: obj => "BACK" in obj, get: obj => obj.BACK }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        async init() {
-            if (this.definition.PATH !== undefined) {
-                const applicationDefinition = await this.engine.filesystem.getCNVFile((0, filesystem_1.pathJoin)('DANE', this.definition.PATH, this.name + '.cnv'));
-                this.engine.app.ticker.stop();
-                this.scope = this.engine.scopeManager.newScope('episode');
-                await (0, definitionLoader_1.loadDefinition)(this.engine, this.scope, applicationDefinition, this);
-                await (0, definitionLoader_1.doReady)(this.scope);
-                this.engine.app.ticker.start();
-            }
-        }
-        GOTO(sceneName) {
-            (0, errors_1.assert)(this.definition.SCENES.includes(sceneName));
-            throw new errors_1.CancelTick(async () => await this.engine.changeScene(sceneName));
-        }
-        GETLATESTSCENE() {
-            return this.engine.previousScene?.definition.NAME ?? null;
-        }
-        GETCURRENTSCENE() {
-            return this.engine.currentScene?.name ?? null;
-        }
-        BACK() {
-            if (this.engine.previousScene) {
-                this.GOTO(this.engine.previousScene.definition.NAME);
-            }
-            else {
-                logging_1.logger.warn('Attempted EPISODE^BACK() but there is no previous scene', {
-                    episode: this,
-                });
-            }
-        }
-        constructor() {
-            super(...arguments);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-    };
+            __esDecorate(_a, null, _GOTO_decorators, { kind: "method", name: "GOTO", static: false, private: false, access: { has: obj => "GOTO" in obj, get: obj => obj.GOTO }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETLATESTSCENE_decorators, { kind: "method", name: "GETLATESTSCENE", static: false, private: false, access: { has: obj => "GETLATESTSCENE" in obj, get: obj => obj.GETLATESTSCENE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCURRENTSCENE_decorators, { kind: "method", name: "GETCURRENTSCENE", static: false, private: false, access: { has: obj => "GETCURRENTSCENE" in obj, get: obj => obj.GETCURRENTSCENE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _BACK_decorators, { kind: "method", name: "BACK", static: false, private: false, access: { has: obj => "BACK" in obj, get: obj => obj.BACK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Episode = Episode;
 
@@ -35880,7 +35815,10 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const fileLoader_1 = __webpack_require__(/*! ../../filesystem/fileLoader */ "./src/filesystem/fileLoader.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 class Font extends index_1.Type {
-    bitmapFont = null;
+    constructor() {
+        super(...arguments);
+        this.bitmapFont = null;
+    }
     async init() {
         const filename = this.definition['DEF_%s_%s_%d'];
         try {
@@ -35954,60 +35892,65 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Group = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _ADD_decorators;
     let _REMOVE_decorators;
-    return class Group extends _classSuper {
-        static {
+    return _a = class Group extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.objects = (__runInitializers(this, _instanceExtraInitializers), []);
+            }
+            async ready() {
+                await this.callbacks.run('ONINIT');
+            }
+            ADD(...objectsNames) {
+                objectsNames.forEach((objectName) => {
+                    const object = this.getObject(objectName);
+                    if (object === null) {
+                        logging_1.logger.warn(`Script was trying to add non-existing object "${objectName}" to a group "${this.name}"`, {
+                            group: this,
+                        });
+                    }
+                    else {
+                        this.objects.push(object);
+                    }
+                });
+            }
+            REMOVE(...objectsNames) {
+                this.objects = this.objects.filter((object) => !objectsNames.includes(object.name));
+            }
+            async __call(methodName, args) {
+                for (const object of this.objects) {
+                    if (methodName in object) {
+                        await object[methodName](...args);
+                    }
+                    else {
+                        const argumentsString = args?.map((arg) => typeof arg).join(', ');
+                        logging_1.logger.warn(`Method '${methodName}(${argumentsString ?? ''})' does not exist in ${object.constructor.name}`, {
+                            object,
+                            args,
+                        });
+                    }
+                }
+            }
+            add(object) {
+                this.objects.push(object);
+            }
+            removeAll() {
+                this.objects = [];
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _ADD_decorators = [(0, types_1.method)({ name: "objectsNames", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: true })];
             _REMOVE_decorators = [(0, types_1.method)({ name: "objectsNames", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: true })];
-            __esDecorate(this, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _REMOVE_decorators, { kind: "method", name: "REMOVE", static: false, private: false, access: { has: obj => "REMOVE" in obj, get: obj => obj.REMOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        objects = (__runInitializers(this, _instanceExtraInitializers), []);
-        async ready() {
-            await this.callbacks.run('ONINIT');
-        }
-        ADD(...objectsNames) {
-            objectsNames.forEach((objectName) => {
-                const object = this.getObject(objectName);
-                if (object === null) {
-                    logging_1.logger.warn(`Script was trying to add non-existing object "${objectName}" to a group "${this.name}"`, {
-                        group: this,
-                    });
-                }
-                else {
-                    this.objects.push(object);
-                }
-            });
-        }
-        REMOVE(...objectsNames) {
-            this.objects = this.objects.filter((object) => !objectsNames.includes(object.name));
-        }
-        async __call(methodName, args) {
-            for (const object of this.objects) {
-                if (methodName in object) {
-                    await object[methodName](...args);
-                }
-                else {
-                    const argumentsString = args?.map((arg) => typeof arg).join(', ');
-                    logging_1.logger.warn(`Method '${methodName}(${argumentsString ?? ''})' does not exist in ${object.constructor.name}`, {
-                        object,
-                        args,
-                    });
-                }
-            }
-        }
-        add(object) {
-            this.objects.push(object);
-        }
-        removeAll() {
-            this.objects = [];
-        }
-    };
+            __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REMOVE_decorators, { kind: "method", name: "REMOVE", static: false, private: false, access: { has: obj => "REMOVE" in obj, get: obj => obj.REMOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Group = Group;
 
@@ -36099,6 +36042,7 @@ const rendering_1 = __webpack_require__(/*! ../rendering */ "./src/engine/render
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 let Image = (() => {
+    var _a;
     let _classSuper = index_1.DisplayType;
     let _instanceExtraInitializers = [];
     let _SETOPACITY_decorators;
@@ -36113,8 +36057,162 @@ let Image = (() => {
     let _LOAD_decorators;
     let _INVALIDATE_decorators;
     let _SETCLIPPING_decorators;
-    return class Image extends _classSuper {
-        static {
+    return _a = class Image extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.sprite = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.opacity = 255;
+                this.maskContainer = null;
+                this.otherObjectsAlphaSpriteCache = new Map();
+            }
+            async init() {
+                await this.initSprite(this.definition.FILENAME);
+            }
+            async applyDefaults() {
+                this.SETPRIORITY(this.definition.PRIORITY ?? 0);
+            }
+            async initSprite(path) {
+                this.sprite = await this.load(path);
+                this.sprite.visible = this.definition.VISIBLE;
+                this.SETPRIORITY(this.definition.PRIORITY ?? 0);
+                this.sprite.eventMode = 'none';
+                this.sprite.name = `${this.name} (IMAGE)`; // For PIXI Devtools
+            }
+            async load(path) {
+                const relativePath = this.engine.currentScene !== null
+                    ? await this.engine.currentScene.getRelativePath(path)
+                    : await this.engine.resolvePath(path);
+                return await (0, assetsLoader_1.loadSprite)(this.engine.filesystem, relativePath);
+            }
+            async ready() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.engine.rendering.addToStage(this.sprite);
+                await this.callbacks.run('ONINIT');
+            }
+            destroy() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.engine.rendering.removeFromStage(this.sprite);
+            }
+            SETOPACITY(opacity) {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.opacity = opacity;
+            }
+            MOVE(xOffset, yOffset) {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.x += xOffset;
+                this.sprite.y += yOffset;
+                this.invalidate();
+            }
+            SETPOSITION(x, y) {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.x = x;
+                this.sprite.y = y;
+                this.invalidate();
+            }
+            SHOW() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.visible = true;
+            }
+            HIDE() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.visible = false;
+            }
+            GETPOSITIONX() {
+                (0, errors_1.assert)(this.sprite !== null);
+                return this.sprite.x;
+            }
+            GETPOSITIONY() {
+                (0, errors_1.assert)(this.sprite !== null);
+                return this.sprite.y;
+            }
+            GETALPHA(x, y) {
+                (0, errors_1.assert)(this.sprite !== null);
+                return this.sprite.getAlphaAt(new pixi_js_1.Point(x, y));
+            }
+            MERGEALPHA(x, y, name) {
+                (0, errors_1.assert)(this.sprite !== null);
+                if (this.maskContainer === null) {
+                    const maskGraphics = new pixi_js_1.Graphics();
+                    maskGraphics.beginTextureFill({
+                        texture: this.generateMaskTexture(this.sprite),
+                        color: 0xffffff,
+                    });
+                    maskGraphics.drawRect(0, 0, this.sprite.width, this.sprite.height);
+                    maskGraphics.endFill();
+                    this.maskContainer = new pixi_js_1.Container();
+                    this.maskContainer.addChild(maskGraphics);
+                }
+                const object = this.getObject(name);
+                (0, errors_1.assert)(object !== null);
+                let otherObjectAlphaSprite = this.otherObjectsAlphaSpriteCache.get(name);
+                if (!otherObjectAlphaSprite) {
+                    const renderObject = object.getRenderObject();
+                    (0, errors_1.assert)(renderObject !== null);
+                    otherObjectAlphaSprite = new pixi_js_1.Sprite(this.generateMaskTexture(renderObject));
+                    this.otherObjectsAlphaSpriteCache.set(name, otherObjectAlphaSprite);
+                    this.maskContainer.addChild(otherObjectAlphaSprite);
+                }
+                otherObjectAlphaSprite.x = x;
+                otherObjectAlphaSprite.y = y;
+                this.sprite.mask = new pixi_js_1.Sprite(this.engine.app.renderer.generateTexture(this.maskContainer));
+            }
+            async LOAD(path) {
+                (0, errors_1.assert)(this.sprite !== null);
+                const newSprite = await this.load(path);
+                this.sprite.texture = newSprite.texture;
+                this.sprite.x = newSprite.x;
+                this.sprite.y = newSprite.y;
+                this.sprite.hitmap = newSprite.hitmap;
+            }
+            INVALIDATE() {
+                this.invalidate();
+            }
+            invalidate() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.engine.rendering.invalidate(this.sprite.getBounds());
+            }
+            SETCLIPPING(x1, y1, x2, y2) {
+                (0, errors_1.assert)(this.sprite !== null);
+                const maskGraphics = new pixi_js_1.Graphics();
+                maskGraphics.beginFill(0x000000);
+                maskGraphics.drawRect(x1, y1, x2 - x1, y2 - y1);
+                maskGraphics.endFill();
+                this.sprite.mask = maskGraphics;
+            }
+            generateMaskTexture(sprite) {
+                (0, errors_1.assert)(sprite.hitmap !== undefined);
+                const textureBytes = new Uint8Array(sprite.hitmap.length * 4);
+                let newPos = 0;
+                for (let i = 0; i < sprite.hitmap.length; i++) {
+                    textureBytes[newPos++] = sprite.hitmap[i];
+                    textureBytes[newPos++] = sprite.hitmap[i];
+                    textureBytes[newPos++] = sprite.hitmap[i];
+                    textureBytes[newPos++] = 255;
+                }
+                return new PIXI.Texture(PIXI.BaseTexture.fromBuffer(new Uint8Array(textureBytes), sprite.width, sprite.height));
+            }
+            async clone() {
+                (0, errors_1.assert)(this.sprite !== null);
+                const spriteClone = new rendering_1.AdvancedSprite(this.sprite.texture);
+                spriteClone.x = this.sprite.x;
+                spriteClone.y = this.sprite.y;
+                spriteClone.hitmap = this.sprite.hitmap;
+                spriteClone.visible = this.sprite.visible;
+                const clone = (await super.clone());
+                clone.sprite = spriteClone;
+                this.engine.rendering.addToStage(clone.sprite);
+                clone.SETPRIORITY(this.GETPRIORITY());
+                return clone;
+            }
+            getRenderObject() {
+                return this.sprite;
+            }
+            repaint() {
+                (0, errors_1.assert)(this.sprite !== null);
+                this.sprite.alpha = this.opacity / 255;
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SETOPACITY_decorators = [(0, types_1.method)({ name: "opacity", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _MOVE_decorators = [(0, types_1.method)({ name: "xOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "yOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
@@ -36128,171 +36226,21 @@ let Image = (() => {
             _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _INVALIDATE_decorators = [(0, types_1.method)()];
             _SETCLIPPING_decorators = [(0, types_1.method)({ name: "x1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x2", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y2", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _SETOPACITY_decorators, { kind: "method", name: "SETOPACITY", static: false, private: false, access: { has: obj => "SETOPACITY" in obj, get: obj => obj.SETOPACITY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETPOSITIONX_decorators, { kind: "method", name: "GETPOSITIONX", static: false, private: false, access: { has: obj => "GETPOSITIONX" in obj, get: obj => obj.GETPOSITIONX }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETPOSITIONY_decorators, { kind: "method", name: "GETPOSITIONY", static: false, private: false, access: { has: obj => "GETPOSITIONY" in obj, get: obj => obj.GETPOSITIONY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETALPHA_decorators, { kind: "method", name: "GETALPHA", static: false, private: false, access: { has: obj => "GETALPHA" in obj, get: obj => obj.GETALPHA }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MERGEALPHA_decorators, { kind: "method", name: "MERGEALPHA", static: false, private: false, access: { has: obj => "MERGEALPHA" in obj, get: obj => obj.MERGEALPHA }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _INVALIDATE_decorators, { kind: "method", name: "INVALIDATE", static: false, private: false, access: { has: obj => "INVALIDATE" in obj, get: obj => obj.INVALIDATE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETCLIPPING_decorators, { kind: "method", name: "SETCLIPPING", static: false, private: false, access: { has: obj => "SETCLIPPING" in obj, get: obj => obj.SETCLIPPING }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        sprite = (__runInitializers(this, _instanceExtraInitializers), null);
-        opacity = 255;
-        async init() {
-            await this.initSprite(this.definition.FILENAME);
-        }
-        async applyDefaults() {
-            this.SETPRIORITY(this.definition.PRIORITY ?? 0);
-        }
-        async initSprite(path) {
-            this.sprite = await this.load(path);
-            this.sprite.visible = this.definition.VISIBLE;
-            this.SETPRIORITY(this.definition.PRIORITY ?? 0);
-            this.sprite.eventMode = 'none';
-            this.sprite.name = `${this.name} (IMAGE)`; // For PIXI Devtools
-        }
-        async load(path) {
-            const relativePath = this.engine.currentScene !== null
-                ? await this.engine.currentScene.getRelativePath(path)
-                : await this.engine.resolvePath(path);
-            return await (0, assetsLoader_1.loadSprite)(this.engine.filesystem, relativePath);
-        }
-        async ready() {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.engine.rendering.addToStage(this.sprite);
-            await this.callbacks.run('ONINIT');
-        }
-        destroy() {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.engine.rendering.removeFromStage(this.sprite);
-        }
-        SETOPACITY(opacity) {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.opacity = opacity;
-        }
-        MOVE(xOffset, yOffset) {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.sprite.x += xOffset;
-            this.sprite.y += yOffset;
-            this.invalidate();
-        }
-        SETPOSITION(x, y) {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.sprite.x = x;
-            this.sprite.y = y;
-            this.invalidate();
-        }
-        SHOW() {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.sprite.visible = true;
-        }
-        HIDE() {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.sprite.visible = false;
-        }
-        GETPOSITIONX() {
-            (0, errors_1.assert)(this.sprite !== null);
-            return this.sprite.x;
-        }
-        GETPOSITIONY() {
-            (0, errors_1.assert)(this.sprite !== null);
-            return this.sprite.y;
-        }
-        GETALPHA(x, y) {
-            (0, errors_1.assert)(this.sprite !== null);
-            return this.sprite.getAlphaAt(new pixi_js_1.Point(x, y));
-        }
-        maskContainer = null;
-        otherObjectsAlphaSpriteCache = new Map();
-        MERGEALPHA(x, y, name) {
-            (0, errors_1.assert)(this.sprite !== null);
-            if (this.maskContainer === null) {
-                const maskGraphics = new pixi_js_1.Graphics();
-                maskGraphics.beginTextureFill({
-                    texture: this.generateMaskTexture(this.sprite),
-                    color: 0xffffff,
-                });
-                maskGraphics.drawRect(0, 0, this.sprite.width, this.sprite.height);
-                maskGraphics.endFill();
-                this.maskContainer = new pixi_js_1.Container();
-                this.maskContainer.addChild(maskGraphics);
-            }
-            const object = this.getObject(name);
-            (0, errors_1.assert)(object !== null);
-            let otherObjectAlphaSprite = this.otherObjectsAlphaSpriteCache.get(name);
-            if (!otherObjectAlphaSprite) {
-                const renderObject = object.getRenderObject();
-                (0, errors_1.assert)(renderObject !== null);
-                otherObjectAlphaSprite = new pixi_js_1.Sprite(this.generateMaskTexture(renderObject));
-                this.otherObjectsAlphaSpriteCache.set(name, otherObjectAlphaSprite);
-                this.maskContainer.addChild(otherObjectAlphaSprite);
-            }
-            otherObjectAlphaSprite.x = x;
-            otherObjectAlphaSprite.y = y;
-            this.sprite.mask = new pixi_js_1.Sprite(this.engine.app.renderer.generateTexture(this.maskContainer));
-        }
-        async LOAD(path) {
-            (0, errors_1.assert)(this.sprite !== null);
-            const newSprite = await this.load(path);
-            this.sprite.texture = newSprite.texture;
-            this.sprite.x = newSprite.x;
-            this.sprite.y = newSprite.y;
-            this.sprite.hitmap = newSprite.hitmap;
-        }
-        INVALIDATE() {
-            this.invalidate();
-        }
-        invalidate() {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.engine.rendering.invalidate(this.sprite.getBounds());
-        }
-        SETCLIPPING(x1, y1, x2, y2) {
-            (0, errors_1.assert)(this.sprite !== null);
-            const maskGraphics = new pixi_js_1.Graphics();
-            maskGraphics.beginFill(0x000000);
-            maskGraphics.drawRect(x1, y1, x2 - x1, y2 - y1);
-            maskGraphics.endFill();
-            this.sprite.mask = maskGraphics;
-        }
-        generateMaskTexture(sprite) {
-            (0, errors_1.assert)(sprite.hitmap !== undefined);
-            const textureBytes = new Uint8Array(sprite.hitmap.length * 4);
-            let newPos = 0;
-            for (let i = 0; i < sprite.hitmap.length; i++) {
-                textureBytes[newPos++] = sprite.hitmap[i];
-                textureBytes[newPos++] = sprite.hitmap[i];
-                textureBytes[newPos++] = sprite.hitmap[i];
-                textureBytes[newPos++] = 255;
-            }
-            return new PIXI.Texture(PIXI.BaseTexture.fromBuffer(new Uint8Array(textureBytes), sprite.width, sprite.height));
-        }
-        async clone() {
-            (0, errors_1.assert)(this.sprite !== null);
-            const spriteClone = new rendering_1.AdvancedSprite(this.sprite.texture);
-            spriteClone.x = this.sprite.x;
-            spriteClone.y = this.sprite.y;
-            spriteClone.hitmap = this.sprite.hitmap;
-            spriteClone.visible = this.sprite.visible;
-            const clone = (await super.clone());
-            clone.sprite = spriteClone;
-            this.engine.rendering.addToStage(clone.sprite);
-            clone.SETPRIORITY(this.GETPRIORITY());
-            return clone;
-        }
-        getRenderObject() {
-            return this.sprite;
-        }
-        repaint() {
-            (0, errors_1.assert)(this.sprite !== null);
-            this.sprite.alpha = this.opacity / 255;
-        }
-    };
+            __esDecorate(_a, null, _SETOPACITY_decorators, { kind: "method", name: "SETOPACITY", static: false, private: false, access: { has: obj => "SETOPACITY" in obj, get: obj => obj.SETOPACITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPOSITIONX_decorators, { kind: "method", name: "GETPOSITIONX", static: false, private: false, access: { has: obj => "GETPOSITIONX" in obj, get: obj => obj.GETPOSITIONX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPOSITIONY_decorators, { kind: "method", name: "GETPOSITIONY", static: false, private: false, access: { has: obj => "GETPOSITIONY" in obj, get: obj => obj.GETPOSITIONY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETALPHA_decorators, { kind: "method", name: "GETALPHA", static: false, private: false, access: { has: obj => "GETALPHA" in obj, get: obj => obj.GETALPHA }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MERGEALPHA_decorators, { kind: "method", name: "MERGEALPHA", static: false, private: false, access: { has: obj => "MERGEALPHA" in obj, get: obj => obj.MERGEALPHA }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _INVALIDATE_decorators, { kind: "method", name: "INVALIDATE", static: false, private: false, access: { has: obj => "INVALIDATE" in obj, get: obj => obj.INVALIDATE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETCLIPPING_decorators, { kind: "method", name: "SETCLIPPING", static: false, private: false, access: { has: obj => "SETCLIPPING" in obj, get: obj => obj.SETCLIPPING }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Image = Image;
 
@@ -36349,214 +36297,218 @@ const events_1 = __webpack_require__(/*! ../components/events */ "./src/engine/c
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Type = (() => {
+    var _a;
     let _instanceExtraInitializers = [];
     let _GETNAME_decorators;
     let _CLONE_decorators;
     let _GETCLONEINDEX_decorators;
-    return class Type {
-        static {
+    return _a = class Type {
+            constructor(engine, parent, definition) {
+                this.callbacks = __runInitializers(this, _instanceExtraInitializers);
+                this.events = new events_1.EventsComponent();
+                this.name = '';
+                this.clones = [];
+                this.isReady = false;
+                this.engine = engine;
+                this.definition = definition;
+                this.name = definition.NAME;
+                this.parent = parent;
+                this.callbacks = new callbacks_1.CallbacksComponent(engine, this);
+                this.callbacks.autoRegister();
+            }
+            GETNAME() {
+                return this.name;
+            }
+            async CLONE(count) {
+                for (let i = 0; i < count; i++) {
+                    await this.cloneObject(this);
+                }
+            }
+            GETCLONEINDEX() {
+                const object = this.getObject(this.definition.NAME);
+                (0, errors_1.assert)(object !== null);
+                return object.clones.indexOf(this) + 1;
+            }
+            async cloneObject(object) {
+                const clone = await object.clone();
+                object.clones.push(clone);
+                clone.name = `${object.definition.NAME}_${object.clones.length}`;
+                clone.isReady = true;
+                this.parentScope?.set(clone.name, clone);
+                return clone;
+            }
+            init() { }
+            async applyDefaults() { }
+            async ready() { }
+            destroy() { }
+            tick(elapsedMS) { }
+            pause() { }
+            resume() { }
+            __getXRayInfo() {
+                return null;
+            }
+            get parentScope() {
+                return this.parent?.scope ?? null;
+            }
+            getObject(name) {
+                return this.engine.getObject(name, this.parentScope);
+            }
+            // Called when trying to call a method that is not existing for a type
+            __call(methodName, args) {
+                const argumentsString = args ? args.map((arg) => typeof arg).join(', ') : '';
+                logging_1.logger.error(`Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.`, {
+                    object: this,
+                    args,
+                });
+            }
+            async clone() {
+                // @ts-expect-error Dynamically constructing object
+                return new this.constructor(this.engine, this.parent, this.definition);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
             _GETNAME_decorators = [(0, types_1.method)()];
             _CLONE_decorators = [(0, types_1.method)({ name: "count", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _GETCLONEINDEX_decorators = [(0, types_1.method)()];
-            __esDecorate(this, null, _GETNAME_decorators, { kind: "method", name: "GETNAME", static: false, private: false, access: { has: obj => "GETNAME" in obj, get: obj => obj.GETNAME }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _CLONE_decorators, { kind: "method", name: "CLONE", static: false, private: false, access: { has: obj => "CLONE" in obj, get: obj => obj.CLONE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETCLONEINDEX_decorators, { kind: "method", name: "GETCLONEINDEX", static: false, private: false, access: { has: obj => "GETCLONEINDEX" in obj, get: obj => obj.GETCLONEINDEX }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        callbacks = __runInitializers(this, _instanceExtraInitializers);
-        events = new events_1.EventsComponent();
-        static Events = {};
-        engine;
-        definition;
-        name = '';
-        parent;
-        clones = [];
-        isReady = false;
-        constructor(engine, parent, definition) {
-            this.engine = engine;
-            this.definition = definition;
-            this.name = definition.NAME;
-            this.parent = parent;
-            this.callbacks = new callbacks_1.CallbacksComponent(engine, this);
-            this.callbacks.autoRegister();
-        }
-        GETNAME() {
-            return this.name;
-        }
-        async CLONE(count) {
-            for (let i = 0; i < count; i++) {
-                await this.cloneObject(this);
-            }
-        }
-        GETCLONEINDEX() {
-            const object = this.getObject(this.definition.NAME);
-            (0, errors_1.assert)(object !== null);
-            return object.clones.indexOf(this) + 1;
-        }
-        async cloneObject(object) {
-            const clone = await object.clone();
-            object.clones.push(clone);
-            clone.name = `${object.definition.NAME}_${object.clones.length}`;
-            clone.isReady = true;
-            this.parentScope?.set(clone.name, clone);
-            return clone;
-        }
-        init() { }
-        async applyDefaults() { }
-        async ready() { }
-        destroy() { }
-        tick(elapsedMS) { }
-        pause() { }
-        resume() { }
-        __getXRayInfo() {
-            return null;
-        }
-        get parentScope() {
-            return this.parent?.scope ?? null;
-        }
-        getObject(name) {
-            return this.engine.getObject(name, this.parentScope);
-        }
-        // Called when trying to call a method that is not existing for a type
-        __call(methodName, args) {
-            const argumentsString = args.map((arg) => typeof arg).join(', ');
-            logging_1.logger.error(`Method '${this.definition.TYPE}^${methodName}(${argumentsString})' does not exist. It might be a script fault.`, {
-                object: this,
-                args,
-            });
-        }
-        async clone() {
-            // @ts-expect-error Dynamically constructing object
-            return new this.constructor(this.engine, this.parent, this.definition);
-        }
-    };
+            __esDecorate(_a, null, _GETNAME_decorators, { kind: "method", name: "GETNAME", static: false, private: false, access: { has: obj => "GETNAME" in obj, get: obj => obj.GETNAME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CLONE_decorators, { kind: "method", name: "CLONE", static: false, private: false, access: { has: obj => "CLONE" in obj, get: obj => obj.CLONE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCLONEINDEX_decorators, { kind: "method", name: "GETCLONEINDEX", static: false, private: false, access: { has: obj => "GETCLONEINDEX" in obj, get: obj => obj.GETCLONEINDEX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a.Events = {},
+        _a;
 })();
 exports.Type = Type;
 let DisplayType = (() => {
+    var _a;
     let _classSuper = Type;
     let _instanceExtraInitializers = [];
     let _GETPRIORITY_decorators;
     let _SETPRIORITY_decorators;
-    return class DisplayType extends _classSuper {
-        static {
+    return _a = class DisplayType extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.priority = (__runInitializers(this, _instanceExtraInitializers), 0);
+            }
+            GETPRIORITY() {
+                return this.priority;
+            }
+            SETPRIORITY(priority) {
+                const renderObject = this.getRenderObject();
+                (0, errors_1.assert)(renderObject !== null);
+                this.priority = priority;
+                renderObject.zIndex = priority;
+                this.engine.rendering.putAtZindex(renderObject, priority);
+                this.engine.rendering.sortObjects();
+            }
+            getRenderObject() {
+                throw new errors_1.NotImplementedError();
+            }
+            repaint() { }
+            __getXRayInfo() {
+                const renderObject = this.getRenderObject();
+                if (renderObject === null) {
+                    return null;
+                }
+                return {
+                    type: 'sprite',
+                    bounds: renderObject.getBounds(),
+                    position: 'outside',
+                    visible: renderObject.visible,
+                };
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _GETPRIORITY_decorators = [(0, types_1.method)()];
             _SETPRIORITY_decorators = [(0, types_1.method)({ name: "priority", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _GETPRIORITY_decorators, { kind: "method", name: "GETPRIORITY", static: false, private: false, access: { has: obj => "GETPRIORITY" in obj, get: obj => obj.GETPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETPRIORITY_decorators, { kind: "method", name: "SETPRIORITY", static: false, private: false, access: { has: obj => "SETPRIORITY" in obj, get: obj => obj.SETPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        priority = (__runInitializers(this, _instanceExtraInitializers), 0);
-        GETPRIORITY() {
-            return this.priority;
-        }
-        SETPRIORITY(priority) {
-            const renderObject = this.getRenderObject();
-            (0, errors_1.assert)(renderObject !== null);
-            this.priority = priority;
-            renderObject.zIndex = priority;
-            this.engine.rendering.putAtZindex(renderObject, priority);
-            this.engine.rendering.sortObjects();
-        }
-        getRenderObject() {
-            throw new errors_1.NotImplementedError();
-        }
-        repaint() { }
-        __getXRayInfo() {
-            const renderObject = this.getRenderObject();
-            if (renderObject === null) {
-                return null;
-            }
-            return {
-                type: 'sprite',
-                bounds: renderObject.getBounds(),
-                position: 'outside',
-                visible: renderObject.visible,
-            };
-        }
-    };
+            __esDecorate(_a, null, _GETPRIORITY_decorators, { kind: "method", name: "GETPRIORITY", static: false, private: false, access: { has: obj => "GETPRIORITY" in obj, get: obj => obj.GETPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETPRIORITY_decorators, { kind: "method", name: "SETPRIORITY", static: false, private: false, access: { has: obj => "SETPRIORITY" in obj, get: obj => obj.SETPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.DisplayType = DisplayType;
 let ValueType = (() => {
+    var _a;
     let _classSuper = Type;
     let _instanceExtraInitializers = [];
     let _RESETINI_decorators;
     let _COPYFILE_decorators;
-    return class ValueType extends _classSuper {
-        static {
+    return _a = class ValueType extends _classSuper {
+            constructor(engine, parent, definition, defaultValue, autoSave = true) {
+                super(engine, parent, definition);
+                this.value = __runInitializers(this, _instanceExtraInitializers);
+                this.defaultValue = defaultValue;
+                this.value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue;
+                this.autoSave = autoSave;
+            }
+            async RESETINI() {
+                if (this.definition.TOINI) {
+                    await this.setValue(this.definition.DEFAULT ?? this.definition.VALUE ?? this.defaultValue);
+                    this.saveToINI();
+                }
+            }
+            async COPYFILE(from, to) {
+                console.debug(`Copying file ${from} to ${to}`);
+                const sourceData = await this.engine.filesystem.getFile(await this.engine.resolvePath(from));
+                await this.engine.filesystem.saveFile(await this.engine.resolvePath(to), sourceData);
+            }
+            valueOf() {
+                return this.value;
+            }
+            getValue() {
+                return this.value;
+            }
+            async setValue(newValue) {
+                (0, errors_1.assert)(typeof newValue != 'number' || !isNaN(newValue), 'Attempted to assign NaN');
+                (0, errors_1.assert)(newValue !== undefined, 'Attempted to assign undefined');
+                (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some((e) => Number.isNaN(e)), 'Attempted to assign array with NaN values');
+                (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some((e) => e === undefined), 'Attempted to assign array with undefined values');
+                const oldValue = this.value;
+                this.value = newValue;
+                await this.valueChanged(oldValue, newValue);
+                if (this.autoSave && this.definition.TOINI) {
+                    this.saveToINI();
+                }
+                return newValue;
+            }
+            async valueChanged(oldValue, newValue) { }
+            getFromINI() {
+                const loadedValue = this.engine.saveFile.loadValue(this);
+                if (loadedValue !== null) {
+                    return this.deserialize(loadedValue);
+                }
+                return null;
+            }
+            saveToINI() {
+                this.engine.saveFile.saveValue(this, this.serialize());
+            }
+            serialize() {
+                (0, errors_1.assert)(this.value !== null && this.value !== undefined);
+                return this.value.toString();
+            }
+            deserialize(value) {
+                return value;
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _RESETINI_decorators = [(0, types_1.method)()];
             _COPYFILE_decorators = [(0, types_1.method)({ name: "from", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "to", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _RESETINI_decorators, { kind: "method", name: "RESETINI", static: false, private: false, access: { has: obj => "RESETINI" in obj, get: obj => obj.RESETINI }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _COPYFILE_decorators, { kind: "method", name: "COPYFILE", static: false, private: false, access: { has: obj => "COPYFILE" in obj, get: obj => obj.COPYFILE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        value = __runInitializers(this, _instanceExtraInitializers);
-        defaultValue;
-        autoSave;
-        constructor(engine, parent, definition, defaultValue, autoSave = true) {
-            super(engine, parent, definition);
-            this.defaultValue = defaultValue;
-            this.value = this.getFromINI() ?? this.definition.VALUE ?? defaultValue;
-            this.autoSave = autoSave;
-        }
-        async RESETINI() {
-            if (this.definition.TOINI) {
-                await this.setValue(this.definition.DEFAULT ?? this.definition.VALUE ?? this.defaultValue);
-                this.saveToINI();
-            }
-        }
-        async COPYFILE(from, to) {
-            console.debug(`Copying file ${from} to ${to}`);
-            const sourceData = await this.engine.filesystem.getFile(await this.engine.resolvePath(from));
-            await this.engine.filesystem.saveFile(await this.engine.resolvePath(to), sourceData);
-        }
-        valueOf() {
-            return this.value;
-        }
-        getValue() {
-            return this.value;
-        }
-        async setValue(newValue) {
-            (0, errors_1.assert)(typeof newValue != 'number' || !isNaN(newValue), 'Attempted to assign NaN');
-            (0, errors_1.assert)(newValue !== undefined, 'Attempted to assign undefined');
-            (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some((e) => Number.isNaN(e)), 'Attempted to assign array with NaN values');
-            (0, errors_1.assert)(!Array.isArray(newValue) || !newValue.some((e) => e === undefined), 'Attempted to assign array with undefined values');
-            const oldValue = this.value;
-            this.value = newValue;
-            await this.valueChanged(oldValue, newValue);
-            if (this.autoSave && this.definition.TOINI) {
-                this.saveToINI();
-            }
-            return newValue;
-        }
-        async valueChanged(oldValue, newValue) { }
-        getFromINI() {
-            const loadedValue = this.engine.saveFile.loadValue(this);
-            if (loadedValue !== null) {
-                return this.deserialize(loadedValue);
-            }
-            return null;
-        }
-        saveToINI() {
-            this.engine.saveFile.saveValue(this, this.serialize());
-        }
-        serialize() {
-            (0, errors_1.assert)(this.value !== null && this.value !== undefined);
-            return this.value.toString();
-        }
-        deserialize(value) {
-            return value;
-        }
-        async toString() {
-            throw new errors_1.NotImplementedError();
-        }
-    };
+            __esDecorate(_a, null, _RESETINI_decorators, { kind: "method", name: "RESETINI", static: false, private: false, access: { has: obj => "RESETINI" in obj, get: obj => obj.RESETINI }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _COPYFILE_decorators, { kind: "method", name: "COPYFILE", static: false, private: false, access: { has: obj => "COPYFILE" in obj, get: obj => obj.COPYFILE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.ValueType = ValueType;
 class ParentType extends Type {
-    scope = null;
+    constructor() {
+        super(...arguments);
+        this.scope = null;
+    }
 }
 exports.ParentType = ParentType;
 
@@ -36610,6 +36562,7 @@ exports.Integer = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Integer = (() => {
+    var _a;
     let _classSuper = index_1.ValueType;
     let _instanceExtraInitializers = [];
     let _INC_decorators;
@@ -36626,8 +36579,84 @@ let Integer = (() => {
     let _SWITCH_decorators;
     let _ABS_decorators;
     let _RANDOM_decorators;
-    return class Integer extends _classSuper {
-        static {
+    return _a = class Integer extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, 0);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+            async ready() {
+                await this.callbacks.run('ONINIT');
+            }
+            async INC() {
+                return this.setValue(this.value + 1);
+            }
+            async DEC() {
+                return this.setValue(this.value - 1);
+            }
+            async ADD(value) {
+                return this.setValue(this.value + value);
+            }
+            async SUB(value) {
+                return this.setValue(this.value - value);
+            }
+            async MUL(value) {
+                return this.setValue(this.value * value);
+            }
+            async DIV(value) {
+                return this.setValue(this.value / value);
+            }
+            async MOD(value) {
+                return this.setValue(this.value % value);
+            }
+            async CLAMP(min, max) {
+                return this.setValue(Math.min(max, Math.max(this.value, min)));
+            }
+            async AND(value) {
+                return this.setValue(this.value & value);
+            }
+            // TODO: Maybe type guard could try to resolve references
+            async SET(newValue) {
+                if (typeof newValue == 'string') {
+                    const possibleInteger = this.getObject(newValue);
+                    if (possibleInteger instanceof _a) {
+                        await this.setValue(possibleInteger.value);
+                        return;
+                    }
+                }
+                // That's how the game works
+                if (newValue === undefined) {
+                    await this.setValue(0);
+                    return;
+                }
+                await this.setValue((0, types_1.ForceNumber)(newValue));
+            }
+            async GET() {
+                return this.value;
+            }
+            async SWITCH(first, second) {
+                return this.setValue(this.value == first ? second : first);
+            }
+            async ABS(value) {
+                return this.setValue(Math.abs(value));
+            }
+            async RANDOM(offset, range) {
+                return Math.floor(Math.random() * range) + offset;
+            }
+            async valueChanged(oldValue, newValue) {
+                if (oldValue !== newValue) {
+                    await this.callbacks.run('ONCHANGED', newValue);
+                }
+                await this.callbacks.run('ONBRUTALCHANGED', newValue);
+            }
+            async getValue() {
+                return super.getValue();
+            }
+            // Force integer truncated values
+            async setValue(newValue) {
+                return await super.setValue(Math.trunc(newValue));
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _INC_decorators = [(0, types_1.method)()];
             _DEC_decorators = [(0, types_1.method)()];
@@ -36638,90 +36667,28 @@ let Integer = (() => {
             _MOD_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _CLAMP_decorators = [(0, types_1.method)({ name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _AND_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SET_decorators = [(0, types_1.method)({ name: "newValue", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SET_decorators = [(0, types_1.method)({ name: "newValue", types: [{ name: "number", literal: null, isArray: false }, { name: "string", literal: null, isArray: false }], optional: true, rest: false })];
             _GET_decorators = [(0, types_1.method)()];
             _SWITCH_decorators = [(0, types_1.method)({ name: "first", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "second", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _ABS_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _RANDOM_decorators = [(0, types_1.method)({ name: "offset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "range", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _INC_decorators, { kind: "method", name: "INC", static: false, private: false, access: { has: obj => "INC" in obj, get: obj => obj.INC }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _DEC_decorators, { kind: "method", name: "DEC", static: false, private: false, access: { has: obj => "DEC" in obj, get: obj => obj.DEC }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MUL_decorators, { kind: "method", name: "MUL", static: false, private: false, access: { has: obj => "MUL" in obj, get: obj => obj.MUL }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _DIV_decorators, { kind: "method", name: "DIV", static: false, private: false, access: { has: obj => "DIV" in obj, get: obj => obj.DIV }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MOD_decorators, { kind: "method", name: "MOD", static: false, private: false, access: { has: obj => "MOD" in obj, get: obj => obj.MOD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _CLAMP_decorators, { kind: "method", name: "CLAMP", static: false, private: false, access: { has: obj => "CLAMP" in obj, get: obj => obj.CLAMP }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _AND_decorators, { kind: "method", name: "AND", static: false, private: false, access: { has: obj => "AND" in obj, get: obj => obj.AND }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SWITCH_decorators, { kind: "method", name: "SWITCH", static: false, private: false, access: { has: obj => "SWITCH" in obj, get: obj => obj.SWITCH }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ABS_decorators, { kind: "method", name: "ABS", static: false, private: false, access: { has: obj => "ABS" in obj, get: obj => obj.ABS }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _RANDOM_decorators, { kind: "method", name: "RANDOM", static: false, private: false, access: { has: obj => "RANDOM" in obj, get: obj => obj.RANDOM }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition, 0);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-        async ready() {
-            await this.callbacks.run('ONINIT');
-        }
-        async INC() {
-            return this.setValue(this.value + 1);
-        }
-        async DEC() {
-            return this.setValue(this.value - 1);
-        }
-        async ADD(value) {
-            return this.setValue(this.value + value);
-        }
-        async SUB(value) {
-            return this.setValue(this.value - value);
-        }
-        async MUL(value) {
-            return this.setValue(this.value * value);
-        }
-        async DIV(value) {
-            return this.setValue(this.value / value);
-        }
-        async MOD(value) {
-            return this.setValue(this.value % value);
-        }
-        async CLAMP(min, max) {
-            return this.setValue(Math.min(max, Math.max(this.value, min)));
-        }
-        async AND(value) {
-            return this.setValue(this.value & value);
-        }
-        async SET(newValue) {
-            await this.setValue(newValue);
-        }
-        async GET() {
-            return this.value;
-        }
-        async SWITCH(first, second) {
-            return this.setValue(this.value == first ? second : first);
-        }
-        async ABS(value) {
-            return this.setValue(Math.abs(value));
-        }
-        async RANDOM(offset, range) {
-            return Math.floor(Math.random() * range) + offset;
-        }
-        async valueChanged(oldValue, newValue) {
-            if (oldValue !== newValue) {
-                await this.callbacks.run('ONCHANGED', newValue);
-            }
-            await this.callbacks.run('ONBRUTALCHANGED', newValue);
-        }
-        // Force integer truncated values
-        async setValue(newValue) {
-            return await super.setValue(Math.trunc(newValue));
-        }
-        async toString() {
-            return this.getValue().toString();
-        }
-    };
+            __esDecorate(_a, null, _INC_decorators, { kind: "method", name: "INC", static: false, private: false, access: { has: obj => "INC" in obj, get: obj => obj.INC }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DEC_decorators, { kind: "method", name: "DEC", static: false, private: false, access: { has: obj => "DEC" in obj, get: obj => obj.DEC }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MUL_decorators, { kind: "method", name: "MUL", static: false, private: false, access: { has: obj => "MUL" in obj, get: obj => obj.MUL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DIV_decorators, { kind: "method", name: "DIV", static: false, private: false, access: { has: obj => "DIV" in obj, get: obj => obj.DIV }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MOD_decorators, { kind: "method", name: "MOD", static: false, private: false, access: { has: obj => "MOD" in obj, get: obj => obj.MOD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CLAMP_decorators, { kind: "method", name: "CLAMP", static: false, private: false, access: { has: obj => "CLAMP" in obj, get: obj => obj.CLAMP }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _AND_decorators, { kind: "method", name: "AND", static: false, private: false, access: { has: obj => "AND" in obj, get: obj => obj.AND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SWITCH_decorators, { kind: "method", name: "SWITCH", static: false, private: false, access: { has: obj => "SWITCH" in obj, get: obj => obj.SWITCH }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ABS_decorators, { kind: "method", name: "ABS", static: false, private: false, access: { has: obj => "ABS" in obj, get: obj => obj.ABS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RANDOM_decorators, { kind: "method", name: "RANDOM", static: false, private: false, access: { has: obj => "RANDOM" in obj, get: obj => obj.RANDOM }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Integer = Integer;
 
@@ -36785,94 +36752,94 @@ const keysMapping = {
     Digit2: '2',
 };
 let Keyboard = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _DISABLE_decorators;
     let _ISKEYDOWN_decorators;
     let _ISENABLED_decorators;
     let _SETAUTOREPEAT_decorators;
-    return class Keyboard extends _classSuper {
-        static {
+    return _a = class Keyboard extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
+                this.keysState = (__runInitializers(this, _instanceExtraInitializers), new Map());
+                this.changeQueue = [];
+                this.enabled = true;
+                this.autoRepeat = false;
+                this.onKeyDownCallback = this.onKeyDown.bind(this);
+                this.onKeyUpCallback = this.onKeyUp.bind(this);
+            }
+            async ready() {
+                window.addEventListener('keydown', this.onKeyDownCallback);
+                window.addEventListener('keyup', this.onKeyUpCallback);
+            }
+            destroy() {
+                window.removeEventListener('keydown', this.onKeyDownCallback);
+                window.removeEventListener('keyup', this.onKeyUpCallback);
+            }
+            async tick() {
+                for (const change of this.changeQueue) {
+                    if (change.state) {
+                        await this.callbacks.run('ONKEYDOWN', change.name);
+                    }
+                    else {
+                        await this.callbacks.run('ONKEYUP', change.name);
+                    }
+                }
+                this.changeQueue = [];
+            }
+            DISABLE() {
+                this.enabled = false;
+            }
+            ISKEYDOWN(keyName) {
+                if (this.keysState.has(keyName)) {
+                    return this.keysState.get(keyName);
+                }
+                return false;
+            }
+            ISENABLED() {
+                return this.enabled;
+            }
+            SETAUTOREPEAT(state) {
+                this.autoRepeat = state;
+            }
+            onKeyDown(event) {
+                if (!this.autoRepeat && this.keysState.get(keysMapping[event.code])) {
+                    return;
+                }
+                if (this.enabled) {
+                    this.setKeyState(event.code, true);
+                }
+            }
+            onKeyUp(event) {
+                if (this.enabled) {
+                    this.setKeyState(event.code, false);
+                }
+            }
+            setKeyState(keyCode, value) {
+                const mapped = keysMapping[keyCode];
+                if (!mapped) {
+                    logging_1.logger.warn(`Unsupported keyboard key code ${keyCode}`, {
+                        supportedKeys: Object.keys(keysMapping),
+                    });
+                }
+                this.keysState.set(mapped, value);
+                this.changeQueue.push({ name: mapped, state: value });
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _DISABLE_decorators = [(0, types_1.method)()];
             _ISKEYDOWN_decorators = [(0, types_1.method)({ name: "keyName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _ISENABLED_decorators = [(0, types_1.method)()];
             _SETAUTOREPEAT_decorators = [(0, types_1.method)({ name: "state", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ISKEYDOWN_decorators, { kind: "method", name: "ISKEYDOWN", static: false, private: false, access: { has: obj => "ISKEYDOWN" in obj, get: obj => obj.ISKEYDOWN }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ISENABLED_decorators, { kind: "method", name: "ISENABLED", static: false, private: false, access: { has: obj => "ISENABLED" in obj, get: obj => obj.ISENABLED }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETAUTOREPEAT_decorators, { kind: "method", name: "SETAUTOREPEAT", static: false, private: false, access: { has: obj => "SETAUTOREPEAT" in obj, get: obj => obj.SETAUTOREPEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        keysState = (__runInitializers(this, _instanceExtraInitializers), new Map());
-        changeQueue = [];
-        enabled = true;
-        autoRepeat = false;
-        onKeyDownCallback;
-        onKeyUpCallback;
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition);
-            this.onKeyDownCallback = this.onKeyDown.bind(this);
-            this.onKeyUpCallback = this.onKeyUp.bind(this);
-        }
-        async ready() {
-            window.addEventListener('keydown', this.onKeyDownCallback);
-            window.addEventListener('keyup', this.onKeyUpCallback);
-        }
-        destroy() {
-            window.removeEventListener('keydown', this.onKeyDownCallback);
-            window.removeEventListener('keyup', this.onKeyUpCallback);
-        }
-        async tick() {
-            for (const change of this.changeQueue) {
-                if (change.state) {
-                    await this.callbacks.run('ONKEYDOWN', change.name);
-                }
-                else {
-                    await this.callbacks.run('ONKEYUP', change.name);
-                }
-            }
-            this.changeQueue = [];
-        }
-        DISABLE() {
-            this.enabled = false;
-        }
-        ISKEYDOWN(keyName) {
-            if (this.keysState.has(keyName)) {
-                return this.keysState.get(keyName);
-            }
-            return false;
-        }
-        ISENABLED() {
-            return this.enabled;
-        }
-        SETAUTOREPEAT(state) {
-            this.autoRepeat = state;
-        }
-        onKeyDown(event) {
-            if (!this.autoRepeat && this.keysState.get(keysMapping[event.code])) {
-                return;
-            }
-            if (this.enabled) {
-                this.setKeyState(event.code, true);
-            }
-        }
-        onKeyUp(event) {
-            if (this.enabled) {
-                this.setKeyState(event.code, false);
-            }
-        }
-        setKeyState(keyCode, value) {
-            const mapped = keysMapping[keyCode];
-            if (mapped !== undefined) {
-                logging_1.logger.warn(`Unsupported keyboard key code ${keyCode}`, {
-                    supportedKeys: Object.keys(keysMapping),
-                });
-            }
-            this.keysState.set(mapped, value);
-            this.changeQueue.push({ name: mapped, state: value });
-        }
-    };
+            __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISKEYDOWN_decorators, { kind: "method", name: "ISKEYDOWN", static: false, private: false, access: { has: obj => "ISKEYDOWN" in obj, get: obj => obj.ISKEYDOWN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISENABLED_decorators, { kind: "method", name: "ISENABLED", static: false, private: false, access: { has: obj => "ISENABLED" in obj, get: obj => obj.ISENABLED }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETAUTOREPEAT_decorators, { kind: "method", name: "SETAUTOREPEAT", static: false, private: false, access: { has: obj => "SETAUTOREPEAT" in obj, get: obj => obj.SETAUTOREPEAT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Keyboard = Keyboard;
 
@@ -36965,6 +36932,7 @@ var RemainingActions;
     RemainingActions[RemainingActions["ENEMY_COLLISIONS"] = 3] = "ENEMY_COLLISIONS";
 })(RemainingActions || (RemainingActions = {}));
 let Matrix = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _CALCENEMYMOVEDEST_decorators;
@@ -36983,8 +36951,319 @@ let Matrix = (() => {
     let _SETGATE_decorators;
     let _SETROW_decorators;
     let _TICK_decorators;
-    return class Matrix extends _classSuper {
-        static {
+    return _a = class Matrix extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
+                this.width = (__runInitializers(this, _instanceExtraInitializers), 0);
+                this.height = 0;
+                this.board = [];
+                this.gateRect = null;
+                this.stoneActions = [];
+                // How the stone in each cell got there
+                this.stoneStates = [];
+                this.cursorX = 0;
+                this.cursorY = 0;
+            }
+            initializeEmptyBoard(value) {
+                let board = [];
+                if (this.width > 0 && this.height > 0) {
+                    board = new Array(this.width * this.height).fill(value ?? 0);
+                }
+                return board;
+            }
+            init() {
+                this.width = this.definition.SIZE[0];
+                this.height = this.definition.SIZE[1];
+                this.board = this.initializeEmptyBoard();
+                this.stoneActions = this.initializeEmptyBoard();
+                this.stoneStates = this.initializeEmptyBoard();
+            }
+            // Returns new position
+            CALCENEMYMOVEDEST(oldPos, dir) {
+                switch (dir) {
+                    case Direction.LEFT:
+                        return oldPos - 1;
+                    case Direction.UP:
+                        return oldPos - this.width;
+                    case Direction.RIGHT:
+                        return oldPos + 1;
+                    case Direction.DOWN:
+                        return oldPos + this.width;
+                    default:
+                        return oldPos;
+                }
+            }
+            rotateLeft(dir) {
+                switch (dir) {
+                    case Direction.LEFT:
+                        return Direction.DOWN;
+                    case Direction.UP:
+                        return Direction.LEFT;
+                    case Direction.DOWN:
+                        return Direction.RIGHT;
+                    default: // any direction other than LEFT, UP, DOWN is treated as RIGHT
+                        return Direction.UP;
+                }
+            }
+            rotateRight(dir) {
+                switch (dir) {
+                    case Direction.LEFT:
+                        return Direction.UP;
+                    case Direction.UP:
+                        return Direction.RIGHT;
+                    case Direction.DOWN:
+                        return Direction.LEFT;
+                    default: // any direction other than LEFT, UP, DOWN is treated as RIGHT
+                        return Direction.DOWN;
+                }
+            }
+            opositeDirection(dir) {
+                switch (dir) {
+                    case Direction.LEFT:
+                        return Direction.RIGHT;
+                    case Direction.UP:
+                        return Direction.DOWN;
+                    case Direction.DOWN:
+                        return Direction.UP;
+                    default: // any direction other than LEFT, UP, DOWN is treated as RIGHT
+                        return Direction.LEFT;
+                }
+            }
+            isNewPositionValid(newPosIndex) {
+                if (newPosIndex < 0 || newPosIndex >= this.board.length) {
+                    return false;
+                }
+                if (this.board[newPosIndex] !== Field.EMPTY && this.board[newPosIndex] !== Field.MOLE) {
+                    return false;
+                }
+                return !this.isIndexInGate(newPosIndex);
+            }
+            canMoveTo(oldPos, newPos) {
+                const newPosIndex = this.CALCENEMYMOVEDEST(oldPos, newPos);
+                return this.isNewPositionValid(newPosIndex);
+            }
+            CALCENEMYMOVEDIR(oldPos, currentMoveDir) {
+                let newDir = this.rotateLeft(currentMoveDir);
+                if (this.canMoveTo(oldPos, newDir)) {
+                    return newDir;
+                }
+                if (this.canMoveTo(oldPos, currentMoveDir)) {
+                    return currentMoveDir;
+                }
+                newDir = this.rotateRight(currentMoveDir);
+                if (this.canMoveTo(oldPos, newDir)) {
+                    return newDir;
+                }
+                newDir = this.opositeDirection(currentMoveDir);
+                if (this.canMoveTo(oldPos, newDir)) {
+                    return newDir;
+                }
+                return Direction.NONE;
+            }
+            CANHEROGOTO(targetCellIndex) {
+                if (targetCellIndex < 0 || targetCellIndex >= this.board.length) {
+                    return false;
+                }
+                const canEnter = [Field.EMPTY, Field.GROUND, Field.DYNAMITE, Field.ENEMY, Field.EXPLOSION, Field.EXIT].includes(this.board[targetCellIndex]);
+                return canEnter && !this.isIndexInGate(targetCellIndex);
+            }
+            GET(...args) {
+                return this.board[args[0]];
+            }
+            getIndexFromCoordinates(column, row) {
+                return row * this.width + column;
+            }
+            getColumnFromIndex(index) {
+                return index % this.width;
+            }
+            getRowFromIndex(index) {
+                return Math.floor(index / this.width);
+            }
+            GETCELLOFFSET(x, y) {
+                return this.getIndexFromCoordinates(x, y);
+            }
+            GETCELLPOSX(index) {
+                return this.getColumnFromIndex(index) * this.definition.CELLWIDTH + this.definition.BASEPOS[0];
+            }
+            GETCELLPOSY(index) {
+                return this.getRowFromIndex(index) * this.definition.CELLHEIGHT + this.definition.BASEPOS[1];
+            }
+            GETCELLSNO(cellType) {
+                if (cellType === undefined) {
+                    return this.width * this.height;
+                }
+                return this.board.filter((e) => e === cellType).length;
+            }
+            ISGATEEMPTY() {
+                if (!this.gateRect) {
+                    return true;
+                }
+                // Inclusive of right and bottom, unlike ISINGATE
+                for (let column = this.gateRect.left; column <= this.gateRect.right; column++) {
+                    for (let row = this.gateRect.top; row <= this.gateRect.bottom; row++) {
+                        if (this.board[this.getIndexFromCoordinates(column, row)] === Field.STONE) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            ISINGATE(index) {
+                return this.isIndexInGate(index);
+            }
+            isIndexInGate(index) {
+                if (!this.gateRect) {
+                    return false;
+                }
+                const x = this.getColumnFromIndex(index);
+                const y = this.getRowFromIndex(index);
+                // Manual comparison, so that it is non-inclusive of right and bottom
+                return this.gateRect.left <= x && x < this.gateRect.right && this.gateRect.top <= y && y < this.gateRect.bottom;
+            }
+            MOVE(previousPos, newPos) {
+                this.moveCell(previousPos, newPos, Actions.NONE);
+            }
+            // Moving into an explosion destroys the moved cell and keeps the explosion
+            moveCell(from, to, code) {
+                if (this.board[to] !== Field.EXPLOSION) {
+                    this.board[to] = this.board[from];
+                    if (this.board[to] === Field.STONE) {
+                        this.stoneStates[to] = code;
+                    }
+                }
+                this.board[from] = Field.EMPTY;
+                this.stoneStates[from] = Actions.NONE;
+            }
+            hasActionsFrom(startX, startY) {
+                for (let y = startY; y >= 0; y--) {
+                    for (let x = y === startY ? startX : 0; x < this.width; x++) {
+                        if (this.stoneActions[this.getIndexFromCoordinates(x, y)] !== Actions.NONE) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            async NEXT() {
+                let result = RemainingActions.NONE;
+                for (let y = this.cursorY; y >= 0; y--) {
+                    for (let x = y === this.cursorY ? this.cursorX : 0; x < this.width; x++) {
+                        const index = this.getIndexFromCoordinates(x, y);
+                        const action = this.stoneActions[index];
+                        if (action === Actions.NONE) {
+                            continue;
+                        }
+                        const indexUnder = index + this.width;
+                        switch (action) {
+                            case Actions.DOWN:
+                                this.moveCell(index, indexUnder, action);
+                                if (this.board[indexUnder + this.width] === Field.MOLE) {
+                                    result = RemainingActions.PLAYER_COLLISION;
+                                }
+                                break;
+                            case Actions.DOWNLEFT:
+                                this.moveCell(index, indexUnder - 1, action);
+                                break;
+                            case Actions.DOWNRIGHT:
+                                this.moveCell(index, indexUnder + 1, action);
+                                break;
+                            case Actions.EXPLODE:
+                                // Only a stone that fell straight down last tick crushes the enemy
+                                if (this.stoneStates[index] !== Actions.DOWN) {
+                                    continue;
+                                }
+                                this.stoneStates[index] = Actions.NONE;
+                                break;
+                        }
+                        const wraps = x + 1 >= this.width;
+                        const nextX = wraps ? 0 : x + 1;
+                        const nextY = wraps ? y - 1 : y;
+                        const isLast = !this.hasActionsFrom(nextX, nextY);
+                        this.cursorX = isLast ? this.width : nextX;
+                        this.cursorY = isLast ? -1 : nextY;
+                        await this.callbacks.run(isLast ? 'ONLATEST' : 'ONNEXT', null, null, [x, y, action]);
+                        return isLast ? result : result || RemainingActions.STONE_UPDATES;
+                    }
+                }
+                return RemainingActions.NONE;
+            }
+            setByIndex(index, cellType) {
+                (0, errors_1.assert)(index >= 0 && index < this.board.length, `Index ${index} out of bounds for board of length ${this.board.length}`);
+                this.board[index] = cellType;
+            }
+            setByPosition(x, y, cellType) {
+                (0, errors_1.assert)(x >= 0 && x < this.width, `X position ${x} out of bounds for width ${this.width}`);
+                (0, errors_1.assert)(y >= 0 && y < this.height, `Y position ${y} out of bounds for height ${this.height}`);
+                const index = this.getIndexFromCoordinates(x, y);
+                this.setByIndex(index, cellType);
+            }
+            async SET(...args) {
+                if (args.length === 2) {
+                    const [index, cellType] = args;
+                    this.setByIndex(index, cellType);
+                }
+                if (args.length === 3) {
+                    const [x, y, cellType] = args;
+                    this.setByPosition(Math.floor(x), Math.floor(y), cellType);
+                }
+            }
+            async SETGATE(startColumn, startRow, endColumn, endRow) {
+                this.gateRect = new pixi_js_1.Rectangle(startColumn, startRow, endColumn - startColumn, endRow - startRow);
+            }
+            async SETROW(row, ...cells) {
+                for (let i = 0; i < Math.min(this.width, cells.length); i++) {
+                    this.board[row * this.width + i] = cells[i];
+                }
+            }
+            // Can the stone at index (column x) roll one column sideways (dx = -1 or 1) and down?
+            // A neighbor that already has an action this tick blocks the roll
+            canRoll(index, x, dx) {
+                const hasAction = (offset) => {
+                    const column = x + offset;
+                    return column >= 0 && column < this.width && this.stoneActions[index + offset] !== Actions.NONE;
+                };
+                return (!hasAction(dx) &&
+                    !hasAction(2 * dx) &&
+                    this.board[index + dx] === Field.EMPTY &&
+                    this.board[index + this.width + dx] === Field.EMPTY);
+            }
+            async TICK() {
+                this.cursorX = 0;
+                this.cursorY = this.height - 2;
+                this.stoneActions = this.initializeEmptyBoard();
+                for (let x = 0; x < this.width; x++) {
+                    for (let y = this.height - 2; y >= 0; y--) {
+                        const index = this.getIndexFromCoordinates(x, y);
+                        if (this.board[index] !== Field.STONE) {
+                            continue;
+                        }
+                        const under = this.board[index + this.width];
+                        if (under === Field.EMPTY || under === Field.ENEMY) {
+                            this.stoneActions[index] = under === Field.EMPTY ? Actions.DOWN : Actions.EXPLODE;
+                            // Stones stacked directly above wait for a later tick
+                            while (y > 0 && this.board[this.getIndexFromCoordinates(x, y - 1)] === Field.STONE) {
+                                y--;
+                            }
+                            continue;
+                        }
+                        // Resting stone: it may roll off another stone if nothing is stacked on it
+                        let roll = Actions.NONE;
+                        const stoneAbove = y > 0 && this.board[index - this.width] === Field.STONE;
+                        if (under === Field.STONE && !stoneAbove) {
+                            if (this.canRoll(index, x, -1)) {
+                                roll = Actions.DOWNLEFT;
+                            }
+                            else if (this.canRoll(index, x, 1)) {
+                                roll = Actions.DOWNRIGHT;
+                            }
+                        }
+                        this.stoneActions[index] = roll;
+                        this.stoneStates[index] = roll;
+                    }
+                }
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _CALCENEMYMOVEDEST_decorators = [(0, types_1.method)({ name: "oldPos", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "dir", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _CALCENEMYMOVEDIR_decorators = [(0, types_1.method)({ name: "oldPos", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "currentMoveDir", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
@@ -37002,326 +37281,25 @@ let Matrix = (() => {
             _SETGATE_decorators = [(0, types_1.method)({ name: "startColumn", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "startRow", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "endColumn", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "endRow", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SETROW_decorators = [(0, types_1.method)({ name: "row", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "cells", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
             _TICK_decorators = [(0, types_1.method)()];
-            __esDecorate(this, null, _CALCENEMYMOVEDEST_decorators, { kind: "method", name: "CALCENEMYMOVEDEST", static: false, private: false, access: { has: obj => "CALCENEMYMOVEDEST" in obj, get: obj => obj.CALCENEMYMOVEDEST }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _CALCENEMYMOVEDIR_decorators, { kind: "method", name: "CALCENEMYMOVEDIR", static: false, private: false, access: { has: obj => "CALCENEMYMOVEDIR" in obj, get: obj => obj.CALCENEMYMOVEDIR }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _CANHEROGOTO_decorators, { kind: "method", name: "CANHEROGOTO", static: false, private: false, access: { has: obj => "CANHEROGOTO" in obj, get: obj => obj.CANHEROGOTO }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETCELLOFFSET_decorators, { kind: "method", name: "GETCELLOFFSET", static: false, private: false, access: { has: obj => "GETCELLOFFSET" in obj, get: obj => obj.GETCELLOFFSET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETCELLPOSX_decorators, { kind: "method", name: "GETCELLPOSX", static: false, private: false, access: { has: obj => "GETCELLPOSX" in obj, get: obj => obj.GETCELLPOSX }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETCELLPOSY_decorators, { kind: "method", name: "GETCELLPOSY", static: false, private: false, access: { has: obj => "GETCELLPOSY" in obj, get: obj => obj.GETCELLPOSY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETCELLSNO_decorators, { kind: "method", name: "GETCELLSNO", static: false, private: false, access: { has: obj => "GETCELLSNO" in obj, get: obj => obj.GETCELLSNO }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ISGATEEMPTY_decorators, { kind: "method", name: "ISGATEEMPTY", static: false, private: false, access: { has: obj => "ISGATEEMPTY" in obj, get: obj => obj.ISGATEEMPTY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ISINGATE_decorators, { kind: "method", name: "ISINGATE", static: false, private: false, access: { has: obj => "ISINGATE" in obj, get: obj => obj.ISINGATE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _NEXT_decorators, { kind: "method", name: "NEXT", static: false, private: false, access: { has: obj => "NEXT" in obj, get: obj => obj.NEXT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETGATE_decorators, { kind: "method", name: "SETGATE", static: false, private: false, access: { has: obj => "SETGATE" in obj, get: obj => obj.SETGATE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETROW_decorators, { kind: "method", name: "SETROW", static: false, private: false, access: { has: obj => "SETROW" in obj, get: obj => obj.SETROW }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _TICK_decorators, { kind: "method", name: "TICK", static: false, private: false, access: { has: obj => "TICK" in obj, get: obj => obj.TICK }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition);
-        }
-        width = (__runInitializers(this, _instanceExtraInitializers), 0);
-        height = 0;
-        board = [];
-        gateRect = null;
-        stoneActions = [];
-        // How the stone in each cell got there
-        stoneStates = [];
-        cursorX = 0;
-        cursorY = 0;
-        initializeEmptyBoard(value) {
-            let board = [];
-            if (this.width > 0 && this.height > 0) {
-                board = new Array(this.width * this.height).fill(value ?? 0);
-            }
-            return board;
-        }
-        init() {
-            this.width = this.definition.SIZE[0];
-            this.height = this.definition.SIZE[1];
-            this.board = this.initializeEmptyBoard();
-            this.stoneActions = this.initializeEmptyBoard();
-            this.stoneStates = this.initializeEmptyBoard();
-        }
-        // Returns new position
-        CALCENEMYMOVEDEST(oldPos, dir) {
-            switch (dir) {
-                case Direction.LEFT:
-                    return oldPos - 1;
-                case Direction.UP:
-                    return oldPos - this.width;
-                case Direction.RIGHT:
-                    return oldPos + 1;
-                case Direction.DOWN:
-                    return oldPos + this.width;
-                default:
-                    return oldPos;
-            }
-        }
-        rotateLeft(dir) {
-            switch (dir) {
-                case Direction.LEFT:
-                    return Direction.DOWN;
-                case Direction.UP:
-                    return Direction.LEFT;
-                case Direction.DOWN:
-                    return Direction.RIGHT;
-                default: // any direction other than LEFT, UP, DOWN is treated as RIGHT
-                    return Direction.UP;
-            }
-        }
-        rotateRight(dir) {
-            switch (dir) {
-                case Direction.LEFT:
-                    return Direction.UP;
-                case Direction.UP:
-                    return Direction.RIGHT;
-                case Direction.DOWN:
-                    return Direction.LEFT;
-                default: // any direction other than LEFT, UP, DOWN is treated as RIGHT
-                    return Direction.DOWN;
-            }
-        }
-        opositeDirection(dir) {
-            switch (dir) {
-                case Direction.LEFT:
-                    return Direction.RIGHT;
-                case Direction.UP:
-                    return Direction.DOWN;
-                case Direction.DOWN:
-                    return Direction.UP;
-                default: // any direction other than LEFT, UP, DOWN is treated as RIGHT
-                    return Direction.LEFT;
-            }
-        }
-        isNewPositionValid(newPosIndex) {
-            if (newPosIndex < 0 || newPosIndex >= this.board.length) {
-                return false;
-            }
-            if (this.board[newPosIndex] !== Field.EMPTY && this.board[newPosIndex] !== Field.MOLE) {
-                return false;
-            }
-            return !this.isIndexInGate(newPosIndex);
-        }
-        canMoveTo(oldPos, newPos) {
-            const newPosIndex = this.CALCENEMYMOVEDEST(oldPos, newPos);
-            return this.isNewPositionValid(newPosIndex);
-        }
-        CALCENEMYMOVEDIR(oldPos, currentMoveDir) {
-            const directions = [
-                this.rotateLeft(currentMoveDir),
-                currentMoveDir,
-                this.rotateRight(currentMoveDir),
-                this.opositeDirection(currentMoveDir),
-            ];
-            return directions.find((dir) => this.canMoveTo(oldPos, dir)) ?? Direction.NONE;
-        }
-        CANHEROGOTO(targetCellIndex) {
-            if (targetCellIndex < 0 || targetCellIndex >= this.board.length) {
-                return false;
-            }
-            const canEnter = [Field.EMPTY, Field.GROUND, Field.DYNAMITE, Field.ENEMY, Field.EXPLOSION, Field.EXIT].includes(this.board[targetCellIndex]);
-            return canEnter && !this.isIndexInGate(targetCellIndex);
-        }
-        GET(...args) {
-            return this.board[args[0]];
-        }
-        getIndexFromCoordinates(column, row) {
-            return row * this.width + column;
-        }
-        getColumnFromIndex(index) {
-            return index % this.width;
-        }
-        getRowFromIndex(index) {
-            return Math.floor(index / this.width);
-        }
-        GETCELLOFFSET(x, y) {
-            return this.getIndexFromCoordinates(x, y);
-        }
-        GETCELLPOSX(index) {
-            return this.getColumnFromIndex(index) * this.definition.CELLWIDTH + this.definition.BASEPOS[0];
-        }
-        GETCELLPOSY(index) {
-            return this.getRowFromIndex(index) * this.definition.CELLHEIGHT + this.definition.BASEPOS[1];
-        }
-        GETCELLSNO(cellType) {
-            if (cellType === undefined) {
-                return this.width * this.height;
-            }
-            return this.board.filter((e) => e === cellType).length;
-        }
-        ISGATEEMPTY() {
-            if (!this.gateRect) {
-                return true;
-            }
-            // Inclusive of right and bottom, unlike ISINGATE
-            for (let column = this.gateRect.left; column <= this.gateRect.right; column++) {
-                for (let row = this.gateRect.top; row <= this.gateRect.bottom; row++) {
-                    if (this.board[this.getIndexFromCoordinates(column, row)] === Field.STONE) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-        ISINGATE(index) {
-            return this.isIndexInGate(index);
-        }
-        isIndexInGate(index) {
-            if (!this.gateRect) {
-                return false;
-            }
-            const x = this.getColumnFromIndex(index);
-            const y = this.getRowFromIndex(index);
-            // Manual comparison, so that it is non-inclusive of right and bottom
-            return this.gateRect.left <= x && x < this.gateRect.right && this.gateRect.top <= y && y < this.gateRect.bottom;
-        }
-        MOVE(previousPos, newPos) {
-            this.moveCell(previousPos, newPos, Actions.NONE);
-        }
-        // Moving into an explosion destroys the moved cell and keeps the explosion
-        moveCell(from, to, code) {
-            if (this.board[to] !== Field.EXPLOSION) {
-                this.board[to] = this.board[from];
-                if (this.board[to] === Field.STONE) {
-                    this.stoneStates[to] = code;
-                }
-            }
-            this.board[from] = Field.EMPTY;
-            this.stoneStates[from] = Actions.NONE;
-        }
-        hasActionsFrom(startX, startY) {
-            for (let y = startY; y >= 0; y--) {
-                for (let x = y === startY ? startX : 0; x < this.width; x++) {
-                    if (this.stoneActions[this.getIndexFromCoordinates(x, y)] !== Actions.NONE) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        async NEXT() {
-            let result = RemainingActions.NONE;
-            for (let y = this.cursorY; y >= 0; y--) {
-                for (let x = y === this.cursorY ? this.cursorX : 0; x < this.width; x++) {
-                    const index = this.getIndexFromCoordinates(x, y);
-                    const action = this.stoneActions[index];
-                    if (action === Actions.NONE) {
-                        continue;
-                    }
-                    const indexUnder = index + this.width;
-                    switch (action) {
-                        case Actions.DOWN:
-                            this.moveCell(index, indexUnder, action);
-                            if (this.board[indexUnder + this.width] === Field.MOLE) {
-                                result = RemainingActions.PLAYER_COLLISION;
-                            }
-                            break;
-                        case Actions.DOWNLEFT:
-                            this.moveCell(index, indexUnder - 1, action);
-                            break;
-                        case Actions.DOWNRIGHT:
-                            this.moveCell(index, indexUnder + 1, action);
-                            break;
-                        case Actions.EXPLODE:
-                            // Only a stone that fell straight down last tick crushes the enemy
-                            if (this.stoneStates[index] !== Actions.DOWN) {
-                                continue;
-                            }
-                            this.stoneStates[index] = Actions.NONE;
-                            break;
-                    }
-                    const wraps = x + 1 >= this.width;
-                    const nextX = wraps ? 0 : x + 1;
-                    const nextY = wraps ? y - 1 : y;
-                    const isLast = !this.hasActionsFrom(nextX, nextY);
-                    this.cursorX = isLast ? this.width : nextX;
-                    this.cursorY = isLast ? -1 : nextY;
-                    await this.callbacks.run(isLast ? 'ONLATEST' : 'ONNEXT', null, null, [x, y, action]);
-                    return isLast ? result : (result ?? RemainingActions.STONE_UPDATES);
-                }
-            }
-            return RemainingActions.NONE;
-        }
-        setByIndex(index, cellType) {
-            (0, errors_1.assert)(index >= 0 && index < this.board.length, `Index ${index} out of bounds for board of length ${this.board.length}`);
-            this.board[index] = cellType;
-        }
-        setByPosition(x, y, cellType) {
-            (0, errors_1.assert)(x >= 0 && x < this.width, `X position ${x} out of bounds for width ${this.width}`);
-            (0, errors_1.assert)(y >= 0 && y < this.height, `Y position ${y} out of bounds for height ${this.height}`);
-            const index = this.getIndexFromCoordinates(x, y);
-            this.setByIndex(index, cellType);
-        }
-        async SET(...args) {
-            if (args.length === 2) {
-                const [index, cellType] = args;
-                this.setByIndex(index, cellType);
-            }
-            if (args.length === 3) {
-                const [x, y, cellType] = args;
-                this.setByPosition(Math.floor(x), Math.floor(y), cellType);
-            }
-        }
-        async SETGATE(startColumn, startRow, endColumn, endRow) {
-            this.gateRect = new pixi_js_1.Rectangle(startColumn, startRow, endColumn - startColumn, endRow - startRow);
-        }
-        async SETROW(row, ...cells) {
-            for (let i = 0; i < Math.min(this.width, cells.length); i++) {
-                this.board[row * this.width + i] = cells[i];
-            }
-        }
-        // Can the stone at index (column x) roll one column sideways (dx = -1 or 1) and down?
-        // A neighbor that already has an action this tick blocks the roll
-        canRoll(index, x, dx) {
-            const hasAction = (offset) => {
-                const column = x + offset;
-                return column >= 0 && column < this.width && this.stoneActions[index + offset] !== Actions.NONE;
-            };
-            return (!hasAction(dx) &&
-                !hasAction(2 * dx) &&
-                this.board[index + dx] === Field.EMPTY &&
-                this.board[index + this.width + dx] === Field.EMPTY);
-        }
-        async TICK() {
-            this.cursorX = 0;
-            this.cursorY = this.height - 2;
-            this.stoneActions = this.initializeEmptyBoard();
-            for (let x = 0; x < this.width; x++) {
-                for (let y = this.height - 2; y >= 0; y--) {
-                    const index = this.getIndexFromCoordinates(x, y);
-                    if (this.board[index] !== Field.STONE) {
-                        continue;
-                    }
-                    const under = this.board[index + this.width];
-                    if (under === Field.EMPTY || under === Field.ENEMY) {
-                        this.stoneActions[index] = under === Field.EMPTY ? Actions.DOWN : Actions.EXPLODE;
-                        // Stones stacked directly above wait for a later tick
-                        while (y > 0 && this.board[this.getIndexFromCoordinates(x, y - 1)] === Field.STONE) {
-                            y--;
-                        }
-                        continue;
-                    }
-                    // Resting stone: it may roll off another stone if nothing is stacked on it
-                    let roll = Actions.NONE;
-                    const stoneAbove = y > 0 && this.board[index - this.width] === Field.STONE;
-                    if (under === Field.STONE && !stoneAbove) {
-                        if (this.canRoll(index, x, -1)) {
-                            roll = Actions.DOWNLEFT;
-                        }
-                        else if (this.canRoll(index, x, 1)) {
-                            roll = Actions.DOWNRIGHT;
-                        }
-                    }
-                    this.stoneActions[index] = roll;
-                    this.stoneStates[index] = roll;
-                }
-            }
-        }
-    };
+            __esDecorate(_a, null, _CALCENEMYMOVEDEST_decorators, { kind: "method", name: "CALCENEMYMOVEDEST", static: false, private: false, access: { has: obj => "CALCENEMYMOVEDEST" in obj, get: obj => obj.CALCENEMYMOVEDEST }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CALCENEMYMOVEDIR_decorators, { kind: "method", name: "CALCENEMYMOVEDIR", static: false, private: false, access: { has: obj => "CALCENEMYMOVEDIR" in obj, get: obj => obj.CALCENEMYMOVEDIR }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _CANHEROGOTO_decorators, { kind: "method", name: "CANHEROGOTO", static: false, private: false, access: { has: obj => "CANHEROGOTO" in obj, get: obj => obj.CANHEROGOTO }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCELLOFFSET_decorators, { kind: "method", name: "GETCELLOFFSET", static: false, private: false, access: { has: obj => "GETCELLOFFSET" in obj, get: obj => obj.GETCELLOFFSET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCELLPOSX_decorators, { kind: "method", name: "GETCELLPOSX", static: false, private: false, access: { has: obj => "GETCELLPOSX" in obj, get: obj => obj.GETCELLPOSX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCELLPOSY_decorators, { kind: "method", name: "GETCELLPOSY", static: false, private: false, access: { has: obj => "GETCELLPOSY" in obj, get: obj => obj.GETCELLPOSY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETCELLSNO_decorators, { kind: "method", name: "GETCELLSNO", static: false, private: false, access: { has: obj => "GETCELLSNO" in obj, get: obj => obj.GETCELLSNO }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISGATEEMPTY_decorators, { kind: "method", name: "ISGATEEMPTY", static: false, private: false, access: { has: obj => "ISGATEEMPTY" in obj, get: obj => obj.ISGATEEMPTY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISINGATE_decorators, { kind: "method", name: "ISINGATE", static: false, private: false, access: { has: obj => "ISINGATE" in obj, get: obj => obj.ISINGATE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _NEXT_decorators, { kind: "method", name: "NEXT", static: false, private: false, access: { has: obj => "NEXT" in obj, get: obj => obj.NEXT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETGATE_decorators, { kind: "method", name: "SETGATE", static: false, private: false, access: { has: obj => "SETGATE" in obj, get: obj => obj.SETGATE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETROW_decorators, { kind: "method", name: "SETROW", static: false, private: false, access: { has: obj => "SETROW" in obj, get: obj => obj.SETROW }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _TICK_decorators, { kind: "method", name: "TICK", static: false, private: false, access: { has: obj => "TICK" in obj, get: obj => obj.TICK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Matrix = Matrix;
 
@@ -37382,6 +37360,7 @@ const keysMapping = new Map([
     [2, 'RIGHT'],
 ]);
 let Mouse = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _SET_decorators;
@@ -37394,8 +37373,133 @@ let Mouse = (() => {
     let _GETPOSX_decorators;
     let _GETPOSY_decorators;
     let _SETPOSITION_decorators;
-    return class Mouse extends _classSuper {
-        static {
+    return _a = class Mouse extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.mouseMoveListener = __runInitializers(this, _instanceExtraInitializers);
+                this.clicksQueue = [];
+                this.lastClicksTime = {};
+                this.mousePosition = new pixi_js_1.Point(0, 0);
+                this.moved = false;
+                this.signalsDisabled = false;
+            }
+            async ready() {
+                this.registerCallbacks();
+                await this.callbacks.run('ONINIT');
+            }
+            destroy() {
+                this.unregisterCallbacks();
+            }
+            async tick(elapsedMS) {
+                while (this.clicksQueue.length > 0) {
+                    const event = this.clicksQueue.shift();
+                    if (this.signalsDisabled) {
+                        continue;
+                    }
+                    switch (event.type) {
+                        case 'click':
+                            await this.callbacks.run('ONCLICK', event.key);
+                            break;
+                        case 'dblclick':
+                            await this.callbacks.run('ONDBLCLICK', event.key);
+                            break;
+                        case 'release':
+                            await this.callbacks.run('ONRELEASE', event.key);
+                            break;
+                    }
+                }
+                if (this.moved && !this.signalsDisabled) {
+                    await this.callbacks.run('ONMOVE');
+                    this.moved = false;
+                }
+            }
+            SET(cursorType) {
+                throw new errors_1.NotImplementedError();
+            }
+            ENABLE() {
+                this.registerCallbacks();
+                this.engine.app.stage.eventMode = 'static';
+            }
+            registerCallbacks() {
+                this.mouseMoveListener = this.onMouseMove.bind(this);
+                this.mouseClickListener = this.onMouseClick.bind(this);
+                this.mouseReleaseListener = this.onMouseRelease.bind(this);
+                this.engine.app.stage.addListener('pointermove', this.mouseMoveListener);
+                if (this.callbacks.has('ONCLICK') || this.callbacks.has('ONDBLCLICK')) {
+                    this.engine.app.stage.addListener('pointerdown', this.mouseClickListener);
+                }
+                if (this.callbacks.has('ONRELEASE')) {
+                    this.engine.app.stage.addListener('pointerup', this.mouseReleaseListener);
+                }
+            }
+            DISABLE() {
+                this.unregisterCallbacks();
+                this.engine.app.stage.eventMode = 'none';
+            }
+            DISABLESIGNAL() {
+                this.signalsDisabled = true;
+            }
+            ENABLESIGNAL() {
+                this.signalsDisabled = false;
+            }
+            unregisterCallbacks() {
+                this.engine.app.stage.removeListener('pointermove', this.mouseMoveListener);
+                this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener);
+            }
+            SHOW() {
+                this.engine.rendering.setCursor('auto');
+            }
+            HIDE() {
+                this.engine.rendering.setCursor('none');
+            }
+            GETPOSX() {
+                return this.mousePosition.x;
+            }
+            GETPOSY() {
+                return this.mousePosition.y;
+            }
+            SETPOSITION(x, y) {
+                // This is kinda impossible. We would have to hide cursor and emulate it.
+                throw new errors_1.NotImplementedError();
+            }
+            onMouseMove(event) {
+                this.moved = true;
+                this.mousePosition = this.getMousePosition(event);
+            }
+            onMouseClick(event) {
+                this.handleClickEvent(event, 'click');
+            }
+            onMouseRelease(event) {
+                this.handleClickEvent(event, 'release');
+            }
+            handleClickEvent(event, type) {
+                if (!keysMapping.has(event.button)) {
+                    return;
+                }
+                const key = keysMapping.get(event.button);
+                const clickEvent = { type, key };
+                this.clicksQueue.push(clickEvent);
+                if (type === 'click') {
+                    const dateNow = Date.now();
+                    const previousClick = this.lastClicksTime[key];
+                    if (previousClick && dateNow - previousClick < 200) {
+                        this.clicksQueue.push({
+                            type: 'dblclick',
+                            key,
+                        });
+                        delete this.lastClicksTime[key];
+                    }
+                    else {
+                        this.lastClicksTime[key] = dateNow;
+                    }
+                }
+                this.onMouseMove(event);
+            }
+            getMousePosition(event) {
+                return new pixi_js_1.Point(Math.floor(event.screen.x), Math.floor(event.screen.y));
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SET_decorators = [(0, types_1.method)({ name: "cursorType", types: [{ name: "string", literal: "ACTIVE", isArray: false }, { name: "string", literal: "ARROW", isArray: false }], optional: false, rest: false })];
             _ENABLE_decorators = [(0, types_1.method)()];
@@ -37407,142 +37511,19 @@ let Mouse = (() => {
             _GETPOSX_decorators = [(0, types_1.method)()];
             _GETPOSY_decorators = [(0, types_1.method)()];
             _SETPOSITION_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _DISABLESIGNAL_decorators, { kind: "method", name: "DISABLESIGNAL", static: false, private: false, access: { has: obj => "DISABLESIGNAL" in obj, get: obj => obj.DISABLESIGNAL }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ENABLESIGNAL_decorators, { kind: "method", name: "ENABLESIGNAL", static: false, private: false, access: { has: obj => "ENABLESIGNAL" in obj, get: obj => obj.ENABLESIGNAL }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETPOSX_decorators, { kind: "method", name: "GETPOSX", static: false, private: false, access: { has: obj => "GETPOSX" in obj, get: obj => obj.GETPOSX }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETPOSY_decorators, { kind: "method", name: "GETPOSY", static: false, private: false, access: { has: obj => "GETPOSY" in obj, get: obj => obj.GETPOSY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        mouseMoveListener = __runInitializers(this, _instanceExtraInitializers);
-        mouseClickListener;
-        mouseReleaseListener;
-        clicksQueue = [];
-        lastClicksTime = {};
-        mousePosition = new pixi_js_1.Point(0, 0);
-        moved = false;
-        signalsDisabled = false;
-        async ready() {
-            this.registerCallbacks();
-            await this.callbacks.run('ONINIT');
-        }
-        destroy() {
-            this.unregisterCallbacks();
-        }
-        async tick(elapsedMS) {
-            while (this.clicksQueue.length > 0) {
-                const event = this.clicksQueue.shift();
-                if (this.signalsDisabled) {
-                    continue;
-                }
-                switch (event.type) {
-                    case 'click':
-                        await this.callbacks.run('ONCLICK', event.key);
-                        break;
-                    case 'dblclick':
-                        await this.callbacks.run('ONDBLCLICK', event.key);
-                        break;
-                    case 'release':
-                        await this.callbacks.run('ONRELEASE', event.key);
-                        break;
-                }
-            }
-            if (this.moved && !this.signalsDisabled) {
-                await this.callbacks.run('ONMOVE');
-                this.moved = false;
-            }
-        }
-        SET(cursorType) {
-            throw new errors_1.NotImplementedError();
-        }
-        ENABLE() {
-            this.registerCallbacks();
-            this.engine.app.stage.eventMode = 'static';
-        }
-        registerCallbacks() {
-            this.mouseMoveListener = this.onMouseMove.bind(this);
-            this.mouseClickListener = this.onMouseClick.bind(this);
-            this.mouseReleaseListener = this.onMouseRelease.bind(this);
-            this.engine.app.stage.addListener('pointermove', this.mouseMoveListener);
-            if (this.callbacks.has('ONCLICK') || this.callbacks.has('ONDBLCLICK')) {
-                this.engine.app.stage.addListener('pointerdown', this.mouseClickListener);
-            }
-            if (this.callbacks.has('ONRELEASE')) {
-                this.engine.app.stage.addListener('pointerup', this.mouseReleaseListener);
-            }
-        }
-        DISABLE() {
-            this.unregisterCallbacks();
-            this.engine.app.stage.eventMode = 'none';
-        }
-        DISABLESIGNAL() {
-            this.signalsDisabled = true;
-        }
-        ENABLESIGNAL() {
-            this.signalsDisabled = false;
-        }
-        unregisterCallbacks() {
-            this.engine.app.stage.removeListener('pointermove', this.mouseMoveListener);
-            this.engine.app.stage.removeListener('pointerdown', this.mouseClickListener);
-        }
-        SHOW() {
-            this.engine.rendering.setCursor('auto');
-        }
-        HIDE() {
-            this.engine.rendering.setCursor('none');
-        }
-        GETPOSX() {
-            return this.mousePosition.x;
-        }
-        GETPOSY() {
-            return this.mousePosition.y;
-        }
-        SETPOSITION(x, y) {
-            // This is kinda impossible. We would have to hide cursor and emulate it.
-            throw new errors_1.NotImplementedError();
-        }
-        onMouseMove(event) {
-            this.moved = true;
-            this.mousePosition = this.getMousePosition(event);
-        }
-        onMouseClick(event) {
-            this.handleClickEvent(event, 'click');
-        }
-        onMouseRelease(event) {
-            this.handleClickEvent(event, 'release');
-        }
-        handleClickEvent(event, type) {
-            if (!keysMapping.has(event.button)) {
-                return;
-            }
-            const key = keysMapping.get(event.button);
-            const clickEvent = { type, key };
-            this.clicksQueue.push(clickEvent);
-            if (type === 'click') {
-                const dateNow = Date.now();
-                const previousClick = this.lastClicksTime[key];
-                if (previousClick && dateNow - previousClick < 200) {
-                    this.clicksQueue.push({
-                        type: 'dblclick',
-                        key,
-                    });
-                    delete this.lastClicksTime[key];
-                }
-                else {
-                    this.lastClicksTime[key] = dateNow;
-                }
-            }
-            this.onMouseMove(event);
-        }
-        getMousePosition(event) {
-            return new pixi_js_1.Point(Math.floor(event.screen.x), Math.floor(event.screen.y));
-        }
-    };
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DISABLESIGNAL_decorators, { kind: "method", name: "DISABLESIGNAL", static: false, private: false, access: { has: obj => "DISABLESIGNAL" in obj, get: obj => obj.DISABLESIGNAL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ENABLESIGNAL_decorators, { kind: "method", name: "ENABLESIGNAL", static: false, private: false, access: { has: obj => "ENABLESIGNAL" in obj, get: obj => obj.ENABLESIGNAL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SHOW_decorators, { kind: "method", name: "SHOW", static: false, private: false, access: { has: obj => "SHOW" in obj, get: obj => obj.SHOW }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPOSX_decorators, { kind: "method", name: "GETPOSX", static: false, private: false, access: { has: obj => "GETPOSX" in obj, get: obj => obj.GETPOSX }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPOSY_decorators, { kind: "method", name: "GETPOSY", static: false, private: false, access: { has: obj => "GETPOSY" in obj, get: obj => obj.GETPOSY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Mouse = Mouse;
 
@@ -37597,43 +37578,45 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let MultiArray = (() => {
+    var _a;
     let _classSuper = index_1.ValueType;
     let _instanceExtraInitializers = [];
     let _SET_decorators;
     let _GET_decorators;
-    return class MultiArray extends _classSuper {
-        static {
+    return _a = class MultiArray extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, []);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+            init() {
+                (0, errors_1.assert)(this.definition.DIMENSIONS === 2, 'Piklib supports only 2 dimensions. Other number of dimensions causes unexpected behavior');
+            }
+            SET(y, x, value) {
+                (0, errors_1.assert)(x >= 0 && y >= 0, "MULTIARRAY indexes can't be negative");
+                while (y >= this.value.length) {
+                    this.value.push([]);
+                }
+                while (x >= this.value[y].length) {
+                    this.value[y].push(null);
+                }
+                this.value[y][x] = value;
+            }
+            GET(y, x) {
+                if (y >= 0 && y < this.value.length && x >= 0 && x < this.value[y].length) {
+                    return this.value[y][x];
+                }
+                return null;
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SET_decorators = [(0, types_1.method)({ name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
             _GET_decorators = [(0, types_1.method)({ name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition, []);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-        init() {
-            (0, errors_1.assert)(this.definition.DIMENSIONS === 2, 'Piklib supports only 2 dimensions. Other number of dimensions causes unexpected behavior');
-        }
-        SET(y, x, value) {
-            (0, errors_1.assert)(x >= 0 && y >= 0, "MULTIARRAY indexes can't be negative");
-            while (y >= this.value.length) {
-                this.value.push([]);
-            }
-            while (x >= this.value[y].length) {
-                this.value[y].push(null);
-            }
-            this.value[y][x] = value;
-        }
-        GET(y, x) {
-            if (y >= 0 && y < this.value.length && x >= 0 && x < this.value[y].length) {
-                return this.value[y][x];
-            }
-            return null;
-        }
-    };
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.MultiArray = MultiArray;
 
@@ -37706,43 +37689,45 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 let Rand = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _GET_decorators;
     let _GETPLENTY_decorators;
-    return class Rand extends _classSuper {
-        static {
+    return _a = class Rand extends _classSuper {
+            GET(min, max) {
+                if (max === undefined) {
+                    return this.GET(0, min);
+                }
+                max = min + max;
+                return Math.floor(Math.random() * (max - min)) + min;
+            }
+            GETPLENTY(objectTarget, count, min, max, unique) {
+                const object = this.getObject(objectTarget);
+                (0, errors_1.assert)(object !== null);
+                const values = [];
+                while (values.length < count) {
+                    const randomValue = this.GET(min, max);
+                    if (!unique || !values.includes(randomValue)) {
+                        values.push(randomValue);
+                    }
+                }
+                object.ADD(...values);
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _GET_decorators = [(0, types_1.method)({ name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _GETPLENTY_decorators = [(0, types_1.method)({ name: "objectTarget", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "count", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "unique", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETPLENTY_decorators, { kind: "method", name: "GETPLENTY", static: false, private: false, access: { has: obj => "GETPLENTY" in obj, get: obj => obj.GETPLENTY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        GET(min, max) {
-            if (max === undefined) {
-                return this.GET(0, min);
-            }
-            max = min + max;
-            return Math.floor(Math.random() * (max - min)) + min;
-        }
-        GETPLENTY(objectTarget, count, min, max, unique) {
-            const object = this.getObject(objectTarget);
-            (0, errors_1.assert)(object !== null);
-            const values = [];
-            while (values.length < count) {
-                const randomValue = this.GET(min, max);
-                if (!unique || !values.includes(randomValue)) {
-                    values.push(randomValue);
-                }
-            }
-            object.ADD(...values);
-        }
-        constructor() {
-            super(...arguments);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-    };
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPLENTY_decorators, { kind: "method", name: "GETPLENTY", static: false, private: false, access: { has: obj => "GETPLENTY" in obj, get: obj => obj.GETPLENTY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Rand = Rand;
 
@@ -37801,6 +37786,7 @@ const filesystem_1 = __webpack_require__(/*! ../../filesystem */ "./src/filesyst
 const group_1 = __webpack_require__(/*! ./group */ "./src/engine/types/group.ts");
 const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts");
 let Scene = (() => {
+    var _a;
     let _classSuper = index_1.ParentType;
     let _instanceExtraInitializers = [];
     let _SETMUSICVOLUME_decorators;
@@ -37813,8 +37799,88 @@ let Scene = (() => {
     let _SETMINHSPRIORITY_decorators;
     let _GETPLAYINGANIMO_decorators;
     let _RESUME_decorators;
-    return class Scene extends _classSuper {
-        static {
+    return _a = class Scene extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.minHSPriority = (__runInitializers(this, _instanceExtraInitializers), 0);
+                this.maxHSPriority = 10000000;
+            }
+            SETMUSICVOLUME(volume) {
+                (0, errors_1.assert)(this.engine.music !== null);
+                this.engine.music.volume = volume / 1000;
+            }
+            async RUNCLONES(baseObjectName, startingIdx, endingIdx, behaviourName) {
+                const baseObject = this.getObject(baseObjectName);
+                const behaviour = this.getObject(behaviourName);
+                (0, errors_1.assert)(baseObject !== null && behaviour !== null);
+                if (startingIdx < 1) {
+                    startingIdx = 1;
+                }
+                if (endingIdx <= 0) {
+                    endingIdx = baseObject.clones.length;
+                }
+                for (let i = startingIdx - 1; i <= endingIdx - 1; i++) {
+                    const clone = baseObject.clones[i];
+                    await behaviour.RUN(clone);
+                }
+            }
+            async RUN(objectName, methodName, ...args) {
+                const object = this.getObject(objectName);
+                if (object === null) {
+                    return;
+                }
+                const method = object[methodName];
+                if (method !== undefined) {
+                    return await method.bind(object)(...args);
+                }
+                else {
+                    return await object.__call(methodName, args);
+                }
+            }
+            async STARTMUSIC(filename) {
+                this.engine.music?.stop();
+                const sound = await (0, assetsLoader_1.loadSound)(this.engine.filesystem, filename);
+                this.engine.music = sound.play({
+                    loop: true,
+                });
+            }
+            GETMAXHSPRIORITY() {
+                return this.maxHSPriority;
+            }
+            SETMAXHSPRIORITY(priority) {
+                this.maxHSPriority = priority;
+            }
+            GETMINHSPRIORITY() {
+                return this.minHSPriority;
+            }
+            SETMINHSPRIORITY(priority) {
+                this.minHSPriority = priority;
+            }
+            GETPLAYINGANIMO(targetGroupName) {
+                const targetGroup = this.engine.getObject(targetGroupName);
+                if (targetGroup === null || !(targetGroup instanceof group_1.Group)) {
+                    return;
+                }
+                targetGroup.removeAll();
+                const scope = this.engine.currentScene?.scope;
+                if (!scope) {
+                    return;
+                }
+                for (const [key, value] of scope.content.entries()) {
+                    if (value instanceof animo_1.Animo && value.isPlaying) {
+                        targetGroup.add(value);
+                    }
+                }
+            }
+            RESUME() {
+                throw new errors_1.NotImplementedError();
+            }
+            getRelativePath(filename) {
+                const scenePath = (0, filesystem_1.pathJoin)('DANE', this.definition.PATH);
+                return this.engine.resolvePath(filename, scenePath);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SETMUSICVOLUME_decorators = [(0, types_1.method)({ name: "volume", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _RUNCLONES_decorators = [(0, types_1.method)({ name: "baseObjectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "startingIdx", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "endingIdx", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
@@ -37826,95 +37892,19 @@ let Scene = (() => {
             _SETMINHSPRIORITY_decorators = [(0, types_1.method)({ name: "priority", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _GETPLAYINGANIMO_decorators = [(0, types_1.method)({ name: "targetGroupName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _RESUME_decorators = [(0, types_1.method)()];
-            __esDecorate(this, null, _SETMUSICVOLUME_decorators, { kind: "method", name: "SETMUSICVOLUME", static: false, private: false, access: { has: obj => "SETMUSICVOLUME" in obj, get: obj => obj.SETMUSICVOLUME }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _RUNCLONES_decorators, { kind: "method", name: "RUNCLONES", static: false, private: false, access: { has: obj => "RUNCLONES" in obj, get: obj => obj.RUNCLONES }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _STARTMUSIC_decorators, { kind: "method", name: "STARTMUSIC", static: false, private: false, access: { has: obj => "STARTMUSIC" in obj, get: obj => obj.STARTMUSIC }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETMAXHSPRIORITY_decorators, { kind: "method", name: "GETMAXHSPRIORITY", static: false, private: false, access: { has: obj => "GETMAXHSPRIORITY" in obj, get: obj => obj.GETMAXHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETMAXHSPRIORITY_decorators, { kind: "method", name: "SETMAXHSPRIORITY", static: false, private: false, access: { has: obj => "SETMAXHSPRIORITY" in obj, get: obj => obj.SETMAXHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETMINHSPRIORITY_decorators, { kind: "method", name: "GETMINHSPRIORITY", static: false, private: false, access: { has: obj => "GETMINHSPRIORITY" in obj, get: obj => obj.GETMINHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETMINHSPRIORITY_decorators, { kind: "method", name: "SETMINHSPRIORITY", static: false, private: false, access: { has: obj => "SETMINHSPRIORITY" in obj, get: obj => obj.SETMINHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GETPLAYINGANIMO_decorators, { kind: "method", name: "GETPLAYINGANIMO", static: false, private: false, access: { has: obj => "GETPLAYINGANIMO" in obj, get: obj => obj.GETPLAYINGANIMO }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _RESUME_decorators, { kind: "method", name: "RESUME", static: false, private: false, access: { has: obj => "RESUME" in obj, get: obj => obj.RESUME }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        minHSPriority = (__runInitializers(this, _instanceExtraInitializers), 0);
-        maxHSPriority = 10000000;
-        SETMUSICVOLUME(volume) {
-            (0, errors_1.assert)(this.engine.music !== null);
-            this.engine.music.volume = volume / 1000;
-        }
-        async RUNCLONES(baseObjectName, startingIdx, endingIdx, behaviourName) {
-            const baseObject = this.getObject(baseObjectName);
-            const behaviour = this.getObject(behaviourName);
-            (0, errors_1.assert)(baseObject !== null && behaviour !== null);
-            if (startingIdx < 1) {
-                startingIdx = 1;
-            }
-            if (endingIdx <= 0) {
-                endingIdx = baseObject.clones.length;
-            }
-            for (let i = startingIdx - 1; i <= endingIdx - 1; i++) {
-                const clone = baseObject.clones[i];
-                await behaviour.RUN(clone);
-            }
-        }
-        async RUN(objectName, methodName, ...args) {
-            const object = this.getObject(objectName);
-            if (object === null) {
-                return;
-            }
-            const method = object[methodName];
-            if (method !== undefined) {
-                return await method.bind(object)(...args);
-            }
-            else {
-                return await object.__call(methodName, args);
-            }
-        }
-        async STARTMUSIC(filename) {
-            this.engine.music?.stop();
-            const sound = await (0, assetsLoader_1.loadSound)(this.engine.filesystem, filename);
-            this.engine.music = sound.play({
-                loop: true,
-            });
-        }
-        GETMAXHSPRIORITY() {
-            return this.maxHSPriority;
-        }
-        SETMAXHSPRIORITY(priority) {
-            this.maxHSPriority = priority;
-        }
-        GETMINHSPRIORITY() {
-            return this.minHSPriority;
-        }
-        SETMINHSPRIORITY(priority) {
-            this.minHSPriority = priority;
-        }
-        GETPLAYINGANIMO(targetGroupName) {
-            const targetGroup = this.engine.getObject(targetGroupName);
-            if (targetGroup === null || !(targetGroup instanceof group_1.Group)) {
-                return;
-            }
-            targetGroup.removeAll();
-            const scope = this.engine.currentScene?.scope;
-            if (!scope) {
-                return;
-            }
-            for (const value of scope.content.values()) {
-                if (value instanceof animo_1.Animo && value.isPlaying) {
-                    targetGroup.add(value);
-                }
-            }
-        }
-        RESUME() {
-            throw new errors_1.NotImplementedError();
-        }
-        getRelativePath(filename) {
-            const scenePath = (0, filesystem_1.pathJoin)('DANE', this.definition.PATH);
-            return this.engine.resolvePath(filename, scenePath);
-        }
-    };
+            __esDecorate(_a, null, _SETMUSICVOLUME_decorators, { kind: "method", name: "SETMUSICVOLUME", static: false, private: false, access: { has: obj => "SETMUSICVOLUME" in obj, get: obj => obj.SETMUSICVOLUME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RUNCLONES_decorators, { kind: "method", name: "RUNCLONES", static: false, private: false, access: { has: obj => "RUNCLONES" in obj, get: obj => obj.RUNCLONES }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _STARTMUSIC_decorators, { kind: "method", name: "STARTMUSIC", static: false, private: false, access: { has: obj => "STARTMUSIC" in obj, get: obj => obj.STARTMUSIC }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETMAXHSPRIORITY_decorators, { kind: "method", name: "GETMAXHSPRIORITY", static: false, private: false, access: { has: obj => "GETMAXHSPRIORITY" in obj, get: obj => obj.GETMAXHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETMAXHSPRIORITY_decorators, { kind: "method", name: "SETMAXHSPRIORITY", static: false, private: false, access: { has: obj => "SETMAXHSPRIORITY" in obj, get: obj => obj.SETMAXHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETMINHSPRIORITY_decorators, { kind: "method", name: "GETMINHSPRIORITY", static: false, private: false, access: { has: obj => "GETMINHSPRIORITY" in obj, get: obj => obj.GETMINHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETMINHSPRIORITY_decorators, { kind: "method", name: "SETMINHSPRIORITY", static: false, private: false, access: { has: obj => "SETMINHSPRIORITY" in obj, get: obj => obj.SETMINHSPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GETPLAYINGANIMO_decorators, { kind: "method", name: "GETPLAYINGANIMO", static: false, private: false, access: { has: obj => "GETPLAYINGANIMO" in obj, get: obj => obj.GETPLAYINGANIMO }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RESUME_decorators, { kind: "method", name: "RESUME", static: false, private: false, access: { has: obj => "RESUME" in obj, get: obj => obj.RESUME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Scene = Scene;
 
@@ -37975,318 +37965,317 @@ const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/type
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~';
 let Sequence = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _PLAY_decorators;
     let _ISPLAYING_decorators;
     let _HIDE_decorators;
     let _STOP_decorators;
-    return class Sequence extends _classSuper {
-        static {
+    return _a = class Sequence extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
+                this.sequenceFile = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.parametersMapping = new Map();
+                this.subEntries = new Map();
+                this.parameterSequence = null;
+                this.allAnimoFilenames = new Set();
+                this.allAnimoObjects = new Map();
+                this.sounds = new Map();
+                this.endedSpeakingSoundsQueue = [];
+                this.queue = [];
+                this.activeAnimo = null;
+                this.playingSound = null;
+                this.currentAnimoEvent = null;
+                this.sequenceName = null;
+                this.runningSubSequence = null;
+                this.loop = false;
+                this.loopIndex = 0;
+                this.onAnimoEventFinishedCallback = this.onAnimoEventFinished.bind(this);
+            }
+            async init() {
+                const relativePath = await this.engine.currentScene?.getRelativePath(this.definition.FILENAME);
+                if (relativePath == undefined) {
+                    throw new fileLoader_1.FileNotFoundError('Could not get scene directory path');
+                }
+                this.sequenceFile = await this.engine.filesystem.getSequenceFile(relativePath);
+                await this.load();
+                for (const animoFilename of this.allAnimoFilenames) {
+                    this.allAnimoObjects.set(animoFilename, await this.getAnimo(animoFilename));
+                }
+            }
+            async ready() {
+                await this.callbacks.run('ONINIT');
+            }
+            destroy() {
+                this.playingSound?.stop();
+            }
+            async load() {
+                (0, errors_1.assert)(this.sequenceFile !== null);
+                const soundsNames = [];
+                for (const definition of this.sequenceFile) {
+                    if (definition.TYPE === 'SEQUENCE') {
+                        const sequence = definition;
+                        if (sequence.MODE === 'PARAMETER') {
+                            this.parameterSequence = sequence;
+                            (0, errors_1.assert)(this.parameterSequence.SEQEVENT !== undefined);
+                            for (const [name, indexer] of this.parameterSequence.SEQEVENT) {
+                                // It seems that only first letter matters as in S56_0_WIOSKA (Ufo)
+                                // they accidentally added extra character and it still works
+                                this.parametersMapping.set(name, paramsCharacterSet.indexOf(indexer.charAt(0)));
+                            }
+                        }
+                    }
+                    else if (definition.TYPE === 'SPEAKING') {
+                        const sequence = definition;
+                        soundsNames.push(sequence.WAVFN);
+                        this.allAnimoFilenames.add(definition.ANIMOFN);
+                    }
+                    else if (definition.TYPE === 'SIMPLE') {
+                        this.allAnimoFilenames.add(definition.FILENAME);
+                    }
+                    if (definition.ADD) {
+                        let subEntries = [];
+                        if (this.subEntries.has(definition.ADD)) {
+                            subEntries = this.subEntries.get(definition.ADD);
+                        }
+                        subEntries.push(definition);
+                        this.subEntries.set(definition.ADD, subEntries);
+                    }
+                }
+                const sounds = await Promise.all(soundsNames.map(async (name) => {
+                    logging_1.logger.debug(`Preloading sound ${name}...`, {
+                        sequence: this,
+                    });
+                    try {
+                        return await (0, assetsLoader_1.loadSound)(this.engine.filesystem, `Wavs/${name}`);
+                    }
+                    catch (error) {
+                        return null;
+                    }
+                }));
+                for (let i = 0; i < sounds.length; i++) {
+                    const sound = sounds[i];
+                    if (sound !== null) {
+                        this.sounds.set(soundsNames[i], sound);
+                    }
+                }
+            }
+            async tick(elapsedMS) {
+                while (this.endedSpeakingSoundsQueue.length > 0) {
+                    this.loop = false;
+                    const entry = this.endedSpeakingSoundsQueue.shift();
+                    const stopEvent = entry.PREFIX + '_STOP';
+                    if (entry.ENDING && this.activeAnimo?.hasEvent(stopEvent)) {
+                        await this.playAnimoEvent(stopEvent);
+                    }
+                    else {
+                        await this.progressNext();
+                    }
+                }
+            }
+            async PLAY(sequenceName) {
+                (0, errors_1.assert)(this.parameterSequence !== null && this.subEntries !== null);
+                const subEntries = this.subEntries.get(this.parameterSequence.NAME);
+                if (subEntries !== undefined && this.parametersMapping.has(sequenceName)) {
+                    const entryIndex = this.parametersMapping.get(sequenceName);
+                    const entry = subEntries[entryIndex];
+                    this.sequenceName = sequenceName;
+                    this.fillQueue(entry);
+                    await this.progressNext();
+                }
+            }
+            ISPLAYING() {
+                return this.sequenceName !== null;
+            }
+            HIDE() {
+                (0, errors_1.assert)(this.sequenceFile !== null);
+                // HIDE() might be called before sequence is playing, so we can't just hide activeAnimo
+                // because activeAnimo would be null at that point, we don't know what sequence is gonna be played
+                for (const object of this.allAnimoObjects.values()) {
+                    object.HIDE();
+                }
+            }
+            STOP(arg) {
+                this.queue = [];
+                this.sequenceName = null;
+                this.runningSubSequence = null;
+                this.loop = false;
+                this.loopIndex = 0;
+                this.activeAnimo?.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                this.activeAnimo = null;
+                this.playingSound?.stop();
+            }
+            fillQueue(entry) {
+                this.queue.push(entry);
+                if (!this.subEntries.has(entry.NAME)) {
+                    return;
+                }
+                const subEntries = this.subEntries.get(entry.NAME);
+                if (entry.MODE === 'RANDOM') {
+                    const subEntry = subEntries[Math.floor(Math.random() * subEntries.length)];
+                    this.fillQueue(subEntry);
+                }
+                else {
+                    for (const subEntry of subEntries) {
+                        this.fillQueue(subEntry);
+                    }
+                }
+            }
+            async onAnimoEventFinished(eventName) {
+                (0, errors_1.assert)(this.activeAnimo !== null);
+                if (this.runningSubSequence?.TYPE === 'SPEAKING') {
+                    if (this.runningSubSequence.STARTING && eventName === this.runningSubSequence.PREFIX + '_START') {
+                        if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
+                            this.loop = true;
+                            this.loopIndex = 1;
+                            await this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1');
+                        }
+                    }
+                    else if (this.runningSubSequence.ENDING && eventName === this.runningSubSequence.PREFIX + '_STOP') {
+                        await this.progressNext();
+                    }
+                    else if (this.loop) {
+                        let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`;
+                        if (!this.activeAnimo.hasEvent(eventName)) {
+                            this.loopIndex = 1;
+                            eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`;
+                        }
+                        await this.playAnimoEvent(eventName);
+                    }
+                }
+                else if (this.currentAnimoEvent == eventName) {
+                    await this.progressNext();
+                }
+            }
+            async progressNext() {
+                if (this.sequenceName === null) {
+                    return;
+                }
+                if (this.queue.length === 0) {
+                    const finishedName = this.sequenceName;
+                    this.sequenceName = null;
+                    await this.callbacks.run('ONFINISHED', finishedName);
+                    return;
+                }
+                const next = this.queue.shift();
+                if (next.TYPE === 'SEQUENCE') {
+                    await this.progressNext();
+                    return;
+                }
+                if (next.TYPE === 'SPEAKING') {
+                    const speaking = next;
+                    if (this.activeAnimo?.definition.FILENAME !== speaking.ANIMOFN) {
+                        if (this.activeAnimo) {
+                            this.activeAnimo.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                        }
+                        const animoObject = this.allAnimoObjects.get(speaking.ANIMOFN);
+                        if (animoObject) {
+                            this.activeAnimo = animoObject;
+                            animoObject.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                        }
+                    }
+                    if (this.activeAnimo) {
+                        if (this.playingSound) {
+                            this.playingSound.stop();
+                            this.playingSound = null;
+                        }
+                        logging_1.logger.debug(`Playing sound '${speaking.WAVFN}'`, {
+                            sequence: this,
+                        });
+                        const sound = this.sounds.get(speaking.WAVFN);
+                        if (sound) {
+                            this.playingSound = sound.play({
+                                onEnd: () => {
+                                    this.endedSpeakingSoundsQueue.push(speaking);
+                                },
+                            });
+                        }
+                        const startEvent = speaking.PREFIX + '_START';
+                        if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
+                            await this.playAnimoEvent(startEvent);
+                        }
+                        else if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
+                            this.loop = true;
+                            this.loopIndex = 1;
+                            await this.playAnimoEvent(speaking.PREFIX + '_1');
+                        }
+                        this.runningSubSequence = speaking;
+                    }
+                }
+                else if (next.TYPE === 'SIMPLE') {
+                    const simple = next;
+                    if (this.activeAnimo?.definition.FILENAME !== simple.FILENAME) {
+                        if (this.activeAnimo) {
+                            this.activeAnimo.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                        }
+                        const animoObject = this.allAnimoObjects.get(simple.FILENAME);
+                        if (animoObject) {
+                            this.activeAnimo = animoObject;
+                            animoObject.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
+                        }
+                    }
+                    if (this.activeAnimo) {
+                        let eventName = simple.EVENT;
+                        // Play first event if event name is incorrect
+                        if (!this.activeAnimo.hasEvent(eventName)) {
+                            const allEvents = this.activeAnimo.getAllEvents();
+                            if (allEvents.length === 0) {
+                                await this.progressNext();
+                                return;
+                            }
+                            eventName = allEvents[0].name;
+                        }
+                        this.runningSubSequence = simple;
+                        await this.playAnimoEvent(eventName);
+                    }
+                }
+            }
+            async playAnimoEvent(eventName) {
+                this.currentAnimoEvent = eventName;
+                await this.activeAnimo?.playEvent(eventName);
+            }
+            async getAnimo(nameOrFilename) {
+                // Get object by name
+                const object = this.getObject(nameOrFilename);
+                if (object) {
+                    return object;
+                }
+                // Get existing object by filename
+                const existingObject = this.engine.scopeManager.find((key, object) => object instanceof animo_1.Animo && object.definition.FILENAME === nameOrFilename);
+                if (existingObject != null) {
+                    return existingObject;
+                }
+                // Create a new ANIMO if object doesn't exist
+                return (await (0, definitionLoader_1.createObject)(this.engine, {
+                    TYPE: 'ANIMO',
+                    NAME: nameOrFilename,
+                    FILENAME: nameOrFilename,
+                    FPS: 16,
+                    MONITORCOLLISION: false,
+                    MONITORCOLLISIONALPHA: false,
+                    PRELOAD: true,
+                    PRIORITY: 0,
+                    RELEASE: true,
+                    TOCANVAS: true,
+                    TOINI: false,
+                    VISIBLE: true,
+                }, this.parent));
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _PLAY_decorators = [(0, types_1.method)({ name: "sequenceName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _ISPLAYING_decorators = [(0, types_1.method)()];
             _HIDE_decorators = [(0, types_1.method)()];
             _STOP_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
-            __esDecorate(this, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ISPLAYING_decorators, { kind: "method", name: "ISPLAYING", static: false, private: false, access: { has: obj => "ISPLAYING" in obj, get: obj => obj.ISPLAYING }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        sequenceFile = (__runInitializers(this, _instanceExtraInitializers), null);
-        parametersMapping = new Map();
-        subEntries = new Map();
-        parameterSequence = null;
-        allAnimoFilenames = new Set();
-        allAnimoObjects = new Map();
-        sounds = new Map();
-        endedSpeakingSoundsQueue = [];
-        queue = [];
-        activeAnimo = null;
-        playingSound = null;
-        currentAnimoEvent = null;
-        sequenceName = null;
-        runningSubSequence = null;
-        loop = false;
-        loopIndex = 0;
-        onAnimoEventFinishedCallback;
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition);
-            this.onAnimoEventFinishedCallback = this.onAnimoEventFinished.bind(this);
-        }
-        async init() {
-            const relativePath = await this.engine.currentScene?.getRelativePath(this.definition.FILENAME);
-            if (relativePath == undefined) {
-                throw new fileLoader_1.FileNotFoundError('Could not get scene directory path');
-            }
-            this.sequenceFile = await this.engine.filesystem.getSequenceFile(relativePath);
-            await this.load();
-            for (const animoFilename of this.allAnimoFilenames) {
-                this.allAnimoObjects.set(animoFilename, await this.getAnimo(animoFilename));
-            }
-        }
-        async ready() {
-            await this.callbacks.run('ONINIT');
-        }
-        destroy() {
-            this.playingSound?.stop();
-        }
-        async load() {
-            (0, errors_1.assert)(this.sequenceFile !== null);
-            const soundsNames = [];
-            for (const definition of this.sequenceFile) {
-                if (definition.TYPE === 'SEQUENCE') {
-                    const sequence = definition;
-                    if (sequence.MODE === 'PARAMETER') {
-                        this.parameterSequence = sequence;
-                        (0, errors_1.assert)(this.parameterSequence.SEQEVENT !== undefined);
-                        for (const [name, indexer] of this.parameterSequence.SEQEVENT) {
-                            // It seems that only first letter matters as in S56_0_WIOSKA (Ufo)
-                            // they accidentally added extra character and it still works
-                            this.parametersMapping.set(name, paramsCharacterSet.indexOf(indexer.charAt(0)));
-                        }
-                    }
-                }
-                else if (definition.TYPE === 'SPEAKING') {
-                    const sequence = definition;
-                    soundsNames.push(sequence.WAVFN);
-                    this.allAnimoFilenames.add(definition.ANIMOFN);
-                }
-                else if (definition.TYPE === 'SIMPLE') {
-                    this.allAnimoFilenames.add(definition.FILENAME);
-                }
-                if (definition.ADD !== undefined) {
-                    let subEntries = [];
-                    if (this.subEntries.has(definition.ADD)) {
-                        subEntries = this.subEntries.get(definition.ADD);
-                    }
-                    subEntries.push(definition);
-                    this.subEntries.set(definition.ADD, subEntries);
-                }
-            }
-            const sounds = await Promise.all(soundsNames.map(async (name) => {
-                logging_1.logger.debug(`Preloading sound ${name}...`, {
-                    sequence: this,
-                });
-                try {
-                    return await (0, assetsLoader_1.loadSound)(this.engine.filesystem, `Wavs/${name}`);
-                }
-                catch (error) {
-                    return null;
-                }
-            }));
-            for (let i = 0; i < sounds.length; i++) {
-                const sound = sounds[i];
-                if (sound !== null) {
-                    this.sounds.set(soundsNames[i], sound);
-                }
-            }
-        }
-        async tick(elapsedMS) {
-            while (this.endedSpeakingSoundsQueue.length > 0) {
-                this.loop = false;
-                const entry = this.endedSpeakingSoundsQueue.shift();
-                const stopEvent = entry.PREFIX + '_STOP';
-                if (entry.ENDING && this.activeAnimo?.hasEvent(stopEvent)) {
-                    await this.playAnimoEvent(stopEvent);
-                }
-                else {
-                    await this.progressNext();
-                }
-            }
-        }
-        async PLAY(sequenceName) {
-            (0, errors_1.assert)(this.parameterSequence !== null && this.subEntries !== null);
-            const subEntries = this.subEntries.get(this.parameterSequence.NAME);
-            if (subEntries !== undefined && this.parametersMapping.has(sequenceName)) {
-                const entryIndex = this.parametersMapping.get(sequenceName);
-                const entry = subEntries[entryIndex];
-                this.sequenceName = sequenceName;
-                this.fillQueue(entry);
-                await this.progressNext();
-            }
-        }
-        ISPLAYING() {
-            return this.sequenceName !== null;
-        }
-        HIDE() {
-            (0, errors_1.assert)(this.sequenceFile !== null);
-            // HIDE() might be called before sequence is playing, so we can't just hide activeAnimo
-            // because activeAnimo would be null at that point, we don't know what sequence is gonna be played
-            for (const object of this.allAnimoObjects.values()) {
-                object.HIDE();
-            }
-        }
-        STOP(arg) {
-            this.queue = [];
-            this.sequenceName = null;
-            this.runningSubSequence = null;
-            this.loop = false;
-            this.loopIndex = 0;
-            this.activeAnimo?.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
-            this.activeAnimo = null;
-            this.playingSound?.stop();
-        }
-        fillQueue(entry) {
-            this.queue.push(entry);
-            if (!this.subEntries.has(entry.NAME)) {
-                return;
-            }
-            const subEntries = this.subEntries.get(entry.NAME);
-            if (entry.MODE === 'RANDOM') {
-                const subEntry = subEntries[Math.floor(Math.random() * subEntries.length)];
-                this.fillQueue(subEntry);
-            }
-            else {
-                for (const subEntry of subEntries) {
-                    this.fillQueue(subEntry);
-                }
-            }
-        }
-        async onAnimoEventFinished(eventName) {
-            (0, errors_1.assert)(this.activeAnimo !== null);
-            if (this.runningSubSequence?.TYPE === 'SPEAKING') {
-                if (this.runningSubSequence.STARTING !== undefined &&
-                    eventName === this.runningSubSequence.PREFIX + '_START') {
-                    if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
-                        this.loop = true;
-                        this.loopIndex = 1;
-                        await this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1');
-                    }
-                }
-                else if (this.runningSubSequence.ENDING !== undefined &&
-                    eventName === this.runningSubSequence.PREFIX + '_STOP') {
-                    await this.progressNext();
-                }
-                else if (this.loop) {
-                    let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`;
-                    if (!this.activeAnimo.hasEvent(eventName)) {
-                        this.loopIndex = 1;
-                        eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`;
-                    }
-                    await this.playAnimoEvent(eventName);
-                }
-            }
-            else if (this.currentAnimoEvent == eventName) {
-                await this.progressNext();
-            }
-        }
-        async progressNext() {
-            if (this.sequenceName === null) {
-                return;
-            }
-            if (this.queue.length === 0) {
-                const finishedName = this.sequenceName;
-                this.sequenceName = null;
-                await this.callbacks.run('ONFINISHED', finishedName);
-                return;
-            }
-            const next = this.queue.shift();
-            if (next.TYPE === 'SEQUENCE') {
-                await this.progressNext();
-                return;
-            }
-            if (next.TYPE === 'SPEAKING') {
-                const speaking = next;
-                if (this.activeAnimo?.definition.FILENAME !== speaking.ANIMOFN) {
-                    if (this.activeAnimo) {
-                        this.activeAnimo.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
-                    }
-                    const animoObject = this.allAnimoObjects.get(speaking.ANIMOFN);
-                    if (animoObject) {
-                        this.activeAnimo = animoObject;
-                        animoObject.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
-                    }
-                }
-                if (this.activeAnimo) {
-                    if (this.playingSound) {
-                        this.playingSound.stop();
-                        this.playingSound = null;
-                    }
-                    logging_1.logger.debug(`Playing sound '${speaking.WAVFN}'`, {
-                        sequence: this,
-                    });
-                    const sound = this.sounds.get(speaking.WAVFN);
-                    if (sound) {
-                        this.playingSound = sound.play({
-                            onEnd: () => {
-                                this.endedSpeakingSoundsQueue.push(speaking);
-                            },
-                        });
-                    }
-                    const startEvent = speaking.PREFIX + '_START';
-                    if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
-                        await this.playAnimoEvent(startEvent);
-                    }
-                    else if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
-                        this.loop = true;
-                        this.loopIndex = 1;
-                        await this.playAnimoEvent(speaking.PREFIX + '_1');
-                    }
-                    this.runningSubSequence = speaking;
-                }
-            }
-            else if (next.TYPE === 'SIMPLE') {
-                const simple = next;
-                if (this.activeAnimo?.definition.FILENAME !== simple.FILENAME) {
-                    if (this.activeAnimo) {
-                        this.activeAnimo.events.unregister(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
-                    }
-                    const animoObject = this.allAnimoObjects.get(simple.FILENAME);
-                    if (animoObject) {
-                        this.activeAnimo = animoObject;
-                        animoObject.events.register(animo_1.Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback);
-                    }
-                }
-                if (this.activeAnimo) {
-                    let eventName = simple.EVENT;
-                    // Play first event if event name is incorrect
-                    if (!this.activeAnimo.hasEvent(eventName)) {
-                        const allEvents = this.activeAnimo.getAllEvents();
-                        if (allEvents.length === 0) {
-                            await this.progressNext();
-                            return;
-                        }
-                        eventName = allEvents[0].name;
-                    }
-                    this.runningSubSequence = simple;
-                    await this.playAnimoEvent(eventName);
-                }
-            }
-        }
-        async playAnimoEvent(eventName) {
-            this.currentAnimoEvent = eventName;
-            await this.activeAnimo?.playEvent(eventName);
-        }
-        async getAnimo(nameOrFilename) {
-            // Get object by name
-            const object = this.getObject(nameOrFilename);
-            if (object) {
-                return object;
-            }
-            // Get existing object by filename
-            const existingObject = this.engine.scopeManager.find((key, object) => object instanceof animo_1.Animo && object.definition.FILENAME === nameOrFilename);
-            if (existingObject != null) {
-                return existingObject;
-            }
-            // Create a new ANIMO if object doesn't exist
-            return (await (0, definitionLoader_1.createObject)(this.engine, {
-                TYPE: 'ANIMO',
-                NAME: nameOrFilename,
-                FILENAME: nameOrFilename,
-                FPS: 16,
-                MONITORCOLLISION: false,
-                MONITORCOLLISIONALPHA: false,
-                PRELOAD: true,
-                PRIORITY: 0,
-                RELEASE: true,
-                TOCANVAS: true,
-                TOINI: false,
-                VISIBLE: true,
-            }, this.parent));
-        }
-    };
+            __esDecorate(_a, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISPLAYING_decorators, { kind: "method", name: "ISPLAYING", static: false, private: false, access: { has: obj => "ISPLAYING" in obj, get: obj => obj.ISPLAYING }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Sequence = Sequence;
 
@@ -38344,6 +38333,7 @@ const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/er
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 let Sound = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _PLAY_decorators;
@@ -38354,8 +38344,90 @@ let Sound = (() => {
     let _RELEASE_decorators;
     let _SETFREQ_decorators;
     let _LOAD_decorators;
-    return class Sound extends _classSuper {
-        static {
+    return _a = class Sound extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.sound = (__runInitializers(this, _instanceExtraInitializers), null);
+                this.callbacksQueue = [];
+            }
+            async init() {
+                await this.loadSound(await this.engine.resolvePath(this.definition.FILENAME, 'Wavs'));
+            }
+            async ready() {
+                await this.callbacks.run('ONINIT');
+            }
+            async tick(elapsedMS) {
+                while (this.callbacksQueue.length > 0) {
+                    await this.callbacks.run(this.callbacksQueue.shift());
+                }
+            }
+            destroy() {
+                if (this.sound !== null) {
+                    this.sound.stop();
+                    this.sound = null;
+                }
+            }
+            // This argument is "PLAY" for kurator in intro for some reason
+            PLAY(arg) {
+                (0, errors_1.assert)(this.sound !== null);
+                this.sound.play({
+                    onStart: this.onStart.bind(this),
+                    onEnd: this.onEnd.bind(this),
+                });
+            }
+            ISPLAYING() {
+                return this.sound !== null && this.sound.isPlaying;
+            }
+            STOP(arg) {
+                this.sound?.stop();
+            }
+            RESUME() {
+                this.sound?.resume();
+            }
+            PAUSE() {
+                this.sound?.pause();
+            }
+            RELEASE() {
+                this.destroy();
+            }
+            SETFREQ(frequency) {
+                throw new errors_1.NotImplementedError();
+            }
+            async LOAD(filename) {
+                await this.loadSound(filename);
+            }
+            async loadSound(path) {
+                try {
+                    this.sound = await (0, assetsLoader_1.loadSound)(this.engine.filesystem, await this.engine.resolvePath(path));
+                }
+                catch (err) {
+                    if (err instanceof fileLoader_1.FileNotFoundError) {
+                        // Ignore sound loading errors
+                        // because there are some sounds for other language versions
+                        // that it tries to load, but they are not there
+                        logging_1.logger.warn(`Failed to load sound "${path}"`, {
+                            sound: this,
+                        }, err);
+                    }
+                    else {
+                        throw err;
+                    }
+                }
+            }
+            onStart() {
+                logging_1.logger.debug(`Playing sound '${this.definition.FILENAME}'`, {
+                    sound: this,
+                });
+                this.callbacksQueue.push('ONSTARTED');
+            }
+            onEnd() {
+                logging_1.logger.debug(`Finished playing sound '${this.definition.FILENAME}'`, {
+                    sound: this,
+                });
+                this.callbacksQueue.push('ONFINISHED');
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _PLAY_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "any", literal: null, isArray: false }], optional: true, rest: false })];
             _ISPLAYING_decorators = [(0, types_1.method)()];
@@ -38365,95 +38437,17 @@ let Sound = (() => {
             _RELEASE_decorators = [(0, types_1.method)()];
             _SETFREQ_decorators = [(0, types_1.method)({ name: "frequency", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _LOAD_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ISPLAYING_decorators, { kind: "method", name: "ISPLAYING", static: false, private: false, access: { has: obj => "ISPLAYING" in obj, get: obj => obj.ISPLAYING }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _RESUME_decorators, { kind: "method", name: "RESUME", static: false, private: false, access: { has: obj => "RESUME" in obj, get: obj => obj.RESUME }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _PAUSE_decorators, { kind: "method", name: "PAUSE", static: false, private: false, access: { has: obj => "PAUSE" in obj, get: obj => obj.PAUSE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _RELEASE_decorators, { kind: "method", name: "RELEASE", static: false, private: false, access: { has: obj => "RELEASE" in obj, get: obj => obj.RELEASE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETFREQ_decorators, { kind: "method", name: "SETFREQ", static: false, private: false, access: { has: obj => "SETFREQ" in obj, get: obj => obj.SETFREQ }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        sound = (__runInitializers(this, _instanceExtraInitializers), null);
-        callbacksQueue = [];
-        async init() {
-            await this.loadSound(await this.engine.resolvePath(this.definition.FILENAME, 'Wavs'));
-        }
-        async ready() {
-            await this.callbacks.run('ONINIT');
-        }
-        async tick(elapsedMS) {
-            while (this.callbacksQueue.length > 0) {
-                await this.callbacks.run(this.callbacksQueue.shift());
-            }
-        }
-        destroy() {
-            if (this.sound !== null) {
-                this.sound.stop();
-                this.sound = null;
-            }
-        }
-        // This argument is "PLAY" for kurator in intro for some reason
-        PLAY(arg) {
-            (0, errors_1.assert)(this.sound !== null);
-            this.sound.play({
-                onStart: this.onStart.bind(this),
-                onEnd: this.onEnd.bind(this),
-            });
-        }
-        ISPLAYING() {
-            return this.sound !== null && this.sound.isPlaying;
-        }
-        STOP(arg) {
-            this.sound?.stop();
-        }
-        RESUME() {
-            this.sound?.resume();
-        }
-        PAUSE() {
-            this.sound?.pause();
-        }
-        RELEASE() {
-            this.destroy();
-        }
-        SETFREQ(frequency) {
-            throw new errors_1.NotImplementedError();
-        }
-        async LOAD(filename) {
-            await this.loadSound(filename);
-        }
-        async loadSound(path) {
-            try {
-                this.sound = await (0, assetsLoader_1.loadSound)(this.engine.filesystem, await this.engine.resolvePath(path));
-            }
-            catch (err) {
-                if (err instanceof fileLoader_1.FileNotFoundError) {
-                    // Ignore sound loading errors
-                    // because there are some sounds for other language versions
-                    // that it tries to load, but they are not there
-                    logging_1.logger.warn(`Failed to load sound "${path}"`, {
-                        sound: this,
-                    }, err);
-                }
-                else {
-                    throw err;
-                }
-            }
-        }
-        onStart() {
-            logging_1.logger.debug(`Playing sound '${this.definition.FILENAME}'`, {
-                sound: this,
-            });
-            this.callbacksQueue.push('ONSTARTED');
-        }
-        onEnd() {
-            logging_1.logger.debug(`Finished playing sound '${this.definition.FILENAME}'`, {
-                sound: this,
-            });
-            this.callbacksQueue.push('ONFINISHED');
-        }
-    };
+            __esDecorate(_a, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ISPLAYING_decorators, { kind: "method", name: "ISPLAYING", static: false, private: false, access: { has: obj => "ISPLAYING" in obj, get: obj => obj.ISPLAYING }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RESUME_decorators, { kind: "method", name: "RESUME", static: false, private: false, access: { has: obj => "RESUME" in obj, get: obj => obj.RESUME }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _PAUSE_decorators, { kind: "method", name: "PAUSE", static: false, private: false, access: { has: obj => "PAUSE" in obj, get: obj => obj.PAUSE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RELEASE_decorators, { kind: "method", name: "RELEASE", static: false, private: false, access: { has: obj => "RELEASE" in obj, get: obj => obj.RELEASE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETFREQ_decorators, { kind: "method", name: "SETFREQ", static: false, private: false, access: { has: obj => "SETFREQ" in obj, get: obj => obj.SETFREQ }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Sound = Sound;
 
@@ -38509,75 +38503,77 @@ const animo_1 = __webpack_require__(/*! ./animo */ "./src/engine/types/animo.ts"
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 let StaticFilter = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _SETPROPERTY_decorators;
     let _LINK_decorators;
     let _UNLINK_decorators;
-    return class StaticFilter extends _classSuper {
-        static {
+    return _a = class StaticFilter extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
+                this.properties = (__runInitializers(this, _instanceExtraInitializers), new Map());
+                this.linked = new Map();
+                this.linked = new Map();
+            }
+            SETPROPERTY(name, value) {
+                this.properties.set(name, value);
+            }
+            LINK(arg) {
+                const object = this.getObject(arg);
+                (0, errors_1.assert)(object !== null);
+                const renderObject = object.getRenderObject();
+                if (renderObject === null) {
+                    return;
+                }
+                const savedProperties = new Map();
+                if (this.definition.ACTION === 'ROTATE') {
+                    savedProperties.set('angle', renderObject.angle);
+                    savedProperties.set('anchor', renderObject.anchor);
+                    // Todo: Handle CANUNDO, CURRENTFRAME, CANUNDO parameters
+                    const angle = this.properties.get('ANGLE');
+                    if (angle !== undefined) {
+                        renderObject.anchor.set(0.5, 0.5);
+                        renderObject.angle = angle;
+                        if (object instanceof animo_1.Animo) {
+                            object.syncPosition();
+                        }
+                    }
+                }
+                this.linked.set(object, savedProperties);
+            }
+            UNLINK(arg) {
+                const object = this.getObject(arg);
+                (0, errors_1.assert)(object !== null);
+                const properties = this.linked.get(object);
+                if (!properties) {
+                    return;
+                }
+                this.linked.delete(object);
+                const renderObject = object.getRenderObject();
+                if (renderObject === null) {
+                    return;
+                }
+                if (properties.has('angle')) {
+                    renderObject.angle = properties.get('angle');
+                }
+                if (properties.has('anchor')) {
+                    renderObject.anchor = properties.get('anchor');
+                    object.syncPosition();
+                }
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SETPROPERTY_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
             _LINK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
             _UNLINK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _SETPROPERTY_decorators, { kind: "method", name: "SETPROPERTY", static: false, private: false, access: { has: obj => "SETPROPERTY" in obj, get: obj => obj.SETPROPERTY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _LINK_decorators, { kind: "method", name: "LINK", static: false, private: false, access: { has: obj => "LINK" in obj, get: obj => obj.LINK }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _UNLINK_decorators, { kind: "method", name: "UNLINK", static: false, private: false, access: { has: obj => "UNLINK" in obj, get: obj => obj.UNLINK }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        properties = (__runInitializers(this, _instanceExtraInitializers), new Map());
-        linked = new Map();
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition);
-            this.linked = new Map();
-        }
-        SETPROPERTY(name, value) {
-            this.properties.set(name, value);
-        }
-        LINK(arg) {
-            const object = this.getObject(arg);
-            (0, errors_1.assert)(object !== null);
-            const renderObject = object.getRenderObject();
-            if (renderObject === null) {
-                return;
-            }
-            const savedProperties = new Map();
-            if (this.definition.ACTION === 'ROTATE') {
-                savedProperties.set('angle', renderObject.angle);
-                savedProperties.set('anchor', renderObject.anchor);
-                // Todo: Handle CANUNDO, CURRENTFRAME, CANUNDO parameters
-                const angle = this.properties.get('ANGLE');
-                if (angle !== undefined) {
-                    renderObject.anchor.set(0.5, 0.5);
-                    renderObject.angle = angle;
-                    if (object instanceof animo_1.Animo) {
-                        object.syncPosition();
-                    }
-                }
-            }
-            this.linked.set(object, savedProperties);
-        }
-        UNLINK(arg) {
-            const object = this.getObject(arg);
-            (0, errors_1.assert)(object !== null);
-            const properties = this.linked.get(object);
-            if (!properties) {
-                return;
-            }
-            this.linked.delete(object);
-            const renderObject = object.getRenderObject();
-            if (renderObject === null) {
-                return;
-            }
-            if (properties.has('angle')) {
-                renderObject.angle = properties.get('angle');
-            }
-            if (properties.has('anchor')) {
-                renderObject.anchor = properties.get('anchor');
-                object.syncPosition();
-            }
-        }
-    };
+            __esDecorate(_a, null, _SETPROPERTY_decorators, { kind: "method", name: "SETPROPERTY", static: false, private: false, access: { has: obj => "SETPROPERTY" in obj, get: obj => obj.SETPROPERTY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LINK_decorators, { kind: "method", name: "LINK", static: false, private: false, access: { has: obj => "LINK" in obj, get: obj => obj.LINK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _UNLINK_decorators, { kind: "method", name: "UNLINK", static: false, private: false, access: { has: obj => "UNLINK" in obj, get: obj => obj.UNLINK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.StaticFilter = StaticFilter;
 
@@ -38631,6 +38627,7 @@ exports.String = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let String = (() => {
+    var _a;
     let _classSuper = index_1.ValueType;
     let _instanceExtraInitializers = [];
     let _ADD_decorators;
@@ -38639,8 +38636,43 @@ let String = (() => {
     let _GET_decorators;
     let _FIND_decorators;
     let _LENGTH_decorators;
-    return class String extends _classSuper {
-        static {
+    return _a = class String extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, '');
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+            async ready() {
+                await this.callbacks.run('ONINIT');
+            }
+            async ADD(text) {
+                await this.setValue(this.value + text);
+            }
+            async SET(text) {
+                await this.setValue(text);
+            }
+            async SUB(index, length) {
+                await this.setValue(this.value.substring(0, index) + this.value.substring(index + length));
+            }
+            GET(index, length = 1) {
+                if (index === undefined) {
+                    return this.value;
+                }
+                return this.value.substring(index, index + length);
+            }
+            FIND(needle, start) {
+                return this.value.indexOf(needle, start);
+            }
+            LENGTH() {
+                return this.value.length;
+            }
+            async valueChanged(oldValue, newValue) {
+                if (oldValue !== newValue) {
+                    await this.callbacks.run('ONCHANGED', newValue);
+                }
+                await this.callbacks.run('ONBRUTALCHANGED', newValue);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _ADD_decorators = [(0, types_1.method)({ name: "text", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _SET_decorators = [(0, types_1.method)({ name: "text", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
@@ -38648,52 +38680,15 @@ let String = (() => {
             _GET_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "length", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _FIND_decorators = [(0, types_1.method)({ name: "needle", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "start", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
             _LENGTH_decorators = [(0, types_1.method)()];
-            __esDecorate(this, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _LENGTH_decorators, { kind: "method", name: "LENGTH", static: false, private: false, access: { has: obj => "LENGTH" in obj, get: obj => obj.LENGTH }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition, '');
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-        async ready() {
-            await this.callbacks.run('ONINIT');
-        }
-        async ADD(text) {
-            await this.setValue(this.value + text);
-        }
-        async SET(text) {
-            await this.setValue(text);
-        }
-        async SUB(index, length) {
-            await this.setValue(this.value.substring(0, index) + this.value.substring(index + length));
-        }
-        GET(index, length = 1) {
-            if (index === undefined) {
-                return this.value;
-            }
-            return this.value.substring(index, index + length);
-        }
-        FIND(needle, start) {
-            return this.value.indexOf(needle, start);
-        }
-        LENGTH() {
-            return this.value.length;
-        }
-        async valueChanged(oldValue, newValue) {
-            if (oldValue !== newValue) {
-                await this.callbacks.run('ONCHANGED', newValue);
-            }
-            await this.callbacks.run('ONBRUTALCHANGED', newValue);
-        }
-        async toString() {
-            return this.getValue();
-        }
-    };
+            __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _FIND_decorators, { kind: "method", name: "FIND", static: false, private: false, access: { has: obj => "FIND" in obj, get: obj => obj.FIND }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LENGTH_decorators, { kind: "method", name: "LENGTH", static: false, private: false, access: { has: obj => "LENGTH" in obj, get: obj => obj.LENGTH }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.String = String;
 
@@ -38750,79 +38745,81 @@ const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/er
 const definitionLoader_1 = __webpack_require__(/*! ../../filesystem/definitionLoader */ "./src/filesystem/definitionLoader.ts");
 const FIELD_PATTERN = /(?<name>\w+)<(?<type>\w+)>/g;
 let Struct = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _GETFIELD_decorators;
     let _SETFIELD_decorators;
     let _SET_decorators;
-    return class Struct extends _classSuper {
-        static {
+    return _a = class Struct extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
+                this.structure = (__runInitializers(this, _instanceExtraInitializers), new Map());
+                this.content = new Map();
+                this.structure = this.parseFieldsString(this.definition.FIELDS);
+            }
+            async init() {
+                await this.initializeContent();
+            }
+            async initializeContent() {
+                for (const key of this.structure.keys()) {
+                    const type = this.structure.get(key);
+                    const field = await (0, definitionLoader_1.createObject)(this.engine, {
+                        TYPE: type,
+                        NAME: key,
+                    }, this.parent);
+                    (0, errors_1.assert)(field instanceof index_1.ValueType, 'struct field has to be of value type');
+                    this.content.set(key, field);
+                }
+            }
+            GETFIELD(name) {
+                return this.getField(name);
+            }
+            async SETFIELD(name, value) {
+                await this.setField(name, value);
+            }
+            async SET(otherObjectName) {
+                const otherObject = this.getObject(otherObjectName);
+                (0, errors_1.assert)(otherObject !== null, 'object does not exist');
+                for (const key of otherObject.structure.keys()) {
+                    const otherField = otherObject.GETFIELD(key);
+                    if (otherField) {
+                        await this.SETFIELD(key, await otherField.getValue());
+                    }
+                }
+            }
+            getField(name) {
+                (0, errors_1.assert)(this.content !== null);
+                return this.content.get(name);
+            }
+            async setField(name, value) {
+                const fieldObject = this.getField(name);
+                if (fieldObject !== undefined) {
+                    await fieldObject.setValue(value);
+                }
+            }
+            parseFieldsString(definition) {
+                const matches = [...definition.matchAll(FIELD_PATTERN)];
+                return new Map(matches.map((m) => [m.groups.name, m.groups.type]));
+            }
+            async clone() {
+                const clone = (await super.clone());
+                clone.structure = this.structure;
+                await clone.initializeContent();
+                return clone;
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _GETFIELD_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _SETFIELD_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
             _SET_decorators = [(0, types_1.method)({ name: "otherObjectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _GETFIELD_decorators, { kind: "method", name: "GETFIELD", static: false, private: false, access: { has: obj => "GETFIELD" in obj, get: obj => obj.GETFIELD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETFIELD_decorators, { kind: "method", name: "SETFIELD", static: false, private: false, access: { has: obj => "SETFIELD" in obj, get: obj => obj.SETFIELD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        structure = (__runInitializers(this, _instanceExtraInitializers), new Map());
-        content = new Map();
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition);
-            this.structure = this.parseFieldsString(this.definition.FIELDS);
-        }
-        async init() {
-            await this.initializeContent();
-        }
-        async initializeContent() {
-            for (const key of this.structure.keys()) {
-                const type = this.structure.get(key);
-                const field = await (0, definitionLoader_1.createObject)(this.engine, {
-                    TYPE: type,
-                    NAME: key,
-                }, this.parent);
-                (0, errors_1.assert)(field instanceof index_1.ValueType, 'struct field has to be of value type');
-                this.content.set(key, field);
-            }
-        }
-        GETFIELD(name) {
-            return this.getField(name);
-        }
-        async SETFIELD(name, value) {
-            await this.setField(name, value);
-        }
-        async SET(otherObjectName) {
-            const otherObject = this.getObject(otherObjectName);
-            (0, errors_1.assert)(otherObject !== null, 'object does not exist');
-            for (const key of otherObject.structure.keys()) {
-                const otherField = otherObject.GETFIELD(key);
-                if (otherField) {
-                    await this.SETFIELD(key, await otherField.getValue());
-                }
-            }
-        }
-        getField(name) {
-            (0, errors_1.assert)(this.content !== null);
-            return this.content.get(name);
-        }
-        async setField(name, value) {
-            const fieldObject = this.getField(name);
-            if (fieldObject !== undefined) {
-                await fieldObject.setValue(value ?? fieldObject.defaultValue);
-            }
-        }
-        parseFieldsString(definition) {
-            const matches = [...definition.matchAll(FIELD_PATTERN)];
-            return new Map(matches.map((m) => [m.groups.name, m.groups.type]));
-        }
-        async clone() {
-            const clone = (await super.clone());
-            clone.structure = this.structure;
-            await clone.initializeContent();
-            return clone;
-        }
-    };
+            __esDecorate(_a, null, _GETFIELD_decorators, { kind: "method", name: "GETFIELD", static: false, private: false, access: { has: obj => "GETFIELD" in obj, get: obj => obj.GETFIELD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETFIELD_decorators, { kind: "method", name: "SETFIELD", static: false, private: false, access: { has: obj => "SETFIELD" in obj, get: obj => obj.SETFIELD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Struct = Struct;
 
@@ -38876,25 +38873,27 @@ exports.System = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let System = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _GETDATE_decorators;
-    return class System extends _classSuper {
-        static {
+    return _a = class System extends _classSuper {
+            GETDATE() {
+                const date = new Date();
+                return date.getDate() - 0xf41db + (date.getMonth() + (date.getFullYear() - 1900) * 100) * 100;
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _GETDATE_decorators = [(0, types_1.method)()];
-            __esDecorate(this, null, _GETDATE_decorators, { kind: "method", name: "GETDATE", static: false, private: false, access: { has: obj => "GETDATE" in obj, get: obj => obj.GETDATE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        GETDATE() {
-            const date = new Date();
-            return date.getDate() - 0xf41db + (date.getMonth() + (date.getFullYear() - 1900) * 100) * 100;
-        }
-        constructor() {
-            super(...arguments);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-    };
+            __esDecorate(_a, null, _GETDATE_decorators, { kind: "method", name: "GETDATE", static: false, private: false, access: { has: obj => "GETDATE" in obj, get: obj => obj.GETDATE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.System = System;
 
@@ -38949,46 +38948,51 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
 let Text = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _SETTEXT_decorators;
-    return class Text extends _classSuper {
-        static {
+    return _a = class Text extends _classSuper {
+            constructor() {
+                super(...arguments);
+                this.text = (__runInitializers(this, _instanceExtraInitializers), null);
+            }
+            async applyDefaults() {
+                const font = this.getObject(this.definition.FONT);
+                if (font === null || font.bitmapFont === null) {
+                    return;
+                }
+                this.text = new pixi_js_1.BitmapText(this.definition.TEXT ?? '', {
+                    fontName: font.bitmapFont.font,
+                });
+                const [x1, y1, x2, y2] = this.definition.RECT;
+                this.text.x = x1;
+                this.text.y = y1;
+                this.text.anchor.set(0.5, 0);
+                this.text.visible = this.definition.VISIBLE;
+                this.engine.rendering.addToStage(this.text);
+            }
+            async ready() {
+                await this.callbacks.run('ONINIT');
+            }
+            destroy() {
+                if (this.text) {
+                    this.engine.rendering.removeFromStage(this.text);
+                }
+            }
+            SETTEXT(content) {
+                if (this.text) {
+                    this.text.text = content;
+                }
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SETTEXT_decorators = [(0, types_1.method)({ name: "content", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            __esDecorate(this, null, _SETTEXT_decorators, { kind: "method", name: "SETTEXT", static: false, private: false, access: { has: obj => "SETTEXT" in obj, get: obj => obj.SETTEXT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        text = (__runInitializers(this, _instanceExtraInitializers), null);
-        async applyDefaults() {
-            const font = this.getObject(this.definition.FONT);
-            if (font === null || font.bitmapFont === null) {
-                return;
-            }
-            this.text = new pixi_js_1.BitmapText(this.definition.TEXT ?? '', {
-                fontName: font.bitmapFont.font,
-            });
-            const [x1, y1, x2, y2] = this.definition.RECT;
-            this.text.x = x1;
-            this.text.y = y1;
-            this.text.anchor.set(0.5, 0);
-            this.text.visible = this.definition.VISIBLE;
-            this.engine.rendering.addToStage(this.text);
-        }
-        async ready() {
-            await this.callbacks.run('ONINIT');
-        }
-        destroy() {
-            if (this.text) {
-                this.engine.rendering.removeFromStage(this.text);
-            }
-        }
-        SETTEXT(content) {
-            if (this.text) {
-                this.text.text = content;
-            }
-        }
-    };
+            __esDecorate(_a, null, _SETTEXT_decorators, { kind: "method", name: "SETTEXT", static: false, private: false, access: { has: obj => "SETTEXT" in obj, get: obj => obj.SETTEXT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Text = Text;
 
@@ -39042,6 +39046,7 @@ exports.Timer = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Timer = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _SETELAPSE_decorators;
@@ -39049,80 +39054,79 @@ let Timer = (() => {
     let _RESET_decorators;
     let _DISABLE_decorators;
     let _ENABLE_decorators;
-    return class Timer extends _classSuper {
-        static {
+    return _a = class Timer extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition);
+                this.currentTick = (__runInitializers(this, _instanceExtraInitializers), 0);
+                this.collectedTime = 0;
+                this.elapse = definition.ELAPSE;
+                this.enabled = definition.ENABLED ?? true;
+            }
+            async ready() {
+                if (this.enabled) {
+                    await this.callbacks.run('ONINIT');
+                }
+                this.RESET();
+            }
+            destroy() {
+                this.DISABLE();
+            }
+            pause() {
+                this.DISABLE();
+            }
+            resume() {
+                this.ENABLE();
+            }
+            async tick(elapsedMS) {
+                if (!this.enabled) {
+                    return;
+                }
+                this.collectedTime += elapsedMS * this.engine.speed;
+                while (this.collectedTime >= this.elapse) {
+                    this.currentTick++;
+                    await this.callbacks.run('ONTICK', this.currentTick);
+                    this.collectedTime -= this.elapse;
+                    const ticksLimit = this.definition.TICKS ?? 0;
+                    if (ticksLimit > 0 && this.currentTick >= ticksLimit) {
+                        this.DISABLE();
+                        return;
+                    }
+                }
+            }
+            SETELAPSE(newElapse) {
+                this.elapse = newElapse;
+            }
+            SET(value) {
+                this.collectedTime = 0;
+                this.currentTick = value;
+            }
+            RESET() {
+                this.collectedTime = 0;
+                this.currentTick = 0;
+            }
+            DISABLE() {
+                this.enabled = false;
+            }
+            ENABLE() {
+                this.enabled = true;
+                this.collectedTime = 0;
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _SETELAPSE_decorators = [(0, types_1.method)({ name: "newElapse", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SET_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _RESET_decorators = [(0, types_1.method)()];
             _DISABLE_decorators = [(0, types_1.method)()];
             _ENABLE_decorators = [(0, types_1.method)()];
-            __esDecorate(this, null, _SETELAPSE_decorators, { kind: "method", name: "SETELAPSE", static: false, private: false, access: { has: obj => "SETELAPSE" in obj, get: obj => obj.SETELAPSE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _RESET_decorators, { kind: "method", name: "RESET", static: false, private: false, access: { has: obj => "RESET" in obj, get: obj => obj.RESET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        currentTick = (__runInitializers(this, _instanceExtraInitializers), 0);
-        collectedTime = 0;
-        elapse;
-        enabled;
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition);
-            this.elapse = definition.ELAPSE;
-            this.enabled = definition.ENABLED ?? true;
-        }
-        async ready() {
-            if (this.enabled) {
-                await this.callbacks.run('ONINIT');
-            }
-            this.RESET();
-        }
-        destroy() {
-            this.DISABLE();
-        }
-        pause() {
-            this.DISABLE();
-        }
-        resume() {
-            this.ENABLE();
-        }
-        async tick(elapsedMS) {
-            if (!this.enabled) {
-                return;
-            }
-            this.collectedTime += elapsedMS * this.engine.speed;
-            while (this.collectedTime >= this.elapse) {
-                this.currentTick++;
-                await this.callbacks.run('ONTICK', this.currentTick);
-                this.collectedTime -= this.elapse;
-                const ticksLimit = this.definition.TICKS ?? 0;
-                if (ticksLimit > 0 && this.currentTick >= ticksLimit) {
-                    this.DISABLE();
-                    return;
-                }
-            }
-        }
-        SETELAPSE(newElapse) {
-            this.elapse = newElapse;
-        }
-        SET(value) {
-            this.collectedTime = 0;
-            this.currentTick = value;
-        }
-        RESET() {
-            this.collectedTime = 0;
-            this.currentTick = 0;
-        }
-        DISABLE() {
-            this.enabled = false;
-        }
-        ENABLE() {
-            this.enabled = true;
-            this.collectedTime = 0;
-        }
-    };
+            __esDecorate(_a, null, _SETELAPSE_decorators, { kind: "method", name: "SETELAPSE", static: false, private: false, access: { has: obj => "SETELAPSE" in obj, get: obj => obj.SETELAPSE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _RESET_decorators, { kind: "method", name: "RESET", static: false, private: false, access: { has: obj => "RESET" in obj, get: obj => obj.RESET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Timer = Timer;
 
@@ -39177,6 +39181,7 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 let Vector = (() => {
+    var _a;
     let _classSuper = index_1.ValueType;
     let _instanceExtraInitializers = [];
     let _ASSIGN_decorators;
@@ -39186,8 +39191,51 @@ let Vector = (() => {
     let _NORMALIZE_decorators;
     let _REFLECT_decorators;
     let _LEN_decorators;
-    return class Vector extends _classSuper {
-        static {
+    return _a = class Vector extends _classSuper {
+            constructor(engine, parent, definition) {
+                super(engine, parent, definition, []);
+                __runInitializers(this, _instanceExtraInitializers);
+                this.value = this.definition.VALUE;
+            }
+            async ASSIGN(...values) {
+                const newValue = this.value;
+                for (let i = 0; i < values.length; i++) {
+                    newValue[i] = values[i];
+                }
+                await this.setValue(newValue);
+            }
+            async ADD(otherVector) {
+                await this.setValue(this.value.map((val, idx) => val + otherVector[idx]));
+            }
+            async MUL(scalar) {
+                await this.setValue(this.value.map((val) => val * scalar));
+            }
+            GET(index) {
+                return this.value[index];
+            }
+            async NORMALIZE() {
+                const magnitude = this.LEN();
+                (0, errors_1.assert)(magnitude !== 0, 'Cannot normalize a zero vector');
+                await this.setValue(this.value.map((val) => val / magnitude));
+            }
+            // any[] to prevent typeGuard creating new array
+            // result param is a reference
+            async REFLECT(normal, result) {
+                // Calculate the dot product between this.value and the normal vector
+                let dotProduct = 0;
+                for (let i = 0; i < this.value.length; i++) {
+                    dotProduct += this.value[i] * normal[i];
+                }
+                // Perform the reflection calculation for each dimension
+                for (let i = 0; i < this.value.length; i++) {
+                    result[i] = 2 * dotProduct * normal[i] - this.value[i];
+                }
+            }
+            LEN() {
+                return Math.sqrt(this.value.reduce((sum, val) => sum + val * val, 0));
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _ASSIGN_decorators = [(0, types_1.method)({ name: "values", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
             _ADD_decorators = [(0, types_1.method)({ name: "otherVector", types: [{ name: "number", literal: null, isArray: true }], optional: false, rest: false })];
@@ -39196,58 +39244,16 @@ let Vector = (() => {
             _NORMALIZE_decorators = [(0, types_1.method)()];
             _REFLECT_decorators = [(0, types_1.method)({ name: "normal", types: [{ name: "number", literal: null, isArray: true }], optional: false, rest: false }, { name: "result", types: [{ name: "any", literal: null, isArray: true }], optional: false, rest: false })];
             _LEN_decorators = [(0, types_1.method)()];
-            __esDecorate(this, null, _ASSIGN_decorators, { kind: "method", name: "ASSIGN", static: false, private: false, access: { has: obj => "ASSIGN" in obj, get: obj => obj.ASSIGN }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MUL_decorators, { kind: "method", name: "MUL", static: false, private: false, access: { has: obj => "MUL" in obj, get: obj => obj.MUL }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _NORMALIZE_decorators, { kind: "method", name: "NORMALIZE", static: false, private: false, access: { has: obj => "NORMALIZE" in obj, get: obj => obj.NORMALIZE }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _REFLECT_decorators, { kind: "method", name: "REFLECT", static: false, private: false, access: { has: obj => "REFLECT" in obj, get: obj => obj.REFLECT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _LEN_decorators, { kind: "method", name: "LEN", static: false, private: false, access: { has: obj => "LEN" in obj, get: obj => obj.LEN }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        constructor(engine, parent, definition) {
-            super(engine, parent, definition, []);
-            __runInitializers(this, _instanceExtraInitializers);
-            this.value = this.definition.VALUE;
-        }
-        async ASSIGN(...values) {
-            const newValue = this.value;
-            for (let i = 0; i < values.length; i++) {
-                newValue[i] = values[i];
-            }
-            await this.setValue(newValue);
-        }
-        async ADD(otherVector) {
-            await this.setValue(this.value.map((val, idx) => val + otherVector[idx]));
-        }
-        async MUL(scalar) {
-            await this.setValue(this.value.map((val) => val * scalar));
-        }
-        GET(index) {
-            return this.value[index];
-        }
-        async NORMALIZE() {
-            const magnitude = this.LEN();
-            (0, errors_1.assert)(magnitude !== 0, 'Cannot normalize a zero vector');
-            await this.setValue(this.value.map((val) => val / magnitude));
-        }
-        // any[] to prevent typeGuard creating new array
-        // result param is a reference
-        async REFLECT(normal, result) {
-            // Calculate the dot product between this.value and the normal vector
-            let dotProduct = 0;
-            for (let i = 0; i < this.value.length; i++) {
-                dotProduct += this.value[i] * normal[i];
-            }
-            // Perform the reflection calculation for each dimension
-            for (let i = 0; i < this.value.length; i++) {
-                result[i] = 2 * dotProduct * normal[i] - this.value[i];
-            }
-        }
-        LEN() {
-            return Math.sqrt(this.value.reduce((sum, val) => sum + val * val, 0));
-        }
-    };
+            __esDecorate(_a, null, _ASSIGN_decorators, { kind: "method", name: "ASSIGN", static: false, private: false, access: { has: obj => "ASSIGN" in obj, get: obj => obj.ASSIGN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MUL_decorators, { kind: "method", name: "MUL", static: false, private: false, access: { has: obj => "MUL" in obj, get: obj => obj.MUL }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _NORMALIZE_decorators, { kind: "method", name: "NORMALIZE", static: false, private: false, access: { has: obj => "NORMALIZE" in obj, get: obj => obj.NORMALIZE }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _REFLECT_decorators, { kind: "method", name: "REFLECT", static: false, private: false, access: { has: obj => "REFLECT" in obj, get: obj => obj.REFLECT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LEN_decorators, { kind: "method", name: "LEN", static: false, private: false, access: { has: obj => "LEN" in obj, get: obj => obj.LEN }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.Vector = Vector;
 
@@ -39302,6 +39308,7 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 let World = (() => {
+    var _a;
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
     let _LOAD_decorators;
@@ -39314,8 +39321,43 @@ let World = (() => {
     let _SETVELOCITY_decorators;
     let _SETMAXSPEED_decorators;
     let _MOVEOBJECTS_decorators;
-    return class World extends _classSuper {
-        static {
+    return _a = class World extends _classSuper {
+            LOAD(filename) {
+                throw new errors_1.NotImplementedError();
+            }
+            SETGRAVITY(x, y, z) {
+                throw new errors_1.NotImplementedError();
+            }
+            ADDBODY(id, density, mu, friction, bounce, bounceVel, maxVel, bodyType, geomType) {
+                throw new errors_1.NotImplementedError();
+            }
+            SETLIMIT(id, x, y, z, x1, y1, z1) {
+                throw new errors_1.NotImplementedError();
+            }
+            SETSPEED(id, speed) {
+                throw new errors_1.NotImplementedError();
+            }
+            LINK(id, animoName, flag) {
+                throw new errors_1.NotImplementedError();
+            }
+            SETPOSITION(id, x, y, z) {
+                throw new errors_1.NotImplementedError();
+            }
+            SETVELOCITY(id, x, y, z) {
+                throw new errors_1.NotImplementedError();
+            }
+            SETMAXSPEED(id, speed) {
+                throw new errors_1.NotImplementedError();
+            }
+            MOVEOBJECTS() {
+                throw new errors_1.NotImplementedError();
+            }
+            constructor() {
+                super(...arguments);
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+        },
+        (() => {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _LOAD_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
             _SETGRAVITY_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "z", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
@@ -39327,53 +39369,19 @@ let World = (() => {
             _SETVELOCITY_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "z", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _SETMAXSPEED_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "speed", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
             _MOVEOBJECTS_decorators = [(0, types_1.method)()];
-            __esDecorate(this, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETGRAVITY_decorators, { kind: "method", name: "SETGRAVITY", static: false, private: false, access: { has: obj => "SETGRAVITY" in obj, get: obj => obj.SETGRAVITY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _ADDBODY_decorators, { kind: "method", name: "ADDBODY", static: false, private: false, access: { has: obj => "ADDBODY" in obj, get: obj => obj.ADDBODY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETLIMIT_decorators, { kind: "method", name: "SETLIMIT", static: false, private: false, access: { has: obj => "SETLIMIT" in obj, get: obj => obj.SETLIMIT }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETSPEED_decorators, { kind: "method", name: "SETSPEED", static: false, private: false, access: { has: obj => "SETSPEED" in obj, get: obj => obj.SETSPEED }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _LINK_decorators, { kind: "method", name: "LINK", static: false, private: false, access: { has: obj => "LINK" in obj, get: obj => obj.LINK }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETVELOCITY_decorators, { kind: "method", name: "SETVELOCITY", static: false, private: false, access: { has: obj => "SETVELOCITY" in obj, get: obj => obj.SETVELOCITY }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _SETMAXSPEED_decorators, { kind: "method", name: "SETMAXSPEED", static: false, private: false, access: { has: obj => "SETMAXSPEED" in obj, get: obj => obj.SETMAXSPEED }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate(this, null, _MOVEOBJECTS_decorators, { kind: "method", name: "MOVEOBJECTS", static: false, private: false, access: { has: obj => "MOVEOBJECTS" in obj, get: obj => obj.MOVEOBJECTS }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        LOAD(filename) {
-            throw new errors_1.NotImplementedError();
-        }
-        SETGRAVITY(x, y, z) {
-            throw new errors_1.NotImplementedError();
-        }
-        ADDBODY(id, density, mu, friction, bounce, bounceVel, maxVel, bodyType, geomType) {
-            throw new errors_1.NotImplementedError();
-        }
-        SETLIMIT(id, x, y, z, x1, y1, z1) {
-            throw new errors_1.NotImplementedError();
-        }
-        SETSPEED(id, speed) {
-            throw new errors_1.NotImplementedError();
-        }
-        LINK(id, animoName, flag) {
-            throw new errors_1.NotImplementedError();
-        }
-        SETPOSITION(id, x, y, z) {
-            throw new errors_1.NotImplementedError();
-        }
-        SETVELOCITY(id, x, y, z) {
-            throw new errors_1.NotImplementedError();
-        }
-        SETMAXSPEED(id, speed) {
-            throw new errors_1.NotImplementedError();
-        }
-        MOVEOBJECTS() {
-            throw new errors_1.NotImplementedError();
-        }
-        constructor() {
-            super(...arguments);
-            __runInitializers(this, _instanceExtraInitializers);
-        }
-    };
+            __esDecorate(_a, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETGRAVITY_decorators, { kind: "method", name: "SETGRAVITY", static: false, private: false, access: { has: obj => "SETGRAVITY" in obj, get: obj => obj.SETGRAVITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _ADDBODY_decorators, { kind: "method", name: "ADDBODY", static: false, private: false, access: { has: obj => "ADDBODY" in obj, get: obj => obj.ADDBODY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETLIMIT_decorators, { kind: "method", name: "SETLIMIT", static: false, private: false, access: { has: obj => "SETLIMIT" in obj, get: obj => obj.SETLIMIT }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETSPEED_decorators, { kind: "method", name: "SETSPEED", static: false, private: false, access: { has: obj => "SETSPEED" in obj, get: obj => obj.SETSPEED }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _LINK_decorators, { kind: "method", name: "LINK", static: false, private: false, access: { has: obj => "LINK" in obj, get: obj => obj.LINK }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETVELOCITY_decorators, { kind: "method", name: "SETVELOCITY", static: false, private: false, access: { has: obj => "SETVELOCITY" in obj, get: obj => obj.SETVELOCITY }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _SETMAXSPEED_decorators, { kind: "method", name: "SETMAXSPEED", static: false, private: false, access: { has: obj => "SETMAXSPEED" in obj, get: obj => obj.SETMAXSPEED }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate(_a, null, _MOVEOBJECTS_decorators, { kind: "method", name: "MOVEOBJECTS", static: false, private: false, access: { has: obj => "MOVEOBJECTS" in obj, get: obj => obj.MOVEOBJECTS }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
 })();
 exports.World = World;
 
@@ -39571,49 +39579,52 @@ const deserializeArray = (data) => {
     return entries;
 };
 exports.deserializeArray = deserializeArray;
-const checkInt32 = (value) => {
-    if (!Number.isInteger(value) || value < -0x80000000 || value > 0x7fffffff) {
-        throw new RangeError(`Value ${value} cannot be serialized as a 32-bit integer`);
-    }
-    return value;
-};
 const serializeArray = (data) => {
-    // Strings are pre-encoded so that we know their sizes up front
-    const entries = data.map((entry) => (typeof entry === 'string' ? encoder.encode(entry) : entry));
-    let size = 4;
-    for (const entry of entries) {
-        if (entry instanceof Uint8Array) {
-            size += 4 + 4 + entry.length;
+    let tempBuffer = new Uint8Array(4096);
+    let buffer = new utils_1.BinaryBuffer(new DataView(tempBuffer.buffer));
+    let size = 0;
+    buffer.setUint32(data.length);
+    size += 4;
+    const ensureCapacity = (extraBytesCount) => {
+        const requiredSize = size + extraBytesCount;
+        if (requiredSize > tempBuffer.byteLength) {
+            const newSize = Math.max(tempBuffer.byteLength * 2, requiredSize);
+            const newBuffer = new Uint8Array(newSize);
+            newBuffer.set(tempBuffer);
+            tempBuffer = newBuffer;
+            buffer = new utils_1.BinaryBuffer(new DataView(tempBuffer.buffer));
         }
-        else if (typeof entry === 'number' || typeof entry === 'boolean') {
-            size += 4 + 4;
+        size = requiredSize;
+    };
+    for (const entry of data) {
+        const entryType = typeof entry;
+        if (entryType === 'number') {
+            ensureCapacity(4 + 4);
+            if (Number.isInteger(entry)) {
+                // integer
+                buffer.setUint32(ValueType.INTEGER);
+                buffer.setInt32(entry);
+            }
+            else {
+                // float
+                buffer.setUint32(ValueType.FLOAT);
+                buffer.setInt32(Math.trunc(entry * 1000));
+            }
         }
-        else {
-            throw new TypeError(`Cannot serialize value of type ${typeof entry} in array`);
-        }
-    }
-    const result = new Uint8Array(size);
-    const buffer = new utils_1.BinaryBuffer(new DataView(result.buffer));
-    buffer.setUint32(entries.length);
-    for (const entry of entries) {
-        if (entry instanceof Uint8Array) {
+        else if (entryType === 'string') {
+            ensureCapacity(4 + 4 + entry.length);
             buffer.setUint32(ValueType.STRING);
             buffer.setUint32(entry.length);
-            buffer.write(entry);
+            buffer.write(encoder.encode(entry));
         }
-        else if (typeof entry === 'boolean') {
+        else if (entryType === 'boolean') {
+            ensureCapacity(4 + 4);
             buffer.setUint32(ValueType.BOOLEAN);
             buffer.setUint32(Number(entry));
         }
-        else if (Number.isInteger(entry)) {
-            buffer.setUint32(ValueType.INTEGER);
-            buffer.setInt32(checkInt32(entry));
-        }
-        else {
-            buffer.setUint32(ValueType.FLOAT);
-            buffer.setInt32(checkInt32(Math.trunc(entry * 1000)));
-        }
     }
+    const result = new Uint8Array(size);
+    result.set(tempBuffer.slice(0, size));
     return result.buffer;
 };
 exports.serializeArray = serializeArray;
@@ -39765,7 +39776,7 @@ exports.getLines = getLines;
 const processTokens = (tokens, objects) => {
     if (tokens[0] === 'OBJECT') {
         const value = tokens[1];
-        if (objects[value] === undefined) {
+        if (!objects[value]) {
             objects[value] = {
                 TYPE: 'unknown',
                 NAME: value,
@@ -39790,7 +39801,7 @@ const processTokens = (tokens, objects) => {
             throw new Error(`Objects of type ${object.TYPE} are not supported`);
         }
         const definition = types_1.structureDefinitions[object.TYPE];
-        const supportedVariablesRaw = definition !== undefined ? Object.keys(definition) : [];
+        const supportedVariablesRaw = definition ? Object.keys(definition) : [];
         const supportedVariables = supportedVariablesRaw.map((name) => {
             if (!name.includes('%')) {
                 return {
@@ -39814,7 +39825,7 @@ const processTokens = (tokens, objects) => {
                 return pattern === variableName;
             }
         });
-        if (definition !== undefined && supportedVariable) {
+        if (definition && supportedVariable) {
             const fieldName = supportedVariable.name;
             const fieldTypeDefinition = definition[fieldName];
             try {
@@ -40404,7 +40415,7 @@ const decompressCRLE = (input, decompressedSize, bulk = 1) => {
         else {
             repeated.set(src.subarray(sp, sp + bulk));
             sp += bulk;
-            const len = count & 0x7f;
+            const len = count & 0x7F;
             for (let i = 0; i < len; i++) {
                 output.set(repeated, dp);
                 dp += bulk;
@@ -40829,7 +40840,7 @@ const parseSequence = (content) => {
                 throw new Error('Object not found');
             }
             const definition = exports.structureDefinitions[object.TYPE];
-            if (definition !== undefined && variableName in definition) {
+            if (definition && variableName in definition) {
                 const typeDefinition = definition[variableName];
                 object[variableName] = typeDefinition.processor(object, variableName, subKey, value);
             }
@@ -40879,10 +40890,9 @@ exports.structureDefinitions = {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.stringUntilNull = exports.BinaryBuffer = void 0;
 class BinaryBuffer {
-    offset = 0;
-    size = 0;
-    view;
     constructor(view) {
+        this.offset = 0;
+        this.size = 0;
         this.view = view;
         this.size = view.byteLength;
         this.offset = view.byteOffset;
@@ -40916,9 +40926,8 @@ class BinaryBuffer {
      */
     getInt16(advance = true, littleEndian = true) {
         const value = this.view.getInt16(this.offset, littleEndian);
-        if (advance) {
+        if (advance)
             this.offset += 2;
-        }
         return value;
     }
     /**
@@ -40926,9 +40935,8 @@ class BinaryBuffer {
      */
     getInt32(advance = true, littleEndian = true) {
         const value = this.view.getInt32(this.offset, littleEndian);
-        if (advance) {
+        if (advance)
             this.offset += 4;
-        }
         return value;
     }
     /**
@@ -40936,9 +40944,8 @@ class BinaryBuffer {
      */
     getUint8(advance = true) {
         const value = this.view.getUint8(this.offset);
-        if (advance) {
+        if (advance)
             this.offset += 1;
-        }
         return value;
     }
     /**
@@ -40946,9 +40953,8 @@ class BinaryBuffer {
      */
     getUint16(advance = true, littleEndian = true) {
         const value = this.view.getUint16(this.offset, littleEndian);
-        if (advance) {
+        if (advance)
             this.offset += 2;
-        }
         return value;
     }
     /**
@@ -40956,9 +40962,8 @@ class BinaryBuffer {
      */
     getUint32(advance = true, littleEndian = true) {
         const value = this.view.getUint32(this.offset, littleEndian);
-        if (advance) {
+        if (advance)
             this.offset += 4;
-        }
         return value;
     }
     /**
@@ -40966,72 +40971,64 @@ class BinaryBuffer {
      */
     setFloat32(value, advance = true, littleEndian = true) {
         this.view.setFloat32(this.offset, value, littleEndian);
-        if (advance) {
+        if (advance)
             this.offset += 4;
-        }
     }
     /**
      * Stores an Float64 value at current offset
      */
     setFloat64(value, advance = true, littleEndian = true) {
         this.view.setFloat64(this.offset, value, littleEndian);
-        if (advance) {
+        if (advance)
             this.offset += 8;
-        }
     }
     /**
      * Stores an Int8 value at current offset
      */
     setInt8(value, advance = true) {
         this.view.setInt8(this.offset, value);
-        if (advance) {
+        if (advance)
             this.offset += 1;
-        }
     }
     /**
      * Stores an Int16 value at current offset
      */
     setInt16(value, advance = true, littleEndian = true) {
         this.view.setInt16(this.offset, value, littleEndian);
-        if (advance) {
+        if (advance)
             this.offset += 2;
-        }
     }
     /**
      * Stores an Int32 value at current offset
      */
     setInt32(value, advance = true, littleEndian = true) {
         this.view.setInt32(this.offset, value, littleEndian);
-        if (advance) {
+        if (advance)
             this.offset += 4;
-        }
     }
     /**
      * Stores an Uint8 value at current offset
      */
     setUint8(value, advance = true) {
         this.view.setUint8(this.offset, value);
-        if (advance) {
+        if (advance)
             this.offset += 1;
-        }
     }
     /**
      * Stores an Uint16 value at current offset
      */
     setUint16(value, advance = true, littleEndian = true) {
         this.view.setUint16(this.offset, value, littleEndian);
-        if (advance) {
+        if (advance)
             this.offset += 2;
-        }
     }
     /**
      * Stores an Uint32 value at current offset
      */
     setUint32(value, advance = true, littleEndian = true) {
         this.view.setUint32(this.offset, value, littleEndian);
-        if (advance) {
+        if (advance)
             this.offset += 4;
-        }
     }
     /**
      * Advance buffer offset by value
@@ -41053,9 +41050,11 @@ class BinaryBuffer {
         this.offset += size;
         return slice;
     }
+    // Not the fastest
     write(data) {
-        new Uint8Array(this.view.buffer, this.view.byteOffset, this.view.byteLength).set(data, this.offset);
-        this.offset += data.length;
+        for (let i = 0; i < data.length; i++) {
+            this.setUint8(data[i]);
+        }
     }
 }
 exports.BinaryBuffer = BinaryBuffer;
@@ -41308,11 +41307,11 @@ const loadDefinition = async (engine, scope, definition, parent) => {
     const orderedScope = sortByPriority(entries);
     const promisesResults = await Promise.allSettled(orderedScope.map((entry) => {
         try {
-            (0, stacktrace_1.pushStackFrame)(stacktrace_1.StackFrame.builder().type('stage').object(entry).method('init').build());
+            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(entry).method('init').build());
             return entry.init();
         }
         finally {
-            (0, stacktrace_1.popStackFrame)();
+            stacktrace_1.stackTrace.pop();
         }
     }));
     const failedObjects = [];
@@ -41330,15 +41329,11 @@ const loadDefinition = async (engine, scope, definition, parent) => {
     const goodObjects = orderedScope.filter((entry) => !failedObjects.includes(entry));
     for (const object of goodObjects) {
         try {
-            (0, stacktrace_1.pushStackFrame)(stacktrace_1.StackFrame.builder().type('stage').object(object).method('applyDefaults').build());
+            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(object).method('applyDefaults').build());
             await object.applyDefaults();
         }
-        catch (err) {
-            (0, stacktrace_1.captureStackTrace)(err);
-            throw err;
-        }
         finally {
-            (0, stacktrace_1.popStackFrame)();
+            stacktrace_1.stackTrace.pop();
         }
     }
 };
@@ -41350,15 +41345,11 @@ const doReady = async (scope) => {
         }
         object.isReady = true;
         try {
-            (0, stacktrace_1.pushStackFrame)(stacktrace_1.StackFrame.builder().type('stage').object(object).method('ready').build());
+            stacktrace_1.stackTrace.push(stacktrace_1.StackFrame.builder().type('stage').object(object).method('ready').build());
             await object.ready();
         }
-        catch (err) {
-            (0, stacktrace_1.captureStackTrace)(err);
-            throw err;
-        }
         finally {
-            (0, stacktrace_1.popStackFrame)();
+            stacktrace_1.stackTrace.pop();
         }
     }
 };
@@ -41410,7 +41401,10 @@ class SimpleFileLoader extends FileLoader {
     }
 }
 class UrlFileLoader extends SimpleFileLoader {
-    listing = null;
+    constructor() {
+        super(...arguments);
+        this.listing = null;
+    }
     async init() {
         logging_1.logger.debug('Fetching files listing...');
         this.listing = await this.fetchFilesListing();
@@ -41431,8 +41425,6 @@ class UrlFileLoader extends SimpleFileLoader {
 }
 exports.UrlFileLoader = UrlFileLoader;
 class GithubFileLoader extends UrlFileLoader {
-    filesListUrl;
-    filesBaseUrl;
     constructor(gameName) {
         super();
         this.filesListUrl = `https://api.github.com/repos/ReksioEngine/GamesFiles/git/trees/${gameName}?recursive=1/`;
@@ -41447,7 +41439,6 @@ class GithubFileLoader extends UrlFileLoader {
 }
 exports.GithubFileLoader = GithubFileLoader;
 class ArchiveOrgFileLoader extends UrlFileLoader {
-    baseUrl;
     constructor(baseUrl) {
         super();
         this.baseUrl = baseUrl;
@@ -41468,7 +41459,6 @@ class ArchiveOrgFileLoader extends UrlFileLoader {
 }
 exports.ArchiveOrgFileLoader = ArchiveOrgFileLoader;
 class IsoFileLoader extends SimpleFileLoader {
-    isoReader;
     constructor(file) {
         super();
         this.isoReader = new iso9660_1.LocalIso9660Reader(file);
@@ -41491,7 +41481,6 @@ class IsoFileLoader extends SimpleFileLoader {
 }
 exports.IsoFileLoader = IsoFileLoader;
 class RemoteIsoFileLoader extends SimpleFileLoader {
-    isoReader;
     constructor(url) {
         super();
         this.isoReader = new iso9660_1.RemoteIso9660Reader(url);
@@ -41514,7 +41503,6 @@ class RemoteIsoFileLoader extends SimpleFileLoader {
 }
 exports.RemoteIsoFileLoader = RemoteIsoFileLoader;
 class ListingJSONUrlFileLoader extends UrlFileLoader {
-    listingUrl;
     constructor(listingUrl) {
         super();
         this.listingUrl = listingUrl;
@@ -41546,11 +41534,10 @@ class FileStorage {
 }
 exports.FileStorage = FileStorage;
 class IndexedDBStorage extends FileStorage {
-    name;
-    db = null;
     constructor(name) {
         super();
         this.name = name;
+        this.db = null;
     }
     async init() {
         this.db = await (0, idb_1.openDB)(this.name, 1, {
@@ -41604,8 +41591,6 @@ const pathJoin = (...parts) => {
 };
 exports.pathJoin = pathJoin;
 class Filesystem {
-    fileLoader;
-    storage;
     constructor(fileLoader, storage) {
         this.fileLoader = fileLoader;
         this.storage = storage;
@@ -41686,8 +41671,10 @@ const utils_1 = __webpack_require__(/*! ../fileFormats/utils */ "./src/fileForma
 const SECTOR_SIZE = 2048;
 const JULIET_SECTOR = 17;
 class Iso9660Reader {
-    filesMapping = new Map();
-    decoder = new TextDecoder('utf-16le');
+    constructor() {
+        this.filesMapping = new Map();
+        this.decoder = new TextDecoder('utf-16le');
+    }
     async bufferAt(offset, length) {
         const data = await this.readAt(offset, length);
         return new utils_1.BinaryBuffer(new DataView(data));
@@ -41786,7 +41773,6 @@ class Iso9660Reader {
 }
 exports.Iso9660Reader = Iso9660Reader;
 class LocalIso9660Reader extends Iso9660Reader {
-    file;
     constructor(file) {
         super();
         this.file = file;
@@ -41803,7 +41789,6 @@ class LocalIso9660Reader extends Iso9660Reader {
 }
 exports.LocalIso9660Reader = LocalIso9660Reader;
 class RemoteIso9660Reader extends Iso9660Reader {
-    url;
     constructor(url) {
         super();
         this.url = url;
@@ -41881,7 +41866,6 @@ exports.BUILD_VARS = {
     debug: true,
 };
 class GamePlayerInstance {
-    engine;
     constructor(engine) {
         this.engine = engine;
     }
@@ -42012,9 +41996,8 @@ function parseLogicExpression(text, offset = 0) {
     let currentOffset = trimOffset;
     for (const part of parts) {
         const trimmedPart = part.trim();
-        if (!trimmedPart) {
+        if (!trimmedPart)
             continue;
-        }
         const partStart = trimOffset + text.indexOf(trimmedPart, currentOffset - trimOffset);
         conditions.push(_parseCondition(trimmedPart, partStart));
         currentOffset = partStart + trimmedPart.length;
@@ -42042,9 +42025,8 @@ function _findLogicOperator(text, operator) {
             inQuotes = !inQuotes;
             continue;
         }
-        if (inQuotes) {
+        if (inQuotes)
             continue;
-        }
         if (ch === '(') {
             parenDepth++;
         }
@@ -42073,9 +42055,8 @@ function _splitByLogicOperator(text, operator) {
             inQuotes = !inQuotes;
             continue;
         }
-        if (inQuotes) {
+        if (inQuotes)
             continue;
-        }
         if (ch === '(') {
             parenDepth++;
         }
@@ -42152,9 +42133,8 @@ function _findComparisonOperator(text) {
             inQuotes = !inQuotes;
             continue;
         }
-        if (inQuotes) {
+        if (inQuotes)
             continue;
-        }
         if (ch === '(') {
             parenDepth++;
         }
@@ -42188,9 +42168,8 @@ function _findComparisonOperator(text) {
             inQuotes = !inQuotes;
             continue;
         }
-        if (inQuotes) {
+        if (inQuotes)
             continue;
-        }
         if (ch === '(') {
             parenDepth++;
         }
@@ -42238,8 +42217,7 @@ Object.defineProperty(exports, "parseLogicExpression", ({ enumerable: true, get:
 var interpreter_1 = __webpack_require__(/*! ./interpreter */ "./src/interpreter/interpreter.ts");
 Object.defineProperty(exports, "runCode", ({ enumerable: true, get: function () { return interpreter_1.runCode; } }));
 Object.defineProperty(exports, "RuntimeError", ({ enumerable: true, get: function () { return interpreter_1.RuntimeError; } }));
-var errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
-Object.defineProperty(exports, "InterruptScriptExecution", ({ enumerable: true, get: function () { return errors_1.InterruptScriptExecution; } }));
+Object.defineProperty(exports, "InterruptScriptExecution", ({ enumerable: true, get: function () { return interpreter_1.InterruptScriptExecution; } }));
 
 
 /***/ },
@@ -42253,7 +42231,7 @@ Object.defineProperty(exports, "InterruptScriptExecution", ({ enumerable: true, 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Interpreter = exports.RuntimeContext = exports.RuntimeError = void 0;
+exports.Interpreter = exports.InterruptScriptExecution = exports.RuntimeContext = exports.RuntimeError = void 0;
 exports.runCode = runCode;
 const types_1 = __webpack_require__(/*! ../engine/types */ "./src/engine/types/index.ts");
 const struct_1 = __webpack_require__(/*! ../engine/types/struct */ "./src/engine/types/struct.ts");
@@ -42277,15 +42255,11 @@ class RuntimeError extends Error {
 }
 exports.RuntimeError = RuntimeError;
 class SilentError {
-    cause;
     constructor(cause) {
         this.cause = cause;
     }
 }
 class RuntimeContext {
-    engine;
-    caller;
-    script;
     constructor(engine, caller, script) {
         this.engine = engine;
         this.caller = caller;
@@ -42293,8 +42267,14 @@ class RuntimeContext {
     }
 }
 exports.RuntimeContext = RuntimeContext;
+class InterruptScriptExecution extends errors_1.IgnorableError {
+    constructor(one = false) {
+        super();
+        this.one = one;
+    }
+}
+exports.InterruptScriptExecution = InterruptScriptExecution;
 class Return extends errors_1.IgnorableError {
-    value;
     constructor(value) {
         super();
         this.value = value;
@@ -42329,9 +42309,6 @@ function applyComparison(left, op, right) {
     }
 }
 class Interpreter {
-    context;
-    globalHandlers;
-    globalInstances;
     constructor(context) {
         this.context = context;
         this.globalInstances = this.createGlobalInstances();
@@ -42366,10 +42343,10 @@ class Interpreter {
     }
     async handleIf(args) {
         let result;
-        let ifTrue;
-        let ifFalse;
+        let onTrue;
+        let onFalse;
         if (args.length === 5) {
-            const [a, operator, b, trueBranch, falseBranch] = args;
+            const [a, operator, b, ifTrue, ifFalse] = args;
             const left = typeof a === 'string' ? await this.execute((0, parser_1.parseCode)(a)) : a;
             const right = typeof b === 'string' ? await this.execute((0, parser_1.parseCode)(b)) : b;
             const op = COMPARE_OP_MAP[operator];
@@ -42377,26 +42354,27 @@ class Interpreter {
                 throw new RuntimeError(`Unknown comparison operator: ${operator}`);
             }
             result = applyComparison(left, op, right);
-            ifTrue = trueBranch;
-            ifFalse = falseBranch;
+            onTrue = this.getObject(ifTrue);
+            onFalse = this.getObject(ifFalse);
         }
         else if (args.length === 3) {
-            const [expression, trueBranch, falseBranch] = args;
+            const [expression, ifTrue, ifFalse] = args;
             result = await this.evaluateLogicExpression((0, expression_1.parseLogicExpression)(expression));
-            ifTrue = trueBranch;
-            ifFalse = falseBranch;
+            onTrue = this.getObject(ifTrue);
+            onFalse = this.getObject(ifFalse);
         }
         else {
             throw new RuntimeError(`Invalid @IF arguments: expected 3 or 5, got ${args.length}`);
         }
-        const callback = (0, common_1.createCallback)(result ? ifTrue : ifFalse);
-        if (callback === undefined) {
-            return;
+        if (result && onTrue) {
+            await onTrue.executeConditionalCallback();
         }
-        await this.context.engine.scripting.executeCallback(null, this.context.caller, callback, [], undefined, true);
+        else if (!result && onFalse) {
+            await onFalse.executeConditionalCallback();
+        }
     }
     async handleBreak(_args) {
-        throw new errors_1.InterruptScriptExecution(false);
+        throw new InterruptScriptExecution(false);
     }
     async handleReturn(args) {
         throw new Return(args[0]);
@@ -42418,10 +42396,9 @@ class Interpreter {
                 await this.context.engine.scripting.executeCallback(null, this.context.caller, callback, [], { _I_: counter }, true);
             }
             catch (err) {
-                if (err instanceof errors_1.InterruptScriptExecution) {
-                    if (err.one) {
+                if (err instanceof InterruptScriptExecution) {
+                    if (err.one)
                         continue;
-                    }
                     break;
                 }
                 throw err;
@@ -42448,10 +42425,9 @@ class Interpreter {
                 await this.context.engine.scripting.executeCallback(null, this.context.caller, callback, [], undefined, true);
             }
             catch (err) {
-                if (err instanceof errors_1.InterruptScriptExecution) {
-                    if (err.one) {
+                if (err instanceof InterruptScriptExecution) {
+                    if (err.one)
                         continue;
-                    }
                     break;
                 }
                 throw err;
@@ -42460,8 +42436,10 @@ class Interpreter {
     }
     async evaluateLogicExpression(expr) {
         if (expr.type === 'Condition') {
-            const left = await this.evaluateParameter(expr.left);
-            const right = await this.evaluateParameter(expr.right);
+            const [left, right] = await Promise.all([
+                this.evaluateParameter(expr.left),
+                this.evaluateParameter(expr.right),
+            ]);
             return applyComparison(left, expr.operator, right);
         }
         const { operator, conditions } = expr;
@@ -42470,8 +42448,10 @@ class Interpreter {
         }
         const isOr = operator === 'OR';
         for (const condition of conditions) {
-            const left = await this.evaluateParameter(condition.left);
-            const right = await this.evaluateParameter(condition.right);
+            const [left, right] = await Promise.all([
+                this.evaluateParameter(condition.left),
+                this.evaluateParameter(condition.right),
+            ]);
             if (applyComparison(left, condition.operator, right) === isOr) {
                 return isOr;
             }
@@ -42479,10 +42459,7 @@ class Interpreter {
         return !isOr;
     }
     async executeFunctionCall(call) {
-        const args = [];
-        for (const arg of call.args) {
-            args.push(await this.evaluateParameter(arg));
-        }
+        const args = await Promise.all(call.args.map((arg) => this.evaluateParameter(arg)));
         if (!call.target) {
             throw new RuntimeError('Bare methods not implemented');
         }
@@ -42498,15 +42475,11 @@ class Interpreter {
                         .method(call.method)
                         .args(...args)
                         .build();
-                    (0, stacktrace_1.pushStackFrame)(stackFrame);
-                    return await handler(args);
-                }
-                catch (err) {
-                    (0, stacktrace_1.captureStackTrace)(err);
-                    throw err;
+                    stacktrace_1.stackTrace.push(stackFrame);
+                    return handler(args);
                 }
                 finally {
-                    (0, stacktrace_1.popStackFrame)();
+                    stacktrace_1.stackTrace.pop();
                 }
             }
             case 'ObjectTarget': {
@@ -42515,37 +42488,34 @@ class Interpreter {
                     return null;
                 }
                 try {
-                    (0, stacktrace_1.pushStackFrame)(stacktrace_1.StackFrame.builder()
+                    const stackFrame = stacktrace_1.StackFrame.builder()
                         .type('method')
                         .object(targetObj)
                         .method(call.method)
                         .args(...args)
-                        .build());
+                        .build();
+                    stacktrace_1.stackTrace.push(stackFrame);
                     const method = targetObj[call.method];
-                    return method !== undefined
-                        ? await method.bind(targetObj)(...args)
-                        : await targetObj.__call(call.method, args);
+                    return method !== undefined ? method.bind(targetObj)(...args) : targetObj.__call(call.method, args);
                 }
                 catch (err) {
-                    if (err instanceof errors_1.IgnorableError) {
+                    if (err instanceof errors_1.IgnorableError)
                         throw err;
-                    }
                     const beforePart = this.context.script.substring(0, call.start).replaceAll(';', ';\n');
                     const callPart = this.context.script.substring(call.start, call.end);
                     const afterPart = this.context.script.substring(call.end).replaceAll(';', ';\n').trim();
                     logging_1.logger.error((0, logging_1.fmt) `Error occured during method execution:\n${beforePart}${(0, logging_1.color)('red', callPart)}${afterPart}\n`, {
                         args,
                     }, err);
-                    (0, stacktrace_1.printStackTrace)((0, stacktrace_1.captureStackTrace)(err));
-                    if (err instanceof errors_1.NotImplementedError) {
+                    (0, stacktrace_1.printStackTrace)();
+                    if (err instanceof errors_1.NotImplementedError)
                         return null;
-                    }
                     // eslint-disable-next-line no-debugger
                     debugger;
                     throw new SilentError(err);
                 }
                 finally {
-                    (0, stacktrace_1.popStackFrame)();
+                    stacktrace_1.stackTrace.pop();
                 }
             }
             default:
@@ -42614,15 +42584,13 @@ class Interpreter {
                     result = result * operand;
                     break;
                 case 'DIV':
-                    if (operand === 0) {
+                    if (operand === 0)
                         throw new RuntimeError('Division by zero');
-                    }
                     result = result / operand;
                     break;
                 case 'MOD':
-                    if (operand === 0) {
+                    if (operand === 0)
                         throw new RuntimeError('Modulo by zero');
-                    }
                     result = result % operand;
                     break;
                 default:
@@ -42671,12 +42639,10 @@ async function runCode(engine, caller, script, args, isSingleStatement) {
         if (err instanceof Return) {
             return err.value;
         }
-        if (err instanceof errors_1.IgnorableError) {
+        if (err instanceof errors_1.IgnorableError)
             throw err;
-        }
-        if (!(err instanceof SilentError)) {
+        if (!(err instanceof SilentError))
             throw err;
-        }
     }
 }
 async function substituteArguments(script, args) {
@@ -42705,7 +42671,8 @@ async function substituteArguments(script, args) {
         lastIndex = regex.lastIndex;
     }
     parts.push(script.slice(lastIndex));
-    return parts.join('');
+    const resolved = await Promise.all(parts);
+    return resolved.join('');
 }
 
 
@@ -42730,8 +42697,6 @@ const ast_1 = __webpack_require__(/*! ./ast */ "./src/interpreter/ast.ts");
 const types_1 = __webpack_require__(/*! ../common/types */ "./src/common/types.ts");
 const OPERATOR_CHARS = ['+', '-', '*', '@', '%'];
 class ParseError extends Error {
-    text;
-    position;
     constructor(message, text = '', position = -1) {
         const detail = position >= 0 ? ` at position ${position}` : '';
         const ctx = text ? ` in '${text}'` : '';
@@ -42751,12 +42716,10 @@ function parseCode(code) {
     let start = 0;
     for (let i = 0; i < code.length; i++) {
         const ch = code[i];
-        if (ch === '(') {
+        if (ch === '(')
             depth++;
-        }
-        else if (ch === ')') {
+        else if (ch === ')')
             depth--;
-        }
         else if (ch === ';' && depth === 0) {
             const stmt = code.slice(start, i).trim();
             if (stmt) {
@@ -42787,9 +42750,8 @@ function parseLine(text, offset = 0) {
     const originalText = text;
     text = text.trim();
     const trimOffset = offset + originalText.indexOf(text);
-    if (!text) {
+    if (!text)
         throw new ParseError('empty line', text);
-    }
     const parenPos = text.indexOf('(');
     // '@' prefix: global runner
     if (text[0] === '@') {
@@ -42864,21 +42826,18 @@ function parseLine(text, offset = 0) {
 function parseParameters(text, offset = 0) {
     const originalText = text;
     text = text.trim();
-    if (!text) {
+    if (!text)
         return [];
-    }
     const trimOffset = offset + (originalText.length - originalText.trimStart().length);
     const params = [];
     let depth = 0;
     let start = 0;
     for (let i = 0; i < text.length; i++) {
         const ch = text[i];
-        if (ch === '(') {
+        if (ch === '(')
             depth++;
-        }
-        else if (ch === ')') {
+        else if (ch === ')')
             depth--;
-        }
         else if (ch === ',' && depth === 0) {
             const part = text.slice(start, i).trim();
             if (part) {
@@ -42911,16 +42870,14 @@ function parseParameter(text, offset = 0) {
     const originalText = text;
     text = text.trim();
     const trimOffset = offset + originalText.indexOf(text);
-    if (!text) {
+    if (!text)
         throw new ParseError('empty parameter');
-    }
     const first = text[0];
     // 1. bracket expression [...] -> parsed via CMC_Expression
     if (first === '[') {
         let inner = text.slice(1);
-        if (inner.endsWith(']')) {
+        if (inner.endsWith(']'))
             inner = inner.slice(0, -1);
-        }
         const raw = inner.trim();
         const expression = parseExpression(raw, trimOffset, 0);
         return {
@@ -42946,9 +42903,8 @@ function parseParameter(text, offset = 0) {
     }
     if (first === '"') {
         let value = text.slice(1);
-        if (value.endsWith('"')) {
+        if (value.endsWith('"'))
             value = value.slice(0, -1);
-        }
         return {
             type: 'StringLiteral',
             value,
@@ -43206,23 +43162,26 @@ function _extractArgs(text, parenPos) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.printStackTrace = exports.generateStackTrace = exports.captureStackTrace = exports.popStackFrame = exports.pushStackFrame = exports.StackFrame = void 0;
+exports.printStackTrace = exports.generateStackTrace = exports.stackTrace = exports.StackFrame = void 0;
 const types_1 = __webpack_require__(/*! ../common/types */ "./src/common/types.ts");
-const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 class StackFrame {
-    type = null;
-    object = null;
-    methodName = null;
-    behaviour = null;
-    callback = null;
-    args = null;
+    constructor() {
+        this.type = null;
+        this.object = null;
+        this.methodName = null;
+        this.behaviour = null;
+        this.callback = null;
+        this.args = null;
+    }
     static builder() {
         return new StackFrameBuilder();
     }
 }
 exports.StackFrame = StackFrame;
 class StackFrameBuilder {
-    stackFrame = new StackFrame();
+    constructor() {
+        this.stackFrame = new StackFrame();
+    }
     type(type) {
         this.stackFrame.type = type;
         return this;
@@ -43251,28 +43210,7 @@ class StackFrameBuilder {
         return this.stackFrame;
     }
 }
-const stackTrace = [];
-const pushStackFrame = (frame) => {
-    stackTrace.push(frame);
-};
-exports.pushStackFrame = pushStackFrame;
-const popStackFrame = () => {
-    stackTrace.pop();
-};
-exports.popStackFrame = popStackFrame;
-const capturedStackTraces = new WeakMap();
-const captureStackTrace = (err) => {
-    if (typeof err !== 'object' || err === null || err instanceof errors_1.IgnorableError) {
-        return null;
-    }
-    let captured = capturedStackTraces.get(err);
-    if (captured === undefined) {
-        captured = [...stackTrace];
-        capturedStackTraces.set(err, captured);
-    }
-    return captured;
-};
-exports.captureStackTrace = captureStackTrace;
+exports.stackTrace = [];
 const generateStackTrace = (stackTraceSource) => {
     const lines = [];
     for (const frame of stackTraceSource) {
@@ -43292,19 +43230,19 @@ const generateStackTrace = (stackTraceSource) => {
             .join(',');
         switch (frame.type) {
             case 'callback':
-                lines.push(`@ ${frame.object?.name ?? '<unknown>'}@${frame.callback}(${argsString})`);
+                lines.push(`at ${frame.object?.name ?? '<unknown>'}@${frame.callback}(${argsString})`);
                 break;
             case 'method':
-                lines.push(`@ ${frame.object?.name ?? '<unknown>'}^${frame.methodName}(${argsString})`);
+                lines.push(`at ${frame.object?.name ?? '<unknown>'}^${frame.methodName}(${argsString})`);
                 break;
             case 'specialCall':
-                lines.push(`@ ${frame.methodName}(${argsString})`);
+                lines.push(`at ${frame.methodName}(${argsString})`);
                 break;
             case 'stage':
-                lines.push(`@ ${frame.object?.name ?? '<unknown>'}::${frame.methodName}()`);
+                lines.push(`at ${frame.object?.name ?? '<unknown>'}::${frame.methodName}()`);
                 break;
             case 'behaviour':
-                lines.push(`@ ${frame.behaviour}(${argsString})`);
+                lines.push(`at ${frame.behaviour}(${argsString})`);
                 break;
         }
     }
@@ -43312,12 +43250,12 @@ const generateStackTrace = (stackTraceSource) => {
 };
 exports.generateStackTrace = generateStackTrace;
 const printStackTrace = (stackTraceSource = null) => {
-    const selectedStackTrace = stackTraceSource ?? stackTrace;
+    const selectedStackTrace = stackTraceSource ?? exports.stackTrace;
     if (selectedStackTrace.length === 0) {
         console.error('Stack trace is empty');
         return;
     }
-    console.error((0, exports.generateStackTrace)(stackTraceSource ?? stackTrace));
+    console.error((0, exports.generateStackTrace)(stackTraceSource ?? exports.stackTrace));
 };
 exports.printStackTrace = printStackTrace;
 
@@ -46448,17 +46386,6 @@ exports.Url = Url;
 
 /***/ },
 
-/***/ "./static/loading-cursor.png"
-/*!***********************************!*\
-  !*** ./static/loading-cursor.png ***!
-  \***********************************/
-(module) {
-
-"use strict";
-module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABGklEQVRYR9WVQRLDIAgA9f+PtgMRBxFqQDJt9qK1AismbS2ltJJDHTMHENRaizvUOuq+WICOcEi4AwBIVLiLynpqQXfW92IsfeflfQL8if1JB0T7gZQrADAx5L/xGHBcmyWTAP89AAmSsUbaSpMIMvi2BG2hSRSZYLqG3ajEu9ES3JIwYt1oSbbXQF/R5AQrye6NUBcjWImmLhDZpwesRGv1GSvOjZYIivM/JvlM4JoR60ZLIgWuxW7xtIBWnI6P6zhJlJAJVIH+NjwuoBVfyO4CD9YEsBgjvQu80FK8tx4mOPZFHIVkWMISWIp/kUgXWIrKEQOueb4ALipF5dhJEcCiCYQkUKAfPITohpv/EBg6Z8Q7MD6dERL4AIY0GjCaKAEmAAAAEGRlQkdDMjk1NjUzREIxMUUxMjcwxFpr/AAAAABJRU5ErkJggg==";
-
-/***/ },
-
 /***/ "?06c6"
 /*!********************************!*\
   !*** ./util.inspect (ignored) ***!
@@ -47116,7 +47043,7 @@ else {
     const getFileLoader = () => {
         const loader = urlParams.get('loader');
         const source = urlParams.get('source');
-        if (loader !== null && source !== null) {
+        if (loader && source) {
             if (loader === 'github') {
                 return new fileLoader_1.GithubFileLoader(source);
             }
