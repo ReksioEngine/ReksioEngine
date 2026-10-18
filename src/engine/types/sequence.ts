@@ -206,7 +206,7 @@ export class Sequence extends Type<SequenceDefinition> {
 
         if (this.runningSubSequence?.TYPE === 'SPEAKING') {
             if (
-                this.runningSubSequence.STARTING !== undefined &&
+                this.runningSubSequence.STARTING === true &&
                 eventName === this.runningSubSequence.PREFIX + '_START'
             ) {
                 if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
@@ -215,7 +215,7 @@ export class Sequence extends Type<SequenceDefinition> {
                     await this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1')
                 }
             } else if (
-                this.runningSubSequence.ENDING !== undefined &&
+                this.runningSubSequence.ENDING === true &&
                 eventName === this.runningSubSequence.PREFIX + '_STOP'
             ) {
                 await this.progressNext()

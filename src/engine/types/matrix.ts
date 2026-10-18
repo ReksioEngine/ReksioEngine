@@ -314,7 +314,7 @@ export class Matrix extends Type<MatrixDefinition> {
                 this.cursorY = isLast ? -1 : nextY
 
                 await this.callbacks.run(isLast ? 'ONLATEST' : 'ONNEXT', null, null, [x, y, action])
-                return isLast ? result : (result ?? RemainingActions.STONE_UPDATES)
+                return isLast ? result : (result !== RemainingActions.NONE ? result : RemainingActions.STONE_UPDATES)
             }
         }
 

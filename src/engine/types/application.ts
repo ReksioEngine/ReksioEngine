@@ -51,7 +51,7 @@ export class Application extends ParentType<ApplicationDefinition> {
             return
         }
 
-        if (Object.hasOwn(object, methodName)) {
+        if (typeof object[methodName] === 'function') {
             return await object[methodName](...args)
         } else {
             return await object.__call(methodName, args)
