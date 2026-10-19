@@ -16,6 +16,10 @@ export class Expression extends ValueType<ExpressionDefinition, boolean> {
         return await unwrapValue(await this.evaluate())
     }
 
+    async toString(): Promise<string> {
+        return (await this.evaluate()).toString()
+    }
+
     async evaluate() {
         const operand1 = await this.engine.scripting.executeCallback(this, this, this.definition.OPERAND1)
         const operand2 = await this.engine.scripting.executeCallback(this, this, this.definition.OPERAND2)

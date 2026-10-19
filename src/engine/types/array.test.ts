@@ -3,6 +3,7 @@ import { ArrayObject } from './array'
 import { Double } from './double'
 import { Integer } from './integer'
 import { Expression } from './expression'
+import { createString } from './values'
 
 describe('ARRAY', () => {
     let engine: TestEngine
@@ -26,7 +27,7 @@ describe('ARRAY', () => {
         // A method without a result gives null
         await engine.run('ARR^ADD(ARR^MSGBOX());S^SET(ARR^GET(0));')
         expect(array.getValue()).toEqual([null])
-        expect(array.FIND('NULL')).toBe(0)
+        expect(await array.FIND(createString(engine.asEngine(), 'NULL'))).toBe(0)
         expect(s.getValue()).toBe('NULL')
     })
 
@@ -52,11 +53,28 @@ describe('ARRAY', () => {
         expect(array.getValue()[0]?.getValue()).toBe(3)
     })
 
-    test('FIND compares as strings, ignoring case', async () => {
+    const find = async (method: 'FIND' | 'REVERSEFIND', value: string) => {
+        const i = engine.integer('I')
+        await engine.run(`I^SET(ARR^${method}(${value}));`)
+        return i.getValue()
+    }
+
+    test('FIND compares strings ignoring case', async () => {
         await engine.run('ARR^ADD(5, "abc");')
-        expect(array.FIND('5')).toBe(0)
-        expect(array.FIND('ABC')).toBe(1)
-        expect(array.FIND('x')).toBe(-1)
+        expect(await find('FIND', '"5"')).toBe(0)
+        expect(await find('FIND', '"ABC"')).toBe(1)
+        expect(await find('FIND', '"x"')).toBe(-1)
+    })
+
+    test('FIND compares in the type of the element', async () => {
+        await engine.run('ARR^ADD(2, 2.4, "2");')
+        // The INTEGER 2 truncates 2.4
+        expect(await find('FIND', '2.4')).toBe(0)
+        // The DOUBLE 2.4 is not 2, the STRING "2" is not "2.00000"
+        expect(await find('REVERSEFIND', '2.0')).toBe(0)
+        // Any number other than 0 is TRUE
+        await engine.run('ARR^ADD(TRUE);')
+        expect(await find('REVERSEFIND', '5')).toBe(3)
     })
 
     test('CONTAINS matches the value or its string', async () => {
@@ -66,11 +84,11 @@ describe('ARRAY', () => {
         expect(array.CONTAINS('6')).toBe(false)
     })
 
-    test('REVERSEFIND compares as strings, from the end', async () => {
+    test('REVERSEFIND searches from the end', async () => {
         await engine.run('ARR^ADD(5, 5, "5");')
-        expect(array.REVERSEFIND(5)).toBe(2)
-        expect(array.REVERSEFIND('5')).toBe(2)
-        expect(array.REVERSEFIND(7)).toBe(-1)
+        expect(await find('REVERSEFIND', '5')).toBe(2)
+        expect(await find('REVERSEFIND', '"5"')).toBe(2)
+        expect(await find('REVERSEFIND', '7')).toBe(-1)
     })
 
     test('INTEGER elements truncate the value before the operation', async () => {

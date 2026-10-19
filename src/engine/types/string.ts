@@ -1,7 +1,7 @@
 import { ParentType, ValueType } from './index'
 import { Engine } from '../index'
 import { StringDefinition } from '../../fileFormats/cnv/types'
-import { method, valueAsString, int } from '../../common/types'
+import { method, int } from '../../common/types'
 
 export class String extends ValueType<StringDefinition, string> {
     constructor(engine: Engine, parent: ParentType<any> | null, definition: StringDefinition) {
@@ -57,7 +57,8 @@ export class String extends ValueType<StringDefinition, string> {
     }
 
     async equals(other: ValueType<any, any>) {
-        return this.getValue().toLowerCase() === valueAsString(await other.getValue()).toLowerCase()
+        const otherString = await other.toString()
+        return this.getValue().toLowerCase() === otherString.toLowerCase()
     }
 
     public async toString(): Promise<string> {

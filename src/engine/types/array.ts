@@ -156,16 +156,21 @@ export class ArrayObject extends ValueType<ArrayDefinition, (ScalarValue | null)
     }
 
     @method()
-    FIND(value: string | double | boolean): int {
-        const needle = valueAsString(value).toLowerCase()
-        return this.value.findIndex((element) => valueAsString(rawValue(element)).toLowerCase() === needle)
+    async FIND(value: Value): Promise<int> {
+        return this.findElement(value, this.value.keys())
     }
 
     @method()
-    REVERSEFIND(value: string | double | boolean): int {
-        const needle = valueAsString(value).toLowerCase()
-        for (let i = this.value.length - 1; i >= 0; i--) {
-            if (valueAsString(rawValue(this.value[i])).toLowerCase() === needle) {
+    async REVERSEFIND(value: Value): Promise<int> {
+        return this.findElement(value, [...this.value.keys()].reverse())
+    }
+
+    // Each element compares the value in its own type: an INTEGER 2 equals 2.4
+    private async findElement(value: Value, indexes: Iterable<number>): Promise<int> {
+        const needle = (await copyValue(this.engine, value)) ?? createString(this.engine, 'NULL')
+        for (const i of indexes) {
+            const element = this.value[i] ?? createString(this.engine, 'NULL')
+            if (await element.equals(needle)) {
                 return i
             }
         }
