@@ -30806,11 +30806,15 @@ function t(from, event, to) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.InvalidMethodParameter = exports.compareType = exports.isDirectlyConvertible = exports.Compare = exports.ForceNumber = exports.valueAsDouble = exports.toNumber = exports.valueAsBool = exports.valueAsString = void 0;
+exports.callMethod = exports.primitiveTypes = exports.InvalidMethodParameter = exports.looksLike = exports.ForceNumber = exports.valueAsInteger = exports.valueAsDouble = exports.toNumber = exports.valueAsBool = exports.doubleAsString = exports.valueAsString = void 0;
 exports.method = method;
 const errors_1 = __webpack_require__(/*! ./errors */ "./src/common/errors.ts");
 const logging_1 = __webpack_require__(/*! ../engine/logging */ "./src/engine/logging.ts");
 const stacktrace_1 = __webpack_require__(/*! ../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
+const types_1 = __webpack_require__(/*! ../engine/types */ "./src/engine/types/index.ts");
+const values_1 = __webpack_require__(/*! ../engine/types/values */ "./src/engine/types/values.ts");
+const double_1 = __webpack_require__(/*! ../engine/types/double */ "./src/engine/types/double.ts");
+const expression_1 = __webpack_require__(/*! ../engine/types/expression */ "./src/engine/types/expression.ts");
 const valueAsString = (value) => {
     if (value === null) {
         return 'NULL';
@@ -30829,6 +30833,28 @@ const valueAsString = (value) => {
     return value.toString();
 };
 exports.valueAsString = valueAsString;
+const doubleAsString = (value) => {
+    const abs = Math.abs(value);
+    // Use fixed‑point for numbers below 1e21, otherwise fallback to bigint representation
+    const fixed = abs < 1e21 ? abs.toFixed(5) : `${BigInt(abs)}.00000`;
+    const sign = value < 0 ? '-' : '';
+    // Values with absolute magnitude >= 1
+    if (!fixed.startsWith('0.')) {
+        return sign + fixed;
+    }
+    // Zero value
+    if (value === 0) {
+        return '00000';
+    }
+    // Values between 0 and 1 (exclusive)
+    let leadingZeros = '';
+    for (let v = value; v > 0 && v * 10.0001 < 1; v *= 10) {
+        leadingZeros += '0';
+    }
+    const digits = fixed.slice(2).replace(/^0+/, '') || '0';
+    return `0.${sign}${leadingZeros}${digits}`;
+};
+exports.doubleAsString = doubleAsString;
 const valueAsBool = (value) => {
     if (value === null) {
         return false;
@@ -30836,20 +30862,25 @@ const valueAsBool = (value) => {
     if (typeof value === 'boolean') {
         return value;
     }
-    if (value === 0 || value === 1) {
-        return Boolean(value);
+    if (typeof value === 'number') {
+        return value !== 0;
     }
-    (0, errors_1.assert)(value.toUpperCase() === 'TRUE' || value.toUpperCase() === 'FALSE');
-    return value.toUpperCase() === 'TRUE';
+    return (0, exports.valueAsString)(value).toUpperCase() === 'TRUE';
 };
 exports.valueAsBool = valueAsBool;
+// Matches atof and atoi
+const DOUBLE_PREFIX = /^\s*[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?/i;
+const INTEGER_PREFIX = /^\s*[+-]?\d+/;
+const parseLeadingNumber = (value, pattern) => {
+    const match = value.match(pattern);
+    return match ? Number(match[0]) : 0;
+};
 const toNumber = (value) => {
     if (typeof value === 'number') {
         return value;
     }
     else if (typeof value === 'string') {
-        const match = value.match(/^-?\d+(\.\d+)?/);
-        return match ? Number(match[0]) : 0;
+        return parseLeadingNumber(value, DOUBLE_PREFIX);
     }
     else {
         return Number(value);
@@ -30868,66 +30899,22 @@ const valueAsDouble = (value) => {
     return number;
 };
 exports.valueAsDouble = valueAsDouble;
+const valueAsInteger = (value) => {
+    if (typeof value === 'string') {
+        return parseLeadingNumber(value, INTEGER_PREFIX);
+    }
+    const newValue = (0, exports.valueAsDouble)(value);
+    return Math.trunc(newValue);
+};
+exports.valueAsInteger = valueAsInteger;
 const ForceNumber = (value) => {
     const numberValue = (0, exports.toNumber)(value);
     (0, errors_1.assert)(!isNaN(numberValue), `${value} is not a number`);
     return numberValue;
 };
 exports.ForceNumber = ForceNumber;
-exports.Compare = {
-    Equal: (a, b) => {
-        return (0, exports.valueAsString)(a).toLowerCase() == (0, exports.valueAsString)(b).toLowerCase();
-    },
-    NotEqual: (a, b) => {
-        return (0, exports.valueAsString)(a).toLowerCase() != (0, exports.valueAsString)(b).toLowerCase();
-    },
-    Less: (a, b) => {
-        return (0, exports.ForceNumber)(a) < (0, exports.ForceNumber)(b);
-    },
-    Greater: (a, b) => {
-        return (0, exports.ForceNumber)(a) > (0, exports.ForceNumber)(b);
-    },
-    LessOrEqual: (a, b) => {
-        return (0, exports.ForceNumber)(a) <= (0, exports.ForceNumber)(b);
-    },
-    GreaterOrEqual: (a, b) => {
-        return (0, exports.ForceNumber)(a) >= (0, exports.ForceNumber)(b);
-    },
-};
-const convertValue = (value, targetType) => {
-    if (Array.isArray(value)) {
-        const newArray = new Array(value.length);
-        for (let i = 0; i < value.length; i++) {
-            newArray[i] = convertValue(value[i], targetType);
-        }
-        return newArray;
-    }
-    switch (targetType) {
-        case 'string':
-            return (0, exports.valueAsString)(value);
-        case 'boolean':
-            return (0, exports.valueAsBool)(value);
-        case 'number':
-            return (0, exports.valueAsDouble)(value);
-        default:
-            return value;
-    }
-};
-const isDirectlyConvertible = (value, type) => {
-    if (type.isArray !== Array.isArray(value)) {
-        return false;
-    }
-    if (type.isArray) {
-        return value.every((entry) => (0, exports.isDirectlyConvertible)(entry, {
-            name: type.name,
-            literal: type.literal,
-            isArray: false,
-        }));
-    }
-    if (type.literal !== null) {
-        return type.literal === convertValue(value, type.name);
-    }
-    switch (type.name) {
+const looksLike = (value, kind) => {
+    switch (kind) {
         case 'string':
             return true;
         case 'boolean':
@@ -30935,102 +30922,124 @@ const isDirectlyConvertible = (value, type) => {
                 value === null ||
                 value.toString().toUpperCase() === 'TRUE' ||
                 value.toString().toUpperCase() === 'FALSE' ||
-                value == 0 ||
-                value == 1);
+                value === 0 ||
+                value === 1);
         case 'number':
-            return typeof value === 'number' || value === null || !Number.isNaN((0, exports.toNumber)(value));
-        default:
-            return false;
+            return typeof value !== 'string' || DOUBLE_PREFIX.test(value);
     }
 };
-exports.isDirectlyConvertible = isDirectlyConvertible;
-const compareType = (value, expectedType) => {
-    if (expectedType.name === 'any') {
-        return true;
-    }
-    if (expectedType.literal !== null) {
-        return value === expectedType.literal;
-    }
-    const type = typeof value;
-    const isArray = Array.isArray(value);
-    return type === expectedType.name && isArray === expectedType.isArray;
-};
-exports.compareType = compareType;
+exports.looksLike = looksLike;
 class InvalidMethodParameter extends errors_1.UnexpectedError {
 }
 exports.InvalidMethodParameter = InvalidMethodParameter;
-function method(...types) {
+const isPrimitive = (value) => ['string', 'number', 'boolean'].includes(typeof value);
+exports.primitiveTypes = {
+    int: { kind: 'number', convert: exports.valueAsInteger },
+    double: { kind: 'number', convert: exports.valueAsDouble },
+    string: { kind: 'string', convert: exports.valueAsString },
+    boolean: { kind: 'boolean', convert: exports.valueAsBool },
+};
+function method(types = [], returns) {
     return (originalMethod, context) => {
+        for (const parameter of types) {
+            (0, errors_1.assert)(parameter.types.every((type) => type.name !== 'number'), `${originalMethod.name}: declare "${parameter.name}" as int or double, not number`);
+        }
+        const convert = (conversion, source, arg) => {
+            const primitive = source instanceof types_1.ValueType ? source.getValue() : source;
+            if (typeof primitive === 'object' && primitive !== null) {
+                throw new InvalidMethodParameter([
+                    `Function: ${originalMethod.name}`,
+                    `Type of argument "${conversion.parameter.name}" does not match the expected type`,
+                    `Expected: ${conversion.parameter.types.map((type) => type.name).join(' or ')}`,
+                    `Received: ${arg?.constructor?.name ?? typeof arg}`,
+                ].join('\n'));
+            }
+            if (conversion.types.length > 1 && primitive === null) {
+                return null;
+            }
+            const target = conversion.types.find((type) => type.kind === typeof primitive) ??
+                conversion.types.find((type) => (0, exports.looksLike)(primitive, type.kind)) ??
+                conversion.types[0];
+            if (target.kind === 'string' && source instanceof double_1.Double) {
+                return (0, exports.doubleAsString)(primitive);
+            }
+            return target.convert(primitive);
+        };
         function typeGuardWrapper(...args) {
-            const newArgs = [...args];
+            const conversions = [];
             let processedArgs = 0;
             for (let i = 0; i < types.length; i++) {
-                const argExpectedTypeInfo = types[i];
-                const subArgsCount = argExpectedTypeInfo.rest ? args.length - i : 1;
-                processedArgs += subArgsCount;
-                for (let subArgIdx = i; subArgIdx < i + subArgsCount; subArgIdx++) {
-                    const arg = args[subArgIdx];
-                    const argRealType = typeof arg;
-                    if (arg === undefined) {
-                        if (!argExpectedTypeInfo.optional) {
-                            throw new InvalidMethodParameter(`Non-optional argument "${argExpectedTypeInfo.name}" is undefined`);
+                const parameter = types[i];
+                const count = parameter.rest ? Math.max(args.length - i, 0) : 1;
+                processedArgs += count;
+                for (let index = i; index < i + count; index++) {
+                    if (args[index] === undefined) {
+                        if (!parameter.optional) {
+                            throw new InvalidMethodParameter(`Non-optional argument "${parameter.name}" is undefined`);
                         }
-                        else {
-                            continue;
-                        }
-                    }
-                    const isExpectedType = argExpectedTypeInfo.types.some((type) => (0, exports.compareType)(arg, type));
-                    const isAnyAllowed = argExpectedTypeInfo.types.some((type) => type.name === 'any');
-                    if (isExpectedType || isAnyAllowed) {
                         continue;
                     }
-                    const typesDisplayStrings = argExpectedTypeInfo.types.map((type) => `${type.name}${type.isArray ? '[]' : ''}`);
-                    // We only try to convert when the parameter accepts only one type
-                    if (argExpectedTypeInfo.types.length === 1) {
-                        const firstArgType = argExpectedTypeInfo.types[0];
-                        if (!(0, exports.isDirectlyConvertible)(arg, firstArgType)) {
-                            throw new InvalidMethodParameter([
-                                `Function: ${originalMethod.name}`,
-                                `Type of argument "${argExpectedTypeInfo.name}" does not match the expected type`,
-                                `Expected: ${typesDisplayStrings[0]}`,
-                                `Received: ${argRealType}`,
-                            ].join('\n'));
-                        }
-                        const convertedValue = convertValue(args[subArgIdx], firstArgType.name);
-                        if (firstArgType.literal !== null && firstArgType.literal !== convertedValue) {
-                            throw new InvalidMethodParameter([
-                                `Function: ${originalMethod.name}`,
-                                `Argument "${arg}" does not match literal "${firstArgType.literal}"`,
-                            ].join('\n'));
-                        }
-                        newArgs[subArgIdx] = convertedValue;
-                        continue;
-                    }
-                    // Otherwise we just check if it could be converted to any of the accepted types
-                    const anyTypeMatches = argExpectedTypeInfo.types.some((type) => (0, exports.isDirectlyConvertible)(arg, type));
-                    if (!anyTypeMatches) {
-                        throw new InvalidMethodParameter([
-                            `Function: ${originalMethod.name}`,
-                            `Type of argument "${argExpectedTypeInfo.name}" does not match any of the possible types`,
-                            `Expected: ${typesDisplayStrings.join(' or ')}`,
-                            `Received: ${argRealType}`,
-                        ].join('\n'));
+                    const declared = parameter.types.map((type) => exports.primitiveTypes[type.name]);
+                    if (declared.every((type) => type !== undefined)) {
+                        conversions.push({ index, parameter, types: declared });
                     }
                 }
             }
-            if (processedArgs < newArgs.length) {
+            if (processedArgs < args.length) {
                 logging_1.logger.warn('More arguments given than method accepts', {
                     function: originalMethod.name,
                     processedArgs,
-                    newArgs,
+                    values: args,
                 });
                 (0, stacktrace_1.printStackTrace)();
             }
-            return originalMethod.call(this, ...newArgs);
+            const values = [...args];
+            const call = (sources) => {
+                conversions.forEach((conversion, i) => (values[conversion.index] = convert(conversion, sources[i], args[conversion.index])));
+                return originalMethod.call(this, ...values);
+            };
+            const read = (index) => (args[index] instanceof expression_1.Expression ? args[index].evaluate() : args[index]);
+            const readRest = async (sources, first) => {
+                sources.push(await first);
+                for (const { index } of conversions.slice(sources.length)) {
+                    sources.push(await read(index));
+                }
+                return call(sources);
+            };
+            const sources = [];
+            for (const { index } of conversions) {
+                const source = read(index);
+                if (source instanceof Promise) {
+                    return readRest(sources, source);
+                }
+                sources.push(source);
+            }
+            return call(sources);
         }
+        typeGuardWrapper.returns = returns;
         return typeGuardWrapper;
     };
 }
+const resultValue = (engine, returns, value) => {
+    switch (returns) {
+        case 'int':
+            return (0, values_1.createInteger)(engine, value);
+        case 'double':
+            return (0, values_1.createDouble)(engine, value);
+        case 'string':
+            return (0, values_1.createString)(engine, value);
+        case 'boolean':
+            return (0, values_1.createBool)(engine, value);
+    }
+    throw new errors_1.UnexpectedError(`Unknown return type: ${returns}`);
+};
+const callMethod = (object, name, args) => {
+    const target = object[name];
+    const wrap = (result) => target.returns !== undefined && isPrimitive(result) ? resultValue(object.engine, target.returns, result) : result;
+    const result = target.apply(object, args);
+    return result instanceof Promise ? result.then(wrap) : wrap(result);
+};
+exports.callMethod = callMethod;
 
 
 /***/ },
@@ -31932,7 +31941,7 @@ class Debugging {
                 nameText.text = object.name;
                 if (object instanceof animo_1.Animo) {
                     eventText = container.getChildAt(2);
-                    eventText.text = object.GETEVENTNAME();
+                    eventText.text = object.currentEventName();
                 }
             }
             else {
@@ -31946,7 +31955,7 @@ class Debugging {
                 nameText = new pixi_js_1.Text(object.name);
                 container.addChild(nameText);
                 if (object instanceof animo_1.Animo) {
-                    eventText = new pixi_js_1.Text(object.GETEVENTNAME());
+                    eventText = new pixi_js_1.Text(object.currentEventName());
                     container.addChild(eventText);
                 }
             }
@@ -32239,7 +32248,7 @@ class Engine {
             base = '';
             path = path.substring(1);
         }
-        const lang = this.scopeManager.APPLICATION.GETLANGUAGE();
+        const lang = this.scopeManager.APPLICATION.language;
         const langPath = (0, filesystem_1.pathJoin)(base, lang, path);
         const noLangPath = (0, filesystem_1.pathJoin)(base, path);
         if (await this.filesystem.hasFile(langPath)) {
@@ -32975,41 +32984,41 @@ let Animo = (() => {
     return class Animo extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _PLAY_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: true, rest: false })];
-            _STOP_decorators = [(0, types_1.method)({ name: "shouldSignal", types: [{ name: "boolean", literal: null, isArray: false }, { name: "string", literal: null, isArray: false }], optional: true, rest: false })];
-            _PAUSE_decorators = [(0, types_1.method)()];
-            _RESUME_decorators = [(0, types_1.method)()];
-            _SETANCHOR_decorators = [(0, types_1.method)({ name: "anchor", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETFRAME_decorators = [(0, types_1.method)({ name: "eventNameOrFrameIdx", types: [{ name: "string", literal: null, isArray: false }, { name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "frameIdx", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
-            _SETFPS_decorators = [(0, types_1.method)({ name: "fps", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SHOW_decorators = [(0, types_1.method)()];
-            _HIDE_decorators = [(0, types_1.method)()];
-            _ISVISIBLE_decorators = [(0, types_1.method)()];
-            _MOVE_decorators = [(0, types_1.method)({ name: "xOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "yOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETPOSITION_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETASBUTTON_decorators = [(0, types_1.method)({ name: "enabled", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "showPointer", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            _DISABLE_decorators = [(0, types_1.method)()];
-            _GETCENTERX_decorators = [(0, types_1.method)()];
-            _GETCENTERY_decorators = [(0, types_1.method)()];
-            _GETPOSITIONX_decorators = [(0, types_1.method)()];
-            _GETPOSITIONY_decorators = [(0, types_1.method)()];
-            _GETFRAMENAME_decorators = [(0, types_1.method)({ name: "frameID", types: [{ name: "string", literal: null, isArray: false }, { name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "iFrameNo", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
-            _GETMAXWIDTH_decorators = [(0, types_1.method)()];
-            _GETNOFINEVENT_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETEVENTNAME_decorators = [(0, types_1.method)({ name: "eventIndex", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
-            _GETFRAME_decorators = [(0, types_1.method)()];
-            _GETCFRAMEINEVENT_decorators = [(0, types_1.method)()];
-            _GETNOF_decorators = [(0, types_1.method)()];
-            _GETNOE_decorators = [(0, types_1.method)()];
-            _GETCURRFRAMEPOSX_decorators = [(0, types_1.method)()];
-            _GETCURRFRAMEPOSY_decorators = [(0, types_1.method)()];
-            _ISPLAYING_decorators = [(0, types_1.method)({ name: "animName", types: [{ name: "string", literal: null, isArray: false }], optional: true, rest: false })];
-            _ISNEAR_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "percentage", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _ADDBEHAVIOUR_decorators = [(0, types_1.method)({ name: "callbackString", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _MONITORCOLLISION_decorators = [(0, types_1.method)({ name: "newState", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            _REMOVEMONITORCOLLISION_decorators = [(0, types_1.method)()];
-            _SETOPACITY_decorators = [(0, types_1.method)({ name: "opacity", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _PLAY_decorators = [(0, types_1.method)([{ name: "name", types: [{ name: "string" }], optional: true, rest: false }])];
+            _STOP_decorators = [(0, types_1.method)([{ name: "shouldSignal", types: [{ name: "boolean" }, { name: "string" }], optional: true, rest: false }])];
+            _PAUSE_decorators = [(0, types_1.method)([])];
+            _RESUME_decorators = [(0, types_1.method)([])];
+            _SETANCHOR_decorators = [(0, types_1.method)([{ name: "anchor", types: [{ name: "string" }], optional: false, rest: false }])];
+            _SETFRAME_decorators = [(0, types_1.method)([{ name: "eventNameOrFrameIdx", types: [{ name: "string" }, { name: "int" }], optional: false, rest: false }, { name: "frameIdx", types: [{ name: "int" }], optional: true, rest: false }])];
+            _SETFPS_decorators = [(0, types_1.method)([{ name: "fps", types: [{ name: "int" }], optional: false, rest: false }])];
+            _SHOW_decorators = [(0, types_1.method)([])];
+            _HIDE_decorators = [(0, types_1.method)([])];
+            _ISVISIBLE_decorators = [(0, types_1.method)([], "boolean")];
+            _MOVE_decorators = [(0, types_1.method)([{ name: "xOffset", types: [{ name: "int" }], optional: false, rest: false }, { name: "yOffset", types: [{ name: "int" }], optional: false, rest: false }])];
+            _SETPOSITION_decorators = [(0, types_1.method)([{ name: "x", types: [{ name: "int" }], optional: false, rest: false }, { name: "y", types: [{ name: "int" }], optional: false, rest: false }])];
+            _SETASBUTTON_decorators = [(0, types_1.method)([{ name: "enabled", types: [{ name: "boolean" }], optional: false, rest: false }, { name: "showPointer", types: [{ name: "boolean" }], optional: false, rest: false }])];
+            _DISABLE_decorators = [(0, types_1.method)([])];
+            _GETCENTERX_decorators = [(0, types_1.method)([], "int")];
+            _GETCENTERY_decorators = [(0, types_1.method)([], "int")];
+            _GETPOSITIONX_decorators = [(0, types_1.method)([], "int")];
+            _GETPOSITIONY_decorators = [(0, types_1.method)([], "int")];
+            _GETFRAMENAME_decorators = [(0, types_1.method)([{ name: "frameID", types: [{ name: "string" }, { name: "int" }], optional: true, rest: false }, { name: "iFrameNo", types: [{ name: "int" }], optional: true, rest: false }], "string")];
+            _GETMAXWIDTH_decorators = [(0, types_1.method)([], "int")];
+            _GETNOFINEVENT_decorators = [(0, types_1.method)([{ name: "name", types: [{ name: "string" }], optional: false, rest: false }], "int")];
+            _GETEVENTNAME_decorators = [(0, types_1.method)([{ name: "eventIndex", types: [{ name: "int" }], optional: true, rest: false }], "string")];
+            _GETFRAME_decorators = [(0, types_1.method)([], "int")];
+            _GETCFRAMEINEVENT_decorators = [(0, types_1.method)([], "int")];
+            _GETNOF_decorators = [(0, types_1.method)([], "int")];
+            _GETNOE_decorators = [(0, types_1.method)([], "int")];
+            _GETCURRFRAMEPOSX_decorators = [(0, types_1.method)([], "int")];
+            _GETCURRFRAMEPOSY_decorators = [(0, types_1.method)([], "int")];
+            _ISPLAYING_decorators = [(0, types_1.method)([{ name: "animName", types: [{ name: "string" }], optional: true, rest: false }], "boolean")];
+            _ISNEAR_decorators = [(0, types_1.method)([{ name: "objectName", types: [{ name: "string" }], optional: false, rest: false }, { name: "percentage", types: [{ name: "int" }], optional: false, rest: false }], "boolean")];
+            _ADDBEHAVIOUR_decorators = [(0, types_1.method)([{ name: "callbackString", types: [{ name: "string" }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string" }], optional: false, rest: false }])];
+            _MONITORCOLLISION_decorators = [(0, types_1.method)([{ name: "newState", types: [{ name: "boolean" }], optional: false, rest: false }])];
+            _REMOVEMONITORCOLLISION_decorators = [(0, types_1.method)([])];
+            _SETOPACITY_decorators = [(0, types_1.method)([{ name: "opacity", types: [{ name: "int" }], optional: false, rest: false }])];
+            _LOAD_decorators = [(0, types_1.method)([{ name: "path", types: [{ name: "string" }], optional: false, rest: false }])];
             __esDecorate(this, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _PAUSE_decorators, { kind: "method", name: "PAUSE", static: false, private: false, access: { has: obj => "PAUSE" in obj, get: obj => obj.PAUSE }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -33081,7 +33090,7 @@ let Animo = (() => {
             this.annFile = await this.loadAnimation(this.definition.FILENAME);
         }
         async applyDefaults() {
-            const existingObjectWithFilename = this.engine.scopeManager.find((key, object) => object != this &&
+            const existingObjectWithFilename = this.engine.scopeManager.find((key, object) => object !== this &&
                 object instanceof Animo &&
                 object.definition.FILENAME === this.definition.FILENAME &&
                 object.sprite != null);
@@ -33180,7 +33189,7 @@ let Animo = (() => {
             this.sprite.name = `${this.name} [ANIMO]`; // For PIXI Devtools
             this.sprite.eventMode = 'none';
             this.sprite.visible = this.definition.VISIBLE;
-            this.SETPRIORITY(this.definition.PRIORITY ?? 0);
+            this.setPriority(this.definition.PRIORITY ?? 0);
             if (this.definition.TOCANVAS) {
                 this.engine.rendering.addToStage(this.sprite);
             }
@@ -33215,9 +33224,9 @@ let Animo = (() => {
             if (!event) {
                 return;
             }
-            if (this.eventEndedLastTick == this.currentEvent) {
+            if (this.eventEndedLastTick === this.currentEvent) {
                 this.eventEndedLastTick = null;
-                await this.STOP(true);
+                await this.stop(true);
                 return;
             }
             await this.changeFrame(event, this.currentFrame);
@@ -33248,7 +33257,7 @@ let Animo = (() => {
                     sound.play();
                 }
             }
-            if (event.loopFramesEndIndex != 0 && this.currentFrame == event.loopFramesEndIndex) {
+            if (event.loopFramesEndIndex !== 0 && this.currentFrame === event.loopFramesEndIndex) {
                 // TODO: handle event.loopRepeatsCount
                 this.currentFrame = event.loopFramesStartIndex;
             }
@@ -33363,9 +33372,12 @@ let Animo = (() => {
         }
         // For some reason there is sometimes a string passed
         async STOP(shouldSignal) {
+            await this.stop(shouldSignal !== false && shouldSignal !== 'FALSE');
+        }
+        async stop(shouldSignal) {
             this.isPlaying = false;
             this.currentFrame = 0;
-            if (shouldSignal !== false && shouldSignal !== 'FALSE') {
+            if (shouldSignal) {
                 await this.ONFINISHED();
             }
         }
@@ -33415,7 +33427,7 @@ let Animo = (() => {
                 return;
             }
             const newEvent = eventNameOrFrameIdx.toString();
-            const newEventFrame = Number(frameIdx);
+            const newEventFrame = frameIdx;
             const event = this.getEvent(newEvent);
             if (event === null) {
                 logging_1.logger.warn(`SETFRAME: event "${newEvent}" does not exist, ignoring`, {
@@ -33449,15 +33461,18 @@ let Animo = (() => {
         }
         async MOVE(xOffset, yOffset) {
             (0, errors_1.assert)(this.sprite !== null);
-            this.positionX += Math.trunc(xOffset);
-            this.positionY += Math.trunc(yOffset);
+            await this.move(xOffset, yOffset);
+        }
+        async move(xOffset, yOffset) {
+            this.positionX += xOffset;
+            this.positionY += yOffset;
             this.syncPosition();
             await this.onMove();
         }
         async SETPOSITION(x, y) {
             (0, errors_1.assert)(this.sprite !== null);
-            this.positionX = Math.trunc(x);
-            this.positionY = Math.trunc(y);
+            this.positionX = x;
+            this.positionY = y;
             this.syncPosition();
             await this.onMove();
         }
@@ -33542,7 +33557,8 @@ let Animo = (() => {
             (0, errors_1.assert)(this.annFile !== null);
             const event = typeof frameID === 'string' ? this.getEvent(frameID) : this.annFile.events[frameID];
             (0, errors_1.assert)(event !== null);
-            return event?.frames[iFrameNo].name;
+            const name = event?.frames[iFrameNo].name;
+            return name === undefined ? null : name;
         }
         GETMAXWIDTH() {
             (0, errors_1.assert)(this.annFile !== null);
@@ -33551,10 +33567,13 @@ let Animo = (() => {
         GETNOFINEVENT(name) {
             return this.getEvent(name)?.framesCount ?? 0;
         }
+        currentEventName() {
+            (0, errors_1.assert)(this.currentEvent !== null);
+            return this.currentEvent.name.toUpperCase();
+        }
         GETEVENTNAME(eventIndex) {
             if (eventIndex === undefined) {
-                (0, errors_1.assert)(this.currentEvent !== null);
-                return this.currentEvent.name.toUpperCase();
+                return this.currentEventName();
             }
             else {
                 const event = this.getAllEvents()[eventIndex];
@@ -33587,8 +33606,9 @@ let Animo = (() => {
         }
         ISPLAYING(animName) {
             (0, errors_1.assert)(this.currentEvent !== null);
-            return this.isPlaying && (animName === undefined || this.currentEvent.name.toUpperCase() == animName);
+            return this.isPlaying && (animName === undefined || this.currentEvent.name.toUpperCase() === animName);
         }
+        // TODO: alternative 5 arg version
         ISNEAR(objectName, percentage) {
             const otherObject = this.getObject(objectName);
             if (otherObject === null || !(otherObject instanceof index_1.DisplayType)) {
@@ -33667,7 +33687,7 @@ let Animo = (() => {
             clone.anchorOffsetY = this.anchorOffsetY;
             await clone.initSprite();
             clone.sprite.visible = this.sprite.visible;
-            clone.SETPRIORITY(this.GETPRIORITY());
+            clone.setPriority(this.priority);
             return clone;
         }
         __getXRayInfo() {
@@ -33677,7 +33697,7 @@ let Animo = (() => {
                     bounds: this.buttonInteractArea.hitArea,
                     color: this.buttonLogic.enabled ? 0x00ff00 : 0x0000ff,
                     position: 'outside',
-                    visible: this.buttonLogic.state != button_1.State.DISABLED,
+                    visible: this.buttonLogic.state !== button_1.State.DISABLED,
                 };
             }
             else if (this.sprite?.visible) {
@@ -33768,11 +33788,11 @@ let Application = (() => {
     return class Application extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _SETLANGUAGE_decorators = [(0, types_1.method)({ name: "langCode", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETLANGUAGE_decorators = [(0, types_1.method)()];
-            _RUN_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "methodName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
-            _RUNENV_decorators = [(0, types_1.method)({ name: "sceneName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
-            _EXIT_decorators = [(0, types_1.method)()];
+            _SETLANGUAGE_decorators = [(0, types_1.method)([{ name: "langCode", types: [{ name: "string" }], optional: false, rest: false }])];
+            _GETLANGUAGE_decorators = [(0, types_1.method)([], "string")];
+            _RUN_decorators = [(0, types_1.method)([{ name: "objectName", types: [{ name: "string" }], optional: false, rest: false }, { name: "methodName", types: [{ name: "string" }], optional: false, rest: false }, { name: "args", types: [{ name: "Value" }], optional: false, rest: true }])];
+            _RUNENV_decorators = [(0, types_1.method)([{ name: "sceneName", types: [{ name: "string" }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string" }], optional: false, rest: false }, { name: "args", types: [{ name: "Value" }], optional: false, rest: true }])];
+            _EXIT_decorators = [(0, types_1.method)([])];
             __esDecorate(this, null, _SETLANGUAGE_decorators, { kind: "method", name: "SETLANGUAGE", static: false, private: false, access: { has: obj => "SETLANGUAGE" in obj, get: obj => obj.SETLANGUAGE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _GETLANGUAGE_decorators, { kind: "method", name: "GETLANGUAGE", static: false, private: false, access: { has: obj => "GETLANGUAGE" in obj, get: obj => obj.GETLANGUAGE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -33803,7 +33823,7 @@ let Application = (() => {
                 return;
             }
             if (typeof object[methodName] === 'function') {
-                return await object[methodName](...args);
+                return await (0, types_1.callMethod)(object, methodName, args);
             }
             else {
                 return await object.__call(methodName, args);
@@ -33885,6 +33905,26 @@ const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/type
 const fileLoader_1 = __webpack_require__(/*! ../../filesystem/fileLoader */ "./src/filesystem/fileLoader.ts");
 const array_1 = __webpack_require__(/*! ../../fileFormats/archive/array */ "./src/fileFormats/archive/array.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
+const values_1 = __webpack_require__(/*! ./values */ "./src/engine/types/values.ts");
+const integer_1 = __webpack_require__(/*! ./integer */ "./src/engine/types/integer.ts");
+const double_1 = __webpack_require__(/*! ./double */ "./src/engine/types/double.ts");
+const string_1 = __webpack_require__(/*! ./string */ "./src/engine/types/string.ts");
+const bool_1 = __webpack_require__(/*! ./bool */ "./src/engine/types/bool.ts");
+const toEntry = (element) => {
+    if (element instanceof integer_1.Integer) {
+        return { type: array_1.ArrayEntryType.INTEGER, value: element.getValue() };
+    }
+    if (element instanceof double_1.Double) {
+        return { type: array_1.ArrayEntryType.FLOAT, value: element.getValue() };
+    }
+    if (element instanceof string_1.String) {
+        return { type: array_1.ArrayEntryType.STRING, value: element.getValue() };
+    }
+    if (element instanceof bool_1.Bool) {
+        return { type: array_1.ArrayEntryType.BOOLEAN, value: element.getValue() };
+    }
+    throw new TypeError('Cannot save a NULL element of an array');
+};
 const generateMessage = (action, position, value) => {
     return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`;
 };
@@ -33915,27 +33955,27 @@ let ArrayObject = (() => {
     return class ArrayObject extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _ADD_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
-            _ADDAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _MODAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _CLAMPAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _MULAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _CONTAINS_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
-            _SUM_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SUBAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GET_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETSIZE_decorators = [(0, types_1.method)()];
-            _CHANGEAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
-            _REMOVEAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _INSERTAT_decorators = [(0, types_1.method)({ name: "position", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
-            _REMOVEALL_decorators = [(0, types_1.method)()];
-            _FIND_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
-            _REVERSEFIND_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
-            _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _SAVE_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _SAVEINI_decorators = [(0, types_1.method)()];
-            _LOADINI_decorators = [(0, types_1.method)()];
-            _MSGBOX_decorators = [(0, types_1.method)()];
+            _ADD_decorators = [(0, types_1.method)([{ name: "args", types: [{ name: "Value" }], optional: false, rest: true }])];
+            _ADDAT_decorators = [(0, types_1.method)([{ name: "position", types: [{ name: "int" }], optional: false, rest: false }, { name: "value", types: [{ name: "double" }], optional: false, rest: false }])];
+            _MODAT_decorators = [(0, types_1.method)([{ name: "position", types: [{ name: "int" }], optional: false, rest: false }, { name: "value", types: [{ name: "double" }], optional: false, rest: false }])];
+            _CLAMPAT_decorators = [(0, types_1.method)([{ name: "position", types: [{ name: "int" }], optional: false, rest: false }, { name: "min", types: [{ name: "double" }], optional: false, rest: false }, { name: "max", types: [{ name: "double" }], optional: false, rest: false }])];
+            _MULAT_decorators = [(0, types_1.method)([{ name: "position", types: [{ name: "int" }], optional: false, rest: false }, { name: "value", types: [{ name: "double" }], optional: false, rest: false }])];
+            _CONTAINS_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "Value" }], optional: false, rest: false }], "boolean")];
+            _SUM_decorators = [(0, types_1.method)([{ name: "arg", types: [{ name: "double" }], optional: false, rest: false }])];
+            _SUBAT_decorators = [(0, types_1.method)([{ name: "position", types: [{ name: "int" }], optional: false, rest: false }, { name: "value", types: [{ name: "double" }], optional: false, rest: false }])];
+            _GET_decorators = [(0, types_1.method)([{ name: "position", types: [{ name: "int" }], optional: false, rest: false }])];
+            _GETSIZE_decorators = [(0, types_1.method)([], "int")];
+            _CHANGEAT_decorators = [(0, types_1.method)([{ name: "position", types: [{ name: "int" }], optional: false, rest: false }, { name: "value", types: [{ name: "Value" }], optional: false, rest: false }])];
+            _REMOVEAT_decorators = [(0, types_1.method)([{ name: "position", types: [{ name: "int" }], optional: false, rest: false }])];
+            _INSERTAT_decorators = [(0, types_1.method)([{ name: "position", types: [{ name: "int" }], optional: false, rest: false }, { name: "value", types: [{ name: "Value" }], optional: false, rest: false }])];
+            _REMOVEALL_decorators = [(0, types_1.method)([])];
+            _FIND_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "Value" }], optional: false, rest: false }], "int")];
+            _REVERSEFIND_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "Value" }], optional: false, rest: false }], "int")];
+            _LOAD_decorators = [(0, types_1.method)([{ name: "path", types: [{ name: "string" }], optional: false, rest: false }])];
+            _SAVE_decorators = [(0, types_1.method)([{ name: "path", types: [{ name: "string" }], optional: false, rest: false }])];
+            _SAVEINI_decorators = [(0, types_1.method)([])];
+            _LOADINI_decorators = [(0, types_1.method)([])];
+            _MSGBOX_decorators = [(0, types_1.method)([])];
             __esDecorate(this, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _ADDAT_decorators, { kind: "method", name: "ADDAT", static: false, private: false, access: { has: obj => "ADDAT" in obj, get: obj => obj.ADDAT }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _MODAT_decorators, { kind: "method", name: "MODAT", static: false, private: false, access: { has: obj => "MODAT" in obj, get: obj => obj.MODAT }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -33966,72 +34006,97 @@ let ArrayObject = (() => {
         async ready() {
             await this.callbacks.run('ONINIT');
         }
-        ADD(...args) {
-            this.value.push(...args);
+        async ADD(...args) {
+            for (const arg of args) {
+                this.push(await (0, values_1.copyValue)(this.engine, arg));
+            }
         }
-        ADDAT(position, value) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
-            this.value[position] += value;
+        push(...values) {
+            this.value.push(...values);
         }
-        MODAT(position, value) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
-            this.value[position] %= value;
+        checkedPosition(action, index) {
+            (0, errors_1.assert)(index < this.value.length, generateMessage(action, index, this.value));
+            return index;
+        }
+        async modifyAt(position, op, value) {
+            const index = this.checkedPosition('modify', position);
+            this.value[index] = await this.calculate(this.value[index], op, value);
+        }
+        calculate(element, op, value) {
+            const left = element ?? (0, values_1.createDouble)(this.engine, 0);
+            return (0, values_1.applyArithmetic)(this.engine, left, op, this.asElementType(left, value));
+        }
+        asElementType(element, value) {
+            return element instanceof integer_1.Integer
+                ? (0, values_1.createInteger)(this.engine, Math.trunc(value))
+                : (0, values_1.createDouble)(this.engine, value);
+        }
+        async ADDAT(position, value) {
+            await this.modifyAt(position, 'ADD', value);
+        }
+        async MODAT(position, value) {
+            await this.modifyAt(position, 'MOD', value);
         }
         CLAMPAT(position, min, max) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
-            this.value[position] = Math.min(Math.max(this.value[position], min), max);
+            const index = this.checkedPosition('modify', position);
+            const element = this.value[index];
+            const [low, high] = element instanceof integer_1.Integer ? [Math.trunc(min), Math.trunc(max)] : [min, max];
+            this.value[index] = this.asElementType(element, Math.min(Math.max((0, types_1.valueAsDouble)((0, values_1.rawValue)(element)), low), high));
         }
-        MULAT(position, value) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
-            this.value[position] *= value;
+        async MULAT(position, value) {
+            await this.modifyAt(position, 'MUL', value);
         }
-        CONTAINS(value) {
-            return this.value.includes(value) || this.value.includes((0, types_1.valueAsString)(value));
+        async CONTAINS(value) {
+            return (await this.findElement(value, this.value.keys())) !== -1;
         }
-        SUM(arg) {
-            this.value = this.value.map((value) => value + arg);
+        async SUM(arg) {
+            for (let i = 0; i < this.value.length; i++) {
+                this.value[i] = await this.calculate(this.value[i], 'ADD', arg);
+            }
         }
-        SUBAT(position, value) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('modify', position, this.value));
-            this.value[position] -= value;
+        async SUBAT(position, value) {
+            await this.modifyAt(position, 'SUB', value);
         }
         GET(position) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('access', position, this.value));
-            return this.value[position];
+            return (0, values_1.copyValue)(this.engine, this.value[this.checkedPosition('access', position)]);
         }
         GETSIZE() {
             return this.value.length;
         }
-        CHANGEAT(position, value) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('set', position, this.value));
-            this.value[position] = value;
+        async CHANGEAT(position, value) {
+            this.value[this.checkedPosition('set', position)] = await (0, values_1.copyValue)(this.engine, value);
         }
         REMOVEAT(position) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('remove', position, this.value));
-            this.value.splice(position, 1);
+            this.value.splice(this.checkedPosition('remove', position), 1);
         }
-        INSERTAT(position, value) {
-            (0, errors_1.assert)(position < this.value.length, generateMessage('insert', position, this.value));
-            this.value.splice(position, 0, value);
+        async INSERTAT(position, value) {
+            this.value.splice(this.checkedPosition('insert', position), 0, await (0, values_1.copyValue)(this.engine, value));
         }
         REMOVEALL() {
             this.value = [];
         }
-        FIND(value) {
-            const allValuesStrings = this.value.map((v) => (0, types_1.valueAsString)(v).toLowerCase());
-            return allValuesStrings.indexOf((0, types_1.valueAsString)(value).toLowerCase());
+        async FIND(value) {
+            return this.findElement(value, this.value.keys());
         }
-        REVERSEFIND(value) {
-            let position = this.value.lastIndexOf(value);
-            if (position == -1) {
-                position = this.value.lastIndexOf((0, types_1.valueAsString)(value));
+        async REVERSEFIND(value) {
+            return this.findElement(value, [...this.value.keys()].reverse());
+        }
+        // Each element compares the value in its own type: an INTEGER 2 equals 2.4
+        async findElement(value, indexes) {
+            const needle = (await (0, values_1.copyValue)(this.engine, value)) ?? (0, values_1.createString)(this.engine, 'NULL');
+            for (const i of indexes) {
+                const element = this.value[i] ?? (0, values_1.createString)(this.engine, 'NULL');
+                if (await element.equals(needle)) {
+                    return i;
+                }
             }
-            return position;
+            return -1;
         }
         async LOAD(path) {
             (0, errors_1.assert)(this.engine.currentScene !== null);
             try {
-                this.value = await this.engine.filesystem.getARRFile(await this.engine.currentScene.getRelativePath(path));
+                const entries = await this.engine.filesystem.getARRFile(await this.engine.currentScene.getRelativePath(path));
+                this.value = entries.map((entry) => this.fromEntry(entry));
             }
             catch (err) {
                 if (err instanceof fileLoader_1.FileNotFoundError) {
@@ -34046,7 +34111,19 @@ let ArrayObject = (() => {
         }
         async SAVE(path) {
             (0, errors_1.assert)(this.engine.currentScene !== null);
-            await this.engine.filesystem.saveFile(await this.engine.currentScene.getRelativePath(path), (0, array_1.serializeArray)(this.value));
+            await this.engine.filesystem.saveFile(await this.engine.currentScene.getRelativePath(path), (0, array_1.serializeArray)(this.value.map(toEntry)));
+        }
+        fromEntry(entry) {
+            switch (entry.type) {
+                case array_1.ArrayEntryType.INTEGER:
+                    return (0, values_1.createInteger)(this.engine, entry.value);
+                case array_1.ArrayEntryType.FLOAT:
+                    return (0, values_1.createDouble)(this.engine, entry.value);
+                case array_1.ArrayEntryType.STRING:
+                    return (0, values_1.createString)(this.engine, entry.value);
+                case array_1.ArrayEntryType.BOOLEAN:
+                    return (0, values_1.createBool)(this.engine, entry.value);
+            }
         }
         SAVEINI() {
             this.saveToINI();
@@ -34055,19 +34132,23 @@ let ArrayObject = (() => {
             this.value = this.getFromINI() ?? [];
         }
         MSGBOX() { }
+        getValue() {
+            return this.value;
+        }
         async clone() {
             const cloned = (await super.clone());
             cloned.value = [...this.value];
             return cloned;
         }
         serialize() {
-            return this.value.join(',');
+            return this.value.map(values_1.rawValue).join(',');
         }
+        // The INI doesn't keep the types of the elements, so they are all read back as strings
         deserialize(value) {
             if (value === '') {
                 return [];
             }
-            return value.split(',');
+            return value.split(',').map((element) => (0, values_1.createString)(this.engine, element));
         }
     };
 })();
@@ -34124,6 +34205,7 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const class_1 = __webpack_require__(/*! ./class */ "./src/engine/types/class.ts");
+const values_1 = __webpack_require__(/*! ./values */ "./src/engine/types/values.ts");
 const stacktrace_1 = __webpack_require__(/*! ../../interpreter/stacktrace */ "./src/interpreter/stacktrace.ts");
 let Behaviour = (() => {
     let _classSuper = index_1.Type;
@@ -34134,9 +34216,9 @@ let Behaviour = (() => {
     return class Behaviour extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _RUN_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
-            _RUNC_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
-            _RUNLOOPED_decorators = [(0, types_1.method)({ name: "start", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "len", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "step", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            _RUN_decorators = [(0, types_1.method)([{ name: "args", types: [{ name: "any" }], optional: false, rest: true }])];
+            _RUNC_decorators = [(0, types_1.method)([{ name: "args", types: [{ name: "any" }], optional: false, rest: true }])];
+            _RUNLOOPED_decorators = [(0, types_1.method)([{ name: "start", types: [{ name: "int" }], optional: false, rest: false }, { name: "len", types: [{ name: "int" }], optional: false, rest: false }, { name: "step", types: [{ name: "int" }], optional: true, rest: false }, { name: "args", types: [{ name: "any" }], optional: false, rest: true }])];
             __esDecorate(this, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _RUNC_decorators, { kind: "method", name: "RUNC", static: false, private: false, access: { has: obj => "RUNC" in obj, get: obj => obj.RUNC }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _RUNLOOPED_decorators, { kind: "method", name: "RUNLOOPED", static: false, private: false, access: { has: obj => "RUNLOOPED" in obj, get: obj => obj.RUNLOOPED }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -34170,7 +34252,11 @@ let Behaviour = (() => {
             for (let i = start; i < start + len; i += step) {
                 try {
                     if (await this.shouldRun()) {
-                        await this.executeCallback([i, step, ...args]);
+                        await this.executeCallback([
+                            (0, values_1.createInteger)(this.engine, i),
+                            (0, values_1.createInteger)(this.engine, step),
+                            ...args,
+                        ]);
                     }
                 }
                 catch (err) {
@@ -34212,7 +34298,7 @@ let Behaviour = (() => {
             if (this.definition.CONDITION) {
                 const condition = this.getObject(this.definition.CONDITION.objectName);
                 (0, errors_1.assert)(condition !== null);
-                return await condition.CHECK(true);
+                return await condition.check(true);
             }
             return true;
         }
@@ -34281,8 +34367,8 @@ let Bool = (() => {
     return class Bool extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _SWITCH_decorators = [(0, types_1.method)({ name: "arg1", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false }, { name: "arg2", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            _SET_decorators = [(0, types_1.method)({ name: "newValue", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _SWITCH_decorators = [(0, types_1.method)([{ name: "arg1", types: [{ name: "boolean" }], optional: true, rest: false }, { name: "arg2", types: [{ name: "boolean" }], optional: true, rest: false }])];
+            _SET_decorators = [(0, types_1.method)([{ name: "newValue", types: [{ name: "boolean" }], optional: false, rest: false }])];
             __esDecorate(this, null, _SWITCH_decorators, { kind: "method", name: "SWITCH", static: false, private: false, access: { has: obj => "SWITCH" in obj, get: obj => obj.SWITCH }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
@@ -34298,14 +34384,24 @@ let Bool = (() => {
         async SET(newValue) {
             await this.setValue(newValue);
         }
+        getValue() {
+            return this.value;
+        }
         async valueChanged(oldValue, newValue) {
             if (oldValue !== newValue) {
                 await this.callbacks.run('ONCHANGED', newValue);
             }
             await this.callbacks.run('ONBRUTALCHANGED', newValue);
         }
+        async equals(other) {
+            return this.getValue() === (0, types_1.valueAsBool)(await other.getValue());
+        }
+        // FALSE < TRUE
+        async compare(other) {
+            return Number(this.getValue()) - Number((0, types_1.valueAsBool)(await other.getValue()));
+        }
         async toString() {
-            return (await this.getValue()) ? 'TRUE' : 'FALSE';
+            return this.getValue() ? 'TRUE' : 'FALSE';
         }
     };
 })();
@@ -34376,12 +34472,12 @@ let Button = (() => {
     return class Button extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _ENABLE_decorators = [(0, types_1.method)()];
-            _DISABLE_decorators = [(0, types_1.method)()];
-            _DISABLEBUTVISIBLE_decorators = [(0, types_1.method)()];
-            _SETPRIORITY_decorators = [(0, types_1.method)({ name: "priority", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETRECT_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETSTD_decorators = [(0, types_1.method)({ name: "graphicObjectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "removeFromCanvas", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false }, { name: "onBoundingBox", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            _ENABLE_decorators = [(0, types_1.method)([])];
+            _DISABLE_decorators = [(0, types_1.method)([])];
+            _DISABLEBUTVISIBLE_decorators = [(0, types_1.method)([])];
+            _SETPRIORITY_decorators = [(0, types_1.method)([{ name: "priority", types: [{ name: "int" }], optional: false, rest: false }])];
+            _SETRECT_decorators = [(0, types_1.method)([{ name: "objectName", types: [{ name: "string" }], optional: false, rest: false }])];
+            _SETSTD_decorators = [(0, types_1.method)([{ name: "graphicObjectName", types: [{ name: "string" }], optional: false, rest: false }, { name: "removeFromCanvas", types: [{ name: "boolean" }], optional: true, rest: false }, { name: "onBoundingBox", types: [{ name: "boolean" }], optional: true, rest: false }])];
             __esDecorate(this, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _DISABLEBUTVISIBLE_decorators, { kind: "method", name: "DISABLEBUTVISIBLE", static: false, private: false, access: { has: obj => "DISABLEBUTVISIBLE" in obj, get: obj => obj.DISABLEBUTVISIBLE }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -34443,9 +34539,9 @@ let Button = (() => {
                 const offsetX = this.lastMousePosition.x - this.draggingPosition.x;
                 const offsetY = this.lastMousePosition.y - this.draggingPosition.y;
                 this.draggingPosition.set(this.lastMousePosition.x, this.lastMousePosition.y);
-                await this.gfxStandard?.MOVE(offsetX, offsetY);
-                await this.gfxOnClick?.MOVE(offsetX, offsetY);
-                await this.gfxOnMove?.MOVE(offsetX, offsetY);
+                await this.gfxStandard?.move(offsetX, offsetY);
+                await this.gfxOnClick?.move(offsetX, offsetY);
+                await this.gfxOnMove?.move(offsetX, offsetY);
                 await this.callbacks.run('ONDRAGGING');
             }
             if (this.draggingEnded) {
@@ -34497,14 +34593,14 @@ let Button = (() => {
             }
             if (this.interactArea) {
                 // For area button
-                this.interactArea.visible = state != button_1.State.DISABLED;
+                this.interactArea.visible = state !== button_1.State.DISABLED;
             }
-            if (state == button_1.State.DISABLED) {
+            if (state === button_1.State.DISABLED) {
                 this.gfxStandard?.HIDE();
                 this.gfxOnMove?.HIDE();
                 this.gfxOnClick?.HIDE();
             }
-            else if (state == button_1.State.DISABLED_BUT_VISIBLE) {
+            else if (state === button_1.State.DISABLED_BUT_VISIBLE) {
                 this.gfxStandard?.SHOW();
                 this.setSpriteAlpha(this.gfxStandard, 1);
                 if (this.gfxStandard !== this.gfxOnMove) {
@@ -34514,7 +34610,7 @@ let Button = (() => {
                     this.gfxOnClick?.HIDE();
                 }
             }
-            else if (state == button_1.State.HOVERED && this.gfxOnMove) {
+            else if (state === button_1.State.HOVERED && this.gfxOnMove) {
                 this.gfxStandard?.SHOW();
                 if (this.gfxStandard !== this.gfxOnMove) {
                     // Setting alpha to 0 instead of hiding so that the mouse interactions still work
@@ -34525,7 +34621,7 @@ let Button = (() => {
                     this.gfxOnClick?.HIDE();
                 }
             }
-            else if (state == button_1.State.PRESSED && this.gfxOnClick) {
+            else if (state === button_1.State.PRESSED && this.gfxOnClick) {
                 this.gfxStandard?.SHOW();
                 if (this.gfxStandard !== this.gfxOnMove) {
                     this.setSpriteAlpha(this.gfxStandard, 0);
@@ -34543,7 +34639,7 @@ let Button = (() => {
                     this.gfxOnClick?.HIDE();
                 }
             }
-            if (event == button_1.Event.ENABLE) {
+            if (event === button_1.Event.ENABLE) {
                 if (this.gfxStandard) {
                     this.registerInteractive(this.gfxStandard);
                 }
@@ -34551,7 +34647,7 @@ let Button = (() => {
                     this.logic.registerInteractive(this.interactArea);
                 }
             }
-            else if (event == button_1.Event.DISABLE || event == button_1.Event.DISABLE_BUT_VISIBLE) {
+            else if (event === button_1.Event.DISABLE || event === button_1.Event.DISABLE_BUT_VISIBLE) {
                 if (this.gfxStandard) {
                     this.unregisterInteractive(this.gfxStandard);
                 }
@@ -34559,14 +34655,14 @@ let Button = (() => {
                     this.logic.unregisterInteractive(this.interactArea);
                 }
             }
-            else if (event == button_1.Event.DOWN) {
+            else if (event === button_1.Event.DOWN) {
                 await this.callbacks.run('ONCLICKED');
                 if (this.definition.DRAGGABLE) {
                     (0, errors_1.assert)(this.gfxStandard !== null);
                     const renderObject = this.gfxStandard.getRenderObject();
                     (0, errors_1.assert)(renderObject !== null);
                     this.originalPriority = renderObject.zIndex;
-                    this.gfxStandard?.SETPRIORITY(99999999);
+                    this.gfxStandard?.setPriority(99999999);
                     await this.callbacks.run('ONSTARTDRAGGING');
                     this.engine.app.stage.on('pointerup', this.onPointerUpHandler);
                     if (this.callbacks.has('ONDRAGGING')) {
@@ -34574,14 +34670,14 @@ let Button = (() => {
                     }
                 }
             }
-            else if (event == button_1.Event.UP) {
+            else if (event === button_1.Event.UP) {
                 await this.callbacks.run('ONRELEASED');
                 await this.callbacks.run('ONACTION');
             }
-            else if (event == button_1.Event.OVER) {
+            else if (event === button_1.Event.OVER) {
                 await this.callbacks.run('ONFOCUSON');
             }
-            else if (event == button_1.Event.OUT) {
+            else if (event === button_1.Event.OUT) {
                 await this.callbacks.run('ONFOCUSOFF');
             }
         }
@@ -34599,7 +34695,7 @@ let Button = (() => {
                 this.draggingPosition = null;
                 this.engine.app.stage.off('pointermove', this.onPointerMoveHandler);
                 this.engine.app.stage.off('pointerup', this.onPointerMoveHandler);
-                this.gfxStandard?.SETPRIORITY(this.originalPriority);
+                this.gfxStandard?.setPriority(this.originalPriority);
             }
         }
         async ENABLE() {
@@ -34612,9 +34708,9 @@ let Button = (() => {
             await this.logic.disableButVisible();
         }
         SETPRIORITY(priority) {
-            this.gfxStandard?.SETPRIORITY(priority);
-            this.gfxOnMove?.SETPRIORITY(priority);
-            this.gfxOnClick?.SETPRIORITY(priority);
+            this.gfxStandard?.setPriority(priority);
+            this.gfxOnMove?.setPriority(priority);
+            this.gfxOnClick?.setPriority(priority);
         }
         SETRECT(objectName) {
             this.setRect({ objectName });
@@ -34665,7 +34761,7 @@ let Button = (() => {
                     bounds: this.rect,
                     color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
                     position: 'outside',
-                    visible: this.logic.state != button_1.State.DISABLED,
+                    visible: this.logic.state !== button_1.State.DISABLED,
                 };
             }
             else if (this.gfxStandard?.getRenderObject()?.visible) {
@@ -34749,11 +34845,11 @@ let CanvasObserver = (() => {
     return class CanvasObserver extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _SETBACKGROUND_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _REFRESH_decorators = [(0, types_1.method)()];
-            _REMOVE_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETGRAPHICSAT_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "onlyVisible", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false }, { name: "minZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "maxZ", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "ignoreAlpha", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
-            _SAVE_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "scaleX", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "scaleY", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETBACKGROUND_decorators = [(0, types_1.method)([{ name: "filename", types: [{ name: "string" }], optional: false, rest: false }])];
+            _REFRESH_decorators = [(0, types_1.method)([])];
+            _REMOVE_decorators = [(0, types_1.method)([{ name: "objectName", types: [{ name: "string" }], optional: false, rest: false }])];
+            _GETGRAPHICSAT_decorators = [(0, types_1.method)([{ name: "x", types: [{ name: "int" }], optional: false, rest: false }, { name: "y", types: [{ name: "int" }], optional: false, rest: false }, { name: "onlyVisible", types: [{ name: "boolean" }], optional: true, rest: false }, { name: "minZ", types: [{ name: "int" }], optional: true, rest: false }, { name: "maxZ", types: [{ name: "int" }], optional: true, rest: false }, { name: "ignoreAlpha", types: [{ name: "boolean" }], optional: true, rest: false }], "string")];
+            _SAVE_decorators = [(0, types_1.method)([{ name: "filename", types: [{ name: "string" }], optional: false, rest: false }, { name: "scaleX", types: [{ name: "double" }], optional: false, rest: false }, { name: "scaleY", types: [{ name: "double" }], optional: false, rest: false }, { name: "left", types: [{ name: "int" }], optional: true, rest: false }, { name: "top", types: [{ name: "int" }], optional: true, rest: false }, { name: "right", types: [{ name: "int" }], optional: true, rest: false }, { name: "bottom", types: [{ name: "int" }], optional: true, rest: false }])];
             __esDecorate(this, null, _SETBACKGROUND_decorators, { kind: "method", name: "SETBACKGROUND", static: false, private: false, access: { has: obj => "SETBACKGROUND" in obj, get: obj => obj.SETBACKGROUND }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _REFRESH_decorators, { kind: "method", name: "REFRESH", static: false, private: false, access: { has: obj => "REFRESH" in obj, get: obj => obj.REFRESH }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _REMOVE_decorators, { kind: "method", name: "REMOVE", static: false, private: false, access: { has: obj => "REMOVE" in obj, get: obj => obj.REMOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -34809,7 +34905,7 @@ let CanvasObserver = (() => {
         }
         async SAVE(filename, scaleX, scaleY, left = 0, top = 0, right = 0, bottom = 0) {
             (0, errors_1.assert)(this.engine.currentScene !== null);
-            const rectangle = right != left && bottom != top
+            const rectangle = right !== left && bottom !== top
                 ? new pixi_js_1.Rectangle(left, top, right - left, bottom - top)
                 : new pixi_js_1.Rectangle(0, 0, this.engine.app.view.width, this.engine.app.view.height);
             const originalCanvas = await this.engine.app.renderer.extract.image(this.engine.app.stage, undefined, undefined, rectangle);
@@ -34907,7 +35003,7 @@ let Class = (() => {
     return class Class extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _NEW_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
+            _NEW_decorators = [(0, types_1.method)([{ name: "name", types: [{ name: "string" }], optional: false, rest: false }, { name: "args", types: [{ name: "Value" }], optional: false, rest: true }])];
             __esDecorate(this, null, _NEW_decorators, { kind: "method", name: "NEW", static: false, private: false, access: { has: obj => "NEW" in obj, get: obj => obj.NEW }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         }
@@ -35031,7 +35127,7 @@ let CNVLoader = (() => {
     return class CNVLoader extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _LOAD_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _LOAD_decorators = [(0, types_1.method)([{ name: "filename", types: [{ name: "string" }], optional: false, rest: false }])];
             __esDecorate(this, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         }
@@ -35109,9 +35205,9 @@ let ComplexCondition = (() => {
     return class ComplexCondition extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            _ONE_BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            _CHECK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _BREAK_decorators = [(0, types_1.method)([{ name: "arg", types: [{ name: "boolean" }], optional: false, rest: false }])];
+            _ONE_BREAK_decorators = [(0, types_1.method)([{ name: "arg", types: [{ name: "boolean" }], optional: false, rest: false }])];
+            _CHECK_decorators = [(0, types_1.method)([{ name: "arg", types: [{ name: "boolean" }], optional: false, rest: false }], "boolean")];
             __esDecorate(this, null, _BREAK_decorators, { kind: "method", name: "BREAK", static: false, private: false, access: { has: obj => "BREAK" in obj, get: obj => obj.BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _ONE_BREAK_decorators, { kind: "method", name: "ONE_BREAK", static: false, private: false, access: { has: obj => "ONE_BREAK" in obj, get: obj => obj.ONE_BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _CHECK_decorators, { kind: "method", name: "CHECK", static: false, private: false, access: { has: obj => "CHECK" in obj, get: obj => obj.CHECK }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -35119,27 +35215,30 @@ let ComplexCondition = (() => {
         }
         // In loops its like 'break'
         async BREAK(arg) {
-            if (await this.CHECK(arg)) {
+            if (await this.check(arg)) {
                 throw new errors_1.InterruptScriptExecution(false);
             }
         }
         // In loops its like 'continue'
         async ONE_BREAK(arg) {
-            if (await this.CHECK(arg)) {
+            if (await this.check(arg)) {
                 throw new errors_1.InterruptScriptExecution(true);
             }
         }
         async CHECK(arg) {
+            return await this.check(arg);
+        }
+        async check(arg) {
             const condition1 = this.getObject(this.definition.CONDITION1);
             const condition2 = this.getObject(this.definition.CONDITION2);
             (0, errors_1.assert)(condition1 !== null && condition2 !== null);
             let result;
             switch (this.definition.OPERATOR) {
                 case 'AND':
-                    result = (await condition1.CHECK(arg)) && (await condition2.CHECK(arg));
+                    result = (await condition1.check(arg)) && (await condition2.check(arg));
                     break;
                 case 'OR':
-                    result = (await condition1.CHECK(arg)) || (await condition2.CHECK(arg));
+                    result = (await condition1.check(arg)) || (await condition2.check(arg));
                     break;
             }
             if (result) {
@@ -35209,6 +35308,15 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const values_1 = __webpack_require__(/*! ./values */ "./src/engine/types/values.ts");
+const OPERATORS = {
+    EQUAL: 'EQ',
+    NOTEQUAL: 'NE',
+    LESS: 'LT',
+    GREATER: 'GT',
+    LESSEQUAL: 'LE',
+    GREATEREQUAL: 'GE',
+};
 let Condition = (() => {
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
@@ -35218,9 +35326,9 @@ let Condition = (() => {
     return class Condition extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            _ONE_BREAK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
-            _CHECK_decorators = [(0, types_1.method)({ name: "shouldSignal", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _BREAK_decorators = [(0, types_1.method)([{ name: "arg", types: [{ name: "boolean" }], optional: false, rest: false }])];
+            _ONE_BREAK_decorators = [(0, types_1.method)([{ name: "arg", types: [{ name: "boolean" }], optional: false, rest: false }])];
+            _CHECK_decorators = [(0, types_1.method)([{ name: "shouldSignal", types: [{ name: "boolean" }], optional: false, rest: false }], "boolean")];
             __esDecorate(this, null, _BREAK_decorators, { kind: "method", name: "BREAK", static: false, private: false, access: { has: obj => "BREAK" in obj, get: obj => obj.BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _ONE_BREAK_decorators, { kind: "method", name: "ONE_BREAK", static: false, private: false, access: { has: obj => "ONE_BREAK" in obj, get: obj => obj.ONE_BREAK }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _CHECK_decorators, { kind: "method", name: "CHECK", static: false, private: false, access: { has: obj => "CHECK" in obj, get: obj => obj.CHECK }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -35229,43 +35337,29 @@ let Condition = (() => {
         // arg is always true in ReksioIUfo
         // In loops its like 'break'
         async BREAK(arg) {
-            if (await this.CHECK(arg)) {
+            if (await this.check(arg)) {
                 throw new errors_1.InterruptScriptExecution(false);
             }
         }
         // arg is always true in ReksioIUfo
         // In loops its like 'continue'
         async ONE_BREAK(arg) {
-            if (await this.CHECK(arg)) {
+            if (await this.check(arg)) {
                 throw new errors_1.InterruptScriptExecution(true);
             }
         }
         async CHECK(shouldSignal) {
+            return await this.check(shouldSignal);
+        }
+        async check(shouldSignal) {
             const operand1 = await this.engine.scripting.executeCallback(null, this, this.definition.OPERAND1);
             const operand2 = await this.engine.scripting.executeCallback(null, this, this.definition.OPERAND2);
             let result;
             if (operand1 !== undefined && operand2 !== undefined) {
+                const operator = OPERATORS[this.definition.OPERATOR];
+                (0, errors_1.assert)(operator !== undefined, 'Unknown operator');
                 try {
-                    switch (this.definition.OPERATOR) {
-                        case 'EQUAL':
-                            result = types_1.Compare.Equal(operand1, operand2);
-                            break;
-                        case 'NOTEQUAL':
-                            result = types_1.Compare.NotEqual(operand1, operand2);
-                            break;
-                        case 'LESS':
-                            result = types_1.Compare.Less(operand1, operand2);
-                            break;
-                        case 'GREATER':
-                            result = types_1.Compare.Greater(operand1, operand2);
-                            break;
-                        case 'LESSEQUAL':
-                            result = types_1.Compare.LessOrEqual(operand1, operand2);
-                            break;
-                        case 'GREATEREQUAL':
-                            result = types_1.Compare.GreaterOrEqual(operand1, operand2);
-                            break;
-                    }
+                    result = await (0, values_1.compareValues)(this.engine, operand1, operator, operand2);
                 }
                 catch (err) {
                     logging_1.logger.error('Error occured while evaluating condition', {
@@ -35366,16 +35460,16 @@ let Database = (() => {
     return class Database extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _GETROWSNO_decorators = [(0, types_1.method)()];
-            _GETCURSORPOS_decorators = [(0, types_1.method)()];
-            _NEXT_decorators = [(0, types_1.method)()];
-            _PREV_decorators = [(0, types_1.method)()];
-            _SELECT_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _FIND_decorators = [(0, types_1.method)({ name: "column", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false }, { name: "offset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _REMOVEAT_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _REMOVEALL_decorators = [(0, types_1.method)()];
-            _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _SAVE_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETROWSNO_decorators = [(0, types_1.method)([], "int")];
+            _GETCURSORPOS_decorators = [(0, types_1.method)([], "int")];
+            _NEXT_decorators = [(0, types_1.method)([])];
+            _PREV_decorators = [(0, types_1.method)([])];
+            _SELECT_decorators = [(0, types_1.method)([{ name: "index", types: [{ name: "int" }], optional: false, rest: false }])];
+            _FIND_decorators = [(0, types_1.method)([{ name: "column", types: [{ name: "string" }], optional: false, rest: false }, { name: "value", types: [{ name: "string" }, { name: "double" }, { name: "boolean" }], optional: false, rest: false }, { name: "offset", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _REMOVEAT_decorators = [(0, types_1.method)([{ name: "index", types: [{ name: "int" }], optional: false, rest: false }])];
+            _REMOVEALL_decorators = [(0, types_1.method)([])];
+            _LOAD_decorators = [(0, types_1.method)([{ name: "path", types: [{ name: "string" }], optional: false, rest: false }])];
+            _SAVE_decorators = [(0, types_1.method)([{ name: "path", types: [{ name: "string" }], optional: false, rest: false }])];
             __esDecorate(this, null, _GETROWSNO_decorators, { kind: "method", name: "GETROWSNO", static: false, private: false, access: { has: obj => "GETROWSNO" in obj, get: obj => obj.GETROWSNO }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _GETCURSORPOS_decorators, { kind: "method", name: "GETCURSORPOS", static: false, private: false, access: { has: obj => "GETCURSORPOS" in obj, get: obj => obj.GETCURSORPOS }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _NEXT_decorators, { kind: "method", name: "NEXT", static: false, private: false, access: { has: obj => "NEXT" in obj, get: obj => obj.NEXT }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -35421,7 +35515,7 @@ let Database = (() => {
         }
         async FIND(column, value, offset) {
             const index = await this.findEntryWithValue(column, value);
-            if (index == -1) {
+            if (index === -1) {
                 return -1;
             }
             // Simulating stupid behavior
@@ -35433,7 +35527,7 @@ let Database = (() => {
         async findEntryWithValue(column, value) {
             for (let i = 0; i < this.content.length; i++) {
                 const entry = this.content[i];
-                const entryValue = await entry.GETFIELD(column)?.getValue();
+                const entryValue = await entry.getField(column)?.getValue();
                 if (entryValue === value) {
                     return i;
                 }
@@ -35461,10 +35555,8 @@ let Database = (() => {
                 const fieldContents = line.split('|').filter((cell) => cell !== '');
                 const newEntry = await this.baseStruct.clone();
                 for (let i = 0; i < structFieldsNames.length; i++) {
-                    const fieldName = structFieldsNames[i];
-                    const fieldType = this.baseStruct.structure.get(fieldName);
-                    const fieldValue = fieldContents[i];
-                    await newEntry.setField(fieldName, this.convertFieldValue(fieldType, fieldValue));
+                    const cell = fieldContents[i];
+                    await newEntry.setField(structFieldsNames[i], cell === 'NULL' ? null : cell);
                 }
                 this.content.push(newEntry);
             }
@@ -35479,7 +35571,7 @@ let Database = (() => {
             for (const entry of this.content) {
                 const fieldValues = [];
                 for (const fieldName of structFieldsNames) {
-                    const fieldValue = entry.GETFIELD(fieldName);
+                    const fieldValue = entry.getField(fieldName);
                     fieldValues.push(await fieldValue.toString());
                 }
                 lines.push(fieldValues.join('|'));
@@ -35488,27 +35580,10 @@ let Database = (() => {
             const data = encoder.encode(content);
             await this.engine.filesystem.saveFile(relativePath, data);
         }
-        convertFieldValue(fieldType, value) {
-            if (value === 'NULL') {
-                return null;
-            }
-            if (value === undefined) {
-                return undefined;
-            }
-            switch (fieldType) {
-                case 'INTEGER':
-                case 'DOUBLE':
-                    return (0, types_1.valueAsDouble)(value);
-                case 'BOOL':
-                    return (0, types_1.valueAsBool)(value);
-                default:
-                    return value;
-            }
-        }
         updateCursorValue() {
             (0, errors_1.assert)(this.parentScope !== null);
             const cursorName = this.name + '_CURSOR';
-            if (this.content.length == 0) {
+            if (this.content.length === 0) {
                 this.parentScope.remove(cursorName);
             }
             else {
@@ -35587,18 +35662,18 @@ let Double = (() => {
     return class Double extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _MUL_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _ADD_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SUB_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SET_decorators = [(0, types_1.method)({ name: "newValue", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _DIV_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _MAXA_decorators = [(0, types_1.method)({ name: "values", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
-            _MINA_decorators = [(0, types_1.method)({ name: "values", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
-            _SINUS_decorators = [(0, types_1.method)({ name: "angle", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _COSINUS_decorators = [(0, types_1.method)({ name: "angle", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _ARCTANEX_decorators = [(0, types_1.method)({ name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "summand", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
-            _LENGTH_decorators = [(0, types_1.method)({ name: "pointX", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "pointY", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GET_decorators = [(0, types_1.method)()];
+            _MUL_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "double" }], optional: false, rest: false }], "double")];
+            _ADD_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "double" }], optional: false, rest: false }], "double")];
+            _SUB_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "double" }], optional: false, rest: false }], "double")];
+            _SET_decorators = [(0, types_1.method)([{ name: "newValue", types: [{ name: "double" }], optional: false, rest: false }])];
+            _DIV_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "double" }], optional: false, rest: false }], "double")];
+            _MAXA_decorators = [(0, types_1.method)([{ name: "values", types: [{ name: "double" }], optional: false, rest: true }], "double")];
+            _MINA_decorators = [(0, types_1.method)([{ name: "values", types: [{ name: "double" }], optional: false, rest: true }], "double")];
+            _SINUS_decorators = [(0, types_1.method)([{ name: "angle", types: [{ name: "double" }], optional: false, rest: false }], "double")];
+            _COSINUS_decorators = [(0, types_1.method)([{ name: "angle", types: [{ name: "double" }], optional: false, rest: false }], "double")];
+            _ARCTANEX_decorators = [(0, types_1.method)([{ name: "y", types: [{ name: "double" }], optional: false, rest: false }, { name: "x", types: [{ name: "double" }], optional: false, rest: false }, { name: "summand", types: [{ name: "double" }], optional: true, rest: false }], "double")];
+            _LENGTH_decorators = [(0, types_1.method)([{ name: "x", types: [{ name: "double" }], optional: false, rest: false }, { name: "y", types: [{ name: "double" }], optional: false, rest: false }], "double")];
+            _GET_decorators = [(0, types_1.method)([], "double")];
             __esDecorate(this, null, _MUL_decorators, { kind: "method", name: "MUL", static: false, private: false, access: { has: obj => "MUL" in obj, get: obj => obj.MUL }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -35655,33 +35730,23 @@ let Double = (() => {
             }
             return await this.setValue(value);
         }
-        async LENGTH(pointX, pointY) {
-            return await this.setValue(Math.sqrt(pointX * pointX + pointY * pointY));
+        async LENGTH(x, y) {
+            return await this.setValue(Math.sqrt(x * x + y * y));
         }
         GET() {
             return this.value;
         }
+        getValue() {
+            return this.value;
+        }
+        async equals(other) {
+            return this.getValue() === (0, types_1.valueAsDouble)(await other.getValue());
+        }
+        async compare(other) {
+            return Math.sign(this.getValue() - (0, types_1.valueAsDouble)(await other.getValue()));
+        }
         async toString() {
-            const value = this.value;
-            const abs = Math.abs(value);
-            // Use fixed‑point for numbers below 1e21, otherwise fallback to bigint representation
-            const fixed = abs < 1e21 ? abs.toFixed(5) : `${BigInt(abs)}.00000`;
-            const sign = value < 0 ? '-' : '';
-            // Values with absolute magnitude >= 1
-            if (!fixed.startsWith('0.')) {
-                return sign + fixed;
-            }
-            // Zero value
-            if (value === 0) {
-                return '00000';
-            }
-            // Values between 0 and 1 (exclusive)
-            let leadingZeros = '';
-            for (let v = value; v > 0 && v * 10.0001 < 1; v *= 10) {
-                leadingZeros += '0';
-            }
-            const digits = fixed.slice(2).replace(/^0+/, '') || '0';
-            return `0.${sign}${leadingZeros}${digits}`;
+            return (0, types_1.doubleAsString)(this.value);
         }
     };
 })();
@@ -35750,10 +35815,10 @@ let Episode = (() => {
     return class Episode extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _GOTO_decorators = [(0, types_1.method)({ name: "sceneName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETLATESTSCENE_decorators = [(0, types_1.method)()];
-            _GETCURRENTSCENE_decorators = [(0, types_1.method)()];
-            _BACK_decorators = [(0, types_1.method)()];
+            _GOTO_decorators = [(0, types_1.method)([{ name: "sceneName", types: [{ name: "string" }], optional: false, rest: false }])];
+            _GETLATESTSCENE_decorators = [(0, types_1.method)([], "string")];
+            _GETCURRENTSCENE_decorators = [(0, types_1.method)([], "string")];
+            _BACK_decorators = [(0, types_1.method)([])];
             __esDecorate(this, null, _GOTO_decorators, { kind: "method", name: "GOTO", static: false, private: false, access: { has: obj => "GOTO" in obj, get: obj => obj.GOTO }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _GETLATESTSCENE_decorators, { kind: "method", name: "GETLATESTSCENE", static: false, private: false, access: { has: obj => "GETLATESTSCENE" in obj, get: obj => obj.GETLATESTSCENE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _GETCURRENTSCENE_decorators, { kind: "method", name: "GETCURRENTSCENE", static: false, private: false, access: { has: obj => "GETCURRENTSCENE" in obj, get: obj => obj.GETCURRENTSCENE }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -35771,6 +35836,9 @@ let Episode = (() => {
             }
         }
         GOTO(sceneName) {
+            this.goto(sceneName);
+        }
+        goto(sceneName) {
             (0, errors_1.assert)(this.definition.SCENES.includes(sceneName));
             throw new errors_1.CancelTick(async () => await this.engine.changeScene(sceneName));
         }
@@ -35782,7 +35850,7 @@ let Episode = (() => {
         }
         BACK() {
             if (this.engine.previousScene) {
-                this.GOTO(this.engine.previousScene.definition.NAME);
+                this.goto(this.engine.previousScene.definition.NAME);
             }
             else {
                 logging_1.logger.warn('Attempted EPISODE^BACK() but there is no previous scene', {
@@ -35813,34 +35881,26 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Expression = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const values_1 = __webpack_require__(/*! ./values */ "./src/engine/types/values.ts");
+const OPERATORS = ['ADD', 'SUB', 'MUL', 'DIV', 'MOD'];
 class Expression extends index_1.ValueType {
     constructor(engine, parent, definition) {
         super(engine, parent, definition, false);
     }
     async getValue() {
+        return await (0, values_1.unwrapValue)(await this.evaluate());
+    }
+    async toString() {
+        return (await this.evaluate()).toString();
+    }
+    async evaluate() {
         const operand1 = await this.engine.scripting.executeCallback(this, this, this.definition.OPERAND1);
         const operand2 = await this.engine.scripting.executeCallback(this, this, this.definition.OPERAND2);
-        let result;
-        switch (this.definition.OPERATOR) {
-            case 'ADD':
-                result = operand1 + operand2;
-                break;
-            case 'SUB':
-                result = operand1 - operand2;
-                break;
-            case 'MUL':
-                result = operand1 * operand2;
-                break;
-            case 'DIV':
-                result = operand1 / operand2;
-                break;
-            case 'MOD':
-                result = operand1 % operand2;
-                break;
-            default:
-                throw new errors_1.NotImplementedError();
+        const operator = this.definition.OPERATOR;
+        if (!OPERATORS.includes(operator)) {
+            throw new errors_1.NotImplementedError();
         }
-        return result;
+        return await (0, values_1.applyArithmetic)(this.engine, operand1 ?? null, operator, operand2 ?? null);
     }
 }
 exports.Expression = Expression;
@@ -35961,8 +36021,8 @@ let Group = (() => {
     return class Group extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _ADD_decorators = [(0, types_1.method)({ name: "objectsNames", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: true })];
-            _REMOVE_decorators = [(0, types_1.method)({ name: "objectsNames", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: true })];
+            _ADD_decorators = [(0, types_1.method)([{ name: "objectsNames", types: [{ name: "string" }], optional: false, rest: true }])];
+            _REMOVE_decorators = [(0, types_1.method)([{ name: "objectsNames", types: [{ name: "string" }], optional: false, rest: true }])];
             __esDecorate(this, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _REMOVE_decorators, { kind: "method", name: "REMOVE", static: false, private: false, access: { has: obj => "REMOVE" in obj, get: obj => obj.REMOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
@@ -36116,18 +36176,18 @@ let Image = (() => {
     return class Image extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _SETOPACITY_decorators = [(0, types_1.method)({ name: "opacity", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _MOVE_decorators = [(0, types_1.method)({ name: "xOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "yOffset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETPOSITION_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SHOW_decorators = [(0, types_1.method)()];
-            _HIDE_decorators = [(0, types_1.method)()];
-            _GETPOSITIONX_decorators = [(0, types_1.method)()];
-            _GETPOSITIONY_decorators = [(0, types_1.method)()];
-            _GETALPHA_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _MERGEALPHA_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _LOAD_decorators = [(0, types_1.method)({ name: "path", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _INVALIDATE_decorators = [(0, types_1.method)()];
-            _SETCLIPPING_decorators = [(0, types_1.method)({ name: "x1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x2", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y2", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETOPACITY_decorators = [(0, types_1.method)([{ name: "opacity", types: [{ name: "int" }], optional: false, rest: false }])];
+            _MOVE_decorators = [(0, types_1.method)([{ name: "xOffset", types: [{ name: "int" }], optional: false, rest: false }, { name: "yOffset", types: [{ name: "int" }], optional: false, rest: false }])];
+            _SETPOSITION_decorators = [(0, types_1.method)([{ name: "x", types: [{ name: "int" }], optional: false, rest: false }, { name: "y", types: [{ name: "int" }], optional: false, rest: false }])];
+            _SHOW_decorators = [(0, types_1.method)([])];
+            _HIDE_decorators = [(0, types_1.method)([])];
+            _GETPOSITIONX_decorators = [(0, types_1.method)([], "int")];
+            _GETPOSITIONY_decorators = [(0, types_1.method)([], "int")];
+            _GETALPHA_decorators = [(0, types_1.method)([{ name: "x", types: [{ name: "int" }], optional: false, rest: false }, { name: "y", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _MERGEALPHA_decorators = [(0, types_1.method)([{ name: "x", types: [{ name: "int" }], optional: false, rest: false }, { name: "y", types: [{ name: "int" }], optional: false, rest: false }, { name: "name", types: [{ name: "string" }], optional: false, rest: false }])];
+            _LOAD_decorators = [(0, types_1.method)([{ name: "path", types: [{ name: "string" }], optional: false, rest: false }])];
+            _INVALIDATE_decorators = [(0, types_1.method)([])];
+            _SETCLIPPING_decorators = [(0, types_1.method)([{ name: "x1", types: [{ name: "int" }], optional: false, rest: false }, { name: "y1", types: [{ name: "int" }], optional: false, rest: false }, { name: "x2", types: [{ name: "int" }], optional: false, rest: false }, { name: "y2", types: [{ name: "int" }], optional: false, rest: false }])];
             __esDecorate(this, null, _SETOPACITY_decorators, { kind: "method", name: "SETOPACITY", static: false, private: false, access: { has: obj => "SETOPACITY" in obj, get: obj => obj.SETOPACITY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _MOVE_decorators, { kind: "method", name: "MOVE", static: false, private: false, access: { has: obj => "MOVE" in obj, get: obj => obj.MOVE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _SETPOSITION_decorators, { kind: "method", name: "SETPOSITION", static: false, private: false, access: { has: obj => "SETPOSITION" in obj, get: obj => obj.SETPOSITION }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -36148,12 +36208,12 @@ let Image = (() => {
             await this.initSprite(this.definition.FILENAME);
         }
         async applyDefaults() {
-            this.SETPRIORITY(this.definition.PRIORITY ?? 0);
+            this.setPriority(this.definition.PRIORITY ?? 0);
         }
         async initSprite(path) {
             this.sprite = await this.load(path);
             this.sprite.visible = this.definition.VISIBLE;
-            this.SETPRIORITY(this.definition.PRIORITY ?? 0);
+            this.setPriority(this.definition.PRIORITY ?? 0);
             this.sprite.eventMode = 'none';
             this.sprite.name = `${this.name} (IMAGE)`; // For PIXI Devtools
         }
@@ -36177,6 +36237,9 @@ let Image = (() => {
             this.opacity = opacity;
         }
         MOVE(xOffset, yOffset) {
+            this.move(xOffset, yOffset);
+        }
+        move(xOffset, yOffset) {
             (0, errors_1.assert)(this.sprite !== null);
             this.sprite.x += xOffset;
             this.sprite.y += yOffset;
@@ -36282,7 +36345,7 @@ let Image = (() => {
             const clone = (await super.clone());
             clone.sprite = spriteClone;
             this.engine.rendering.addToStage(clone.sprite);
-            clone.SETPRIORITY(this.GETPRIORITY());
+            clone.setPriority(this.priority);
             return clone;
         }
         getRenderObject() {
@@ -36356,9 +36419,9 @@ let Type = (() => {
     return class Type {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-            _GETNAME_decorators = [(0, types_1.method)()];
-            _CLONE_decorators = [(0, types_1.method)({ name: "count", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETCLONEINDEX_decorators = [(0, types_1.method)()];
+            _GETNAME_decorators = [(0, types_1.method)([], "string")];
+            _CLONE_decorators = [(0, types_1.method)([{ name: "count", types: [{ name: "int" }], optional: false, rest: false }])];
+            _GETCLONEINDEX_decorators = [(0, types_1.method)([], "int")];
             __esDecorate(this, null, _GETNAME_decorators, { kind: "method", name: "GETNAME", static: false, private: false, access: { has: obj => "GETNAME" in obj, get: obj => obj.GETNAME }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _CLONE_decorators, { kind: "method", name: "CLONE", static: false, private: false, access: { has: obj => "CLONE" in obj, get: obj => obj.CLONE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _GETCLONEINDEX_decorators, { kind: "method", name: "GETCLONEINDEX", static: false, private: false, access: { has: obj => "GETCLONEINDEX" in obj, get: obj => obj.GETCLONEINDEX }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -36402,6 +36465,9 @@ let Type = (() => {
             this.parentScope?.set(clone.name, clone);
             return clone;
         }
+        async signal(name) {
+            await this.callbacks.run('ONSIGNAL', name);
+        }
         init() { }
         async applyDefaults() { }
         async ready() { }
@@ -36441,8 +36507,8 @@ let DisplayType = (() => {
     return class DisplayType extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _GETPRIORITY_decorators = [(0, types_1.method)()];
-            _SETPRIORITY_decorators = [(0, types_1.method)({ name: "priority", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETPRIORITY_decorators = [(0, types_1.method)([], "int")];
+            _SETPRIORITY_decorators = [(0, types_1.method)([{ name: "priority", types: [{ name: "int" }], optional: false, rest: false }])];
             __esDecorate(this, null, _GETPRIORITY_decorators, { kind: "method", name: "GETPRIORITY", static: false, private: false, access: { has: obj => "GETPRIORITY" in obj, get: obj => obj.GETPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _SETPRIORITY_decorators, { kind: "method", name: "SETPRIORITY", static: false, private: false, access: { has: obj => "SETPRIORITY" in obj, get: obj => obj.SETPRIORITY }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
@@ -36452,6 +36518,9 @@ let DisplayType = (() => {
             return this.priority;
         }
         SETPRIORITY(priority) {
+            this.setPriority(priority);
+        }
+        setPriority(priority) {
             const renderObject = this.getRenderObject();
             (0, errors_1.assert)(renderObject !== null);
             this.priority = priority;
@@ -36486,8 +36555,8 @@ let ValueType = (() => {
     return class ValueType extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _RESETINI_decorators = [(0, types_1.method)()];
-            _COPYFILE_decorators = [(0, types_1.method)({ name: "from", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "to", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _RESETINI_decorators = [(0, types_1.method)([])];
+            _COPYFILE_decorators = [(0, types_1.method)([{ name: "from", types: [{ name: "string" }], optional: false, rest: false }, { name: "to", types: [{ name: "string" }], optional: false, rest: false }])];
             __esDecorate(this, null, _RESETINI_decorators, { kind: "method", name: "RESETINI", static: false, private: false, access: { has: obj => "RESETINI" in obj, get: obj => obj.RESETINI }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _COPYFILE_decorators, { kind: "method", name: "COPYFILE", static: false, private: false, access: { has: obj => "COPYFILE" in obj, get: obj => obj.COPYFILE }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
@@ -36548,6 +36617,12 @@ let ValueType = (() => {
         }
         deserialize(value) {
             return value;
+        }
+        async equals(other) {
+            return this.value === other.value;
+        }
+        async compare(_other) {
+            throw new errors_1.NotImplementedError();
         }
         async toString() {
             throw new errors_1.NotImplementedError();
@@ -36629,20 +36704,20 @@ let Integer = (() => {
     return class Integer extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _INC_decorators = [(0, types_1.method)()];
-            _DEC_decorators = [(0, types_1.method)()];
-            _ADD_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SUB_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _MUL_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _DIV_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _MOD_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _CLAMP_decorators = [(0, types_1.method)({ name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _AND_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SET_decorators = [(0, types_1.method)({ name: "newValue", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GET_decorators = [(0, types_1.method)()];
-            _SWITCH_decorators = [(0, types_1.method)({ name: "first", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "second", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _ABS_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _RANDOM_decorators = [(0, types_1.method)({ name: "offset", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "range", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _INC_decorators = [(0, types_1.method)([], "int")];
+            _DEC_decorators = [(0, types_1.method)([], "int")];
+            _ADD_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _SUB_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _MUL_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _DIV_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _MOD_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _CLAMP_decorators = [(0, types_1.method)([{ name: "min", types: [{ name: "int" }], optional: false, rest: false }, { name: "max", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _AND_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _SET_decorators = [(0, types_1.method)([{ name: "newValue", types: [{ name: "int" }], optional: false, rest: false }])];
+            _GET_decorators = [(0, types_1.method)([], "int")];
+            _SWITCH_decorators = [(0, types_1.method)([{ name: "first", types: [{ name: "int" }], optional: false, rest: false }, { name: "second", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _ABS_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _RANDOM_decorators = [(0, types_1.method)([{ name: "offset", types: [{ name: "int" }], optional: false, rest: false }, { name: "range", types: [{ name: "int" }], optional: false, rest: false }], "int")];
             __esDecorate(this, null, _INC_decorators, { kind: "method", name: "INC", static: false, private: false, access: { has: obj => "INC" in obj, get: obj => obj.INC }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _DEC_decorators, { kind: "method", name: "DEC", static: false, private: false, access: { has: obj => "DEC" in obj, get: obj => obj.DEC }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -36667,31 +36742,31 @@ let Integer = (() => {
             await this.callbacks.run('ONINIT');
         }
         async INC() {
-            return this.setValue(this.value + 1);
+            return await this.setValue(this.value + 1);
         }
         async DEC() {
-            return this.setValue(this.value - 1);
+            return await this.setValue(this.value - 1);
         }
         async ADD(value) {
-            return this.setValue(this.value + value);
+            return await this.setValue(this.value + value);
         }
         async SUB(value) {
-            return this.setValue(this.value - value);
+            return await this.setValue(this.value - value);
         }
         async MUL(value) {
-            return this.setValue(this.value * value);
+            return await this.setValue(this.value * value);
         }
         async DIV(value) {
-            return this.setValue(this.value / value);
+            return await this.setValue(this.value / value);
         }
         async MOD(value) {
-            return this.setValue(this.value % value);
+            return await this.setValue(this.value % value);
         }
         async CLAMP(min, max) {
-            return this.setValue(Math.min(max, Math.max(this.value, min)));
+            return await this.setValue(Math.min(max, Math.max(this.value, min)));
         }
         async AND(value) {
-            return this.setValue(this.value & value);
+            return await this.setValue(this.value & value);
         }
         async SET(newValue) {
             await this.setValue(newValue);
@@ -36700,13 +36775,16 @@ let Integer = (() => {
             return this.value;
         }
         async SWITCH(first, second) {
-            return this.setValue(this.value == first ? second : first);
+            return await this.setValue(this.value === first ? second : first);
         }
         async ABS(value) {
-            return this.setValue(Math.abs(value));
+            return await this.setValue(Math.abs(value));
         }
         async RANDOM(offset, range) {
             return Math.floor(Math.random() * range) + offset;
+        }
+        getValue() {
+            return this.value;
         }
         async valueChanged(oldValue, newValue) {
             if (oldValue !== newValue) {
@@ -36717,6 +36795,12 @@ let Integer = (() => {
         // Force integer truncated values
         async setValue(newValue) {
             return await super.setValue(Math.trunc(newValue));
+        }
+        async equals(other) {
+            return this.getValue() === (0, types_1.valueAsInteger)(await other.getValue());
+        }
+        async compare(other) {
+            return Math.sign(this.getValue() - (0, types_1.valueAsInteger)(await other.getValue()));
         }
         async toString() {
             return this.getValue().toString();
@@ -36794,10 +36878,10 @@ let Keyboard = (() => {
     return class Keyboard extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _DISABLE_decorators = [(0, types_1.method)()];
-            _ISKEYDOWN_decorators = [(0, types_1.method)({ name: "keyName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _ISENABLED_decorators = [(0, types_1.method)()];
-            _SETAUTOREPEAT_decorators = [(0, types_1.method)({ name: "state", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _DISABLE_decorators = [(0, types_1.method)([])];
+            _ISKEYDOWN_decorators = [(0, types_1.method)([{ name: "keyName", types: [{ name: "string" }], optional: false, rest: false }], "boolean")];
+            _ISENABLED_decorators = [(0, types_1.method)([], "boolean")];
+            _SETAUTOREPEAT_decorators = [(0, types_1.method)([{ name: "state", types: [{ name: "boolean" }], optional: false, rest: false }])];
             __esDecorate(this, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _ISKEYDOWN_decorators, { kind: "method", name: "ISKEYDOWN", static: false, private: false, access: { has: obj => "ISKEYDOWN" in obj, get: obj => obj.ISKEYDOWN }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _ISENABLED_decorators, { kind: "method", name: "ISENABLED", static: false, private: false, access: { has: obj => "ISENABLED" in obj, get: obj => obj.ISENABLED }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -36838,10 +36922,7 @@ let Keyboard = (() => {
             this.enabled = false;
         }
         ISKEYDOWN(keyName) {
-            if (this.keysState.has(keyName)) {
-                return this.keysState.get(keyName);
-            }
-            return false;
+            return this.keysState.get(keyName) ?? false;
         }
         ISENABLED() {
             return this.enabled;
@@ -36986,22 +37067,22 @@ let Matrix = (() => {
     return class Matrix extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _CALCENEMYMOVEDEST_decorators = [(0, types_1.method)({ name: "oldPos", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "dir", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _CALCENEMYMOVEDIR_decorators = [(0, types_1.method)({ name: "oldPos", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "currentMoveDir", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _CANHEROGOTO_decorators = [(0, types_1.method)({ name: "targetCellIndex", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GET_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
-            _GETCELLOFFSET_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETCELLPOSX_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETCELLPOSY_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETCELLSNO_decorators = [(0, types_1.method)({ name: "cellType", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
-            _ISGATEEMPTY_decorators = [(0, types_1.method)()];
-            _ISINGATE_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _MOVE_decorators = [(0, types_1.method)({ name: "previousPos", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "newPos", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _NEXT_decorators = [(0, types_1.method)()];
-            _SET_decorators = [(0, types_1.method)({ name: "args", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
-            _SETGATE_decorators = [(0, types_1.method)({ name: "startColumn", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "startRow", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "endColumn", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "endRow", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETROW_decorators = [(0, types_1.method)({ name: "row", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "cells", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
-            _TICK_decorators = [(0, types_1.method)()];
+            _CALCENEMYMOVEDEST_decorators = [(0, types_1.method)([{ name: "oldPos", types: [{ name: "int" }], optional: false, rest: false }, { name: "dir", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _CALCENEMYMOVEDIR_decorators = [(0, types_1.method)([{ name: "oldPos", types: [{ name: "int" }], optional: false, rest: false }, { name: "currentMoveDir", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _CANHEROGOTO_decorators = [(0, types_1.method)([{ name: "targetCellIndex", types: [{ name: "int" }], optional: false, rest: false }], "boolean")];
+            _GET_decorators = [(0, types_1.method)([{ name: "args", types: [{ name: "int" }], optional: false, rest: true }], "int")];
+            _GETCELLOFFSET_decorators = [(0, types_1.method)([{ name: "x", types: [{ name: "int" }], optional: false, rest: false }, { name: "y", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _GETCELLPOSX_decorators = [(0, types_1.method)([{ name: "index", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _GETCELLPOSY_decorators = [(0, types_1.method)([{ name: "index", types: [{ name: "int" }], optional: false, rest: false }], "int")];
+            _GETCELLSNO_decorators = [(0, types_1.method)([{ name: "cellType", types: [{ name: "int" }], optional: true, rest: false }], "int")];
+            _ISGATEEMPTY_decorators = [(0, types_1.method)([], "boolean")];
+            _ISINGATE_decorators = [(0, types_1.method)([{ name: "index", types: [{ name: "int" }], optional: false, rest: false }], "boolean")];
+            _MOVE_decorators = [(0, types_1.method)([{ name: "previousPos", types: [{ name: "int" }], optional: false, rest: false }, { name: "newPos", types: [{ name: "int" }], optional: false, rest: false }])];
+            _NEXT_decorators = [(0, types_1.method)([], "int")];
+            _SET_decorators = [(0, types_1.method)([{ name: "args", types: [{ name: "int" }], optional: false, rest: true }])];
+            _SETGATE_decorators = [(0, types_1.method)([{ name: "startColumn", types: [{ name: "int" }], optional: false, rest: false }, { name: "startRow", types: [{ name: "int" }], optional: false, rest: false }, { name: "endColumn", types: [{ name: "int" }], optional: false, rest: false }, { name: "endRow", types: [{ name: "int" }], optional: false, rest: false }])];
+            _SETROW_decorators = [(0, types_1.method)([{ name: "row", types: [{ name: "int" }], optional: false, rest: false }, { name: "cells", types: [{ name: "int" }], optional: false, rest: true }])];
+            _TICK_decorators = [(0, types_1.method)([])];
             __esDecorate(this, null, _CALCENEMYMOVEDEST_decorators, { kind: "method", name: "CALCENEMYMOVEDEST", static: false, private: false, access: { has: obj => "CALCENEMYMOVEDEST" in obj, get: obj => obj.CALCENEMYMOVEDEST }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _CALCENEMYMOVEDIR_decorators, { kind: "method", name: "CALCENEMYMOVEDIR", static: false, private: false, access: { has: obj => "CALCENEMYMOVEDIR" in obj, get: obj => obj.CALCENEMYMOVEDIR }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _CANHEROGOTO_decorators, { kind: "method", name: "CANHEROGOTO", static: false, private: false, access: { has: obj => "CANHEROGOTO" in obj, get: obj => obj.CANHEROGOTO }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -37048,6 +37129,9 @@ let Matrix = (() => {
         }
         // Returns new position
         CALCENEMYMOVEDEST(oldPos, dir) {
+            return this.moveDestination(oldPos, dir);
+        }
+        moveDestination(oldPos, dir) {
             switch (dir) {
                 case Direction.LEFT:
                     return oldPos - 1;
@@ -37107,7 +37191,7 @@ let Matrix = (() => {
             return !this.isIndexInGate(newPosIndex);
         }
         canMoveTo(oldPos, newPos) {
-            const newPosIndex = this.CALCENEMYMOVEDEST(oldPos, newPos);
+            const newPosIndex = this.moveDestination(oldPos, newPos);
             return this.isNewPositionValid(newPosIndex);
         }
         CALCENEMYMOVEDIR(oldPos, currentMoveDir) {
@@ -37241,7 +37325,7 @@ let Matrix = (() => {
                     this.cursorX = isLast ? this.width : nextX;
                     this.cursorY = isLast ? -1 : nextY;
                     await this.callbacks.run(isLast ? 'ONLATEST' : 'ONNEXT', null, null, [x, y, action]);
-                    return isLast ? result : (result !== RemainingActions.NONE ? result : RemainingActions.STONE_UPDATES);
+                    return isLast ? result : result !== RemainingActions.NONE ? result : RemainingActions.STONE_UPDATES;
                 }
             }
             return RemainingActions.NONE;
@@ -37397,16 +37481,16 @@ let Mouse = (() => {
     return class Mouse extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _SET_decorators = [(0, types_1.method)({ name: "cursorType", types: [{ name: "string", literal: "ACTIVE", isArray: false }, { name: "string", literal: "ARROW", isArray: false }], optional: false, rest: false })];
-            _ENABLE_decorators = [(0, types_1.method)()];
-            _DISABLE_decorators = [(0, types_1.method)()];
-            _DISABLESIGNAL_decorators = [(0, types_1.method)()];
-            _ENABLESIGNAL_decorators = [(0, types_1.method)()];
-            _SHOW_decorators = [(0, types_1.method)()];
-            _HIDE_decorators = [(0, types_1.method)()];
-            _GETPOSX_decorators = [(0, types_1.method)()];
-            _GETPOSY_decorators = [(0, types_1.method)()];
-            _SETPOSITION_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SET_decorators = [(0, types_1.method)([{ name: "cursorType", types: [{ name: "string" }], optional: false, rest: false }])];
+            _ENABLE_decorators = [(0, types_1.method)([])];
+            _DISABLE_decorators = [(0, types_1.method)([])];
+            _DISABLESIGNAL_decorators = [(0, types_1.method)([])];
+            _ENABLESIGNAL_decorators = [(0, types_1.method)([])];
+            _SHOW_decorators = [(0, types_1.method)([])];
+            _HIDE_decorators = [(0, types_1.method)([])];
+            _GETPOSX_decorators = [(0, types_1.method)([], "int")];
+            _GETPOSY_decorators = [(0, types_1.method)([], "int")];
+            _SETPOSITION_decorators = [(0, types_1.method)([{ name: "x", types: [{ name: "int" }], optional: false, rest: false }, { name: "y", types: [{ name: "int" }], optional: false, rest: false }])];
             __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _ENABLE_decorators, { kind: "method", name: "ENABLE", static: false, private: false, access: { has: obj => "ENABLE" in obj, get: obj => obj.ENABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _DISABLE_decorators, { kind: "method", name: "DISABLE", static: false, private: false, access: { has: obj => "DISABLE" in obj, get: obj => obj.DISABLE }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -37596,6 +37680,7 @@ exports.MultiArray = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const values_1 = __webpack_require__(/*! ./values */ "./src/engine/types/values.ts");
 let MultiArray = (() => {
     let _classSuper = index_1.ValueType;
     let _instanceExtraInitializers = [];
@@ -37604,8 +37689,8 @@ let MultiArray = (() => {
     return class MultiArray extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _SET_decorators = [(0, types_1.method)({ name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
-            _GET_decorators = [(0, types_1.method)({ name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
+            _SET_decorators = [(0, types_1.method)([{ name: "y", types: [{ name: "int" }], optional: false, rest: false }, { name: "x", types: [{ name: "int" }], optional: false, rest: false }, { name: "value", types: [{ name: "Value" }], optional: false, rest: false }])];
+            _GET_decorators = [(0, types_1.method)([{ name: "y", types: [{ name: "int" }], optional: false, rest: false }, { name: "x", types: [{ name: "int" }], optional: false, rest: false }])];
             __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
@@ -37617,21 +37702,28 @@ let MultiArray = (() => {
         init() {
             (0, errors_1.assert)(this.definition.DIMENSIONS === 2, 'Piklib supports only 2 dimensions. Other number of dimensions causes unexpected behavior');
         }
-        SET(y, x, value) {
+        async SET(y, x, value) {
             (0, errors_1.assert)(x >= 0 && y >= 0, "MULTIARRAY indexes can't be negative");
-            while (y >= this.value.length) {
+            while (this.value.length <= y) {
                 this.value.push([]);
             }
-            while (x >= this.value[y].length) {
-                this.value[y].push(null);
+            const row = this.value[y];
+            while (row.length < x) {
+                row.push(null);
             }
-            this.value[y][x] = value;
+            row[x] = await (0, values_1.copyValue)(this.engine, value);
         }
         GET(y, x) {
             if (y >= 0 && y < this.value.length && x >= 0 && x < this.value[y].length) {
-                return this.value[y][x];
+                return (0, values_1.copyValue)(this.engine, this.value[y][x]);
             }
             return null;
+        }
+        getValue() {
+            return this.value;
+        }
+        serialize() {
+            return this.value.map((row) => row.map(values_1.rawValue)).toString();
         }
     };
 })();
@@ -37705,6 +37797,7 @@ exports.Rand = void 0;
 const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
+const values_1 = __webpack_require__(/*! ./values */ "./src/engine/types/values.ts");
 let Rand = (() => {
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
@@ -37713,15 +37806,18 @@ let Rand = (() => {
     return class Rand extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _GET_decorators = [(0, types_1.method)({ name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
-            _GETPLENTY_decorators = [(0, types_1.method)({ name: "objectTarget", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "count", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "min", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "max", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "unique", types: [{ name: "boolean", literal: null, isArray: false }], optional: false, rest: false })];
+            _GET_decorators = [(0, types_1.method)([{ name: "min", types: [{ name: "int" }], optional: false, rest: false }, { name: "max", types: [{ name: "int" }], optional: true, rest: false }], "int")];
+            _GETPLENTY_decorators = [(0, types_1.method)([{ name: "objectTarget", types: [{ name: "string" }], optional: false, rest: false }, { name: "count", types: [{ name: "int" }], optional: false, rest: false }, { name: "min", types: [{ name: "int" }], optional: false, rest: false }, { name: "max", types: [{ name: "int" }], optional: false, rest: false }, { name: "unique", types: [{ name: "boolean" }], optional: false, rest: false }])];
             __esDecorate(this, null, _GET_decorators, { kind: "method", name: "GET", static: false, private: false, access: { has: obj => "GET" in obj, get: obj => obj.GET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _GETPLENTY_decorators, { kind: "method", name: "GETPLENTY", static: false, private: false, access: { has: obj => "GETPLENTY" in obj, get: obj => obj.GETPLENTY }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         }
         GET(min, max) {
+            return this.random(min, max);
+        }
+        random(min, max) {
             if (max === undefined) {
-                return this.GET(0, min);
+                return this.random(0, min);
             }
             max = min + max;
             return Math.floor(Math.random() * (max - min)) + min;
@@ -37731,12 +37827,12 @@ let Rand = (() => {
             (0, errors_1.assert)(object !== null);
             const values = [];
             while (values.length < count) {
-                const randomValue = this.GET(min, max);
+                const randomValue = this.random(min, max);
                 if (!unique || !values.includes(randomValue)) {
                     values.push(randomValue);
                 }
             }
-            object.ADD(...values);
+            object.push(...values.map((value) => (0, values_1.createInteger)(this.engine, value)));
         }
         constructor() {
             super(...arguments);
@@ -37816,16 +37912,16 @@ let Scene = (() => {
     return class Scene extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _SETMUSICVOLUME_decorators = [(0, types_1.method)({ name: "volume", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _RUNCLONES_decorators = [(0, types_1.method)({ name: "baseObjectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "startingIdx", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "endingIdx", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _RUN_decorators = [(0, types_1.method)({ name: "objectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "methodName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "args", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: true })];
-            _STARTMUSIC_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETMAXHSPRIORITY_decorators = [(0, types_1.method)()];
-            _SETMAXHSPRIORITY_decorators = [(0, types_1.method)({ name: "priority", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETMINHSPRIORITY_decorators = [(0, types_1.method)()];
-            _SETMINHSPRIORITY_decorators = [(0, types_1.method)({ name: "priority", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GETPLAYINGANIMO_decorators = [(0, types_1.method)({ name: "targetGroupName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _RESUME_decorators = [(0, types_1.method)()];
+            _SETMUSICVOLUME_decorators = [(0, types_1.method)([{ name: "volume", types: [{ name: "int" }], optional: false, rest: false }])];
+            _RUNCLONES_decorators = [(0, types_1.method)([{ name: "baseObjectName", types: [{ name: "string" }], optional: false, rest: false }, { name: "startingIdx", types: [{ name: "int" }], optional: false, rest: false }, { name: "endingIdx", types: [{ name: "int" }], optional: false, rest: false }, { name: "behaviourName", types: [{ name: "string" }], optional: false, rest: false }])];
+            _RUN_decorators = [(0, types_1.method)([{ name: "objectName", types: [{ name: "string" }], optional: false, rest: false }, { name: "methodName", types: [{ name: "string" }], optional: false, rest: false }, { name: "args", types: [{ name: "Value" }], optional: false, rest: true }])];
+            _STARTMUSIC_decorators = [(0, types_1.method)([{ name: "filename", types: [{ name: "string" }], optional: false, rest: false }])];
+            _GETMAXHSPRIORITY_decorators = [(0, types_1.method)([], "int")];
+            _SETMAXHSPRIORITY_decorators = [(0, types_1.method)([{ name: "priority", types: [{ name: "int" }], optional: false, rest: false }])];
+            _GETMINHSPRIORITY_decorators = [(0, types_1.method)([], "int")];
+            _SETMINHSPRIORITY_decorators = [(0, types_1.method)([{ name: "priority", types: [{ name: "int" }], optional: false, rest: false }])];
+            _GETPLAYINGANIMO_decorators = [(0, types_1.method)([{ name: "targetGroupName", types: [{ name: "string" }], optional: false, rest: false }])];
+            _RESUME_decorators = [(0, types_1.method)([])];
             __esDecorate(this, null, _SETMUSICVOLUME_decorators, { kind: "method", name: "SETMUSICVOLUME", static: false, private: false, access: { has: obj => "SETMUSICVOLUME" in obj, get: obj => obj.SETMUSICVOLUME }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _RUNCLONES_decorators, { kind: "method", name: "RUNCLONES", static: false, private: false, access: { has: obj => "RUNCLONES" in obj, get: obj => obj.RUNCLONES }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _RUN_decorators, { kind: "method", name: "RUN", static: false, private: false, access: { has: obj => "RUN" in obj, get: obj => obj.RUN }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -37864,9 +37960,8 @@ let Scene = (() => {
             if (object === null) {
                 return;
             }
-            const method = object[methodName];
-            if (method !== undefined) {
-                return await method.bind(object)(...args);
+            if (object[methodName] !== undefined) {
+                return await (0, types_1.callMethod)(object, methodName, args);
             }
             else {
                 return await object.__call(methodName, args);
@@ -37984,10 +38079,10 @@ let Sequence = (() => {
     return class Sequence extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _PLAY_decorators = [(0, types_1.method)({ name: "sequenceName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _ISPLAYING_decorators = [(0, types_1.method)()];
-            _HIDE_decorators = [(0, types_1.method)()];
-            _STOP_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
+            _PLAY_decorators = [(0, types_1.method)([{ name: "sequenceName", types: [{ name: "string" }], optional: false, rest: false }])];
+            _ISPLAYING_decorators = [(0, types_1.method)([], "boolean")];
+            _HIDE_decorators = [(0, types_1.method)([])];
+            _STOP_decorators = [(0, types_1.method)([{ name: "arg", types: [{ name: "boolean" }], optional: true, rest: false }])];
             __esDecorate(this, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _ISPLAYING_decorators, { kind: "method", name: "ISPLAYING", static: false, private: false, access: { has: obj => "ISPLAYING" in obj, get: obj => obj.ISPLAYING }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _HIDE_decorators, { kind: "method", name: "HIDE", static: false, private: false, access: { has: obj => "HIDE" in obj, get: obj => obj.HIDE }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -38147,8 +38242,7 @@ let Sequence = (() => {
         async onAnimoEventFinished(eventName) {
             (0, errors_1.assert)(this.activeAnimo !== null);
             if (this.runningSubSequence?.TYPE === 'SPEAKING') {
-                if (this.runningSubSequence.STARTING === true &&
-                    eventName === this.runningSubSequence.PREFIX + '_START') {
+                if (this.runningSubSequence.STARTING === true && eventName === this.runningSubSequence.PREFIX + '_START') {
                     if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
                         this.loop = true;
                         this.loopIndex = 1;
@@ -38168,7 +38262,7 @@ let Sequence = (() => {
                     await this.playAnimoEvent(eventName);
                 }
             }
-            else if (this.currentAnimoEvent == eventName) {
+            else if (this.currentAnimoEvent === eventName) {
                 await this.progressNext();
             }
         }
@@ -38357,14 +38451,14 @@ let Sound = (() => {
     return class Sound extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _PLAY_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "any", literal: null, isArray: false }], optional: true, rest: false })];
-            _ISPLAYING_decorators = [(0, types_1.method)()];
-            _STOP_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "boolean", literal: null, isArray: false }], optional: true, rest: false })];
-            _RESUME_decorators = [(0, types_1.method)()];
-            _PAUSE_decorators = [(0, types_1.method)()];
-            _RELEASE_decorators = [(0, types_1.method)()];
-            _SETFREQ_decorators = [(0, types_1.method)({ name: "frequency", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _LOAD_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _PLAY_decorators = [(0, types_1.method)([{ name: "arg", types: [{ name: "string" }], optional: true, rest: false }])];
+            _ISPLAYING_decorators = [(0, types_1.method)([], "boolean")];
+            _STOP_decorators = [(0, types_1.method)([{ name: "arg", types: [{ name: "boolean" }], optional: true, rest: false }])];
+            _RESUME_decorators = [(0, types_1.method)([])];
+            _PAUSE_decorators = [(0, types_1.method)([])];
+            _RELEASE_decorators = [(0, types_1.method)([])];
+            _SETFREQ_decorators = [(0, types_1.method)([{ name: "frequency", types: [{ name: "int" }], optional: false, rest: false }])];
+            _LOAD_decorators = [(0, types_1.method)([{ name: "filename", types: [{ name: "string" }], optional: false, rest: false }])];
             __esDecorate(this, null, _PLAY_decorators, { kind: "method", name: "PLAY", static: false, private: false, access: { has: obj => "PLAY" in obj, get: obj => obj.PLAY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _ISPLAYING_decorators, { kind: "method", name: "ISPLAYING", static: false, private: false, access: { has: obj => "ISPLAYING" in obj, get: obj => obj.ISPLAYING }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _STOP_decorators, { kind: "method", name: "STOP", static: false, private: false, access: { has: obj => "STOP" in obj, get: obj => obj.STOP }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -38517,9 +38611,9 @@ let StaticFilter = (() => {
     return class StaticFilter extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _SETPROPERTY_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
-            _LINK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
-            _UNLINK_decorators = [(0, types_1.method)({ name: "arg", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETPROPERTY_decorators = [(0, types_1.method)([{ name: "name", types: [{ name: "string" }], optional: false, rest: false }, { name: "value", types: [{ name: "string" }, { name: "double" }, { name: "boolean" }], optional: false, rest: false }])];
+            _LINK_decorators = [(0, types_1.method)([{ name: "objectName", types: [{ name: "string" }], optional: false, rest: false }])];
+            _UNLINK_decorators = [(0, types_1.method)([{ name: "objectName", types: [{ name: "string" }], optional: false, rest: false }])];
             __esDecorate(this, null, _SETPROPERTY_decorators, { kind: "method", name: "SETPROPERTY", static: false, private: false, access: { has: obj => "SETPROPERTY" in obj, get: obj => obj.SETPROPERTY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _LINK_decorators, { kind: "method", name: "LINK", static: false, private: false, access: { has: obj => "LINK" in obj, get: obj => obj.LINK }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _UNLINK_decorators, { kind: "method", name: "UNLINK", static: false, private: false, access: { has: obj => "UNLINK" in obj, get: obj => obj.UNLINK }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -38534,8 +38628,8 @@ let StaticFilter = (() => {
         SETPROPERTY(name, value) {
             this.properties.set(name, value);
         }
-        LINK(arg) {
-            const object = this.getObject(arg);
+        LINK(objectName) {
+            const object = this.getObject(objectName);
             (0, errors_1.assert)(object !== null);
             const renderObject = object.getRenderObject();
             if (renderObject === null) {
@@ -38557,8 +38651,8 @@ let StaticFilter = (() => {
             }
             this.linked.set(object, savedProperties);
         }
-        UNLINK(arg) {
-            const object = this.getObject(arg);
+        UNLINK(objectName) {
+            const object = this.getObject(objectName);
             (0, errors_1.assert)(object !== null);
             const properties = this.linked.get(object);
             if (!properties) {
@@ -38642,12 +38736,12 @@ let String = (() => {
     return class String extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _ADD_decorators = [(0, types_1.method)({ name: "text", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _SET_decorators = [(0, types_1.method)({ name: "text", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _SUB_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "length", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GET_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false }, { name: "length", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
-            _FIND_decorators = [(0, types_1.method)({ name: "needle", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "start", types: [{ name: "number", literal: null, isArray: false }], optional: true, rest: false })];
-            _LENGTH_decorators = [(0, types_1.method)()];
+            _ADD_decorators = [(0, types_1.method)([{ name: "text", types: [{ name: "string" }], optional: false, rest: false }])];
+            _SET_decorators = [(0, types_1.method)([{ name: "text", types: [{ name: "string" }], optional: false, rest: false }])];
+            _SUB_decorators = [(0, types_1.method)([{ name: "start", types: [{ name: "int" }], optional: false, rest: false }, { name: "length", types: [{ name: "int" }], optional: false, rest: false }])];
+            _GET_decorators = [(0, types_1.method)([{ name: "index", types: [{ name: "int" }], optional: true, rest: false }, { name: "length", types: [{ name: "int" }], optional: true, rest: false }], "string")];
+            _FIND_decorators = [(0, types_1.method)([{ name: "needle", types: [{ name: "string" }], optional: false, rest: false }, { name: "start", types: [{ name: "int" }], optional: true, rest: false }], "int")];
+            _LENGTH_decorators = [(0, types_1.method)([], "int")];
             __esDecorate(this, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _SUB_decorators, { kind: "method", name: "SUB", static: false, private: false, access: { has: obj => "SUB" in obj, get: obj => obj.SUB }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -38669,8 +38763,8 @@ let String = (() => {
         async SET(text) {
             await this.setValue(text);
         }
-        async SUB(index, length) {
-            await this.setValue(this.value.substring(0, index) + this.value.substring(index + length));
+        async SUB(start, length) {
+            await this.setValue(this.value.substring(0, start) + this.value.substring(start + length));
         }
         GET(index, length = 1) {
             if (index === undefined) {
@@ -38684,11 +38778,23 @@ let String = (() => {
         LENGTH() {
             return this.value.length;
         }
+        getValue() {
+            return this.value;
+        }
         async valueChanged(oldValue, newValue) {
             if (oldValue !== newValue) {
                 await this.callbacks.run('ONCHANGED', newValue);
             }
             await this.callbacks.run('ONBRUTALCHANGED', newValue);
+        }
+        async equals(other) {
+            const otherString = await other.toString();
+            return this.getValue().toLowerCase() === otherString.toLowerCase();
+        }
+        async compare(other) {
+            const a = this.getValue();
+            const b = await other.toString();
+            return a < b ? -1 : a > b ? 1 : 0;
         }
         async toString() {
             return this.getValue();
@@ -38749,6 +38855,11 @@ const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/type
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const definitionLoader_1 = __webpack_require__(/*! ../../filesystem/definitionLoader */ "./src/filesystem/definitionLoader.ts");
 const FIELD_PATTERN = /(?<name>\w+)<(?<type>\w+)>/g;
+const fieldTypes = { INTEGER: 'int', DOUBLE: 'double', STRING: 'string', BOOL: 'boolean' };
+const convertToType = (type, value) => {
+    const primitiveType = types_1.primitiveTypes[fieldTypes[type]];
+    return primitiveType !== undefined ? primitiveType.convert(value) : value;
+};
 let Struct = (() => {
     let _classSuper = index_1.Type;
     let _instanceExtraInitializers = [];
@@ -38758,9 +38869,9 @@ let Struct = (() => {
     return class Struct extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _GETFIELD_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETFIELD_decorators = [(0, types_1.method)({ name: "name", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "value", types: [{ name: "any", literal: null, isArray: false }], optional: false, rest: false })];
-            _SET_decorators = [(0, types_1.method)({ name: "otherObjectName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _GETFIELD_decorators = [(0, types_1.method)([{ name: "name", types: [{ name: "string" }], optional: false, rest: false }])];
+            _SETFIELD_decorators = [(0, types_1.method)([{ name: "name", types: [{ name: "string" }], optional: false, rest: false }, { name: "value", types: [{ name: "string" }, { name: "double" }, { name: "boolean" }], optional: false, rest: false }])];
+            _SET_decorators = [(0, types_1.method)([{ name: "otherObjectName", types: [{ name: "string" }], optional: false, rest: false }])];
             __esDecorate(this, null, _GETFIELD_decorators, { kind: "method", name: "GETFIELD", static: false, private: false, access: { has: obj => "GETFIELD" in obj, get: obj => obj.GETFIELD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _SETFIELD_decorators, { kind: "method", name: "SETFIELD", static: false, private: false, access: { has: obj => "SETFIELD" in obj, get: obj => obj.SETFIELD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -38787,7 +38898,7 @@ let Struct = (() => {
             }
         }
         GETFIELD(name) {
-            return this.getField(name);
+            return this.getField(name) ?? null;
         }
         async SETFIELD(name, value) {
             await this.setField(name, value);
@@ -38796,9 +38907,9 @@ let Struct = (() => {
             const otherObject = this.getObject(otherObjectName);
             (0, errors_1.assert)(otherObject !== null, 'object does not exist');
             for (const key of otherObject.structure.keys()) {
-                const otherField = otherObject.GETFIELD(key);
+                const otherField = otherObject.getField(key);
                 if (otherField) {
-                    await this.SETFIELD(key, await otherField.getValue());
+                    await this.setField(key, await otherField.getValue());
                 }
             }
         }
@@ -38809,7 +38920,7 @@ let Struct = (() => {
         async setField(name, value) {
             const fieldObject = this.getField(name);
             if (fieldObject !== undefined) {
-                await fieldObject.setValue(value ?? fieldObject.defaultValue);
+                await fieldObject.setValue(convertToType(this.structure.get(name), value ?? fieldObject.defaultValue));
             }
         }
         parseFieldsString(definition) {
@@ -38882,7 +38993,7 @@ let System = (() => {
     return class System extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _GETDATE_decorators = [(0, types_1.method)()];
+            _GETDATE_decorators = [(0, types_1.method)([], "int")];
             __esDecorate(this, null, _GETDATE_decorators, { kind: "method", name: "GETDATE", static: false, private: false, access: { has: obj => "GETDATE" in obj, get: obj => obj.GETDATE }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         }
@@ -38955,7 +39066,7 @@ let Text = (() => {
     return class Text extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _SETTEXT_decorators = [(0, types_1.method)({ name: "content", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
+            _SETTEXT_decorators = [(0, types_1.method)([{ name: "content", types: [{ name: "string" }], optional: false, rest: false }])];
             __esDecorate(this, null, _SETTEXT_decorators, { kind: "method", name: "SETTEXT", static: false, private: false, access: { has: obj => "SETTEXT" in obj, get: obj => obj.SETTEXT }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         }
@@ -39052,11 +39163,11 @@ let Timer = (() => {
     return class Timer extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _SETELAPSE_decorators = [(0, types_1.method)({ name: "newElapse", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SET_decorators = [(0, types_1.method)({ name: "value", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _RESET_decorators = [(0, types_1.method)()];
-            _DISABLE_decorators = [(0, types_1.method)()];
-            _ENABLE_decorators = [(0, types_1.method)()];
+            _SETELAPSE_decorators = [(0, types_1.method)([{ name: "newElapse", types: [{ name: "double" }], optional: false, rest: false }])];
+            _SET_decorators = [(0, types_1.method)([{ name: "value", types: [{ name: "int" }], optional: false, rest: false }])];
+            _RESET_decorators = [(0, types_1.method)([])];
+            _DISABLE_decorators = [(0, types_1.method)([])];
+            _ENABLE_decorators = [(0, types_1.method)([])];
             __esDecorate(this, null, _SETELAPSE_decorators, { kind: "method", name: "SETELAPSE", static: false, private: false, access: { has: obj => "SETELAPSE" in obj, get: obj => obj.SETELAPSE }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _SET_decorators, { kind: "method", name: "SET", static: false, private: false, access: { has: obj => "SET" in obj, get: obj => obj.SET }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _RESET_decorators, { kind: "method", name: "RESET", static: false, private: false, access: { has: obj => "RESET" in obj, get: obj => obj.RESET }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -39129,6 +39240,127 @@ exports.Timer = Timer;
 
 /***/ },
 
+/***/ "./src/engine/types/values.ts"
+/*!************************************!*\
+  !*** ./src/engine/types/values.ts ***!
+  \************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.applyArithmetic = exports.compareValues = exports.copyValue = exports.rawValue = exports.unwrapValue = exports.createBool = exports.createString = exports.createDouble = exports.createInteger = void 0;
+const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts");
+const integer_1 = __webpack_require__(/*! ./integer */ "./src/engine/types/integer.ts");
+const double_1 = __webpack_require__(/*! ./double */ "./src/engine/types/double.ts");
+const string_1 = __webpack_require__(/*! ./string */ "./src/engine/types/string.ts");
+const bool_1 = __webpack_require__(/*! ./bool */ "./src/engine/types/bool.ts");
+const expression_1 = __webpack_require__(/*! ./expression */ "./src/engine/types/expression.ts");
+const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
+const createInteger = (engine, value) => new integer_1.Integer(engine, null, { TYPE: 'INTEGER', NAME: '', VALUE: value });
+exports.createInteger = createInteger;
+const createDouble = (engine, value) => new double_1.Double(engine, null, { TYPE: 'DOUBLE', NAME: '', VALUE: value });
+exports.createDouble = createDouble;
+const createString = (engine, value) => new string_1.String(engine, null, { TYPE: 'STRING', NAME: '', VALUE: value });
+exports.createString = createString;
+const createBool = (engine, value) => new bool_1.Bool(engine, null, { TYPE: 'BOOL', NAME: '', VALUE: value });
+exports.createBool = createBool;
+// Turns an engine value into the primitive that methods of the types expect
+const unwrapValue = async (value) => {
+    if (value instanceof index_1.ValueType) {
+        return await value.getValue();
+    }
+    return value;
+};
+exports.unwrapValue = unwrapValue;
+const rawValue = (value) => (value === null ? null : value.getValue());
+exports.rawValue = rawValue;
+const copyValue = async (engine, value) => {
+    if (value === null) {
+        return null;
+    }
+    if (value instanceof integer_1.Integer) {
+        return (0, exports.createInteger)(engine, value.getValue());
+    }
+    if (value instanceof double_1.Double) {
+        return (0, exports.createDouble)(engine, value.getValue());
+    }
+    if (value instanceof string_1.String) {
+        return (0, exports.createString)(engine, value.getValue());
+    }
+    if (value instanceof bool_1.Bool) {
+        return (0, exports.createBool)(engine, value.getValue());
+    }
+    if (value instanceof expression_1.Expression) {
+        return await value.evaluate();
+    }
+    throw new TypeError(`Cannot store a value of type ${value.definition.TYPE}`);
+};
+exports.copyValue = copyValue;
+const compareValues = async (engine, left, op, right) => {
+    // NULL compares as the string "NULL"
+    const resolve = async (value) => (value instanceof expression_1.Expression ? await value.evaluate() : value) ?? (0, exports.createString)(engine, 'NULL');
+    const leftValue = await resolve(left);
+    const rightValue = await resolve(right);
+    switch (op) {
+        case 'EQ':
+            return await leftValue.equals(rightValue);
+        case 'NE':
+            return !(await leftValue.equals(rightValue));
+        case 'LT':
+            return (await leftValue.compare(rightValue)) < 0;
+        case 'LE':
+            return (await leftValue.compare(rightValue)) <= 0;
+        case 'GT':
+            return (await leftValue.compare(rightValue)) > 0;
+        case 'GE':
+            return (await leftValue.compare(rightValue)) >= 0;
+        case 'HAS':
+            return (0, types_1.valueAsString)(await (0, exports.unwrapValue)(left)).includes((0, types_1.valueAsString)(await (0, exports.unwrapValue)(right)));
+    }
+};
+exports.compareValues = compareValues;
+const calculate = (a, op, b) => {
+    switch (op) {
+        case 'ADD':
+            return a + b;
+        case 'SUB':
+            return a - b;
+        case 'MUL':
+            return a * b;
+        case 'DIV':
+            return a / b;
+        case 'MOD':
+            return a % b;
+    }
+};
+// The type of the result follows the left operand.
+// Always returns a new value, so a variable used as the left operand is never changed.
+const applyArithmetic = async (engine, left, op, right) => {
+    const leftValue = await (0, exports.unwrapValue)(left);
+    const rightValue = await (0, exports.unwrapValue)(right);
+    if (left instanceof integer_1.Integer) {
+        return (0, exports.createInteger)(engine, Math.trunc(calculate((0, types_1.valueAsDouble)(leftValue), op, (0, types_1.valueAsDouble)(rightValue))));
+    }
+    if (left instanceof bool_1.Bool) {
+        if (right instanceof bool_1.Bool) {
+            return (0, exports.createBool)(engine, false);
+        }
+        return (0, exports.createBool)(engine, leftValue);
+    }
+    if (left instanceof double_1.Double) {
+        return (0, exports.createDouble)(engine, calculate(leftValue, op, (0, types_1.valueAsDouble)(rightValue)));
+    }
+    if (op === 'ADD') {
+        return (0, exports.createString)(engine, (0, types_1.valueAsString)(leftValue) + (0, types_1.valueAsString)(rightValue));
+    }
+    return (0, exports.createDouble)(engine, calculate((0, types_1.valueAsDouble)(leftValue), op, (0, types_1.valueAsDouble)(rightValue)));
+};
+exports.applyArithmetic = applyArithmetic;
+
+
+/***/ },
+
 /***/ "./src/engine/types/vector.ts"
 /*!************************************!*\
   !*** ./src/engine/types/vector.ts ***!
@@ -39189,13 +39421,13 @@ let Vector = (() => {
     return class Vector extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _ASSIGN_decorators = [(0, types_1.method)({ name: "values", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: true })];
-            _ADD_decorators = [(0, types_1.method)({ name: "otherVector", types: [{ name: "number", literal: null, isArray: true }], optional: false, rest: false })];
-            _MUL_decorators = [(0, types_1.method)({ name: "scalar", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _GET_decorators = [(0, types_1.method)({ name: "index", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _NORMALIZE_decorators = [(0, types_1.method)()];
-            _REFLECT_decorators = [(0, types_1.method)({ name: "normal", types: [{ name: "number", literal: null, isArray: true }], optional: false, rest: false }, { name: "result", types: [{ name: "any", literal: null, isArray: true }], optional: false, rest: false })];
-            _LEN_decorators = [(0, types_1.method)()];
+            _ASSIGN_decorators = [(0, types_1.method)([{ name: "values", types: [{ name: "double" }], optional: false, rest: true }])];
+            _ADD_decorators = [(0, types_1.method)([{ name: "otherVector", types: [{ name: "Vector" }], optional: false, rest: false }])];
+            _MUL_decorators = [(0, types_1.method)([{ name: "scalar", types: [{ name: "double" }], optional: false, rest: false }])];
+            _GET_decorators = [(0, types_1.method)([{ name: "index", types: [{ name: "int" }], optional: false, rest: false }], "double")];
+            _NORMALIZE_decorators = [(0, types_1.method)([])];
+            _REFLECT_decorators = [(0, types_1.method)([{ name: "normalVector", types: [{ name: "Vector" }], optional: false, rest: false }, { name: "result", types: [{ name: "Vector" }], optional: false, rest: false }])];
+            _LEN_decorators = [(0, types_1.method)([], "double")];
             __esDecorate(this, null, _ASSIGN_decorators, { kind: "method", name: "ASSIGN", static: false, private: false, access: { has: obj => "ASSIGN" in obj, get: obj => obj.ASSIGN }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _ADD_decorators, { kind: "method", name: "ADD", static: false, private: false, access: { has: obj => "ADD" in obj, get: obj => obj.ADD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _MUL_decorators, { kind: "method", name: "MUL", static: false, private: false, access: { has: obj => "MUL" in obj, get: obj => obj.MUL }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -39218,7 +39450,8 @@ let Vector = (() => {
             await this.setValue(newValue);
         }
         async ADD(otherVector) {
-            await this.setValue(this.value.map((val, idx) => val + otherVector[idx]));
+            const other = otherVector.getValue();
+            await this.setValue(this.value.map((val, idx) => val + other[idx]));
         }
         async MUL(scalar) {
             await this.setValue(this.value.map((val) => val * scalar));
@@ -39227,24 +39460,32 @@ let Vector = (() => {
             return this.value[index];
         }
         async NORMALIZE() {
-            const magnitude = this.LEN();
+            const magnitude = this.length();
             (0, errors_1.assert)(magnitude !== 0, 'Cannot normalize a zero vector');
             await this.setValue(this.value.map((val) => val / magnitude));
         }
-        // any[] to prevent typeGuard creating new array
-        // result param is a reference
-        async REFLECT(normal, result) {
+        // The reflection is written into the result vector
+        async REFLECT(normalVector, result) {
+            const normal = normalVector.getValue();
             // Calculate the dot product between this.value and the normal vector
             let dotProduct = 0;
             for (let i = 0; i < this.value.length; i++) {
                 dotProduct += this.value[i] * normal[i];
             }
             // Perform the reflection calculation for each dimension
+            const reflection = [...result.getValue()];
             for (let i = 0; i < this.value.length; i++) {
-                result[i] = 2 * dotProduct * normal[i] - this.value[i];
+                reflection[i] = 2 * dotProduct * normal[i] - this.value[i];
             }
+            await result.setValue(reflection);
         }
         LEN() {
+            return this.length();
+        }
+        getValue() {
+            return this.value;
+        }
+        length() {
             return Math.sqrt(this.value.reduce((sum, val) => sum + val * val, 0));
         }
     };
@@ -39317,16 +39558,16 @@ let World = (() => {
     return class World extends _classSuper {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _LOAD_decorators = [(0, types_1.method)({ name: "filename", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETGRAVITY_decorators = [(0, types_1.method)({ name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "z", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _ADDBODY_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "density", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "mu", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "friction", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "bounce", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "bounceVel", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "maxVel", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "bodyType", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "geomType", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETLIMIT_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "z", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "z1", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETSPEED_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "speed", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _LINK_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "animoName", types: [{ name: "string", literal: null, isArray: false }], optional: false, rest: false }, { name: "flag", types: [{ name: "any", literal: null, isArray: false }], optional: true, rest: false })];
-            _SETPOSITION_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "z", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETVELOCITY_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "x", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "y", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "z", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _SETMAXSPEED_decorators = [(0, types_1.method)({ name: "id", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false }, { name: "speed", types: [{ name: "number", literal: null, isArray: false }], optional: false, rest: false })];
-            _MOVEOBJECTS_decorators = [(0, types_1.method)()];
+            _LOAD_decorators = [(0, types_1.method)([{ name: "filename", types: [{ name: "string" }], optional: false, rest: false }])];
+            _SETGRAVITY_decorators = [(0, types_1.method)([{ name: "x", types: [{ name: "double" }], optional: false, rest: false }, { name: "y", types: [{ name: "double" }], optional: false, rest: false }, { name: "z", types: [{ name: "double" }], optional: false, rest: false }])];
+            _ADDBODY_decorators = [(0, types_1.method)([{ name: "id", types: [{ name: "int" }], optional: false, rest: false }, { name: "density", types: [{ name: "double" }], optional: false, rest: false }, { name: "mu", types: [{ name: "double" }], optional: false, rest: false }, { name: "friction", types: [{ name: "double" }], optional: false, rest: false }, { name: "bounce", types: [{ name: "double" }], optional: false, rest: false }, { name: "bounceVel", types: [{ name: "double" }], optional: false, rest: false }, { name: "maxVel", types: [{ name: "double" }], optional: false, rest: false }, { name: "bodyType", types: [{ name: "int" }], optional: false, rest: false }, { name: "geomType", types: [{ name: "int" }], optional: false, rest: false }])];
+            _SETLIMIT_decorators = [(0, types_1.method)([{ name: "id", types: [{ name: "int" }], optional: false, rest: false }, { name: "x", types: [{ name: "double" }], optional: false, rest: false }, { name: "y", types: [{ name: "double" }], optional: false, rest: false }, { name: "z", types: [{ name: "double" }], optional: false, rest: false }, { name: "x1", types: [{ name: "double" }], optional: false, rest: false }, { name: "y1", types: [{ name: "double" }], optional: false, rest: false }, { name: "z1", types: [{ name: "double" }], optional: false, rest: false }])];
+            _SETSPEED_decorators = [(0, types_1.method)([{ name: "id", types: [{ name: "int" }], optional: false, rest: false }, { name: "speed", types: [{ name: "double" }], optional: false, rest: false }])];
+            _LINK_decorators = [(0, types_1.method)([{ name: "id", types: [{ name: "int" }], optional: false, rest: false }, { name: "animoName", types: [{ name: "string" }], optional: false, rest: false }, { name: "flag", types: [{ name: "any" }], optional: true, rest: false }])];
+            _SETPOSITION_decorators = [(0, types_1.method)([{ name: "id", types: [{ name: "int" }], optional: false, rest: false }, { name: "x", types: [{ name: "double" }], optional: false, rest: false }, { name: "y", types: [{ name: "double" }], optional: false, rest: false }, { name: "z", types: [{ name: "double" }], optional: false, rest: false }])];
+            _SETVELOCITY_decorators = [(0, types_1.method)([{ name: "id", types: [{ name: "int" }], optional: false, rest: false }, { name: "x", types: [{ name: "double" }], optional: false, rest: false }, { name: "y", types: [{ name: "double" }], optional: false, rest: false }, { name: "z", types: [{ name: "double" }], optional: false, rest: false }])];
+            _SETMAXSPEED_decorators = [(0, types_1.method)([{ name: "id", types: [{ name: "int" }], optional: false, rest: false }, { name: "speed", types: [{ name: "double" }], optional: false, rest: false }])];
+            _MOVEOBJECTS_decorators = [(0, types_1.method)([])];
             __esDecorate(this, null, _LOAD_decorators, { kind: "method", name: "LOAD", static: false, private: false, access: { has: obj => "LOAD" in obj, get: obj => obj.LOAD }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _SETGRAVITY_decorators, { kind: "method", name: "SETGRAVITY", static: false, private: false, access: { has: obj => "SETGRAVITY" in obj, get: obj => obj.SETGRAVITY }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate(this, null, _ADDBODY_decorators, { kind: "method", name: "ADDBODY", static: false, private: false, access: { has: obj => "ADDBODY" in obj, get: obj => obj.ADDBODY }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -39534,17 +39775,17 @@ exports.loadAnn = loadAnn;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.serializeArray = exports.deserializeArray = void 0;
+exports.serializeArray = exports.deserializeArray = exports.ArrayEntryType = void 0;
 const utils_1 = __webpack_require__(/*! ../utils */ "./src/fileFormats/utils.ts");
 const decoder = new TextDecoder('windows-1250');
 const encoder = new TextEncoder();
-var ValueType;
-(function (ValueType) {
-    ValueType[ValueType["INTEGER"] = 1] = "INTEGER";
-    ValueType[ValueType["FLOAT"] = 4] = "FLOAT";
-    ValueType[ValueType["STRING"] = 2] = "STRING";
-    ValueType[ValueType["BOOLEAN"] = 3] = "BOOLEAN";
-})(ValueType || (ValueType = {}));
+var ArrayEntryType;
+(function (ArrayEntryType) {
+    ArrayEntryType[ArrayEntryType["INTEGER"] = 1] = "INTEGER";
+    ArrayEntryType[ArrayEntryType["FLOAT"] = 4] = "FLOAT";
+    ArrayEntryType[ArrayEntryType["STRING"] = 2] = "STRING";
+    ArrayEntryType[ArrayEntryType["BOOLEAN"] = 3] = "BOOLEAN";
+})(ArrayEntryType || (exports.ArrayEntryType = ArrayEntryType = {}));
 const deserializeArray = (data) => {
     const buffer = new utils_1.BinaryBuffer(new DataView(data));
     const count = buffer.getUint32();
@@ -39552,19 +39793,19 @@ const deserializeArray = (data) => {
     for (let i = 0; i < count; ++i) {
         const type = buffer.getUint32();
         switch (type) {
-            case ValueType.INTEGER:
-                entries.push(buffer.getInt32());
+            case ArrayEntryType.INTEGER:
+                entries.push({ type, value: buffer.getInt32() });
                 break;
-            case ValueType.STRING: {
+            case ArrayEntryType.STRING: {
                 const length = buffer.getUint32();
-                entries.push(decoder.decode(buffer.read(length)));
+                entries.push({ type, value: decoder.decode(buffer.read(length)) });
                 break;
             }
-            case ValueType.BOOLEAN:
-                entries.push(buffer.getUint32() === 1);
+            case ArrayEntryType.BOOLEAN:
+                entries.push({ type, value: buffer.getUint32() === 1 });
                 break;
-            case ValueType.FLOAT:
-                entries.push(buffer.getInt32() / 1000);
+            case ArrayEntryType.FLOAT:
+                entries.push({ type, value: buffer.getInt32() / 1000 });
                 break;
         }
     }
@@ -39577,43 +39818,34 @@ const checkInt32 = (value) => {
     }
     return value;
 };
-const serializeArray = (data) => {
+const serializeArray = (entries) => {
     // Strings are pre-encoded so that we know their sizes up front
-    const entries = data.map((entry) => (typeof entry === 'string' ? encoder.encode(entry) : entry));
+    const encoded = entries.map((entry) => (entry.type === ArrayEntryType.STRING ? encoder.encode(entry.value) : null));
     let size = 4;
-    for (const entry of entries) {
-        if (entry instanceof Uint8Array) {
-            size += 4 + 4 + entry.length;
-        }
-        else if (typeof entry === 'number' || typeof entry === 'boolean') {
-            size += 4 + 4;
-        }
-        else {
-            throw new TypeError(`Cannot serialize value of type ${typeof entry} in array`);
-        }
+    for (const bytes of encoded) {
+        size += 4 + 4 + (bytes?.length ?? 0);
     }
     const result = new Uint8Array(size);
     const buffer = new utils_1.BinaryBuffer(new DataView(result.buffer));
     buffer.setUint32(entries.length);
-    for (const entry of entries) {
-        if (entry instanceof Uint8Array) {
-            buffer.setUint32(ValueType.STRING);
-            buffer.setUint32(entry.length);
-            buffer.write(entry);
+    entries.forEach((entry, i) => {
+        buffer.setUint32(entry.type);
+        switch (entry.type) {
+            case ArrayEntryType.STRING:
+                buffer.setUint32(encoded[i].length);
+                buffer.write(encoded[i]);
+                break;
+            case ArrayEntryType.BOOLEAN:
+                buffer.setUint32(Number(entry.value));
+                break;
+            case ArrayEntryType.INTEGER:
+                buffer.setInt32(checkInt32(entry.value));
+                break;
+            case ArrayEntryType.FLOAT:
+                buffer.setInt32(checkInt32(Math.trunc(entry.value * 1000)));
+                break;
         }
-        else if (typeof entry === 'boolean') {
-            buffer.setUint32(ValueType.BOOLEAN);
-            buffer.setUint32(Number(entry));
-        }
-        else if (Number.isInteger(entry)) {
-            buffer.setUint32(ValueType.INTEGER);
-            buffer.setInt32(checkInt32(entry));
-        }
-        else {
-            buffer.setUint32(ValueType.FLOAT);
-            buffer.setInt32(checkInt32(Math.trunc(entry * 1000)));
-        }
-    }
+    });
     return result.buffer;
 };
 exports.serializeArray = serializeArray;
@@ -42265,6 +42497,7 @@ const common_1 = __webpack_require__(/*! ../fileFormats/common */ "./src/fileFor
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 const integer_1 = __webpack_require__(/*! ../engine/types/integer */ "./src/engine/types/integer.ts");
 const string_1 = __webpack_require__(/*! ../engine/types/string */ "./src/engine/types/string.ts");
+const values_1 = __webpack_require__(/*! ../engine/types/values */ "./src/engine/types/values.ts");
 const parser_1 = __webpack_require__(/*! ./parser */ "./src/interpreter/parser.ts");
 const expression_1 = __webpack_require__(/*! ./expression */ "./src/interpreter/expression/index.ts");
 const logging_1 = __webpack_require__(/*! ../engine/logging */ "./src/engine/logging.ts");
@@ -42308,26 +42541,6 @@ const COMPARE_OP_MAP = {
     '>_': 'GE',
     '<_': 'LE',
 };
-function applyComparison(left, op, right) {
-    switch (op) {
-        case 'EQ':
-            return types_2.Compare.Equal(left, right);
-        case 'NE':
-            return types_2.Compare.NotEqual(left, right);
-        case 'LT':
-            return types_2.Compare.Less(left, right);
-        case 'LE':
-            return types_2.Compare.LessOrEqual(left, right);
-        case 'GT':
-            return types_2.Compare.Greater(left, right);
-        case 'GE':
-            return types_2.Compare.GreaterOrEqual(left, right);
-        case 'HAS':
-            return (0, types_2.valueAsString)(left).includes((0, types_2.valueAsString)(right));
-        default:
-            throw new RuntimeError(`Unknown comparison operator: ${op}`);
-    }
-}
 class Interpreter {
     context;
     globalHandlers;
@@ -42364,27 +42577,34 @@ class Interpreter {
             ['RETURN', this.handleReturn.bind(this)],
         ]);
     }
+    // String operands of @IF and @WHILE are code that is run to get the value
+    async evaluateOperand(operand) {
+        if (operand instanceof string_1.String) {
+            return await this.execute((0, parser_1.parseCode)(await operand.getValue()));
+        }
+        return operand;
+    }
     async handleIf(args) {
         let result;
         let ifTrue;
         let ifFalse;
         if (args.length === 5) {
             const [a, operator, b, trueBranch, falseBranch] = args;
-            const left = typeof a === 'string' ? await this.execute((0, parser_1.parseCode)(a)) : a;
-            const right = typeof b === 'string' ? await this.execute((0, parser_1.parseCode)(b)) : b;
-            const op = COMPARE_OP_MAP[operator];
+            const left = await this.evaluateOperand(a);
+            const right = await this.evaluateOperand(b);
+            const op = COMPARE_OP_MAP[(0, types_2.valueAsString)(await (0, values_1.unwrapValue)(operator))];
             if (!op) {
-                throw new RuntimeError(`Unknown comparison operator: ${operator}`);
+                throw new RuntimeError(`Unknown comparison operator: ${await (0, values_1.unwrapValue)(operator)}`);
             }
-            result = applyComparison(left, op, right);
-            ifTrue = trueBranch;
-            ifFalse = falseBranch;
+            result = await (0, values_1.compareValues)(this.context.engine, left, op, right);
+            ifTrue = (0, types_2.valueAsString)(await (0, values_1.unwrapValue)(trueBranch));
+            ifFalse = (0, types_2.valueAsString)(await (0, values_1.unwrapValue)(falseBranch));
         }
         else if (args.length === 3) {
             const [expression, trueBranch, falseBranch] = args;
-            result = await this.evaluateLogicExpression((0, expression_1.parseLogicExpression)(expression));
-            ifTrue = trueBranch;
-            ifFalse = falseBranch;
+            result = await this.evaluateLogicExpression((0, expression_1.parseLogicExpression)((0, types_2.valueAsString)(await (0, values_1.unwrapValue)(expression))));
+            ifTrue = (0, types_2.valueAsString)(await (0, values_1.unwrapValue)(trueBranch));
+            ifFalse = (0, types_2.valueAsString)(await (0, values_1.unwrapValue)(falseBranch));
         }
         else {
             throw new RuntimeError(`Invalid @IF arguments: expected 3 or 5, got ${args.length}`);
@@ -42399,11 +42619,15 @@ class Interpreter {
         throw new errors_1.InterruptScriptExecution(false);
     }
     async handleReturn(args) {
-        throw new Return(args[0]);
+        throw new Return(args[0] ?? null);
     }
     async handleLoop(args) {
-        const [codeOrBehaviour, start, len, step] = args;
-        const callback = (0, common_1.createCallback)(codeOrBehaviour);
+        const values = [];
+        for (const arg of args) {
+            values.push(await (0, values_1.unwrapValue)(arg));
+        }
+        const [codeOrBehaviour, start, len, step] = values;
+        const callback = (0, common_1.createCallback)((0, types_2.valueAsString)(codeOrBehaviour));
         if (!callback) {
             throw new errors_1.IrrecoverableError('Invalid @LOOP callback');
         }
@@ -42412,7 +42636,10 @@ class Interpreter {
             TYPE: 'INTEGER',
             TOINI: false,
         });
-        for (let i = start; i < start + len; i += step) {
+        const from = (0, types_2.valueAsInteger)(start);
+        const to = from + (0, types_2.valueAsInteger)(len);
+        const increment = (0, types_2.valueAsInteger)(step);
+        for (let i = from; i < to; i += increment) {
             await counter.setValue(i);
             try {
                 await this.context.engine.scripting.executeCallback(null, this.context.caller, callback, [], { _I_: counter }, true);
@@ -42430,18 +42657,19 @@ class Interpreter {
     }
     async handleWhile(args) {
         const [a, operator, b, codeOrBehaviour] = args;
-        const callback = (0, common_1.createCallback)(codeOrBehaviour);
+        const callback = (0, common_1.createCallback)((0, types_2.valueAsString)(await (0, values_1.unwrapValue)(codeOrBehaviour)));
         if (!callback) {
             throw new errors_1.IrrecoverableError('Invalid @WHILE callback');
         }
-        const op = COMPARE_OP_MAP[operator];
+        const operatorName = (0, types_2.valueAsString)(await (0, values_1.unwrapValue)(operator));
+        const op = COMPARE_OP_MAP[operatorName];
         if (!op) {
-            throw new RuntimeError(`Unknown comparison operator: ${operator}`);
+            throw new RuntimeError(`Unknown comparison operator: ${operatorName}`);
         }
         const evaluateCondition = async () => {
-            const left = typeof a === 'string' ? await this.execute((0, parser_1.parseCode)(a)) : a;
-            const right = typeof b === 'string' ? await this.execute((0, parser_1.parseCode)(b)) : b;
-            return applyComparison(left, op, right);
+            const left = await this.evaluateOperand(a);
+            const right = await this.evaluateOperand(b);
+            return (0, values_1.compareValues)(this.context.engine, left, op, right);
         };
         while (await evaluateCondition()) {
             try {
@@ -42462,7 +42690,7 @@ class Interpreter {
         if (expr.type === 'Condition') {
             const left = await this.evaluateParameter(expr.left);
             const right = await this.evaluateParameter(expr.right);
-            return applyComparison(left, expr.operator, right);
+            return (0, values_1.compareValues)(this.context.engine, left, expr.operator, right);
         }
         const { operator, conditions } = expr;
         if (conditions.length === 0) {
@@ -42472,7 +42700,7 @@ class Interpreter {
         for (const condition of conditions) {
             const left = await this.evaluateParameter(condition.left);
             const right = await this.evaluateParameter(condition.right);
-            if (applyComparison(left, condition.operator, right) === isOr) {
+            if ((await (0, values_1.compareValues)(this.context.engine, left, condition.operator, right)) === isOr) {
                 return isOr;
             }
         }
@@ -42499,7 +42727,8 @@ class Interpreter {
                         .args(...args)
                         .build();
                     (0, stacktrace_1.pushStackFrame)(stackFrame);
-                    return await handler(args);
+                    await handler(args);
+                    return null;
                 }
                 catch (err) {
                     (0, stacktrace_1.captureStackTrace)(err);
@@ -42521,10 +42750,11 @@ class Interpreter {
                         .method(call.method)
                         .args(...args)
                         .build());
-                    const method = targetObj[call.method];
-                    return method !== undefined
-                        ? await method.bind(targetObj)(...args)
+                    const result = targetObj[call.method] !== undefined
+                        ? await (0, types_2.callMethod)(targetObj, call.method, args)
                         : await targetObj.__call(call.method, args);
+                    (0, errors_1.assert)(result === undefined || result === null || result instanceof types_1.ValueType, `${targetObj.name}^${call.method} returned a primitive instead of an engine value`);
+                    return result ?? null;
                 }
                 catch (err) {
                     if (err instanceof errors_1.IgnorableError) {
@@ -42553,26 +42783,24 @@ class Interpreter {
         }
     }
     async evaluateParameter(param) {
+        const { engine } = this.context;
         switch (param.type) {
             case 'NumberLiteral': {
-                const value = (0, types_2.toNumber)(param.value);
-                if (isNaN(value)) {
-                    throw new RuntimeError(`Invalid number literal: ${param.value}`);
-                }
-                return value;
+                const value = (0, types_2.ForceNumber)(param.value);
+                return String(param.value).includes('.') ? (0, values_1.createDouble)(engine, value) : (0, values_1.createInteger)(engine, value);
             }
             case 'StringLiteral':
-                return param.value;
+                return (0, values_1.createString)(engine, param.value);
             case 'BooleanLiteral':
-                return param.value;
+                return (0, values_1.createBool)(engine, param.value);
             case 'BracketExpression':
                 return this.evaluateExpression(param.expression);
             case 'Identifier': {
                 const object = this.getObject(param.name);
                 if (object instanceof types_1.ValueType) {
-                    return await object.getValue();
+                    return object;
                 }
-                return param.name;
+                return (0, values_1.createString)(engine, param.name);
             }
             case 'FieldAccess': {
                 const obj = this.getObject(param.objectName);
@@ -42586,7 +42814,7 @@ class Interpreter {
                 if (field === undefined) {
                     throw new RuntimeError(`Field ${param.fieldName} not found on object ${param.objectName}`);
                 }
-                return await field.getValue();
+                return field;
             }
             case 'ConversionCall':
                 throw new RuntimeError('Unsupported conversion call');
@@ -42599,35 +42827,11 @@ class Interpreter {
     async evaluateExpression(expr) {
         let result = await this.evaluateParameter(expr.head);
         for (const step of expr.tail) {
-            let operand = await this.evaluateParameter(step.operand);
-            if (typeof result === 'number' && typeof operand === 'string') {
-                operand = (0, types_2.ForceNumber)(operand);
+            const operand = await this.evaluateParameter(step.operand);
+            if ((step.op === 'DIV' || step.op === 'MOD') && (0, types_2.valueAsDouble)(await (0, values_1.unwrapValue)(operand)) === 0) {
+                throw new RuntimeError(step.op === 'DIV' ? 'Division by zero' : 'Modulo by zero');
             }
-            switch (step.op) {
-                case 'ADD':
-                    result = result + operand;
-                    break;
-                case 'SUB':
-                    result = result - operand;
-                    break;
-                case 'MUL':
-                    result = result * operand;
-                    break;
-                case 'DIV':
-                    if (operand === 0) {
-                        throw new RuntimeError('Division by zero');
-                    }
-                    result = result / operand;
-                    break;
-                case 'MOD':
-                    if (operand === 0) {
-                        throw new RuntimeError('Modulo by zero');
-                    }
-                    result = result % operand;
-                    break;
-                default:
-                    throw new RuntimeError(`Unknown operator: ${step.op}`);
-            }
+            result = await (0, values_1.applyArithmetic)(this.context.engine, result, step.op, operand);
         }
         return result;
     }
@@ -42640,7 +42844,7 @@ class Interpreter {
             case 'Identifier':
                 return this.getObject(ref.name);
             case 'IndirectRef':
-                return this.getObject(await this.evaluateParameter(ref.inner));
+                return this.getObject((0, types_2.valueAsString)(await (0, values_1.unwrapValue)(await this.evaluateParameter(ref.inner))));
             default:
                 throw new RuntimeError(`Unknown ref type: ${ref.type}`);
         }
@@ -42655,7 +42859,7 @@ class Interpreter {
 }
 exports.Interpreter = Interpreter;
 async function runCode(engine, caller, script, args, isSingleStatement) {
-    const processedScript = await substituteArguments(script, args);
+    const processedScript = await substituteArguments(script.replaceAll(' ', ''), args);
     const ast = (0, parser_1.parseCode)(processedScript);
     const context = new RuntimeContext(engine, caller, processedScript);
     const interpreter = new Interpreter(context);
@@ -42680,7 +42884,8 @@ async function runCode(engine, caller, script, args, isSingleStatement) {
     }
 }
 async function substituteArguments(script, args) {
-    const regex = /\$(\d+)/g;
+    // Only one digit is read: $12 is $1 followed by 2
+    const regex = /\$(\d)/g;
     const parts = [];
     let lastIndex = 0;
     let match;
@@ -42692,8 +42897,8 @@ async function substituteArguments(script, args) {
         }
         else {
             const arg = args[valueIndex];
-            if (arg instanceof string_1.String) {
-                parts.push(String(await arg.getValue()));
+            if (arg instanceof string_1.String || (arg instanceof types_1.ValueType && arg.name === '')) {
+                parts.push((0, types_2.valueAsString)(await arg.getValue()));
             }
             else if (arg instanceof types_1.Type) {
                 parts.push(arg.name);
@@ -43207,7 +43412,8 @@ function _extractArgs(text, parenPos) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.printStackTrace = exports.generateStackTrace = exports.captureStackTrace = exports.popStackFrame = exports.pushStackFrame = exports.StackFrame = void 0;
-const types_1 = __webpack_require__(/*! ../common/types */ "./src/common/types.ts");
+const types_1 = __webpack_require__(/*! ../engine/types */ "./src/engine/types/index.ts");
+const types_2 = __webpack_require__(/*! ../common/types */ "./src/common/types.ts");
 const errors_1 = __webpack_require__(/*! ../common/errors */ "./src/common/errors.ts");
 class StackFrame {
     type = null;
@@ -43278,8 +43484,14 @@ const generateStackTrace = (stackTraceSource) => {
     for (const frame of stackTraceSource) {
         const argsString = (frame.args ?? [])
             .map((arg) => {
+            if (arg instanceof types_1.ValueType) {
+                if (arg.name !== '') {
+                    return arg.name;
+                }
+                arg = arg.valueOf();
+            }
             if ((typeof arg !== 'object' || arg === null) && arg !== undefined) {
-                const asString = (0, types_1.valueAsString)(arg);
+                const asString = (0, types_2.valueAsString)(arg);
                 return typeof arg === 'string' ? `"${asString}"` : asString;
             }
             else if (arg === undefined) {
