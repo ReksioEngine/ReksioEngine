@@ -163,11 +163,10 @@ export class ArrayObject extends ValueType<ArrayDefinition, (ScalarValue | null)
 
     @method()
     REVERSEFIND(value: string | double | boolean): int {
-        for (const target of [value, valueAsString(value)]) {
-            for (let i = this.value.length - 1; i >= 0; i--) {
-                if (rawValue(this.value[i]) === target) {
-                    return i
-                }
+        const needle = valueAsString(value).toLowerCase()
+        for (let i = this.value.length - 1; i >= 0; i--) {
+            if (valueAsString(rawValue(this.value[i])).toLowerCase() === needle) {
+                return i
             }
         }
         return -1

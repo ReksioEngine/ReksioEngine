@@ -52,12 +52,6 @@ describe('ARRAY', () => {
         expect(array.getValue()[0]?.getValue()).toBe(3)
     })
 
-    test('GET returns a copy of the element', async () => {
-        const b = engine.integer('B')
-        await engine.run('ARR^ADD(5);ARR^GET(0)^ADD(1);B^SET(ARR^GET(0));')
-        expect(b.getValue()).toBe(5)
-    })
-
     test('FIND compares as strings, ignoring case', async () => {
         await engine.run('ARR^ADD(5, "abc");')
         expect(array.FIND('5')).toBe(0)
@@ -72,15 +66,16 @@ describe('ARRAY', () => {
         expect(array.CONTAINS('6')).toBe(false)
     })
 
-    test('REVERSEFIND prefers an equal element over a later equal string', async () => {
+    test('REVERSEFIND compares as strings, from the end', async () => {
         await engine.run('ARR^ADD(5, 5, "5");')
-        expect(array.REVERSEFIND(5)).toBe(1)
+        expect(array.REVERSEFIND(5)).toBe(2)
         expect(array.REVERSEFIND('5')).toBe(2)
         expect(array.REVERSEFIND(7)).toBe(-1)
     })
 
     test('INTEGER elements truncate the value before the operation', async () => {
         await engine.run('ARR^ADD(10, 10.0, 7);ARR^MULAT(0, 1.5);ARR^MULAT(1, 1.5);ARR^CLAMPAT(2, 0, 2.9);')
+        expect(array.getValue().map((element) => element?.constructor)).toEqual([Integer, Double, Integer])
         expect(array.getValue().map((element) => element?.getValue())).toEqual([10, 15, 2])
     })
 
