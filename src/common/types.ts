@@ -147,20 +147,17 @@ export function method(types: parameter[] = [], returns?: string) {
             )
         }
 
-        const fail = (parameter: parameter, value: any) =>
-            new InvalidMethodParameter(
-                [
-                    `Function: ${originalMethod.name}`,
-                    `Type of argument "${parameter.name}" does not match the expected type`,
-                    `Expected: ${parameter.types.map((type) => type.name).join(' or ')}`,
-                    `Received: ${value?.constructor?.name ?? typeof value}`,
-                ].join('\n')
-            )
-
         const convert = (conversion: Conversion, primitive: any, arg: any) => {
             const fitting = conversion.types.filter((type) => isDirectlyConvertible(primitive, type.kind))
             if (fitting.length === 0) {
-                throw fail(conversion.parameter, arg)
+                throw new InvalidMethodParameter(
+                    [
+                        `Function: ${originalMethod.name}`,
+                        `Type of argument "${conversion.parameter.name}" does not match the expected type`,
+                        `Expected: ${conversion.parameter.types.map((type) => type.name).join(' or ')}`,
+                        `Received: ${arg?.constructor?.name ?? typeof arg}`,
+                    ].join('\n')
+                )
             }
             if (conversion.types.length > 1 && primitive === null) {
                 return null
