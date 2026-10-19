@@ -255,6 +255,7 @@ export function parseParameter(text: string, offset = 0): Parameter {
         if (value.endsWith('"')) {
             value = value.slice(0, -1)
         }
+        value = value.replaceAll(' ', '')
         return {
             type: 'StringLiteral',
             value,
