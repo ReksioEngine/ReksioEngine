@@ -102,6 +102,10 @@ export class Integer extends ValueType<IntegerDefinition, number> {
         return this.getValue() === valueAsInteger(await other.getValue())
     }
 
+    async compare(other: ValueType<any, any>) {
+        return Math.sign(this.getValue() - valueAsInteger(await other.getValue()))
+    }
+
     public async toString(): Promise<string> {
         return this.getValue().toString()
     }

@@ -195,6 +195,27 @@ describe('interpreter', () => {
         expect(a.getValue()).toBe(true)
     })
 
+    const ordered = async (left: string, op: string, right: string) => {
+        const a = engine.boolean('VALUE')
+        await engine.run(`@IF(${left},"${op}",${right},"{VALUE^SET(TRUE);}","{VALUE^SET(FALSE);}");`)
+        return a.getValue()
+    }
+
+    test('ordering converts the right operand to the type of the left one', async () => {
+        // The INTEGER 52 truncates 52.3
+        expect(await ordered('52', '<', '52.3')).toBe(false)
+        expect(await ordered('52', '<_', '52.3')).toBe(true)
+        expect(await ordered('52.0', '<', '52.3')).toBe(true)
+    })
+
+    test('"abc" < "abd"', async () => {
+        engine.string('S1', 'abc')
+        engine.string('S2', 'abd')
+        engine.string('S3', 'ABD')
+        expect(await ordered('S1', '<', 'S2')).toBe(true)
+        expect(await ordered('S1', '>', 'S3')).toBe(true)
+    })
+
     test('NULL != 0', async () => {
         const a = engine.boolean('VALUE')
         await engine.run('@IF(NULL,"_",0,"{VALUE^SET(TRUE);}","");')

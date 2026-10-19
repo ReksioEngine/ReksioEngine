@@ -89,6 +89,10 @@ export class Double extends ValueType<DoubleDefinition, number> {
         return this.getValue() === valueAsDouble(await other.getValue())
     }
 
+    async compare(other: ValueType<any, any>) {
+        return Math.sign(this.getValue() - valueAsDouble(await other.getValue()))
+    }
+
     public async toString(): Promise<string> {
         return doubleAsString(this.value)
     }

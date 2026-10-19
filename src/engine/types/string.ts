@@ -61,6 +61,12 @@ export class String extends ValueType<StringDefinition, string> {
         return this.getValue().toLowerCase() === otherString.toLowerCase()
     }
 
+    async compare(other: ValueType<any, any>) {
+        const a = this.getValue()
+        const b = await other.toString()
+        return a < b ? -1 : a > b ? 1 : 0
+    }
+
     public async toString(): Promise<string> {
         return this.getValue()
     }

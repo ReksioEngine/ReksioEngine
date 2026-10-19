@@ -71,6 +71,10 @@ export class Type<DefinitionType extends TypeDefinition> {
         return clone
     }
 
+    async signal(name: string) {
+        await this.callbacks.run('ONSIGNAL', name)
+    }
+
     init() {}
     async applyDefaults() {}
     async ready() {}
@@ -241,6 +245,10 @@ export class ValueType<DefinitionType extends ValueTypeDefinition, TypeOfValue> 
 
     async equals(other: ValueType<any, any>) {
         return this.value === other.value
+    }
+
+    async compare(_other: ValueType<any, any>): Promise<number> {
+        throw new NotImplementedError()
     }
 
     public async toString(): Promise<string> {

@@ -34,6 +34,11 @@ export class Bool extends ValueType<BoolDefinition, boolean> {
         return this.getValue() === valueAsBool(await other.getValue())
     }
 
+    // FALSE < TRUE
+    async compare(other: ValueType<any, any>) {
+        return Number(this.getValue()) - Number(valueAsBool(await other.getValue()))
+    }
+
     public async toString(): Promise<string> {
         return this.getValue() ? 'TRUE' : 'FALSE'
     }

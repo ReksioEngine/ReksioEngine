@@ -7,7 +7,7 @@ import { Bool } from './bool'
 import { Expression } from './expression'
 import { valueAsDouble, valueAsString } from '../../common/types'
 import type { CompareOp } from '../../interpreter/expression/ast'
-import type { ExprOp } from '../../interpreter/ast'
+import type { ExprOp } from '../../interpreter'
 
 export type Value = ValueType<any, any> | null
 
@@ -60,8 +60,10 @@ export const copyValue = async (engine: Engine, value: Value): Promise<ScalarVal
 
 export const compareValues = async (engine: Engine, left: Value, op: CompareOp, right: Value): Promise<boolean> => {
     // NULL compares as the string "NULL"
-    const leftValue = left ?? createString(engine, 'NULL')
-    const rightValue = right ?? createString(engine, 'NULL')
+    const resolve = async (value: Value) =>
+        (value instanceof Expression ? await value.evaluate() : value) ?? createString(engine, 'NULL')
+    const leftValue = await resolve(left)
+    const rightValue = await resolve(right)
 
     switch (op) {
         case 'EQ':
@@ -69,13 +71,13 @@ export const compareValues = async (engine: Engine, left: Value, op: CompareOp, 
         case 'NE':
             return !(await leftValue.equals(rightValue))
         case 'LT':
-            return valueAsDouble(await unwrapValue(left)) < valueAsDouble(await unwrapValue(right))
+            return (await leftValue.compare(rightValue)) < 0
         case 'LE':
-            return valueAsDouble(await unwrapValue(left)) <= valueAsDouble(await unwrapValue(right))
+            return (await leftValue.compare(rightValue)) <= 0
         case 'GT':
-            return valueAsDouble(await unwrapValue(left)) > valueAsDouble(await unwrapValue(right))
+            return (await leftValue.compare(rightValue)) > 0
         case 'GE':
-            return valueAsDouble(await unwrapValue(left)) >= valueAsDouble(await unwrapValue(right))
+            return (await leftValue.compare(rightValue)) >= 0
         case 'HAS':
             return valueAsString(await unwrapValue(left)).includes(valueAsString(await unwrapValue(right)))
     }
