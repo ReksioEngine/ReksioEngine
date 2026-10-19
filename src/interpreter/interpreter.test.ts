@@ -52,6 +52,18 @@ describe('interpreter', () => {
         expect(a.getValue()).toBe(5)
     })
 
+    test('spaces are removed from the code', async () => {
+        const a = engine.integer('MYVAR')
+        await engine.run('MY VAR ^ SET(5 2);')
+        expect(a.getValue()).toBe(52)
+    })
+
+    test('spaces of substituted arguments stay', async () => {
+        const s = engine.string('S')
+        await engine.run('S^SET("$1");', ['A B'])
+        expect(s.getValue()).toBe('A B')
+    })
+
     test('@IF runs matching branch', async () => {
         const s = engine.string('S')
         engine.behaviour('ONTRUE', '{S^SET("T");}')

@@ -463,7 +463,7 @@ export async function runCode(
     args: any[],
     isSingleStatement: boolean
 ): Promise<Value | undefined> {
-    const processedScript = await substituteArguments(script, args)
+    const processedScript = await substituteArguments(script.replaceAll(' ', ''), args)
     const ast = parseCode(processedScript)
 
     const context = new RuntimeContext(engine, caller, processedScript)
