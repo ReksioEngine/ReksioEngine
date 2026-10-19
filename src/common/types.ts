@@ -3,6 +3,8 @@ import { logger } from '../engine/logging'
 import { printStackTrace } from '../interpreter/stacktrace'
 import { ValueType } from '../engine/types'
 import { createBool, createDouble, createInteger, createString } from '../engine/types/values'
+import { Double } from '../engine/types/double'
+import { Expression } from '../engine/types/expression'
 
 export const valueAsString = (value: any): string => {
     if (value === null) {
@@ -62,19 +64,27 @@ export const valueAsBool = (value: any) => {
         return value
     }
 
-    if (value === 0 || value === 1) {
-        return Boolean(value)
+    if (typeof value === 'number') {
+        return value !== 0
     }
 
     return valueAsString(value).toUpperCase() === 'TRUE'
+}
+
+// Matches atof and atoi
+const DOUBLE_PREFIX = /^\s*[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?/i
+const INTEGER_PREFIX = /^\s*[+-]?\d+/
+
+const parseLeadingNumber = (value: string, pattern: RegExp) => {
+    const match = value.match(pattern)
+    return match ? Number(match[0]) : 0
 }
 
 export const toNumber = (value: any) => {
     if (typeof value === 'number') {
         return value
     } else if (typeof value === 'string') {
-        const match = value.replaceAll(' ', '').match(/^-?\d+(\.\d+)?/)
-        return match ? Number(match[0]) : 0
+        return parseLeadingNumber(value, DOUBLE_PREFIX)
     } else {
         return Number(value)
     }
@@ -95,6 +105,10 @@ export const valueAsDouble = (value: any) => {
 }
 
 export const valueAsInteger = (value: any) => {
+    if (typeof value === 'string') {
+        return parseLeadingNumber(value, INTEGER_PREFIX)
+    }
+
     const newValue = valueAsDouble(value)
     return Math.trunc(newValue)
 }
@@ -107,11 +121,7 @@ export const ForceNumber = (value: any) => {
 
 export type PrimitiveKind = 'string' | 'boolean' | 'number'
 
-export const isDirectlyConvertible = (value: any, kind: PrimitiveKind): boolean => {
-    if (typeof value === 'object' && value !== null) {
-        return false
-    }
-
+export const looksLike = (value: any, kind: PrimitiveKind): boolean => {
     switch (kind) {
         case 'string':
             return true
@@ -125,7 +135,7 @@ export const isDirectlyConvertible = (value: any, kind: PrimitiveKind): boolean 
                 value === 1
             )
         case 'number':
-            return typeof value === 'number' || value === null || !Number.isNaN(toNumber(value))
+            return typeof value !== 'string' || DOUBLE_PREFIX.test(value)
     }
 }
 
@@ -174,9 +184,9 @@ export function method(types: parameter[] = [], returns?: string) {
             )
         }
 
-        const convert = (conversion: Conversion, primitive: any, arg: any) => {
-            const fitting = conversion.types.filter((type) => isDirectlyConvertible(primitive, type.kind))
-            if (fitting.length === 0) {
+        const convert = (conversion: Conversion, source: any, arg: any) => {
+            const primitive = source instanceof ValueType ? source.getValue() : source
+            if (typeof primitive === 'object' && primitive !== null) {
                 throw new InvalidMethodParameter(
                     [
                         `Function: ${originalMethod.name}`,
@@ -189,7 +199,14 @@ export function method(types: parameter[] = [], returns?: string) {
             if (conversion.types.length > 1 && primitive === null) {
                 return null
             }
-            const target = conversion.types.find((type) => type.kind === typeof primitive) ?? fitting[0]
+            const target =
+                conversion.types.find((type) => type.kind === typeof primitive) ??
+                conversion.types.find((type) => looksLike(primitive, type.kind)) ??
+                conversion.types[0]
+
+            if (target.kind === 'string' && source instanceof Double) {
+                return doubleAsString(primitive)
+            }
             return target.convert(primitive)
         }
 
@@ -227,33 +244,33 @@ export function method(types: parameter[] = [], returns?: string) {
 
             const values = [...args]
 
-            const call = (primitives: any[]) => {
+            const call = (sources: any[]) => {
                 conversions.forEach(
                     (conversion, i) =>
-                        (values[conversion.index] = convert(conversion, primitives[i], args[conversion.index]))
+                        (values[conversion.index] = convert(conversion, sources[i], args[conversion.index]))
                 )
                 return originalMethod.call(this, ...values)
             }
 
-            const read = (index: number) => (args[index] instanceof ValueType ? args[index].getValue() : args[index])
+            const read = (index: number) => (args[index] instanceof Expression ? args[index].evaluate() : args[index])
 
-            const readRest = async (primitives: any[], first: Promise<any>) => {
-                primitives.push(await first)
-                for (const { index } of conversions.slice(primitives.length)) {
-                    primitives.push(await read(index))
+            const readRest = async (sources: any[], first: Promise<any>) => {
+                sources.push(await first)
+                for (const { index } of conversions.slice(sources.length)) {
+                    sources.push(await read(index))
                 }
-                return call(primitives)
+                return call(sources)
             }
 
-            const primitives: any[] = []
+            const sources: any[] = []
             for (const { index } of conversions) {
-                const primitive = read(index)
-                if (primitive instanceof Promise) {
-                    return readRest(primitives, primitive)
+                const source = read(index)
+                if (source instanceof Promise) {
+                    return readRest(sources, source)
                 }
-                primitives.push(primitive)
+                sources.push(source)
             }
-            return call(primitives)
+            return call(sources)
         }
 
         typeGuardWrapper.returns = returns

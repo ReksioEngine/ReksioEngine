@@ -90,7 +90,33 @@ describe('test validator and conversion', () => {
     })
 
     test('double as string', () => {
-        wasCalled(call(simpleMethod('string', '1234.5'), createDouble(engine.asEngine(), 1234.5)))
+        wasCalled(call(simpleMethod('string', '1234.50000'), createDouble(engine.asEngine(), 1234.5)))
+        wasCalled(call(simpleMethod('string', '5.00000'), createDouble(engine.asEngine(), 5)))
+    })
+
+    test('numbers as boolean', () => {
+        wasCalled(call(simpleMethod('boolean', true), createInteger(engine.asEngine(), 5)))
+        wasCalled(call(simpleMethod('boolean', true), createDouble(engine.asEngine(), 0.5)))
+        wasCalled(call(simpleMethod('boolean', false), createInteger(engine.asEngine(), 0)))
+    })
+
+    test('string that is not TRUE as boolean', () => {
+        wasCalled(call(simpleMethod('boolean', false), createString(engine.asEngine(), 'abc')))
+        wasCalled(call(simpleMethod('boolean', true), createString(engine.asEngine(), 'true')))
+    })
+
+    test('string as int reads it like atoi', () => {
+        wasCalled(call(simpleMethod('int', 5), createString(engine.asEngine(), ' +5')))
+        wasCalled(call(simpleMethod('int', 1), createString(engine.asEngine(), '1 2')))
+        wasCalled(call(simpleMethod('int', 1), createString(engine.asEngine(), '1e3')))
+        wasCalled(call(simpleMethod('int', 0), createString(engine.asEngine(), 'abc')))
+    })
+
+    test('string as double reads it like atof', () => {
+        wasCalled(call(simpleMethod('double', 1000), createString(engine.asEngine(), '1e3')))
+        wasCalled(call(simpleMethod('double', 0.5), createString(engine.asEngine(), '.5')))
+        wasCalled(call(simpleMethod('double', 5.7), createString(engine.asEngine(), '5.7abc')))
+        wasCalled(call(simpleMethod('double', 0), createString(engine.asEngine(), 'abc')))
     })
 
     test('string as double', () => {
