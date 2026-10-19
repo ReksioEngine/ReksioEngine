@@ -26,6 +26,33 @@ export const valueAsString = (value: any): string => {
     return value.toString()
 }
 
+export const doubleAsString = (value: number): string => {
+    const abs = Math.abs(value)
+
+    // Use fixed‑point for numbers below 1e21, otherwise fallback to bigint representation
+    const fixed = abs < 1e21 ? abs.toFixed(5) : `${BigInt(abs)}.00000`
+    const sign = value < 0 ? '-' : ''
+
+    // Values with absolute magnitude >= 1
+    if (!fixed.startsWith('0.')) {
+        return sign + fixed
+    }
+
+    // Zero value
+    if (value === 0) {
+        return '00000'
+    }
+
+    // Values between 0 and 1 (exclusive)
+    let leadingZeros = ''
+    for (let v = value; v > 0 && v * 10.0001 < 1; v *= 10) {
+        leadingZeros += '0'
+    }
+
+    const digits = fixed.slice(2).replace(/^0+/, '') || '0'
+    return `0.${sign}${leadingZeros}${digits}`
+}
+
 export const valueAsBool = (value: any) => {
     if (value === null) {
         return false
