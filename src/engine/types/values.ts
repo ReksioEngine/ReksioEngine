@@ -11,7 +11,6 @@ import type { ExprOp } from '../../interpreter/ast'
 
 export type Value = ValueType<any, any> | null
 
-// Temporary values have no name and no parent, so they are never saved to or loaded from the INI
 export const createInteger = (engine: Engine, value: number) =>
     new Integer(engine, null, { TYPE: 'INTEGER', NAME: '', VALUE: value } as any)
 
@@ -32,12 +31,10 @@ export const unwrapValue = async (value: any): Promise<any> => {
     return value
 }
 
-// The values that can be stored on their own, such as in an ARRAY
 export type ScalarValue = Integer | Double | CMCString | Bool
 
 export const rawValue = (value: ScalarValue | null) => (value === null ? null : value.getValue())
 
-// A temporary copy that keeps the type, so that changing the variable later doesn't change the copy. NULL stays null.
 export const copyValue = async (engine: Engine, value: Value): Promise<ScalarValue | null> => {
     if (value === null) {
         return null
@@ -54,7 +51,7 @@ export const copyValue = async (engine: Engine, value: Value): Promise<ScalarVal
     if (value instanceof Bool) {
         return createBool(engine, value.getValue())
     }
-    // An EXPRESSION is evaluated once, when it is copied. Its result is already a new value.
+
     if (value instanceof Expression) {
         return await value.evaluate()
     }
@@ -99,8 +96,8 @@ const calculate = (a: number, op: ExprOp, b: number) => {
     }
 }
 
-// The type of the result follows the left operand. Always returns a new value, so a variable used as
-// the left operand is never changed.
+// The type of the result follows the left operand.
+// Always returns a new value, so a variable used as the left operand is never changed.
 export const applyArithmetic = async (engine: Engine, left: Value, op: ExprOp, right: Value): Promise<ScalarValue> => {
     const leftValue = await unwrapValue(left)
     const rightValue = await unwrapValue(right)
