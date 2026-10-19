@@ -2,7 +2,7 @@ import { ParentType, ValueType } from './index'
 import { Engine } from '../index'
 import { ArrayDefinition } from '../../fileFormats/cnv/types'
 import { assert } from '../../common/errors'
-import { method, valueAsDouble, valueAsString, int, double } from '../../common/types'
+import { method, valueAsDouble, int, double } from '../../common/types'
 import { FileNotFoundError } from '../../filesystem/fileLoader'
 import { ArrayEntry, ArrayEntryType, serializeArray } from '../../fileFormats/archive/array'
 import { logger } from '../logging'
@@ -108,9 +108,8 @@ export class ArrayObject extends ValueType<ArrayDefinition, (ScalarValue | null)
     }
 
     @method()
-    CONTAINS(value: string | double | boolean): boolean {
-        const asString = valueAsString(value)
-        return this.value.some((element) => rawValue(element) === value || rawValue(element) === asString)
+    async CONTAINS(value: Value): Promise<boolean> {
+        return (await this.findElement(value, this.value.keys())) !== -1
     }
 
     @method()

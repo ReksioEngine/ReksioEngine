@@ -77,11 +77,16 @@ describe('ARRAY', () => {
         expect(await find('REVERSEFIND', '5')).toBe(3)
     })
 
-    test('CONTAINS matches the value or its string', async () => {
-        await engine.run('ARR^ADD("5", TRUE);')
-        expect(array.CONTAINS(5)).toBe(true)
-        expect(array.CONTAINS(true)).toBe(true)
-        expect(array.CONTAINS('6')).toBe(false)
+    test('CONTAINS compares in the type of the element, like FIND', async () => {
+        const contains = async (value: string) => {
+            const b = engine.boolean('B')
+            await engine.run(`B^SET(ARR^CONTAINS(${value}));`)
+            return b.getValue()
+        }
+        await engine.run('ARR^ADD("5", 2);')
+        expect(await contains('5')).toBe(true)
+        expect(await contains('2.4')).toBe(true)
+        expect(await contains('"6"')).toBe(false)
     })
 
     test('REVERSEFIND searches from the end', async () => {
