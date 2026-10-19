@@ -52,6 +52,12 @@ describe('interpreter', () => {
         expect(a.getValue()).toBe(5)
     })
 
+    test('only one digit after $ is the argument number', async () => {
+        const a = engine.integer('A')
+        await engine.run('A^SET($12);', [5])
+        expect(a.getValue()).toBe(52)
+    })
+
     test('spaces are removed from the code', async () => {
         const a = engine.integer('MYVAR')
         await engine.run('MY VAR ^ SET(5 2);')

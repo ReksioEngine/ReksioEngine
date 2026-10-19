@@ -489,7 +489,8 @@ export async function runCode(
 }
 
 async function substituteArguments(script: string, args: any[]): Promise<string> {
-    const regex = /\$(\d+)/g
+    // Only one digit is read: $12 is $1 followed by 2
+    const regex = /\$(\d)/g
     const parts: string[] = []
     let lastIndex = 0
     let match: RegExpExecArray | null
