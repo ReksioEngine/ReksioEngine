@@ -1,8 +1,10 @@
 import { assert, UnexpectedError } from './errors'
 import { logger } from '../engine/logging'
 import { printStackTrace } from '../interpreter/stacktrace'
+import { ValueType } from '../engine/types'
+import { createBool, createDouble, createInteger, createString } from '../engine/types/values'
 
-export const valueAsString = (value: any) => {
+export const valueAsString = (value: any): string => {
     if (value === null) {
         return 'NULL'
     }
@@ -37,15 +39,14 @@ export const valueAsBool = (value: any) => {
         return Boolean(value)
     }
 
-    assert(value.toUpperCase() === 'TRUE' || value.toUpperCase() === 'FALSE')
-    return value.toUpperCase() === 'TRUE'
+    return valueAsString(value).toUpperCase() === 'TRUE'
 }
 
 export const toNumber = (value: any) => {
     if (typeof value === 'number') {
         return value
     } else if (typeof value === 'string') {
-        const match = value.match(/^-?\d+(\.\d+)?/)
+        const match = value.replaceAll(' ', '').match(/^-?\d+(\.\d+)?/)
         return match ? Number(match[0]) : 0
     } else {
         return Number(value)
@@ -66,74 +67,25 @@ export const valueAsDouble = (value: any) => {
     return number
 }
 
+export const valueAsInteger = (value: any) => {
+    const newValue = valueAsDouble(value)
+    return Math.trunc(newValue)
+}
+
 export const ForceNumber = (value: any) => {
     const numberValue = toNumber(value)
     assert(!isNaN(numberValue), `${value} is not a number`)
     return numberValue
 }
 
-export const Compare = {
-    Equal: (a: any, b: any) => {
-        return valueAsString(a).toLowerCase() == valueAsString(b).toLowerCase()
-    },
-    NotEqual: (a: any, b: any) => {
-        return valueAsString(a).toLowerCase() != valueAsString(b).toLowerCase()
-    },
-    Less: (a: any, b: any) => {
-        return ForceNumber(a) < ForceNumber(b)
-    },
-    Greater: (a: any, b: any) => {
-        return ForceNumber(a) > ForceNumber(b)
-    },
-    LessOrEqual: (a: any, b: any) => {
-        return ForceNumber(a) <= ForceNumber(b)
-    },
-    GreaterOrEqual: (a: any, b: any) => {
-        return ForceNumber(a) >= ForceNumber(b)
-    },
-}
+export type PrimitiveKind = 'string' | 'boolean' | 'number'
 
-const convertValue = (value: any, targetType: string) => {
-    if (Array.isArray(value)) {
-        const newArray = new Array(value.length)
-        for (let i = 0; i < value.length; i++) {
-            newArray[i] = convertValue(value[i], targetType)
-        }
-        return newArray
-    }
-
-    switch (targetType) {
-        case 'string':
-            return valueAsString(value)
-        case 'boolean':
-            return valueAsBool(value)
-        case 'number':
-            return valueAsDouble(value)
-        default:
-            return value
-    }
-}
-
-export const isDirectlyConvertible = (value: any, type: parameterType): boolean => {
-    if (type.isArray !== Array.isArray(value)) {
+export const isDirectlyConvertible = (value: any, kind: PrimitiveKind): boolean => {
+    if (typeof value === 'object' && value !== null) {
         return false
     }
 
-    if (type.isArray) {
-        return value.every((entry: any) =>
-            isDirectlyConvertible(entry, {
-                name: type.name,
-                literal: type.literal,
-                isArray: false,
-            })
-        )
-    }
-
-    if (type.literal !== null) {
-        return type.literal === convertValue(value, type.name)
-    }
-
-    switch (type.name) {
+    switch (kind) {
         case 'string':
             return true
         case 'boolean':
@@ -142,34 +94,16 @@ export const isDirectlyConvertible = (value: any, type: parameterType): boolean 
                 value === null ||
                 value.toString().toUpperCase() === 'TRUE' ||
                 value.toString().toUpperCase() === 'FALSE' ||
-                value == 0 ||
-                value == 1
+                value === 0 ||
+                value === 1
             )
         case 'number':
             return typeof value === 'number' || value === null || !Number.isNaN(toNumber(value))
-        default:
-            return false
     }
 }
 
 export type parameterType = {
     name: string
-    literal: any
-    isArray: boolean
-}
-
-export const compareType = (value: any, expectedType: parameterType) => {
-    if (expectedType.name === 'any') {
-        return true
-    }
-
-    if (expectedType.literal !== null) {
-        return value === expectedType.literal
-    }
-
-    const type = typeof value
-    const isArray = Array.isArray(value)
-    return type === expectedType.name && isArray === expectedType.isArray
 }
 
 export type parameter = {
@@ -181,97 +115,147 @@ export type parameter = {
 
 export class InvalidMethodParameter extends UnexpectedError {}
 
-export function method(...types: parameter[]) {
-    return (originalMethod: any, context: any) => {
-        function typeGuardWrapper(this: any, ...args: any[]) {
-            const newArgs = [...args]
+const isPrimitive = (value: any) => ['string', 'number', 'boolean'].includes(typeof value)
 
+export type int = number
+export type double = number
+
+export type PrimitiveType = {
+    kind: PrimitiveKind
+    convert(value: any): any
+}
+
+export const primitiveTypes: Record<string, PrimitiveType> = {
+    int: { kind: 'number', convert: valueAsInteger },
+    double: { kind: 'number', convert: valueAsDouble },
+    string: { kind: 'string', convert: valueAsString },
+    boolean: { kind: 'boolean', convert: valueAsBool },
+}
+
+type Conversion = {
+    index: number
+    parameter: parameter
+    types: PrimitiveType[]
+}
+
+export function method(types: parameter[] = [], returns?: string) {
+    return (originalMethod: any, context: any) => {
+        for (const parameter of types) {
+            assert(
+                parameter.types.every((type) => type.name !== 'number'),
+                `${originalMethod.name}: declare "${parameter.name}" as int or double, not number`
+            )
+        }
+
+        const fail = (parameter: parameter, value: any) =>
+            new InvalidMethodParameter(
+                [
+                    `Function: ${originalMethod.name}`,
+                    `Type of argument "${parameter.name}" does not match the expected type`,
+                    `Expected: ${parameter.types.map((type) => type.name).join(' or ')}`,
+                    `Received: ${value?.constructor?.name ?? typeof value}`,
+                ].join('\n')
+            )
+
+        const convert = (conversion: Conversion, primitive: any, arg: any) => {
+            const fitting = conversion.types.filter((type) => isDirectlyConvertible(primitive, type.kind))
+            if (fitting.length === 0) {
+                throw fail(conversion.parameter, arg)
+            }
+            if (conversion.types.length > 1 && primitive === null) {
+                return null
+            }
+            const target = conversion.types.find((type) => type.kind === typeof primitive) ?? fitting[0]
+            return target.convert(primitive)
+        }
+
+        function typeGuardWrapper(this: any, ...args: any[]) {
+            const conversions: Conversion[] = []
             let processedArgs = 0
             for (let i = 0; i < types.length; i++) {
-                const argExpectedTypeInfo = types[i]
-                const subArgsCount = argExpectedTypeInfo.rest ? args.length - i : 1
-                processedArgs += subArgsCount
+                const parameter = types[i]
+                const count = parameter.rest ? Math.max(args.length - i, 0) : 1
+                processedArgs += count
 
-                for (let subArgIdx = i; subArgIdx < i + subArgsCount; subArgIdx++) {
-                    const arg = args[subArgIdx]
-                    const argRealType = typeof arg
-
-                    if (arg === undefined) {
-                        if (!argExpectedTypeInfo.optional) {
-                            throw new InvalidMethodParameter(
-                                `Non-optional argument "${argExpectedTypeInfo.name}" is undefined`
-                            )
-                        } else {
-                            continue
+                for (let index = i; index < i + count; index++) {
+                    if (args[index] === undefined) {
+                        if (!parameter.optional) {
+                            throw new InvalidMethodParameter(`Non-optional argument "${parameter.name}" is undefined`)
                         }
-                    }
-
-                    const isExpectedType = argExpectedTypeInfo.types.some((type) => compareType(arg, type))
-                    const isAnyAllowed = argExpectedTypeInfo.types.some((type) => type.name === 'any')
-                    if (isExpectedType || isAnyAllowed) {
                         continue
                     }
 
-                    const typesDisplayStrings = argExpectedTypeInfo.types.map(
-                        (type) => `${type.name}${type.isArray ? '[]' : ''}`
-                    )
-
-                    // We only try to convert when the parameter accepts only one type
-                    if (argExpectedTypeInfo.types.length === 1) {
-                        const firstArgType = argExpectedTypeInfo.types[0]
-
-                        if (!isDirectlyConvertible(arg, firstArgType)) {
-                            throw new InvalidMethodParameter(
-                                [
-                                    `Function: ${originalMethod.name}`,
-                                    `Type of argument "${argExpectedTypeInfo.name}" does not match the expected type`,
-                                    `Expected: ${typesDisplayStrings[0]}`,
-                                    `Received: ${argRealType}`,
-                                ].join('\n')
-                            )
-                        }
-
-                        const convertedValue = convertValue(args[subArgIdx], firstArgType.name)
-                        if (firstArgType.literal !== null && firstArgType.literal !== convertedValue) {
-                            throw new InvalidMethodParameter(
-                                [
-                                    `Function: ${originalMethod.name}`,
-                                    `Argument "${arg}" does not match literal "${firstArgType.literal}"`,
-                                ].join('\n')
-                            )
-                        }
-
-                        newArgs[subArgIdx] = convertedValue
-                        continue
-                    }
-
-                    // Otherwise we just check if it could be converted to any of the accepted types
-                    const anyTypeMatches = argExpectedTypeInfo.types.some((type) => isDirectlyConvertible(arg, type))
-                    if (!anyTypeMatches) {
-                        throw new InvalidMethodParameter(
-                            [
-                                `Function: ${originalMethod.name}`,
-                                `Type of argument "${argExpectedTypeInfo.name}" does not match any of the possible types`,
-                                `Expected: ${typesDisplayStrings.join(' or ')}`,
-                                `Received: ${argRealType}`,
-                            ].join('\n')
-                        )
+                    const declared = parameter.types.map((type) => primitiveTypes[type.name])
+                    if (declared.every((type) => type !== undefined)) {
+                        conversions.push({ index, parameter, types: declared })
                     }
                 }
             }
 
-            if (processedArgs < newArgs.length) {
+            if (processedArgs < args.length) {
                 logger.warn('More arguments given than method accepts', {
                     function: originalMethod.name,
                     processedArgs,
-                    newArgs,
+                    values: args,
                 })
                 printStackTrace()
             }
 
-            return originalMethod.call(this, ...newArgs)
+            const values = [...args]
+
+            const call = (primitives: any[]) => {
+                conversions.forEach(
+                    (conversion, i) =>
+                        (values[conversion.index] = convert(conversion, primitives[i], args[conversion.index]))
+                )
+                return originalMethod.call(this, ...values)
+            }
+
+            const read = (index: number) => (args[index] instanceof ValueType ? args[index].getValue() : args[index])
+
+            const readRest = async (primitives: any[], first: Promise<any>) => {
+                primitives.push(await first)
+                for (const { index } of conversions.slice(primitives.length)) {
+                    primitives.push(await read(index))
+                }
+                return call(primitives)
+            }
+
+            const primitives: any[] = []
+            for (const { index } of conversions) {
+                const primitive = read(index)
+                if (primitive instanceof Promise) {
+                    return readRest(primitives, primitive)
+                }
+                primitives.push(primitive)
+            }
+            return call(primitives)
         }
 
+        typeGuardWrapper.returns = returns
         return typeGuardWrapper
     }
+}
+
+const resultValue = (engine: any, returns: string, value: any) => {
+    switch (returns) {
+        case 'int':
+            return createInteger(engine, value)
+        case 'double':
+            return createDouble(engine, value)
+        case 'string':
+            return createString(engine, value)
+        case 'boolean':
+            return createBool(engine, value)
+    }
+    throw new UnexpectedError(`Unknown return type: ${returns}`)
+}
+
+export const callMethod = (object: any, name: string, args: any[]) => {
+    const target = object[name]
+    const wrap = (result: any) =>
+        target.returns !== undefined && isPrimitive(result) ? resultValue(object.engine, target.returns, result) : result
+
+    const result = target.apply(object, args)
+    return result instanceof Promise ? result.then(wrap) : wrap(result)
 }

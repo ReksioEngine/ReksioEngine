@@ -4,7 +4,7 @@ import { CallbacksComponent } from '../components/callbacks'
 import { Rectangle } from 'pixi.js'
 import { assert, NotImplementedError } from '../../common/errors'
 import { EventsComponent } from '../components/events'
-import { method } from '../../common/types'
+import { method, int } from '../../common/types'
 import { AdvancedSprite } from '../rendering'
 import { Scope } from '../scope'
 import { logger } from '../logging'
@@ -22,7 +22,7 @@ export class Type<DefinitionType extends TypeDefinition> {
     public events: EventsComponent = new EventsComponent()
     public static Events = {}
 
-    protected engine: Engine
+    public engine: Engine
     public readonly definition: DefinitionType
 
     public name: string = ''
@@ -42,19 +42,19 @@ export class Type<DefinitionType extends TypeDefinition> {
     }
 
     @method()
-    GETNAME() {
+    GETNAME(): string {
         return this.name
     }
 
     @method()
-    async CLONE(count: number) {
+    async CLONE(count: int) {
         for (let i = 0; i < count; i++) {
             await this.cloneObject(this)
         }
     }
 
     @method()
-    GETCLONEINDEX() {
+    GETCLONEINDEX(): int {
         const object = this.getObject(this.definition.NAME)
         assert(object !== null)
         return object.clones.indexOf(this) + 1
@@ -110,15 +110,19 @@ export class Type<DefinitionType extends TypeDefinition> {
 }
 
 export class DisplayType<DefinitionType extends DisplayTypeDefinition> extends Type<DefinitionType> {
-    private priority: number = 0
+    protected priority: number = 0
 
     @method()
-    GETPRIORITY() {
+    GETPRIORITY(): int {
         return this.priority
     }
 
     @method()
-    SETPRIORITY(priority: number) {
+    SETPRIORITY(priority: int) {
+        this.setPriority(priority)
+    }
+
+    setPriority(priority: number) {
         const renderObject = this.getRenderObject()
         assert(renderObject !== null)
         this.priority = priority
@@ -233,6 +237,10 @@ export class ValueType<DefinitionType extends ValueTypeDefinition, TypeOfValue> 
 
     protected deserialize(value: string): any {
         return value
+    }
+
+    async equals(other: ValueType<any, any>) {
+        return this.value === other.value
     }
 
     public async toString(): Promise<string> {

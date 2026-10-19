@@ -23,24 +23,28 @@ export class Episode extends ParentType<EpisodeDefinition> {
 
     @method()
     GOTO(sceneName: string) {
+        this.goto(sceneName)
+    }
+
+    private goto(sceneName: string) {
         assert(this.definition.SCENES.includes(sceneName))
         throw new CancelTick(async () => await this.engine.changeScene(sceneName))
     }
 
     @method()
-    GETLATESTSCENE() {
+    GETLATESTSCENE(): string | null {
         return this.engine.previousScene?.definition.NAME ?? null
     }
 
     @method()
-    GETCURRENTSCENE() {
+    GETCURRENTSCENE(): string | null {
         return this.engine.currentScene?.name ?? null
     }
 
     @method()
     BACK() {
         if (this.engine.previousScene) {
-            this.GOTO(this.engine.previousScene.definition.NAME)
+            this.goto(this.engine.previousScene.definition.NAME)
         } else {
             logger.warn('Attempted EPISODE^BACK() but there is no previous scene', {
                 episode: this,

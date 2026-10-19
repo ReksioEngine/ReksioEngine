@@ -1,4 +1,4 @@
-import { Type } from '../engine/types'
+import { Type, ValueType } from '../engine/types'
 import { valueAsString } from '../common/types'
 import { IgnorableError } from '../common/errors'
 

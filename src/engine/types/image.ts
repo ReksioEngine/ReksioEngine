@@ -4,7 +4,7 @@ import { assert } from '../../common/errors'
 import { Container, Graphics, Point, Sprite } from 'pixi.js'
 import { loadSprite } from '../../filesystem/assetsLoader'
 import { AdvancedSprite } from '../rendering'
-import { method } from '../../common/types'
+import { method, int } from '../../common/types'
 import * as PIXI from 'pixi.js'
 
 export class Image extends DisplayType<ImageDefinition> {
@@ -16,13 +16,13 @@ export class Image extends DisplayType<ImageDefinition> {
     }
 
     async applyDefaults() {
-        this.SETPRIORITY(this.definition.PRIORITY ?? 0)
+        this.setPriority(this.definition.PRIORITY ?? 0)
     }
 
     private async initSprite(path: string) {
         this.sprite = await this.load(path)
         this.sprite.visible = this.definition.VISIBLE
-        this.SETPRIORITY(this.definition.PRIORITY ?? 0)
+        this.setPriority(this.definition.PRIORITY ?? 0)
         this.sprite.eventMode = 'none'
         this.sprite.name = `${this.name} (IMAGE)` // For PIXI Devtools
     }
@@ -47,13 +47,17 @@ export class Image extends DisplayType<ImageDefinition> {
     }
 
     @method()
-    SETOPACITY(opacity: number) {
+    SETOPACITY(opacity: int) {
         assert(this.sprite !== null)
         this.opacity = opacity
     }
 
     @method()
-    MOVE(xOffset: number, yOffset: number) {
+    MOVE(xOffset: int, yOffset: int) {
+        this.move(xOffset, yOffset)
+    }
+
+    move(xOffset: number, yOffset: number) {
         assert(this.sprite !== null)
         this.sprite.x += xOffset
         this.sprite.y += yOffset
@@ -61,7 +65,7 @@ export class Image extends DisplayType<ImageDefinition> {
     }
 
     @method()
-    SETPOSITION(x: number, y: number) {
+    SETPOSITION(x: int, y: int) {
         assert(this.sprite !== null)
         this.sprite.x = x
         this.sprite.y = y
@@ -81,19 +85,19 @@ export class Image extends DisplayType<ImageDefinition> {
     }
 
     @method()
-    GETPOSITIONX() {
+    GETPOSITIONX(): int {
         assert(this.sprite !== null)
         return this.sprite.x
     }
 
     @method()
-    GETPOSITIONY() {
+    GETPOSITIONY(): int {
         assert(this.sprite !== null)
         return this.sprite.y
     }
 
     @method()
-    GETALPHA(x: number, y: number) {
+    GETALPHA(x: int, y: int): int {
         assert(this.sprite !== null)
         return this.sprite.getAlphaAt(new Point(x, y))
     }
@@ -102,7 +106,7 @@ export class Image extends DisplayType<ImageDefinition> {
     private otherObjectsAlphaSpriteCache = new Map<string, Sprite>()
 
     @method()
-    MERGEALPHA(x: number, y: number, name: string) {
+    MERGEALPHA(x: int, y: int, name: string) {
         assert(this.sprite !== null)
 
         if (this.maskContainer === null) {
@@ -157,7 +161,7 @@ export class Image extends DisplayType<ImageDefinition> {
     }
 
     @method()
-    SETCLIPPING(x1: number, y1: number, x2: number, y2: number) {
+    SETCLIPPING(x1: int, y1: int, x2: int, y2: int) {
         assert(this.sprite !== null)
 
         const maskGraphics = new Graphics()
@@ -195,7 +199,7 @@ export class Image extends DisplayType<ImageDefinition> {
         const clone = (await super.clone()) as unknown as Image
         clone.sprite = spriteClone
         this.engine.rendering.addToStage(clone.sprite)
-        clone.SETPRIORITY(this.GETPRIORITY())
+        clone.setPriority(this.priority)
         return clone
     }
 

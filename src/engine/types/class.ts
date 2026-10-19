@@ -9,6 +9,7 @@ import { TypeDefinition } from '../../fileFormats/common'
 import { Engine } from '../index'
 import { Behaviour } from './behaviour'
 import { logger } from '../logging'
+import type { Value } from './values'
 
 export class Class extends Type<ClassDefinition> {
     public innerDefinition: CNV | null = null
@@ -31,7 +32,7 @@ export class Class extends Type<ClassDefinition> {
     }
 
     @method()
-    async NEW(name: string, ...args: any[]) {
+    async NEW(name: string, ...args: Value[]) {
         assert(this.innerDefinition !== null)
 
         const instance = new ClassInstance(this.engine, this, name, args)

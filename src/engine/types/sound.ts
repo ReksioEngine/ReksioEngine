@@ -3,7 +3,7 @@ import { loadSound } from '../../filesystem/assetsLoader'
 import { SoundDefinition } from '../../fileFormats/cnv/types'
 import { FileNotFoundError } from '../../filesystem/fileLoader'
 import { assert, NotImplementedError } from '../../common/errors'
-import { method } from '../../common/types'
+import { method, int } from '../../common/types'
 import { Sound as ISound } from '../audio'
 import { logger } from '../logging'
 
@@ -34,7 +34,7 @@ export class Sound extends Type<SoundDefinition> {
 
     // This argument is "PLAY" for kurator in intro for some reason
     @method()
-    PLAY(arg?: any) {
+    PLAY(arg?: string) {
         assert(this.sound !== null)
         this.sound.play({
             onStart: this.onStart.bind(this),
@@ -43,7 +43,7 @@ export class Sound extends Type<SoundDefinition> {
     }
 
     @method()
-    ISPLAYING() {
+    ISPLAYING(): boolean {
         return this.sound !== null && this.sound.isPlaying
     }
 
@@ -68,7 +68,7 @@ export class Sound extends Type<SoundDefinition> {
     }
 
     @method()
-    SETFREQ(frequency: number) {
+    SETFREQ(frequency: int) {
         throw new NotImplementedError()
     }
 

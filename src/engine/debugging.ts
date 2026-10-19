@@ -327,7 +327,7 @@ export class Debugging {
 
                 if (object instanceof Animo) {
                     eventText = container.getChildAt(2) as Text
-                    eventText.text = object.GETEVENTNAME()
+                    eventText.text = object.currentEventName()
                 }
             } else {
                 container = new Container()
@@ -343,7 +343,7 @@ export class Debugging {
                 container.addChild(nameText)
 
                 if (object instanceof Animo) {
-                    eventText = new Text(object.GETEVENTNAME())
+                    eventText = new Text(object.currentEventName())
                     container.addChild(eventText)
                 }
             }

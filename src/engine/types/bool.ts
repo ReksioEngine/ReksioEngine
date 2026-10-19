@@ -1,7 +1,7 @@
 import { ParentType, ValueType } from './index'
 import { Engine } from '../index'
 import { BoolDefinition } from '../../fileFormats/cnv/types'
-import { method } from '../../common/types'
+import { method, valueAsBool } from '../../common/types'
 
 export class Bool extends ValueType<BoolDefinition, boolean> {
     constructor(engine: Engine, parent: ParentType<any> | null, definition: BoolDefinition) {
@@ -10,13 +10,17 @@ export class Bool extends ValueType<BoolDefinition, boolean> {
 
     @method()
     // The arguments don't seem to matter
-    async SWITCH(arg1: boolean, arg2: boolean) {
+    async SWITCH(arg1?: boolean, arg2?: boolean) {
         await this.setValue(!this.value)
     }
 
     @method()
     async SET(newValue: boolean) {
         await this.setValue(newValue)
+    }
+
+    getValue(): boolean {
+        return this.value
     }
 
     protected async valueChanged(oldValue: any, newValue: any) {
@@ -26,7 +30,11 @@ export class Bool extends ValueType<BoolDefinition, boolean> {
         await this.callbacks.run('ONBRUTALCHANGED', newValue)
     }
 
+    async equals(other: ValueType<any, any>) {
+        return this.getValue() === valueAsBool(await other.getValue())
+    }
+
     public async toString(): Promise<string> {
-        return (await this.getValue()) ? 'TRUE' : 'FALSE'
+        return this.getValue() ? 'TRUE' : 'FALSE'
     }
 }

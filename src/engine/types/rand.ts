@@ -1,14 +1,19 @@
 import { Type } from './index'
 import { RandDefinition } from '../../fileFormats/cnv/types'
-import { method } from '../../common/types'
+import { method, int } from '../../common/types'
 import { ArrayObject } from './array'
 import { assert } from '../../common/errors'
+import { createInteger } from './values'
 
 export class Rand extends Type<RandDefinition> {
     @method()
-    GET(min: number, max?: number): number {
+    GET(min: int, max?: int): int {
+        return this.random(min, max)
+    }
+
+    private random(min: number, max?: number): number {
         if (max === undefined) {
-            return this.GET(0, min)
+            return this.random(0, min)
         }
 
         max = min + max
@@ -16,18 +21,18 @@ export class Rand extends Type<RandDefinition> {
     }
 
     @method()
-    GETPLENTY(objectTarget: string, count: number, min: number, max: number, unique: boolean) {
+    GETPLENTY(objectTarget: string, count: int, min: int, max: int, unique: boolean) {
         const object = this.getObject<ArrayObject>(objectTarget)
         assert(object !== null)
 
         const values: number[] = []
         while (values.length < count) {
-            const randomValue = this.GET(min, max)
+            const randomValue = this.random(min, max)
             if (!unique || !values.includes(randomValue)) {
                 values.push(randomValue)
             }
         }
 
-        object.ADD(...values)
+        object.push(...values.map((value) => createInteger(this.engine, value)))
     }
 }

@@ -2,6 +2,10 @@ import { ParentType, ValueType } from './index'
 import { ExpressionDefinition } from '../../fileFormats/cnv/types'
 import { NotImplementedError } from '../../common/errors'
 import { Engine } from '../index'
+import { applyArithmetic, unwrapValue } from './values'
+import type { ExprOp } from '../../interpreter'
+
+const OPERATORS: string[] = ['ADD', 'SUB', 'MUL', 'DIV', 'MOD']
 
 export class Expression extends ValueType<ExpressionDefinition, boolean> {
     constructor(engine: Engine, parent: ParentType<any> | null, definition: ExpressionDefinition) {
@@ -9,30 +13,18 @@ export class Expression extends ValueType<ExpressionDefinition, boolean> {
     }
 
     async getValue() {
+        return await unwrapValue(await this.evaluate())
+    }
+
+    async evaluate() {
         const operand1 = await this.engine.scripting.executeCallback(this, this, this.definition.OPERAND1)
         const operand2 = await this.engine.scripting.executeCallback(this, this, this.definition.OPERAND2)
 
-        let result
-        switch (this.definition.OPERATOR) {
-            case 'ADD':
-                result = operand1 + operand2
-                break
-            case 'SUB':
-                result = operand1 - operand2
-                break
-            case 'MUL':
-                result = operand1 * operand2
-                break
-            case 'DIV':
-                result = operand1 / operand2
-                break
-            case 'MOD':
-                result = operand1 % operand2
-                break
-            default:
-                throw new NotImplementedError()
+        const operator = this.definition.OPERATOR
+        if (!OPERATORS.includes(operator)) {
+            throw new NotImplementedError()
         }
 
-        return result
+        return await applyArithmetic(this.engine, operand1 ?? null, operator as ExprOp, operand2 ?? null)
     }
 }

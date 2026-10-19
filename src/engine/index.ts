@@ -271,7 +271,7 @@ export class Engine {
             path = path.substring(1)
         }
 
-        const lang = this.scopeManager.APPLICATION.GETLANGUAGE()
+        const lang = this.scopeManager.APPLICATION.language
         const langPath = pathJoin(base, lang, path)
         const noLangPath = pathJoin(base, path)
 

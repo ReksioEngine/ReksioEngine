@@ -1,11 +1,12 @@
 import { ParentType, Type } from './index'
 import { ApplicationDefinition } from '../../fileFormats/cnv/types'
 import { loadDefinition, doReady } from '../../filesystem/definitionLoader'
-import { method } from '../../common/types'
+import { callMethod, method } from '../../common/types'
 import { assert } from '../../common/errors'
 import { Scene } from './scene'
 import { Behaviour } from './behaviour'
 import { pathJoin } from '../../filesystem'
+import { Value } from './values'
 
 const langCodeMapping: Record<string, string> = {
     '0415': 'POL',
@@ -18,7 +19,7 @@ const langCodeMapping: Record<string, string> = {
 }
 
 export class Application extends ParentType<ApplicationDefinition> {
-    private language: string = 'POL'
+    public language: string = 'POL'
 
     async init() {
         if (this.definition.PATH) {
@@ -40,26 +41,26 @@ export class Application extends ParentType<ApplicationDefinition> {
     }
 
     @method()
-    GETLANGUAGE() {
+    GETLANGUAGE(): string {
         return this.language
     }
 
     @method()
-    async RUN(objectName: string, methodName: string, ...args: any[]) {
+    async RUN(objectName: string, methodName: string, ...args: Value[]) {
         const object: any = this.getObject(objectName)
         if (object === null) {
             return
         }
 
         if (typeof object[methodName] === 'function') {
-            return await object[methodName](...args)
+            return await callMethod(object, methodName, args)
         } else {
             return await object.__call(methodName, args)
         }
     }
 
     @method()
-    async RUNENV(sceneName: string, behaviourName: string, ...args: any[]) {
+    async RUNENV(sceneName: string, behaviourName: string, ...args: Value[]) {
         const object = this.getObject(sceneName)
         if (object === null) {
             return

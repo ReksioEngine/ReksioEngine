@@ -1,11 +1,18 @@
 import { ParentType, Type, ValueType } from './index'
 import { StructDefinition } from '../../fileFormats/cnv/types'
-import { method } from '../../common/types'
+import { double, method, primitiveTypes } from '../../common/types'
 import { Engine } from '../index'
 import { assert } from '../../common/errors'
 import { createObject } from '../../filesystem/definitionLoader'
 
 const FIELD_PATTERN = /(?<name>\w+)<(?<type>\w+)>/g
+
+const fieldTypes: Record<string, string> = { INTEGER: 'int', DOUBLE: 'double', STRING: 'string', BOOL: 'boolean' }
+
+const convertToType = (type: string, value: any) => {
+    const primitiveType = primitiveTypes[fieldTypes[type]]
+    return primitiveType !== undefined ? primitiveType.convert(value) : value
+}
 
 export class Struct extends Type<StructDefinition> {
     public structure: Map<string, string> = new Map()
@@ -38,11 +45,11 @@ export class Struct extends Type<StructDefinition> {
 
     @method()
     GETFIELD(name: string) {
-        return this.getField(name)
+        return this.getField(name) ?? null
     }
 
     @method()
-    async SETFIELD(name: string, value: any) {
+    async SETFIELD(name: string, value: string | double | boolean) {
         await this.setField(name, value)
     }
 
@@ -52,9 +59,9 @@ export class Struct extends Type<StructDefinition> {
         assert(otherObject !== null, 'object does not exist')
 
         for (const key of otherObject.structure.keys()) {
-            const otherField = otherObject.GETFIELD(key)
+            const otherField = otherObject.getField(key)
             if (otherField) {
-                await this.SETFIELD(key, await otherField.getValue())
+                await this.setField(key, await otherField.getValue())
             }
         }
     }
@@ -67,7 +74,7 @@ export class Struct extends Type<StructDefinition> {
     async setField(name: string, value: any) {
         const fieldObject = this.getField(name)
         if (fieldObject !== undefined) {
-            await fieldObject.setValue(value ?? fieldObject.defaultValue)
+            await fieldObject.setValue(convertToType(this.structure.get(name)!, value ?? fieldObject.defaultValue))
         }
     }
 

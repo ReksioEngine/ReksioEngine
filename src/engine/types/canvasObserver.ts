@@ -2,7 +2,7 @@ import { DisplayType, Type } from './index'
 import { CanvasObserverDefinition } from '../../fileFormats/cnv/types'
 import { loadTexture } from '../../filesystem/assetsLoader'
 import { Point, Rectangle } from 'pixi.js'
-import { method } from '../../common/types'
+import { method, double, int } from '../../common/types'
 import { AdvancedSprite } from '../rendering'
 import { assert } from '../../common/errors'
 import { buildImage } from '../../fileFormats/img'
@@ -40,13 +40,13 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
 
     @method()
     GETGRAPHICSAT(
-        x: number,
-        y: number,
+        x: int,
+        y: int,
         onlyVisible: boolean = false,
-        minZ: number = Number.MIN_SAFE_INTEGER,
-        maxZ: number = Number.MAX_SAFE_INTEGER,
+        minZ: int = Number.MIN_SAFE_INTEGER,
+        maxZ: int = Number.MAX_SAFE_INTEGER,
         ignoreAlpha: boolean = false
-    ) {
+    ): string | null {
         const point = new Point(x, y)
 
         for (let i = this.engine.app.stage.children.length - 1; i >= 0; i--) {
@@ -80,11 +80,18 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
     }
 
     @method()
-    async SAVE(filename: string, scaleX: number, scaleY: number, left = 0, top = 0, right = 0, bottom = 0) {
+    async SAVE(
+        filename: string,
+        scaleX: double,
+        scaleY: double,
+        left: int = 0,
+        top: int = 0,
+        right: int = 0,
+        bottom: int = 0
+    ) {
         assert(this.engine.currentScene !== null)
-
         const rectangle =
-            right != left && bottom != top
+            right !== left && bottom !== top
                 ? new Rectangle(left, top, right - left, bottom - top)
                 : new Rectangle(0, 0, this.engine.app.view.width, this.engine.app.view.height)
 

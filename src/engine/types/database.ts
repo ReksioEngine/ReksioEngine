@@ -1,7 +1,7 @@
 import { Type } from './index'
 import { DatabaseDefinition } from '../../fileFormats/cnv/types'
 import { Struct } from './struct'
-import { method, valueAsBool, valueAsDouble } from '../../common/types'
+import { method, int, double } from '../../common/types'
 import { assert } from '../../common/errors'
 
 const decoder = new TextDecoder('windows-1250')
@@ -21,12 +21,12 @@ export class Database extends Type<DatabaseDefinition> {
     }
 
     @method()
-    GETROWSNO() {
+    GETROWSNO(): int {
         return this.content.length
     }
 
     @method()
-    GETCURSORPOS() {
+    GETCURSORPOS(): int {
         return this.cursorPosition
     }
 
@@ -46,16 +46,16 @@ export class Database extends Type<DatabaseDefinition> {
     }
 
     @method()
-    SELECT(index: number) {
+    SELECT(index: int) {
         assert(index < this.content.length && index >= 0, 'out of bounds')
         this.cursorPosition = index
         this.updateCursorValue()
     }
 
     @method()
-    async FIND(column: string, value: any, offset: number) {
+    async FIND(column: string, value: string | double | boolean, offset: int): Promise<int> {
         const index = await this.findEntryWithValue(column, value)
-        if (index == -1) {
+        if (index === -1) {
             return -1
         }
 
@@ -70,7 +70,7 @@ export class Database extends Type<DatabaseDefinition> {
     private async findEntryWithValue(column: string, value: any) {
         for (let i = 0; i < this.content.length; i++) {
             const entry = this.content[i]
-            const entryValue = await entry.GETFIELD(column)?.getValue()
+            const entryValue = await entry.getField(column)?.getValue()
             if (entryValue === value) {
                 return i
             }
@@ -79,7 +79,7 @@ export class Database extends Type<DatabaseDefinition> {
     }
 
     @method()
-    REMOVEAT(index: number) {
+    REMOVEAT(index: int) {
         this.content.splice(index, 1)
         this.updateCursorValue()
     }
@@ -107,10 +107,8 @@ export class Database extends Type<DatabaseDefinition> {
             const newEntry = await this.baseStruct.clone()
 
             for (let i = 0; i < structFieldsNames.length; i++) {
-                const fieldName = structFieldsNames[i]
-                const fieldType = this.baseStruct.structure.get(fieldName)!
-                const fieldValue = fieldContents[i]
-                await newEntry.setField(fieldName, this.convertFieldValue(fieldType, fieldValue))
+                const cell = fieldContents[i]
+                await newEntry.setField(structFieldsNames[i], cell === 'NULL' ? null : cell)
             }
             this.content.push(newEntry)
         }
@@ -130,7 +128,7 @@ export class Database extends Type<DatabaseDefinition> {
         for (const entry of this.content) {
             const fieldValues: string[] = []
             for (const fieldName of structFieldsNames) {
-                const fieldValue = entry.GETFIELD(fieldName)!
+                const fieldValue = entry.getField(fieldName)!
                 fieldValues.push(await fieldValue.toString())
             }
             lines.push(fieldValues.join('|'))
@@ -141,31 +139,11 @@ export class Database extends Type<DatabaseDefinition> {
         await this.engine.filesystem.saveFile(relativePath, data)
     }
 
-    private convertFieldValue(fieldType: string, value: string) {
-        if (value === 'NULL') {
-            return null
-        }
-
-        if (value === undefined) {
-            return undefined
-        }
-
-        switch (fieldType) {
-            case 'INTEGER':
-            case 'DOUBLE':
-                return valueAsDouble(value)
-            case 'BOOL':
-                return valueAsBool(value)
-            default:
-                return value
-        }
-    }
-
     private updateCursorValue() {
         assert(this.parentScope !== null)
 
         const cursorName = this.name + '_CURSOR'
-        if (this.content.length == 0) {
+        if (this.content.length === 0) {
             this.parentScope.remove(cursorName)
         } else {
             this.parentScope.set(cursorName, this.content[this.cursorPosition])

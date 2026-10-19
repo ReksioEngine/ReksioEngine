@@ -1,7 +1,7 @@
 import { ParentType, ValueType } from './index'
 import { Engine } from '../index'
 import { DoubleDefinition } from '../../fileFormats/cnv/types'
-import { method } from '../../common/types'
+import { method, valueAsDouble, double } from '../../common/types'
 
 const radianMultiplier = Math.PI / 180
 
@@ -11,53 +11,53 @@ export class Double extends ValueType<DoubleDefinition, number> {
     }
 
     @method()
-    async MUL(value: number) {
+    async MUL(value: double): Promise<double> {
         return await this.setValue(this.value * value)
     }
 
     @method()
-    async ADD(value: number) {
+    async ADD(value: double): Promise<double> {
         return await this.setValue(this.value + value)
     }
 
     @method()
-    async SUB(value: number) {
+    async SUB(value: double): Promise<double> {
         return await this.setValue(this.value - value)
     }
 
     @method()
-    async SET(newValue: number) {
+    async SET(newValue: double) {
         await this.setValue(newValue)
     }
 
     @method()
-    async DIV(value: number) {
+    async DIV(value: double): Promise<double> {
         return await this.setValue(this.value / value)
     }
 
     @method()
-    async MAXA(...values: number[]) {
+    async MAXA(...values: double[]): Promise<double> {
         return await this.setValue(Math.max(...values))
     }
 
     @method()
-    async MINA(...values: number[]) {
+    async MINA(...values: double[]): Promise<double> {
         return await this.setValue(Math.min(...values))
     }
 
     @method()
-    async SINUS(angle: number) {
+    async SINUS(angle: double): Promise<double> {
         return await this.setValue(Math.sin(angle * radianMultiplier))
     }
 
     @method()
-    async COSINUS(angle: number) {
+    async COSINUS(angle: double): Promise<double> {
         return await this.setValue(Math.cos(angle * radianMultiplier))
     }
 
     // Source: https://docs.google.com/spreadsheets/d/1SYI_Gu6MAuSGw-OTXzk_FDWScx29Cc-6eXpc6UfSn1Y/edit?gid=1909841994#gid=1909841994
     @method()
-    async ARCTANEX(y: number, x: number, summand?: number) {
+    async ARCTANEX(y: double, x: double, summand?: double): Promise<double> {
         let value = Math.atan2(y, x) / radianMultiplier
 
         if (value < 0) {
@@ -72,13 +72,21 @@ export class Double extends ValueType<DoubleDefinition, number> {
     }
 
     @method()
-    async LENGTH(pointX: number, pointY: number) {
-        return await this.setValue(Math.sqrt(pointX * pointX + pointY * pointY))
+    async LENGTH(x: double, y: double): Promise<double> {
+        return await this.setValue(Math.sqrt(x * x + y * y))
     }
 
     @method()
-    GET() {
+    GET(): double {
         return this.value
+    }
+
+    getValue(): number {
+        return this.value
+    }
+
+    async equals(other: ValueType<any, any>) {
+        return this.getValue() === valueAsDouble(await other.getValue())
     }
 
     public async toString(): Promise<string> {

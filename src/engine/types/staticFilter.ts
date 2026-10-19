@@ -2,7 +2,7 @@ import { DisplayType, ParentType, Type } from './index'
 import { StaticFilterDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { Animo } from './animo'
-import { method } from '../../common/types'
+import { double, method } from '../../common/types'
 import { assert } from '../../common/errors'
 
 export class StaticFilter extends Type<StaticFilterDefinition> {
@@ -15,13 +15,13 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
     }
 
     @method()
-    SETPROPERTY(name: string, value: any) {
+    SETPROPERTY(name: string, value: string | double | boolean) {
         this.properties.set(name, value)
     }
 
     @method()
-    LINK(arg: any) {
-        const object = this.getObject<DisplayType<any>>(arg)
+    LINK(objectName: string) {
+        const object = this.getObject<DisplayType<any>>(objectName)
         assert(object !== null)
 
         const renderObject = object.getRenderObject()
@@ -50,8 +50,8 @@ export class StaticFilter extends Type<StaticFilterDefinition> {
     }
 
     @method()
-    UNLINK(arg: any) {
-        const object = this.getObject<Animo>(arg)
+    UNLINK(objectName: string) {
+        const object = this.getObject<Animo>(objectName)
         assert(object !== null)
 
         const properties = this.linked.get(object)

@@ -1,13 +1,19 @@
 import * as ts from 'typescript'
 import { parameter, parameterType } from './src/common/types'
 
-const getLiteralType = (literal: ts.LiteralTypeNode) => {
-    if (ts.isStringLiteral(literal)) {
-        return 'string'
-    } else if (ts.isNumericLiteral(literal)) {
-        return 'number'
+const primitiveReturnTypes = ['int', 'double', 'string', 'boolean']
+
+const primitiveReturnType = (type: ts.TypeNode | undefined): string | undefined => {
+    if (type === undefined) {
+        return undefined
     }
-    return 'string'
+    if (ts.isTypeReferenceNode(type) && type.typeName.getText() === 'Promise' && type.typeArguments?.length === 1) {
+        return primitiveReturnType(type.typeArguments[0])
+    }
+
+    const types = ts.isUnionTypeNode(type) ? [...type.types] : [type]
+    const names = types.map((subType) => subType.getText()).filter((name) => !['null', 'undefined'].includes(name))
+    return names.length === 1 && primitiveReturnTypes.includes(names[0]) ? names[0] : undefined
 }
 
 export const typeGuard = (program: ts.Program) => (context: any) => {
@@ -34,46 +40,24 @@ export const typeGuard = (program: ts.Program) => (context: any) => {
                         const isOptional = param.questionToken !== undefined || param.initializer !== undefined
                         const isRest = ts.isRestParameter(param)
 
+                        const subTypes: ts.Node[] = []
                         if (ts.isUnionTypeNode(type)) {
-                            const argSubTypes: parameterType[] = []
                             // GetChildren seems to get something else
                             type.forEachChild((c) => {
-                                const isLiteral = ts.isLiteralTypeNode(c)
-
-                                // @ts-expect-error We are accessing internal text field that doesn't have quotes
-                                const literalValue = isLiteral ? c.literal.text : null
-
-                                argSubTypes.push({
-                                    name: isLiteral ? getLiteralType(c) : c.getText().replace(/\[]$/, ''),
-                                    literal: literalValue,
-                                    isArray: ts.isArrayTypeNode(c) && !isRest,
-                                })
-                            })
-                            paramTypes.push({
-                                name: param.name.getText(),
-                                types: argSubTypes,
-                                optional: isOptional,
-                                rest: isRest,
+                                subTypes.push(c)
                             })
                         } else {
-                            const isLiteral = ts.isLiteralTypeNode(type)
-
-                            // @ts-expect-error We are accessing internal text field that doesn't have quotes
-                            const literalValue = isLiteral ? type.literal.text : null
-
-                            paramTypes.push({
-                                name: param.name.getText(),
-                                types: [
-                                    {
-                                        name: isLiteral ? getLiteralType(type) : type.getText().replace(/\[]$/, ''),
-                                        literal: literalValue,
-                                        isArray: ts.isArrayTypeNode(type) && !isRest,
-                                    },
-                                ],
-                                optional: isOptional,
-                                rest: isRest,
-                            })
+                            subTypes.push(type)
                         }
+
+                        paramTypes.push({
+                            name: param.name.getText(),
+                            types: subTypes.map(
+                                (subType): parameterType => ({ name: subType.getText().replace(/\[]$/, '') })
+                            ),
+                            optional: isOptional,
+                            rest: isRest,
+                        })
                     }
 
                     const createTypeEntry = (info: parameter) => {
@@ -82,28 +66,14 @@ export const typeGuard = (program: ts.Program) => (context: any) => {
                             ts.factory.createPropertyAssignment(
                                 'types',
                                 ts.factory.createArrayLiteralExpression(
-                                    info.types.map((param) => {
-                                        let literal: ts.Expression = ts.factory.createNull()
-                                        if (param.literal !== null) {
-                                            if (typeof param.literal === 'string') {
-                                                literal = ts.factory.createStringLiteral(param.literal)
-                                            } else if (typeof param.literal === 'number') {
-                                                literal = ts.factory.createNumericLiteral(param.literal)
-                                            }
-                                        }
-
-                                        return ts.factory.createObjectLiteralExpression([
+                                    info.types.map((param) =>
+                                        ts.factory.createObjectLiteralExpression([
                                             ts.factory.createPropertyAssignment(
                                                 'name',
                                                 ts.factory.createStringLiteral(param.name)
                                             ),
-                                            ts.factory.createPropertyAssignment('literal', literal),
-                                            ts.factory.createPropertyAssignment(
-                                                'isArray',
-                                                param.isArray ? ts.factory.createTrue() : ts.factory.createFalse()
-                                            ),
                                         ])
-                                    })
+                                    )
                                 )
                             ),
                             ts.factory.createPropertyAssignment(
@@ -117,6 +87,14 @@ export const typeGuard = (program: ts.Program) => (context: any) => {
                         ])
                     }
 
+                    const callArguments: ts.Expression[] = [
+                        ts.factory.createArrayLiteralExpression(paramTypes.map((type) => createTypeEntry(type))),
+                    ]
+                    const returns = primitiveReturnType(method.type)
+                    if (returns !== undefined) {
+                        callArguments.push(ts.factory.createStringLiteral(returns))
+                    }
+
                     const callExpression = decorator.expression as ts.CallExpression
                     return ts.factory.updateDecorator(
                         decorator,
@@ -124,7 +102,7 @@ export const typeGuard = (program: ts.Program) => (context: any) => {
                             callExpression,
                             callExpression.expression,
                             undefined,
-                            paramTypes.map((type) => createTypeEntry(type))
+                            callArguments
                         )
                     )
                 }
