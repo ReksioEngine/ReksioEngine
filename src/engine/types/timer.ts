@@ -1,7 +1,7 @@
 import { ParentType, Type } from './index'
 import { TimerDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
-import { method } from '../../common/types'
+import { method, double, int } from '../../common/types'
 
 export class Timer extends Type<TimerDefinition> {
     private currentTick: number = 0
@@ -56,12 +56,12 @@ export class Timer extends Type<TimerDefinition> {
     }
 
     @method()
-    SETELAPSE(newElapse: number) {
+    SETELAPSE(newElapse: double) {
         this.elapse = newElapse
     }
 
     @method()
-    SET(value: number) {
+    SET(value: int) {
         this.collectedTime = 0
         this.currentTick = value
     }

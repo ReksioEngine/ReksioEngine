@@ -3,35 +3,40 @@ import { BinaryBuffer } from '../utils'
 const decoder = new TextDecoder('windows-1250')
 const encoder = new TextEncoder()
 
-enum ValueType {
+export enum ArrayEntryType {
     INTEGER = 1,
     FLOAT = 4,
     STRING = 2,
     BOOLEAN = 3,
 }
 
+export type ArrayEntry =
+    | { type: ArrayEntryType.INTEGER | ArrayEntryType.FLOAT; value: number }
+    | { type: ArrayEntryType.STRING; value: string }
+    | { type: ArrayEntryType.BOOLEAN; value: boolean }
+
 export const deserializeArray = (data: ArrayBuffer) => {
     const buffer = new BinaryBuffer(new DataView(data))
     const count = buffer.getUint32()
 
-    const entries = []
+    const entries: ArrayEntry[] = []
     for (let i = 0; i < count; ++i) {
         const type = buffer.getUint32()
 
         switch (type) {
-            case ValueType.INTEGER:
-                entries.push(buffer.getInt32())
+            case ArrayEntryType.INTEGER:
+                entries.push({ type, value: buffer.getInt32() })
                 break
-            case ValueType.STRING: {
+            case ArrayEntryType.STRING: {
                 const length = buffer.getUint32()
-                entries.push(decoder.decode(buffer.read(length)))
+                entries.push({ type, value: decoder.decode(buffer.read(length)) })
                 break
             }
-            case ValueType.BOOLEAN:
-                entries.push(buffer.getUint32() === 1)
+            case ArrayEntryType.BOOLEAN:
+                entries.push({ type, value: buffer.getUint32() === 1 })
                 break
-            case ValueType.FLOAT:
-                entries.push(buffer.getInt32() / 1000)
+            case ArrayEntryType.FLOAT:
+                entries.push({ type, value: buffer.getInt32() / 1000 })
                 break
         }
     }
@@ -45,41 +50,37 @@ const checkInt32 = (value: number) => {
     return value
 }
 
-export const serializeArray = (data: any[]) => {
+export const serializeArray = (entries: ArrayEntry[]) => {
     // Strings are pre-encoded so that we know their sizes up front
-    const entries = data.map((entry) => (typeof entry === 'string' ? encoder.encode(entry) : entry))
+    const encoded = entries.map((entry) => (entry.type === ArrayEntryType.STRING ? encoder.encode(entry.value) : null))
 
     let size = 4
-    for (const entry of entries) {
-        if (entry instanceof Uint8Array) {
-            size += 4 + 4 + entry.length
-        } else if (typeof entry === 'number' || typeof entry === 'boolean') {
-            size += 4 + 4
-        } else {
-            throw new TypeError(`Cannot serialize value of type ${typeof entry} in array`)
-        }
+    for (const bytes of encoded) {
+        size += 4 + 4 + (bytes?.length ?? 0)
     }
 
     const result = new Uint8Array(size)
     const buffer = new BinaryBuffer(new DataView(result.buffer))
     buffer.setUint32(entries.length)
 
-    for (const entry of entries) {
-        if (entry instanceof Uint8Array) {
-            buffer.setUint32(ValueType.STRING)
-            buffer.setUint32(entry.length)
-            buffer.write(entry)
-        } else if (typeof entry === 'boolean') {
-            buffer.setUint32(ValueType.BOOLEAN)
-            buffer.setUint32(Number(entry))
-        } else if (Number.isInteger(entry)) {
-            buffer.setUint32(ValueType.INTEGER)
-            buffer.setInt32(checkInt32(entry))
-        } else {
-            buffer.setUint32(ValueType.FLOAT)
-            buffer.setInt32(checkInt32(Math.trunc(entry * 1000)))
+    entries.forEach((entry, i) => {
+        buffer.setUint32(entry.type)
+        switch (entry.type) {
+            case ArrayEntryType.STRING:
+                buffer.setUint32(encoded[i]!.length)
+                buffer.write(encoded[i]!)
+                break
+            case ArrayEntryType.BOOLEAN:
+                buffer.setUint32(Number(entry.value))
+                break
+            case ArrayEntryType.INTEGER:
+                buffer.setInt32(checkInt32(entry.value))
+                break
+            case ArrayEntryType.FLOAT:
+                buffer.setInt32(checkInt32(Math.trunc(entry.value * 1000)))
+                break
         }
-    }
+    })
 
     return result.buffer
 }

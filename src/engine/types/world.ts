@@ -1,6 +1,6 @@
 import { Type } from './index'
 import { WorldDefinition } from '../../fileFormats/cnv/types'
-import { method } from '../../common/types'
+import { method, int, double } from '../../common/types'
 import { NotImplementedError } from '../../common/errors'
 
 export class World extends Type<WorldDefinition> {
@@ -10,52 +10,52 @@ export class World extends Type<WorldDefinition> {
     }
 
     @method()
-    SETGRAVITY(x: number, y: number, z: number) {
+    SETGRAVITY(x: double, y: double, z: double) {
         throw new NotImplementedError()
     }
 
     @method()
     ADDBODY(
-        id: number,
-        density: number,
-        mu: number,
-        friction: number,
-        bounce: number,
-        bounceVel: number,
-        maxVel: number,
-        bodyType: number,
-        geomType: number
+        id: int,
+        density: double,
+        mu: double,
+        friction: double,
+        bounce: double,
+        bounceVel: double,
+        maxVel: double,
+        bodyType: int,
+        geomType: int
     ) {
         throw new NotImplementedError()
     }
 
     @method()
-    SETLIMIT(id: number, x: number, y: number, z: number, x1: number, y1: number, z1: number) {
+    SETLIMIT(id: int, x: double, y: double, z: double, x1: double, y1: double, z1: double) {
         throw new NotImplementedError()
     }
 
     @method()
-    SETSPEED(id: number, speed: number) {
+    SETSPEED(id: int, speed: double) {
         throw new NotImplementedError()
     }
 
     @method()
-    LINK(id: number, animoName: string, flag?: any) {
+    LINK(id: int, animoName: string, flag?: any) {
         throw new NotImplementedError()
     }
 
     @method()
-    SETPOSITION(id: number, x: number, y: number, z: number) {
+    SETPOSITION(id: int, x: double, y: double, z: double) {
         throw new NotImplementedError()
     }
 
     @method()
-    SETVELOCITY(id: number, x: number, y: number, z: number) {
+    SETVELOCITY(id: int, x: double, y: double, z: double) {
         throw new NotImplementedError()
     }
 
     @method()
-    SETMAXSPEED(id: number, speed: number) {
+    SETMAXSPEED(id: int, speed: double) {
         throw new NotImplementedError()
     }
 

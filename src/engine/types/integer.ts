@@ -1,7 +1,7 @@
 import { ParentType, ValueType } from './index'
 import { Engine } from '../index'
 import { IntegerDefinition } from '../../fileFormats/cnv/types'
-import { ForceNumber, method } from '../../common/types'
+import { method, valueAsInteger, int } from '../../common/types'
 
 export class Integer extends ValueType<IntegerDefinition, number> {
     constructor(engine: Engine, parent: ParentType<any> | null, definition: IntegerDefinition) {
@@ -13,73 +13,77 @@ export class Integer extends ValueType<IntegerDefinition, number> {
     }
 
     @method()
-    async INC() {
-        return this.setValue(this.value + 1)
+    async INC(): Promise<int> {
+        return await this.setValue(this.value + 1)
     }
 
     @method()
-    async DEC() {
-        return this.setValue(this.value - 1)
+    async DEC(): Promise<int> {
+        return await this.setValue(this.value - 1)
     }
 
     @method()
-    async ADD(value: number) {
-        return this.setValue(this.value + value)
+    async ADD(value: int): Promise<int> {
+        return await this.setValue(this.value + value)
     }
 
     @method()
-    async SUB(value: number) {
-        return this.setValue(this.value - value)
+    async SUB(value: int): Promise<int> {
+        return await this.setValue(this.value - value)
     }
 
     @method()
-    async MUL(value: number) {
-        return this.setValue(this.value * value)
+    async MUL(value: int): Promise<int> {
+        return await this.setValue(this.value * value)
     }
 
     @method()
-    async DIV(value: number) {
-        return this.setValue(this.value / value)
+    async DIV(value: int): Promise<int> {
+        return await this.setValue(this.value / value)
     }
 
     @method()
-    async MOD(value: number) {
-        return this.setValue(this.value % value)
+    async MOD(value: int): Promise<int> {
+        return await this.setValue(this.value % value)
     }
 
     @method()
-    async CLAMP(min: number, max: number) {
-        return this.setValue(Math.min(max, Math.max(this.value, min)))
+    async CLAMP(min: int, max: int): Promise<int> {
+        return await this.setValue(Math.min(max, Math.max(this.value, min)))
     }
 
     @method()
-    async AND(value: number) {
-        return this.setValue(this.value & value)
+    async AND(value: int): Promise<int> {
+        return await this.setValue(this.value & value)
     }
 
     @method()
-    async SET(newValue: number) {
+    async SET(newValue: int) {
         await this.setValue(newValue)
     }
 
     @method()
-    async GET() {
+    async GET(): Promise<int> {
         return this.value
     }
 
     @method()
-    async SWITCH(first: number, second: number) {
-        return this.setValue(this.value == first ? second : first)
+    async SWITCH(first: int, second: int): Promise<int> {
+        return await this.setValue(this.value === first ? second : first)
     }
 
     @method()
-    async ABS(value: number) {
-        return this.setValue(Math.abs(value))
+    async ABS(value: int): Promise<int> {
+        return await this.setValue(Math.abs(value))
     }
 
     @method()
-    async RANDOM(offset: number, range: number) {
+    async RANDOM(offset: int, range: int): Promise<int> {
         return Math.floor(Math.random() * range) + offset
+    }
+
+    getValue(): number {
+        return this.value
     }
 
     protected async valueChanged(oldValue: any, newValue: any) {
@@ -92,6 +96,14 @@ export class Integer extends ValueType<IntegerDefinition, number> {
     // Force integer truncated values
     async setValue(newValue: number) {
         return await super.setValue(Math.trunc(newValue))
+    }
+
+    async equals(other: ValueType<any, any>) {
+        return this.getValue() === valueAsInteger(await other.getValue())
+    }
+
+    async compare(other: ValueType<any, any>) {
+        return Math.sign(this.getValue() - valueAsInteger(await other.getValue()))
     }
 
     public async toString(): Promise<string> {

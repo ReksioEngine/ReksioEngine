@@ -2,7 +2,7 @@ import { Type, ParentType } from './index'
 import { MatrixDefinition } from '../../fileFormats/cnv/types'
 import { Engine } from '../index'
 import { assert } from '../../common/errors'
-import { method } from '../../common/types'
+import { method, int } from '../../common/types'
 import { Rectangle } from 'pixi.js'
 
 enum Field {
@@ -77,7 +77,11 @@ export class Matrix extends Type<MatrixDefinition> {
 
     // Returns new position
     @method()
-    CALCENEMYMOVEDEST(oldPos: number, dir: number) {
+    CALCENEMYMOVEDEST(oldPos: int, dir: int): int {
+        return this.moveDestination(oldPos, dir)
+    }
+
+    moveDestination(oldPos: number, dir: number): number {
         switch (dir) {
             case Direction.LEFT:
                 return oldPos - 1
@@ -142,12 +146,12 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     canMoveTo(oldPos: number, newPos: number) {
-        const newPosIndex: number = this.CALCENEMYMOVEDEST(oldPos, newPos)
+        const newPosIndex = this.moveDestination(oldPos, newPos)
         return this.isNewPositionValid(newPosIndex)
     }
 
     @method()
-    CALCENEMYMOVEDIR(oldPos: number, currentMoveDir: number) {
+    CALCENEMYMOVEDIR(oldPos: int, currentMoveDir: int): int {
         const directions = [
             this.rotateLeft(currentMoveDir),
             currentMoveDir,
@@ -158,7 +162,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    CANHEROGOTO(targetCellIndex: number) {
+    CANHEROGOTO(targetCellIndex: int): boolean {
         if (targetCellIndex < 0 || targetCellIndex >= this.board.length) {
             return false
         }
@@ -170,7 +174,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    GET(...args: any[]) {
+    GET(...args: int[]): int {
         return this.board[args[0]]
     }
 
@@ -187,22 +191,22 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    GETCELLOFFSET(x: number, y: number) {
+    GETCELLOFFSET(x: int, y: int): int {
         return this.getIndexFromCoordinates(x, y)
     }
 
     @method()
-    GETCELLPOSX(index: number) {
+    GETCELLPOSX(index: int): int {
         return this.getColumnFromIndex(index) * this.definition.CELLWIDTH + this.definition.BASEPOS[0]
     }
 
     @method()
-    GETCELLPOSY(index: number) {
+    GETCELLPOSY(index: int): int {
         return this.getRowFromIndex(index) * this.definition.CELLHEIGHT + this.definition.BASEPOS[1]
     }
 
     @method()
-    GETCELLSNO(cellType?: number) {
+    GETCELLSNO(cellType?: int): int {
         if (cellType === undefined) {
             return this.width * this.height
         }
@@ -211,7 +215,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    ISGATEEMPTY() {
+    ISGATEEMPTY(): boolean {
         if (!this.gateRect) {
             return true
         }
@@ -228,7 +232,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    ISINGATE(index: number) {
+    ISINGATE(index: int): boolean {
         return this.isIndexInGate(index)
     }
 
@@ -245,7 +249,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    MOVE(previousPos: number, newPos: number) {
+    MOVE(previousPos: int, newPos: int) {
         this.moveCell(previousPos, newPos, Actions.NONE)
     }
 
@@ -273,7 +277,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async NEXT() {
+    async NEXT(): Promise<int> {
         let result = RemainingActions.NONE
         for (let y = this.cursorY; y >= 0; y--) {
             for (let x = y === this.cursorY ? this.cursorX : 0; x < this.width; x++) {
@@ -314,7 +318,7 @@ export class Matrix extends Type<MatrixDefinition> {
                 this.cursorY = isLast ? -1 : nextY
 
                 await this.callbacks.run(isLast ? 'ONLATEST' : 'ONNEXT', null, null, [x, y, action])
-                return isLast ? result : (result !== RemainingActions.NONE ? result : RemainingActions.STONE_UPDATES)
+                return isLast ? result : result !== RemainingActions.NONE ? result : RemainingActions.STONE_UPDATES
             }
         }
 
@@ -339,7 +343,7 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async SET(...args: number[]) {
+    async SET(...args: int[]) {
         if (args.length === 2) {
             const [index, cellType] = args
             this.setByIndex(index, cellType)
@@ -351,12 +355,12 @@ export class Matrix extends Type<MatrixDefinition> {
     }
 
     @method()
-    async SETGATE(startColumn: number, startRow: number, endColumn: number, endRow: number) {
+    async SETGATE(startColumn: int, startRow: int, endColumn: int, endRow: int) {
         this.gateRect = new Rectangle(startColumn, startRow, endColumn - startColumn, endRow - startRow)
     }
 
     @method()
-    async SETROW(row: number, ...cells: number[]) {
+    async SETROW(row: int, ...cells: int[]) {
         for (let i = 0; i < Math.min(this.width, cells.length); i++) {
             this.board[row * this.width + i] = cells[i]
         }

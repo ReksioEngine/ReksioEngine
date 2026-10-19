@@ -8,7 +8,7 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
     // In loops its like 'break'
     @method()
     async BREAK(arg: boolean) {
-        if (await this.CHECK(arg)) {
+        if (await this.check(arg)) {
             throw new InterruptScriptExecution(false)
         }
     }
@@ -16,13 +16,17 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
     // In loops its like 'continue'
     @method()
     async ONE_BREAK(arg: boolean) {
-        if (await this.CHECK(arg)) {
+        if (await this.check(arg)) {
             throw new InterruptScriptExecution(true)
         }
     }
 
     @method()
     async CHECK(arg: boolean): Promise<boolean> {
+        return await this.check(arg)
+    }
+
+    async check(arg: boolean): Promise<boolean> {
         const condition1 = this.getObject<Condition>(this.definition.CONDITION1)
         const condition2 = this.getObject<Condition>(this.definition.CONDITION2)
         assert(condition1 !== null && condition2 !== null)
@@ -30,10 +34,10 @@ export class ComplexCondition extends Type<ComplexConditionDefinition> {
         let result
         switch (this.definition.OPERATOR) {
             case 'AND':
-                result = (await condition1.CHECK(arg)) && (await condition2.CHECK(arg))
+                result = (await condition1.check(arg)) && (await condition2.check(arg))
                 break
             case 'OR':
-                result = (await condition1.CHECK(arg)) || (await condition2.CHECK(arg))
+                result = (await condition1.check(arg)) || (await condition2.check(arg))
                 break
         }
 

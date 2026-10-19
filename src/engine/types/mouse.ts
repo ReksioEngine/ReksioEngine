@@ -2,7 +2,7 @@ import { Type } from './index'
 import { MouseDefinition } from '../../fileFormats/cnv/types'
 import { FederatedPointerEvent, Point } from 'pixi.js'
 import { NotImplementedError } from '../../common/errors'
-import { method } from '../../common/types'
+import { method, int } from '../../common/types'
 
 type MouseEvent = {
     type: string
@@ -64,7 +64,8 @@ export class Mouse extends Type<MouseDefinition> {
     }
 
     @method()
-    SET(cursorType: 'ACTIVE' | 'ARROW') {
+    // ACTIVE or ARROW
+    SET(cursorType: string) {
         throw new NotImplementedError()
     }
 
@@ -120,17 +121,17 @@ export class Mouse extends Type<MouseDefinition> {
     }
 
     @method()
-    GETPOSX() {
+    GETPOSX(): int {
         return this.mousePosition.x
     }
 
     @method()
-    GETPOSY() {
+    GETPOSY(): int {
         return this.mousePosition.y
     }
 
     @method()
-    SETPOSITION(x: number, y: number) {
+    SETPOSITION(x: int, y: int) {
         // This is kinda impossible. We would have to hide cursor and emulate it.
         throw new NotImplementedError()
     }

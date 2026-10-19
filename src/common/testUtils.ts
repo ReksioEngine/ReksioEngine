@@ -6,6 +6,8 @@ import { Type } from '../engine/types'
 import { Application } from '../engine/types/application'
 import { Scene } from '../engine/types/scene'
 import { Integer } from '../engine/types/integer'
+import { Double } from '../engine/types/double'
+import { Bool } from '../engine/types/bool'
 import { String as CMCString } from '../engine/types/string'
 import { Behaviour } from '../engine/types/behaviour'
 import { createCallback, reference } from '../fileFormats/common'
@@ -120,6 +122,16 @@ export class TestEngine {
         return this.add(
             new Integer(this.asEngine(), this.currentScene, { TYPE: 'INTEGER', NAME: name, VALUE: value } as any)
         )
+    }
+
+    double(name: string, value: number = 0.0) {
+        return this.add(
+            new Double(this.asEngine(), this.currentScene, { TYPE: 'DOUBLE', NAME: name, VALUE: value } as any)
+        )
+    }
+
+    boolean(name: string, value: boolean = false) {
+        return this.add(new Bool(this.asEngine(), this.currentScene, { TYPE: 'BOOL', NAME: name, VALUE: value } as any))
     }
 
     string(name: string, value: string = '') {

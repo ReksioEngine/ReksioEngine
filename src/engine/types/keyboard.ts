@@ -58,15 +58,12 @@ export class Keyboard extends Type<KeyboardDefinition> {
     }
 
     @method()
-    ISKEYDOWN(keyName: string) {
-        if (this.keysState.has(keyName)) {
-            return this.keysState.get(keyName)!
-        }
-        return false
+    ISKEYDOWN(keyName: string): boolean {
+        return this.keysState.get(keyName) ?? false
     }
 
     @method()
-    ISENABLED() {
+    ISENABLED(): boolean {
         return this.enabled
     }
 

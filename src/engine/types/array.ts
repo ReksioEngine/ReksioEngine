@@ -2,16 +2,48 @@ import { ParentType, ValueType } from './index'
 import { Engine } from '../index'
 import { ArrayDefinition } from '../../fileFormats/cnv/types'
 import { assert } from '../../common/errors'
-import { method, valueAsString } from '../../common/types'
+import { method, valueAsDouble, int, double } from '../../common/types'
 import { FileNotFoundError } from '../../filesystem/fileLoader'
-import { serializeArray } from '../../fileFormats/archive/array'
+import { ArrayEntry, ArrayEntryType, serializeArray } from '../../fileFormats/archive/array'
 import { logger } from '../logging'
+import {
+    applyArithmetic,
+    copyValue,
+    createBool,
+    createDouble,
+    createInteger,
+    createString,
+    rawValue,
+    ScalarValue,
+    Value,
+} from './values'
+import { Integer } from './integer'
+import { Double } from './double'
+import { String as CMCString } from './string'
+import { Bool } from './bool'
+import type { ExprOp } from '../../interpreter'
+
+const toEntry = (element: ScalarValue | null): ArrayEntry => {
+    if (element instanceof Integer) {
+        return { type: ArrayEntryType.INTEGER, value: element.getValue() }
+    }
+    if (element instanceof Double) {
+        return { type: ArrayEntryType.FLOAT, value: element.getValue() }
+    }
+    if (element instanceof CMCString) {
+        return { type: ArrayEntryType.STRING, value: element.getValue() }
+    }
+    if (element instanceof Bool) {
+        return { type: ArrayEntryType.BOOLEAN, value: element.getValue() }
+    }
+    throw new TypeError('Cannot save a NULL element of an array')
+}
 
 const generateMessage = (action: string, position: number, value: any[]) => {
     return `Tried to ${action} an element at an index (${position}) that is outside the bounds of the array (length ${value.length})`
 }
 
-export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
+export class ArrayObject extends ValueType<ArrayDefinition, (ScalarValue | null)[]> {
     constructor(engine: Engine, parent: ParentType<any> | null, definition: ArrayDefinition) {
         super(engine, parent, definition, [], false)
     }
@@ -21,77 +53,100 @@ export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
     }
 
     @method()
-    ADD(...args: any[]) {
-        this.value.push(...args)
+    async ADD(...args: Value[]) {
+        for (const arg of args) {
+            this.push(await copyValue(this.engine, arg))
+        }
+    }
+
+    push(...values: (ScalarValue | null)[]) {
+        this.value.push(...values)
+    }
+
+    private checkedPosition(action: string, index: number) {
+        assert(index < this.value.length, generateMessage(action, index, this.value))
+        return index
+    }
+
+    private async modifyAt(position: number, op: ExprOp, value: number) {
+        const index = this.checkedPosition('modify', position)
+        this.value[index] = await this.calculate(this.value[index], op, value)
+    }
+
+    private calculate(element: ScalarValue | null, op: ExprOp, value: number) {
+        const left = element ?? createDouble(this.engine, 0)
+        return applyArithmetic(this.engine, left, op, this.asElementType(left, value))
+    }
+
+    private asElementType(element: ScalarValue | null, value: number) {
+        return element instanceof Integer
+            ? createInteger(this.engine, Math.trunc(value))
+            : createDouble(this.engine, value)
     }
 
     @method()
-    ADDAT(position: number, value: number) {
-        assert(position < this.value.length, generateMessage('modify', position, this.value))
-        this.value[position] += value
+    async ADDAT(position: int, value: double) {
+        await this.modifyAt(position, 'ADD', value)
     }
 
     @method()
-    MODAT(position: number, value: number) {
-        assert(position < this.value.length, generateMessage('modify', position, this.value))
-        this.value[position] %= value
+    async MODAT(position: int, value: double) {
+        await this.modifyAt(position, 'MOD', value)
     }
 
     @method()
-    CLAMPAT(position: number, min: number, max: number) {
-        assert(position < this.value.length, generateMessage('modify', position, this.value))
-        this.value[position] = Math.min(Math.max(this.value[position], min), max)
+    CLAMPAT(position: int, min: double, max: double) {
+        const index = this.checkedPosition('modify', position)
+        const element = this.value[index]
+        const [low, high] = element instanceof Integer ? [Math.trunc(min), Math.trunc(max)] : [min, max]
+        this.value[index] = this.asElementType(element, Math.min(Math.max(valueAsDouble(rawValue(element)), low), high))
     }
 
     @method()
-    MULAT(position: number, value: number) {
-        assert(position < this.value.length, generateMessage('modify', position, this.value))
-        this.value[position] *= value
+    async MULAT(position: int, value: double) {
+        await this.modifyAt(position, 'MUL', value)
     }
 
     @method()
-    CONTAINS(value: any) {
-        return this.value.includes(value) || this.value.includes(valueAsString(value))
+    async CONTAINS(value: Value): Promise<boolean> {
+        return (await this.findElement(value, this.value.keys())) !== -1
     }
 
     @method()
-    SUM(arg: number) {
-        this.value = this.value.map((value: number) => value + arg)
+    async SUM(arg: double) {
+        for (let i = 0; i < this.value.length; i++) {
+            this.value[i] = await this.calculate(this.value[i], 'ADD', arg)
+        }
     }
 
     @method()
-    SUBAT(position: number, value: number) {
-        assert(position < this.value.length, generateMessage('modify', position, this.value))
-        this.value[position] -= value
+    async SUBAT(position: int, value: double) {
+        await this.modifyAt(position, 'SUB', value)
     }
 
     @method()
-    GET(position: number) {
-        assert(position < this.value.length, generateMessage('access', position, this.value))
-        return this.value[position]
+    GET(position: int) {
+        return copyValue(this.engine, this.value[this.checkedPosition('access', position)])
     }
 
     @method()
-    GETSIZE() {
+    GETSIZE(): int {
         return this.value.length
     }
 
     @method()
-    CHANGEAT(position: number, value: any) {
-        assert(position < this.value.length, generateMessage('set', position, this.value))
-        this.value[position] = value
+    async CHANGEAT(position: int, value: Value) {
+        this.value[this.checkedPosition('set', position)] = await copyValue(this.engine, value)
     }
 
     @method()
-    REMOVEAT(position: number) {
-        assert(position < this.value.length, generateMessage('remove', position, this.value))
-        this.value.splice(position, 1)
+    REMOVEAT(position: int) {
+        this.value.splice(this.checkedPosition('remove', position), 1)
     }
 
     @method()
-    INSERTAT(position: number, value: any) {
-        assert(position < this.value.length, generateMessage('insert', position, this.value))
-        this.value.splice(position, 0, value)
+    async INSERTAT(position: int, value: Value) {
+        this.value.splice(this.checkedPosition('insert', position), 0, await copyValue(this.engine, value))
     }
 
     @method()
@@ -100,25 +155,35 @@ export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
     }
 
     @method()
-    FIND(value: any) {
-        const allValuesStrings = this.value.map((v: any) => valueAsString(v).toLowerCase())
-        return allValuesStrings.indexOf(valueAsString(value).toLowerCase())
+    async FIND(value: Value): Promise<int> {
+        return this.findElement(value, this.value.keys())
     }
 
     @method()
-    REVERSEFIND(value: any) {
-        let position = this.value.lastIndexOf(value)
-        if (position == -1) {
-            position = this.value.lastIndexOf(valueAsString(value))
+    async REVERSEFIND(value: Value): Promise<int> {
+        return this.findElement(value, [...this.value.keys()].reverse())
+    }
+
+    // Each element compares the value in its own type: an INTEGER 2 equals 2.4
+    private async findElement(value: Value, indexes: Iterable<number>): Promise<int> {
+        const needle = (await copyValue(this.engine, value)) ?? createString(this.engine, 'NULL')
+        for (const i of indexes) {
+            const element = this.value[i] ?? createString(this.engine, 'NULL')
+            if (await element.equals(needle)) {
+                return i
+            }
         }
-        return position
+        return -1
     }
 
     @method()
     async LOAD(path: string) {
         assert(this.engine.currentScene !== null)
         try {
-            this.value = await this.engine.filesystem.getARRFile(await this.engine.currentScene.getRelativePath(path))
+            const entries = await this.engine.filesystem.getARRFile(
+                await this.engine.currentScene.getRelativePath(path)
+            )
+            this.value = entries.map((entry) => this.fromEntry(entry))
         } catch (err) {
             if (err instanceof FileNotFoundError) {
                 logger.error(
@@ -139,8 +204,21 @@ export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
         assert(this.engine.currentScene !== null)
         await this.engine.filesystem.saveFile(
             await this.engine.currentScene.getRelativePath(path),
-            serializeArray(this.value)
+            serializeArray(this.value.map(toEntry))
         )
+    }
+
+    private fromEntry(entry: ArrayEntry): ScalarValue {
+        switch (entry.type) {
+            case ArrayEntryType.INTEGER:
+                return createInteger(this.engine, entry.value)
+            case ArrayEntryType.FLOAT:
+                return createDouble(this.engine, entry.value)
+            case ArrayEntryType.STRING:
+                return createString(this.engine, entry.value)
+            case ArrayEntryType.BOOLEAN:
+                return createBool(this.engine, entry.value)
+        }
     }
 
     @method()
@@ -156,6 +234,10 @@ export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
     @method()
     MSGBOX() {}
 
+    getValue(): (ScalarValue | null)[] {
+        return this.value
+    }
+
     async clone() {
         const cloned = (await super.clone()) as ArrayObject
         cloned.value = [...this.value]
@@ -163,13 +245,14 @@ export class ArrayObject extends ValueType<ArrayDefinition, any[]> {
     }
 
     protected serialize(): string {
-        return this.value.join(',')
+        return this.value.map(rawValue).join(',')
     }
 
+    // The INI doesn't keep the types of the elements, so they are all read back as strings
     protected deserialize(value: string) {
         if (value === '') {
             return []
         }
-        return value.split(',')
+        return value.split(',').map((element) => createString(this.engine, element))
     }
 }

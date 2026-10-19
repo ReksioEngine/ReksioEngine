@@ -7,7 +7,7 @@ import { ButtonLogicComponent, Event, State } from '../components/button'
 import { Animo } from './animo'
 import { assert, NotImplementedError } from '../../common/errors'
 import { reference } from '../../fileFormats/common'
-import { method } from '../../common/types'
+import { method, int } from '../../common/types'
 
 export class Button extends Type<ButtonDefinition> {
     private logic: ButtonLogicComponent
@@ -74,9 +74,9 @@ export class Button extends Type<ButtonDefinition> {
             const offsetY = this.lastMousePosition.y - this.draggingPosition.y
             this.draggingPosition.set(this.lastMousePosition.x, this.lastMousePosition.y)
 
-            await this.gfxStandard?.MOVE(offsetX, offsetY)
-            await this.gfxOnClick?.MOVE(offsetX, offsetY)
-            await this.gfxOnMove?.MOVE(offsetX, offsetY)
+            await this.gfxStandard?.move(offsetX, offsetY)
+            await this.gfxOnClick?.move(offsetX, offsetY)
+            await this.gfxOnMove?.move(offsetX, offsetY)
 
             await this.callbacks.run('ONDRAGGING')
         }
@@ -137,14 +137,14 @@ export class Button extends Type<ButtonDefinition> {
 
         if (this.interactArea) {
             // For area button
-            this.interactArea.visible = state != State.DISABLED
+            this.interactArea.visible = state !== State.DISABLED
         }
 
-        if (state == State.DISABLED) {
+        if (state === State.DISABLED) {
             this.gfxStandard?.HIDE()
             this.gfxOnMove?.HIDE()
             this.gfxOnClick?.HIDE()
-        } else if (state == State.DISABLED_BUT_VISIBLE) {
+        } else if (state === State.DISABLED_BUT_VISIBLE) {
             this.gfxStandard?.SHOW()
             this.setSpriteAlpha(this.gfxStandard, 1)
 
@@ -155,7 +155,7 @@ export class Button extends Type<ButtonDefinition> {
             if (this.gfxStandard !== this.gfxOnClick) {
                 this.gfxOnClick?.HIDE()
             }
-        } else if (state == State.HOVERED && this.gfxOnMove) {
+        } else if (state === State.HOVERED && this.gfxOnMove) {
             this.gfxStandard?.SHOW()
 
             if (this.gfxStandard !== this.gfxOnMove) {
@@ -168,7 +168,7 @@ export class Button extends Type<ButtonDefinition> {
             if (this.gfxStandard !== this.gfxOnClick) {
                 this.gfxOnClick?.HIDE()
             }
-        } else if (state == State.PRESSED && this.gfxOnClick) {
+        } else if (state === State.PRESSED && this.gfxOnClick) {
             this.gfxStandard?.SHOW()
 
             if (this.gfxStandard !== this.gfxOnMove) {
@@ -190,21 +190,21 @@ export class Button extends Type<ButtonDefinition> {
             }
         }
 
-        if (event == Event.ENABLE) {
+        if (event === Event.ENABLE) {
             if (this.gfxStandard) {
                 this.registerInteractive(this.gfxStandard)
             }
             if (this.interactArea) {
                 this.logic.registerInteractive(this.interactArea)
             }
-        } else if (event == Event.DISABLE || event == Event.DISABLE_BUT_VISIBLE) {
+        } else if (event === Event.DISABLE || event === Event.DISABLE_BUT_VISIBLE) {
             if (this.gfxStandard) {
                 this.unregisterInteractive(this.gfxStandard)
             }
             if (this.interactArea) {
                 this.logic.unregisterInteractive(this.interactArea)
             }
-        } else if (event == Event.DOWN) {
+        } else if (event === Event.DOWN) {
             await this.callbacks.run('ONCLICKED')
 
             if (this.definition.DRAGGABLE) {
@@ -213,19 +213,19 @@ export class Button extends Type<ButtonDefinition> {
                 assert(renderObject !== null)
 
                 this.originalPriority = renderObject.zIndex
-                this.gfxStandard?.SETPRIORITY(99999999)
+                this.gfxStandard?.setPriority(99999999)
                 await this.callbacks.run('ONSTARTDRAGGING')
                 this.engine.app.stage.on('pointerup', this.onPointerUpHandler)
                 if (this.callbacks.has('ONDRAGGING')) {
                     this.engine.app.stage.on('pointermove', this.onPointerMoveHandler)
                 }
             }
-        } else if (event == Event.UP) {
+        } else if (event === Event.UP) {
             await this.callbacks.run('ONRELEASED')
             await this.callbacks.run('ONACTION')
-        } else if (event == Event.OVER) {
+        } else if (event === Event.OVER) {
             await this.callbacks.run('ONFOCUSON')
-        } else if (event == Event.OUT) {
+        } else if (event === Event.OUT) {
             await this.callbacks.run('ONFOCUSOFF')
         }
     }
@@ -246,7 +246,7 @@ export class Button extends Type<ButtonDefinition> {
             this.draggingPosition = null
             this.engine.app.stage.off('pointermove', this.onPointerMoveHandler)
             this.engine.app.stage.off('pointerup', this.onPointerMoveHandler)
-            this.gfxStandard?.SETPRIORITY(this.originalPriority)
+            this.gfxStandard?.setPriority(this.originalPriority)
         }
     }
 
@@ -266,10 +266,10 @@ export class Button extends Type<ButtonDefinition> {
     }
 
     @method()
-    SETPRIORITY(priority: number) {
-        this.gfxStandard?.SETPRIORITY(priority)
-        this.gfxOnMove?.SETPRIORITY(priority)
-        this.gfxOnClick?.SETPRIORITY(priority)
+    SETPRIORITY(priority: int) {
+        this.gfxStandard?.setPriority(priority)
+        this.gfxOnMove?.setPriority(priority)
+        this.gfxOnClick?.setPriority(priority)
     }
 
     @method()
@@ -334,7 +334,7 @@ export class Button extends Type<ButtonDefinition> {
                 bounds: this.rect,
                 color: this.logic.enabled ? 0x00ff00 : 0x0000ff,
                 position: 'outside',
-                visible: this.logic.state != State.DISABLED,
+                visible: this.logic.state !== State.DISABLED,
             }
         } else if (this.gfxStandard?.getRenderObject()?.visible) {
             return {

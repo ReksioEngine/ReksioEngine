@@ -9,7 +9,7 @@ import { ButtonLogicComponent, Event as FSMEvent, State } from '../components/bu
 import { loadSound } from '../../filesystem/assetsLoader'
 import { FileNotFoundError } from '../../filesystem/fileLoader'
 import { AdvancedSprite, createHitmapFromImageBytes } from '../rendering'
-import { method } from '../../common/types'
+import { method, int } from '../../common/types'
 import { CollisionsComponent } from '../components/collisions'
 import { Sound } from '../audio'
 import { logger } from '../logging'
@@ -62,7 +62,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async applyDefaults() {
         const existingObjectWithFilename: Animo | null = this.engine.scopeManager.find(
             (key: string, object) =>
-                object != this &&
+                object !== this &&
                 object instanceof Animo &&
                 object.definition.FILENAME === this.definition.FILENAME &&
                 object.sprite != null
@@ -178,7 +178,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.sprite.name = `${this.name} [ANIMO]` // For PIXI Devtools
         this.sprite.eventMode = 'none'
         this.sprite.visible = this.definition.VISIBLE
-        this.SETPRIORITY(this.definition.PRIORITY ?? 0)
+        this.setPriority(this.definition.PRIORITY ?? 0)
 
         if (this.definition.TOCANVAS) {
             this.engine.rendering.addToStage(this.sprite)
@@ -229,9 +229,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
-        if (this.eventEndedLastTick == this.currentEvent) {
+        if (this.eventEndedLastTick === this.currentEvent) {
             this.eventEndedLastTick = null
-            await this.STOP(true)
+            await this.stop(true)
             return
         }
 
@@ -269,7 +269,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             }
         }
 
-        if (event.loopFramesEndIndex != 0 && this.currentFrame == event.loopFramesEndIndex) {
+        if (event.loopFramesEndIndex !== 0 && this.currentFrame === event.loopFramesEndIndex) {
             // TODO: handle event.loopRepeatsCount
             this.currentFrame = event.loopFramesStartIndex
         } else if (this.currentFrame + 1 >= event.framesCount) {
@@ -411,9 +411,13 @@ export class Animo extends DisplayType<AnimoDefinition> {
     // For some reason there is sometimes a string passed
     @method()
     async STOP(shouldSignal?: boolean | string) {
+        await this.stop(shouldSignal !== false && shouldSignal !== 'FALSE')
+    }
+
+    async stop(shouldSignal: boolean) {
         this.isPlaying = false
         this.currentFrame = 0
-        if (shouldSignal !== false && shouldSignal !== 'FALSE') {
+        if (shouldSignal) {
             await this.ONFINISHED()
         }
     }
@@ -464,7 +468,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    async SETFRAME(eventNameOrFrameIdx: string | number, frameIdx?: number) {
+    async SETFRAME(eventNameOrFrameIdx: string | int, frameIdx?: int) {
         if (frameIdx === undefined) {
             const imageIndex = Number(eventNameOrFrameIdx)
             assert(!Number.isNaN(imageIndex))
@@ -473,7 +477,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
 
         const newEvent = eventNameOrFrameIdx.toString()
-        const newEventFrame = Number(frameIdx)
+        const newEventFrame = frameIdx
 
         const event = this.getEvent(newEvent)
         if (event === null) {
@@ -495,7 +499,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    SETFPS(fps: number) {
+    SETFPS(fps: int) {
         this.fps = fps
     }
 
@@ -512,27 +516,30 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    ISVISIBLE() {
+    ISVISIBLE(): boolean {
         assert(this.sprite !== null)
         return this.sprite.visible
     }
 
     @method()
-    async MOVE(xOffset: number, yOffset: number) {
+    async MOVE(xOffset: int, yOffset: int) {
         assert(this.sprite !== null)
+        await this.move(xOffset, yOffset)
+    }
 
-        this.positionX += Math.trunc(xOffset)
-        this.positionY += Math.trunc(yOffset)
+    async move(xOffset: number, yOffset: number) {
+        this.positionX += xOffset
+        this.positionY += yOffset
         this.syncPosition()
         await this.onMove()
     }
 
     @method()
-    async SETPOSITION(x: number, y: number) {
+    async SETPOSITION(x: int, y: int) {
         assert(this.sprite !== null)
 
-        this.positionX = Math.trunc(x)
-        this.positionY = Math.trunc(y)
+        this.positionX = x
+        this.positionY = y
         this.syncPosition()
         await this.onMove()
     }
@@ -599,31 +606,31 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    GETCENTERX(): number {
+    GETCENTERX(): int {
         assert(this.sprite !== null)
         return Math.round(this.sprite.getGlobalPosition().x + this.sprite.width / 2)
     }
 
     @method()
-    GETCENTERY(): number {
+    GETCENTERY(): int {
         assert(this.sprite !== null)
         return Math.round(this.sprite.getGlobalPosition().y + this.sprite.height / 2)
     }
 
     @method()
-    GETPOSITIONX(): number {
+    GETPOSITIONX(): int {
         assert(this.sprite !== null)
         return this.sprite.getGlobalPosition().x
     }
 
     @method()
-    GETPOSITIONY(): number {
+    GETPOSITIONY(): int {
         assert(this.sprite !== null)
         return this.sprite.getGlobalPosition().y
     }
 
     @method()
-    GETFRAMENAME(frameID?: string | number, iFrameNo?: number): string {
+    GETFRAMENAME(frameID?: string | int, iFrameNo?: int): string | null {
         assert(this.currentEvent !== null)
 
         if (frameID === undefined && iFrameNo === undefined) {
@@ -635,25 +642,30 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         const event = typeof frameID === 'string' ? this.getEvent(frameID) : this.annFile.events[frameID]
         assert(event !== null)
-        return event?.frames[iFrameNo].name
+        const name = event?.frames[iFrameNo].name
+        return name === undefined ? null : name
     }
 
     @method()
-    GETMAXWIDTH(): number {
+    GETMAXWIDTH(): int {
         assert(this.annFile !== null)
         return Math.max(...this.annFile.annImages.map((e) => e.width))
     }
 
     @method()
-    GETNOFINEVENT(name: string): number {
+    GETNOFINEVENT(name: string): int {
         return this.getEvent(name)?.framesCount ?? 0
     }
 
+    currentEventName(): string {
+        assert(this.currentEvent !== null)
+        return this.currentEvent.name.toUpperCase()
+    }
+
     @method()
-    GETEVENTNAME(eventIndex?: number): string {
+    GETEVENTNAME(eventIndex?: int): string {
         if (eventIndex === undefined) {
-            assert(this.currentEvent !== null)
-            return this.currentEvent.name.toUpperCase()
+            return this.currentEventName()
         } else {
             const event = this.getAllEvents()[eventIndex]
             assert(event !== undefined)
@@ -662,48 +674,49 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    GETFRAME(): number {
+    GETFRAME(): int {
         assert(this.currentEvent !== null)
         return this.currentEvent.framesImageMapping[this.currentFrame]
     }
 
     @method()
-    GETCFRAMEINEVENT(): number {
+    GETCFRAMEINEVENT(): int {
         return this.currentFrame
     }
 
     @method()
-    GETNOF(): number {
+    GETNOF(): int {
         assert(this.annFile !== null)
         return this.annFile.header.framesCount
     }
 
     @method()
-    GETNOE(): number {
+    GETNOE(): int {
         assert(this.annFile !== null)
         return this.annFile.events.length
     }
 
     @method()
-    GETCURRFRAMEPOSX(): number {
+    GETCURRFRAMEPOSX(): int {
         assert(this.currentEvent !== null)
         return this.currentEvent.frames[this.currentFrame].positionX
     }
 
     @method()
-    GETCURRFRAMEPOSY(): number {
+    GETCURRFRAMEPOSY(): int {
         assert(this.currentEvent !== null)
         return this.currentEvent.frames[this.currentFrame].positionY
     }
 
     @method()
-    ISPLAYING(animName?: string) {
+    ISPLAYING(animName?: string): boolean {
         assert(this.currentEvent !== null)
-        return this.isPlaying && (animName === undefined || this.currentEvent.name.toUpperCase() == animName)
+        return this.isPlaying && (animName === undefined || this.currentEvent.name.toUpperCase() === animName)
     }
 
+    // TODO: alternative 5 arg version
     @method()
-    ISNEAR(objectName: string, percentage: number) {
+    ISNEAR(objectName: string, percentage: int): boolean {
         const otherObject = this.getObject(objectName)
         if (otherObject === null || !(otherObject instanceof DisplayType)) {
             return false
@@ -748,7 +761,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     }
 
     @method()
-    SETOPACITY(opacity: number) {
+    SETOPACITY(opacity: int) {
         assert(this.sprite !== null)
         this.sprite.alpha = opacity / 255
     }
@@ -805,7 +818,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
         await clone.initSprite()
         clone.sprite!.visible = this.sprite!.visible
-        clone.SETPRIORITY(this.GETPRIORITY())
+        clone.setPriority(this.priority)
         return clone
     }
 
@@ -816,7 +829,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
                 bounds: this.buttonInteractArea.hitArea as Rectangle,
                 color: this.buttonLogic.enabled ? 0x00ff00 : 0x0000ff,
                 position: 'outside',
-                visible: this.buttonLogic.state != State.DISABLED,
+                visible: this.buttonLogic.state !== State.DISABLED,
             }
         } else if (this.sprite?.visible) {
             return {

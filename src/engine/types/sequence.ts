@@ -156,7 +156,7 @@ export class Sequence extends Type<SequenceDefinition> {
     }
 
     @method()
-    ISPLAYING() {
+    ISPLAYING(): boolean {
         return this.sequenceName !== null
     }
 
@@ -205,10 +205,7 @@ export class Sequence extends Type<SequenceDefinition> {
         assert(this.activeAnimo !== null)
 
         if (this.runningSubSequence?.TYPE === 'SPEAKING') {
-            if (
-                this.runningSubSequence.STARTING === true &&
-                eventName === this.runningSubSequence.PREFIX + '_START'
-            ) {
+            if (this.runningSubSequence.STARTING === true && eventName === this.runningSubSequence.PREFIX + '_START') {
                 if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
                     this.loop = true
                     this.loopIndex = 1
@@ -227,7 +224,7 @@ export class Sequence extends Type<SequenceDefinition> {
                 }
                 await this.playAnimoEvent(eventName)
             }
-        } else if (this.currentAnimoEvent == eventName) {
+        } else if (this.currentAnimoEvent === eventName) {
             await this.progressNext()
         }
     }

@@ -3,6 +3,6 @@ const { typeGuard } = require('./transformers')
 
 module.exports = {
     name: 'method-type-guard',
-    version: 1,
+    version: 2,
     factory: (compiler) => typeGuard(compiler.program),
 }

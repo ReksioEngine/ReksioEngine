@@ -1,9 +1,10 @@
 import { Type } from './index'
 import { BehaviourDefinition } from '../../fileFormats/cnv/types'
 import { Condition } from './condition'
-import { method } from '../../common/types'
+import { method, int } from '../../common/types'
 import { assert, InterruptScriptExecution } from '../../common/errors'
 import { ClassInstance } from './class'
+import { createInteger } from './values'
 import { captureStackTrace, popStackFrame, pushStackFrame, StackFrame } from '../../interpreter/stacktrace'
 
 export class Behaviour extends Type<BehaviourDefinition> {
@@ -37,11 +38,15 @@ export class Behaviour extends Type<BehaviourDefinition> {
     }
 
     @method()
-    async RUNLOOPED(start: number, len: number, step: number = 1, ...args: any[]) {
+    async RUNLOOPED(start: int, len: int, step: int = 1, ...args: any[]) {
         for (let i = start; i < start + len; i += step) {
             try {
                 if (await this.shouldRun()) {
-                    await this.executeCallback([i, step, ...args])
+                    await this.executeCallback([
+                        createInteger(this.engine, i),
+                        createInteger(this.engine, step),
+                        ...args,
+                    ])
                 }
             } catch (err) {
                 if (err instanceof InterruptScriptExecution) {
@@ -85,7 +90,7 @@ export class Behaviour extends Type<BehaviourDefinition> {
         if (this.definition.CONDITION) {
             const condition = this.getObject<Condition>(this.definition.CONDITION.objectName)
             assert(condition !== null)
-            return await condition.CHECK(true)
+            return await condition.check(true)
         }
         return true
     }

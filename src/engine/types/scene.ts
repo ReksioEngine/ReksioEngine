@@ -2,24 +2,25 @@ import { ParentType, Type } from './index'
 import { SceneDefinition } from '../../fileFormats/cnv/types'
 import { Behaviour } from './behaviour'
 import { assert, NotImplementedError } from '../../common/errors'
-import { method } from '../../common/types'
+import { callMethod, method, int } from '../../common/types'
 import { loadSound } from '../../filesystem/assetsLoader'
 import { pathJoin } from '../../filesystem'
 import { Group } from './group'
 import { Animo } from './animo'
+import { Value } from './values'
 
 export class Scene extends ParentType<SceneDefinition> {
     private minHSPriority = 0
     private maxHSPriority = 10000000
 
     @method()
-    SETMUSICVOLUME(volume: number) {
+    SETMUSICVOLUME(volume: int) {
         assert(this.engine.music !== null)
         this.engine.music.volume = volume / 1000
     }
 
     @method()
-    async RUNCLONES(baseObjectName: string, startingIdx: number, endingIdx: number, behaviourName: string) {
+    async RUNCLONES(baseObjectName: string, startingIdx: int, endingIdx: int, behaviourName: string) {
         const baseObject: Type<any> | null = this.getObject(baseObjectName)
         const behaviour = this.getObject<Behaviour>(behaviourName)
         assert(baseObject !== null && behaviour !== null)
@@ -38,15 +39,14 @@ export class Scene extends ParentType<SceneDefinition> {
     }
 
     @method()
-    async RUN(objectName: string, methodName: string, ...args: any[]) {
+    async RUN(objectName: string, methodName: string, ...args: Value[]) {
         const object: any = this.getObject(objectName)
         if (object === null) {
             return
         }
 
-        const method = object[methodName]
-        if (method !== undefined) {
-            return await method.bind(object)(...args)
+        if (object[methodName] !== undefined) {
+            return await callMethod(object, methodName, args)
         } else {
             return await object.__call(methodName, args)
         }
@@ -62,22 +62,22 @@ export class Scene extends ParentType<SceneDefinition> {
     }
 
     @method()
-    GETMAXHSPRIORITY() {
+    GETMAXHSPRIORITY(): int {
         return this.maxHSPriority
     }
 
     @method()
-    SETMAXHSPRIORITY(priority: number) {
+    SETMAXHSPRIORITY(priority: int) {
         this.maxHSPriority = priority
     }
 
     @method()
-    GETMINHSPRIORITY() {
+    GETMINHSPRIORITY(): int {
         return this.minHSPriority
     }
 
     @method()
-    SETMINHSPRIORITY(priority: number) {
+    SETMINHSPRIORITY(priority: int) {
         this.minHSPriority = priority
     }
 

@@ -2,14 +2,30 @@ import type { FunctionCall, Parameter, Statement, Expression, IndirectRef, Objec
 import { Engine } from '../engine'
 import { Type, ValueType } from '../engine/types'
 import { Struct } from '../engine/types/struct'
-import { Compare, ForceNumber, toNumber, valueAsString } from '../common/types'
+import { callMethod, ForceNumber, valueAsDouble, valueAsInteger, valueAsString } from '../common/types'
 import { Rand } from '../engine/types/rand'
 import { System } from '../engine/types/system'
 import { CNVLoader } from '../engine/types/cnvloader'
 import { createCallback } from '../fileFormats/common'
-import { IgnorableError, InterruptScriptExecution, IrrecoverableError, NotImplementedError } from '../common/errors'
+import {
+    assert,
+    IgnorableError,
+    InterruptScriptExecution,
+    IrrecoverableError,
+    NotImplementedError,
+} from '../common/errors'
 import { Integer } from '../engine/types/integer'
 import { String as CMCString } from '../engine/types/string'
+import {
+    applyArithmetic,
+    compareValues,
+    createBool,
+    createDouble,
+    createInteger,
+    createString,
+    unwrapValue,
+    Value,
+} from '../engine/types/values'
 import { parseCode } from './parser'
 import { parseLogicExpression } from './expression'
 import { CompareOp, ConditionExpr } from './expression/ast'
@@ -36,8 +52,8 @@ export class RuntimeContext {
 }
 
 class Return extends IgnorableError {
-    public value: boolean
-    constructor(value: any) {
+    public value: Value
+    constructor(value: Value) {
         super()
         this.value = value
     }
@@ -53,28 +69,7 @@ const COMPARE_OP_MAP: Record<CompareOpString, CompareOp> = {
     '<_': 'LE',
 }
 
-function applyComparison(left: any, op: CompareOp, right: any): boolean {
-    switch (op) {
-        case 'EQ':
-            return Compare.Equal(left, right)
-        case 'NE':
-            return Compare.NotEqual(left, right)
-        case 'LT':
-            return Compare.Less(left, right)
-        case 'LE':
-            return Compare.LessOrEqual(left, right)
-        case 'GT':
-            return Compare.Greater(left, right)
-        case 'GE':
-            return Compare.GreaterOrEqual(left, right)
-        case 'HAS':
-            return valueAsString(left).includes(valueAsString(right))
-        default:
-            throw new RuntimeError(`Unknown comparison operator: ${op}`)
-    }
-}
-
-type GlobalHandler = (args: any[]) => Promise<any>
+type GlobalHandler = (args: Value[]) => Promise<void>
 
 export class Interpreter {
     private readonly context: RuntimeContext
@@ -87,15 +82,15 @@ export class Interpreter {
         this.globalHandlers = this.createGlobalHandlers()
     }
 
-    async execute(statements: Statement[]): Promise<any> {
-        let result: any = null
+    async execute(statements: Statement[]): Promise<Value> {
+        let result: Value = null
         for (const stmt of statements) {
             result = await this.executeStatement(stmt)
         }
         return result
     }
 
-    async executeStatement(stmt: Statement): Promise<any> {
+    async executeStatement(stmt: Statement): Promise<Value> {
         return stmt.type === 'FunctionCall' ? this.executeFunctionCall(stmt) : this.evaluateParameter(stmt)
     }
 
@@ -119,7 +114,15 @@ export class Interpreter {
         ])
     }
 
-    private async handleIf(args: any[]): Promise<void> {
+    // String operands of @IF and @WHILE are code that is run to get the value
+    private async evaluateOperand(operand: Value): Promise<Value> {
+        if (operand instanceof CMCString) {
+            return await this.execute(parseCode(await operand.getValue()))
+        }
+        return operand
+    }
+
+    private async handleIf(args: Value[]): Promise<void> {
         let result: boolean
         let ifTrue: string
         let ifFalse: string
@@ -127,22 +130,24 @@ export class Interpreter {
         if (args.length === 5) {
             const [a, operator, b, trueBranch, falseBranch] = args
 
-            const left = typeof a === 'string' ? await this.execute(parseCode(a)) : a
-            const right = typeof b === 'string' ? await this.execute(parseCode(b)) : b
-            const op = COMPARE_OP_MAP[operator as CompareOpString]
+            const left = await this.evaluateOperand(a)
+            const right = await this.evaluateOperand(b)
+            const op = COMPARE_OP_MAP[valueAsString(await unwrapValue(operator)) as CompareOpString]
             if (!op) {
-                throw new RuntimeError(`Unknown comparison operator: ${operator}`)
+                throw new RuntimeError(`Unknown comparison operator: ${await unwrapValue(operator)}`)
             }
 
-            result = applyComparison(left, op, right)
-            ifTrue = trueBranch
-            ifFalse = falseBranch
+            result = await compareValues(this.context.engine, left, op, right)
+            ifTrue = valueAsString(await unwrapValue(trueBranch))
+            ifFalse = valueAsString(await unwrapValue(falseBranch))
         } else if (args.length === 3) {
             const [expression, trueBranch, falseBranch] = args
 
-            result = await this.evaluateLogicExpression(parseLogicExpression(expression))
-            ifTrue = trueBranch
-            ifFalse = falseBranch
+            result = await this.evaluateLogicExpression(
+                parseLogicExpression(valueAsString(await unwrapValue(expression)))
+            )
+            ifTrue = valueAsString(await unwrapValue(trueBranch))
+            ifFalse = valueAsString(await unwrapValue(falseBranch))
         } else {
             throw new RuntimeError(`Invalid @IF arguments: expected 3 or 5, got ${args.length}`)
         }
@@ -159,14 +164,18 @@ export class Interpreter {
         throw new InterruptScriptExecution(false)
     }
 
-    private async handleReturn(args: any[]): Promise<void> {
-        throw new Return(args[0])
+    private async handleReturn(args: Value[]): Promise<void> {
+        throw new Return(args[0] ?? null)
     }
 
-    private async handleLoop(args: any[]): Promise<void> {
-        const [codeOrBehaviour, start, len, step] = args
+    private async handleLoop(args: Value[]): Promise<void> {
+        const values = []
+        for (const arg of args) {
+            values.push(await unwrapValue(arg))
+        }
+        const [codeOrBehaviour, start, len, step] = values
 
-        const callback = createCallback(codeOrBehaviour)
+        const callback = createCallback(valueAsString(codeOrBehaviour))
         if (!callback) {
             throw new IrrecoverableError('Invalid @LOOP callback')
         }
@@ -177,7 +186,10 @@ export class Interpreter {
             TOINI: false,
         })
 
-        for (let i = start; i < start + len; i += step) {
+        const from = valueAsInteger(start)
+        const to = from + valueAsInteger(len)
+        const increment = valueAsInteger(step)
+        for (let i = from; i < to; i += increment) {
             await counter.setValue(i)
 
             try {
@@ -201,23 +213,24 @@ export class Interpreter {
         }
     }
 
-    private async handleWhile(args: any[]): Promise<void> {
+    private async handleWhile(args: Value[]): Promise<void> {
         const [a, operator, b, codeOrBehaviour] = args
 
-        const callback = createCallback(codeOrBehaviour)
+        const callback = createCallback(valueAsString(await unwrapValue(codeOrBehaviour)))
         if (!callback) {
             throw new IrrecoverableError('Invalid @WHILE callback')
         }
 
-        const op = COMPARE_OP_MAP[operator as CompareOpString]
+        const operatorName = valueAsString(await unwrapValue(operator))
+        const op = COMPARE_OP_MAP[operatorName as CompareOpString]
         if (!op) {
-            throw new RuntimeError(`Unknown comparison operator: ${operator}`)
+            throw new RuntimeError(`Unknown comparison operator: ${operatorName}`)
         }
 
         const evaluateCondition = async (): Promise<boolean> => {
-            const left = typeof a === 'string' ? await this.execute(parseCode(a)) : a
-            const right = typeof b === 'string' ? await this.execute(parseCode(b)) : b
-            return applyComparison(left, op, right)
+            const left = await this.evaluateOperand(a)
+            const right = await this.evaluateOperand(b)
+            return compareValues(this.context.engine, left, op, right)
         }
 
         while (await evaluateCondition()) {
@@ -246,7 +259,7 @@ export class Interpreter {
         if (expr.type === 'Condition') {
             const left = await this.evaluateParameter(expr.left)
             const right = await this.evaluateParameter(expr.right)
-            return applyComparison(left, expr.operator, right)
+            return compareValues(this.context.engine, left, expr.operator, right)
         }
 
         const { operator, conditions } = expr
@@ -258,7 +271,7 @@ export class Interpreter {
         for (const condition of conditions) {
             const left = await this.evaluateParameter(condition.left)
             const right = await this.evaluateParameter(condition.right)
-            if (applyComparison(left, condition.operator, right) === isOr) {
+            if ((await compareValues(this.context.engine, left, condition.operator, right)) === isOr) {
                 return isOr
             }
         }
@@ -266,7 +279,7 @@ export class Interpreter {
         return !isOr
     }
 
-    private async executeFunctionCall(call: FunctionCall): Promise<any> {
+    private async executeFunctionCall(call: FunctionCall): Promise<Value> {
         const args = []
         for (const arg of call.args) {
             args.push(await this.evaluateParameter(arg))
@@ -291,7 +304,8 @@ export class Interpreter {
                         .build()
                     pushStackFrame(stackFrame)
 
-                    return await handler(args)
+                    await handler(args)
+                    return null
                 } catch (err) {
                     captureStackTrace(err)
                     throw err
@@ -316,10 +330,15 @@ export class Interpreter {
                             .build()
                     )
 
-                    const method = (targetObj as any)[call.method]
-                    return method !== undefined
-                        ? await method.bind(targetObj)(...args)
-                        : await targetObj.__call(call.method, args)
+                    const result =
+                        (targetObj as any)[call.method] !== undefined
+                            ? await callMethod(targetObj, call.method, args)
+                            : await targetObj.__call(call.method, args)
+                    assert(
+                        result === undefined || result === null || result instanceof ValueType,
+                        `${targetObj.name}^${call.method} returned a primitive instead of an engine value`
+                    )
+                    return result ?? null
                 } catch (err) {
                     if (err instanceof IgnorableError) {
                         throw err
@@ -353,27 +372,26 @@ export class Interpreter {
         }
     }
 
-    async evaluateParameter(param: Parameter): Promise<any> {
+    async evaluateParameter(param: Parameter): Promise<Value> {
+        const { engine } = this.context
+
         switch (param.type) {
             case 'NumberLiteral': {
-                const value = toNumber(param.value)
-                if (isNaN(value)) {
-                    throw new RuntimeError(`Invalid number literal: ${param.value}`)
-                }
-                return value
+                const value = ForceNumber(param.value)
+                return String(param.value).includes('.') ? createDouble(engine, value) : createInteger(engine, value)
             }
             case 'StringLiteral':
-                return param.value
+                return createString(engine, param.value)
             case 'BooleanLiteral':
-                return param.value
+                return createBool(engine, param.value)
             case 'BracketExpression':
                 return this.evaluateExpression(param.expression)
             case 'Identifier': {
                 const object = this.getObject<Type<any>>(param.name)
                 if (object instanceof ValueType) {
-                    return await object.getValue()
+                    return object
                 }
-                return param.name
+                return createString(engine, param.name)
             }
             case 'FieldAccess': {
                 const obj = this.getObject<Struct>(param.objectName)
@@ -387,7 +405,7 @@ export class Interpreter {
                 if (field === undefined) {
                     throw new RuntimeError(`Field ${param.fieldName} not found on object ${param.objectName}`)
                 }
-                return await field.getValue()
+                return field
             }
             case 'ConversionCall':
                 throw new RuntimeError('Unsupported conversion call')
@@ -398,41 +416,17 @@ export class Interpreter {
         }
     }
 
-    private async evaluateExpression(expr: Expression): Promise<any> {
+    private async evaluateExpression(expr: Expression): Promise<Value> {
         let result = await this.evaluateParameter(expr.head)
 
         for (const step of expr.tail) {
-            let operand = await this.evaluateParameter(step.operand)
+            const operand = await this.evaluateParameter(step.operand)
 
-            if (typeof result === 'number' && typeof operand === 'string') {
-                operand = ForceNumber(operand)
+            if ((step.op === 'DIV' || step.op === 'MOD') && valueAsDouble(await unwrapValue(operand)) === 0) {
+                throw new RuntimeError(step.op === 'DIV' ? 'Division by zero' : 'Modulo by zero')
             }
 
-            switch (step.op) {
-                case 'ADD':
-                    result = result + operand
-                    break
-                case 'SUB':
-                    result = result - operand
-                    break
-                case 'MUL':
-                    result = result * operand
-                    break
-                case 'DIV':
-                    if (operand === 0) {
-                        throw new RuntimeError('Division by zero')
-                    }
-                    result = result / operand
-                    break
-                case 'MOD':
-                    if (operand === 0) {
-                        throw new RuntimeError('Modulo by zero')
-                    }
-                    result = result % operand
-                    break
-                default:
-                    throw new RuntimeError(`Unknown operator: ${step.op}`)
-            }
+            result = await applyArithmetic(this.context.engine, result, step.op, operand)
         }
 
         return result
@@ -447,7 +441,7 @@ export class Interpreter {
             case 'Identifier':
                 return this.getObject(ref.name)
             case 'IndirectRef':
-                return this.getObject(await this.evaluateParameter(ref.inner))
+                return this.getObject(valueAsString(await unwrapValue(await this.evaluateParameter(ref.inner))))
             default:
                 throw new RuntimeError(`Unknown ref type: ${(ref as any).type}`)
         }
@@ -468,8 +462,8 @@ export async function runCode(
     script: string,
     args: any[],
     isSingleStatement: boolean
-): Promise<any> {
-    const processedScript = await substituteArguments(script, args)
+): Promise<Value | undefined> {
+    const processedScript = await substituteArguments(script.replaceAll(' ', ''), args)
     const ast = parseCode(processedScript)
 
     const context = new RuntimeContext(engine, caller, processedScript)
@@ -495,7 +489,8 @@ export async function runCode(
 }
 
 async function substituteArguments(script: string, args: any[]): Promise<string> {
-    const regex = /\$(\d+)/g
+    // Only one digit is read: $12 is $1 followed by 2
+    const regex = /\$(\d)/g
     const parts: string[] = []
     let lastIndex = 0
     let match: RegExpExecArray | null
@@ -510,8 +505,8 @@ async function substituteArguments(script: string, args: any[]): Promise<string>
         } else {
             const arg = args[valueIndex]
 
-            if (arg instanceof CMCString) {
-                parts.push(String(await arg.getValue()))
+            if (arg instanceof CMCString || (arg instanceof ValueType && arg.name === '')) {
+                parts.push(valueAsString(await arg.getValue()))
             } else if (arg instanceof Type) {
                 parts.push(arg.name)
             } else {
