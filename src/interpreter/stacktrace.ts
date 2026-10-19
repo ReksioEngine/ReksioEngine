@@ -85,6 +85,12 @@ export const generateStackTrace = (stackTraceSource: StackFrame[]) => {
     for (const frame of stackTraceSource) {
         const argsString = (frame.args ?? [])
             .map((arg) => {
+                if (arg instanceof ValueType) {
+                    if (arg.name !== '') {
+                        return arg.name
+                    }
+                    arg = arg.valueOf()
+                }
                 if ((typeof arg !== 'object' || arg === null) && arg !== undefined) {
                     const asString = valueAsString(arg)
                     return typeof arg === 'string' ? `"${asString}"` : asString
