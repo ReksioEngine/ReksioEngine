@@ -8,19 +8,6 @@ import { loadImage } from '../../src/fileFormats/img'
 import { TestFileLoader } from './testFileLoader'
 import { MemoryFileStorage } from '../../src/common/testUtils'
 
-function makeDeferred<T>() {
-    const deferred: any = {}
-    deferred.promise = new Promise<T>((resolve, reject) => {
-        deferred.resolve = resolve
-        deferred.reject = reject
-    })
-    return deferred as {
-        promise: Promise<T>
-        resolve: () => void
-        reject: (reason?: any) => void
-    }
-}
-
 type Color = {
     r: number
     g: number
@@ -179,9 +166,9 @@ export class TestPlayerInstance {
     }
 
     private static createExitPromise() {
-        const { promise, resolve, reject } = makeDeferred<void>()
+        const { promise, resolve, reject } = Promise.withResolvers<void>()
         return {
-            exitPromise: promise as Promise<void>,
+            exitPromise: promise,
             onExit: resolve,
             onDestroy: () => reject('Engine destroyed'),
         }
