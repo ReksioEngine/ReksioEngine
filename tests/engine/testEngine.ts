@@ -116,21 +116,10 @@ export class TestPlayerInstance {
 
             const extension = filename.slice(filename.lastIndexOf('.') + 1).toLowerCase()
             console.debug(`Testing equality of two ${extension.toUpperCase()} files at path: ${filename}`)
-            if (rawActualFile.byteLength !== rawExpectedFile.byteLength) {
-                console.warn(`Compared ${extension.toUpperCase()} files at path ${filename} differ in byte length`)
-            } else if (!Buffer.from(rawActualFile).equals(Buffer.from(rawExpectedFile))) {
-                const actualBytes = new Uint8Array(rawActualFile)
-                const expectedBytes = new Uint8Array(rawExpectedFile)
-                let differingCount = 0
-                for (let i = 0; i < actualBytes.length; i++) {
-                    if (actualBytes[i] !== expectedBytes[i]) {
-                        differingCount++
-                    }
-                }
-                console.warn(
-                    `Compared ${extension.toUpperCase()} files at path ${filename} differ in content, ${differingCount} bytes in total`
-                )
+            if (Buffer.from(rawActualFile).equals(Buffer.from(rawExpectedFile))) {
+                continue
             }
+
             switch (extension) {
                 case 'arr': {
                     const expectedArr = deserializeArray(rawExpectedFile)
