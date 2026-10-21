@@ -770,6 +770,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async LOAD(path: string) {
         this.destroy()
         this.annFile = await this.loadAnimation(path)
+        // New maps instead of clear because clones still use the cache
+        this.textures = new Map()
+        this.hitmaps = new Map()
         await this.initSprite()
     }
 
