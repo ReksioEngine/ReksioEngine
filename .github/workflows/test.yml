@@ -35,6 +35,6 @@ jobs:
           name: snapshot-tests-with-actual-output
           include-hidden-files: true
           path: |
-            tests/games
+            e2e/games
             !**/*.zip
           retention-days: 1

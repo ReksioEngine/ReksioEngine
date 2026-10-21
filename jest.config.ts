@@ -15,7 +15,7 @@ const jestConfig: Config = {
     testEnvironment: 'jsdom',
     moduleFileExtensions: ['ts', 'js'],
     moduleNameMapper: { '\\.(html|png)$': '<rootDir>/jest.htmlStub.js' },
-    setupFiles: ['<rootDir>/tests/engine/globalThisSetup.ts', '<rootDir>/tests/engine/baseTextureSetup.ts'],
+    setupFiles: ['<rootDir>/e2e/engine/globalThisSetup.ts', '<rootDir>/e2e/engine/baseTextureSetup.ts'],
 }
 
 export default jestConfig

@@ -18,7 +18,7 @@ module.exports = {
             env: {
                 node: true,
             },
-            files: ['tests/**/*', 'jest.config.ts'],
+            files: ['e2e/**/*', 'jest.config.ts'],
             parserOptions: {
                 project: 'tsconfig.tests.json',
             },
