@@ -24,6 +24,16 @@ describe('Database', () => {
             expect(engine.errors).toHaveLength(0)
         })
 
+        test('LOAD keeps NULL in a STRING field as text', async () => {
+            engine.addFile('DANE/SCENE/ITEMS.DTA', 'NULL|NULL')
+
+            await database.LOAD('ITEMS.DTA')
+
+            const row = engine.getObject<Struct>('DB_CURSOR')
+            expect(await row?.GETFIELD('ID')?.getValue()).toBe(0)
+            expect(await row?.GETFIELD('LABEL')?.getValue()).toBe('NULL')
+        })
+
         test('LOAD shifts fields left when a cell is empty', async () => {
             const engine = new TestEngine()
             await engine.create<Struct>({ TYPE: 'STRUCT', NAME: 'MODEL', FIELDS: 'A<INTEGER>,B<INTEGER>,C<INTEGER>' })

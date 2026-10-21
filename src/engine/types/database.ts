@@ -108,7 +108,8 @@ export class Database extends Type<DatabaseDefinition> {
 
             for (let i = 0; i < structFieldsNames.length; i++) {
                 const cell = fieldContents[i]
-                await newEntry.setField(structFieldsNames[i], cell === 'NULL' ? null : cell)
+                const isString = this.baseStruct.structure.get(structFieldsNames[i]) === 'STRING'
+                await newEntry.setField(structFieldsNames[i], cell === 'NULL' && !isString ? null : cell)
             }
             this.content.push(newEntry)
         }
