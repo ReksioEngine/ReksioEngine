@@ -22,11 +22,14 @@ export class CanvasObserver extends Type<CanvasObserverDefinition> {
 
     @method()
     REFRESH() {
-        this.engine.rendering.redrawAll()
+        this.engine.rendering.invalidateAll()
     }
 
     @method()
-    REDRAW() { }
+    REDRAW() {
+        this.engine.rendering.invalidateAll()
+        this.engine.rendering.redrawNow()
+    }
 
     @method()
     REMOVE(objectName: string) {

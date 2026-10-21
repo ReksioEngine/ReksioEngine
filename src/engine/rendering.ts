@@ -115,6 +115,15 @@ export class RenderingManager {
         this.dirtyRects.push(rect.clone())
     }
 
+    invalidateAll() {
+        this.invalidate(new Rectangle(0, 0, this.app.view.width, this.app.view.height))
+    }
+
+    redrawNow() {
+        this.flushDirty()
+        this.app.renderer.render(this.app.stage)
+    }
+
     flushDirty() {
         if (this.dirtyRects.length === 0) {
             return
