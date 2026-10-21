@@ -40,7 +40,7 @@ const calcShift = (step: number, movement: number): { step: number; shift: numbe
 export const isCNVEncrypted = (content: ArrayBuffer | string) => {
     let buffer: ArrayBuffer
     if (typeof content === 'string') {
-        buffer = textEncoder.encode(content).buffer
+        buffer = textEncoder.encode(content).buffer as ArrayBuffer
     } else {
         buffer = content
     }
@@ -52,7 +52,7 @@ export const isCNVEncrypted = (content: ArrayBuffer | string) => {
 export const decryptCNV = (content: ArrayBuffer | string): string => {
     let buffer: ArrayBuffer
     if (typeof content === 'string') {
-        buffer = textEncoder.encode(content).buffer
+        buffer = textEncoder.encode(content).buffer as ArrayBuffer
     } else {
         buffer = content
     }

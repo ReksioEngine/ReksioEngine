@@ -136,7 +136,7 @@ export class Database extends Type<DatabaseDefinition> {
 
         const content = lines.join('\r\n')
         const data = encoder.encode(content)
-        await this.engine.filesystem.saveFile(relativePath, data)
+        await this.engine.filesystem.saveFile(relativePath, data.buffer as ArrayBuffer)
     }
 
     private updateCursorValue() {

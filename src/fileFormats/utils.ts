@@ -2,9 +2,9 @@ export class BinaryBuffer {
     public offset = 0
     public size = 0
 
-    public view: DataView
+    public view: DataView<ArrayBuffer>
 
-    constructor(view: DataView) {
+    constructor(view: DataView<ArrayBuffer>) {
         this.view = view
         this.size = view.byteLength
         this.offset = view.byteOffset

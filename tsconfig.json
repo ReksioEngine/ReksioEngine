@@ -1,7 +1,7 @@
 {
     "exclude": ["This is a base files for a) extending it per configuration, b) preventing VSCode from being mad at Jest types in global scope"],
     "compilerOptions": {
-        "target": "es2021",
+        "target": "es2024",
         "module": "commonjs",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
