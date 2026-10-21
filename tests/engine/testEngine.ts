@@ -5,19 +5,19 @@ import { Engine } from '../../src/engine'
 import { deserializeArray } from '../../src/fileFormats/archive/array'
 import { loadImage } from '../../src/fileFormats/img'
 import { TestFileLoader } from './testFileLoader'
-import { InMemoryStorage } from './inMemoryStorage'
+import { MemoryFileStorage } from '../../src/common/testUtils'
 
 function makeDeferred<T>() {
-    const deferred: any = { };
+    const deferred: any = {}
     deferred.promise = new Promise<T>((resolve, reject) => {
-        deferred.resolve = resolve;
-        deferred.reject = reject;
-    });
+        deferred.resolve = resolve
+        deferred.reject = reject
+    })
     return deferred as {
-        promise: Promise<T>,
-        resolve: () => void,
-        reject: (reason?: any) => void,
-    };
+        promise: Promise<T>
+        resolve: () => void
+        reject: (reason?: any) => void
+    }
 }
 
 type Color = {
@@ -28,15 +28,18 @@ type Color = {
 }
 
 class Pixel {
-    constructor(public index: number, public color: Color) { }
+    constructor(
+        public index: number,
+        public color: Color
+    ) {}
 
     public static fromUint32ArrayElement(array: Uint32Array, index: number) {
         const pixel = array[index]
         return new Pixel(index, {
-            a: (pixel >> 24) & 0xFF,
-            b: (pixel >> 16) & 0xFF,
-            g: (pixel >> 8) & 0xFF,
-            r: pixel & 0xFF,
+            a: (pixel >> 24) & 0xff,
+            b: (pixel >> 16) & 0xff,
+            g: (pixel >> 8) & 0xff,
+            r: pixel & 0xff,
         })
     }
 }
@@ -56,10 +59,15 @@ export type SnapshotTestsOptions = {
 export class TestPlayerInstance {
     #engine: Engine
     #fileLoader: TestFileLoader
-    #storage: InMemoryStorage
+    #storage: MemoryFileStorage
     #exitPromise: Promise<void>
 
-    private constructor(engine: Engine, fileLoader: TestFileLoader, storage: InMemoryStorage, exitPromise: Promise<void>) {
+    private constructor(
+        engine: Engine,
+        fileLoader: TestFileLoader,
+        storage: MemoryFileStorage,
+        exitPromise: Promise<void>
+    ) {
         if (engine.options.fileLoader !== fileLoader || engine.options.storage !== storage) {
             throw new Error('Engine created with options other than those passed in constructor')
         }
@@ -71,7 +79,7 @@ export class TestPlayerInstance {
 
     static async create(options: TestPlayerOptions) {
         const fileLoader = new TestFileLoader(options.gameBasePath)
-        const storage = new InMemoryStorage()
+        const storage = new MemoryFileStorage()
         const { exitPromise, onExit, onDestroy } = TestPlayerInstance.createExitPromise()
 
         const properOptions: GamePlayerOptions = { ...options, fileLoader, storage, onExit, onDestroy }
@@ -85,20 +93,20 @@ export class TestPlayerInstance {
         if (options.waitForExit === true) {
             await exitPromise
         } else {
-            exitPromise.catch(_ => { })
+            exitPromise.catch((_) => {})
         }
 
         return new TestPlayerInstance(engine, fileLoader, storage, exitPromise)
     }
 
     async runSnapshotTests(options?: SnapshotTestsOptions) {
-        const actualOutput = this.#storage.list
+        const actualOutput = [...this.#storage.files.keys()]
         if (options?.expectedOutFileCount !== undefined) {
             expect(actualOutput).toHaveLength(options?.expectedOutFileCount)
         }
         const expectedOutput = this.#fileLoader.getSnapshotFilesListing()
         expect(expectedOutput).toHaveLength(actualOutput.length)
-        
+
         for (const filename of expectedOutput) {
             expect(await this.#storage.has(filename)).toBe(true)
             const rawActualFile = await this.#storage.get(filename)
@@ -118,9 +126,14 @@ export class TestPlayerInstance {
             } else {
                 const actualBytes = new Uint8Array(rawActualFile)
                 const expectedBytes = new Uint8Array(rawExpectedFile)
-                let differingCount = actualBytes.reduce((sum, value, index) => sum + (value === expectedBytes[index] ? 0 : 1), 0)
+                const differingCount = actualBytes.reduce(
+                    (sum, value, index) => sum + (value === expectedBytes[index] ? 0 : 1),
+                    0
+                )
                 if (differingCount > 0) {
-                    console.warn(`Compared ${extension.toUpperCase()} files at path ${filename} differ in content, ${differingCount} bytes in total`)
+                    console.warn(
+                        `Compared ${extension.toUpperCase()} files at path ${filename} differ in content, ${differingCount} bytes in total`
+                    )
                 }
             }
             switch (extension) {
@@ -173,7 +186,7 @@ export class TestPlayerInstance {
         return this.#fileLoader
     }
 
-    get storage(): Readonly<InMemoryStorage> {
+    get storage(): Readonly<MemoryFileStorage> {
         return this.#storage
     }
 

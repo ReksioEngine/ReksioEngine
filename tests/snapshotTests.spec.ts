@@ -12,7 +12,10 @@ describe('snapshot tests', () => {
     })
 
     test('load and run empty scene, then exit', async () => {
-        const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('empty-scene-exit'), waitForExit: true })
+        const testPlayer = await TestPlayerInstance.create({
+            gameBasePath: getAbsoluteGamePath('empty-scene-exit'),
+            waitForExit: true,
+        })
         await testPlayer.runSnapshotTests({ expectedOutFileCount: 0 })
         testPlayer.destroy()
     })
@@ -25,25 +28,37 @@ describe('snapshot tests', () => {
     })
 
     test('load and run scene writing "HELLO" to an ARR file, then exit', async () => {
-        const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('hello-world-arr'), waitForExit: true })
+        const testPlayer = await TestPlayerInstance.create({
+            gameBasePath: getAbsoluteGamePath('hello-world-arr'),
+            waitForExit: true,
+        })
         await testPlayer.runSnapshotTests({ expectedOutFileCount: 1 })
         testPlayer.destroy()
     })
 
     test('load and run scene displaying a colorful background and saving it back to an IMG file, then exit', async () => {
-        const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('basic-image'), waitForExit: true })
+        const testPlayer = await TestPlayerInstance.create({
+            gameBasePath: getAbsoluteGamePath('basic-image'),
+            waitForExit: true,
+        })
         await testPlayer.runSnapshotTests({ expectedOutFileCount: 1 })
         testPlayer.destroy()
     })
 
     test('load and run scene displaying the first frame of a simple ANN and saving it to an IMG file, then exit', async () => {
-        const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('basic-animation'), waitForExit: true })
+        const testPlayer = await TestPlayerInstance.create({
+            gameBasePath: getAbsoluteGamePath('basic-animation'),
+            waitForExit: true,
+        })
         await testPlayer.runSnapshotTests({ expectedOutFileCount: 1 })
         testPlayer.destroy()
     })
 
     test('load and run scene displaying a colorful background and saving each opacity step to a separate IMG file, then exit', async () => {
-        const testPlayer = await TestPlayerInstance.create({ gameBasePath: getAbsoluteGamePath('image-opacity-loop'), waitForExit: true })
+        const testPlayer = await TestPlayerInstance.create({
+            gameBasePath: getAbsoluteGamePath('image-opacity-loop'),
+            waitForExit: true,
+        })
         await testPlayer.runSnapshotTests({ expectedOutFileCount: 256 })
         testPlayer.destroy()
     })

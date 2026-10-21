@@ -1,14 +1,11 @@
 import type { Config } from 'jest'
 
 const jestConfig: Config = {
-    watch: false,
-    preset: 'ts-jest/presets/js-with-ts',
     testTimeout: 30_000,
     transform: {
         '^.+\\.ts$': [
             'ts-jest',
             {
-                compiler: 'ts-patch/compiler',
                 tsconfig: 'tsconfig.tests.json',
                 astTransformers: { before: ['<rootDir>/jest.transformer.js'] },
             },

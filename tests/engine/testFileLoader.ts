@@ -9,14 +9,6 @@ const snapshotDirPath = 'output'
 const zippedSnapshotDirPath = 'output.zip'
 const actualDirPath = '.output'
 
-function isError(error: any): error is NodeJS.ErrnoException {
-    return 'errno' in error
-        && 'code' in error
-        && 'path' in error
-        && 'syscall' in error
-        && 'stack' in error
-}
-
 export class TestFileLoader extends SimpleFileLoader {
     protected listing: Map<string, string> | null = null
 
@@ -25,15 +17,17 @@ export class TestFileLoader extends SimpleFileLoader {
     }
 
     async init(): Promise<void> {
-        try {
-            await decompress(`${this.rootDir}/${zippedSnapshotDirPath}`, `${this.rootDir}/${snapshotDirPath}`)
-        } catch (e) {
-            if (!(isError(e) && e.code === 'ENOENT')) {
-                throw e
-            }
+        const zipPath = path.join(this.rootDir, zippedSnapshotDirPath)
+        if (fs.existsSync(zipPath)) {
+            await decompress(zipPath, path.join(this.rootDir, snapshotDirPath))
         }
         logger.debug('Fetching files listing...')
-        this.listing = new Map((await fs.promises.readdir(this.rootDir, { recursive: true })).map((filename: string) => [normalizePath(filename), filename]))
+        this.listing = new Map(
+            (await fs.promises.readdir(this.rootDir, { recursive: true })).map((filename: string) => [
+                normalizePath(filename),
+                filename,
+            ])
+        )
     }
 
     getFilesListing(): string[] {
@@ -41,8 +35,9 @@ export class TestFileLoader extends SimpleFileLoader {
     }
 
     getSnapshotFilesListing(): string[] {
-        return this.getFilesListing().filter(e => e.startsWith(`${snapshotDirPath}/`))
-            .filter(e => !e.substring(e.indexOf('/') + 1).startsWith('.'))
+        return this.getFilesListing()
+            .filter((e) => e.startsWith(`${snapshotDirPath}/`))
+            .filter((e) => !e.substring(e.indexOf('/') + 1).startsWith('.'))
     }
 
     hasFile(filename: string): boolean {
@@ -53,27 +48,27 @@ export class TestFileLoader extends SimpleFileLoader {
         const normalizedFilename = normalizePath(filename)
         logger.debug(`Fetching '${normalizedFilename}'...`)
         const realFilename = this.listing!.get(normalizedFilename)
-        if (!realFilename) {
+        if (realFilename == null) {
             throw new FileNotFoundError(filename)
         }
-        try {
-            const content = await fs.promises.readFile(path.join(this.rootDir, realFilename))
-            return content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength)
-        } catch (e) {
-            // throw new FileNotFoundError(normalizedFilename)
-            throw e
-        }
+        const content = await fs.promises.readFile(path.join(this.rootDir, realFilename))
+        return content.buffer.slice(content.byteOffset, content.byteOffset + content.byteLength)
     }
 
     async saveActualSnapshotFile(filename: string, content: ArrayBuffer) {
         if (!filename.startsWith(`${snapshotDirPath}/`)) {
             throw new Error('Not a snapshot file')
         }
+
         const existingFilename = this.listing?.get(normalizePath(filename))
-        if (!existingFilename) {
+        if (existingFilename == null) {
             throw new Error('The file does not exist')
         }
-        const actualFilename = normalizePathKeepCase(existingFilename).replace(`${snapshotDirPath}/`, `${actualDirPath}/`)
+
+        const actualFilename = normalizePathKeepCase(existingFilename).replace(
+            `${snapshotDirPath}/`,
+            `${actualDirPath}/`
+        )
         const fullPath = path.join(this.rootDir, actualFilename)
         const dirPath = path.dirname(fullPath)
         logger.debug(`Making sure directory exists at: ${dirPath}...`)

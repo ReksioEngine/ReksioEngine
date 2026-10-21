@@ -1,13 +1,13 @@
 import 'pixi.js-legacy'
-import { BaseTexture, BufferResource, Resource, utils } from "pixi.js";
+import { BaseTexture, BufferResource, Resource, utils } from 'pixi.js'
 
 const originalBaseTextureGetDrawableSource = BaseTexture.prototype.getDrawableSource
 if (!originalBaseTextureGetDrawableSource) {
-    throw new Error("Missing pixi.js-legacy import")
+    throw new Error('Missing pixi.js-legacy import')
 }
 
-BaseTexture.prototype.getDrawableSource = function() {
-    const resource: Resource = this.resource;
+BaseTexture.prototype.getDrawableSource = function () {
+    const resource: Resource = this.resource
     if (resource instanceof BufferResource && resource.data) {
         const { canvas, context } = new utils.CanvasRenderTarget(this.width, this.height, 1)
         const imageData = context.createImageData(this.width, this.height)
