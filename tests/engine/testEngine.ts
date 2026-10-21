@@ -109,12 +109,6 @@ export class TestPlayerInstance {
 
         for (const filename of expectedOutput) {
             expect(await this.#storage.has(filename)).toBe(true)
-            const rawActualFile = await this.#storage.get(filename)
-            await this.#fileLoader.saveActualSnapshotFile(filename, rawActualFile)
-        }
-
-        for (const filename of expectedOutput) {
-            expect(await this.#storage.has(filename)).toBe(true)
             const rawExpectedFile = await this.#fileLoader.getRawFile(filename)
             const rawActualFile = await this.#storage.get(filename)
             await this.#fileLoader.saveActualSnapshotFile(filename, rawActualFile)
