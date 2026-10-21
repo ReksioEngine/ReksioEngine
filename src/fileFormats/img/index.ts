@@ -19,7 +19,7 @@ interface ImageHeader extends CompressedImageHeader {
 
 export interface Image {
     header: ImageHeader
-    bytes: ArrayBuffer
+    bytes: Uint8Array
 }
 
 export interface CompressionDescriptor {
@@ -98,7 +98,7 @@ const extractAlphaChannel = (data: Uint8ClampedArray) => {
     for (let i = 0, j = 0; i < data.length; i += 4, j++) {
         alpha[j] = data[i + 3]
     }
-    return alpha
+    return alpha.some(value => value !== 255) ? alpha : new Uint8Array(0)
 }
 
 const convertToRgba32 = (bytes: Uint8Array, alphaBytes?: Uint8Array): Uint8Array => {
