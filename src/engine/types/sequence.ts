@@ -17,6 +17,7 @@ import { createObject } from '../../filesystem/definitionLoader'
 import { method } from '../../common/types'
 import { Sound, SoundInstance } from '../audio'
 import { logger } from '../logging'
+import { Sound as SoundObject } from './sound'
 
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~'
 
@@ -271,7 +272,7 @@ export class Sequence extends Type<SequenceDefinition> {
                 logger.debug(`Playing sound '${speaking.WAVFN}'`, {
                     sequence: this,
                 })
-                const sound = this.sounds.get(speaking.WAVFN)
+                const sound = this.getSpeakingSound(speaking.WAVFN)
                 if (sound) {
                     this.playingSound = sound.play({
                         onEnd: () => {
@@ -323,6 +324,14 @@ export class Sequence extends Type<SequenceDefinition> {
                 await this.playAnimoEvent(eventName)
             }
         }
+    }
+
+    private getSpeakingSound(wavfn: string): Sound | null {
+        const object = this.getObject(wavfn)
+        if (object instanceof SoundObject) {
+            return object.audio
+        }
+        return this.sounds.get(wavfn) ?? null
     }
 
     private async playAnimoEvent(eventName: string) {

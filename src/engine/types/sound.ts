@@ -25,6 +25,10 @@ export class Sound extends Type<SoundDefinition> {
         }
     }
 
+    get audio(): ISound | null {
+        return this.sound
+    }
+
     destroy() {
         if (this.sound !== null) {
             this.sound.stop()
