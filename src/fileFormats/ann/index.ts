@@ -8,7 +8,11 @@ export interface AnnHeader {
     framesCount: number
     bpp: number
     eventsCount: number
+    sfxBankFileName: string // e.g. game1.sfx
     fps: number
+    // 0x800000 - go to the next event when an event ends
+    // 0x400000 - stream the frame sounds instead of preloading
+    // 0x40000  - the playing event can't be interrupted by PLAY
     flags: number
     transparency: number
     randomFramesNumber: number
@@ -21,8 +25,11 @@ export interface Event {
     framesCount: number
     loopFramesStartIndex: number
     loopFramesEndIndex: number
-    loopRepeatsCount: number
+    loopRepeatsCount: number // 0 = loop forever
     fps: number
+    // 0x20000  - ping-pong at the loop end instead of jumping to the loop start
+    // 0x100000 - loop only while the sound of the frame is playing
+    // 0x40000  - the event can't be interrupted by PLAY
     flags: number
     transparency: number
 
@@ -32,17 +39,21 @@ export interface Event {
 
 export interface Frame {
     hasName: number
+    hasExtraString: number
     positionX: number
     positionY: number
     hasSounds: number
     transparency: number
     name: string
+    extraString: string
     sounds: string[]
 }
 
 export interface AnnImage extends CompressedImageHeader {
     positionX: number
     positionY: number
+    channelsCount: number // game files have 4
+    channelSizes: number[] // rgba? only alpha is used
     name: string
 }
 
@@ -55,7 +66,7 @@ export interface ANN {
 
 const parseHeader = (view: BinaryBuffer) => {
     const magic = view.getUint32()
-    if (magic != 0x50564e) {
+    if (magic !== 0x50564e) {
         throw new Error('Not an image')
     }
 
@@ -63,12 +74,12 @@ const parseHeader = (view: BinaryBuffer) => {
     ann.framesCount = view.getUint16()
     ann.bpp = view.getUint16()
     ann.eventsCount = view.getUint16()
-    stringUntilNull(decoder.decode(view.read(0xd)))
+    ann.sfxBankFileName = stringUntilNull(decoder.decode(view.read(0xd)))
     ann.fps = view.getUint32()
     ann.flags = view.getUint32()
     ann.transparency = view.getUint8()
     ann.randomFramesNumber = view.getUint16()
-    view.skip(0xa)
+    view.skip(0xa) // uninitialized memory
 
     const authorLen = view.getUint32()
     ann.author = decoder.decode(view.read(authorLen))
@@ -82,25 +93,28 @@ const parseHeader = (view: BinaryBuffer) => {
 const parseFrame = (view: BinaryBuffer) => {
     const frame = {} as Frame
     frame.hasName = view.getUint32()
-    const hasUnknownData = view.getUint32()
-    if (hasUnknownData !== 0) {
-        const dataLen = view.getUint32()
-        view.skip(dataLen)
-    }
+    frame.hasExtraString = view.getUint32()
     frame.positionX = view.getInt16()
     frame.positionY = view.getInt16()
-    view.skip(4)
+    view.skip(4) // always -1
     frame.hasSounds = view.getUint32()
-    view.skip(4)
+    view.skip(4) // unused?
     frame.transparency = view.getUint8()
-    view.skip(1)
-    view.skip(4)
+    view.getUint8() // unused?
+    view.getUint32() // unused?
 
     if (frame.hasName !== 0) {
         const nameSize = view.getUint32()
         frame.name = stringUntilNull(decoder.decode(view.read(nameSize)))
     } else {
         frame.name = ''
+    }
+
+    if (frame.hasExtraString !== 0) {
+        const extraSize = view.getUint32()
+        frame.extraString = stringUntilNull(decoder.decode(view.read(extraSize)))
+    } else {
+        frame.extraString = ''
     }
 
     if (frame.hasSounds !== 0) {
@@ -119,21 +133,15 @@ const parseEvent = (view: BinaryBuffer) => {
     const event = {} as Event
     event.name = stringUntilNull(decoder.decode(view.read(0x20)))
     event.framesCount = view.getUint16()
-    view.getUint32() // frame mapping buffer pointer? I think they just write runtime values here and its doesn't matter for a file format.
+    view.getUint32() // pointer to the frame mapping, runtime only
     event.loopFramesStartIndex = view.getUint16()
     event.loopFramesEndIndex = view.getUint16()
     event.loopRepeatsCount = view.getUint16()
-    view.skip(0x2) // alignment padding
+    view.getUint16() // counter of the loops done, runtime value
     event.fps = view.getUint32()
-
-    // flags & 0x20000 - causes direction flip (ping-pong style) instead of jumping,
-    // doesn't seem to care about loopAllowedRepeats
-    // flags & 0x100000 - should wait for sound to stop playing?
-    // flags & 0x800000 - advance to the next event at event end?
     event.flags = view.getUint32()
-
     event.transparency = view.getUint8()
-    view.skip(0xc)
+    view.skip(0xc) // unused
 
     event.framesImageMapping = []
     for (let i = 0; i < event.framesCount; i++) {
@@ -156,12 +164,12 @@ const parseAnnImage = (view: BinaryBuffer) => {
     img.positionY = view.getInt16()
     img.compressionType = view.getUint16()
     img.imageLen = view.getUint32()
-
-    const someDataLen = view.getUint16() // some size, happens to be 4
-    view.read(someDataLen) // some data, the size is for data here
-    view.skip(12 - someDataLen)
-
-    img.alphaLen = view.getUint32()
+    img.channelsCount = view.getUint16()
+    img.channelSizes = []
+    for (let i = 0; i < 4; i++) {
+        img.channelSizes.push(view.getUint32())
+    }
+    img.alphaLen = img.channelSizes[3]
     img.name = stringUntilNull(decoder.decode(view.read(0x14)))
 
     return img
