@@ -41,7 +41,6 @@ export class Sequence extends Type<SequenceDefinition> {
     private runningSubSequence: SequenceFileEntry | null = null
 
     private loop: boolean = false
-    private loopIndex: number = 0
 
     private readonly onAnimoEventFinishedCallback: (eventName: string) => Promise<void>
 
@@ -178,7 +177,6 @@ export class Sequence extends Type<SequenceDefinition> {
         this.sequenceName = null
         this.runningSubSequence = null
         this.loop = false
-        this.loopIndex = 0
         this.activeAnimo?.events.unregister(Animo.Events.ONFINISHED, this.onAnimoEventFinishedCallback)
         this.activeAnimo = null
         this.playingSound?.stop()
@@ -207,23 +205,14 @@ export class Sequence extends Type<SequenceDefinition> {
 
         if (this.runningSubSequence?.TYPE === 'SPEAKING') {
             if (this.runningSubSequence.STARTING === true && eventName === this.runningSubSequence.PREFIX + '_START') {
-                if (this.activeAnimo.hasEvent(this.runningSubSequence.PREFIX + '_1')) {
-                    this.loop = true
-                    this.loopIndex = 1
-                    await this.playAnimoEvent(this.runningSubSequence.PREFIX + '_1')
-                }
+                await this.playTalkingEvent(this.runningSubSequence as Speaking)
             } else if (
                 this.runningSubSequence.ENDING === true &&
                 eventName === this.runningSubSequence.PREFIX + '_STOP'
             ) {
                 await this.progressNext()
             } else if (this.loop) {
-                let eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex++}`
-                if (!this.activeAnimo.hasEvent(eventName)) {
-                    this.loopIndex = 1
-                    eventName = `${this.runningSubSequence.PREFIX}_${this.loopIndex}`
-                }
-                await this.playAnimoEvent(eventName)
+                await this.playTalkingEvent(this.runningSubSequence as Speaking)
             }
         } else if (this.currentAnimoEvent === eventName) {
             await this.progressNext()
@@ -282,12 +271,10 @@ export class Sequence extends Type<SequenceDefinition> {
                 }
 
                 const startEvent = speaking.PREFIX + '_START'
-                if (speaking.STARTING && this.activeAnimo.hasEvent(startEvent)) {
+                if (speaking.STARTING && (this.activeAnimo.getEvent(startEvent)?.framesCount ?? 0) > 0) {
                     await this.playAnimoEvent(startEvent)
-                } else if (this.activeAnimo.hasEvent(speaking.PREFIX + '_1')) {
-                    this.loop = true
-                    this.loopIndex = 1
-                    await this.playAnimoEvent(speaking.PREFIX + '_1')
+                } else {
+                    await this.playTalkingEvent(speaking)
                 }
 
                 this.runningSubSequence = speaking
@@ -332,6 +319,32 @@ export class Sequence extends Type<SequenceDefinition> {
             return object.audio
         }
         return this.sounds.get(wavfn) ?? null
+    }
+
+    private async playTalkingEvent(speaking: Speaking) {
+        assert(this.activeAnimo !== null)
+        const events = this.activeAnimo.getAllEvents()
+        if (events.length === 0) {
+            return
+        }
+
+        const prefix = speaking.PREFIX.toUpperCase()
+        const talkingEvents = events.filter((event) => {
+            const name = event.name.toUpperCase()
+            if (prefix === '') {
+                return /^[0-9]/.test(name)
+            }
+            if (!name.startsWith(prefix + '_')) {
+                return false
+            }
+            const suffix = name.substring(prefix.length + 1)
+            return suffix !== 'START' && suffix !== 'END' && suffix !== 'STOP'
+        })
+
+        const candidates = talkingEvents.length > 0 ? talkingEvents : events
+        const event = candidates[Math.floor(Math.random() * candidates.length)]
+        this.loop = true
+        await this.playAnimoEvent(event.name)
     }
 
     private async playAnimoEvent(eventName: string) {
