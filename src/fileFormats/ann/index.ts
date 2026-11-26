@@ -26,7 +26,7 @@ export interface Event {
     loopFramesStartIndex: number
     loopFramesEndIndex: number
     loopRepeatsCount: number // 0 = loop forever
-    fps: number
+    fps: number // not used?
     // 0x20000  - ping-pong at the loop end instead of jumping to the loop start
     // 0x100000 - loop only while the sound of the frame is playing
     // 0x40000  - the event can't be interrupted by PLAY
