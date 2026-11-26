@@ -4,14 +4,14 @@ import { Engine } from '../index'
 import { assert, InvalidObjectError } from '../../common/errors'
 import * as PIXI from 'pixi.js'
 import { Graphics, Rectangle, Sprite, Texture } from 'pixi.js'
-import { ANN, Event } from '../../fileFormats/ann'
+import { ANN, AnimoFlags, Event, EventFlags } from '../../fileFormats/ann'
 import { ButtonLogicComponent, Event as FSMEvent, State } from '../components/button'
 import { loadSound } from '../../filesystem/assetsLoader'
 import { FileNotFoundError } from '../../filesystem/fileLoader'
 import { AdvancedSprite, createHitmapFromImageBytes } from '../rendering'
 import { method, int } from '../../common/types'
 import { CollisionsComponent } from '../components/collisions'
-import { Sound } from '../audio'
+import { Sound, SoundInstance } from '../audio'
 import { logger } from '../logging'
 
 export class Animo extends DisplayType<AnimoDefinition> {
@@ -22,7 +22,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private currentFrame: number = 0
     private currentEvent: Event | null = null
 
-    private loopsDone: number = 0
+    private loopsDone = new Map<Event, number>() // piklib would store it in event's struct
+    private playingBackwards: boolean = false
+    private lastSound: SoundInstance | null = null
     private isPaused: boolean = false
     private buttonInteractArea: Graphics | null = null
 
@@ -230,14 +232,27 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
-        const nextFrame = this.currentFrame + 1
+        if (this.playingBackwards) {
+            await this.previousFrame(event)
+        } else {
+            await this.nextFrame(event)
+        }
+    }
+
+    private async nextFrame(event: Event) {
+        const frame = this.currentFrame
+        const nextFrame = frame + 1
 
         if (event.loopFramesEndIndex === 0) {
             if (nextFrame >= event.framesCount) {
-                await this.stop(true)
-            } else {
-                await this.showFrame(event, nextFrame)
+                if (!this.hasAnimoFlag(AnimoFlags.NEXT_EVENT_AT_END)) {
+                    await this.stop(true)
+                } else if (!(await this.switchToNextEvent(event))) {
+                    await this.showFrame(event, frame)
+                }
+                return
             }
+            await this.showFrame(event, nextFrame)
             return
         }
 
@@ -249,18 +264,115 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
-        if (event.loopRepeatsCount !== 0 && ++this.loopsDone >= event.loopRepeatsCount) {
-            this.loopsDone = 0
-            await this.stop(true)
+        if (this.hasEventFlag(event, EventFlags.PING_PONG)) {
+            this.playingBackwards = true
+            await this.showFrame(event, frame - 1)
+            return
+        }
 
-            // still shows the frame after the loop end
-            if (!this.isPlaying && this.currentEvent === event && nextFrame < event.framesCount) {
-                await this.showFrame(event, nextFrame)
+        if (!this.hasEventFlag(event, EventFlags.LOOP_WHILE_SOUND) || this.isSoundPlaying()) {
+            if (event.loopRepeatsCount !== 0) {
+                const loopsDone = (this.loopsDone.get(event) ?? 0) + 1
+                if (loopsDone >= event.loopRepeatsCount) {
+                    this.loopsDone.set(event, 0)
+                    await this.stop(true)
+                    await this.showFrameAfterStop(event, nextFrame)
+                    return
+                }
+                this.loopsDone.set(event, loopsDone)
+            }
+            await this.showFrame(event, event.loopFramesStartIndex)
+            return
+        }
+
+        if (nextFrame >= event.framesCount) {
+            if (!this.hasAnimoFlag(AnimoFlags.NEXT_EVENT_AT_END) || !(await this.switchToNextEvent(event))) {
+                await this.stop(true)
             }
             return
         }
 
-        await this.showFrame(event, event.loopFramesStartIndex)
+        if (frame + 2 < event.framesCount) {
+            await this.showFrame(event, frame + 2)
+            return
+        }
+
+        if (!this.hasAnimoFlag(AnimoFlags.NEXT_EVENT_AT_END)) {
+            await this.stop(true)
+            await this.showFrameAfterStop(event, nextFrame)
+        } else if (!(await this.switchToNextEvent(event))) {
+            await this.showFrame(event, nextFrame)
+        }
+    }
+
+    private async previousFrame(event: Event) {
+        const frame = this.currentFrame
+        const previousFrame = frame - 1
+
+        if (event.loopFramesEndIndex === 0) {
+            if (previousFrame < 0) {
+                await this.stop(true)
+            } else {
+                await this.showFrame(event, previousFrame)
+            }
+            return
+        }
+
+        if (previousFrame >= event.loopFramesStartIndex) {
+            await this.showFrame(event, previousFrame)
+            return
+        }
+
+        if (this.hasEventFlag(event, EventFlags.PING_PONG)) {
+            this.playingBackwards = false
+            await this.showFrame(event, frame + 1)
+            return
+        }
+
+        if (this.hasEventFlag(event, EventFlags.LOOP_WHILE_SOUND) && !this.isSoundPlaying()) {
+            if (previousFrame !== 0) {
+                if (previousFrame >= 0) {
+                    await this.showFrame(event, previousFrame)
+                }
+                return
+            }
+            await this.stop(true)
+            await this.showFrameAfterStop(event, event.loopFramesEndIndex)
+            return
+        }
+
+        await this.showFrame(event, event.loopFramesEndIndex)
+    }
+
+    // ONSTARTED not called on purpose (like in piklib)
+    private async switchToNextEvent(event: Event) {
+        assert(this.annFile !== null)
+        const nextEvent = this.annFile.events[this.annFile.events.indexOf(event) + 1]
+        if (nextEvent === undefined || nextEvent.framesCount === 0) {
+            return false
+        }
+        this.currentEvent = nextEvent
+        await this.showFrame(nextEvent, 0)
+        return true
+    }
+
+    private async showFrameAfterStop(event: Event, frameIdx: number) {
+        if (!this.isPlaying && this.currentEvent === event && frameIdx < event.framesCount) {
+            await this.showFrame(event, frameIdx)
+        }
+    }
+
+    private hasAnimoFlag(flag: number) {
+        assert(this.annFile !== null)
+        return (this.annFile.header.flags & flag) !== 0
+    }
+
+    private hasEventFlag(event: Event, flag: number) {
+        return (event.flags & flag) !== 0
+    }
+
+    private isSoundPlaying() {
+        return this.lastSound?.isPlaying ?? false
     }
 
     private async showFrame(event: Event, frameIdx: number) {
@@ -291,7 +403,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
                     animo: this,
                 })
                 const sound = this.sounds.get(randomFilename)!
-                sound.play()
+                this.lastSound = sound.play()
             }
         }
     }
@@ -390,7 +502,15 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
-        this.loopsDone = 0
+        const noAnimoInterrupt = this.hasAnimoFlag(AnimoFlags.NO_INTERRUPT)
+        const noEventInterrupt = this.currentEvent !== null && this.hasEventFlag(this.currentEvent, EventFlags.NO_INTERRUPT)
+        if (this.isPlaying && (noAnimoInterrupt || noEventInterrupt)) {
+            return
+        }
+
+        if (this.currentEvent !== null) {
+            this.loopsDone.set(this.currentEvent, 0)
+        }
         this.isPaused = false
         this.isPlaying = true
 
@@ -829,7 +949,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         clone.isPlaying = this.isPlaying
         clone.currentFrame = this.currentFrame
         clone.isPaused = this.isPaused
-        clone.loopsDone = this.loopsDone
+        clone.loopsDone = new Map(this.loopsDone)
+        clone.playingBackwards = this.playingBackwards
         clone.currentEvent = this.currentEvent
         clone.annFile = this.annFile
         clone.textures = this.textures

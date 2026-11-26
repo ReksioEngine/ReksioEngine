@@ -4,16 +4,25 @@ import { CompressionType } from '../compression'
 
 const decoder = new TextDecoder()
 
+export enum AnimoFlags {
+    NEXT_EVENT_AT_END = 0x800000,
+    STREAM_SOUNDS = 0x400000,
+    NO_INTERRUPT = 0x40000, // can't be interrupted by PLAY
+}
+
+export enum EventFlags {
+    PING_PONG = 0x20000,
+    LOOP_WHILE_SOUND = 0x100000,
+    NO_INTERRUPT = 0x40000, // can't be interrupted by PLAY
+}
+
 export interface AnnHeader {
     framesCount: number
     bpp: number
     eventsCount: number
     sfxBankFileName: string // e.g. game1.sfx
     fps: number
-    // 0x800000 - go to the next event when an event ends
-    // 0x400000 - stream the frame sounds instead of preloading
-    // 0x40000  - the playing event can't be interrupted by PLAY
-    flags: number
+    flags: AnimoFlags
     transparency: number
     randomFramesNumber: number
     author: string
@@ -27,10 +36,7 @@ export interface Event {
     loopFramesEndIndex: number
     loopRepeatsCount: number // 0 = loop forever
     fps: number // not used?
-    // 0x20000  - ping-pong at the loop end instead of jumping to the loop start
-    // 0x100000 - loop only while the sound of the frame is playing
-    // 0x40000  - the event can't be interrupted by PLAY
-    flags: number
+    flags: EventFlags
     transparency: number
 
     framesImageMapping: number[]
