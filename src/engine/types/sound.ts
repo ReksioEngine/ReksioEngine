@@ -40,6 +40,7 @@ export class Sound extends Type<SoundDefinition> {
     @method()
     PLAY(arg?: string) {
         assert(this.sound !== null)
+        this.sound.stop()
         this.sound.play({
             onStart: this.onStart.bind(this),
             onEnd: this.onEnd.bind(this),
