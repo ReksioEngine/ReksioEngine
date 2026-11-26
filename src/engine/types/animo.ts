@@ -22,7 +22,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
     private currentFrame: number = 0
     private currentEvent: Event | null = null
 
-    private eventEndedLastTick: Event | null = null
+    private loopsDone: number = 0
+    private isPaused: boolean = false
     private buttonInteractArea: Graphics | null = null
 
     private fps: number = 16
@@ -229,15 +230,44 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
-        if (this.eventEndedLastTick === this.currentEvent) {
-            this.eventEndedLastTick = null
-            await this.stop(true)
+        const nextFrame = this.currentFrame + 1
+
+        if (event.loopFramesEndIndex === 0) {
+            if (nextFrame >= event.framesCount) {
+                await this.stop(true)
+            } else {
+                await this.showFrame(event, nextFrame)
+            }
             return
         }
 
-        await this.changeFrame(event, this.currentFrame)
+        if (nextFrame <= event.loopFramesEndIndex) {
+            // event with the loop end past its last frame never finishes
+            if (nextFrame < event.framesCount) {
+                await this.showFrame(event, nextFrame)
+            }
+            return
+        }
 
-        if (this.currentFrame === 0) {
+        if (event.loopRepeatsCount !== 0 && ++this.loopsDone >= event.loopRepeatsCount) {
+            this.loopsDone = 0
+            await this.stop(true)
+
+            // still shows the frame after the loop end
+            if (!this.isPlaying && this.currentEvent === event && nextFrame < event.framesCount) {
+                await this.showFrame(event, nextFrame)
+            }
+            return
+        }
+
+        await this.showFrame(event, event.loopFramesStartIndex)
+    }
+
+    private async showFrame(event: Event, frameIdx: number) {
+        this.currentFrame = frameIdx
+        await this.changeFrame(event, frameIdx)
+
+        if (frameIdx === 0) {
             await this.ONSTARTED()
         }
 
@@ -255,7 +285,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
         }
 
         // Random sound out of them?
-        const eventFrame = event.frames[this.currentFrame]
+        const eventFrame = event.frames[frameIdx]
         if (eventFrame.sounds.length > 0) {
             const filenames = eventFrame.sounds
             const randomFilename = filenames[Math.floor(Math.random() * filenames.length)]
@@ -267,16 +297,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
                 const sound = this.sounds.get(randomFilename)!
                 sound.play()
             }
-        }
-
-        if (event.loopFramesEndIndex !== 0 && this.currentFrame === event.loopFramesEndIndex) {
-            // TODO: handle event.loopRepeatsCount
-            this.currentFrame = event.loopFramesStartIndex
-        } else if (this.currentFrame + 1 >= event.framesCount) {
-            this.currentFrame = 0
-            this.eventEndedLastTick = this.currentEvent
-        } else {
-            this.currentFrame++
         }
     }
 
@@ -354,8 +374,9 @@ export class Animo extends DisplayType<AnimoDefinition> {
     @method()
     async PLAY(name?: string) {
         if (name === undefined) {
-            this.SHOW()
-            this.RESUME()
+            if (this.currentEvent !== null) {
+                await this.playEvent(this.currentEvent.name)
+            }
             return
         }
 
@@ -374,19 +395,18 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
-        this.eventEndedLastTick = null
+        this.loopsDone = 0
+        this.isPaused = false
         this.isPlaying = true
 
         assert(this.sprite !== null)
         this.sprite.visible = true
 
-        this.currentFrame = 0
-        this.currentEvent = this.getEvent(name)
+        this.currentEvent = event
 
         // Animation could be paused before next tick, and it wouldn't render new frame
-        // Tick animation so that it's not signaling twice for 0 frame
         // + it has to call ONSTARTED instantly
-        await this.tickAnimation()
+        await this.showFrame(event, 0)
     }
 
     private async forceRender() {
@@ -417,6 +437,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
     async stop(shouldSignal: boolean) {
         this.isPlaying = false
         this.currentFrame = 0
+        this.isPaused = false
         if (shouldSignal) {
             await this.ONFINISHED()
         }
@@ -424,12 +445,18 @@ export class Animo extends DisplayType<AnimoDefinition> {
 
     @method()
     PAUSE() {
-        this.isPlaying = false
+        if (this.isPlaying) {
+            this.isPlaying = false
+            this.isPaused = true
+        }
     }
 
     @method()
     RESUME() {
-        this.isPlaying = true
+        if (this.isPaused) {
+            this.isPaused = false
+            this.isPlaying = true
+        }
     }
 
     @method()
@@ -806,6 +833,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const clone = (await super.clone()) as Animo
         clone.isPlaying = this.isPlaying
         clone.currentFrame = this.currentFrame
+        clone.isPaused = this.isPaused
+        clone.loopsDone = this.loopsDone
         clone.currentEvent = this.currentEvent
         clone.annFile = this.annFile
         clone.textures = this.textures
