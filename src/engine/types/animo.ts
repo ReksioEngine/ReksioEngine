@@ -387,7 +387,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         const event = this.getEvent(name)
         assert(event !== null)
         if (event.framesCount === 0) {
-            await this.ONFINISHED()
             return
         }
 
