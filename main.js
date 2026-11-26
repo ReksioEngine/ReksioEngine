@@ -38646,6 +38646,7 @@ let Sound = (() => {
         // This argument is "PLAY" for kurator in intro for some reason
         PLAY(arg) {
             (0, errors_1.assert)(this.sound !== null);
+            this.sound.stop();
             this.sound.play({
                 onStart: this.onStart.bind(this),
                 onEnd: this.onEnd.bind(this),
