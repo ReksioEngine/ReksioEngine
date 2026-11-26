@@ -267,10 +267,6 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.currentFrame = frameIdx
         await this.changeFrame(event, frameIdx)
 
-        if (frameIdx === 0) {
-            await this.ONSTARTED()
-        }
-
         // Animation might get stopped in ONFRAMECHANGED callback like in UFO:S65_ZAMEK
         // If we wouldn't return there then if ONFINISHED has PLAY then it will never stop running
         // because PLAY is changing isPlaying back to true
@@ -278,7 +274,7 @@ export class Animo extends DisplayType<AnimoDefinition> {
             return
         }
 
-        // Event might be changed in ONFRAMECHANGED or ONSTARTED
+        // Event might be changed in ONFRAMECHANGED
         // event.name might be lowercase
         if (event !== this.currentEvent) {
             return
@@ -405,8 +401,8 @@ export class Animo extends DisplayType<AnimoDefinition> {
         this.currentEvent = event
 
         // Animation could be paused before next tick, and it wouldn't render new frame
-        // + it has to call ONSTARTED instantly
         await this.showFrame(event, 0)
+        await this.ONSTARTED()
     }
 
     private async forceRender() {
