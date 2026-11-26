@@ -32936,6 +32936,7 @@ const index_1 = __webpack_require__(/*! ./index */ "./src/engine/types/index.ts"
 const errors_1 = __webpack_require__(/*! ../../common/errors */ "./src/common/errors.ts");
 const PIXI = __importStar(__webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js"));
 const pixi_js_1 = __webpack_require__(/*! pixi.js */ "./node_modules/pixi.js/lib/index.js");
+const ann_1 = __webpack_require__(/*! ../../fileFormats/ann */ "./src/fileFormats/ann/index.ts");
 const button_1 = __webpack_require__(/*! ../components/button */ "./src/engine/components/button.ts");
 const assetsLoader_1 = __webpack_require__(/*! ../../filesystem/assetsLoader */ "./src/filesystem/assetsLoader.ts");
 const fileLoader_1 = __webpack_require__(/*! ../../filesystem/fileLoader */ "./src/filesystem/fileLoader.ts");
@@ -33061,7 +33062,10 @@ let Animo = (() => {
         isPlaying = false;
         currentFrame = 0;
         currentEvent = null;
-        eventEndedLastTick = null;
+        loopsDone = new Map(); // piklib would store it in event's struct
+        playingBackwards = false;
+        lastSound = null;
+        isPaused = false;
         buttonInteractArea = null;
         fps = 16;
         timeSinceLastFrame = 0;
@@ -33224,28 +33228,149 @@ let Animo = (() => {
             if (!event) {
                 return;
             }
-            if (this.eventEndedLastTick === this.currentEvent) {
-                this.eventEndedLastTick = null;
-                await this.stop(true);
+            if (this.playingBackwards) {
+                await this.previousFrame(event);
+            }
+            else {
+                await this.nextFrame(event);
+            }
+        }
+        async nextFrame(event) {
+            const frame = this.currentFrame;
+            const nextFrame = frame + 1;
+            if (event.loopFramesEndIndex === 0) {
+                if (nextFrame >= event.framesCount) {
+                    if (!this.hasAnimoFlag(ann_1.AnimoFlags.NEXT_EVENT_AT_END)) {
+                        await this.stop(true);
+                    }
+                    else if (!(await this.switchToNextEvent(event))) {
+                        await this.showFrame(event, frame);
+                    }
+                    return;
+                }
+                await this.showFrame(event, nextFrame);
                 return;
             }
-            await this.changeFrame(event, this.currentFrame);
-            if (this.currentFrame === 0) {
-                await this.ONSTARTED();
+            if (nextFrame <= event.loopFramesEndIndex) {
+                // event with the loop end past its last frame never finishes
+                if (nextFrame < event.framesCount) {
+                    await this.showFrame(event, nextFrame);
+                }
+                return;
             }
+            if (this.hasEventFlag(event, ann_1.EventFlags.PING_PONG)) {
+                this.playingBackwards = true;
+                await this.showFrame(event, frame - 1);
+                return;
+            }
+            if (!this.hasEventFlag(event, ann_1.EventFlags.LOOP_WHILE_SOUND) || this.isSoundPlaying()) {
+                if (event.loopRepeatsCount !== 0) {
+                    const loopsDone = (this.loopsDone.get(event) ?? 0) + 1;
+                    if (loopsDone >= event.loopRepeatsCount) {
+                        this.loopsDone.set(event, 0);
+                        await this.stop(true);
+                        await this.showFrameAfterStop(event, nextFrame);
+                        return;
+                    }
+                    this.loopsDone.set(event, loopsDone);
+                }
+                await this.showFrame(event, event.loopFramesStartIndex);
+                return;
+            }
+            if (nextFrame >= event.framesCount) {
+                if (!this.hasAnimoFlag(ann_1.AnimoFlags.NEXT_EVENT_AT_END) || !(await this.switchToNextEvent(event))) {
+                    await this.stop(true);
+                }
+                return;
+            }
+            if (frame + 2 < event.framesCount) {
+                await this.showFrame(event, frame + 2);
+                return;
+            }
+            if (!this.hasAnimoFlag(ann_1.AnimoFlags.NEXT_EVENT_AT_END)) {
+                await this.stop(true);
+                await this.showFrameAfterStop(event, nextFrame);
+            }
+            else if (!(await this.switchToNextEvent(event))) {
+                await this.showFrame(event, nextFrame);
+            }
+        }
+        async previousFrame(event) {
+            const frame = this.currentFrame;
+            const previousFrame = frame - 1;
+            if (event.loopFramesEndIndex === 0) {
+                if (previousFrame < 0) {
+                    await this.stop(true);
+                }
+                else {
+                    await this.showFrame(event, previousFrame);
+                }
+                return;
+            }
+            if (previousFrame >= event.loopFramesStartIndex) {
+                await this.showFrame(event, previousFrame);
+                return;
+            }
+            if (this.hasEventFlag(event, ann_1.EventFlags.PING_PONG)) {
+                this.playingBackwards = false;
+                await this.showFrame(event, frame + 1);
+                return;
+            }
+            if (this.hasEventFlag(event, ann_1.EventFlags.LOOP_WHILE_SOUND) && !this.isSoundPlaying()) {
+                if (previousFrame !== 0) {
+                    if (previousFrame >= 0) {
+                        await this.showFrame(event, previousFrame);
+                    }
+                    return;
+                }
+                await this.stop(true);
+                await this.showFrameAfterStop(event, event.loopFramesEndIndex);
+                return;
+            }
+            await this.showFrame(event, event.loopFramesEndIndex);
+        }
+        // ONSTARTED not called on purpose (like in piklib)
+        async switchToNextEvent(event) {
+            (0, errors_1.assert)(this.annFile !== null);
+            const nextEvent = this.annFile.events[this.annFile.events.indexOf(event) + 1];
+            if (nextEvent === undefined || nextEvent.framesCount === 0) {
+                return false;
+            }
+            this.currentEvent = nextEvent;
+            await this.showFrame(nextEvent, 0);
+            return true;
+        }
+        async showFrameAfterStop(event, frameIdx) {
+            if (!this.isPlaying && this.currentEvent === event && frameIdx < event.framesCount) {
+                await this.showFrame(event, frameIdx);
+            }
+        }
+        hasAnimoFlag(flag) {
+            (0, errors_1.assert)(this.annFile !== null);
+            return (this.annFile.header.flags & flag) !== 0;
+        }
+        hasEventFlag(event, flag) {
+            return (event.flags & flag) !== 0;
+        }
+        isSoundPlaying() {
+            return this.lastSound?.isPlaying ?? false;
+        }
+        async showFrame(event, frameIdx) {
+            this.currentFrame = frameIdx;
+            await this.changeFrame(event, frameIdx);
             // Animation might get stopped in ONFRAMECHANGED callback like in UFO:S65_ZAMEK
             // If we wouldn't return there then if ONFINISHED has PLAY then it will never stop running
             // because PLAY is changing isPlaying back to true
             if (!this.isPlaying) {
                 return;
             }
-            // Event might be changed in ONFRAMECHANGED or ONSTARTED
+            // Event might be changed in ONFRAMECHANGED
             // event.name might be lowercase
             if (event !== this.currentEvent) {
                 return;
             }
             // Random sound out of them?
-            const eventFrame = event.frames[this.currentFrame];
+            const eventFrame = event.frames[frameIdx];
             if (eventFrame.sounds.length > 0) {
                 const filenames = eventFrame.sounds;
                 const randomFilename = filenames[Math.floor(Math.random() * filenames.length)];
@@ -33254,19 +33379,8 @@ let Animo = (() => {
                         animo: this,
                     });
                     const sound = this.sounds.get(randomFilename);
-                    sound.play();
+                    this.lastSound = sound.play();
                 }
-            }
-            if (event.loopFramesEndIndex !== 0 && this.currentFrame === event.loopFramesEndIndex) {
-                // TODO: handle event.loopRepeatsCount
-                this.currentFrame = event.loopFramesStartIndex;
-            }
-            else if (this.currentFrame + 1 >= event.framesCount) {
-                this.currentFrame = 0;
-                this.eventEndedLastTick = this.currentEvent;
-            }
-            else {
-                this.currentFrame++;
             }
         }
         syncPosition() {
@@ -33327,8 +33441,9 @@ let Animo = (() => {
         }
         async PLAY(name) {
             if (name === undefined) {
-                this.SHOW();
-                this.RESUME();
+                if (this.currentEvent !== null) {
+                    await this.playEvent(this.currentEvent.name);
+                }
                 return;
             }
             await this.playEvent(name);
@@ -33340,19 +33455,24 @@ let Animo = (() => {
             const event = this.getEvent(name);
             (0, errors_1.assert)(event !== null);
             if (event.framesCount === 0) {
-                await this.ONFINISHED();
                 return;
             }
-            this.eventEndedLastTick = null;
+            const noAnimoInterrupt = this.hasAnimoFlag(ann_1.AnimoFlags.NO_INTERRUPT);
+            const noEventInterrupt = this.currentEvent !== null && this.hasEventFlag(this.currentEvent, ann_1.EventFlags.NO_INTERRUPT);
+            if (this.isPlaying && (noAnimoInterrupt || noEventInterrupt)) {
+                return;
+            }
+            if (this.currentEvent !== null) {
+                this.loopsDone.set(this.currentEvent, 0);
+            }
+            this.isPaused = false;
             this.isPlaying = true;
             (0, errors_1.assert)(this.sprite !== null);
             this.sprite.visible = true;
-            this.currentFrame = 0;
-            this.currentEvent = this.getEvent(name);
+            this.currentEvent = event;
             // Animation could be paused before next tick, and it wouldn't render new frame
-            // Tick animation so that it's not signaling twice for 0 frame
-            // + it has to call ONSTARTED instantly
-            await this.tickAnimation();
+            await this.showFrame(event, 0);
+            await this.ONSTARTED();
         }
         async forceRender() {
             (0, errors_1.assert)(this.currentEvent !== null);
@@ -33377,15 +33497,22 @@ let Animo = (() => {
         async stop(shouldSignal) {
             this.isPlaying = false;
             this.currentFrame = 0;
+            this.isPaused = false;
             if (shouldSignal) {
                 await this.ONFINISHED();
             }
         }
         PAUSE() {
-            this.isPlaying = false;
+            if (this.isPlaying) {
+                this.isPlaying = false;
+                this.isPaused = true;
+            }
         }
         RESUME() {
-            this.isPlaying = true;
+            if (this.isPaused) {
+                this.isPaused = false;
+                this.isPlaying = true;
+            }
         }
         SETANCHOR(anchor) {
             (0, errors_1.assert)(this.sprite !== null);
@@ -33647,6 +33774,9 @@ let Animo = (() => {
         async LOAD(path) {
             this.destroy();
             this.annFile = await this.loadAnimation(path);
+            // New maps instead of clear because clones still use the cache
+            this.textures = new Map();
+            this.hitmaps = new Map();
             await this.initSprite();
         }
         // Only triggered on explicit position change
@@ -33674,6 +33804,9 @@ let Animo = (() => {
             const clone = (await super.clone());
             clone.isPlaying = this.isPlaying;
             clone.currentFrame = this.currentFrame;
+            clone.isPaused = this.isPaused;
+            clone.loopsDone = new Map(this.loopsDone);
+            clone.playingBackwards = this.playingBackwards;
             clone.currentEvent = this.currentEvent;
             clone.annFile = this.annFile;
             clone.textures = this.textures;
@@ -35556,7 +35689,8 @@ let Database = (() => {
                 const newEntry = await this.baseStruct.clone();
                 for (let i = 0; i < structFieldsNames.length; i++) {
                     const cell = fieldContents[i];
-                    await newEntry.setField(structFieldsNames[i], cell === 'NULL' ? null : cell);
+                    const isString = this.baseStruct.structure.get(structFieldsNames[i]) === 'STRING';
+                    await newEntry.setField(structFieldsNames[i], cell === 'NULL' && !isString ? null : cell);
                 }
                 this.content.push(newEntry);
             }
@@ -38068,6 +38202,7 @@ const assetsLoader_1 = __webpack_require__(/*! ../../filesystem/assetsLoader */ 
 const definitionLoader_1 = __webpack_require__(/*! ../../filesystem/definitionLoader */ "./src/filesystem/definitionLoader.ts");
 const types_1 = __webpack_require__(/*! ../../common/types */ "./src/common/types.ts");
 const logging_1 = __webpack_require__(/*! ../logging */ "./src/engine/logging.ts");
+const sound_1 = __webpack_require__(/*! ./sound */ "./src/engine/types/sound.ts");
 const paramsCharacterSet = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz{|}~';
 let Sequence = (() => {
     let _classSuper = index_1.Type;
@@ -38301,7 +38436,7 @@ let Sequence = (() => {
                     logging_1.logger.debug(`Playing sound '${speaking.WAVFN}'`, {
                         sequence: this,
                     });
-                    const sound = this.sounds.get(speaking.WAVFN);
+                    const sound = this.getSpeakingSound(speaking.WAVFN);
                     if (sound) {
                         this.playingSound = sound.play({
                             onEnd: () => {
@@ -38348,6 +38483,13 @@ let Sequence = (() => {
                     await this.playAnimoEvent(eventName);
                 }
             }
+        }
+        getSpeakingSound(wavfn) {
+            const object = this.getObject(wavfn);
+            if (object instanceof sound_1.Sound) {
+                return object.audio;
+            }
+            return this.sounds.get(wavfn) ?? null;
         }
         async playAnimoEvent(eventName) {
             this.currentAnimoEvent = eventName;
@@ -38481,6 +38623,9 @@ let Sound = (() => {
             while (this.callbacksQueue.length > 0) {
                 await this.callbacks.run(this.callbacksQueue.shift());
             }
+        }
+        get audio() {
+            return this.sound;
         }
         destroy() {
             if (this.sound !== null) {
@@ -39630,26 +39775,38 @@ exports.World = World;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.loadAnn = void 0;
+exports.loadAnn = exports.EventFlags = exports.AnimoFlags = void 0;
 const utils_1 = __webpack_require__(/*! ../utils */ "./src/fileFormats/utils.ts");
 const img_1 = __webpack_require__(/*! ../img */ "./src/fileFormats/img/index.ts");
 const compression_1 = __webpack_require__(/*! ../compression */ "./src/fileFormats/compression/index.ts");
 const decoder = new TextDecoder();
+var AnimoFlags;
+(function (AnimoFlags) {
+    AnimoFlags[AnimoFlags["NEXT_EVENT_AT_END"] = 8388608] = "NEXT_EVENT_AT_END";
+    AnimoFlags[AnimoFlags["STREAM_SOUNDS"] = 4194304] = "STREAM_SOUNDS";
+    AnimoFlags[AnimoFlags["NO_INTERRUPT"] = 262144] = "NO_INTERRUPT";
+})(AnimoFlags || (exports.AnimoFlags = AnimoFlags = {}));
+var EventFlags;
+(function (EventFlags) {
+    EventFlags[EventFlags["PING_PONG"] = 131072] = "PING_PONG";
+    EventFlags[EventFlags["LOOP_WHILE_SOUND"] = 1048576] = "LOOP_WHILE_SOUND";
+    EventFlags[EventFlags["NO_INTERRUPT"] = 262144] = "NO_INTERRUPT";
+})(EventFlags || (exports.EventFlags = EventFlags = {}));
 const parseHeader = (view) => {
     const magic = view.getUint32();
-    if (magic != 0x50564e) {
+    if (magic !== 0x50564e) {
         throw new Error('Not an image');
     }
     const ann = {};
     ann.framesCount = view.getUint16();
     ann.bpp = view.getUint16();
     ann.eventsCount = view.getUint16();
-    (0, utils_1.stringUntilNull)(decoder.decode(view.read(0xd)));
+    ann.sfxBankFileName = (0, utils_1.stringUntilNull)(decoder.decode(view.read(0xd)));
     ann.fps = view.getUint32();
     ann.flags = view.getUint32();
     ann.transparency = view.getUint8();
     ann.randomFramesNumber = view.getUint16();
-    view.skip(0xa);
+    view.skip(0xa); // uninitialized memory
     const authorLen = view.getUint32();
     ann.author = decoder.decode(view.read(authorLen));
     const descriptionLen = view.getUint32();
@@ -39659,25 +39816,28 @@ const parseHeader = (view) => {
 const parseFrame = (view) => {
     const frame = {};
     frame.hasName = view.getUint32();
-    const hasUnknownData = view.getUint32();
-    if (hasUnknownData !== 0) {
-        const dataLen = view.getUint32();
-        view.skip(dataLen);
-    }
+    frame.hasExtraString = view.getUint32();
     frame.positionX = view.getInt16();
     frame.positionY = view.getInt16();
-    view.skip(4);
+    view.skip(4); // always -1
     frame.hasSounds = view.getUint32();
-    view.skip(4);
+    view.skip(4); // unused?
     frame.transparency = view.getUint8();
-    view.skip(1);
-    view.skip(4);
+    view.getUint8(); // unused?
+    view.getUint32(); // unused?
     if (frame.hasName !== 0) {
         const nameSize = view.getUint32();
         frame.name = (0, utils_1.stringUntilNull)(decoder.decode(view.read(nameSize)));
     }
     else {
         frame.name = '';
+    }
+    if (frame.hasExtraString !== 0) {
+        const extraSize = view.getUint32();
+        frame.extraString = (0, utils_1.stringUntilNull)(decoder.decode(view.read(extraSize)));
+    }
+    else {
+        frame.extraString = '';
     }
     if (frame.hasSounds !== 0) {
         const soundsLen = view.getUint32();
@@ -39694,19 +39854,15 @@ const parseEvent = (view) => {
     const event = {};
     event.name = (0, utils_1.stringUntilNull)(decoder.decode(view.read(0x20)));
     event.framesCount = view.getUint16();
-    view.getUint32(); // frame mapping buffer pointer? I think they just write runtime values here and its doesn't matter for a file format.
+    view.getUint32(); // pointer to the frame mapping, runtime only
     event.loopFramesStartIndex = view.getUint16();
     event.loopFramesEndIndex = view.getUint16();
     event.loopRepeatsCount = view.getUint16();
-    view.skip(0x2); // alignment padding
+    view.getUint16(); // counter of the loops done, runtime value
     event.fps = view.getUint32();
-    // flags & 0x20000 - causes direction flip (ping-pong style) instead of jumping,
-    // doesn't seem to care about loopAllowedRepeats
-    // flags & 0x100000 - should wait for sound to stop playing?
-    // flags & 0x800000 - advance to the next event at event end?
     event.flags = view.getUint32();
     event.transparency = view.getUint8();
-    view.skip(0xc);
+    view.skip(0xc); // unused
     event.framesImageMapping = [];
     for (let i = 0; i < event.framesCount; i++) {
         event.framesImageMapping.push(view.getUint16());
@@ -39725,10 +39881,12 @@ const parseAnnImage = (view) => {
     img.positionY = view.getInt16();
     img.compressionType = view.getUint16();
     img.imageLen = view.getUint32();
-    const someDataLen = view.getUint16(); // some size, happens to be 4
-    view.read(someDataLen); // some data, the size is for data here
-    view.skip(12 - someDataLen);
-    img.alphaLen = view.getUint32();
+    img.channelsCount = view.getUint16();
+    img.channelSizes = [];
+    for (let i = 0; i < 4; i++) {
+        img.channelSizes.push(view.getUint32());
+    }
+    img.alphaLen = img.channelSizes[3];
     img.name = (0, utils_1.stringUntilNull)(decoder.decode(view.read(0x14)));
     return img;
 };
@@ -40159,6 +40317,7 @@ const AnimoStructure = {
     ONSTARTED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONFRAMECHANGED: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONCOLLISION: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
+    ONSIGNAL: (0, common_1.optional)((0, common_1.callbacks)(common_1.string)),
     ONFOCUSON: (0, common_1.optional)(common_1.callback),
     ONFOCUSOFF: (0, common_1.optional)(common_1.callback),
     ONCLICK: (0, common_1.optional)(common_1.callback),
